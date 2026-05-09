@@ -1,0 +1,177 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { Button } from "@/components/common/Button";
+import { appRoutes } from "@/constants/navigation";
+import {
+  minimumRatingOptions,
+  providerAvailabilityOptions,
+  providerAveragePrices,
+  providerCategories,
+  providerDistricts,
+} from "@/constants/providers";
+
+export type ProviderFilterValues = {
+  category?: string;
+  district?: string;
+  price?: string;
+  rating?: string;
+  availability?: string;
+};
+
+type ProviderFiltersProps = {
+  values?: ProviderFilterValues;
+  compact?: boolean;
+  categories?: string[];
+  districts?: string[];
+  averagePrices?: string[];
+  availabilityOptions?: string[];
+};
+
+function FilterField({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <label className="block min-w-0 cursor-default select-none">
+      <span className="block cursor-default select-none whitespace-nowrap text-xs font-black uppercase text-[var(--muted)]">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+const selectClassName =
+  "mt-2 h-12 w-full min-w-[10rem] cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+
+export function ProviderFilters({
+  values,
+  compact = false,
+  categories = providerCategories,
+  districts = providerDistricts,
+  averagePrices = providerAveragePrices,
+  availabilityOptions = providerAvailabilityOptions,
+}: ProviderFiltersProps) {
+  if (compact) {
+    return (
+      <form
+        action={appRoutes.providers}
+        className="cursor-default rounded-lg bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
+      >
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-[minmax(12rem,1fr)_minmax(12rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
+          <FilterField label="İhtiyacını belirle">
+            <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
+              <option value="">Tüm kategoriler</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+
+          <FilterField label="İlçeni belirle">
+            <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
+              <option value="">Tüm ilçeler</option>
+              {districts.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+
+          <Button className="h-12 min-h-12 w-full whitespace-nowrap rounded-md px-7 xl:w-fit" type="submit">
+            Usta Bul
+          </Button>
+        </div>
+      </form>
+    );
+  }
+
+  return (
+    <form
+      action={appRoutes.providers}
+      className="cursor-default rounded-lg bg-white p-4 shadow-[0_22px_58px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:p-6"
+    >
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="cursor-default select-none">
+          <p className="text-lg font-black leading-tight text-[var(--brand-navy)]">Usta Bul</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
+            Hizmetini ve ilçeni seç; fiyat aralığı, puan ve uygunluğa göre profilleri daralt.
+          </p>
+        </div>
+        <Link
+          className="cursor-pointer text-sm font-black text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+          href={appRoutes.providers}
+        >
+          Filtreleri temizle
+        </Link>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5 xl:items-end">
+        <FilterField label="İhtiyacını belirle">
+          <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
+            <option value="">Tüm kategoriler</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+
+        <FilterField label="İlçeni belirle">
+          <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
+            <option value="">Tüm ilçeler</option>
+            {districts.map((district) => (
+              <option key={district} value={district}>
+                {district}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+
+        <FilterField label="Fiyat aralığı">
+          <select className={selectClassName} defaultValue={values?.price ?? ""} name="price">
+            <option value="">Tüm fiyatlar</option>
+            {averagePrices.map((price) => (
+              <option key={price} value={price}>
+                {price}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+
+        <FilterField label="Minimum puan">
+          <select className={selectClassName} defaultValue={values?.rating ?? ""} name="rating">
+            <option value="">Tüm puanlar</option>
+            {minimumRatingOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+
+        <Button className="h-12 min-h-12 w-full whitespace-nowrap rounded-md px-7" type="submit">
+          Usta Bul
+        </Button>
+
+        <div className="md:col-span-2 xl:col-span-5">
+          <FilterField label="Uygunluk">
+            <select
+              className={selectClassName}
+              defaultValue={values?.availability ?? ""}
+              name="availability"
+            >
+              <option value="">Tüm uygunluklar</option>
+              {availabilityOptions.map((availability) => (
+                <option key={availability} value={availability}>
+                  {availability}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+        </div>
+      </div>
+    </form>
+  );
+}

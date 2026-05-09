@@ -1,0 +1,155 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
+import { Container } from "@/components/common/Container";
+import { ProviderFilters } from "@/components/providers/ProviderFilters";
+import { ProviderList } from "@/components/providers/ProviderList";
+import { appRoutes } from "@/constants/navigation";
+import { services } from "@/constants/services";
+import { getProviderDirectory } from "@/services/providers";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Usta Bul | Fuwu",
+  description:
+    "Ustaları puan, ilçe, fiyat aralığı ve iletişim bilgileriyle tek ekranda karşılaştır.",
+};
+
+type ProvidersPageProps = {
+  searchParams?: Promise<{
+    category?: string | string[];
+    district?: string | string[];
+    price?: string | string[];
+    rating?: string | string[];
+    availability?: string | string[];
+    service?: string | string[];
+    location?: string | string[];
+  }>;
+};
+
+function getSearchParam(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
+
+export default async function ProvidersPage({ searchParams }: ProvidersPageProps) {
+  const params = await searchParams;
+  const selectedCategory = getSearchParam(params?.category) || getSearchParam(params?.service);
+  const selectedDistrict = getSearchParam(params?.district) || getSearchParam(params?.location);
+  const selectedPrice = getSearchParam(params?.price);
+  const selectedRating = getSearchParam(params?.rating);
+  const selectedAvailability = getSearchParam(params?.availability);
+  const providerDirectory = await getProviderDirectory({
+    availability: selectedAvailability,
+    category: selectedCategory,
+    district: selectedDistrict,
+    price: selectedPrice,
+    rating: selectedRating,
+  });
+  const { allProviders, filterOptions, providers: filteredProviders, source } = providerDirectory;
+  const todayActiveCount = allProviders.filter(
+    (provider) => provider.availability === "Bugün uygun",
+  ).length;
+  const todayActiveHref = appRoutes.providers;
+  const heroBadges = [
+    { label: "Bugün uygun ustalar", href: todayActiveHref },
+    { label: "Fiyat aralığı", href: "#provider-filters" },
+    { label: "Doğrudan iletişim", href: "#provider-results" },
+  ];
+  const marketStats = [
+    { value: todayActiveCount, label: "bugün aktif", href: todayActiveHref },
+    { value: services.length, label: "kategori", href: appRoutes.services },
+    { value: filterOptions.districts.length, label: "ilçe", href: appRoutes.providers },
+  ];
+
+  return (
+    <div className="bg-[var(--background)]">
+      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_54%,#F6F7F9_100%)]">
+        <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.035] sm:text-[13rem]" />
+        <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-end lg:py-16">
+          <div className="min-w-0 cursor-default select-none">
+            <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+              <FuwuLogo size="md" />
+            </div>
+            <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+              Usta Bul
+            </p>
+            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-6xl">
+              Ustaları karşılaştır, doğru kararı ver.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
+              Hizmetini ve ilçeni seç; fiyat, puan ve iletişim bilgilerini tek ekranda gör.
+              Karar verdiğinde ustaya doğrudan ulaş.
+            </p>
+            <p className="mt-4 max-w-2xl rounded-md border border-[rgba(255,138,0,0.24)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--muted)]">
+              {source === "supabase"
+                ? "Canlı sağlayıcı kayıtlarını puan, ilçe ve fiyat aralığıyla karşılaştırın; karar verdiğinizde doğrudan iletişime geçin."
+                : "MVP notu: Bu listedeki profiller demo verisidir; canlı doğrulama, ödeme veya hesap sistemi yoktur."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {heroBadges.map((badge) => (
+                <Link
+                  className="cursor-pointer select-none whitespace-nowrap rounded-md bg-white px-3 py-2 text-sm font-black text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                  href={badge.href}
+                  key={badge.label}
+                >
+                  {badge.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="cursor-default select-none rounded-lg bg-white p-5 text-[var(--brand-navy)] shadow-[0_18px_54px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+              Pazaryeri özeti
+            </p>
+            <div className="mt-4 grid grid-cols-3 divide-x divide-[var(--border)] border-y border-[var(--border)] py-4 text-center">
+              {marketStats.map((stat) => (
+                <Link
+                  className="cursor-pointer select-none px-2 transition-colors hover:bg-[var(--brand-orange-soft)]"
+                  href={stat.href}
+                  key={stat.label}
+                >
+                  <p className="text-2xl font-black">{stat.value}</p>
+                  <p className="mt-1 text-xs font-black text-[var(--muted)]">{stat.label}</p>
+                </Link>
+              ))}
+            </div>
+            <Link
+              className="mt-4 inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(255,138,0,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[0_20px_42px_rgba(255,138,0,0.3)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={appRoutes.providerApplication}
+            >
+              Usta Ağına Katıl
+            </Link>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b border-[var(--border)] bg-white" id="provider-filters">
+        <Container className="max-w-7xl py-5 sm:py-6">
+          <ProviderFilters
+            availabilityOptions={filterOptions.availabilityOptions}
+            averagePrices={filterOptions.averagePrices}
+            categories={filterOptions.categories}
+            districts={filterOptions.districts}
+            values={{
+              availability: selectedAvailability,
+              category: selectedCategory,
+              district: selectedDistrict,
+              price: selectedPrice,
+              rating: selectedRating,
+            }}
+          />
+        </Container>
+      </section>
+
+      <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
+        <ProviderList providers={filteredProviders} totalCount={providerDirectory.totalCount} />
+      </Container>
+    </div>
+  );
+}

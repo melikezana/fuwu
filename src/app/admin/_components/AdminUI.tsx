@@ -1,0 +1,295 @@
+import Link from "next/link";
+import type { ComponentType, ReactNode } from "react";
+import {
+  AlertTriangle,
+  ClipboardList,
+  Eye,
+  FileText,
+  LayoutDashboard,
+  Power,
+  PowerOff,
+  ShieldAlert,
+  UserCheck,
+  Users,
+  XCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type AdminNavKey = "dashboard" | "providers" | "applications" | "requests";
+
+type IconComponent = ComponentType<{
+  "aria-hidden"?: boolean;
+  className?: string;
+}>;
+
+type AdminPageShellProps = {
+  active: AdminNavKey;
+  children: ReactNode;
+  description: string;
+  error?: string | null;
+  isConfigured?: boolean;
+  title: string;
+};
+
+type AdminActionButtonProps = {
+  children: ReactNode;
+  icon: IconComponent;
+};
+
+type AdminSummaryCardProps = {
+  href: string;
+  icon: IconComponent;
+  label: string;
+  value: number;
+};
+
+type AdminEmptyStateProps = {
+  children: ReactNode;
+  title: string;
+};
+
+const adminNavItems: Array<{
+  href: string;
+  icon: IconComponent;
+  key: AdminNavKey;
+  label: string;
+}> = [
+  {
+    href: "/admin",
+    icon: LayoutDashboard,
+    key: "dashboard",
+    label: "Genel Bakış",
+  },
+  {
+    href: "/admin/providers",
+    icon: Users,
+    key: "providers",
+    label: "Ustalar",
+  },
+  {
+    href: "/admin/provider-applications",
+    icon: ClipboardList,
+    key: "applications",
+    label: "Başvurular",
+  },
+  {
+    href: "/admin/service-requests",
+    icon: FileText,
+    key: "requests",
+    label: "Talepler",
+  },
+];
+
+export const adminQuickNavItems = adminNavItems.slice(1);
+
+export const adminActionIcons = {
+  activate: Power,
+  approve: UserCheck,
+  detail: Eye,
+  passive: PowerOff,
+  reject: XCircle,
+  status: ClipboardList,
+};
+
+export function AdminPageShell({
+  active,
+  children,
+  description,
+  error,
+  isConfigured = true,
+  title,
+}: AdminPageShellProps) {
+  return (
+    <div className="bg-[var(--surface-soft)]">
+      <section className="border-b border-[var(--border)] bg-white">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+                Fuwu İç Operasyon
+              </p>
+              <h1 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+                {title}
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base">
+                {description}
+              </p>
+            </div>
+            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-black text-[var(--brand-orange-dark)]">
+              <ShieldAlert className="h-4 w-4" aria-hidden />
+              Demo admin paneli
+            </div>
+          </div>
+
+          <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Admin menüsü">
+            {adminNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = active === item.key;
+
+              return (
+                <Link
+                  className={cn(
+                    "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-black transition-colors",
+                    isActive
+                      ? "bg-[var(--brand-navy)] text-white"
+                      : "bg-[var(--surface-soft)] text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
+                  )}
+                  href={item.href}
+                  key={item.key}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </section>
+
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <AdminDemoNotice error={error} isConfigured={isConfigured} />
+        {children}
+      </main>
+    </div>
+  );
+}
+
+export function AdminDemoNotice({
+  error,
+  isConfigured,
+}: {
+  error?: string | null;
+  isConfigured: boolean;
+}) {
+  return (
+    <div className="mb-6 rounded-lg border border-[rgba(255,138,0,0.26)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]">
+      <div className="flex gap-3">
+        <AlertTriangle
+          className="mt-0.5 h-5 w-5 shrink-0 text-[var(--brand-orange-dark)]"
+          aria-hidden
+        />
+        <div>
+          <p className="text-sm font-black text-[var(--brand-navy)]">
+            Demo admin paneli
+          </p>
+          <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
+            Gerçek admin yetkilendirmesi tamamlanana kadar bu alandaki işlemler
+            yalnızca görüntüleme ve taslak aksiyon olarak tutulur.
+          </p>
+          {!isConfigured ? (
+            <p className="mt-2 text-sm font-bold text-[var(--brand-orange-dark)]">
+              Supabase ortam değişkenleri tanımlı değil; canlı veri yerine boş
+              yönetim görünümü gösteriliyor.
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mt-2 text-sm font-bold text-[var(--brand-orange-dark)]">
+              {error}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AdminSummaryCard({
+  href,
+  icon: Icon,
+  label,
+  value,
+}: AdminSummaryCardProps) {
+  return (
+    <Link
+      className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]"
+      href={href}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black text-[var(--muted)]">{label}</p>
+          <p className="mt-3 text-3xl font-black text-[var(--brand-navy)]">
+            {value}
+          </p>
+        </div>
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+export function AdminActionButton({
+  children,
+  icon: Icon,
+}: AdminActionButtonProps) {
+  return (
+    <button
+      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-2 text-xs font-black text-[var(--muted)] opacity-75"
+      disabled
+      title="Demo admin panelinde işlem kapalı"
+      type="button"
+    >
+      <Icon className="h-4 w-4" aria-hidden />
+      {children}
+    </button>
+  );
+}
+
+export function AdminEmptyState({ children, title }: AdminEmptyStateProps) {
+  return (
+    <div className="rounded-lg border border-dashed border-[var(--border)] bg-white p-8 text-center">
+      <p className="text-base font-black text-[var(--brand-navy)]">{title}</p>
+      <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
+        {children}
+      </p>
+    </div>
+  );
+}
+
+export function AdminStatusBadge({
+  children,
+  tone = "neutral",
+}: {
+  children: ReactNode;
+  tone?: "green" | "neutral" | "orange" | "red";
+}) {
+  const toneClasses = {
+    green: "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]",
+    neutral: "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]",
+    orange:
+      "border-[rgba(255,138,0,0.25)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]",
+    red: "border-red-200 bg-red-50 text-red-700",
+  };
+
+  return (
+    <span
+      className={cn(
+        "inline-flex min-h-8 items-center rounded-md border px-2.5 py-1 text-xs font-black",
+        toneClasses[tone],
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function AdminCardGrid({ children }: { children: ReactNode }) {
+  return <div className="grid gap-4 md:hidden">{children}</div>;
+}
+
+export function AdminTableWrap({ children }: { children: ReactNode }) {
+  return (
+    <div className="hidden overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[0_14px_40px_rgba(13,20,36,0.05)] md:block">
+      <div className="overflow-x-auto">{children}</div>
+    </div>
+  );
+}
+
+export function AdminMobileCard({ children }: { children: ReactNode }) {
+  return (
+    <article className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]">
+      {children}
+    </article>
+  );
+}

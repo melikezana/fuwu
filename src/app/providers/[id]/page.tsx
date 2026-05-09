@@ -1,0 +1,391 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft, Home, MessageCircle, Phone, UserSearch } from "lucide-react";
+import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
+import { Button } from "@/components/common/Button";
+import { Container } from "@/components/common/Container";
+import { ProviderCard } from "@/components/providers/ProviderCard";
+import { appRoutes } from "@/constants/navigation";
+import {
+  getProviderDataNotice,
+  getProviderInitials,
+  getProviderPhoneHref,
+  getProviderProfileBadge,
+  getProviderWhatsAppHref,
+  isLiveProvider,
+} from "@/constants/providers";
+import { getProviderById, getProviders } from "@/services/providers";
+
+export const dynamic = "force-dynamic";
+
+type ProviderProfilePageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function generateMetadata({ params }: ProviderProfilePageProps): Promise<Metadata> {
+  const { id } = await params;
+  const provider = await getProviderById(id);
+
+  if (!provider) {
+    return {
+      title: "Usta Bulunamadı | Fuwu",
+    };
+  }
+
+  return {
+    title: `${provider.name} | Fuwu Usta Profili`,
+    description: `${provider.district} bölgesinde ${provider.category} hizmeti veren ${provider.name} için fiyat aralığını, puanı ve iletişim seçeneklerini inceleyin.`,
+  };
+}
+
+function ProviderNotFoundState() {
+  return (
+    <div className="bg-[var(--background)]">
+      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
+        <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
+        <Container className="relative py-6 sm:py-8">
+          <nav className="flex flex-wrap items-center gap-2 text-sm font-black text-[var(--muted)]">
+            <Link className="cursor-pointer transition-colors hover:text-[var(--brand-navy)]" href={appRoutes.home}>
+              Ana sayfa
+            </Link>
+            <span className="cursor-default select-none">/</span>
+            <Link className="cursor-pointer transition-colors hover:text-[var(--brand-navy)]" href={appRoutes.providers}>
+              Usta Bul
+            </Link>
+            <span className="cursor-default select-none">/</span>
+            <span className="cursor-default select-none text-[var(--brand-navy)]">
+              Usta bulunamadı
+            </span>
+          </nav>
+        </Container>
+      </section>
+
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <section className="relative mx-auto max-w-2xl cursor-default select-none overflow-hidden rounded-lg bg-white p-6 text-center shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
+          <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
+          <div className="relative mx-auto mb-6 inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <FuwuLogo size="sm" />
+          </div>
+          <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#111B2E_0%,#22304A_100%)] text-white shadow-[0_16px_36px_rgba(13,20,36,0.18)]">
+            <UserSearch aria-hidden="true" className="size-7" />
+          </div>
+          <h1 className="relative mt-5 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            Usta bulunamadı
+          </h1>
+          <p className="relative mt-3 text-base font-semibold leading-7 text-[var(--muted)]">
+            Aradığınız profile ulaşılamadı.
+          </p>
+          <div className="relative mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button className="w-full sm:w-fit" href={appRoutes.providers}>
+              <UserSearch aria-hidden="true" className="mr-2 size-4 shrink-0" />
+              Tüm Ustaları Gör
+            </Button>
+            <Button className="w-full sm:w-fit" href={appRoutes.home} variant="secondary">
+              <Home aria-hidden="true" className="mr-2 size-4 shrink-0" />
+              Ana Sayfaya Dön
+            </Button>
+          </div>
+        </section>
+      </Container>
+    </div>
+  );
+}
+
+export default async function ProviderProfilePage({ params }: ProviderProfilePageProps) {
+  const { id } = await params;
+  const provider = await getProviderById(id);
+
+  if (!provider) {
+    return <ProviderNotFoundState />;
+  }
+
+  const providers = await getProviders();
+  const relatedProviders = providers
+    .filter(
+      (relatedProvider) =>
+        relatedProvider.id !== provider.id && relatedProvider.category === provider.category,
+    )
+    .slice(0, 2);
+
+  return (
+    <div className="bg-[var(--background)]">
+      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
+        <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
+        <Container className="relative py-6 sm:py-8">
+          <nav className="flex flex-wrap items-center gap-2 text-sm font-black text-[var(--muted)]">
+            <Link className="cursor-pointer transition-colors hover:text-[var(--brand-navy)]" href={appRoutes.home}>
+              Ana sayfa
+            </Link>
+            <span className="cursor-default select-none">/</span>
+            <Link className="cursor-pointer transition-colors hover:text-[var(--brand-navy)]" href={appRoutes.providers}>
+              Usta Bul
+            </Link>
+            <span className="cursor-default select-none">/</span>
+            <span className="cursor-default select-none text-[var(--brand-navy)]">
+              {provider.name}
+            </span>
+          </nav>
+        </Container>
+      </section>
+
+      <Container className="grid gap-6 py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start lg:py-12">
+        <div className="min-w-0 space-y-6">
+          <section className="relative cursor-default select-none overflow-hidden rounded-lg bg-white p-5 shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-7">
+            <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
+            <div className="relative mb-6 inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+              <FuwuLogo size="sm" />
+            </div>
+
+            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#111B2E_0%,#22304A_100%)] text-2xl font-black text-white shadow-[0_16px_36px_rgba(13,20,36,0.18)]">
+                {getProviderInitials(provider)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    className="cursor-pointer rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black uppercase text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+                    href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
+                  >
+                    {provider.category}
+                  </Link>
+                  <Link
+                    className="cursor-pointer rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs font-black text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)]"
+                    href={`${appRoutes.providers}?district=${encodeURIComponent(provider.district)}`}
+                  >
+                    {provider.district}
+                  </Link>
+                  <span className="whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black text-[var(--muted)]">
+                    {getProviderProfileBadge(provider)}
+                  </span>
+                  <span className="whitespace-nowrap rounded-md bg-[var(--trust-green-soft)] px-3 py-1 text-xs font-black text-[var(--trust-green)]">
+                    {provider.availability}
+                  </span>
+                </div>
+                <h1 className="mt-4 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
+                  {provider.name}
+                </h1>
+                <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)]">
+                  {provider.shortDescription}
+                </p>
+                <p className="mt-4 max-w-2xl rounded-md bg-[var(--surface-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--muted)]">
+                  {getProviderDataNotice(provider)}
+                </p>
+              </div>
+            </div>
+
+            <div className="relative mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {[
+                ["Puan", `${provider.rating.toFixed(1)} (${provider.reviewCount})`],
+                ["Deneyim", provider.experience],
+                ["Ortalama fiyat aralığı", provider.averagePrice],
+                ["Uygunluk", provider.availability],
+                ["Hızlı dönüş", provider.responseTime],
+              ].map(([label, value]) => (
+                <div className="rounded-md bg-[var(--surface-soft)] p-4" key={label}>
+                  <p className="text-xs font-black uppercase leading-4 text-[var(--muted)]">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-sm font-black leading-6 text-[var(--brand-navy)]">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+              Profil özeti
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+              Hizmet yaklaşımı
+            </h2>
+            <p className="mt-4 text-base font-semibold leading-8 text-[var(--muted)]">
+              {provider.description}
+            </p>
+          </section>
+
+          <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+              Sunduğu hizmetler
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+              En sık aldığı işler
+            </h2>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {provider.servicesOffered.map((service) => (
+                <div
+                  className="rounded-md bg-[var(--surface-soft)] px-3 py-3 text-sm font-black text-[var(--brand-navy)]"
+                  key={service}
+                >
+                  {service}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid gap-6 md:grid-cols-2">
+            <div className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+              <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+                Hizmet bölgeleri
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+                Çalıştığı bölgeler
+              </h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {provider.serviceAreas.map((area) => (
+                  <Link
+                    className="cursor-pointer rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
+                    href={`${appRoutes.providers}?district=${encodeURIComponent(area)}`}
+                    key={area}
+                  >
+                    {area}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+              <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+                {isLiveProvider(provider) ? "Güven sinyalleri" : "Demo güven sinyalleri"}
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+                {isLiveProvider(provider) ? "Profil bilgileri" : "Canlı doğrulama değildir"}
+              </h2>
+              <div className="mt-4 grid gap-2">
+                {provider.trustBadges.map((badge) => (
+                  <div
+                    className="rounded-md border border-[rgba(23,116,95,0.18)] bg-[var(--trust-green-soft)] px-3 py-3 text-sm font-black text-[var(--brand-navy)]"
+                    key={badge}
+                  >
+                    {badge}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside className="space-y-6 lg:sticky lg:top-24">
+          <section className="cursor-default select-none overflow-hidden rounded-lg bg-white shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.1)]">
+            <div className="h-1.5 bg-[var(--brand-orange)]" />
+            <div className="p-5">
+              <FuwuLogo />
+              <p className="mt-5 text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+                Doğrudan iletişim
+              </p>
+              <p className="mt-2 text-2xl font-black leading-tight text-[var(--brand-navy)]">
+                {provider.phone}
+              </p>
+              <p className="mt-3 rounded-md bg-[var(--surface-soft)] px-3 py-2 text-xs font-bold leading-5 text-[var(--muted)]">
+                {isLiveProvider(provider)
+                  ? "Sağlayıcı iletişim bilgisi canlı kayıttan alınır; detayları doğrudan netleştirin."
+                  : "Demo iletişim alanı; canlı sağlayıcı doğrulaması henüz aktif değildir."}
+              </p>
+              <p className="mt-2 inline-flex w-fit whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-black text-[var(--brand-navy)]">
+                {provider.responseTime}
+              </p>
+
+              <div className="mt-5 grid gap-3">
+                <a
+                  className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                  href={getProviderWhatsAppHref(provider)}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
+                  WhatsApp ile Yaz
+                </a>
+                <a
+                  className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-soft)] hover:shadow-[inset_0_0_0_1px_rgba(13,20,36,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                  href={getProviderPhoneHref(provider)}
+                >
+                  <Phone aria-hidden="true" className="size-4 shrink-0" />
+                  Hemen Ara
+                </a>
+                <Button href={appRoutes.providers} variant="secondary">
+                  <ArrowLeft aria-hidden="true" className="mr-2 size-4 shrink-0" />
+                  Ustalara Geri Dön
+                </Button>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-md bg-[var(--surface-soft)] p-4">
+                  <p className="text-xs font-black uppercase text-[var(--muted)]">
+                    Ortalama fiyat aralığı
+                  </p>
+                  <p className="mt-2 text-sm font-black text-[var(--brand-navy)]">
+                    {provider.averagePrice}
+                  </p>
+                </div>
+                <div className="rounded-md bg-[var(--surface-soft)] p-4">
+                  <p className="text-xs font-black uppercase text-[var(--muted)]">
+                    Çalışma saatleri
+                  </p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+                    {provider.workingHours}
+                  </p>
+                </div>
+                <div className="rounded-md bg-[var(--surface-soft)] p-4">
+                  <p className="text-xs font-black uppercase text-[var(--muted)]">
+                    Hizmet alanı
+                  </p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+                    {provider.serviceAreas.join(", ")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="cursor-default select-none rounded-lg bg-[var(--brand-navy)] p-5 text-white shadow-[0_18px_56px_rgba(13,20,36,0.12)]">
+            <p className="text-xs font-black uppercase text-[var(--brand-orange)]">
+              Profil özeti
+            </p>
+            <p className="mt-2 text-lg font-black leading-7">
+              {provider.completedJobs}+ tamamlanan iş, {provider.averagePrice} ortalama fiyat
+              aralığı ve {provider.availability.toLocaleLowerCase("tr")} bilgisiyle doğrudan
+              iletişime hazır.
+            </p>
+            <Link
+              className="mt-4 inline-flex cursor-pointer text-sm font-black text-[var(--brand-orange)] transition-colors hover:text-white"
+              href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
+            >
+              Benzer ustaları incele
+            </Link>
+          </section>
+        </aside>
+      </Container>
+
+      {relatedProviders.length > 0 ? (
+        <section className="border-t border-[var(--border)] bg-white">
+          <Container className="py-8 sm:py-10 lg:py-12">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="cursor-default select-none">
+                <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                  Benzer profiller
+                </p>
+                <h2 className="mt-1 text-2xl font-black leading-tight text-[var(--brand-navy)]">
+                  Aynı kategorideki diğer ustalar
+                </h2>
+              </div>
+              <Button
+                href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
+                variant="secondary"
+              >
+                Tümünü İncele
+              </Button>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {relatedProviders.map((relatedProvider) => (
+                <ProviderCard key={relatedProvider.id} provider={relatedProvider} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      ) : null}
+    </div>
+  );
+}
