@@ -11,13 +11,9 @@ export type SupabaseClientConfig = {
 // Real Supabase values belong in .env.local later. Keep .env.example blank and key-free.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseAuthEnabled =
-  process.env.NEXT_PUBLIC_SUPABASE_AUTH_ENABLED === "true";
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
-export const isSupabaseAuthConfigured = Boolean(
-  isSupabaseConfigured && supabaseAuthEnabled,
-);
+export const isSupabaseAuthConfigured = isSupabaseConfigured;
 
 export function getSupabaseClientConfig(): SupabaseClientConfig | null {
   if (!supabaseUrl || !supabaseAnonKey) {

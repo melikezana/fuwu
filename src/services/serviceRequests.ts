@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { notifyServiceRequestCreated } from "@/services/notifications";
 
 export type ServiceRequestInput = {
   serviceCategory: string;
@@ -127,7 +128,7 @@ async function buildServiceRequestInsert(
   ]);
 
   if (!categoryId) {
-    throw new Error("Seçtiğin hizmet kategorisi şu anda backend tarafında bulunamadı.");
+    throw new Error("Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.");
   }
 
   if (!districtId) {
@@ -149,6 +150,7 @@ async function buildServiceRequestInsert(
 
 export async function submitServiceRequest(
   data: ServiceRequestInput,
+  authenticatedUserId: string,
 ): Promise<ServiceRequestSubmitResult> {
   const supabase = createServiceRequestClient();
 
@@ -156,12 +158,25 @@ export async function submitServiceRequest(
     throw new Error(serviceRequestSubmitErrorMessage);
   }
 
+  if (!authenticatedUserId.trim()) {
+    throw new Error(serviceRequestLoginRequiredMessage);
+  }
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.user.id) {
+    throw new Error(serviceRequestLoginRequiredMessage);
+  }
+
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
-  if (authError || !user) {
+  if (authError || !user || user.id !== authenticatedUserId || user.id !== session.user.id) {
     throw new Error(serviceRequestLoginRequiredMessage);
   }
 
@@ -178,8 +193,14 @@ export async function submitServiceRequest(
   }
 
   const record = insertedRequest as LookupRecord | null;
+  const requestCode = createLiveRequestCode(record?.id);
+
+  await notifyServiceRequestCreated({
+    requestCode,
+    requestId: typeof record?.id === "string" ? record.id : null,
+  });
 
   return {
-    requestCode: createLiveRequestCode(record?.id),
+    requestCode,
   };
 }

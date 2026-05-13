@@ -21,10 +21,10 @@ type ProviderCardProps = {
 };
 
 const secondaryActionClassName =
-  "inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md bg-white px-3 py-2.5 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-soft)] hover:shadow-[inset_0_0_0_1px_rgba(13,20,36,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
+  "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-3 py-2.5 text-center text-sm font-black leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-soft)] hover:shadow-[inset_0_0_0_1px_rgba(13,20,36,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
 
 const primaryActionClassName =
-  "inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md bg-[var(--brand-orange)] px-3 py-2.5 text-sm font-black text-white shadow-[0_12px_26px_rgba(255,138,0,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
+  "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 py-2.5 text-center text-sm font-black leading-5 text-white shadow-[0_12px_26px_rgba(255,138,0,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
 
 function formatAveragePrice(price: string) {
   return price.replace(/\s+-\s+/, " – ");
@@ -71,20 +71,20 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <Link
-              className="block cursor-pointer truncate text-2xl font-black leading-tight text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)]"
+              className="block cursor-pointer break-words text-2xl font-black leading-tight text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)]"
               href={profileHref}
             >
               {provider.name}
             </Link>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
-                className="cursor-pointer whitespace-nowrap rounded-md bg-[var(--brand-orange-soft)] px-3 py-1 text-xs font-black text-[var(--brand-orange-dark)] transition-colors hover:bg-[#FFE3BC]"
+                className="max-w-full cursor-pointer rounded-md bg-[var(--brand-orange-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--brand-orange-dark)] transition-colors hover:bg-[#FFE3BC]"
                 href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
               >
                 {provider.category}
               </Link>
               <Link
-                className="cursor-pointer whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+                className="max-w-full cursor-pointer rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
                 href={`${appRoutes.providers}?district=${encodeURIComponent(provider.district)}`}
               >
                 {provider.district}
@@ -92,10 +92,10 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
-            <span className="whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-black text-[var(--muted)]">
+            <span className="max-w-full rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-black leading-5 text-[var(--muted)]">
               {getProviderProfileBadge(provider)}
             </span>
-            <span className="whitespace-nowrap rounded-md bg-[#ECFDF5] px-3 py-1.5 text-xs font-black text-[var(--trust-green)]">
+            <span className="max-w-full rounded-md bg-[#ECFDF5] px-3 py-1.5 text-xs font-black leading-5 text-[var(--trust-green)]">
               {provider.availability}
             </span>
           </div>
@@ -109,29 +109,29 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
       </header>
 
       <dl className="mt-5 grid gap-3 border-y border-[var(--border)] py-4">
-        <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-3 text-sm">
+        <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
           <dt className="select-none font-black text-[var(--muted)]">Puan</dt>
           <dd className="min-w-0 font-black text-[var(--brand-navy)]">
             {provider.rating.toFixed(1)} / {provider.reviewCount} yorum
           </dd>
         </div>
-        <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-3 text-sm">
+        <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
           <dt className="select-none font-black text-[var(--muted)]">Deneyim</dt>
           <dd className="min-w-0 font-black text-[var(--brand-navy)]">{provider.experience}</dd>
         </div>
-        <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-3 text-sm">
+        <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
           <dt className="select-none font-black text-[var(--muted)]">Fiyat</dt>
           <dd className="min-w-0 font-black text-[var(--brand-navy)]">
             {formatAveragePrice(provider.averagePrice)}
           </dd>
         </div>
-        <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-3 text-sm">
+        <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
           <dt className="select-none font-black text-[var(--muted)]">Telefon</dt>
           <dd className="min-w-0 font-black text-[var(--brand-navy)]">{provider.phone}</dd>
         </div>
       </dl>
 
-      <p className="mt-5 w-fit select-none whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-black text-[var(--brand-navy)]">
+      <p className="mt-5 max-w-full select-none rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-black leading-6 text-[var(--brand-navy)] sm:w-fit">
         {provider.responseTime}
       </p>
 

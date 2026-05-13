@@ -31,7 +31,7 @@ export const services: Service[] = [
     description: "Su kaçağı, gider açma ve musluk değişimi için yakınındaki tesisatçıları karşılaştır.",
     iconName: "pipe",
     startingHint: "Usta Bul",
-    href: "/providers?category=Tesisat",
+    href: "/providers?category=tesisat",
   },
   {
     id: "electrical",
@@ -40,7 +40,7 @@ export const services: Service[] = [
     description: "Priz, aydınlatma, sigorta ve arıza tespitinde güvenilir elektrik ustalarını gör.",
     iconName: "bolt",
     startingHint: "Usta Bul",
-    href: "/providers?category=Elektrik",
+    href: "/providers?category=elektrik",
   },
   {
     id: "cleaning",
@@ -49,7 +49,7 @@ export const services: Service[] = [
     description: "Ev, ofis ve taşınma sonrası temizlik için uygun profilleri hızla listele.",
     iconName: "sparkles",
     startingHint: "Usta Bul",
-    href: "/providers?category=Temizlik",
+    href: "/providers?category=temizlik",
   },
   {
     id: "carpet-cleaning",
@@ -58,7 +58,7 @@ export const services: Service[] = [
     description: "Halı yıkama, teslim alma ve leke çıkarma için uygun profilleri karşılaştır.",
     iconName: "rug",
     startingHint: "Usta Bul",
-    href: "/providers?category=Halı%20Yıkama",
+    href: "/providers?category=hali-yikama",
   },
   {
     id: "climate-appliance-service",
@@ -67,7 +67,7 @@ export const services: Service[] = [
     description: "Klima bakımı, montajı ve beyaz eşya arızaları için uygun teknik servisleri karşılaştır.",
     iconName: "air-conditioner",
     startingHint: "Usta Bul",
-    href: "/providers?category=Klima%20%26%20Beyaz%20Eşya",
+    href: "/providers?category=klima-beyaz-esya",
   },
   {
     id: "furniture-assembly",
@@ -76,7 +76,7 @@ export const services: Service[] = [
     description: "Dolap, yatak, masa ve raf montajında deneyimli ustalara hemen ulaş.",
     iconName: "box",
     startingHint: "Usta Bul",
-    href: "/providers?category=Mobilya%20Montaj",
+    href: "/providers?category=mobilya-montaj",
   },
   {
     id: "painting",
@@ -85,7 +85,7 @@ export const services: Service[] = [
     description: "Boya badana, rötuş ve yüzey hazırlığı için fiyat aralığını gör, usta seç.",
     iconName: "paint-roller",
     startingHint: "Usta Bul",
-    href: "/providers?category=Boya%20Badana",
+    href: "/providers?category=boya-badana",
   },
   {
     id: "moving-help",
@@ -94,6 +94,6 @@ export const services: Service[] = [
     description: "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği için usta bul.",
     iconName: "truck",
     startingHint: "Usta Bul",
-    href: "/providers?category=Nakliye%20Yardımı",
+    href: "/providers?category=nakliye-yardimi",
   },
 ];

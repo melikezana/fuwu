@@ -2,12 +2,27 @@ import type { Metadata } from "next";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { createPageMetadata, seoConfig } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fuwu | Ustaya Ulaşmanın En Hızlı Yolu",
-  description:
-    "İhtiyacını belirle, ustaları karşılaştır, ortalama fiyat aralıklarını gör ve telefon ya da WhatsApp ile doğrudan iletişime geç.",
+  ...createPageMetadata({
+    title: seoConfig.defaultTitle,
+    description: seoConfig.defaultDescription,
+    path: "/",
+  }),
+  metadataBase: new URL(seoConfig.siteUrl),
+  title: {
+    default: seoConfig.defaultTitle,
+    template: "%s",
+  },
+  applicationName: seoConfig.legalName,
+  authors: [{ name: seoConfig.siteName, url: seoConfig.siteUrl }],
+  creator: seoConfig.legalName,
+  publisher: seoConfig.siteName,
+  formatDetection: {
+    telephone: true,
+  },
 };
 
 export default function RootLayout({

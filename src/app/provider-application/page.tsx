@@ -31,7 +31,7 @@ export default function ProviderApplicationPage() {
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(135deg,#ffffff_0%,#FFF7EC_44%,#F7F7F8_100%)]">
       <FuwuWatermark className="-left-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,720px)_minmax(420px,1fr)] xl:items-start">
+      <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,720px)_minmax(0,1fr)] xl:items-start">
         <div className="min-w-0 cursor-default select-none lg:max-w-[720px]">
           <div className="inline-flex rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[0_24px_70px_rgba(13,20,36,0.18)]">
             <FuwuLogo inverted size="lg" />

@@ -18,11 +18,20 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-async function getIsAuthenticated() {
+async function getAuthenticatedUserId() {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
-    return false;
+    return null;
+  }
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.user.id) {
+    return null;
   }
 
   const {
@@ -31,10 +40,10 @@ async function getIsAuthenticated() {
   } = await supabase.auth.getUser();
 
   if (error) {
-    return false;
+    return null;
   }
 
-  return Boolean(user);
+  return user?.id ?? null;
 }
 
 function LoginRequiredState() {
@@ -53,7 +62,7 @@ function LoginRequiredState() {
         </p>
         {!isSupabaseServerConfigured ? (
           <p className="mt-4 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-            Auth ve backend bağlantısı henüz aktif olmadığı için bu ekranda gerçek talep kaydı
+            Giriş ve veri bağlantısı henüz aktif olmadığı için bu ekranda gerçek talep kaydı
             alınmaz.
           </p>
         ) : null}
@@ -72,7 +81,7 @@ function LoginRequiredState() {
 }
 
 export default async function RequestPage() {
-  const isAuthenticated = await getIsAuthenticated();
+  const authenticatedUserId = await getAuthenticatedUserId();
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
@@ -94,7 +103,11 @@ export default async function RequestPage() {
           </p>
         </div>
 
-        {isAuthenticated ? <RequestForm /> : <LoginRequiredState />}
+        {authenticatedUserId ? (
+          <RequestForm authenticatedUserId={authenticatedUserId} />
+        ) : (
+          <LoginRequiredState />
+        )}
       </Container>
     </section>
   );

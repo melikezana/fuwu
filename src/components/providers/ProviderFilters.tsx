@@ -16,6 +16,7 @@ export type ProviderFilterValues = {
   price?: string;
   rating?: string;
   availability?: string;
+  query?: string;
 };
 
 type ProviderFiltersProps = {
@@ -30,7 +31,7 @@ type ProviderFiltersProps = {
 function FilterField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="block min-w-0 cursor-default select-none">
-      <span className="block cursor-default select-none whitespace-nowrap text-xs font-black uppercase text-[var(--muted)]">
+      <span className="block cursor-default select-none text-xs font-black uppercase leading-4 text-[var(--muted)]">
         {label}
       </span>
       {children}
@@ -39,7 +40,35 @@ function FilterField({ children, label }: { children: ReactNode; label: string }
 }
 
 const selectClassName =
-  "mt-2 h-12 w-full min-w-[10rem] cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+
+const inputClassName =
+  "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+
+function getPriceFilterValue(price: string) {
+  const priceValues =
+    price
+      .match(/\d[\d.,]*/g)
+      ?.map((value) => value.replace(/\./g, "").replace(",", "."))
+      .filter(Boolean) ?? [];
+
+  if (priceValues.length >= 2) {
+    return `${priceValues[0]}-${priceValues[1]}`;
+  }
+
+  return price;
+}
+
+function getSelectedPriceValue(price: string | undefined, prices: string[]) {
+  if (!price) {
+    return "";
+  }
+
+  const normalizedPrice = getPriceFilterValue(price);
+  const matchingPrice = prices.find((option) => getPriceFilterValue(option) === normalizedPrice);
+
+  return matchingPrice ? getPriceFilterValue(matchingPrice) : price;
+}
 
 export function ProviderFilters({
   values,
@@ -49,13 +78,29 @@ export function ProviderFilters({
   averagePrices = providerAveragePrices,
   availabilityOptions = providerAvailabilityOptions,
 }: ProviderFiltersProps) {
+  const priceOptions = averagePrices.map((price) => ({
+    label: price,
+    value: getPriceFilterValue(price),
+  }));
+  const selectedPriceValue = getSelectedPriceValue(values?.price, averagePrices);
+
   if (compact) {
     return (
       <form
         action={appRoutes.providers}
         className="cursor-default rounded-lg bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
       >
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-[minmax(12rem,1fr)_minmax(12rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(14rem,1.2fr)_minmax(12rem,1fr)_minmax(12rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
+          <FilterField label="Arama">
+            <input
+              className={inputClassName}
+              defaultValue={values?.query ?? ""}
+              name="q"
+              placeholder="Hizmet veya usta ara"
+              type="search"
+            />
+          </FilterField>
+
           <FilterField label="İhtiyacını belirle">
             <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
               <option value="">Tüm kategoriler</option>
@@ -78,7 +123,7 @@ export function ProviderFilters({
             </select>
           </FilterField>
 
-          <Button className="h-12 min-h-12 w-full whitespace-nowrap rounded-md px-7 xl:w-fit" type="submit">
+          <Button className="h-12 min-h-12 w-full rounded-md px-7 xl:w-fit" type="submit">
             Usta Bul
           </Button>
         </div>
@@ -106,7 +151,19 @@ export function ProviderFilters({
         </Link>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5 xl:items-end">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5 xl:items-end">
+        <div className="md:col-span-2 xl:col-span-5">
+          <FilterField label="Arama">
+            <input
+              className={inputClassName}
+              defaultValue={values?.query ?? ""}
+              name="q"
+              placeholder="Hizmet veya usta ara"
+              type="search"
+            />
+          </FilterField>
+        </div>
+
         <FilterField label="İhtiyacını belirle">
           <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
             <option value="">Tüm kategoriler</option>
@@ -130,11 +187,11 @@ export function ProviderFilters({
         </FilterField>
 
         <FilterField label="Fiyat aralığı">
-          <select className={selectClassName} defaultValue={values?.price ?? ""} name="price">
+          <select className={selectClassName} defaultValue={selectedPriceValue} name="price">
             <option value="">Tüm fiyatlar</option>
-            {averagePrices.map((price) => (
-              <option key={price} value={price}>
-                {price}
+            {priceOptions.map((price) => (
+              <option key={price.label} value={price.value}>
+                {price.label}
               </option>
             ))}
           </select>
@@ -151,7 +208,7 @@ export function ProviderFilters({
           </select>
         </FilterField>
 
-        <Button className="h-12 min-h-12 w-full whitespace-nowrap rounded-md px-7" type="submit">
+        <Button className="h-12 min-h-12 w-full rounded-md px-7" type="submit">
           Usta Bul
         </Button>
 

@@ -121,6 +121,16 @@ using (id = auth.uid());
 comment on policy profiles_select_own on public.profiles is
   'Users can read only their own profile so private profile fields are not publicly browsable.';
 
+drop policy if exists profiles_select_admin_all on public.profiles;
+create policy profiles_select_admin_all
+on public.profiles
+for select
+to authenticated
+using (public.current_user_is_admin());
+
+comment on policy profiles_select_admin_all on public.profiles is
+  'Admins can read profile contact details needed for service request operations.';
+
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own
 on public.profiles
@@ -152,6 +162,26 @@ using (
 
 comment on policy providers_select_public_active_approved on public.providers is
   'Anyone can browse providers only after they are approved and active.';
+
+drop policy if exists providers_select_admin_all on public.providers;
+create policy providers_select_admin_all
+on public.providers
+for select
+to authenticated
+using (public.current_user_is_admin());
+
+comment on policy providers_select_admin_all on public.providers is
+  'Admins can read all provider records, including inactive or pending rows, from admin tooling.';
+
+drop policy if exists providers_insert_admin on public.providers;
+create policy providers_insert_admin
+on public.providers
+for insert
+to authenticated
+with check (public.current_user_is_admin());
+
+comment on policy providers_insert_admin on public.providers is
+  'Admins can create provider records from approved provider applications.';
 
 drop policy if exists providers_update_own_profile on public.providers;
 create policy providers_update_own_profile
@@ -205,6 +235,17 @@ using (public.current_user_is_admin());
 comment on policy provider_applications_select_admin_all on public.provider_applications is
   'Only future admins can read provider applications; applicants cannot browse the submissions table.';
 
+drop policy if exists provider_applications_update_admin_status on public.provider_applications;
+create policy provider_applications_update_admin_status
+on public.provider_applications
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+comment on policy provider_applications_update_admin_status on public.provider_applications is
+  'Admins can approve or reject provider applications from admin tooling.';
+
 -- Service requests
 -- Service requests include customer contact, address, schedule, and description
 -- details, so normal users only see their own rows. Admins can read all rows later
@@ -242,6 +283,17 @@ using (public.current_user_is_admin());
 
 comment on policy service_requests_select_admin_all on public.service_requests is
   'Admins can later read all service requests for matching, support, and operational workflows.';
+
+drop policy if exists service_requests_update_admin_status on public.service_requests;
+create policy service_requests_update_admin_status
+on public.service_requests
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+comment on policy service_requests_update_admin_status on public.service_requests is
+  'Admins can update service request status from admin tooling.';
 
 -- Reviews
 -- Reviews are public marketplace trust content, so anonymous and authenticated

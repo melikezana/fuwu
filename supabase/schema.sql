@@ -109,6 +109,8 @@ create table if not exists public.provider_applications (
   has_equipment boolean not null default false,
   introduction text,
   portfolio_url text,
+  profile_image_path text,
+  profile_image_url text,
   status text not null default 'pending',
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),

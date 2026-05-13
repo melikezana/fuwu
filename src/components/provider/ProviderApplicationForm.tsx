@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
@@ -11,6 +11,10 @@ import {
   submitProviderApplication,
   type ProviderApplicationSubmitResult,
 } from "@/services/providerApplications";
+import {
+  PROVIDER_IMAGE_ACCEPT,
+  validateProviderImageFile,
+} from "@/services/storage";
 
 type Availability = "Tam zamanlı" | "Yarı zamanlı" | "Sadece hafta sonu";
 type EquipmentStatus = "Evet" | "Hayır";
@@ -28,7 +32,8 @@ type ProviderApplicationFormState = {
 };
 
 type ProviderField = keyof ProviderApplicationFormState;
-type ProviderFormErrors = Partial<Record<ProviderField, string>>;
+type ProviderFormErrorField = ProviderField | "profileImage";
+type ProviderFormErrors = Partial<Record<ProviderFormErrorField, string>>;
 type SubmittedApplication = ProviderApplicationSubmitResult;
 
 const initialFormState: ProviderApplicationFormState = {
@@ -97,9 +102,10 @@ const equipmentOptions: Array<{
 ];
 
 const fieldBaseClassName =
-  "mt-2 w-full rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
+const fileFieldClassName = `${fieldBaseClassName} cursor-pointer select-none file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--brand-orange)] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white`;
 const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer select-none pr-10`;
 
 const labelClassName = "block cursor-default select-none text-sm font-bold text-[var(--brand-navy)]";
@@ -192,6 +198,8 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 export function ProviderApplicationForm() {
   const [formState, setFormState] = useState<ProviderApplicationFormState>(initialFormState);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImageInputKey, setProfileImageInputKey] = useState(0);
   const [errors, setErrors] = useState<ProviderFormErrors>({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -217,11 +225,60 @@ export function ProviderApplicationForm() {
     setSubmittedApplication(null);
   }
 
+  function updateProfileImage(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0] ?? null;
+    const imageError = validateProviderImageFile(selectedFile);
+
+    if (imageError) {
+      setProfileImageFile(null);
+      setErrors((currentErrors) => ({
+        ...currentErrors,
+        profileImage: imageError,
+      }));
+      event.target.value = "";
+    } else {
+      setProfileImageFile(selectedFile);
+      setErrors((currentErrors) => {
+        if (!currentErrors.profileImage) {
+          return currentErrors;
+        }
+
+        const nextErrors = { ...currentErrors };
+        delete nextErrors.profileImage;
+        return nextErrors;
+      });
+    }
+
+    setFormError("");
+    setSubmittedApplication(null);
+  }
+
+  function clearProfileImage() {
+    setProfileImageFile(null);
+    setProfileImageInputKey((currentKey) => currentKey + 1);
+    setErrors((currentErrors) => {
+      if (!currentErrors.profileImage) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors.profileImage;
+      return nextErrors;
+    });
+    setFormError("");
+    setSubmittedApplication(null);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalizedApplication = normalizeForm(formState);
     const validationErrors = validateForm(normalizedApplication);
+    const profileImageError = validateProviderImageFile(profileImageFile);
+
+    if (profileImageError) {
+      validationErrors.profileImage = profileImageError;
+    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -235,9 +292,14 @@ export function ProviderApplicationForm() {
     setIsSubmitting(true);
 
     try {
-      const submitResult = await submitProviderApplication(normalizedApplication);
+      const submitResult = await submitProviderApplication({
+        ...normalizedApplication,
+        profileImage: profileImageFile,
+      });
       setSubmittedApplication(submitResult);
       setFormState(initialFormState);
+      setProfileImageFile(null);
+      setProfileImageInputKey((currentKey) => currentKey + 1);
     } catch {
       setSubmittedApplication(null);
       setFormError(submissionErrorMessage);
@@ -275,7 +337,7 @@ export function ProviderApplicationForm() {
           </p>
           <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
             {isDemoSubmissionMode
-              ? "Demo modu: Supabase bağlantısı yokken form güvenli başarı yanıtı gösterir; gerçek özel bilgi veya hassas belge paylaşma."
+              ? "Örnek mod: Supabase bağlantısı yokken form güvenli başarı yanıtı gösterir; gerçek özel bilgi veya hassas belge paylaşma."
               : "Başvuru bilgilerin şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir."}
           </p>
         </div>
@@ -299,7 +361,7 @@ export function ProviderApplicationForm() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange)]">
-                    {submittedApplication.mode === "demo" ? "Demo onayı" : "Başvuru alındı"}
+                    {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru alındı"}
                   </p>
                   <h3 className="mt-2 text-2xl font-bold leading-tight">
                     Başvurun alındı
@@ -316,7 +378,7 @@ export function ProviderApplicationForm() {
                     Veri durumu
                   </dt>
                   <dd className="mt-1 text-sm font-bold">
-                    {submittedApplication.mode === "demo" ? "Demo onayı" : "Başvuru kuyruğu"}
+                    {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru kuyruğu"}
                   </dd>
                 </div>
                 <div className="rounded-md bg-white/5 p-3">
@@ -324,7 +386,7 @@ export function ProviderApplicationForm() {
                     Bağlantı
                   </dt>
                   <dd className="mt-1 text-sm font-bold">
-                    {submittedApplication.mode === "demo" ? "Demo modu" : "Supabase"}
+                    {submittedApplication.mode === "demo" ? "Örnek mod" : "Supabase"}
                   </dd>
                 </div>
                 <div className="rounded-md bg-white/5 p-3">
@@ -341,12 +403,27 @@ export function ProviderApplicationForm() {
                     Profil değerlendirmesi
                   </dd>
                 </div>
+                <div className="rounded-md bg-white/5 p-3">
+                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
+                    Profil görseli
+                  </dt>
+                  <dd className="mt-1 text-sm font-bold">
+                    {submittedApplication.profileImageStatus === "uploaded"
+                      ? "Yüklendi"
+                      : "Yüklenmedi"}
+                  </dd>
+                </div>
               </dl>
               <p className="mt-5 rounded-md border border-white/10 bg-white/5 p-4 text-sm leading-6 text-white/70">
                 {submittedApplication.mode === "demo"
-                  ? "Demo modunda güvenli başarı yanıtı gösterildi. Canlı kayıt için Supabase bağlantısı yapılandırıldığında başvuru değerlendirme kuyruğuna alınır."
+                  ? "Örnek modda güvenli başarı yanıtı gösterildi. Canlı kayıt için Supabase bağlantısı yapılandırıldığında başvuru değerlendirme kuyruğuna alınır."
                   : "Başvurun değerlendirme için alındı. Fuwu ekibi profili onayladıktan sonra yayın akışı başlar."}
               </p>
+              {submittedApplication.profileImageMessage ? (
+                <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.28)] bg-white/5 p-4 text-sm font-bold leading-6 text-[var(--brand-orange)]">
+                  {submittedApplication.profileImageMessage}
+                </p>
+              ) : null}
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Button className="w-full sm:w-fit" href="/" variant="light">
                   Ana Sayfaya Dön
@@ -684,6 +761,47 @@ export function ProviderApplicationForm() {
               İşlerini gösteren web sitesi, sosyal profil veya referans sayfası ekleyebilirsin.
             </p>
             <FieldError id="providerReferenceLink-error" message={errors.referenceLink} />
+          </div>
+
+          <div>
+            <label className={labelClassName} htmlFor="providerProfileImage">
+              Profil görseli{" "}
+              <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
+            </label>
+            <input
+              accept={PROVIDER_IMAGE_ACCEPT}
+              aria-describedby={
+                errors.profileImage ? "providerProfileImage-error" : "providerProfileImage-helper"
+              }
+              aria-invalid={Boolean(errors.profileImage)}
+              className={cn(
+                fileFieldClassName,
+                errors.profileImage && "border-red-500 focus:border-red-500 focus:ring-red-100",
+              )}
+              id="providerProfileImage"
+              key={profileImageInputKey}
+              name="profileImage"
+              onChange={updateProfileImage}
+              type="file"
+            />
+            <p className={helperClassName} id="providerProfileImage-helper">
+              JPG, JPEG, PNG veya WebP formatında; en fazla 3 MB.
+            </p>
+            {profileImageFile ? (
+              <div className="mt-3 flex flex-col gap-3 rounded-md border border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="min-w-0 break-words text-sm font-bold text-[var(--brand-navy)]">
+                  {profileImageFile.name}
+                </p>
+                <button
+                  className="w-fit cursor-pointer select-none text-sm font-bold text-[var(--brand-orange-dark)] hover:text-[var(--brand-navy)]"
+                  onClick={clearProfileImage}
+                  type="button"
+                >
+                  Seçimi kaldır
+                </button>
+              </div>
+            ) : null}
+            <FieldError id="providerProfileImage-error" message={errors.profileImage} />
           </div>
         </fieldset>
 

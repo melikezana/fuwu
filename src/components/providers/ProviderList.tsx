@@ -4,11 +4,18 @@ import type { Provider } from "@/constants/providers";
 import { ProviderCard } from "./ProviderCard";
 
 type ProviderListProps = {
+  hasActiveFilters?: boolean;
   providers: Provider[];
   totalCount: number;
 };
 
-export function ProviderList({ providers, totalCount }: ProviderListProps) {
+export function ProviderList({
+  hasActiveFilters = false,
+  providers,
+  totalCount,
+}: ProviderListProps) {
+  const hasNoPublicProviders = totalCount === 0 && !hasActiveFilters;
+
   return (
     <section>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -36,17 +43,23 @@ export function ProviderList({ providers, totalCount }: ProviderListProps) {
       ) : (
         <div className="mt-6 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
           <p className="text-xl font-black text-[var(--brand-navy)]">
-            Bu filtrelerle usta bulunamadı.
+            {hasNoPublicProviders
+              ? "Henüz yayında uygun usta bulunmuyor."
+              : "Filtrelerine uygun usta bulunamadı."}
           </p>
           <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
-            Hizmet, ilçe veya uygunluk filtresini genişleterek daha fazla profili inceleyin.
+            {hasNoPublicProviders
+              ? "Onay süreci tamamlanan aktif ustalar yayına alındığında burada görünecek."
+              : "Arama, kategori, ilçe, puan veya fiyat aralığını genişleterek daha fazla profili inceleyin."}
           </p>
-          <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button href={appRoutes.providers}>Filtreleri Temizle</Button>
-            <Button href={appRoutes.providerApplication} variant="secondary">
-              Usta Ağına Katıl
-            </Button>
-          </div>
+          {hasNoPublicProviders ? null : (
+            <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button href={appRoutes.providers}>Filtreleri Temizle</Button>
+              <Button href={appRoutes.providerApplication} variant="secondary">
+                Usta Ağına Katıl
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </section>

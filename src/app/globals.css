@@ -23,6 +23,7 @@
 }
 
 html {
+  width: 100%;
   max-width: 100%;
   overflow-x: clip;
   scroll-padding-top: 8rem;
@@ -30,6 +31,7 @@ html {
 }
 
 body {
+  width: 100%;
   min-height: 100vh;
   margin: 0;
   background: var(--background);
@@ -69,6 +71,31 @@ li {
   html {
     scroll-padding-top: 5rem;
   }
+}
+
+main,
+section,
+article,
+aside,
+footer,
+header,
+nav {
+  min-width: 0;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
 }
 
 a {

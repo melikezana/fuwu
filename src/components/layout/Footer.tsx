@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Camera, Globe2, Mail, MapPin, type LucideIcon } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/common/Container";
+import { appRoutes } from "@/constants/navigation";
 
 type FooterLink = {
   external?: boolean;
@@ -15,7 +16,7 @@ type SocialLink = FooterLink & {
 };
 
 const footerLinkClass =
-  "inline-flex w-fit cursor-pointer select-none items-center gap-2.5 text-sm font-semibold leading-6 text-white/82 transition-colors hover:text-white focus-visible:text-white";
+  "inline-flex max-w-full cursor-pointer select-none items-center gap-2.5 text-sm font-semibold leading-6 text-white/82 transition-colors hover:text-white focus-visible:text-white";
 
 const discoverLinks: FooterLink[] = [
   { label: "Usta Bul", href: "/providers" },
@@ -29,6 +30,7 @@ const companyLinks: FooterLink[] = [
   { label: "Hakkımızda", href: "/#about" },
   { label: "Giriş Yakında", href: "/login" },
   { label: "Usta Ağına Katıl", href: "/provider-application" },
+  { label: "Usta Paneli", href: appRoutes.providerDashboard },
   { label: "Hizmet Talep Et", href: "/request" },
   { label: "Gizlilik", href: "/#privacy" },
 ];
@@ -61,7 +63,7 @@ function FooterAnchor({ item, className }: { className?: string; item: FooterLin
           <Icon aria-hidden="true" className="size-4" />
         </span>
       ) : null}
-      <span className="pointer-events-none select-none">{item.label}</span>
+      <span className="pointer-events-none min-w-0 select-none break-words">{item.label}</span>
     </>
   );
 
@@ -164,7 +166,7 @@ export function Footer() {
               {contactLinks.map((item) => (
                 <FooterAnchor item={item} key={item.label} />
               ))}
-              <p className="inline-flex w-fit cursor-default select-none items-center gap-2 text-sm font-semibold leading-6 text-white/82">
+              <p className="inline-flex max-w-full cursor-default select-none items-center gap-2 text-sm font-semibold leading-6 text-white/82">
                 <span className="inline-flex size-7 shrink-0 items-center justify-center rounded bg-white/10 text-[var(--brand-orange)]">
                   <MapPin aria-hidden="true" className="size-4" />
                 </span>
@@ -173,14 +175,14 @@ export function Footer() {
             </address>
           </FooterColumn>
 
-          <FooterColumn title="Mobil deneyim">
+          <FooterColumn title="Web deneyimi">
             <div className="grid gap-4">
               <p className="cursor-default select-none text-sm font-semibold leading-7 text-white/78">
-                Fuwu mobil deneyimi yakında aktif olacak. Web üzerinden usta arama ve doğrudan
-                iletişim akışı çalışmaya devam eder.
+                Fuwu web sitesi masaüstü, tablet ve mobil tarayıcılarda usta arama ve doğrudan
+                iletişim akışını rahatça kullanman için hazırlanır.
               </p>
               <Link
-                className="inline-flex min-h-11 w-fit cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-black text-white shadow-[0_14px_30px_rgba(255,138,0,0.18)] transition-colors hover:bg-[var(--brand-orange-dark)]"
+                className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-center text-sm font-black text-white shadow-[0_14px_30px_rgba(255,138,0,0.18)] transition-colors hover:bg-[var(--brand-orange-dark)] sm:w-fit"
                 href="/providers"
               >
                 Ustaları İncele

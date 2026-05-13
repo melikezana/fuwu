@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ComponentType, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 import {
   AlertTriangle,
   ClipboardList,
@@ -34,7 +34,8 @@ type AdminPageShellProps = {
 type AdminActionButtonProps = {
   children: ReactNode;
   icon: IconComponent;
-};
+  tone?: "approve" | "neutral" | "reject";
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
 type AdminSummaryCardProps = {
   href: string;
@@ -115,13 +116,13 @@ export function AdminPageShell({
                 {description}
               </p>
             </div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-black text-[var(--brand-orange-dark)]">
+            <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-black leading-4 text-[var(--brand-orange-dark)]">
               <ShieldAlert className="h-4 w-4" aria-hidden />
-              Demo admin paneli
+              Yetkili admin alanı
             </div>
           </div>
 
-          <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Admin menüsü">
+          <nav className="flex flex-wrap gap-2 pb-1" aria-label="Admin menüsü">
             {adminNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
@@ -129,7 +130,7 @@ export function AdminPageShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-black transition-colors",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-black leading-5 transition-colors",
                     isActive
                       ? "bg-[var(--brand-navy)] text-white"
                       : "bg-[var(--surface-soft)] text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
@@ -147,14 +148,14 @@ export function AdminPageShell({
       </section>
 
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <AdminDemoNotice error={error} isConfigured={isConfigured} />
+        <AdminAccessNotice error={error} isConfigured={isConfigured} />
         {children}
       </main>
     </div>
   );
 }
 
-export function AdminDemoNotice({
+export function AdminAccessNotice({
   error,
   isConfigured,
 }: {
@@ -168,13 +169,13 @@ export function AdminDemoNotice({
           className="mt-0.5 h-5 w-5 shrink-0 text-[var(--brand-orange-dark)]"
           aria-hidden
         />
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-black text-[var(--brand-navy)]">
-            Demo admin paneli
+            Yetkili admin alanı
           </p>
           <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
-            Gerçek admin yetkilendirmesi tamamlanana kadar bu alandaki işlemler
-            yalnızca görüntüleme ve taslak aksiyon olarak tutulur.
+            Bu alandaki canlı işlemler Supabase oturumu ve admin yetkisiyle
+            çalışır; yetki olmadığında yönetim verileri korunur.
           </p>
           {!isConfigured ? (
             <p className="mt-2 text-sm font-bold text-[var(--brand-orange-dark)]">
@@ -205,7 +206,7 @@ export function AdminSummaryCard({
       href={href}
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-black text-[var(--muted)]">{label}</p>
           <p className="mt-3 text-3xl font-black text-[var(--brand-navy)]">
             {value}
@@ -221,14 +222,35 @@ export function AdminSummaryCard({
 
 export function AdminActionButton({
   children,
+  className,
+  disabled = true,
   icon: Icon,
+  title,
+  tone = "neutral",
+  type = "button",
+  ...buttonProps
 }: AdminActionButtonProps) {
+  const enabledToneClasses = {
+    approve:
+      "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)] hover:border-[rgba(23,116,95,0.42)] hover:bg-[#def2ea]",
+    neutral:
+      "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]",
+    reject: "border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100",
+  };
+
   return (
     <button
-      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-2 text-xs font-black text-[var(--muted)] opacity-75"
-      disabled
-      title="Demo admin panelinde işlem kapalı"
-      type="button"
+      className={cn(
+        "inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-center text-xs font-black leading-4 transition-colors disabled:opacity-75",
+        disabled
+          ? "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]"
+          : enabledToneClasses[tone],
+        className,
+      )}
+      disabled={disabled}
+      title={title ?? (disabled ? "Bu işlem şu anda kapalı" : undefined)}
+      type={type}
+      {...buttonProps}
     >
       <Icon className="h-4 w-4" aria-hidden />
       {children}
@@ -265,7 +287,7 @@ export function AdminStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-8 items-center rounded-md border px-2.5 py-1 text-xs font-black",
+        "inline-flex min-h-8 max-w-full items-center rounded-md border px-2.5 py-1 text-xs font-black leading-4",
         toneClasses[tone],
       )}
     >
@@ -275,12 +297,12 @@ export function AdminStatusBadge({
 }
 
 export function AdminCardGrid({ children }: { children: ReactNode }) {
-  return <div className="grid gap-4 md:hidden">{children}</div>;
+  return <div className="grid gap-4 lg:hidden">{children}</div>;
 }
 
 export function AdminTableWrap({ children }: { children: ReactNode }) {
   return (
-    <div className="hidden overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[0_14px_40px_rgba(13,20,36,0.05)] md:block">
+    <div className="hidden overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[0_14px_40px_rgba(13,20,36,0.05)] lg:block">
       <div className="overflow-x-auto">{children}</div>
     </div>
   );
@@ -288,7 +310,7 @@ export function AdminTableWrap({ children }: { children: ReactNode }) {
 
 export function AdminMobileCard({ children }: { children: ReactNode }) {
   return (
-    <article className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]">
+    <article className="min-w-0 rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]">
       {children}
     </article>
   );

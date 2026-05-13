@@ -175,7 +175,7 @@ export function WaitlistForm() {
             Müşteriysen hizmet ihtiyacını, ustaysan çalışma bölgeni netleştir.
           </p>
           <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-            MVP demo: Bu form yalnızca tarayıcı içinde doğrulanır. Bilgiler sunucuya gönderilmez,
+            Örnek form: Bu form yalnızca tarayıcı içinde doğrulanır. Bilgiler sunucuya gönderilmez,
             veritabanına kaydedilmez ve gerçek erken erişim kaydı oluşturmaz.
           </p>
         </div>
@@ -202,7 +202,7 @@ export function WaitlistForm() {
               </div>
               <p className="mt-4 text-sm leading-6 text-white/70">
                 Bu gönderim gerçek erken erişim kaydı oluşturmaz; veriler sunucuya aktarılmadı ve
-                kaydedilmedi. Kod yalnızca ekrandaki demo onayı içindir.
+                kaydedilmedi. Kod yalnızca ekrandaki örnek onay içindir.
               </p>
               <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
                 <div className="rounded-md bg-white/5 p-3">
@@ -215,7 +215,7 @@ export function WaitlistForm() {
                   <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
                     Bağlantı
                   </dt>
-                  <dd className="mt-1 text-sm font-bold">Backend yok</dd>
+                <dd className="mt-1 text-sm font-bold">Sistem bağlantısı yok</dd>
                 </div>
                 <div className="rounded-md bg-white/5 p-3">
                   <dt className="text-xs font-bold uppercase tracking-normal text-white/50">

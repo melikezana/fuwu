@@ -40,7 +40,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Kadıköy", "Üsküdar", "Ataşehir", "Maltepe"],
     workingHours: "Hafta içi 09:00 - 19:00, Cumartesi 10:00 - 17:00",
     servicesOffered: ["Su kaçağı kontrolü", "Gider açma", "Musluk değişimi", "Sifon tamiri"],
-    trustBadges: ["Kimlik kontrolü demo", "Temiz işçilik notu demo", "Fatura bilgisi demo"],
+    trustBadges: ["Kimlik kontrolü örneği", "Temiz işçilik notu örneği", "Fatura bilgisi örneği"],
     completedJobs: 460,
     responseTime: "12 dk’da dönüş",
     reviewCount: 96,
@@ -63,7 +63,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Şişli", "Beşiktaş", "Beyoğlu", "Kağıthane"],
     workingHours: "Hafta içi 08:30 - 18:30",
     servicesOffered: ["Priz değişimi", "Avize montajı", "Sigorta kontrolü", "Arıza tespiti"],
-    trustBadges: ["Yeterlilik alanı demo", "Güvenlik kontrolü demo", "Planlı randevu demo"],
+    trustBadges: ["Yeterlilik alanı örneği", "Güvenlik kontrolü örneği", "Planlı randevu örneği"],
     completedJobs: 335,
     responseTime: "18 dk’da dönüş",
     reviewCount: 82,
@@ -86,7 +86,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Maltepe", "Kartal", "Kadıköy", "Ataşehir"],
     workingHours: "Salı - Pazar 09:30 - 18:30",
     servicesOffered: ["Haftalık ev temizliği", "Detaylı mutfak temizliği", "Cam temizliği", "Ütü desteği"],
-    trustBadges: ["Referans alanı demo", "Hassas yüzey deneyimi demo", "Hızlı planlama demo"],
+    trustBadges: ["Referans alanı örneği", "Hassas yüzey deneyimi örneği", "Hızlı planlama örneği"],
     completedJobs: 445,
     responseTime: "20 dk’da dönüş",
     reviewCount: 89,
@@ -109,7 +109,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Ümraniye", "Ataşehir", "Kadıköy", "Üsküdar"],
     workingHours: "Hafta içi 09:00 - 19:00, Cumartesi 10:00 - 16:00",
     servicesOffered: ["Halı yıkama", "Yerinden teslim alma", "Leke çıkarma", "Kurutma ve paketleme"],
-    trustBadges: ["Teslim takibi demo", "Leke ön kontrolü demo", "Planlı servis demo"],
+    trustBadges: ["Teslim takibi örneği", "Leke ön kontrolü örneği", "Planlı servis örneği"],
     completedJobs: 240,
     responseTime: "24 dk'da dönüş",
     reviewCount: 54,
@@ -131,7 +131,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Ataşehir", "Kadıköy", "Ümraniye", "Çekmeköy"],
     workingHours: "Hafta içi 10:00 - 19:00, Pazar 11:00 - 16:00",
     servicesOffered: ["Kapı ayarı", "Raf sabitleme", "Dolap tamiri", "Küçük ev onarımı"],
-    trustBadges: ["Ekipman bilgisi demo", "Duvar sabitleme demo", "Aynı gün destek demo"],
+    trustBadges: ["Ekipman bilgisi örneği", "Duvar sabitleme örneği", "Aynı gün destek örneği"],
     completedJobs: 390,
     responseTime: "14 dk’da dönüş",
     reviewCount: 74,
@@ -154,7 +154,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Üsküdar", "Kadıköy", "Ataşehir", "Ümraniye"],
     workingHours: "Her gün 10:00 - 20:00",
     servicesOffered: ["Klima bakımı", "Filtre temizliği", "Gaz kontrolü", "Arıza tespiti"],
-    trustBadges: ["Sertifika bilgisi demo", "Ekipman bilgisi demo", "Hızlı dönüş demo"],
+    trustBadges: ["Sertifika bilgisi örneği", "Ekipman bilgisi örneği", "Hızlı dönüş örneği"],
     completedJobs: 275,
     responseTime: "16 dk’da dönüş",
     reviewCount: 68,
@@ -177,7 +177,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Bakırköy", "Bahçelievler", "Zeytinburnu", "Avcılar"],
     workingHours: "Hafta içi 09:00 - 18:00, Cumartesi 09:00 - 14:00",
     servicesOffered: ["Çamaşır makinesi tamiri", "Bulaşık makinesi tamiri", "Fırın kontrolü", "Buzdolabı arıza tespiti"],
-    trustBadges: ["Yerinde tespit demo", "Servis fişi demo", "Parça danışmanlığı demo"],
+    trustBadges: ["Yerinde tespit örneği", "Servis fişi örneği", "Parça danışmanlığı örneği"],
     completedJobs: 315,
     responseTime: "28 dk’da dönüş",
     reviewCount: 61,
@@ -199,7 +199,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Beşiktaş", "Şişli", "Sarıyer", "Beyoğlu"],
     workingHours: "Pazartesi - Cumartesi 09:00 - 18:00",
     servicesOffered: ["Demonte mobilya montajı", "Raf sabitleme", "Dolap kurulumu", "Masa montajı"],
-    trustBadges: ["Parça kontrolü demo", "Temiz teslim demo", "Planlı randevu demo"],
+    trustBadges: ["Parça kontrolü örneği", "Temiz teslim örneği", "Planlı randevu örneği"],
     completedJobs: 520,
     responseTime: "25 dk’da dönüş",
     reviewCount: 110,
@@ -221,7 +221,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Fatih", "Zeytinburnu", "Eminönü", "Beyoğlu"],
     workingHours: "Hafta içi 08:00 - 18:00, Cumartesi 09:00 - 16:00",
     servicesOffered: ["İç cephe boya", "Tavan boyası", "Rötuş", "Yüzey hazırlığı"],
-    trustBadges: ["Koruyucu kaplama demo", "Zamanında teslim demo", "Malzeme danışmanlığı demo"],
+    trustBadges: ["Koruyucu kaplama örneği", "Zamanında teslim örneği", "Malzeme danışmanlığı örneği"],
     completedJobs: 610,
     responseTime: "30 dk’da dönüş",
     reviewCount: 104,
@@ -243,7 +243,7 @@ export const providers: Provider[] = [
     serviceAreas: ["Ümraniye", "Ataşehir", "Kadıköy", "Üsküdar"],
     workingHours: "Her gün 08:00 - 20:00",
     servicesOffered: ["Küçük eşya taşıma", "Koli taşıma", "Araçlı nakliye yardımı", "Apartman içi taşıma"],
-    trustBadges: ["Planlı taşıma demo", "Araç desteği demo", "Hızlı keşif demo"],
+    trustBadges: ["Planlı taşıma örneği", "Araç desteği örneği", "Hızlı keşif örneği"],
     completedJobs: 285,
     responseTime: "22 dk’da dönüş",
     reviewCount: 58,
@@ -304,7 +304,7 @@ export function isLiveProvider(provider: Provider) {
 }
 
 export function getProviderProfileBadge(provider: Provider) {
-  return isLiveProvider(provider) ? "Onaylı profil" : "Demo profil";
+  return isLiveProvider(provider) ? "Onaylı profil" : "Örnek profil";
 }
 
 export function getProviderDataNotice(provider: Provider) {
@@ -312,5 +312,5 @@ export function getProviderDataNotice(provider: Provider) {
     return "Bu profil canlı sağlayıcı kaydından alınır; fiyat ve uygunluk için doğrudan iletişime geçin.";
   }
 
-  return "MVP demo verisi; doğrulama, yorum ve iletişim bilgileri canlı kayıt değildir.";
+  return "Örnek veri; doğrulama, yorum ve iletişim bilgileri canlı kayıt değildir.";
 }

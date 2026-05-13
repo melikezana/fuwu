@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
   AdminActionButton,
   AdminCardGrid,
@@ -9,8 +12,12 @@ import {
   AdminTableWrap,
   adminActionIcons,
 } from "@/app/admin/_components/AdminUI";
+import { AdminAccessGate } from "@/app/admin/_components/AdminAccessGate";
 import {
+  approveAdminProviderApplication,
+  getAdminAccess,
   getAdminProviderApplications,
+  rejectAdminProviderApplication,
   type AdminProviderApplication,
 } from "@/services/admin";
 
@@ -20,6 +27,131 @@ export const metadata: Metadata = {
   title: "Başvurular | Fuwu Admin",
   description: "Fuwu usta başvuruları için admin görünümü.",
 };
+
+const adminProviderApplicationsPath = "/admin/provider-applications";
+
+type SearchParams = Record<string, string | string[] | undefined>;
+
+type AdminProviderApplicationsPageProps = {
+  searchParams?: Promise<SearchParams>;
+};
+
+type ApplicationActionFeedback = {
+  body: string;
+  title: string;
+  tone: "error" | "success";
+};
+
+const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
+  "admin-not-authorized": {
+    body: "Bu işlemi tamamlamak için admin rolüne sahip bir Supabase oturumu gerekiyor.",
+    title: "Admin yetkisi gerekli",
+    tone: "error",
+  },
+  "application-action-failed": {
+    body: "Supabase işlemi tamamlanamadı. Admin yetkisini ve bağlantı ayarlarını kontrol edip tekrar deneyin.",
+    title: "İşlem tamamlanamadı",
+    tone: "error",
+  },
+  "application-already-approved": {
+    body: "Onaylanmış başvurular bu ekrandan reddedilmedi. Gerekirse ilgili usta kaydını Ustalar ekranından yönetin.",
+    title: "Başvuru zaten onaylı",
+    tone: "error",
+  },
+  "application-approved-provider-activated": {
+    body: "Başvuru onaylandı ve aynı telefonla eşleşen mevcut usta kaydı aktif/onaylı hale getirildi.",
+    title: "Başvuru onaylandı",
+    tone: "success",
+  },
+  "application-approved-provider-created": {
+    body: "Başvuru onaylandı ve başvuru bilgileriyle yeni, aktif ve onaylı bir usta kaydı oluşturuldu.",
+    title: "Başvuru onaylandı",
+    tone: "success",
+  },
+  "application-approved-provider-skipped": {
+    body: "Başvuru onaylandı. Kategori, ilçe veya telefon eşleşmesi güvenli olmadığı için usta kaydı otomatik değiştirilmedi.",
+    title: "Başvuru onaylandı",
+    tone: "success",
+  },
+  "application-missing-id": {
+    body: "Başvuru kimliği alınamadı. Sayfayı yenileyip işlemi tekrar deneyin.",
+    title: "İşlem yapılamadı",
+    tone: "error",
+  },
+  "application-not-found": {
+    body: "İlgili başvuru bulunamadı veya bu başvuru için admin yetkisi yok.",
+    title: "Başvuru bulunamadı",
+    tone: "error",
+  },
+  "application-rejected": {
+    body: "Başvuru reddedildi ve durumu Supabase üzerinde güncellendi.",
+    title: "Başvuru reddedildi",
+    tone: "success",
+  },
+  "provider-activation-failed": {
+    body: "Mevcut usta kaydı aktifleştirilemediği için başvuru onaylanmadı.",
+    title: "Usta kaydı güncellenemedi",
+    tone: "error",
+  },
+  "provider-create-failed": {
+    body: "Yeni usta kaydı oluşturulamadığı için başvuru onaylanmadı.",
+    title: "Usta kaydı oluşturulamadı",
+    tone: "error",
+  },
+  "supabase-not-configured": {
+    body: "Supabase ortam değişkenleri tanımlı olmadığı için işlem yapılamadı.",
+    title: "Supabase bağlı değil",
+    tone: "error",
+  },
+};
+
+function getFormApplicationId(formData: FormData) {
+  const value = formData.get("applicationId");
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function revalidateProviderPublicationPaths() {
+  revalidatePath("/");
+  revalidatePath("/providers");
+  revalidatePath("/providers/[id]", "page");
+}
+
+function redirectToActionMessage(code: string): never {
+  revalidatePath(adminProviderApplicationsPath);
+  revalidateProviderPublicationPaths();
+  redirect(`${adminProviderApplicationsPath}?applicationAction=${encodeURIComponent(code)}`);
+}
+
+async function approveProviderApplicationAction(formData: FormData) {
+  "use server";
+
+  const result = await approveAdminProviderApplication(getFormApplicationId(formData));
+  redirectToActionMessage(result.code);
+}
+
+async function rejectProviderApplicationAction(formData: FormData) {
+  "use server";
+
+  const result = await rejectAdminProviderApplication(getFormApplicationId(formData));
+  redirectToActionMessage(result.code);
+}
+
+function getSearchParamValue(searchParams: SearchParams, key: string) {
+  const value = searchParams[key];
+
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function getApplicationActionFeedback(searchParams: SearchParams) {
+  const messageCode = getSearchParamValue(searchParams, "applicationAction");
+
+  if (!messageCode) {
+    return null;
+  }
+
+  return applicationActionMessages[messageCode] ?? null;
+}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -50,11 +182,78 @@ function ApplicationStatusBadge({ status }: { status: string }) {
   );
 }
 
-function ApplicationActions() {
+function ApplicationActionNotice({
+  feedback,
+}: {
+  feedback: ApplicationActionFeedback | null;
+}) {
+  if (!feedback) {
+    return null;
+  }
+
+  const Icon = feedback.tone === "success" ? CheckCircle2 : AlertTriangle;
+  const toneClasses =
+    feedback.tone === "success"
+      ? "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : "border-red-200 bg-red-50 text-red-700";
+
   return (
-    <div className="flex flex-wrap gap-2">
-      <AdminActionButton icon={adminActionIcons.approve}>Onayla</AdminActionButton>
-      <AdminActionButton icon={adminActionIcons.reject}>Reddet</AdminActionButton>
+    <div
+      className={`mb-6 rounded-lg border p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)] ${toneClasses}`}
+      role={feedback.tone === "success" ? "status" : "alert"}
+    >
+      <div className="flex gap-3">
+        <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+        <div>
+          <p className="text-sm font-black">{feedback.title}</p>
+          <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ApplicationActions({
+  application,
+}: {
+  application: AdminProviderApplication;
+}) {
+  const isApproved = application.status === "approved";
+  const isRejected = application.status === "rejected";
+  const isRejectDisabled = isApproved || isRejected;
+
+  return (
+    <div className="flex max-w-full flex-wrap gap-2">
+      <form action={approveProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
+        <input name="applicationId" type="hidden" value={application.id} />
+        <AdminActionButton
+          disabled={isApproved}
+          icon={adminActionIcons.approve}
+          title={isApproved ? "Başvuru zaten onaylandı" : "Başvuruyu onayla"}
+          tone="approve"
+          type="submit"
+        >
+          Onayla
+        </AdminActionButton>
+      </form>
+      <form action={rejectProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
+        <input name="applicationId" type="hidden" value={application.id} />
+        <AdminActionButton
+          disabled={isRejectDisabled}
+          icon={adminActionIcons.reject}
+          title={
+            isApproved
+              ? "Onaylanmış başvuru bu ekrandan reddedilemez"
+              : isRejected
+                ? "Başvuru zaten reddedildi"
+                : "Başvuruyu reddet"
+          }
+          tone="reject"
+          type="submit"
+        >
+          Reddet
+        </AdminActionButton>
+      </form>
       <AdminActionButton icon={adminActionIcons.detail}>Detay Gör</AdminActionButton>
     </div>
   );
@@ -67,8 +266,8 @@ function ApplicationMobileCard({
 }) {
   return (
     <AdminMobileCard>
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
+        <div className="min-w-0">
           <h2 className="text-base font-black text-[var(--brand-navy)]">
             {application.fullName}
           </h2>
@@ -95,23 +294,37 @@ function ApplicationMobileCard({
       </div>
 
       <div className="mt-4">
-        <ApplicationActions />
+        <ApplicationActions application={application} />
       </div>
     </AdminMobileCard>
   );
 }
 
-export default async function AdminProviderApplicationsPage() {
-  const result = await getAdminProviderApplications();
+export default async function AdminProviderApplicationsPage({
+  searchParams,
+}: AdminProviderApplicationsPageProps) {
+  const adminAccess = await getAdminAccess();
+
+  if (!adminAccess.ok) {
+    return <AdminAccessGate access={adminAccess} />;
+  }
+
+  const [result, resolvedSearchParams] = await Promise.all([
+    getAdminProviderApplications(),
+    searchParams ?? Promise.resolve({}),
+  ]);
+  const actionFeedback = getApplicationActionFeedback(resolvedSearchParams);
 
   return (
-    <AdminPageShell
+    <AdminAccessGate access={adminAccess}>
+      <AdminPageShell
       active="applications"
       description="Usta adaylarının başvuru bilgilerini ve değerlendirme durumlarını takip et."
       error={result.error}
       isConfigured={result.isConfigured}
       title="Başvurular"
     >
+      <ApplicationActionNotice feedback={actionFeedback} />
       {result.rows.length === 0 ? (
         <AdminEmptyState title="Başvuru bulunamadı">
           Supabase bağlantısı, admin okuma yetkisi veya yeni başvurular hazır
@@ -167,7 +380,7 @@ export default async function AdminProviderApplicationsPage() {
                       {formatDate(application.createdAt)}
                     </td>
                     <td className="px-4 py-4">
-                      <ApplicationActions />
+                      <ApplicationActions application={application} />
                     </td>
                   </tr>
                 ))}
@@ -176,6 +389,7 @@ export default async function AdminProviderApplicationsPage() {
           </AdminTableWrap>
         </>
       )}
-    </AdminPageShell>
+      </AdminPageShell>
+    </AdminAccessGate>
   );
 }

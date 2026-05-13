@@ -32,9 +32,12 @@ type RequestFormErrors = Partial<Record<RequestField, string>>;
 type SubmittedRequest = ServiceRequestSubmitResult;
 
 type RequestFormProps = {
+  authenticatedUserId: string;
   initialDistrict?: string;
   initialService?: string;
 };
+
+type RequestInitialFormProps = Pick<RequestFormProps, "initialDistrict" | "initialService">;
 
 const initialFormState: RequestFormState = {
   serviceCategory: "",
@@ -98,7 +101,7 @@ const timeRangeOptions = [
 ];
 
 const fieldBaseClassName =
-  "mt-2 w-full rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
 const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer select-none pr-10`;
@@ -127,7 +130,7 @@ function normalizeForm(values: RequestFormState): RequestFormState {
 function createInitialFormState({
   initialDistrict = "",
   initialService = "",
-}: RequestFormProps): RequestFormState {
+}: RequestInitialFormProps): RequestFormState {
   const matchedService = services.find(
     (service) => service.title.toLowerCase() === initialService.trim().toLowerCase(),
   );
@@ -169,7 +172,11 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   );
 }
 
-export function RequestForm({ initialDistrict, initialService }: RequestFormProps) {
+export function RequestForm({
+  authenticatedUserId,
+  initialDistrict,
+  initialService,
+}: RequestFormProps) {
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({ initialDistrict, initialService }),
   );
@@ -214,7 +221,7 @@ export function RequestForm({ initialDistrict, initialService }: RequestFormProp
     setIsSubmitting(true);
 
     try {
-      const result = await submitServiceRequest(normalizedRequest);
+      const result = await submitServiceRequest(normalizedRequest, authenticatedUserId);
       setSubmittedRequest(result);
       setFormState(initialFormState);
     } catch (error) {

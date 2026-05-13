@@ -6,26 +6,29 @@ import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/constants/navigation";
 import { services } from "@/constants/services";
+import {
+  createPageMetadata,
+  getProviderListingLabel,
+  toTurkishTitleCase,
+} from "@/lib/seo";
 import { getProviderDirectory } from "@/services/providers";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Usta Bul | Fuwu",
-  description:
-    "Ustaları puan, ilçe, fiyat aralığı ve iletişim bilgileriyle tek ekranda karşılaştır.",
+type ProvidersSearchParams = {
+  category?: string | string[];
+  district?: string | string[];
+  price?: string | string[];
+  rating?: string | string[];
+  q?: string | string[];
+  search?: string | string[];
+  availability?: string | string[];
+  service?: string | string[];
+  location?: string | string[];
 };
 
 type ProvidersPageProps = {
-  searchParams?: Promise<{
-    category?: string | string[];
-    district?: string | string[];
-    price?: string | string[];
-    rating?: string | string[];
-    availability?: string | string[];
-    service?: string | string[];
-    location?: string | string[];
-  }>;
+  searchParams?: Promise<ProvidersSearchParams>;
 };
 
 function getSearchParam(value?: string | string[]) {
@@ -36,18 +39,112 @@ function getSearchParam(value?: string | string[]) {
   return value ?? "";
 }
 
+function createProvidersCanonicalPath(params: {
+  availability?: string;
+  category?: string;
+  district?: string;
+  price?: string;
+  query?: string;
+  rating?: string;
+}) {
+  const canonicalParams = new URLSearchParams();
+
+  if (params.category) {
+    canonicalParams.set("category", params.category);
+  }
+
+  if (params.district) {
+    canonicalParams.set("district", params.district);
+  }
+
+  if (params.price) {
+    canonicalParams.set("price", params.price);
+  }
+
+  if (params.rating) {
+    canonicalParams.set("rating", params.rating);
+  }
+
+  if (params.availability) {
+    canonicalParams.set("availability", params.availability);
+  }
+
+  if (params.query) {
+    canonicalParams.set("q", params.query);
+  }
+
+  const queryString = canonicalParams.toString();
+
+  return queryString ? `${appRoutes.providers}?${queryString}` : appRoutes.providers;
+}
+
+export async function generateMetadata({ searchParams }: ProvidersPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const selectedCategory = getSearchParam(params?.category) || getSearchParam(params?.service);
+  const selectedDistrict = getSearchParam(params?.district) || getSearchParam(params?.location);
+  const selectedPrice = getSearchParam(params?.price);
+  const selectedRating = getSearchParam(params?.rating);
+  const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
+  const selectedAvailability = getSearchParam(params?.availability);
+  const areaLabel = selectedDistrict ? toTurkishTitleCase(selectedDistrict) : "İstanbul";
+  const categoryLabel = selectedCategory ? getProviderListingLabel(selectedCategory) : "";
+  const hasGranularFilters = Boolean(
+    selectedAvailability || selectedPrice || selectedQuery || selectedRating,
+  );
+  const title = selectedCategory
+    ? `${areaLabel} ${categoryLabel} | Fuwu`
+    : selectedDistrict
+      ? `${areaLabel} Ev Hizmeti Ustaları | Fuwu`
+      : "İstanbul Ev Hizmeti Ustaları | Fuwu";
+  const description = selectedCategory
+    ? `${areaLabel} bölgesinde ${categoryLabel.toLocaleLowerCase("tr")} profillerini Fuwu’da fiyat aralığı, puan ve telefon/WhatsApp iletişim bilgileriyle karşılaştırın.`
+    : `${areaLabel} genelinde tesisatçı, elektrikçi, temizlik ve ev hizmeti ustalarını Fuwu’da fiyat, puan ve direkt iletişim bilgileriyle karşılaştırın.`;
+
+  return createPageMetadata({
+    title,
+    description,
+    path: createProvidersCanonicalPath({
+      availability: selectedAvailability,
+      category: selectedCategory,
+      district: selectedDistrict,
+      price: selectedPrice,
+      query: selectedQuery,
+      rating: selectedRating,
+    }),
+    keywords: [
+      selectedCategory,
+      selectedDistrict,
+      selectedQuery,
+      categoryLabel,
+      `${areaLabel} usta`,
+      "Fuwu Hizmet",
+    ].filter((keyword): keyword is string => Boolean(keyword)),
+    noIndex: hasGranularFilters,
+  });
+}
+
 export default async function ProvidersPage({ searchParams }: ProvidersPageProps) {
   const params = await searchParams;
   const selectedCategory = getSearchParam(params?.category) || getSearchParam(params?.service);
   const selectedDistrict = getSearchParam(params?.district) || getSearchParam(params?.location);
   const selectedPrice = getSearchParam(params?.price);
   const selectedRating = getSearchParam(params?.rating);
+  const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
+  const hasActiveFilters = [
+    selectedAvailability,
+    selectedCategory,
+    selectedDistrict,
+    selectedPrice,
+    selectedQuery,
+    selectedRating,
+  ].some((value) => Boolean(value.trim()));
   const providerDirectory = await getProviderDirectory({
     availability: selectedAvailability,
     category: selectedCategory,
     district: selectedDistrict,
     price: selectedPrice,
+    query: selectedQuery,
     rating: selectedRating,
   });
   const { allProviders, filterOptions, providers: filteredProviders, source } = providerDirectory;
@@ -70,7 +167,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     <div className="bg-[var(--background)]">
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_54%,#F6F7F9_100%)]">
         <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.035] sm:text-[13rem]" />
-        <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-end lg:py-16">
+        <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,400px)] lg:items-end lg:py-16">
           <div className="min-w-0 cursor-default select-none">
             <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <FuwuLogo size="md" />
@@ -78,7 +175,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
               Usta Bul
             </p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-6xl">
+            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
               Ustaları karşılaştır, doğru kararı ver.
             </h1>
             <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
@@ -88,12 +185,12 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <p className="mt-4 max-w-2xl rounded-md border border-[rgba(255,138,0,0.24)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--muted)]">
               {source === "supabase"
                 ? "Canlı sağlayıcı kayıtlarını puan, ilçe ve fiyat aralığıyla karşılaştırın; karar verdiğinizde doğrudan iletişime geçin."
-                : "MVP notu: Bu listedeki profiller demo verisidir; canlı doğrulama, ödeme veya hesap sistemi yoktur."}
+                : "Örnek liste notu: Bu listedeki profiller örnek veridir; canlı doğrulama, ödeme veya hesap sistemi yoktur."}
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {heroBadges.map((badge) => (
                 <Link
-                  className="cursor-pointer select-none whitespace-nowrap rounded-md bg-white px-3 py-2 text-sm font-black text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                  className="max-w-full cursor-pointer select-none rounded-md bg-white px-3 py-2 text-sm font-black leading-5 text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
                   href={badge.href}
                   key={badge.label}
                 >
@@ -141,6 +238,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               category: selectedCategory,
               district: selectedDistrict,
               price: selectedPrice,
+              query: selectedQuery,
               rating: selectedRating,
             }}
           />
@@ -148,7 +246,11 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       </section>
 
       <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
-        <ProviderList providers={filteredProviders} totalCount={providerDirectory.totalCount} />
+        <ProviderList
+          hasActiveFilters={hasActiveFilters}
+          providers={filteredProviders}
+          totalCount={providerDirectory.totalCount}
+        />
       </Container>
     </div>
   );

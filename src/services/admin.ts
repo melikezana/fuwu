@@ -2,13 +2,25 @@ import {
   createSupabaseServerClient,
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
+import {
+  notifyProviderApplicationApproved,
+  notifyProviderApplicationRejected,
+} from "@/services/notifications";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
   Database["public"]["Tables"]["provider_applications"]["Row"];
 type ServiceRequestRow =
   Database["public"]["Tables"]["service_requests"]["Row"];
+type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type AdminSupabaseClient = SupabaseClient<Database>;
+
+const ADMIN_ROLE = "admin";
+const adminMissingSessionMessage =
+  "Admin paneline erişmek için giriş yapmalısın.";
+const adminNotAuthorizedMessage = "Bu alana erişim yetkin yok.";
 
 type NamedRelation = {
   name: string | null;
@@ -18,13 +30,56 @@ type MaybeRelation = NamedRelation | NamedRelation[] | null;
 
 type ProfileRelation = {
   full_name: string | null;
+  phone: string | null;
 };
 
 type MaybeProfileRelation = ProfileRelation | ProfileRelation[] | null;
 
+export type AdminProfile = Pick<
+  ProfileRow,
+  "full_name" | "id" | "phone" | "role"
+>;
+
+export type AdminAccessAllowed = {
+  isConfigured: true;
+  ok: true;
+  profile: AdminProfile;
+  role: "admin";
+  userId: string;
+};
+
+export type AdminAccessDenied = {
+  isConfigured: boolean;
+  message: string;
+  ok: false;
+  reason: "missing-session" | "not-admin";
+  role?: string | null;
+  userId?: string;
+};
+
+export type AdminAccessResult = AdminAccessAllowed | AdminAccessDenied;
+
+type AdminSupabaseAccess =
+  | {
+      access: AdminAccessAllowed;
+      supabase: AdminSupabaseClient;
+    }
+  | {
+      access: AdminAccessDenied;
+      supabase: null;
+    };
+
 type AdminProviderRecord = Pick<
   ProviderRow,
-  "id" | "name" | "phone" | "rating" | "is_active" | "is_approved"
+  | "average_price_max"
+  | "average_price_min"
+  | "id"
+  | "is_active"
+  | "is_approved"
+  | "name"
+  | "phone"
+  | "rating"
+  | "whatsapp"
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
@@ -38,16 +93,55 @@ type AdminProviderApplicationRecord = Pick<
   service_categories: MaybeRelation;
 };
 
+type AdminProviderApplicationApprovalRecord = Pick<
+  ProviderApplicationRow,
+  | "category_id"
+  | "district_id"
+  | "experience_years"
+  | "full_name"
+  | "id"
+  | "introduction"
+  | "phone"
+>;
+
+type AdminProviderApplicationRejectionRecord = Pick<
+  ProviderApplicationRow,
+  "phone" | "status"
+>;
+
+type AdminProviderPublicationRecord = Pick<
+  ProviderRow,
+  "id" | "is_active" | "is_approved"
+>;
+
 type AdminServiceRequestRecord = Pick<
   ServiceRequestRow,
-  "id" | "user_id" | "urgency" | "status" | "created_at"
+  | "created_at"
+  | "description"
+  | "id"
+  | "preferred_date"
+  | "preferred_time"
+  | "status"
+  | "urgency"
+  | "user_id"
 > & {
   districts: MaybeRelation;
   profiles: MaybeProfileRelation;
   service_categories: MaybeRelation;
 };
 
+type AdminProviderPublicationUpdate = Partial<
+  Pick<ProviderRow, "is_active" | "is_approved">
+>;
+
+type AdminProviderApplicationProviderActionResult =
+  AdminProviderApplicationActionResult & {
+    previousPublication?: AdminProviderPublicationUpdate | null;
+    providerId?: string;
+  };
+
 export type AdminProvider = {
+  averagePriceRange: string;
   category: string;
   district: string;
   id: string;
@@ -56,6 +150,7 @@ export type AdminProvider = {
   name: string;
   phone: string;
   rating: number;
+  whatsapp: string;
 };
 
 export type AdminProviderApplication = {
@@ -75,6 +170,9 @@ export type AdminServiceRequest = {
   customerName: string;
   district: string;
   id: string;
+  phone: string;
+  preferredDate: string | null;
+  preferredTime: string | null;
   status: string;
   urgency: string;
 };
@@ -87,9 +185,10 @@ export type AdminReadResult<T> = {
 
 export type AdminDashboardSummary = {
   activeProviders: number;
+  newServiceRequests: number;
   pendingApplications: number;
-  serviceRequests: number;
   totalProviders: number;
+  totalServiceRequests: number;
 };
 
 export type AdminDashboardResult = {
@@ -98,16 +197,120 @@ export type AdminDashboardResult = {
   summary: AdminDashboardSummary;
 };
 
+export type AdminProviderStatusAction =
+  | "activate"
+  | "approve"
+  | "deactivate"
+  | "unpublish";
+
+export type AdminProviderStatusActionCode =
+  | "admin-not-authorized"
+  | "provider-action-failed"
+  | "provider-activated"
+  | "provider-approved"
+  | "provider-deactivated"
+  | "provider-invalid-action"
+  | "provider-missing-id"
+  | "provider-not-found"
+  | "provider-unpublished"
+  | "supabase-not-configured";
+
+export type AdminProviderStatusActionResult = {
+  code: AdminProviderStatusActionCode;
+  ok: boolean;
+};
+
+export type AdminProviderApplicationActionCode =
+  | "admin-not-authorized"
+  | "application-action-failed"
+  | "application-already-approved"
+  | "application-approved-provider-activated"
+  | "application-approved-provider-created"
+  | "application-approved-provider-skipped"
+  | "application-missing-id"
+  | "application-not-found"
+  | "application-rejected"
+  | "provider-activation-failed"
+  | "provider-create-failed"
+  | "supabase-not-configured";
+
+export type AdminProviderApplicationActionResult = {
+  code: AdminProviderApplicationActionCode;
+  ok: boolean;
+};
+
+export type AdminServiceRequestStatus =
+  | "cancelled"
+  | "completed"
+  | "in_progress"
+  | "matched"
+  | "open";
+
+export type AdminServiceRequestActionCode =
+  | "admin-not-authorized"
+  | "service-request-action-failed"
+  | "service-request-invalid-status"
+  | "service-request-missing-id"
+  | "service-request-not-found"
+  | "service-request-updated"
+  | "supabase-not-configured";
+
+export type AdminServiceRequestActionResult = {
+  code: AdminServiceRequestActionCode;
+  ok: boolean;
+};
+
+const adminServiceRequestStatuses: AdminServiceRequestStatus[] = [
+  "open",
+  "in_progress",
+  "matched",
+  "completed",
+  "cancelled",
+];
+
 const emptyDashboardSummary: AdminDashboardSummary = {
   activeProviders: 0,
+  newServiceRequests: 0,
   pendingApplications: 0,
-  serviceRequests: 0,
   totalProviders: 0,
+  totalServiceRequests: 0,
 };
+
+const adminProviderStatusActions: AdminProviderStatusAction[] = [
+  "activate",
+  "approve",
+  "deactivate",
+  "unpublish",
+];
 
 function getRelationName(relation: MaybeRelation) {
   const record = Array.isArray(relation) ? relation[0] : relation;
   return record?.name?.trim() || "Belirtilmedi";
+}
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("tr-TR", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatAveragePriceRange(
+  minimumPrice: number | null,
+  maximumPrice: number | null,
+) {
+  if (typeof minimumPrice === "number" && typeof maximumPrice === "number") {
+    return `${formatPrice(minimumPrice)} - ${formatPrice(maximumPrice)} TL`;
+  }
+
+  if (typeof minimumPrice === "number") {
+    return `${formatPrice(minimumPrice)} TL ve üzeri`;
+  }
+
+  if (typeof maximumPrice === "number") {
+    return `${formatPrice(maximumPrice)} TL'ye kadar`;
+  }
+
+  return "Belirtilmedi";
 }
 
 function getProfileName(relation: MaybeProfileRelation, userId: string) {
@@ -121,37 +324,433 @@ function getProfileName(relation: MaybeProfileRelation, userId: string) {
   return `Müşteri ${userId.slice(0, 8).toLocaleUpperCase("tr")}`;
 }
 
-function getAdminReadError(error: unknown) {
+function getProfilePhone(relation: MaybeProfileRelation) {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+  return record?.phone?.trim() || null;
+}
+
+function getRequestContactFromDescription(description: string | null) {
+  const contactLine = description
+    ?.split("\n")
+    .map((line) => line.trim())
+    .find((line) =>
+      line.toLocaleLowerCase("tr").startsWith("iletişim:"),
+    );
+
+  if (!contactLine) {
+    return {
+      name: null,
+      phone: null,
+    };
+  }
+
+  const separatorIndex = contactLine.indexOf(":");
+  const contactValue = contactLine.slice(separatorIndex + 1).trim();
+  const [name, phone] = contactValue.split("/").map((part) => part.trim());
+
+  return {
+    name: name || null,
+    phone: phone || null,
+  };
+}
+
+function getRequestCustomerName(
+  relation: MaybeProfileRelation,
+  userId: string,
+  description: string | null,
+) {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+  const profileName = record?.full_name?.trim();
+
+  if (profileName) {
+    return profileName;
+  }
+
+  const contact = getRequestContactFromDescription(description);
+
+  if (contact.name) {
+    return contact.name;
+  }
+
+  return getProfileName(relation, userId);
+}
+
+function getRequestPhone(
+  relation: MaybeProfileRelation,
+  description: string | null,
+) {
+  const profilePhone = getProfilePhone(relation);
+
+  if (profilePhone) {
+    return profilePhone;
+  }
+
+  const contact = getRequestContactFromDescription(description);
+
+  return contact.phone || "Belirtilmedi";
+}
+
+function getAdminReadError(
+  error: unknown,
+  message = "Supabase verisi şu anda okunamadı.",
+) {
   if (process.env.NODE_ENV !== "production") {
     console.warn("Admin Supabase read failed.", error);
   }
 
-  return "Supabase verisi şu anda okunamadı.";
+  return message;
 }
 
-function createEmptyReadResult<T>(error: string | null = null): AdminReadResult<T> {
+function warnAdminWriteError(context: string, error: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(`Admin Supabase ${context} failed.`, error);
+  }
+}
+
+function warnAdminAccessError(context: string, error: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(`Admin access ${context} failed.`, error);
+  }
+}
+
+function createAdminActionResult(
+  code: AdminProviderApplicationActionCode,
+  ok: boolean,
+): AdminProviderApplicationActionResult {
+  return {
+    code,
+    ok,
+  };
+}
+
+function createServiceRequestActionResult(
+  code: AdminServiceRequestActionCode,
+  ok: boolean,
+): AdminServiceRequestActionResult {
+  return {
+    code,
+    ok,
+  };
+}
+
+function createProviderStatusActionResult(
+  code: AdminProviderStatusActionCode,
+  ok: boolean,
+): AdminProviderStatusActionResult {
+  return {
+    code,
+    ok,
+  };
+}
+
+function isAdminServiceRequestStatus(
+  status: string,
+): status is AdminServiceRequestStatus {
+  return adminServiceRequestStatuses.includes(status as AdminServiceRequestStatus);
+}
+
+function isAdminProviderStatusAction(
+  action: string,
+): action is AdminProviderStatusAction {
+  return adminProviderStatusActions.includes(action as AdminProviderStatusAction);
+}
+
+function createEmptyReadResult<T>(
+  error: string | null = null,
+  isConfigured = isSupabaseServerConfigured,
+): AdminReadResult<T> {
   return {
     error,
-    isConfigured: isSupabaseServerConfigured,
+    isConfigured,
     rows: [],
   };
 }
 
-async function getSupabaseForAdminRead() {
-  if (!isSupabaseServerConfigured) {
-    return null;
+async function getAdminAccessForClient(
+  supabase: AdminSupabaseClient,
+): Promise<AdminAccessResult> {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    warnAdminAccessError("user lookup", userError);
   }
 
-  return createSupabaseServerClient();
+  if (!user) {
+    return {
+      isConfigured: isSupabaseServerConfigured,
+      message: adminMissingSessionMessage,
+      ok: false,
+      reason: "missing-session",
+    };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, full_name, phone, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    warnAdminAccessError("profile role lookup", profileError);
+  }
+
+  const adminProfile = profile as AdminProfile | null;
+
+  if (adminProfile?.role === ADMIN_ROLE) {
+    return {
+      isConfigured: true,
+      ok: true,
+      profile: adminProfile,
+      role: ADMIN_ROLE,
+      userId: user.id,
+    };
+  }
+
+  return {
+    isConfigured: true,
+    message: adminNotAuthorizedMessage,
+    ok: false,
+    reason: "not-admin",
+    role: adminProfile?.role ?? null,
+    userId: user.id,
+  };
 }
 
-export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> {
-  const supabase = await getSupabaseForAdminRead();
+async function getAdminSupabaseAccess(): Promise<AdminSupabaseAccess> {
+  if (!isSupabaseServerConfigured) {
+    return {
+      access: {
+        isConfigured: false,
+        message: adminMissingSessionMessage,
+        ok: false,
+        reason: "missing-session",
+      },
+      supabase: null,
+    };
+  }
+
+  const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     return {
-      error: null,
-      isConfigured: false,
+      access: {
+        isConfigured: false,
+        message: adminMissingSessionMessage,
+        ok: false,
+        reason: "missing-session",
+      },
+      supabase: null,
+    };
+  }
+
+  const access = await getAdminAccessForClient(supabase);
+
+  if (!access.ok) {
+    return {
+      access,
+      supabase: null,
+    };
+  }
+
+  return {
+    access,
+    supabase,
+  };
+}
+
+export async function getAdminAccess(): Promise<AdminAccessResult> {
+  const { access } = await getAdminSupabaseAccess();
+
+  return access;
+}
+
+async function getSupabaseForAdminRead() {
+  return getAdminSupabaseAccess();
+}
+
+async function getSupabaseForAdminWrite() {
+  return getAdminSupabaseAccess();
+}
+
+function createProviderDescription(
+  application: AdminProviderApplicationApprovalRecord,
+) {
+  const introduction = application.introduction?.trim();
+
+  if (introduction) {
+    return introduction;
+  }
+
+  return `${application.full_name} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
+}
+
+async function updateProviderApplicationStatus(
+  supabase: AdminSupabaseClient,
+  applicationId: string,
+  status: "approved" | "rejected",
+) {
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .update({ status })
+    .eq("id", applicationId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider application status update", error);
+    return createAdminActionResult("application-action-failed", false);
+  }
+
+  if (!data) {
+    return createAdminActionResult("application-not-found", false);
+  }
+
+  return createAdminActionResult(
+    status === "approved" ? "application-approved-provider-skipped" : "application-rejected",
+    true,
+  );
+}
+
+async function createOrActivateProviderFromApplication(
+  supabase: AdminSupabaseClient,
+  application: AdminProviderApplicationApprovalRecord,
+): Promise<AdminProviderApplicationProviderActionResult> {
+  if (!application.category_id || !application.district_id) {
+    return createAdminActionResult("provider-create-failed", false);
+  }
+
+  const phone = application.phone.trim();
+  const { data: existingProviders, error: existingProvidersError } = await supabase
+    .from("providers")
+    .select("id, is_active, is_approved")
+    .eq("phone", phone)
+    .limit(2);
+
+  if (existingProvidersError) {
+    warnAdminWriteError("provider lookup", existingProvidersError);
+    return createAdminActionResult("application-action-failed", false);
+  }
+
+  const providerRecords = (existingProviders ?? []) as AdminProviderPublicationRecord[];
+
+  if (providerRecords.length > 1) {
+    return createAdminActionResult("application-action-failed", false);
+  }
+
+  if (providerRecords.length === 1) {
+    const { error } = await supabase
+      .from("providers")
+      .update({
+        is_active: true,
+        is_approved: true,
+      })
+      .eq("id", providerRecords[0].id);
+
+    if (error) {
+      warnAdminWriteError("provider activation", error);
+      return createAdminActionResult("provider-activation-failed", false);
+    }
+
+    return {
+      ...createAdminActionResult("application-approved-provider-activated", true),
+      previousPublication: {
+        is_active: providerRecords[0].is_active,
+        is_approved: providerRecords[0].is_approved,
+      },
+      providerId: providerRecords[0].id,
+    };
+  }
+
+  const { data: createdProvider, error } = await supabase
+    .from("providers")
+    .insert({
+      category_id: application.category_id,
+      description: createProviderDescription(application),
+      district_id: application.district_id,
+      experience_years: application.experience_years,
+      is_active: true,
+      is_approved: true,
+      name: application.full_name.trim(),
+      phone,
+      whatsapp: phone,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider creation", error);
+    return createAdminActionResult("provider-create-failed", false);
+  }
+
+  if (!createdProvider) {
+    return createAdminActionResult("provider-create-failed", false);
+  }
+
+  return {
+    ...createAdminActionResult("application-approved-provider-created", true),
+    previousPublication: null,
+    providerId: createdProvider.id,
+  };
+}
+
+async function rollbackProviderPublicationAfterFailedApproval(
+  supabase: AdminSupabaseClient,
+  providerResult: AdminProviderApplicationProviderActionResult,
+) {
+  if (!providerResult.providerId) {
+    return;
+  }
+
+  const rollbackPayload = providerResult.previousPublication ?? {
+    is_active: false,
+    is_approved: false,
+  };
+
+  const { error } = await supabase
+    .from("providers")
+    .update(rollbackPayload)
+    .eq("id", providerResult.providerId);
+
+  if (error) {
+    warnAdminWriteError("provider approval rollback", error);
+  }
+}
+
+async function keepRejectedApplicationProviderHidden(
+  supabase: AdminSupabaseClient,
+  phone: string,
+) {
+  const normalizedPhone = phone.trim();
+
+  if (!normalizedPhone) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("providers")
+    .update({
+      is_active: false,
+      is_approved: false,
+    })
+    .eq("phone", normalizedPhone)
+    .eq("is_approved", false);
+
+  if (error) {
+    warnAdminWriteError("rejected provider publication guard", error);
+  }
+}
+
+export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> {
+  const adminAccess = await getSupabaseForAdminRead();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return {
+      error: adminAccess.access.message,
+      isConfigured: adminAccess.access.isConfigured,
       summary: emptyDashboardSummary,
     };
   }
@@ -160,45 +759,307 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
     totalProvidersResult,
     activeProvidersResult,
     pendingApplicationsResult,
-    serviceRequestsResult,
+    totalServiceRequestsResult,
+    newServiceRequestsResult,
   ] = await Promise.all([
     supabase.from("providers").select("id", { count: "exact", head: true }),
     supabase
       .from("providers")
       .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
+      .eq("is_active", true)
+      .eq("is_approved", true),
     supabase
       .from("provider_applications")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
     supabase.from("service_requests").select("id", { count: "exact", head: true }),
+    supabase
+      .from("service_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open"),
   ]);
 
   const results = [
     totalProvidersResult,
     activeProvidersResult,
     pendingApplicationsResult,
-    serviceRequestsResult,
+    totalServiceRequestsResult,
+    newServiceRequestsResult,
   ];
   const firstError = results.find((result) => result.error)?.error ?? null;
 
   return {
-    error: firstError ? getAdminReadError(firstError) : null,
+    error: firstError
+      ? getAdminReadError(
+          firstError,
+          "Dashboard istatistikleri şu anda Supabase'den yüklenemedi.",
+        )
+      : null,
     isConfigured: true,
     summary: {
       activeProviders: activeProvidersResult.count ?? 0,
+      newServiceRequests: newServiceRequestsResult.count ?? 0,
       pendingApplications: pendingApplicationsResult.count ?? 0,
-      serviceRequests: serviceRequestsResult.count ?? 0,
       totalProviders: totalProvidersResult.count ?? 0,
+      totalServiceRequests: totalServiceRequestsResult.count ?? 0,
     },
   };
 }
 
-export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider>> {
-  const supabase = await getSupabaseForAdminRead();
+export async function approveAdminProviderApplication(
+  applicationId: string,
+): Promise<AdminProviderApplicationActionResult> {
+  const normalizedApplicationId = applicationId.trim();
+
+  if (!normalizedApplicationId) {
+    return createAdminActionResult("application-missing-id", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
 
   if (!supabase) {
-    return createEmptyReadResult();
+    return createAdminActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .select(
+      `
+        id,
+        full_name,
+        phone,
+        category_id,
+        district_id,
+        experience_years,
+        introduction
+      `,
+    )
+    .eq("id", normalizedApplicationId)
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider application lookup", error);
+    return createAdminActionResult("application-action-failed", false);
+  }
+
+  if (!data) {
+    return createAdminActionResult("application-not-found", false);
+  }
+
+  const providerResult = await createOrActivateProviderFromApplication(
+    supabase,
+    data as AdminProviderApplicationApprovalRecord,
+  );
+
+  if (!providerResult.ok) {
+    return providerResult;
+  }
+
+  const statusResult = await updateProviderApplicationStatus(
+    supabase,
+    normalizedApplicationId,
+    "approved",
+  );
+
+  if (!statusResult.ok) {
+    await rollbackProviderPublicationAfterFailedApproval(supabase, providerResult);
+    return statusResult;
+  }
+
+  await notifyProviderApplicationApproved({
+    applicationId: normalizedApplicationId,
+    providerId: providerResult.providerId,
+  });
+
+  return providerResult;
+}
+
+export async function rejectAdminProviderApplication(
+  applicationId: string,
+): Promise<AdminProviderApplicationActionResult> {
+  const normalizedApplicationId = applicationId.trim();
+
+  if (!normalizedApplicationId) {
+    return createAdminActionResult("application-missing-id", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createAdminActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .select("phone, status")
+    .eq("id", normalizedApplicationId)
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider application lookup", error);
+    return createAdminActionResult("application-action-failed", false);
+  }
+
+  if (!data) {
+    return createAdminActionResult("application-not-found", false);
+  }
+
+  const application = data as AdminProviderApplicationRejectionRecord;
+
+  if (application.status === "approved") {
+    return createAdminActionResult("application-already-approved", false);
+  }
+
+  const statusResult = await updateProviderApplicationStatus(
+    supabase,
+    normalizedApplicationId,
+    "rejected",
+  );
+
+  if (!statusResult.ok) {
+    return statusResult;
+  }
+
+  await keepRejectedApplicationProviderHidden(supabase, application.phone);
+  await notifyProviderApplicationRejected({
+    applicationId: normalizedApplicationId,
+  });
+
+  return statusResult;
+}
+
+export async function updateAdminServiceRequestStatus(
+  requestId: string,
+  status: string,
+): Promise<AdminServiceRequestActionResult> {
+  const normalizedRequestId = requestId.trim();
+  const normalizedStatus = status.trim();
+
+  if (!normalizedRequestId) {
+    return createServiceRequestActionResult("service-request-missing-id", false);
+  }
+
+  if (!isAdminServiceRequestStatus(normalizedStatus)) {
+    return createServiceRequestActionResult("service-request-invalid-status", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createServiceRequestActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("service_requests")
+    .update({ status: normalizedStatus })
+    .eq("id", normalizedRequestId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("service request status update", error);
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
+  if (!data) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  return createServiceRequestActionResult("service-request-updated", true);
+}
+
+export async function updateAdminProviderStatus(
+  providerId: string,
+  action: string,
+): Promise<AdminProviderStatusActionResult> {
+  const normalizedProviderId = providerId.trim();
+  const normalizedAction = action.trim();
+
+  if (!normalizedProviderId) {
+    return createProviderStatusActionResult("provider-missing-id", false);
+  }
+
+  if (!isAdminProviderStatusAction(normalizedAction)) {
+    return createProviderStatusActionResult("provider-invalid-action", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createProviderStatusActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const updatePayload: AdminProviderPublicationUpdate =
+    normalizedAction === "activate"
+      ? { is_active: true }
+      : normalizedAction === "deactivate"
+        ? { is_active: false }
+        : normalizedAction === "approve"
+          ? { is_active: true, is_approved: true }
+          : { is_approved: false };
+
+  const { data, error } = await supabase
+    .from("providers")
+    .update(updatePayload)
+    .eq("id", normalizedProviderId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider status update", error);
+    return createProviderStatusActionResult("provider-action-failed", false);
+  }
+
+  if (!data) {
+    return createProviderStatusActionResult("provider-not-found", false);
+  }
+
+  const successCodeByAction: Record<
+    AdminProviderStatusAction,
+    AdminProviderStatusActionCode
+  > = {
+    activate: "provider-activated",
+    approve: "provider-approved",
+    deactivate: "provider-deactivated",
+    unpublish: "provider-unpublished",
+  };
+
+  return createProviderStatusActionResult(successCodeByAction[normalizedAction], true);
+}
+
+export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider>> {
+  const adminAccess = await getSupabaseForAdminRead();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createEmptyReadResult(
+      adminAccess.access.message,
+      adminAccess.access.isConfigured,
+    );
   }
 
   const { data, error } = await supabase
@@ -208,6 +1069,9 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
         id,
         name,
         phone,
+        whatsapp,
+        average_price_min,
+        average_price_max,
         rating,
         is_active,
         is_approved,
@@ -225,6 +1089,10 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
     error: null,
     isConfigured: true,
     rows: ((data ?? []) as unknown as AdminProviderRecord[]).map((provider) => ({
+      averagePriceRange: formatAveragePriceRange(
+        provider.average_price_min,
+        provider.average_price_max,
+      ),
       category: getRelationName(provider.service_categories),
       district: getRelationName(provider.districts),
       id: provider.id,
@@ -233,6 +1101,7 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
       name: provider.name,
       phone: provider.phone,
       rating: Number(provider.rating ?? 0),
+      whatsapp: provider.whatsapp?.trim() || "Belirtilmedi",
     })),
   };
 }
@@ -240,10 +1109,14 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
 export async function getAdminProviderApplications(): Promise<
   AdminReadResult<AdminProviderApplication>
 > {
-  const supabase = await getSupabaseForAdminRead();
+  const adminAccess = await getSupabaseForAdminRead();
+  const { supabase } = adminAccess;
 
   if (!supabase) {
-    return createEmptyReadResult();
+    return createEmptyReadResult(
+      adminAccess.access.message,
+      adminAccess.access.isConfigured,
+    );
   }
 
   const { data, error } = await supabase
@@ -287,10 +1160,14 @@ export async function getAdminProviderApplications(): Promise<
 export async function getAdminServiceRequests(): Promise<
   AdminReadResult<AdminServiceRequest>
 > {
-  const supabase = await getSupabaseForAdminRead();
+  const adminAccess = await getSupabaseForAdminRead();
+  const { supabase } = adminAccess;
 
   if (!supabase) {
-    return createEmptyReadResult();
+    return createEmptyReadResult(
+      adminAccess.access.message,
+      adminAccess.access.isConfigured,
+    );
   }
 
   const { data, error } = await supabase
@@ -301,10 +1178,13 @@ export async function getAdminServiceRequests(): Promise<
         user_id,
         urgency,
         status,
+        preferred_date,
+        preferred_time,
+        description,
         created_at,
         service_categories(name),
         districts(name),
-        profiles(full_name)
+        profiles(full_name, phone)
       `,
     )
     .order("created_at", { ascending: false });
@@ -319,9 +1199,16 @@ export async function getAdminServiceRequests(): Promise<
     rows: ((data ?? []) as unknown as AdminServiceRequestRecord[]).map((request) => ({
       category: getRelationName(request.service_categories),
       createdAt: request.created_at,
-      customerName: getProfileName(request.profiles, request.user_id),
+      customerName: getRequestCustomerName(
+        request.profiles,
+        request.user_id,
+        request.description,
+      ),
       district: getRelationName(request.districts),
       id: request.id,
+      phone: getRequestPhone(request.profiles, request.description),
+      preferredDate: request.preferred_date,
+      preferredTime: request.preferred_time,
       status: request.status,
       urgency: request.urgency,
     })),

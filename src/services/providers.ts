@@ -4,7 +4,7 @@ import {
   providers as mockProviders,
   type Provider,
 } from "@/constants/providers";
-import { getSupabaseClientConfig } from "@/lib/supabase/client";
+import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 
 export type { Provider };
@@ -17,6 +17,7 @@ export type ProviderFilters = {
   price?: string;
   rating?: string;
   availability?: string;
+  query?: string;
 };
 
 export type ProviderFilterOptions = {
@@ -60,6 +61,7 @@ type SupabaseProviderRecord = Pick<
 type RelationLookupRow = {
   id: string;
   name: string;
+  slug?: string | null;
 };
 
 type PriceRangeFilter = {
@@ -203,7 +205,34 @@ function isProvider(provider: Provider | null): provider is Provider {
 }
 
 function normalizeFilterValue(value: string) {
-  return value.trim().toLocaleLowerCase("tr");
+  return value
+    .trim()
+    .toLocaleLowerCase("tr")
+    .replace(/ı/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeSlugValue(value: string) {
+  return normalizeFilterValue(value).replace(/\s+/g, "-");
+}
+
+function getSearchTerms(value: string | undefined) {
+  if (!hasFilterValue(value)) {
+    return [];
+  }
+
+  return normalizeFilterValue(value ?? "")
+    .split(" ")
+    .filter((term) => term.length > 0);
 }
 
 function hasFilterValue(value: string | undefined) {
@@ -211,7 +240,13 @@ function hasFilterValue(value: string | undefined) {
 }
 
 function matchesExactFilter(providerValue: string, requestedValue: string) {
-  return normalizeFilterValue(providerValue) === normalizeFilterValue(requestedValue);
+  const normalizedProviderValue = normalizeFilterValue(providerValue);
+  const normalizedRequestedValue = normalizeFilterValue(requestedValue);
+
+  return (
+    normalizedProviderValue === normalizedRequestedValue ||
+    normalizeSlugValue(providerValue) === normalizeSlugValue(requestedValue)
+  );
 }
 
 function matchesCategoryFilter(providerCategory: string, requestedCategory: string) {
@@ -222,6 +257,13 @@ function matchesCategoryFilter(providerCategory: string, requestedCategory: stri
     providerValue === requestedValue ||
     providerValue.includes(requestedValue) ||
     requestedValue.includes(providerValue)
+  );
+}
+
+function matchesRelationFilter(record: RelationLookupRow, requestedValue: string) {
+  return (
+    matchesCategoryFilter(record.name, requestedValue) ||
+    (record.slug ? matchesCategoryFilter(record.slug, requestedValue) : false)
   );
 }
 
@@ -250,7 +292,7 @@ function parsePriceRangeFilter(value: string | undefined): PriceRangeFilter | nu
 
   const normalizedValue = normalizeFilterValue(selectedPrice);
 
-  if (normalizedValue.includes("görüşmede")) {
+  if (normalizedValue.includes("gorusmede")) {
     return {
       maximumPrice: null,
       minimumPrice: null,
@@ -277,7 +319,7 @@ function parsePriceRangeFilter(value: string | undefined): PriceRangeFilter | nu
     };
   }
 
-  if (priceValues.length === 1 && normalizedValue.includes("üzeri")) {
+  if (priceValues.length === 1 && normalizedValue.includes("uzeri")) {
     return {
       minimumPrice: priceValues[0],
       maximumPrice: null,
@@ -305,6 +347,31 @@ function matchesPriceFilter(providerPrice: string, selectedPrice: string) {
   );
 }
 
+function matchesProviderSearchQuery(provider: Provider, query: string | undefined) {
+  const searchTerms = getSearchTerms(query);
+
+  if (searchTerms.length === 0) {
+    return true;
+  }
+
+  const searchableText = normalizeFilterValue(
+    [
+      provider.name,
+      provider.category,
+      provider.district,
+      provider.description,
+      provider.shortDescription,
+      provider.averagePrice,
+      provider.experience,
+      provider.availability,
+      ...provider.serviceAreas,
+      ...provider.servicesOffered,
+    ].join(" "),
+  );
+
+  return searchTerms.every((term) => searchableText.includes(term));
+}
+
 function applyProviderFilters(providers: Provider[], filters: ProviderFilters = {}) {
   const minimumRating = parseMinimumRating(filters.rating);
 
@@ -325,13 +392,15 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
     const availabilityMatches =
       !hasFilterValue(filters.availability) ||
       matchesExactFilter(provider.availability, filters.availability ?? "");
+    const queryMatches = matchesProviderSearchQuery(provider, filters.query);
 
     return (
       categoryMatches &&
       districtMatches &&
       priceMatches &&
       ratingMatches &&
-      availabilityMatches
+      availabilityMatches &&
+      queryMatches
     );
   });
 }
@@ -357,15 +426,20 @@ function getUniqueSortedOptions(values: string[]) {
   );
 }
 
-function warnProviderFallback(error: unknown) {
+function warnProviderReadError(error: unknown) {
   if (process.env.NODE_ENV !== "production") {
-    console.warn("Provider Supabase read failed. Falling back to mock provider data.", error);
+    console.warn("Provider Supabase read failed. Returning empty public provider data.", error);
   }
 }
 
-function handleSupabaseError(error: unknown) {
-  warnProviderFallback(error);
-  return null;
+function handleSupabaseListError(error: unknown) {
+  warnProviderReadError(error);
+  return [];
+}
+
+function handleSupabaseDetailError(error: unknown) {
+  warnProviderReadError(error);
+  return undefined;
 }
 
 async function fetchMatchingCategoryIds(
@@ -378,7 +452,7 @@ async function fetchMatchingCategoryIds(
 
   const { data, error } = await supabase
     .from("service_categories")
-    .select("id, name")
+    .select("id, name, slug")
     .eq("is_active", true);
 
   if (error) {
@@ -386,7 +460,7 @@ async function fetchMatchingCategoryIds(
   }
 
   return ((data ?? []) as RelationLookupRow[])
-    .filter((record) => matchesCategoryFilter(record.name, category ?? ""))
+    .filter((record) => matchesRelationFilter(record, category ?? ""))
     .map((record) => record.id);
 }
 
@@ -400,7 +474,7 @@ async function fetchMatchingDistrictIds(
 
   const { data, error } = await supabase
     .from("districts")
-    .select("id, name")
+    .select("id, name, slug")
     .eq("is_active", true);
 
   if (error) {
@@ -408,7 +482,11 @@ async function fetchMatchingDistrictIds(
   }
 
   return ((data ?? []) as RelationLookupRow[])
-    .filter((record) => matchesExactFilter(record.name, district ?? ""))
+    .filter(
+      (record) =>
+        matchesExactFilter(record.name, district ?? "") ||
+        matchesRelationFilter(record, district ?? ""),
+    )
     .map((record) => record.id);
 }
 
@@ -469,7 +547,7 @@ async function fetchProvidersFromSupabase(
     const { data, error } = await query.order("rating", { ascending: false });
 
     if (error) {
-      return handleSupabaseError(error);
+      return handleSupabaseListError(error);
     }
 
     const providers = ((data ?? []) as unknown as SupabaseProviderRecord[])
@@ -478,9 +556,10 @@ async function fetchProvidersFromSupabase(
 
     return applyProviderFilters(providers, {
       availability: filters.availability,
+      query: filters.query,
     });
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleSupabaseListError(error);
   }
 }
 
@@ -489,7 +568,7 @@ async function fetchProviderByIdFromSupabase(
 ): Promise<Provider | null | undefined> {
   try {
     if (!isUuid(id)) {
-      return null;
+      return isSupabaseConfigured ? undefined : null;
     }
 
     const supabase = createProvidersSupabaseClient();
@@ -507,7 +586,7 @@ async function fetchProviderByIdFromSupabase(
       .maybeSingle();
 
     if (error) {
-      return handleSupabaseError(error);
+      return handleSupabaseDetailError(error);
     }
 
     if (!data) {
@@ -516,7 +595,7 @@ async function fetchProviderByIdFromSupabase(
 
     return mapSupabaseProvider(data as unknown as SupabaseProviderRecord);
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleSupabaseDetailError(error);
   }
 }
 

@@ -188,6 +188,8 @@ export type Database = {
           has_equipment: boolean;
           introduction: string | null;
           portfolio_url: string | null;
+          profile_image_path: string | null;
+          profile_image_url: string | null;
           status: string;
           created_at: string;
           updated_at: string;
@@ -203,6 +205,8 @@ export type Database = {
           has_equipment?: boolean;
           introduction?: string | null;
           portfolio_url?: string | null;
+          profile_image_path?: string | null;
+          profile_image_url?: string | null;
           status?: string;
           created_at?: string;
           updated_at?: string;
@@ -218,6 +222,8 @@ export type Database = {
           has_equipment?: boolean;
           introduction?: string | null;
           portfolio_url?: string | null;
+          profile_image_path?: string | null;
+          profile_image_url?: string | null;
           status?: string;
           created_at?: string;
           updated_at?: string;
@@ -299,6 +305,48 @@ export type Database = {
           },
           {
             foreignKeyName: "service_requests_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      reviews: {
+        Row: {
+          id: string;
+          provider_id: string;
+          user_id: string;
+          rating: number;
+          comment: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          user_id: string;
+          rating: number;
+          comment?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+          user_id?: string;
+          rating?: number;
+          comment?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reviews_provider_id_fkey";
+            columns: ["provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";

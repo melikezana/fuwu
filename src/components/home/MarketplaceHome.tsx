@@ -79,6 +79,20 @@ const fieldBaseClassName =
 const inputClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[#6B7280]`;
 const selectClassName = `${fieldBaseClassName} cursor-pointer select-none pr-10`;
 
+function getPriceFilterValue(price: string) {
+  const priceValues =
+    price
+      .match(/\d[\d.,]*/g)
+      ?.map((value) => value.replace(/\./g, "").replace(",", "."))
+      .filter(Boolean) ?? [];
+
+  if (priceValues.length >= 2) {
+    return `${priceValues[0]}-${priceValues[1]}`;
+  }
+
+  return price;
+}
+
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   return (
     <div className="max-w-3xl cursor-default select-none">
@@ -123,12 +137,12 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
       className="mt-9 w-full max-w-[820px] cursor-default select-none rounded-lg bg-white p-3 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4"
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(11rem,1.15fr)_minmax(7.25rem,0.75fr)_minmax(8rem,0.8fr)_minmax(7rem,0.7fr)_8rem] xl:items-end">
-        <HeroField label="Hizmet ara">
+        <HeroField label="Arama">
           <input
             className={inputClassName}
             list="hero-service-options"
-            name="service"
-            placeholder="Tesisat, temizlik, klima & beyaz eşya"
+            name="q"
+            placeholder="Hizmet veya usta ara"
             type="search"
           />
           <datalist id="hero-service-options">
@@ -153,7 +167,7 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           <select className={selectClassName} defaultValue="" name="price">
             <option value="">Tüm fiyatlar</option>
             {filterOptions.averagePrices.map((price) => (
-              <option key={price} value={price}>
+              <option key={price} value={getPriceFilterValue(price)}>
                 {price}
               </option>
             ))}
@@ -171,7 +185,7 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           </select>
         </HeroField>
 
-        <Button className="h-12 min-h-12 w-full whitespace-nowrap rounded-md px-6 xl:w-32" type="submit">
+        <Button className="h-12 min-h-12 w-full rounded-md px-6 xl:w-32" type="submit">
           {ctaLabels.findProvider}
         </Button>
       </div>
@@ -191,7 +205,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
       />
       <div className="pointer-events-none relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0 cursor-default select-none">
-          <p className="truncate text-sm font-black text-[var(--brand-navy)]">{provider.name}</p>
+          <p className="text-sm font-black leading-5 text-[var(--brand-navy)]">{provider.name}</p>
           <p className="mt-1 text-xs font-bold text-[var(--muted)]">
             {provider.category} · {provider.district}
           </p>
@@ -247,9 +261,17 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
           </div>
 
           <div className="mt-3 grid gap-3">
-            {heroProviders.map((provider) => (
-              <PhoneProviderRow key={provider.id} provider={provider} />
-            ))}
+            {heroProviders.length > 0 ? (
+              heroProviders.map((provider) => (
+                <PhoneProviderRow key={provider.id} provider={provider} />
+              ))
+            ) : (
+              <div className="cursor-default rounded-lg bg-white p-4 text-center shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+                <p className="text-sm font-black leading-6 text-[var(--brand-navy)]">
+                  Henüz yayında uygun usta bulunmuyor.
+                </p>
+              </div>
+            )}
           </div>
 
           <Link
@@ -290,7 +312,7 @@ function HeroSection({
             <FuwuLogo size="md" />
           </div>
 
-          <h1 className="mt-6 max-w-4xl cursor-default select-none text-5xl font-black leading-[1.04] text-[var(--brand-navy)] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 max-w-4xl cursor-default select-none text-4xl font-black leading-[1.08] text-[var(--brand-navy)] sm:text-5xl lg:text-7xl">
             Ustaya ulaşmanın en hızlı yolu.
           </h1>
           <p className="mt-6 max-w-3xl cursor-default select-none text-lg font-semibold leading-8 text-[var(--muted)] sm:text-xl sm:leading-9">
@@ -389,10 +411,10 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
         ) : (
           <div className="mt-7 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
             <p className="text-xl font-black text-[var(--brand-navy)]">
-              Şu anda listelenecek usta bulunamadı.
+              Henüz yayında uygun usta bulunmuyor.
             </p>
             <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
-              Farklı kategori veya ilçe seçenekleri için usta listesini kontrol edebilirsiniz.
+              Onay süreci tamamlanan aktif ustalar yayına alındığında burada görünecek.
             </p>
           </div>
         )}
@@ -505,11 +527,11 @@ function FinalCTASection() {
             </h2>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="w-full whitespace-nowrap sm:w-fit" href={appRoutes.providers}>
+            <Button className="w-full sm:w-fit" href={appRoutes.providers}>
               {ctaLabels.findProvider}
             </Button>
             <Button
-              className="w-full whitespace-nowrap sm:w-fit"
+              className="w-full sm:w-fit"
               href={appRoutes.providerApplication}
               variant="secondary"
             >

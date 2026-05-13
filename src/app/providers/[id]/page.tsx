@@ -5,6 +5,7 @@ import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Button } from "@/components/common/Button";
 import { Container } from "@/components/common/Container";
 import { ProviderCard } from "@/components/providers/ProviderCard";
+import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { appRoutes } from "@/constants/navigation";
 import {
   getProviderDataNotice,
@@ -14,7 +15,9 @@ import {
   getProviderWhatsAppHref,
   isLiveProvider,
 } from "@/constants/providers";
+import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { getProviderById, getProviders } from "@/services/providers";
+import { getProviderReviews } from "@/services/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -29,15 +32,30 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
   const provider = await getProviderById(id);
 
   if (!provider) {
-    return {
+    return createPageMetadata({
       title: "Usta Bulunamadı | Fuwu",
-    };
+      description:
+        "Aradığınız Fuwu Hizmet profiline ulaşılamadı; İstanbul’daki uygun ustaları kategori, ilçe ve puana göre karşılaştırın.",
+      path: `/providers/${id}`,
+      noIndex: true,
+    });
   }
 
-  return {
-    title: `${provider.name} | Fuwu Usta Profili`,
-    description: `${provider.district} bölgesinde ${provider.category} hizmeti veren ${provider.name} için fiyat aralığını, puanı ve iletişim seçeneklerini inceleyin.`,
-  };
+  const professionLabel = getProviderProfessionLabel(provider.category);
+
+  return createPageMetadata({
+    title: `${provider.district} ${professionLabel} | ${provider.name} | Fuwu`,
+    description: `${provider.district} bölgesinde hizmet veren ${provider.name} için ${provider.averagePrice} fiyat aralığını, ${provider.rating.toFixed(1)} puanını ve telefon/WhatsApp iletişim bilgilerini inceleyin.`,
+    path: `/providers/${provider.id}`,
+    keywords: [
+      provider.name,
+      provider.category,
+      provider.district,
+      `${provider.district} ${professionLabel}`,
+      `${provider.category} Fuwu`,
+      "Fuwu Hizmet",
+    ],
+  });
 }
 
 function ProviderNotFoundState() {
@@ -101,7 +119,10 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     return <ProviderNotFoundState />;
   }
 
-  const providers = await getProviders();
+  const [providers, reviewData] = await Promise.all([
+    getProviders(),
+    getProviderReviews(provider.id),
+  ]);
   const relatedProviders = providers
     .filter(
       (relatedProvider) =>
@@ -130,7 +151,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </Container>
       </section>
 
-      <Container className="grid gap-6 py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start lg:py-12">
+      <Container className="grid gap-6 py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,370px)] lg:items-start lg:py-12">
         <div className="min-w-0 space-y-6">
           <section className="relative cursor-default select-none overflow-hidden rounded-lg bg-white p-5 shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-7">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
@@ -156,10 +177,10 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                   >
                     {provider.district}
                   </Link>
-                  <span className="whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black text-[var(--muted)]">
+                  <span className="max-w-full rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--muted)]">
                     {getProviderProfileBadge(provider)}
                   </span>
-                  <span className="whitespace-nowrap rounded-md bg-[var(--trust-green-soft)] px-3 py-1 text-xs font-black text-[var(--trust-green)]">
+                  <span className="max-w-full rounded-md bg-[var(--trust-green-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--trust-green)]">
                     {provider.availability}
                   </span>
                 </div>
@@ -207,6 +228,12 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </p>
           </section>
 
+          <ProviderReviews
+            reviews={reviewData.reviews}
+            source={reviewData.source}
+            summary={reviewData.summary}
+          />
+
           <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
             <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
               Sunduğu hizmetler
@@ -249,7 +276,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
 
             <div className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
               <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
-                {isLiveProvider(provider) ? "Güven sinyalleri" : "Demo güven sinyalleri"}
+                {isLiveProvider(provider) ? "Güven sinyalleri" : "Örnek güven sinyalleri"}
               </p>
               <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
                 {isLiveProvider(provider) ? "Profil bilgileri" : "Canlı doğrulama değildir"}
@@ -268,7 +295,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           </section>
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-24">
+        <aside className="min-w-0 space-y-6 lg:sticky lg:top-24">
           <section className="cursor-default select-none overflow-hidden rounded-lg bg-white shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.1)]">
             <div className="h-1.5 bg-[var(--brand-orange)]" />
             <div className="p-5">
@@ -282,9 +309,9 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               <p className="mt-3 rounded-md bg-[var(--surface-soft)] px-3 py-2 text-xs font-bold leading-5 text-[var(--muted)]">
                 {isLiveProvider(provider)
                   ? "Sağlayıcı iletişim bilgisi canlı kayıttan alınır; detayları doğrudan netleştirin."
-                  : "Demo iletişim alanı; canlı sağlayıcı doğrulaması henüz aktif değildir."}
+                  : "Örnek iletişim alanı; canlı sağlayıcı doğrulaması henüz aktif değildir."}
               </p>
-              <p className="mt-2 inline-flex w-fit whitespace-nowrap rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-black text-[var(--brand-navy)]">
+              <p className="mt-2 inline-flex max-w-full rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-black leading-6 text-[var(--brand-navy)]">
                 {provider.responseTime}
               </p>
 
