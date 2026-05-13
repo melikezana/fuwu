@@ -17,7 +17,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .next-dev*.log
+.next-provider-dev*.log
 
 # system files
 .DS_Store
 Thumbs.db
+
+# generated type/build cache
+tsconfig.tsbuildinfo

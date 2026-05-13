@@ -34,7 +34,7 @@ Create local environment variables when needed:
 cp .env.example .env.local
 ```
 
-For the current MVP, Supabase is not connected. Keep placeholder values unless a real backend is added later.
+For local development, put real Supabase project values in `.env.local` only. Keep `.env.example` blank and safe to commit.
 
 Start the development server:
 
@@ -81,9 +81,9 @@ Do not commit real `.env.local` values or private credentials.
 ## Current MVP Status
 
 - Landing page is implemented.
-- Customer request form is implemented with client-side validation only; it does not send or store submitted data.
-- Provider application form is implemented with client-side validation only; it does not send or store submitted data.
-- Login/auth UI is marked inactive and does not collect passwords, OTPs, or sessions.
-- Supabase type/config scaffolding exists, but `@supabase/supabase-js` is not installed and no database writes are connected.
-- No authentication, payment flow, admin dashboard, or backend API is included yet.
-- Ready for static/product review deployment once `npm run build` passes.
+- Customer request form is implemented and can store requests when Supabase env variables are configured.
+- Provider application form is implemented and can store applications when Supabase env variables are configured.
+- Login/auth UI supports Supabase Google and email magic-link flows when auth providers are configured.
+- Provider, provider dashboard, and admin routes are implemented with Supabase fallbacks for unconfigured environments.
+- No payment flow is included yet.
+- Ready for Vercel deployment once `npm run build` passes and Supabase env variables are added in Vercel.
