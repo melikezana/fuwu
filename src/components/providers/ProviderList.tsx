@@ -15,6 +15,10 @@ export function ProviderList({
   totalCount,
 }: ProviderListProps) {
   const hasNoPublicProviders = totalCount === 0 && !hasActiveFilters;
+  const resultHeading =
+    providers.length > 0 || totalCount === 0
+      ? `${providers.length} usta listelendi`
+      : "Filtrelerine uygun usta bulunamadı";
 
   return (
     <section>
@@ -22,7 +26,7 @@ export function ProviderList({
         <div className="cursor-default select-none">
           <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">Sana uygun ustalar</p>
           <h2 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)]">
-            {providers.length} usta listelendi
+            {resultHeading}
           </h2>
           <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
             İstanbul genelinde {totalCount} aktif profil arasından puan, fiyat ve uygunlukla

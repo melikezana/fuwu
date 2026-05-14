@@ -1,6 +1,10 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   getProviderById as getMockProviderById,
+  providerAvailabilityOptions,
+  providerAveragePrices,
+  providerCategories,
+  providerDistricts,
   providers as mockProviders,
   type Provider,
 } from "@/constants/providers";
@@ -54,8 +58,10 @@ type SupabaseProviderRecord = Pick<
   | "average_price_max"
   | "rating"
 > & {
-  districts: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
-  service_categories: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
+  category?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
+  district?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
+  districts?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
+  service_categories?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
 };
 
 type RelationLookupRow = {
@@ -84,8 +90,8 @@ const providerSelectQuery = `
   average_price_min,
   average_price_max,
   rating,
-  service_categories(name, slug),
-  districts(name, slug)
+  category:service_categories(name, slug),
+  district:districts(name, slug)
 `;
 
 function isUuid(value: string) {
@@ -159,8 +165,8 @@ function createFallbackDescription(name: string, category: string, district: str
 }
 
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
-  const category = getRelationName(record.service_categories);
-  const district = getRelationName(record.districts);
+  const category = getRelationName(record.category ?? record.service_categories);
+  const district = getRelationName(record.district ?? record.districts);
 
   if (!category || !district) {
     return null;
@@ -420,6 +426,28 @@ function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
   };
 }
 
+function buildFallbackFilterOptions(): ProviderFilterOptions {
+  return {
+    availabilityOptions: [...providerAvailabilityOptions],
+    averagePrices: [...providerAveragePrices],
+    categories: [...providerCategories],
+    districts: [...providerDistricts],
+  };
+}
+
+function mergeLookupFilterOptions(
+  providers: Provider[],
+  lookups: Pick<ProviderFilterOptions, "categories" | "districts">,
+): ProviderFilterOptions {
+  const providerOptions = buildFilterOptions(providers);
+
+  return {
+    ...providerOptions,
+    categories: lookups.categories,
+    districts: lookups.districts,
+  };
+}
+
 function getUniqueSortedOptions(values: string[]) {
   return Array.from(new Set(values.filter(Boolean))).sort((firstValue, secondValue) =>
     firstValue.localeCompare(secondValue, "tr"),
@@ -428,13 +456,13 @@ function getUniqueSortedOptions(values: string[]) {
 
 function warnProviderReadError(error: unknown) {
   if (process.env.NODE_ENV !== "production") {
-    console.warn("Provider Supabase read failed. Returning empty public provider data.", error);
+    console.warn("Provider Supabase read failed. Falling back to static public data.", error);
   }
 }
 
 function handleSupabaseListError(error: unknown) {
   warnProviderReadError(error);
-  return [];
+  return null;
 }
 
 function handleSupabaseDetailError(error: unknown) {
@@ -462,6 +490,60 @@ async function fetchMatchingCategoryIds(
   return ((data ?? []) as RelationLookupRow[])
     .filter((record) => matchesRelationFilter(record, category ?? ""))
     .map((record) => record.id);
+}
+
+async function fetchServiceCategoryFilterOptions(supabase: SupabaseClient<Database>) {
+  const { data, error } = await supabase
+    .from("service_categories")
+    .select("name")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return getUniqueSortedOptions((data ?? []).map((record) => record.name));
+}
+
+async function fetchDistrictFilterOptions(supabase: SupabaseClient<Database>) {
+  const { data, error } = await supabase
+    .from("districts")
+    .select("name")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return getUniqueSortedOptions((data ?? []).map((record) => record.name));
+}
+
+async function fetchFilterLookupsFromSupabase(): Promise<Pick<
+  ProviderFilterOptions,
+  "categories" | "districts"
+> | null> {
+  try {
+    const supabase = createProvidersSupabaseClient();
+
+    if (!supabase) {
+      return null;
+    }
+
+    const [categories, districts] = await Promise.all([
+      fetchServiceCategoryFilterOptions(supabase),
+      fetchDistrictFilterOptions(supabase),
+    ]);
+
+    return {
+      categories,
+      districts,
+    };
+  } catch (error) {
+    warnProviderReadError(error);
+    return null;
+  }
 }
 
 async function fetchMatchingDistrictIds(
@@ -602,7 +684,7 @@ async function fetchProviderByIdFromSupabase(
 async function readProviders(filters: ProviderFilters = {}): Promise<ProviderReadResult> {
   const supabaseProviders = await fetchProvidersFromSupabase(filters);
 
-  if (supabaseProviders) {
+  if (supabaseProviders !== null) {
     return {
       providers: supabaseProviders,
       source: "supabase",
@@ -623,10 +705,22 @@ export async function getProviderDirectory(
     readProviders(),
   ]);
   const allProviders = allProviderResult.providers;
+  const filterLookups =
+    allProviderResult.source === "supabase" ? await fetchFilterLookupsFromSupabase() : null;
+  const fallbackFilterOptions = buildFallbackFilterOptions();
+  const filterOptions = filterLookups
+    ? mergeLookupFilterOptions(allProviders, filterLookups)
+    : allProviderResult.source === "supabase"
+      ? {
+          ...buildFilterOptions(allProviders),
+          categories: fallbackFilterOptions.categories,
+          districts: fallbackFilterOptions.districts,
+        }
+      : buildFilterOptions(allProviders);
 
   return {
     allProviders,
-    filterOptions: buildFilterOptions(allProviders),
+    filterOptions,
     providers: filteredProviderResult.providers,
     source:
       filteredProviderResult.source === "supabase" && allProviderResult.source === "supabase"
