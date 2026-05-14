@@ -10,13 +10,14 @@ type ProviderListProps = {
 };
 
 export function ProviderList({
-  hasActiveFilters = false,
   providers,
   totalCount,
 }: ProviderListProps) {
-  const hasNoPublicProviders = totalCount === 0 && !hasActiveFilters;
+  const hasNoPublicProviders = totalCount === 0;
   const resultHeading =
-    providers.length > 0 || totalCount === 0
+    hasNoPublicProviders
+      ? "Henüz yayında usta bulunmuyor"
+      : providers.length > 0
       ? `${providers.length} usta listelendi`
       : "Filtrelerine uygun usta bulunamadı";
 
@@ -48,12 +49,12 @@ export function ProviderList({
         <div className="mt-6 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
           <p className="text-xl font-black text-[var(--brand-navy)]">
             {hasNoPublicProviders
-              ? "Henüz yayında uygun usta bulunmuyor."
+              ? "Henüz yayında usta bulunmuyor."
               : "Filtrelerine uygun usta bulunamadı."}
           </p>
           <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
             {hasNoPublicProviders
-              ? "Onay süreci tamamlanan aktif ustalar yayına alındığında burada görünecek."
+              ? "İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin."
               : "Arama, kategori, ilçe, puan veya fiyat aralığını genişleterek daha fazla profili inceleyin."}
           </p>
           {hasNoPublicProviders ? null : (

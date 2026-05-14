@@ -32,6 +32,17 @@ const serviceOrder = [
   "Nakliye Yardımı",
 ];
 
+const heroServiceFilterOptions = [
+  "Tesisat",
+  "Elektrik Hizmeti",
+  "Temizlik",
+  "Halı Yıkama",
+  "Klima & Beyaz Eşya",
+  "Mobilya Montaj",
+  "Boya Badana",
+  "Nakliye Yardımı",
+];
+
 const howItWorksSteps = [
   {
     title: "Hizmetini seç",
@@ -76,7 +87,6 @@ const orderedServices = serviceOrder
 const fieldBaseClassName =
   "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
-const inputClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[#6B7280]`;
 const selectClassName = `${fieldBaseClassName} cursor-pointer select-none pr-10`;
 
 function getPriceFilterValue(price: string) {
@@ -137,19 +147,15 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
       className="mt-9 w-full max-w-[820px] cursor-default select-none rounded-lg bg-white p-3 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4"
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(11rem,1.15fr)_minmax(7.25rem,0.75fr)_minmax(8rem,0.8fr)_minmax(7rem,0.7fr)_8rem] xl:items-end">
-        <HeroField label="Arama">
-          <input
-            className={inputClassName}
-            list="hero-service-options"
-            name="q"
-            placeholder="Hizmet veya usta ara"
-            type="search"
-          />
-          <datalist id="hero-service-options">
-            {filterOptions.categories.map((category) => (
-              <option key={category} value={category} />
+        <HeroField label="Hizmet">
+          <select className={selectClassName} defaultValue="" name="category">
+            <option value="">Tüm hizmetler</option>
+            {heroServiceFilterOptions.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
-          </datalist>
+          </select>
         </HeroField>
 
         <HeroField label="İlçe">
@@ -268,7 +274,10 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             ) : (
               <div className="cursor-default rounded-lg bg-white p-4 text-center shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
                 <p className="text-sm font-black leading-6 text-[var(--brand-navy)]">
-                  Henüz yayında uygun usta bulunmuyor.
+                  Henüz yayında usta bulunmuyor.
+                </p>
+                <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted)]">
+                  İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.
                 </p>
               </div>
             )}
@@ -411,10 +420,10 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
         ) : (
           <div className="mt-7 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
             <p className="text-xl font-black text-[var(--brand-navy)]">
-              Henüz yayında uygun usta bulunmuyor.
+              Henüz yayında usta bulunmuyor.
             </p>
             <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
-              Onay süreci tamamlanan aktif ustalar yayına alındığında burada görünecek.
+              İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.
             </p>
           </div>
         )}
