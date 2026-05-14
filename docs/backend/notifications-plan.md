@@ -4,7 +4,7 @@ This document prepares the email notification direction without sending real ema
 
 ## Current Mock Layer
 
-The helper functions live in `src/services/notifications.ts`:
+The helper functions live in `src/services/notifications/index.ts`:
 
 - `notifyProviderApplicationSubmitted()`
 - `notifyProviderApplicationApproved()`

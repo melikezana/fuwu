@@ -3,7 +3,7 @@ import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
-import "./globals.css";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   ...createPageMetadata({

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 
 export const metadata: Metadata = {
   title: "Talep Oluştur | Fuwu",

@@ -102,9 +102,11 @@ create table if not exists public.provider_applications (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
   phone text not null,
+  whatsapp text not null,
   category_id uuid references public.service_categories(id) on delete set null,
   district_id uuid references public.districts(id) on delete set null,
   experience_years integer not null default 0,
+  description text not null,
   availability text,
   has_equipment boolean not null default false,
   introduction text,
@@ -118,7 +120,7 @@ create table if not exists public.provider_applications (
   constraint provider_applications_experience_years_check
     check (experience_years >= 0),
   constraint provider_applications_status_check
-    check (status in ('pending', 'reviewing', 'approved', 'rejected'))
+    check (status in ('pending', 'approved', 'rejected'))
 );
 
 comment on table public.provider_applications is

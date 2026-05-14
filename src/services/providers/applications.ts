@@ -9,28 +9,15 @@ import {
   type ProviderImageUploadResult,
 } from "@/services/storage";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
+import type {
+  ProviderApplicationInput,
+  ProviderApplicationSubmitResult,
+} from "@/types/provider";
 
-export type ProviderApplicationInput = {
-  fullName: string;
-  phoneNumber: string;
-  serviceCategory: string;
-  serviceArea: string;
-  yearsOfExperience: string;
-  availability: string;
-  hasEquipment: string;
-  shortIntroduction: string;
-  referenceLink: string;
-  profileImage?: File | null;
-};
-
-export type ProviderApplicationSubmitMode = "live" | "demo";
-
-export type ProviderApplicationSubmitResult = {
-  applicationCode: string;
-  mode: ProviderApplicationSubmitMode;
-  profileImageStatus: ProviderImageUploadResult["status"];
-  profileImageMessage?: string;
-};
+export type {
+  ProviderApplicationInput,
+  ProviderApplicationSubmitResult,
+} from "@/types/provider";
 
 type LookupTable = "service_categories" | "districts";
 
@@ -141,9 +128,11 @@ async function buildProviderApplicationInsert(
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
     phone: data.phoneNumber.trim(),
+    whatsapp: data.whatsappNumber.trim(),
     category_id: categoryId,
     district_id: districtId,
     experience_years: parseExperienceYears(data.yearsOfExperience),
+    description: data.shortIntroduction.trim(),
     availability: normalizeOptionalText(data.availability),
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.shortIntroduction.trim(),

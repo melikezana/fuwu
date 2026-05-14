@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Phone, UserSearch } from "lucide-react";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   getProviderDataNotice,
   getProviderPhoneHref,
   getProviderProfileBadge,
   getProviderWhatsAppHref,
-  type Provider,
-} from "@/constants/providers";
+} from "@/lib/constants/providers";
 import { cn } from "@/lib/utils";
+import type { Provider } from "@/types/provider";
 
 type ProviderCardProps = {
   provider: Provider;

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Home, MessageCircle, Phone, UserSearch } from "lucide-react";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   getProviderDataNotice,
   getProviderInitials,
@@ -14,7 +14,7 @@ import {
   getProviderProfileBadge,
   getProviderWhatsAppHref,
   isLiveProvider,
-} from "@/constants/providers";
+} from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { getProviderById, getProviders } from "@/services/providers";
 import { getProviderReviews } from "@/services/reviews";

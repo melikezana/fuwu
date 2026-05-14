@@ -1,14 +1,8 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import type { CurrentUserProfile, ProfileRole } from "@/types/auth";
 
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
-
-export type ProfileRole = ProfileRow["role"];
-export type CurrentUserProfile = Pick<
-  ProfileRow,
-  "full_name" | "id" | "phone" | "role"
->;
+export type { CurrentUserProfile, ProfileRole } from "@/types/auth";
 
 export const adminProfileRole: ProfileRole = "admin";
 

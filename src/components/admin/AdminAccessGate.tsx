@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Home, LockKeyhole, LogIn, ShieldAlert } from "lucide-react";
-import { appRoutes } from "@/constants/navigation";
-import type { AdminAccessResult } from "@/services/admin";
+import { appRoutes } from "@/lib/constants/navigation";
+import type { AdminAccessResult } from "@/types/admin";
 
 type AdminAccessGateProps = {
   access: AdminAccessResult;

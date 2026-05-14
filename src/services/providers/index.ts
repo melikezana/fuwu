@@ -6,38 +6,24 @@ import {
   providerCategories,
   providerDistricts,
   providers as mockProviders,
-  type Provider,
-} from "@/constants/providers";
+} from "@/lib/constants/providers";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import type {
+  Provider,
+  ProviderDataSource,
+  ProviderDirectory,
+  ProviderFilterOptions,
+  ProviderFilters,
+} from "@/types/provider";
 
-export type { Provider };
-
-export type ProviderDataSource = "supabase" | "fallback";
-
-export type ProviderFilters = {
-  category?: string;
-  district?: string;
-  price?: string;
-  rating?: string;
-  availability?: string;
-  query?: string;
-};
-
-export type ProviderFilterOptions = {
-  availabilityOptions: string[];
-  averagePrices: string[];
-  categories: string[];
-  districts: string[];
-};
-
-export type ProviderDirectory = {
-  allProviders: Provider[];
-  filterOptions: ProviderFilterOptions;
-  providers: Provider[];
-  source: ProviderDataSource;
-  totalCount: number;
-};
+export type {
+  Provider,
+  ProviderDataSource,
+  ProviderDirectory,
+  ProviderFilterOptions,
+  ProviderFilters,
+} from "@/types/provider";
 
 type SupabaseProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 

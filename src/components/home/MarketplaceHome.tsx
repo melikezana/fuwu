@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderCard } from "@/components/providers/ProviderCard";
-import { appRoutes, ctaLabels } from "@/constants/navigation";
+import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
 import {
   getProviderPhoneHref,
   getProviderWhatsAppHref,
   minimumRatingOptions,
-  type Provider,
-} from "@/constants/providers";
-import { services, type Service } from "@/constants/services";
+} from "@/lib/constants/providers";
+import { services, type Service } from "@/lib/constants/services";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
+import type { Provider } from "@/types/provider";
 
 type SectionHeadingProps = {
   eyebrow?: string;

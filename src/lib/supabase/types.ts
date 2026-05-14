@@ -181,9 +181,11 @@ export type Database = {
           id: string;
           full_name: string;
           phone: string;
+          whatsapp: string;
           category_id: string | null;
           district_id: string | null;
           experience_years: number;
+          description: string;
           availability: string | null;
           has_equipment: boolean;
           introduction: string | null;
@@ -198,9 +200,11 @@ export type Database = {
           id?: string;
           full_name: string;
           phone: string;
+          whatsapp: string;
           category_id?: string | null;
           district_id?: string | null;
           experience_years?: number;
+          description: string;
           availability?: string | null;
           has_equipment?: boolean;
           introduction?: string | null;
@@ -215,9 +219,11 @@ export type Database = {
           id?: string;
           full_name?: string;
           phone?: string;
+          whatsapp?: string;
           category_id?: string | null;
           district_id?: string | null;
           experience_years?: number;
+          description?: string;
           availability?: string | null;
           has_equipment?: boolean;
           introduction?: string | null;

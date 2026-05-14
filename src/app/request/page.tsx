@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import { Button } from "@/components/common/Button";
-import { Card } from "@/components/common/Card";
-import { Container } from "@/components/common/Container";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
 import { RequestForm } from "@/components/request/RequestForm";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   createSupabaseServerClient,
   isSupabaseServerConfigured,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Container } from "@/components/common/Container";
-import { SectionIntro } from "@/components/common/SectionIntro";
+import { Container } from "@/components/ui/Container";
+import { SectionIntro } from "@/components/ui/SectionIntro";
 import { cn } from "@/lib/utils";
 
 type FAQItem = {

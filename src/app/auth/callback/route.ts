@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function getSafeRedirectUrl(request: NextRequest) {

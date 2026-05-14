@@ -1,4 +1,4 @@
-import type { ServiceIconName } from "@/constants/services";
+import type { ServiceIconName } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 
 type ServiceIconProps = {

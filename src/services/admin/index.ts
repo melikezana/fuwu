@@ -87,7 +87,14 @@ type AdminProviderRecord = Pick<
 
 type AdminProviderApplicationRecord = Pick<
   ProviderApplicationRow,
-  "id" | "full_name" | "phone" | "experience_years" | "status" | "created_at"
+  | "created_at"
+  | "description"
+  | "experience_years"
+  | "full_name"
+  | "id"
+  | "phone"
+  | "status"
+  | "whatsapp"
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
@@ -96,22 +103,19 @@ type AdminProviderApplicationRecord = Pick<
 type AdminProviderApplicationApprovalRecord = Pick<
   ProviderApplicationRow,
   | "category_id"
+  | "description"
   | "district_id"
   | "experience_years"
   | "full_name"
   | "id"
-  | "introduction"
   | "phone"
+  | "status"
+  | "whatsapp"
 >;
 
 type AdminProviderApplicationRejectionRecord = Pick<
   ProviderApplicationRow,
-  "phone" | "status"
->;
-
-type AdminProviderPublicationRecord = Pick<
-  ProviderRow,
-  "id" | "is_active" | "is_approved"
+  "status"
 >;
 
 type AdminServiceRequestRecord = Pick<
@@ -136,7 +140,6 @@ type AdminProviderPublicationUpdate = Partial<
 
 type AdminProviderApplicationProviderActionResult =
   AdminProviderApplicationActionResult & {
-    previousPublication?: AdminProviderPublicationUpdate | null;
     providerId?: string;
   };
 
@@ -156,12 +159,14 @@ export type AdminProvider = {
 export type AdminProviderApplication = {
   category: string;
   createdAt: string;
+  description: string;
   district: string;
   experience: string;
   fullName: string;
   id: string;
   phone: string;
   status: string;
+  whatsapp: string;
 };
 
 export type AdminServiceRequest = {
@@ -224,13 +229,11 @@ export type AdminProviderApplicationActionCode =
   | "admin-not-authorized"
   | "application-action-failed"
   | "application-already-approved"
-  | "application-approved-provider-activated"
+  | "application-already-rejected"
   | "application-approved-provider-created"
-  | "application-approved-provider-skipped"
   | "application-missing-id"
   | "application-not-found"
   | "application-rejected"
-  | "provider-activation-failed"
   | "provider-create-failed"
   | "supabase-not-configured";
 
@@ -575,19 +578,19 @@ async function getSupabaseForAdminWrite() {
   return getAdminSupabaseAccess();
 }
 
-function createProviderDescription(
-  application: AdminProviderApplicationApprovalRecord,
-) {
-  const introduction = application.introduction?.trim();
-
-  if (introduction) {
-    return introduction;
+function createApplicationStatusConflictResult(status: string) {
+  if (status === "approved") {
+    return createAdminActionResult("application-already-approved", false);
   }
 
-  return `${application.full_name} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
+  if (status === "rejected") {
+    return createAdminActionResult("application-already-rejected", false);
+  }
+
+  return createAdminActionResult("application-action-failed", false);
 }
 
-async function updateProviderApplicationStatus(
+async function updatePendingProviderApplicationStatus(
   supabase: AdminSupabaseClient,
   applicationId: string,
   status: "approved" | "rejected",
@@ -596,6 +599,7 @@ async function updateProviderApplicationStatus(
     .from("provider_applications")
     .update({ status })
     .eq("id", applicationId)
+    .eq("status", "pending")
     .select("id")
     .maybeSingle();
 
@@ -609,12 +613,27 @@ async function updateProviderApplicationStatus(
   }
 
   return createAdminActionResult(
-    status === "approved" ? "application-approved-provider-skipped" : "application-rejected",
+    status === "approved" ? "application-approved-provider-created" : "application-rejected",
     true,
   );
 }
 
-async function createOrActivateProviderFromApplication(
+async function rollbackProviderApplicationStatus(
+  supabase: AdminSupabaseClient,
+  applicationId: string,
+) {
+  const { error } = await supabase
+    .from("provider_applications")
+    .update({ status: "pending" })
+    .eq("id", applicationId)
+    .eq("status", "approved");
+
+  if (error) {
+    warnAdminWriteError("provider application approval rollback", error);
+  }
+}
+
+async function createProviderFromApplication(
   supabase: AdminSupabaseClient,
   application: AdminProviderApplicationApprovalRecord,
 ): Promise<AdminProviderApplicationProviderActionResult> {
@@ -623,59 +642,23 @@ async function createOrActivateProviderFromApplication(
   }
 
   const phone = application.phone.trim();
-  const { data: existingProviders, error: existingProvidersError } = await supabase
-    .from("providers")
-    .select("id, is_active, is_approved")
-    .eq("phone", phone)
-    .limit(2);
-
-  if (existingProvidersError) {
-    warnAdminWriteError("provider lookup", existingProvidersError);
-    return createAdminActionResult("application-action-failed", false);
-  }
-
-  const providerRecords = (existingProviders ?? []) as AdminProviderPublicationRecord[];
-
-  if (providerRecords.length > 1) {
-    return createAdminActionResult("application-action-failed", false);
-  }
-
-  if (providerRecords.length === 1) {
-    const { error } = await supabase
-      .from("providers")
-      .update({
-        is_active: true,
-        is_approved: true,
-      })
-      .eq("id", providerRecords[0].id);
-
-    if (error) {
-      warnAdminWriteError("provider activation", error);
-      return createAdminActionResult("provider-activation-failed", false);
-    }
-
-    return {
-      ...createAdminActionResult("application-approved-provider-activated", true),
-      previousPublication: {
-        is_active: providerRecords[0].is_active,
-        is_approved: providerRecords[0].is_approved,
-      },
-      providerId: providerRecords[0].id,
-    };
-  }
+  const whatsapp = application.whatsapp?.trim() || phone;
+  const description =
+    application.description?.trim() ||
+    `${application.full_name} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
 
   const { data: createdProvider, error } = await supabase
     .from("providers")
     .insert({
       category_id: application.category_id,
-      description: createProviderDescription(application),
+      description,
       district_id: application.district_id,
       experience_years: application.experience_years,
       is_active: true,
       is_approved: true,
       name: application.full_name.trim(),
       phone,
-      whatsapp: phone,
+      whatsapp,
     })
     .select("id")
     .maybeSingle();
@@ -691,56 +674,8 @@ async function createOrActivateProviderFromApplication(
 
   return {
     ...createAdminActionResult("application-approved-provider-created", true),
-    previousPublication: null,
     providerId: createdProvider.id,
   };
-}
-
-async function rollbackProviderPublicationAfterFailedApproval(
-  supabase: AdminSupabaseClient,
-  providerResult: AdminProviderApplicationProviderActionResult,
-) {
-  if (!providerResult.providerId) {
-    return;
-  }
-
-  const rollbackPayload = providerResult.previousPublication ?? {
-    is_active: false,
-    is_approved: false,
-  };
-
-  const { error } = await supabase
-    .from("providers")
-    .update(rollbackPayload)
-    .eq("id", providerResult.providerId);
-
-  if (error) {
-    warnAdminWriteError("provider approval rollback", error);
-  }
-}
-
-async function keepRejectedApplicationProviderHidden(
-  supabase: AdminSupabaseClient,
-  phone: string,
-) {
-  const normalizedPhone = phone.trim();
-
-  if (!normalizedPhone) {
-    return;
-  }
-
-  const { error } = await supabase
-    .from("providers")
-    .update({
-      is_active: false,
-      is_approved: false,
-    })
-    .eq("phone", normalizedPhone)
-    .eq("is_approved", false);
-
-  if (error) {
-    warnAdminWriteError("rejected provider publication guard", error);
-  }
 }
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> {
@@ -834,10 +769,12 @@ export async function approveAdminProviderApplication(
         id,
         full_name,
         phone,
+        whatsapp,
         category_id,
         district_id,
         experience_years,
-        introduction
+        description,
+        status
       `,
     )
     .eq("id", normalizedApplicationId)
@@ -852,24 +789,30 @@ export async function approveAdminProviderApplication(
     return createAdminActionResult("application-not-found", false);
   }
 
-  const providerResult = await createOrActivateProviderFromApplication(
-    supabase,
-    data as AdminProviderApplicationApprovalRecord,
-  );
+  const application = data as AdminProviderApplicationApprovalRecord;
 
-  if (!providerResult.ok) {
-    return providerResult;
+  if (application.status !== "pending") {
+    return createApplicationStatusConflictResult(application.status);
   }
 
-  const statusResult = await updateProviderApplicationStatus(
+  const statusResult = await updatePendingProviderApplicationStatus(
     supabase,
     normalizedApplicationId,
     "approved",
   );
 
   if (!statusResult.ok) {
-    await rollbackProviderPublicationAfterFailedApproval(supabase, providerResult);
     return statusResult;
+  }
+
+  const providerResult = await createProviderFromApplication(
+    supabase,
+    application,
+  );
+
+  if (!providerResult.ok) {
+    await rollbackProviderApplicationStatus(supabase, normalizedApplicationId);
+    return providerResult;
   }
 
   await notifyProviderApplicationApproved({
@@ -903,7 +846,7 @@ export async function rejectAdminProviderApplication(
 
   const { data, error } = await supabase
     .from("provider_applications")
-    .select("phone, status")
+    .select("status")
     .eq("id", normalizedApplicationId)
     .maybeSingle();
 
@@ -918,11 +861,11 @@ export async function rejectAdminProviderApplication(
 
   const application = data as AdminProviderApplicationRejectionRecord;
 
-  if (application.status === "approved") {
-    return createAdminActionResult("application-already-approved", false);
+  if (application.status !== "pending") {
+    return createApplicationStatusConflictResult(application.status);
   }
 
-  const statusResult = await updateProviderApplicationStatus(
+  const statusResult = await updatePendingProviderApplicationStatus(
     supabase,
     normalizedApplicationId,
     "rejected",
@@ -932,7 +875,6 @@ export async function rejectAdminProviderApplication(
     return statusResult;
   }
 
-  await keepRejectedApplicationProviderHidden(supabase, application.phone);
   await notifyProviderApplicationRejected({
     applicationId: normalizedApplicationId,
   });
@@ -1126,13 +1068,16 @@ export async function getAdminProviderApplications(): Promise<
         id,
         full_name,
         phone,
+        whatsapp,
         experience_years,
+        description,
         status,
         created_at,
         service_categories(name),
         districts(name)
       `,
     )
+    .eq("status", "pending")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -1146,12 +1091,14 @@ export async function getAdminProviderApplications(): Promise<
       (application) => ({
         category: getRelationName(application.service_categories),
         createdAt: application.created_at,
+        description: application.description,
         district: getRelationName(application.districts),
         experience: `${application.experience_years} yıl`,
         fullName: application.full_name,
         id: application.id,
         phone: application.phone,
         status: application.status,
+        whatsapp: application.whatsapp,
       }),
     ),
   };

@@ -2,7 +2,7 @@
 
 import { MessageSquareText, PenLine, Star } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/common/Button";
+import { Button } from "@/components/ui/Button";
 import { getSession } from "@/services/auth";
 import type {
   ProviderReview,

@@ -1,6 +1,6 @@
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
-import { appRoutes, ctaLabels } from "@/constants/navigation";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
 
 export default function NotFound() {
   return (

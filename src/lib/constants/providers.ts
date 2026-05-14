@@ -1,26 +1,6 @@
-export type Provider = {
-  id: string;
-  name: string;
-  category: string;
-  district: string;
-  rating: number;
-  experience: string;
-  averagePrice: string;
-  phone: string;
-  whatsapp: string;
-  availability: string;
-  description: string;
-  shortDescription: string;
-  serviceAreas: string[];
-  workingHours: string;
-  servicesOffered: string[];
-  trustBadges: string[];
-  completedJobs: number;
-  responseTime: string;
-  reviewCount: number;
-  featured?: boolean;
-  source?: "supabase" | "mock";
-};
+import type { Provider } from "@/types/provider";
+
+export type { Provider };
 
 export const providers: Provider[] = [
   {

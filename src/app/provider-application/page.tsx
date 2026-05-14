@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import { Card } from "@/components/common/Card";
-import { Container } from "@/components/common/Container";
-import { ProviderApplicationForm } from "@/components/provider/ProviderApplicationForm";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
 
 export const metadata: Metadata = {
   title: "Usta Ağına Katıl | Fuwu",

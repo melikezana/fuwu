@@ -1,8 +1,8 @@
-import { Button } from "@/components/common/Button";
-import { Card } from "@/components/common/Card";
-import { Container } from "@/components/common/Container";
-import { SectionIntro } from "@/components/common/SectionIntro";
-import { appRoutes, ctaLabels } from "@/constants/navigation";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { SectionIntro } from "@/components/ui/SectionIntro";
+import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
 
 type WorkStep = {
   id: string;

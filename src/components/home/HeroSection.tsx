@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
-import { appRoutes, ctaLabels } from "@/constants/navigation";
-import { services, type ServiceIconName } from "@/constants/services";
+import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
+import { services, type ServiceIconName } from "@/lib/constants/services";
 
 type TrustSignal = {
   id: string;

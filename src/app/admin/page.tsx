@@ -12,8 +12,8 @@ import {
   AdminPageShell,
   AdminSummaryCard,
   adminQuickNavItems,
-} from "@/app/admin/_components/AdminUI";
-import { AdminAccessGate } from "@/app/admin/_components/AdminAccessGate";
+} from "@/components/admin/AdminUI";
+import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import {
   getAdminAccess,
   getAdminDashboardSummary,

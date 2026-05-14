@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { LoginOptions } from "@/components/auth/LoginOptions";
-import { Container } from "@/components/common/Container";
-import { appRoutes } from "@/constants/navigation";
+import { Container } from "@/components/ui/Container";
+import { appRoutes } from "@/lib/constants/navigation";
 
 export const metadata: Metadata = {
   title: "Giriş | Fuwu",

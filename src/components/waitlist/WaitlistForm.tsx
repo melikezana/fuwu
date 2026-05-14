@@ -2,8 +2,8 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Button } from "@/components/common/Button";
-import { Card } from "@/components/common/Card";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
 type UserType = "Müşteri" | "Usta";

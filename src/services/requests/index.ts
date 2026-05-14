@@ -2,22 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { notifyServiceRequestCreated } from "@/services/notifications";
-
-export type ServiceRequestInput = {
-  serviceCategory: string;
-  district: string;
-  fullAddress: string;
-  urgencyLevel: string;
-  preferredDate: string;
-  preferredTimeRange: string;
-  fullName: string;
-  phoneNumber: string;
-  shortDescription: string;
-};
-
-export type ServiceRequestSubmitResult = {
-  requestCode: string;
-};
+import type {
+  ServiceRequestInput,
+  ServiceRequestSubmitResult,
+  ServiceRequestUrgency,
+} from "@/types/request";
 
 type LookupTable = "service_categories" | "districts";
 
@@ -25,9 +14,13 @@ type LookupRecord = {
   id?: unknown;
 };
 
-type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";
-
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
+
+export type {
+  ServiceRequestInput,
+  ServiceRequestSubmitResult,
+  ServiceRequestUrgency,
+} from "@/types/request";
 
 export const serviceRequestLoginRequiredMessage =
   "Hizmet talebi oluşturmak için giriş yapmalısın.";

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Button } from "@/components/common/Button";
-import { appRoutes } from "@/constants/navigation";
+import { Button } from "@/components/ui/Button";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   minimumRatingOptions,
   providerAvailabilityOptions,
   providerAveragePrices,
   providerCategories,
   providerDistricts,
-} from "@/constants/providers";
+} from "@/lib/constants/providers";
 
 export type ProviderFilterValues = {
   category?: string;

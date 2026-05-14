@@ -4,7 +4,7 @@ import {
   ProviderDashboardAccessPlaceholder,
   ProviderDashboardShell,
   ProviderRequestsEmptyState,
-} from "../_components/ProviderDashboardUI";
+} from "@/components/dashboard/ProviderDashboardUI";
 
 export const dynamic = "force-dynamic";
 

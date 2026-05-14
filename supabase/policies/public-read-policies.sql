@@ -1,5 +1,5 @@
 -- Public read policies required by the provider directory filters.
--- Run this after supabase/schema.sql. It is safe to re-run.
+-- Run this after supabase/schema/schema.sql. It is safe to re-run.
 
 alter table public.service_categories enable row level security;
 alter table public.districts enable row level security;

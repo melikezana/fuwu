@@ -3,7 +3,7 @@ import { Clock, ClipboardList, FileText, UserCheck, Users } from "lucide-react";
 import {
   AdminPageShell,
   adminQuickNavItems,
-} from "@/app/admin/_components/AdminUI";
+} from "@/components/admin/AdminUI";
 
 const loadingCards = [
   { icon: Users, label: "Toplam Usta" },

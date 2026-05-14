@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
-import { appRoutes } from "@/constants/navigation";
-import { services } from "@/constants/services";
+import { appRoutes } from "@/lib/constants/navigation";
+import { services } from "@/lib/constants/services";
 import { createAbsoluteUrl } from "@/lib/seo";
 import { getProviderDirectory } from "@/services/providers";
 

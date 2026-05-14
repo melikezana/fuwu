@@ -1,5 +1,5 @@
 -- Fuwu Supabase Row Level Security policies
--- Run this after supabase/schema.sql has created the planned tables.
+-- Run this after supabase/schema/schema.sql has created the planned tables.
 --
 -- This file is SQL only and does not add real frontend auth, API keys, seed data,
 -- or application wiring. It uses Supabase Auth helpers such as auth.uid() so the

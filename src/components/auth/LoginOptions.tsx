@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, Loader2, Mail, Phone, type LucideIcon } from "lucide-react";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import { isSupabaseAuthConfigured } from "@/lib/supabase/client";
 import { signInWithEmailMagicLink, signInWithGoogle } from "@/services/auth";
 

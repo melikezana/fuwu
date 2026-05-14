@@ -2,16 +2,16 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Button } from "@/components/common/Button";
-import { Card } from "@/components/common/Card";
-import { appRoutes } from "@/constants/navigation";
-import { services } from "@/constants/services";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { appRoutes } from "@/lib/constants/navigation";
+import { services } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import {
   serviceRequestSubmitErrorMessage,
   submitServiceRequest,
   type ServiceRequestSubmitResult,
-} from "@/services/serviceRequests";
+} from "@/services/requests";
 
 type UrgencyLevel = "Esnek" | "Bu hafta" | "Acil";
 

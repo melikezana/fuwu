@@ -1,8 +1,8 @@
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
-import { SectionIntro } from "@/components/common/SectionIntro";
-import { appRoutes, ctaLabels } from "@/constants/navigation";
-import { features } from "@/constants/features";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { SectionIntro } from "@/components/ui/SectionIntro";
+import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
+import { features } from "@/lib/constants/features";
 
 export function FeatureSection() {
   return (

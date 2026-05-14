@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { appRoutes } from "@/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   formatProviderRating,
   getProviderDashboardProfile,
@@ -7,7 +7,7 @@ import {
   providerDashboardIcons,
   ProviderDashboardShell,
   ProviderSummaryCard,
-} from "./_components/ProviderDashboardUI";
+} from "@/components/dashboard/ProviderDashboardUI";
 
 export const dynamic = "force-dynamic";
 

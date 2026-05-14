@@ -2,15 +2,15 @@
 
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
-import { Button } from "@/components/common/Button";
-import { Card } from "@/components/common/Card";
-import { services } from "@/constants/services";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { services } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import {
   isProviderApplicationDemoMode,
   submitProviderApplication,
   type ProviderApplicationSubmitResult,
-} from "@/services/providerApplications";
+} from "@/services/providers/applications";
 import {
   PROVIDER_IMAGE_ACCEPT,
   validateProviderImageFile,
@@ -22,6 +22,7 @@ type EquipmentStatus = "Evet" | "Hayır";
 type ProviderApplicationFormState = {
   fullName: string;
   phoneNumber: string;
+  whatsappNumber: string;
   serviceCategory: string;
   serviceArea: string;
   yearsOfExperience: string;
@@ -39,6 +40,7 @@ type SubmittedApplication = ProviderApplicationSubmitResult;
 const initialFormState: ProviderApplicationFormState = {
   fullName: "",
   phoneNumber: "",
+  whatsappNumber: "",
   serviceCategory: "",
   serviceArea: "",
   yearsOfExperience: "",
@@ -51,6 +53,7 @@ const initialFormState: ProviderApplicationFormState = {
 const fieldLabels: Record<ProviderField, string> = {
   fullName: "Ad soyad",
   phoneNumber: "Telefon numarası",
+  whatsappNumber: "WhatsApp numarası",
   serviceCategory: "Hizmet kategorisi",
   serviceArea: "İlçe / hizmet bölgesi",
   yearsOfExperience: "Deneyim yılı",
@@ -63,6 +66,7 @@ const fieldLabels: Record<ProviderField, string> = {
 const requiredFields: ProviderField[] = [
   "fullName",
   "phoneNumber",
+  "whatsappNumber",
   "serviceCategory",
   "serviceArea",
   "yearsOfExperience",
@@ -132,6 +136,7 @@ function normalizeForm(values: ProviderApplicationFormState): ProviderApplicatio
   return {
     fullName: values.fullName.trim(),
     phoneNumber: values.phoneNumber.trim(),
+    whatsappNumber: values.whatsappNumber.trim(),
     serviceCategory: values.serviceCategory.trim(),
     serviceArea: values.serviceArea.trim(),
     yearsOfExperience: values.yearsOfExperience.trim(),
@@ -152,10 +157,15 @@ function validateForm(values: ProviderApplicationFormState) {
   });
 
   const phoneDigits = values.phoneNumber.replace(/\D/g, "");
+  const whatsappDigits = values.whatsappNumber.replace(/\D/g, "");
   const yearsOfExperience = Number(values.yearsOfExperience);
 
   if (values.phoneNumber && phoneDigits.length < 10) {
     errors.phoneNumber = "Lütfen en az 10 haneli geçerli bir telefon numarası girin.";
+  }
+
+  if (values.whatsappNumber && whatsappDigits.length < 10) {
+    errors.whatsappNumber = "Lütfen en az 10 haneli geçerli bir WhatsApp numarası girin.";
   }
 
   if (
@@ -497,6 +507,32 @@ export function ProviderApplicationForm() {
                 Hızlı dönüş için aktif bir numara yaz.
               </p>
               <FieldError id="providerPhone-error" message={errors.phoneNumber} />
+            </div>
+
+            <div>
+              <label className={labelClassName} htmlFor="providerWhatsapp">
+                WhatsApp numarası
+              </label>
+              <input
+                aria-describedby={
+                  errors.whatsappNumber ? "providerWhatsapp-error" : "providerWhatsapp-helper"
+                }
+                aria-invalid={Boolean(errors.whatsappNumber)}
+                autoComplete="tel"
+                className={getFieldClassName("whatsappNumber")}
+                id="providerWhatsapp"
+                inputMode="tel"
+                name="whatsappNumber"
+                onChange={(event) => updateField("whatsappNumber", event.target.value)}
+                placeholder="+90 5xx xxx xx xx"
+                required
+                type="tel"
+                value={formState.whatsappNumber}
+              />
+              <p className={helperClassName} id="providerWhatsapp-helper">
+                Müşteri yazışmaları için kullandığın aktif WhatsApp numarasını yaz.
+              </p>
+              <FieldError id="providerWhatsapp-error" message={errors.whatsappNumber} />
             </div>
           </div>
 

@@ -1,6 +1,6 @@
-import { Button } from "@/components/common/Button";
-import { appRoutes } from "@/constants/navigation";
-import type { Provider } from "@/constants/providers";
+import { Button } from "@/components/ui/Button";
+import { appRoutes } from "@/lib/constants/navigation";
+import type { Provider } from "@/types/provider";
 import { ProviderCard } from "./ProviderCard";
 
 type ProviderListProps = {

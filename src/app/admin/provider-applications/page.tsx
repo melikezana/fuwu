@@ -11,8 +11,8 @@ import {
   AdminStatusBadge,
   AdminTableWrap,
   adminActionIcons,
-} from "@/app/admin/_components/AdminUI";
-import { AdminAccessGate } from "@/app/admin/_components/AdminAccessGate";
+} from "@/components/admin/AdminUI";
+import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import {
   approveAdminProviderApplication,
   getAdminAccess,
@@ -58,18 +58,13 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     title: "Başvuru zaten onaylı",
     tone: "error",
   },
-  "application-approved-provider-activated": {
-    body: "Başvuru onaylandı ve aynı telefonla eşleşen mevcut usta kaydı aktif/onaylı hale getirildi.",
-    title: "Başvuru onaylandı",
-    tone: "success",
+  "application-already-rejected": {
+    body: "Bu başvuru daha önce reddedilmiş. Pending listesinde yalnızca yeni başvurular işlem alır.",
+    title: "Başvuru zaten reddedildi",
+    tone: "error",
   },
   "application-approved-provider-created": {
     body: "Başvuru onaylandı ve başvuru bilgileriyle yeni, aktif ve onaylı bir usta kaydı oluşturuldu.",
-    title: "Başvuru onaylandı",
-    tone: "success",
-  },
-  "application-approved-provider-skipped": {
-    body: "Başvuru onaylandı. Kategori, ilçe veya telefon eşleşmesi güvenli olmadığı için usta kaydı otomatik değiştirilmedi.",
     title: "Başvuru onaylandı",
     tone: "success",
   },
@@ -87,11 +82,6 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     body: "Başvuru reddedildi ve durumu Supabase üzerinde güncellendi.",
     title: "Başvuru reddedildi",
     tone: "success",
-  },
-  "provider-activation-failed": {
-    body: "Mevcut usta kaydı aktifleştirilemediği için başvuru onaylanmadı.",
-    title: "Usta kaydı güncellenemedi",
-    tone: "error",
   },
   "provider-create-failed": {
     body: "Yeni usta kaydı oluşturulamadığı için başvuru onaylanmadı.",
@@ -168,7 +158,6 @@ function getApplicationStatus(status: string) {
     approved: { label: "Onaylandı", tone: "green" },
     pending: { label: "Beklemede", tone: "orange" },
     rejected: { label: "Reddedildi", tone: "red" },
-    reviewing: { label: "İncelemede", tone: "neutral" },
   };
 
   return statuses[status] ?? { label: status, tone: "neutral" };
@@ -218,18 +207,18 @@ function ApplicationActions({
 }: {
   application: AdminProviderApplication;
 }) {
+  const isPending = application.status === "pending";
   const isApproved = application.status === "approved";
   const isRejected = application.status === "rejected";
-  const isRejectDisabled = isApproved || isRejected;
 
   return (
     <div className="flex max-w-full flex-wrap gap-2">
       <form action={approveProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
         <input name="applicationId" type="hidden" value={application.id} />
         <AdminActionButton
-          disabled={isApproved}
+          disabled={!isPending}
           icon={adminActionIcons.approve}
-          title={isApproved ? "Başvuru zaten onaylandı" : "Başvuruyu onayla"}
+          title={isPending ? "Başvuruyu onayla" : "Yalnızca bekleyen başvurular onaylanır"}
           tone="approve"
           type="submit"
         >
@@ -239,14 +228,16 @@ function ApplicationActions({
       <form action={rejectProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
         <input name="applicationId" type="hidden" value={application.id} />
         <AdminActionButton
-          disabled={isRejectDisabled}
+          disabled={!isPending}
           icon={adminActionIcons.reject}
           title={
-            isApproved
+            isPending
+              ? "Başvuruyu reddet"
+              : isApproved
               ? "Onaylanmış başvuru bu ekrandan reddedilemez"
               : isRejected
                 ? "Başvuru zaten reddedildi"
-                : "Başvuruyu reddet"
+                : "Yalnızca bekleyen başvurular reddedilir"
           }
           tone="reject"
           type="submit"
@@ -254,7 +245,6 @@ function ApplicationActions({
           Reddet
         </AdminActionButton>
       </form>
-      <AdminActionButton icon={adminActionIcons.detail}>Detay Gör</AdminActionButton>
     </div>
   );
 }
@@ -288,8 +278,16 @@ function ApplicationMobileCard({
           {application.phone}
         </p>
         <p>
+          <span className="font-black text-[var(--brand-navy)]">WhatsApp: </span>
+          {application.whatsapp}
+        </p>
+        <p>
           <span className="font-black text-[var(--brand-navy)]">Tarih: </span>
           {formatDate(application.createdAt)}
+        </p>
+        <p className="break-words">
+          <span className="font-black text-[var(--brand-navy)]">Açıklama: </span>
+          {application.description}
         </p>
       </div>
 
@@ -326,9 +324,9 @@ export default async function AdminProviderApplicationsPage({
     >
       <ApplicationActionNotice feedback={actionFeedback} />
       {result.rows.length === 0 ? (
-        <AdminEmptyState title="Başvuru bulunamadı">
-          Supabase bağlantısı, admin okuma yetkisi veya yeni başvurular hazır
-          olduğunda başvuru listesi burada görünecek.
+        <AdminEmptyState title="Bekleyen başvuru yok">
+          Yeni usta başvuruları geldiğinde onay ve ret aksiyonlarıyla burada
+          görünecek.
         </AdminEmptyState>
       ) : (
         <>
@@ -342,7 +340,7 @@ export default async function AdminProviderApplicationsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[980px] text-left text-sm">
+            <table className="w-full min-w-[1180px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Ad Soyad</th>
@@ -350,6 +348,8 @@ export default async function AdminProviderApplicationsPage({
                   <th className="px-4 py-3">İlçe</th>
                   <th className="px-4 py-3">Deneyim</th>
                   <th className="px-4 py-3">Telefon</th>
+                  <th className="px-4 py-3">WhatsApp</th>
+                  <th className="px-4 py-3">Açıklama</th>
                   <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">Tarih</th>
                   <th className="px-4 py-3">Aksiyonlar</th>
@@ -372,6 +372,12 @@ export default async function AdminProviderApplicationsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {application.phone}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {application.whatsapp}
+                    </td>
+                    <td className="max-w-[20rem] px-4 py-4 font-semibold leading-6 text-[var(--muted)]">
+                      {application.description}
                     </td>
                     <td className="px-4 py-4">
                       <ApplicationStatusBadge status={application.status} />

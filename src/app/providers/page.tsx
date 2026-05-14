@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import { Container } from "@/components/common/Container";
+import { Container } from "@/components/ui/Container";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
-import { appRoutes } from "@/constants/navigation";
-import { services } from "@/constants/services";
+import { appRoutes } from "@/lib/constants/navigation";
+import { services } from "@/lib/constants/services";
 import {
   createPageMetadata,
   getProviderListingLabel,

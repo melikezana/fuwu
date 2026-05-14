@@ -12,9 +12,9 @@ import {
   WalletCards,
   type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
-import { appRoutes } from "@/constants/navigation";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { appRoutes } from "@/lib/constants/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";

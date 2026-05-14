@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Camera, Globe2, Mail, MapPin, type LucideIcon } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
-import { Container } from "@/components/common/Container";
-import { appRoutes } from "@/constants/navigation";
+import { Container } from "@/components/ui/Container";
+import { appRoutes } from "@/lib/constants/navigation";
 
 type FooterLink = {
   external?: boolean;

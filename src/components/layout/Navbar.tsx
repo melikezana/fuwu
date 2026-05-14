@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
-import { Button } from "@/components/common/Button";
-import { Container } from "@/components/common/Container";
-import { appRoutes, ctaLabels, navigationLinks } from "@/constants/navigation";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { appRoutes, ctaLabels, navigationLinks } from "@/lib/constants/navigation";
 
 export function Navbar() {
   return (

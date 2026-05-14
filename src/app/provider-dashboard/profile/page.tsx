@@ -5,7 +5,7 @@ import {
   ProviderDashboardShell,
   ProviderProfileField,
   ProviderStatusBadge,
-} from "../_components/ProviderDashboardUI";
+} from "@/components/dashboard/ProviderDashboardUI";
 
 export const dynamic = "force-dynamic";
 
