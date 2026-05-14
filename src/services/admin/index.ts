@@ -2,8 +2,10 @@ import {
   createSupabaseServerClient,
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
+import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
+import { sanitizeText } from "@/lib/validations";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
@@ -397,23 +399,26 @@ function getAdminReadError(
   error: unknown,
   message = "Supabase verisi şu anda okunamadı.",
 ) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("Admin Supabase read failed.", error);
-  }
+  const appError = handleServiceError(error, {
+    logContext: "Admin Supabase read failed.",
+    publicMessage: message,
+  });
 
-  return message;
+  return getPublicErrorMessage(appError, message);
 }
 
 function warnAdminWriteError(context: string, error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn(`Admin Supabase ${context} failed.`, error);
-  }
+  handleServiceError(error, {
+    logContext: `Admin Supabase ${context} failed.`,
+    publicMessage: "Admin işlemi şu anda tamamlanamadı.",
+  });
 }
 
 function warnAdminAccessError(context: string, error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn(`Admin access ${context} failed.`, error);
-  }
+  handleServiceError(error, {
+    logContext: `Admin access ${context} failed.`,
+    publicMessage: adminNotAuthorizedMessage,
+  });
 }
 
 function createAdminActionResult(
@@ -744,7 +749,7 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
 export async function approveAdminProviderApplication(
   applicationId: string,
 ): Promise<AdminProviderApplicationActionResult> {
-  const normalizedApplicationId = applicationId.trim();
+  const normalizedApplicationId = sanitizeText(applicationId, 80);
 
   if (!normalizedApplicationId) {
     return createAdminActionResult("application-missing-id", false);
@@ -826,7 +831,7 @@ export async function approveAdminProviderApplication(
 export async function rejectAdminProviderApplication(
   applicationId: string,
 ): Promise<AdminProviderApplicationActionResult> {
-  const normalizedApplicationId = applicationId.trim();
+  const normalizedApplicationId = sanitizeText(applicationId, 80);
 
   if (!normalizedApplicationId) {
     return createAdminActionResult("application-missing-id", false);
@@ -886,8 +891,8 @@ export async function updateAdminServiceRequestStatus(
   requestId: string,
   status: string,
 ): Promise<AdminServiceRequestActionResult> {
-  const normalizedRequestId = requestId.trim();
-  const normalizedStatus = status.trim();
+  const normalizedRequestId = sanitizeText(requestId, 80);
+  const normalizedStatus = sanitizeText(status, 40);
 
   if (!normalizedRequestId) {
     return createServiceRequestActionResult("service-request-missing-id", false);
@@ -932,8 +937,8 @@ export async function updateAdminProviderStatus(
   providerId: string,
   action: string,
 ): Promise<AdminProviderStatusActionResult> {
-  const normalizedProviderId = providerId.trim();
-  const normalizedAction = action.trim();
+  const normalizedProviderId = sanitizeText(providerId, 80);
+  const normalizedAction = sanitizeText(action, 40);
 
   if (!normalizedProviderId) {
     return createProviderStatusActionResult("provider-missing-id", false);

@@ -27,6 +27,8 @@ export type ProviderDataSource = "supabase" | "fallback";
 export type ProviderFilters = {
   category?: string;
   district?: string;
+  maximumPrice?: string;
+  minimumPrice?: string;
   price?: string;
   rating?: string;
   availability?: string;

@@ -20,7 +20,7 @@ export function Navbar() {
           <div className="hidden items-center gap-1 xl:flex">
             {navigationLinks.map((item) => (
               <Link
-                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-3.5 text-center text-sm font-extrabold leading-5 text-[var(--muted)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]"
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-3.5 text-center text-sm font-semibold leading-5 text-[var(--muted)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]"
                 href={item.href}
                 key={item.id}
               >
@@ -42,7 +42,7 @@ export function Navbar() {
           <div className="grid w-full grid-cols-2 gap-2 border-t border-[var(--border)] pt-3 sm:grid-cols-3 xl:hidden">
             {navigationLinks.map((item) => (
               <Link
-                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--surface-soft)] px-3 py-2 text-center text-xs font-extrabold leading-4 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--surface-soft)] px-3 py-2 text-center text-xs font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
                 href={item.href}
                 key={item.id}
               >
@@ -50,19 +50,19 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-black leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
+              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
               href={appRoutes.login}
             >
               {ctaLabels.login}
             </Link>
             <Link
-              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-black leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
+              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
               href={appRoutes.providerApplication}
             >
               {ctaLabels.provider}
             </Link>
             <Link
-              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-orange)] px-3 py-2 text-center text-xs font-black leading-4 text-white shadow-[0_12px_26px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
+              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-orange)] px-3 py-2 text-center text-xs font-bold leading-4 text-white shadow-[0_12px_26px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
               href={appRoutes.providers}
             >
               {ctaLabels.findProvider}

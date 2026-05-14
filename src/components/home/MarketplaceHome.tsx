@@ -85,33 +85,20 @@ const orderedServices = serviceOrder
   .filter((service): service is Service => Boolean(service));
 
 const fieldBaseClassName =
-  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const selectClassName = `${fieldBaseClassName} cursor-pointer select-none pr-10`;
-
-function getPriceFilterValue(price: string) {
-  const priceValues =
-    price
-      .match(/\d[\d.,]*/g)
-      ?.map((value) => value.replace(/\./g, "").replace(",", "."))
-      .filter(Boolean) ?? [];
-
-  if (priceValues.length >= 2) {
-    return `${priceValues[0]}-${priceValues[1]}`;
-  }
-
-  return price;
-}
+const inputClassName = `${fieldBaseClassName} cursor-text select-text`;
 
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   return (
     <div className="max-w-3xl cursor-default select-none">
       {eyebrow ? (
-        <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+        <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
         {title}
       </h2>
       {description ? (
@@ -132,7 +119,7 @@ function HeroField({
 }) {
   return (
     <label className="block min-w-0 cursor-default select-none">
-      <span className="cursor-default select-none text-xs font-black uppercase text-[var(--muted)]">
+      <span className="cursor-default select-none text-xs font-bold uppercase text-[var(--muted)]">
         {label}
       </span>
       {children}
@@ -144,9 +131,9 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
   return (
     <form
       action={appRoutes.providers}
-      className="mt-9 w-full max-w-[820px] cursor-default select-none rounded-lg bg-white p-3 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4"
+      className="mt-9 w-full max-w-[980px] cursor-default select-none rounded-lg bg-white p-3 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4"
     >
-      <div className="grid gap-3 xl:grid-cols-[minmax(11rem,1.15fr)_minmax(7.25rem,0.75fr)_minmax(8rem,0.8fr)_minmax(7rem,0.7fr)_8rem] xl:items-end">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(11rem,1.15fr)_minmax(8rem,0.8fr)_minmax(8rem,0.8fr)_minmax(8rem,0.8fr)_minmax(7.5rem,0.7fr)_8rem] xl:items-end">
         <HeroField label="Hizmet">
           <select className={selectClassName} defaultValue="" name="category">
             <option value="">Tüm hizmetler</option>
@@ -169,15 +156,28 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           </select>
         </HeroField>
 
-        <HeroField label="Bütçe">
-          <select className={selectClassName} defaultValue="" name="price">
-            <option value="">Tüm fiyatlar</option>
-            {filterOptions.averagePrices.map((price) => (
-              <option key={price} value={getPriceFilterValue(price)}>
-                {price}
-              </option>
-            ))}
-          </select>
+        <HeroField label="Minimum fiyat">
+          <input
+            className={inputClassName}
+            inputMode="numeric"
+            min="0"
+            name="average_price_min"
+            placeholder="Örn. 500"
+            step="50"
+            type="number"
+          />
+        </HeroField>
+
+        <HeroField label="Maksimum fiyat">
+          <input
+            className={inputClassName}
+            inputMode="numeric"
+            min="0"
+            name="average_price_max"
+            placeholder="Örn. 2500"
+            step="50"
+            type="number"
+          />
         </HeroField>
 
         <HeroField label="Puan">
@@ -211,19 +211,19 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
       />
       <div className="pointer-events-none relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0 cursor-default select-none">
-          <p className="text-sm font-black leading-5 text-[var(--brand-navy)]">{provider.name}</p>
+          <p className="text-sm font-bold leading-5 text-[var(--brand-navy)]">{provider.name}</p>
           <p className="mt-1 text-xs font-bold text-[var(--muted)]">
             {provider.category} · {provider.district}
           </p>
         </div>
-        <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[0.68rem] font-black text-[var(--brand-orange-dark)]">
+        <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[0.68rem] font-bold text-[var(--brand-orange-dark)]">
           {provider.rating.toFixed(1)}
         </span>
       </div>
       <div className="pointer-events-none relative z-10 mt-3 grid grid-cols-2 gap-2">
         <a
           aria-label={`${provider.name} WhatsApp ile yaz`}
-          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-3 text-[0.7rem] font-black text-white"
+          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-3 text-[0.7rem] font-bold text-white"
           href={getProviderWhatsAppHref(provider)}
           rel="noopener noreferrer"
           target="_blank"
@@ -232,7 +232,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
         </a>
         <a
           aria-label={`${provider.name} telefonla ara`}
-          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--surface-soft)] px-3 text-[0.7rem] font-black text-[var(--brand-navy)]"
+          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--surface-soft)] px-3 text-[0.7rem] font-bold text-[var(--brand-navy)]"
           href={getProviderPhoneHref(provider)}
         >
           Telefon
@@ -249,16 +249,16 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
         <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
           <div className="flex cursor-default select-none items-center justify-between">
             <FuwuLogo size="sm" />
-            <span className="rounded-md bg-white px-3 py-1 text-xs font-black text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
+            <span className="rounded-md bg-white px-3 py-1 text-xs font-bold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
               İstanbul
             </span>
           </div>
 
           <div className="mt-5 cursor-default select-none rounded-lg bg-white p-4 shadow-[0_14px_34px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
               Bugün uygun
             </p>
-            <h2 className="mt-2 text-xl font-black leading-tight text-[var(--brand-navy)]">
+            <h2 className="mt-2 text-xl font-bold leading-tight text-[var(--brand-navy)]">
               Yakındaki ustalar
             </h2>
             <p className="mt-2 text-xs font-bold leading-5 text-[var(--muted)]">
@@ -273,7 +273,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
               ))
             ) : (
               <div className="cursor-default rounded-lg bg-white p-4 text-center shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                <p className="text-sm font-black leading-6 text-[var(--brand-navy)]">
+                <p className="text-sm font-bold leading-6 text-[var(--brand-navy)]">
                   Henüz yayında usta bulunmuyor.
                 </p>
                 <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted)]">
@@ -284,7 +284,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
           </div>
 
           <Link
-            className="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-black text-white shadow-[0_14px_30px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
+            className="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-bold text-white shadow-[0_14px_30px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
             href={appRoutes.providers}
           >
             Tüm ustaları gör
@@ -321,7 +321,7 @@ function HeroSection({
             <FuwuLogo size="md" />
           </div>
 
-          <h1 className="mt-6 max-w-4xl cursor-default select-none text-4xl font-black leading-[1.08] text-[var(--brand-navy)] sm:text-5xl lg:text-7xl">
+          <h1 className="mt-6 max-w-4xl cursor-default select-none text-4xl font-bold leading-[1.08] text-[var(--brand-navy)] sm:text-5xl lg:text-7xl">
             Ustaya ulaşmanın en hızlı yolu.
           </h1>
           <p className="mt-6 max-w-3xl cursor-default select-none text-lg font-semibold leading-8 text-[var(--muted)] sm:text-xl sm:leading-9">
@@ -332,7 +332,7 @@ function HeroSection({
           <div className="mt-7 flex flex-wrap gap-3">
             {heroStats.map((item) => (
               <Link
-                className="cursor-pointer select-none rounded-md bg-white px-4 py-2 text-sm font-black text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                className="cursor-pointer select-none rounded-md bg-white px-4 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
                 href={item.href}
                 key={item.label}
               >
@@ -360,7 +360,7 @@ function ServiceCard({ service }: { service: Service }) {
         <ServiceIcon name={service.iconName} />
       </span>
       <span className="mt-5 block">
-        <span className="block text-xl font-black leading-tight text-[var(--brand-navy)]">
+        <span className="block text-xl font-bold leading-tight text-[var(--brand-navy)]">
           {service.title}
         </span>
         <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -401,7 +401,7 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
             title="Sana uygun ustalar"
           />
           <Link
-            className="cursor-pointer text-sm font-black text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+            className="cursor-pointer text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
             href={appRoutes.providers}
           >
             Tüm profilleri incele
@@ -419,7 +419,7 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
           </div>
         ) : (
           <div className="mt-7 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <p className="text-xl font-black text-[var(--brand-navy)]">
+            <p className="text-xl font-bold text-[var(--brand-navy)]">
               Henüz yayında usta bulunmuyor.
             </p>
             <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -449,16 +449,16 @@ function HowItWorksSection() {
               href={step.href}
               key={step.title}
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-black text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                 0{index + 1}
               </span>
-              <h3 className="mt-5 text-xl font-black leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
                 {step.title}
               </h3>
               <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
                 {step.description}
               </p>
-              <span className="mt-5 inline-flex text-sm font-black text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
+              <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
                 Bölüme git
               </span>
             </Link>
@@ -475,10 +475,10 @@ function AboutSection() {
       <Container className="py-12 sm:py-14 lg:py-16">
         <div className="grid gap-5 lg:grid-cols-[0.45fr_1fr] lg:items-start">
           <div className="cursor-default select-none">
-            <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
               Hakkımızda
             </p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
               Fuwu ile doğru ustaya daha net ulaş.
             </h2>
           </div>
@@ -508,7 +508,7 @@ function TrustSection() {
               key={item.title}
             >
               <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
-              <h3 className="text-xl font-black leading-tight text-[var(--brand-navy)]">
+              <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
                 {item.title}
               </h3>
               <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -528,10 +528,10 @@ function FinalCTASection() {
       <Container className="py-12 sm:py-14 lg:py-16">
         <div className="grid gap-6 rounded-lg bg-[#F7F7F8] p-6 shadow-[0_20px_56px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="cursor-default select-none">
-            <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
               Fuwu Hizmet
             </p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
               Doğru ustaya vakit kaybetmeden ulaş.
             </h2>
           </div>

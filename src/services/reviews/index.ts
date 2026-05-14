@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 
@@ -120,9 +121,10 @@ function calculateReviewSummary(reviews: ProviderReview[]): ProviderReviewSummar
 }
 
 function warnReviewFallback(error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("Review Supabase read failed. Falling back to static review data.", error);
-  }
+  handleServiceError(error, {
+    logContext: "Review Supabase read failed. Falling back to static review data.",
+    publicMessage: "Yorumlar şu anda canlı veriden yüklenemedi.",
+  });
 }
 
 function getFallbackProviderReviews(providerId: string): ProviderReviewsResult {

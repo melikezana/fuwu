@@ -13,6 +13,8 @@ import {
 export type ProviderFilterValues = {
   category?: string;
   district?: string;
+  maximumPrice?: string;
+  minimumPrice?: string;
   price?: string;
   rating?: string;
   availability?: string;
@@ -31,7 +33,7 @@ type ProviderFiltersProps = {
 function FilterField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="block min-w-0 cursor-default select-none">
-      <span className="block cursor-default select-none text-xs font-black uppercase leading-4 text-[var(--muted)]">
+      <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
         {label}
       </span>
       {children}
@@ -40,10 +42,10 @@ function FilterField({ children, label }: { children: ReactNode; label: string }
 }
 
 const selectClassName =
-  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const inputClassName =
-  "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-extrabold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 function getPriceFilterValue(price: string) {
   const priceValues =
@@ -138,21 +140,21 @@ export function ProviderFilters({
     >
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="cursor-default select-none">
-          <p className="text-lg font-black leading-tight text-[var(--brand-navy)]">Usta Bul</p>
+          <p className="text-lg font-bold leading-tight text-[var(--brand-navy)]">Usta Bul</p>
           <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
-            Hizmetini ve ilçeni seç; fiyat aralığı, puan ve uygunluğa göre profilleri daralt.
+            Hizmetini ve ilçeni seç; minimum/maksimum fiyat, puan ve uygunluğa göre profilleri daralt.
           </p>
         </div>
         <Link
-          className="cursor-pointer text-sm font-black text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+          className="cursor-pointer text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
           href={appRoutes.providers}
         >
           Filtreleri temizle
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5 xl:items-end">
-        <div className="md:col-span-2 xl:col-span-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 xl:items-end">
+        <div className="md:col-span-2 xl:col-span-6">
           <FilterField label="Arama">
             <input
               className={inputClassName}
@@ -186,16 +188,35 @@ export function ProviderFilters({
           </select>
         </FilterField>
 
-        <FilterField label="Fiyat aralığı">
-          <select className={selectClassName} defaultValue={selectedPriceValue} name="price">
-            <option value="">Tüm fiyatlar</option>
-            {priceOptions.map((price) => (
-              <option key={price.label} value={price.value}>
-                {price.label}
-              </option>
-            ))}
-          </select>
-        </FilterField>
+        <div className="md:col-span-2 xl:col-span-2">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FilterField label="Minimum fiyat">
+              <input
+                className={inputClassName}
+                defaultValue={values?.minimumPrice ?? ""}
+                inputMode="numeric"
+                min="0"
+                name="average_price_min"
+                placeholder="Örn. 500"
+                step="50"
+                type="number"
+              />
+            </FilterField>
+
+            <FilterField label="Maksimum fiyat">
+              <input
+                className={inputClassName}
+                defaultValue={values?.maximumPrice ?? ""}
+                inputMode="numeric"
+                min="0"
+                name="average_price_max"
+                placeholder="Örn. 2500"
+                step="50"
+                type="number"
+              />
+            </FilterField>
+          </div>
+        </div>
 
         <FilterField label="Minimum puan">
           <select className={selectClassName} defaultValue={values?.rating ?? ""} name="rating">
@@ -212,7 +233,22 @@ export function ProviderFilters({
           Usta Bul
         </Button>
 
-        <div className="md:col-span-2 xl:col-span-5">
+        {priceOptions.length > 0 ? (
+          <div className="md:col-span-2 xl:col-span-2">
+            <FilterField label="Hazır fiyat aralığı">
+              <select className={selectClassName} defaultValue={selectedPriceValue} name="price">
+                <option value="">Tüm fiyatlar</option>
+                {priceOptions.map((price) => (
+                  <option key={price.label} value={price.value}>
+                    {price.label}
+                  </option>
+                ))}
+              </select>
+            </FilterField>
+          </div>
+        ) : null}
+
+        <div className="md:col-span-2 xl:col-span-4">
           <FilterField label="Uygunluk">
             <select
               className={selectClassName}

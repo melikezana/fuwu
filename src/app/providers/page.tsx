@@ -18,6 +18,10 @@ export const dynamic = "force-dynamic";
 type ProvidersSearchParams = {
   category?: string | string[];
   district?: string | string[];
+  average_price_max?: string | string[];
+  average_price_min?: string | string[];
+  maxPrice?: string | string[];
+  minPrice?: string | string[];
   price?: string | string[];
   rating?: string | string[];
   q?: string | string[];
@@ -43,6 +47,8 @@ function createProvidersCanonicalPath(params: {
   availability?: string;
   category?: string;
   district?: string;
+  maximumPrice?: string;
+  minimumPrice?: string;
   price?: string;
   query?: string;
   rating?: string;
@@ -55,6 +61,14 @@ function createProvidersCanonicalPath(params: {
 
   if (params.district) {
     canonicalParams.set("district", params.district);
+  }
+
+  if (params.minimumPrice) {
+    canonicalParams.set("average_price_min", params.minimumPrice);
+  }
+
+  if (params.maximumPrice) {
+    canonicalParams.set("average_price_max", params.maximumPrice);
   }
 
   if (params.price) {
@@ -82,6 +96,10 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
   const params = await searchParams;
   const selectedCategory = getSearchParam(params?.category) || getSearchParam(params?.service);
   const selectedDistrict = getSearchParam(params?.district) || getSearchParam(params?.location);
+  const selectedMinimumPrice =
+    getSearchParam(params?.average_price_min) || getSearchParam(params?.minPrice);
+  const selectedMaximumPrice =
+    getSearchParam(params?.average_price_max) || getSearchParam(params?.maxPrice);
   const selectedPrice = getSearchParam(params?.price);
   const selectedRating = getSearchParam(params?.rating);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
@@ -89,7 +107,12 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
   const areaLabel = selectedDistrict ? toTurkishTitleCase(selectedDistrict) : "İstanbul";
   const categoryLabel = selectedCategory ? getProviderListingLabel(selectedCategory) : "";
   const hasGranularFilters = Boolean(
-    selectedAvailability || selectedPrice || selectedQuery || selectedRating,
+    selectedAvailability ||
+      selectedMaximumPrice ||
+      selectedMinimumPrice ||
+      selectedPrice ||
+      selectedQuery ||
+      selectedRating,
   );
   const title = selectedCategory
     ? `${areaLabel} ${categoryLabel} | Fuwu`
@@ -107,6 +130,8 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
       availability: selectedAvailability,
       category: selectedCategory,
       district: selectedDistrict,
+      maximumPrice: selectedMaximumPrice,
+      minimumPrice: selectedMinimumPrice,
       price: selectedPrice,
       query: selectedQuery,
       rating: selectedRating,
@@ -127,6 +152,10 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const params = await searchParams;
   const selectedCategory = getSearchParam(params?.category) || getSearchParam(params?.service);
   const selectedDistrict = getSearchParam(params?.district) || getSearchParam(params?.location);
+  const selectedMinimumPrice =
+    getSearchParam(params?.average_price_min) || getSearchParam(params?.minPrice);
+  const selectedMaximumPrice =
+    getSearchParam(params?.average_price_max) || getSearchParam(params?.maxPrice);
   const selectedPrice = getSearchParam(params?.price);
   const selectedRating = getSearchParam(params?.rating);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
@@ -135,6 +164,8 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     selectedAvailability,
     selectedCategory,
     selectedDistrict,
+    selectedMaximumPrice,
+    selectedMinimumPrice,
     selectedPrice,
     selectedQuery,
     selectedRating,
@@ -143,6 +174,8 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     availability: selectedAvailability,
     category: selectedCategory,
     district: selectedDistrict,
+    maximumPrice: selectedMaximumPrice,
+    minimumPrice: selectedMinimumPrice,
     price: selectedPrice,
     query: selectedQuery,
     rating: selectedRating,
@@ -154,7 +187,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const todayActiveHref = appRoutes.providers;
   const heroBadges = [
     { label: "Bugün uygun ustalar", href: todayActiveHref },
-    { label: "Fiyat aralığı", href: "#provider-filters" },
+    { label: "Minimum/maksimum fiyat", href: "#provider-filters" },
     { label: "Doğrudan iletişim", href: "#provider-results" },
   ];
   const marketStats = [
@@ -172,10 +205,10 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <FuwuLogo size="md" />
             </div>
-            <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="mt-7 text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
               Usta Bul
             </p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-tight text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
               Ustaları karşılaştır, doğru kararı ver.
             </h1>
             <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
@@ -190,7 +223,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <div className="mt-6 flex flex-wrap gap-2">
               {heroBadges.map((badge) => (
                 <Link
-                  className="max-w-full cursor-pointer select-none rounded-md bg-white px-3 py-2 text-sm font-black leading-5 text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                  className="max-w-full cursor-pointer select-none rounded-md bg-white px-3 py-2 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
                   href={badge.href}
                   key={badge.label}
                 >
@@ -201,7 +234,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           </div>
 
           <div className="cursor-default select-none rounded-lg bg-white p-5 text-[var(--brand-navy)] shadow-[0_18px_54px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
               Pazaryeri özeti
             </p>
             <div className="mt-4 grid grid-cols-3 divide-x divide-[var(--border)] border-y border-[var(--border)] py-4 text-center">
@@ -211,13 +244,13 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
                   href={stat.href}
                   key={stat.label}
                 >
-                  <p className="text-2xl font-black">{stat.value}</p>
-                  <p className="mt-1 text-xs font-black text-[var(--muted)]">{stat.label}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="mt-1 text-xs font-bold text-[var(--muted)]">{stat.label}</p>
                 </Link>
               ))}
             </div>
             <Link
-              className="mt-4 inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_16px_34px_rgba(255,138,0,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[0_20px_42px_rgba(255,138,0,0.3)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="mt-4 inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[0_16px_34px_rgba(255,138,0,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[0_20px_42px_rgba(255,138,0,0.3)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={appRoutes.providerApplication}
             >
               Usta Ağına Katıl
@@ -237,6 +270,8 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               availability: selectedAvailability,
               category: selectedCategory,
               district: selectedDistrict,
+              maximumPrice: selectedMaximumPrice,
+              minimumPrice: selectedMinimumPrice,
               price: selectedPrice,
               query: selectedQuery,
               rating: selectedRating,

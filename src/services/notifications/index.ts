@@ -1,3 +1,5 @@
+import { logInfo } from "@/lib/logger";
+
 export type NotificationEvent =
   | "provider_application_submitted"
   | "provider_application_approved"
@@ -39,7 +41,7 @@ function createMockNotificationResult(
   metadata?: NotificationMetadata,
 ): NotificationMockResult {
   if (isDevelopment) {
-    console.info("[Fuwu notifications] Mock notification prepared.", {
+    logInfo("Mock notification prepared.", {
       event,
       metadata,
       sent: false,

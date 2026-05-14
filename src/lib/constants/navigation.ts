@@ -19,6 +19,8 @@ export const appRoutes = {
   howItWorks: "/#how-it-works",
   trust: "/#trust",
   faq: "/#faq",
+  contact: "#contact",
+  privacy: "#privacy",
 } as const;
 
 export const ctaLabels = {
@@ -55,6 +57,11 @@ export const navigationLinks: NavigationLink[] = [
     label: "Fuwu Güvencesi",
     href: appRoutes.trust,
   },
+  {
+    id: "contact",
+    label: "İletişim",
+    href: appRoutes.contact,
+  },
 ];
 
 export const footerLinks: NavigationLink[] = [
@@ -87,5 +94,15 @@ export const footerLinks: NavigationLink[] = [
     id: "provider-application",
     label: ctaLabels.provider,
     href: appRoutes.providerApplication,
+  },
+  {
+    id: "contact",
+    label: "İletişim",
+    href: appRoutes.contact,
+  },
+  {
+    id: "faq",
+    label: "SSS",
+    href: appRoutes.faq,
   },
 ];

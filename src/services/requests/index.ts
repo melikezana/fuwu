@@ -1,6 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  AuthError,
+  DatabaseError,
+  handleServiceError,
+  NotFoundError,
+  ValidationError,
+} from "@/lib/errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { validateServiceRequestInput } from "@/lib/validations";
 import { notifyServiceRequestCreated } from "@/services/notifications";
 import type {
   ServiceRequestInput,
@@ -41,9 +49,10 @@ function createServiceRequestClient(): SupabaseClient<Database> | null {
 }
 
 function warnServiceRequestError(message: string, error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn(message, error);
-  }
+  handleServiceError(error, {
+    logContext: message,
+    publicMessage: serviceRequestSubmitErrorMessage,
+  });
 }
 
 function parseServiceCategoryName(serviceCategory: string) {
@@ -121,11 +130,15 @@ async function buildServiceRequestInsert(
   ]);
 
   if (!categoryId) {
-    throw new Error("Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.");
+    throw new NotFoundError("Service category lookup failed.", {
+      publicMessage: "Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.",
+    });
   }
 
   if (!districtId) {
-    throw new Error("Seçtiğin ilçe şu anda desteklenen bölgeler arasında bulunamadı.");
+    throw new NotFoundError("District lookup failed.", {
+      publicMessage: "Seçtiğin ilçe şu anda desteklenen bölgeler arasında bulunamadı.",
+    });
   }
 
   return {
@@ -145,14 +158,27 @@ export async function submitServiceRequest(
   data: ServiceRequestInput,
   authenticatedUserId: string,
 ): Promise<ServiceRequestSubmitResult> {
+  const validationResult = validateServiceRequestInput(data);
+
+  if (!validationResult.ok) {
+    throw new ValidationError("Service request validation failed.", {
+      publicMessage: validationResult.message,
+    });
+  }
+
+  const requestData = validationResult.data;
   const supabase = createServiceRequestClient();
 
   if (!supabase) {
-    throw new Error(serviceRequestSubmitErrorMessage);
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
   }
 
   if (!authenticatedUserId.trim()) {
-    throw new Error(serviceRequestLoginRequiredMessage);
+    throw new AuthError("Service request requires an authenticated user.", {
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
   }
 
   const {
@@ -160,8 +186,18 @@ export async function submitServiceRequest(
     error: sessionError,
   } = await supabase.auth.getSession();
 
-  if (sessionError || !session?.user.id) {
-    throw new Error(serviceRequestLoginRequiredMessage);
+  if (sessionError) {
+    warnServiceRequestError("Service request session check failed.", sessionError);
+    throw new AuthError("Service request session check failed.", {
+      cause: sessionError,
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
+  }
+
+  if (!session?.user.id) {
+    throw new AuthError("Service request session is missing.", {
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
   }
 
   const {
@@ -169,11 +205,21 @@ export async function submitServiceRequest(
     error: authError,
   } = await supabase.auth.getUser();
 
-  if (authError || !user || user.id !== authenticatedUserId || user.id !== session.user.id) {
-    throw new Error(serviceRequestLoginRequiredMessage);
+  if (authError) {
+    warnServiceRequestError("Service request user check failed.", authError);
+    throw new AuthError("Service request user check failed.", {
+      cause: authError,
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
   }
 
-  const insertPayload = await buildServiceRequestInsert(supabase, user.id, data);
+  if (!user || user.id !== authenticatedUserId || user.id !== session.user.id) {
+    throw new AuthError("Service request authenticated user mismatch.", {
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
+  }
+
+  const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
   const { data: insertedRequest, error } = await supabase
     .from("service_requests")
     .insert(insertPayload)
@@ -181,8 +227,10 @@ export async function submitServiceRequest(
     .single();
 
   if (error) {
-    warnServiceRequestError("Service request Supabase insert failed.", error);
-    throw new Error(serviceRequestSubmitErrorMessage);
+    throw handleServiceError(error, {
+      logContext: "Service request Supabase insert failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
   }
 
   const record = insertedRequest as LookupRecord | null;

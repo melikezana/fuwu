@@ -41,7 +41,7 @@ export function FuwuLogo({ className, inverted = false, size = "md" }: FuwuLogoP
     >
       <span
         className={cn(
-          "block font-black uppercase leading-none tracking-[0.14em]",
+          "block font-extrabold uppercase leading-none tracking-[0.1em]",
           wordSizeClasses[size],
           inverted ? "text-white" : "text-[var(--brand-navy)]",
         )}
@@ -55,7 +55,7 @@ export function FuwuLogo({ className, inverted = false, size = "md" }: FuwuLogoP
         />
         <span
           className={cn(
-            "font-black uppercase leading-none tracking-[0.26em]",
+            "font-bold uppercase leading-none tracking-[0.18em]",
             subtitleSizeClasses[size],
             inverted ? "text-white/88" : "text-[var(--muted)]",
           )}
@@ -72,7 +72,7 @@ export function FuwuWatermark({ className }: FuwuWatermarkProps) {
     <span
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute select-none font-black uppercase leading-none tracking-[0.16em] text-[var(--brand-navy)]",
+        "pointer-events-none absolute select-none font-extrabold uppercase leading-none tracking-[0.12em] text-[var(--brand-navy)]",
         className,
       )}
     >

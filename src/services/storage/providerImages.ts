@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
 
 export const PROVIDER_IMAGES_BUCKET = "provider-images";
@@ -25,9 +26,10 @@ export type ProviderImageUploadResult =
     };
 
 function warnProviderImageUploadFallback(error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("Provider profile image upload failed. Continuing without image.", error);
-  }
+  handleServiceError(error, {
+    logContext: "Provider profile image upload failed. Continuing without image.",
+    publicMessage: "Profil görseli yüklenemedi.",
+  });
 }
 
 function getFileExtension(fileName: string): ProviderImageExtension | null {

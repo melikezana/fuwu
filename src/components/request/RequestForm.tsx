@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
 import { services } from "@/lib/constants/services";
+import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+import { validateServiceRequestInput } from "@/lib/validations";
 import {
   serviceRequestSubmitErrorMessage,
   submitServiceRequest,
@@ -50,30 +52,6 @@ const initialFormState: RequestFormState = {
   phoneNumber: "",
   shortDescription: "",
 };
-
-const fieldLabels: Record<RequestField, string> = {
-  serviceCategory: "Hizmet kategorisi",
-  district: "İlçe",
-  fullAddress: "Açık adres",
-  urgencyLevel: "Aciliyet",
-  preferredDate: "Tercih edilen tarih",
-  preferredTimeRange: "Tercih edilen saat aralığı",
-  fullName: "Ad soyad",
-  phoneNumber: "Telefon",
-  shortDescription: "Açıklama",
-};
-
-const requiredFields: RequestField[] = [
-  "serviceCategory",
-  "district",
-  "fullAddress",
-  "urgencyLevel",
-  "preferredDate",
-  "preferredTimeRange",
-  "fullName",
-  "phoneNumber",
-  "shortDescription",
-];
 
 const urgencyOptions: Array<{
   value: UrgencyLevel;
@@ -143,21 +121,9 @@ function createInitialFormState({
 }
 
 function validateForm(values: RequestFormState) {
-  const errors: RequestFormErrors = {};
+  const validationResult = validateServiceRequestInput(values);
 
-  requiredFields.forEach((field) => {
-    if (!values[field].trim()) {
-      errors[field] = `Lütfen ${fieldLabels[field].toLocaleLowerCase("tr")} bilgisini girin.`;
-    }
-  });
-
-  const phoneDigits = values.phoneNumber.replace(/\D/g, "");
-
-  if (values.phoneNumber && phoneDigits.length < 10) {
-    errors.phoneNumber = "Lütfen en az 10 haneli geçerli bir telefon numarası girin.";
-  }
-
-  return errors;
+  return validationResult.ok ? {} : validationResult.fieldErrors;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -226,11 +192,7 @@ export function RequestForm({
       setFormState(initialFormState);
     } catch (error) {
       setSubmittedRequest(null);
-      setSubmitError(
-        error instanceof Error
-          ? error.message
-          : serviceRequestSubmitErrorMessage,
-      );
+      setSubmitError(getPublicErrorMessage(error, serviceRequestSubmitErrorMessage));
     } finally {
       setIsSubmitting(false);
     }

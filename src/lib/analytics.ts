@@ -1,3 +1,5 @@
+import { logInfo } from "@/lib/logger";
+
 type AnalyticsValue = string | number | boolean;
 type AnalyticsPayload = Record<string, AnalyticsValue | null | undefined>;
 
@@ -78,7 +80,10 @@ export function trackEvent(eventName: AnalyticsEventName, payload: AnalyticsPayl
   }
 
   if (analyticsConfig.debug && typeof window !== "undefined") {
-    console.info("[analytics:disabled]", eventName, safePayload);
+    logInfo("Analytics disabled event.", {
+      eventName,
+      payload: safePayload,
+    });
   }
 }
 

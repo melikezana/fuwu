@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+import { logWarn } from "@/lib/logger";
 import type { Database } from "./types";
 
 export type SupabaseServerConfig = {
@@ -19,11 +20,9 @@ export const isSupabaseServerConfigured = Boolean(
 
 export function getSupabaseServerConfig(): SupabaseServerConfig | null {
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "Supabase env vars are not set. Add the real project URL and anon key to .env.local when Supabase is connected.",
-      );
-    }
+    logWarn(
+      "Supabase public server configuration is not set. Add project URL and anon key locally when Supabase is connected.",
+    );
 
     return null;
   }

@@ -3,7 +3,9 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
+import { handleServiceError, ValidationError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
+import { validateProviderApplicationInput } from "@/lib/validations";
 import {
   uploadProviderProfileImage,
   type ProviderImageUploadResult,
@@ -56,9 +58,10 @@ function createDemoApplicationResult(profileImage?: File | null): ProviderApplic
 }
 
 function warnProviderApplicationFallback(error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("Provider application Supabase insert failed. Falling back to demo mode.", error);
-  }
+  handleServiceError(error, {
+    logContext: "Provider application Supabase insert failed. Falling back to demo mode.",
+    publicMessage: "Başvuru şu anda canlı sisteme kaydedilemedi.",
+  });
 }
 
 function parseServiceCategoryName(serviceCategory: string) {
@@ -173,20 +176,33 @@ async function notifyProviderApplicationSubmitResult(
 export async function submitProviderApplication(
   data: ProviderApplicationInput,
 ): Promise<ProviderApplicationSubmitResult> {
+  const validationResult = validateProviderApplicationInput(data);
+
+  if (!validationResult.ok) {
+    throw new ValidationError("Provider application validation failed.", {
+      publicMessage: validationResult.message,
+    });
+  }
+
+  const applicationData = validationResult.data;
   const supabase = createProviderApplicationClient();
 
   if (!supabase) {
     return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(data.profileImage),
+      createDemoApplicationResult(applicationData.profileImage),
     );
   }
 
   try {
     const profileImageUpload = await uploadProviderProfileImage(
       supabase,
-      data.profileImage ?? null,
+      applicationData.profileImage ?? null,
     );
-    const insertPayload = await buildProviderApplicationInsert(supabase, data, profileImageUpload);
+    const insertPayload = await buildProviderApplicationInsert(
+      supabase,
+      applicationData,
+      profileImageUpload,
+    );
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
@@ -209,7 +225,7 @@ export async function submitProviderApplication(
 
       warnProviderApplicationFallback(error);
       return notifyProviderApplicationSubmitResult(
-        createDemoApplicationResult(data.profileImage),
+        createDemoApplicationResult(applicationData.profileImage),
       );
     }
 
@@ -222,7 +238,7 @@ export async function submitProviderApplication(
   } catch (error) {
     warnProviderApplicationFallback(error);
     return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(data.profileImage),
+      createDemoApplicationResult(applicationData.profileImage),
     );
   }
 }

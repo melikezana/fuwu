@@ -5,7 +5,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { services } from "@/lib/constants/services";
+import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+import { validateProviderApplicationInput } from "@/lib/validations";
 import {
   isProviderApplicationDemoMode,
   submitProviderApplication,
@@ -49,29 +51,6 @@ const initialFormState: ProviderApplicationFormState = {
   shortIntroduction: "",
   referenceLink: "",
 };
-
-const fieldLabels: Record<ProviderField, string> = {
-  fullName: "Ad soyad",
-  phoneNumber: "Telefon numarası",
-  whatsappNumber: "WhatsApp numarası",
-  serviceCategory: "Hizmet kategorisi",
-  serviceArea: "İlçe / hizmet bölgesi",
-  yearsOfExperience: "Deneyim yılı",
-  availability: "Uygunluk",
-  hasEquipment: "Ekipman durumu",
-  shortIntroduction: "Açıklama",
-  referenceLink: "Referans veya portfolyo bağlantısı",
-};
-
-const requiredFields: ProviderField[] = [
-  "fullName",
-  "phoneNumber",
-  "whatsappNumber",
-  "serviceCategory",
-  "serviceArea",
-  "yearsOfExperience",
-  "shortIntroduction",
-];
 
 const availabilityOptions: Array<{
   value: Availability;
@@ -148,50 +127,12 @@ function normalizeForm(values: ProviderApplicationFormState): ProviderApplicatio
 }
 
 function validateForm(values: ProviderApplicationFormState) {
-  const errors: ProviderFormErrors = {};
-
-  requiredFields.forEach((field) => {
-    if (!values[field].trim()) {
-      errors[field] = `Lütfen ${fieldLabels[field].toLocaleLowerCase("tr")} bilgisini girin.`;
-    }
+  const validationResult = validateProviderApplicationInput({
+    ...values,
+    profileImage: null,
   });
 
-  const phoneDigits = values.phoneNumber.replace(/\D/g, "");
-  const whatsappDigits = values.whatsappNumber.replace(/\D/g, "");
-  const yearsOfExperience = Number(values.yearsOfExperience);
-
-  if (values.phoneNumber && phoneDigits.length < 10) {
-    errors.phoneNumber = "Lütfen en az 10 haneli geçerli bir telefon numarası girin.";
-  }
-
-  if (values.whatsappNumber && whatsappDigits.length < 10) {
-    errors.whatsappNumber = "Lütfen en az 10 haneli geçerli bir WhatsApp numarası girin.";
-  }
-
-  if (
-    values.yearsOfExperience &&
-    (!Number.isFinite(yearsOfExperience) || yearsOfExperience < 0 || yearsOfExperience > 60)
-  ) {
-    errors.yearsOfExperience = "Lütfen 0 ile 60 yıl arasında gerçekçi bir deneyim süresi girin.";
-  }
-
-  if (values.shortIntroduction && values.shortIntroduction.length < 24) {
-    errors.shortIntroduction = "Profilinin güven vermesi için birkaç detay daha ekle.";
-  }
-
-  if (values.referenceLink) {
-    try {
-      const url = new URL(values.referenceLink);
-
-      if (!["http:", "https:"].includes(url.protocol)) {
-        errors.referenceLink = "Lütfen geçerli bir web bağlantısı kullanın.";
-      }
-    } catch {
-      errors.referenceLink = "Geçerli bir bağlantı girin veya alanı boş bırakın.";
-    }
-  }
-
-  return errors;
+  return validationResult.ok ? {} : validationResult.fieldErrors;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -310,9 +251,9 @@ export function ProviderApplicationForm() {
       setFormState(initialFormState);
       setProfileImageFile(null);
       setProfileImageInputKey((currentKey) => currentKey + 1);
-    } catch {
+    } catch (error) {
       setSubmittedApplication(null);
-      setFormError(submissionErrorMessage);
+      setFormError(getPublicErrorMessage(error, submissionErrorMessage));
     } finally {
       setIsSubmitting(false);
     }

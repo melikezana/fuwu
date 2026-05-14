@@ -25,8 +25,8 @@ export function ProviderList({
     <section>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="cursor-default select-none">
-          <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">Sana uygun ustalar</p>
-          <h2 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+          <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">Sana uygun ustalar</p>
+          <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
             {resultHeading}
           </h2>
           <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -47,7 +47,7 @@ export function ProviderList({
         </div>
       ) : (
         <div className="mt-6 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-          <p className="text-xl font-black text-[var(--brand-navy)]">
+          <p className="text-xl font-bold text-[var(--brand-navy)]">
             {hasNoPublicProviders
               ? "Henüz yayında usta bulunmuyor."
               : "Filtrelerine uygun usta bulunamadı."}

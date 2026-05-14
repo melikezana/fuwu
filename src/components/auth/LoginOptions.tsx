@@ -4,7 +4,10 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, Loader2, Mail, Phone, type LucideIcon } from "lucide-react";
 import { appRoutes } from "@/lib/constants/navigation";
+import { getPublicErrorMessage } from "@/lib/errors";
+import { getSafeRedirectPath } from "@/lib/security";
 import { isSupabaseAuthConfigured } from "@/lib/supabase/client";
+import { validateLoginEmailInput } from "@/lib/validations";
 import { signInWithEmailMagicLink, signInWithGoogle } from "@/services/auth";
 
 type LoginOptionKey = "google" | "email" | "phone";
@@ -62,11 +65,7 @@ function LoginIcon({ Icon }: { Icon: LoginOption["Icon"] }) {
 function getSafeNextPath() {
   const nextPath = new URLSearchParams(window.location.search).get("next");
 
-  if (!nextPath?.startsWith("/") || nextPath.startsWith("//")) {
-    return appRoutes.providers;
-  }
-
-  return nextPath;
+  return getSafeRedirectPath(nextPath, appRoutes.providers);
 }
 
 function getAuthRedirectUrl() {
@@ -75,10 +74,6 @@ function getAuthRedirectUrl() {
   });
 
   return `${window.location.origin}${authRedirectPath}?${params.toString()}`;
-}
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 function getOptionDescription(option: LoginOption) {
@@ -126,8 +121,13 @@ export function LoginOptions() {
 
     try {
       await signInWithGoogle(getAuthRedirectUrl());
-    } catch {
-      setFeedback("Google girişi Supabase tarafında aktif değil veya şu anda açılamıyor.");
+    } catch (error) {
+      setFeedback(
+        getPublicErrorMessage(
+          error,
+          "Google girişi şu anda açılamıyor. Lütfen tekrar dene.",
+        ),
+      );
       setIsGoogleLoading(false);
     }
   }
@@ -140,10 +140,10 @@ export function LoginOptions() {
       return;
     }
 
-    const normalizedEmail = email.trim();
+    const validationResult = validateLoginEmailInput(email);
 
-    if (!isValidEmail(normalizedEmail)) {
-      setFeedback(emailInvalidMessage);
+    if (!validationResult.ok) {
+      setFeedback(validationResult.fieldErrors.email ?? emailInvalidMessage);
       return;
     }
 
@@ -151,10 +151,15 @@ export function LoginOptions() {
     setFeedback("Giriş bağlantısı hazırlanıyor.");
 
     try {
-      await signInWithEmailMagicLink(normalizedEmail, getAuthRedirectUrl());
+      await signInWithEmailMagicLink(validationResult.data.email, getAuthRedirectUrl());
       setFeedback("Giriş bağlantısı e-posta adresine gönderildi. Gelen kutunu kontrol et.");
-    } catch {
-      setFeedback("Giriş bağlantısı şu anda gönderilemedi. Supabase e-posta ayarlarını kontrol edip tekrar dene.");
+    } catch (error) {
+      setFeedback(
+        getPublicErrorMessage(
+          error,
+          "Giriş bağlantısı şu anda gönderilemedi. Lütfen tekrar dene.",
+        ),
+      );
     } finally {
       setIsEmailLoading(false);
     }

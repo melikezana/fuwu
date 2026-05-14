@@ -7,6 +7,7 @@ import {
   providerDistricts,
   providers as mockProviders,
 } from "@/lib/constants/providers";
+import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import type {
@@ -321,16 +322,77 @@ function parsePriceRangeFilter(value: string | undefined): PriceRangeFilter | nu
   return null;
 }
 
-function matchesPriceFilter(providerPrice: string, selectedPrice: string) {
+function normalizePriceRangeOrder(range: PriceRangeFilter): PriceRangeFilter {
+  if (
+    typeof range.minimumPrice === "number" &&
+    typeof range.maximumPrice === "number" &&
+    range.minimumPrice > range.maximumPrice
+  ) {
+    return {
+      minimumPrice: range.maximumPrice,
+      maximumPrice: range.minimumPrice,
+    };
+  }
+
+  return range;
+}
+
+function parsePriceBoundary(value: string | undefined) {
+  if (!hasFilterValue(value)) {
+    return null;
+  }
+
+  const priceValue = value?.match(/\d[\d.,]*/)?.[0];
+
+  return priceValue ? parseLocalizedNumber(priceValue) : null;
+}
+
+function parseExplicitPriceRangeFilter(filters: ProviderFilters): PriceRangeFilter | null {
+  const minimumPrice = parsePriceBoundary(filters.minimumPrice);
+  const maximumPrice = parsePriceBoundary(filters.maximumPrice);
+
+  if (minimumPrice === null && maximumPrice === null) {
+    return null;
+  }
+
+  return normalizePriceRangeOrder({
+    minimumPrice,
+    maximumPrice,
+  });
+}
+
+function isProviderWithinPriceRange(
+  providerRange: PriceRangeFilter,
+  selectedRange: PriceRangeFilter,
+) {
+  const minimumMatches =
+    selectedRange.minimumPrice === null ||
+    (typeof providerRange.minimumPrice === "number" &&
+      providerRange.minimumPrice >= selectedRange.minimumPrice);
+  const maximumMatches =
+    selectedRange.maximumPrice === null ||
+    (typeof providerRange.maximumPrice === "number" &&
+      providerRange.maximumPrice <= selectedRange.maximumPrice);
+
+  return minimumMatches && maximumMatches;
+}
+
+function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   const providerRange = parsePriceRangeFilter(providerPrice);
-  const selectedRange = parsePriceRangeFilter(selectedPrice);
+  const explicitRange = parseExplicitPriceRangeFilter(filters);
+
+  if (explicitRange) {
+    return providerRange ? isProviderWithinPriceRange(providerRange, explicitRange) : false;
+  }
+
+  const selectedRange = parsePriceRangeFilter(filters.price);
 
   if (!selectedRange) {
     return true;
   }
 
   if (!providerRange) {
-    return normalizeFilterValue(providerPrice) === normalizeFilterValue(selectedPrice);
+    return normalizeFilterValue(providerPrice) === normalizeFilterValue(filters.price ?? "");
   }
 
   return (
@@ -366,6 +428,10 @@ function matchesProviderSearchQuery(provider: Provider, query: string | undefine
 
 function applyProviderFilters(providers: Provider[], filters: ProviderFilters = {}) {
   const minimumRating = parseMinimumRating(filters.rating);
+  const hasPriceFilter =
+    hasFilterValue(filters.price) ||
+    hasFilterValue(filters.minimumPrice) ||
+    hasFilterValue(filters.maximumPrice);
 
   return providers.filter((provider) => {
     const categoryMatches =
@@ -377,9 +443,7 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
       provider.serviceAreas.some((serviceArea) =>
         matchesExactFilter(serviceArea, filters.district ?? ""),
       );
-    const priceMatches =
-      !hasFilterValue(filters.price) ||
-      matchesPriceFilter(provider.averagePrice, filters.price ?? "");
+    const priceMatches = !hasPriceFilter || matchesPriceFilter(provider.averagePrice, filters);
     const ratingMatches = !minimumRating || provider.rating >= minimumRating;
     const availabilityMatches =
       !hasFilterValue(filters.availability) ||
@@ -441,9 +505,10 @@ function getUniqueSortedOptions(values: string[]) {
 }
 
 function warnProviderReadError(error: unknown) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("Provider Supabase read failed. Falling back to static public data.", error);
-  }
+  handleServiceError(error, {
+    logContext: "Provider Supabase read failed. Falling back to static public data.",
+    publicMessage: "Usta listesi şu anda canlı veriden yüklenemedi.",
+  });
 }
 
 function handleSupabaseListError(error: unknown) {
@@ -577,7 +642,8 @@ async function fetchProvidersFromSupabase(
       return [];
     }
 
-    const priceRange = parsePriceRangeFilter(filters.price);
+    const explicitPriceRange = parseExplicitPriceRangeFilter(filters);
+    const priceRange = explicitPriceRange ?? parsePriceRangeFilter(filters.price);
     const minimumRating = parseMinimumRating(filters.rating);
 
     let query = supabase
@@ -594,7 +660,15 @@ async function fetchProvidersFromSupabase(
       query = query.in("district_id", districtIds);
     }
 
-    if (priceRange) {
+    if (explicitPriceRange) {
+      if (typeof explicitPriceRange.minimumPrice === "number") {
+        query = query.gte("average_price_min", explicitPriceRange.minimumPrice);
+      }
+
+      if (typeof explicitPriceRange.maximumPrice === "number") {
+        query = query.lte("average_price_max", explicitPriceRange.maximumPrice);
+      }
+    } else if (priceRange) {
       if (priceRange.minimumPrice === null) {
         query = query.is("average_price_min", null);
       } else {
@@ -702,7 +776,7 @@ export async function getProviderDirectory(
           categories: fallbackFilterOptions.categories,
           districts: fallbackFilterOptions.districts,
         }
-      : buildFilterOptions(allProviders);
+      : fallbackFilterOptions;
 
   return {
     allProviders,
