@@ -2,20 +2,43 @@
 
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
-import { defaultLocale, supportedLocales, type LocaleCode } from "@/lib/i18n";
+import {
+  defaultLocale,
+  getLocaleSupportMessage,
+  isSupportedLocale,
+  supportedLocales,
+  type LocaleCode,
+} from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type LanguageSwitcherProps = {
   align?: "left" | "right";
 };
 
+const localeStorageKey = "fuwu-locale";
+
 export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
   const [selectedLocale, setSelectedLocale] = useState<LocaleCode>(defaultLocale);
   const [isOpen, setIsOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Türkçe içerik gösteriliyor.");
+  const [statusMessage, setStatusMessage] = useState(getLocaleSupportMessage(defaultLocale));
   const switcherRef = useRef<HTMLDivElement>(null);
   const statusId = useId();
   const menuId = useId();
+
+  useEffect(() => {
+    const storedLocale = window.localStorage.getItem(localeStorageKey);
+
+    if (!isSupportedLocale(storedLocale)) {
+      return;
+    }
+
+    const localeConfig = supportedLocales.find((locale) => locale.code === storedLocale);
+
+    setSelectedLocale(storedLocale);
+    setStatusMessage(getLocaleSupportMessage(storedLocale));
+    document.documentElement.lang = storedLocale;
+    document.documentElement.dir = localeConfig?.dir ?? "ltr";
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -44,23 +67,15 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
   }, [isOpen]);
 
   function handleLocaleClick(localeCode: LocaleCode) {
-    if (localeCode === "tr") {
-      setSelectedLocale("tr");
-      setStatusMessage("Türkçe içerik gösteriliyor.");
-      setIsOpen(false);
-      return;
-    }
+    const localeConfig =
+      supportedLocales.find((locale) => locale.code === localeCode) ?? supportedLocales[0];
 
-    if (localeCode === "en") {
-      setSelectedLocale("tr");
-      setStatusMessage("English desteği hazırlanıyor. Şimdilik Türkçe içerik gösteriliyor.");
-      setIsOpen(false);
-      return;
-    }
-
-    setSelectedLocale("tr");
-    setStatusMessage("Arapça ve RTL desteği hazırlanıyor. Şimdilik Türkçe içerik gösteriliyor.");
-    setIsOpen(false);
+    setSelectedLocale(localeCode);
+    setStatusMessage(getLocaleSupportMessage(localeCode));
+    window.localStorage.setItem(localeStorageKey, localeCode);
+    document.documentElement.lang = localeCode;
+    document.documentElement.dir = localeConfig.dir;
+    setIsOpen(localeConfig.status !== "active");
   }
 
   const selectedLocaleConfig =
@@ -104,7 +119,11 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
             return (
               <button
                 aria-describedby={statusId}
-                className="flex min-h-10 w-full cursor-pointer select-none items-center justify-between gap-3 px-3.5 text-left text-sm font-semibold leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:bg-[var(--brand-orange-soft)] focus:outline-none"
+                aria-current={isSelected ? "true" : undefined}
+                className={cn(
+                  "flex min-h-10 w-full cursor-pointer select-none items-center justify-between gap-3 px-3.5 text-left text-sm font-semibold leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:bg-[var(--brand-orange-soft)] focus:outline-none",
+                  isSelected ? "bg-[var(--brand-orange-soft)]" : undefined,
+                )}
                 key={locale.code}
                 onClick={() => handleLocaleClick(locale.code)}
                 role="menuitem"
@@ -117,6 +136,9 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
               </button>
             );
           })}
+          <p className="border-t border-[var(--border)] px-3.5 py-2 text-[0.72rem] font-bold leading-5 text-[var(--muted)]">
+            {statusMessage}
+          </p>
         </div>
       ) : null}
       <span className="sr-only" id={statusId} role="status">

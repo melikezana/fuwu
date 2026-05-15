@@ -175,7 +175,7 @@ export function ProviderFilters({
             onClick={() => setIsAdvancedOpen((currentValue) => !currentValue)}
             type="button"
           >
-            Filtreleri aç/kapat
+            Gelişmiş filtreler
             <ChevronDown
               aria-hidden="true"
               className={cn("size-4 transition-transform", isAdvancedOpen ? "rotate-180" : "")}

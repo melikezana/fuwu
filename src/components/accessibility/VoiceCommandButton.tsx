@@ -12,6 +12,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import type { Provider } from "@/types/provider";
 
 type VoiceCommandButtonProps = {
+  categories?: string[];
   districts: string[];
   providers: Provider[];
 };
@@ -77,7 +78,20 @@ function focusFirstWhatsAppLink() {
   return true;
 }
 
-export function VoiceCommandButton({ districts, providers }: VoiceCommandButtonProps) {
+async function requestMicrophonePermission() {
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    return;
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  stream.getTracks().forEach((track) => track.stop());
+}
+
+export function VoiceCommandButton({
+  categories = [],
+  districts,
+  providers,
+}: VoiceCommandButtonProps) {
   const router = useRouter();
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [isListening, setIsListening] = useState(false);
@@ -91,7 +105,7 @@ export function VoiceCommandButton({ districts, providers }: VoiceCommandButtonP
   }
 
   function executeTranscript(transcript: string) {
-    const command = interpretVoiceCommand(transcript, { districts });
+    const command = interpretVoiceCommand(transcript, { categories, districts });
 
     if (command.type === "category") {
       setStatusMessage(`${command.value} için ustalar açılıyor.`);
@@ -102,6 +116,12 @@ export function VoiceCommandButton({ districts, providers }: VoiceCommandButtonP
     if (command.type === "district") {
       setStatusMessage(`${command.value} ustaları açılıyor.`);
       router.push(createProviderQuery("district", command.value));
+      return;
+    }
+
+    if (command.type === "show-providers") {
+      setStatusMessage("Usta listesi açılıyor.");
+      router.push(appRoutes.providers);
       return;
     }
 
@@ -123,11 +143,19 @@ export function VoiceCommandButton({ districts, providers }: VoiceCommandButtonP
     setStatusMessage("Komut anlaşılamadı. Tesisatçı ara, Kadıköy ustaları veya profilleri oku diyebilirsin.");
   }
 
-  function handleVoiceCommandClick() {
+  async function handleVoiceCommandClick() {
     const SpeechRecognition = getSpeechRecognitionConstructor();
 
     if (!SpeechRecognition) {
       setStatusMessage("Bu tarayıcı sesli komutu desteklemiyor.");
+      return;
+    }
+
+    try {
+      setStatusMessage("Mikrofon izni isteniyor.");
+      await requestMicrophonePermission();
+    } catch {
+      setStatusMessage("Mikrofon izni verilmedi. Sesli komutu kullanmak için izni açabilirsin.");
       return;
     }
 
@@ -154,7 +182,12 @@ export function VoiceCommandButton({ districts, providers }: VoiceCommandButtonP
 
     setIsListening(true);
     setStatusMessage("Dinliyorum. Komutunu söyleyebilirsin.");
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      setIsListening(false);
+      setStatusMessage("Sesli komut başlatılamadı. Biraz sonra tekrar deneyebilirsin.");
+    }
   }
 
   return (

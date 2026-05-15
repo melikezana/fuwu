@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   Camera,
+  ChevronDown,
   Mail,
   MapPin,
   MessageCircle,
@@ -28,7 +29,7 @@ const footerLinkClass =
   "inline-flex max-w-full cursor-pointer select-none items-center gap-2 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
 
 const contactActionClass =
-  "inline-flex min-h-12 w-full cursor-pointer select-none items-center justify-center gap-2.5 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-3 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
+  "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
 
 const discoverLinks: FooterLink[] = [
   { label: "Usta Bul", href: appRoutes.providers },
@@ -144,9 +145,13 @@ export function Footer() {
       className="border-t border-[rgba(13,20,36,0.08)] bg-[linear-gradient(180deg,#FFF7EC_0%,#F8F2E8_52%,#EEF1F5_100%)] text-[var(--brand-navy)]"
       id="contact"
     >
-      <Container className="py-10 sm:py-12 lg:py-14">
+      <Container className="py-8 sm:py-12 lg:py-14">
         <div className="max-w-2xl cursor-default select-none">
-          <Link aria-label="Fuwu ana sayfa" className="inline-flex cursor-pointer" href={appRoutes.home}>
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo size="md" />
           </Link>
           <p className="mt-4 text-sm font-semibold leading-7 text-[var(--muted)]">
@@ -156,7 +161,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="grid gap-9 border-y border-[rgba(13,20,36,0.1)] py-9 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+        <div className="grid gap-7 border-y border-[rgba(13,20,36,0.1)] py-7 sm:grid-cols-2 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
           <FooterColumn title="Keşfet">
             <nav aria-label="Keşfet bağlantıları" className="grid gap-2.5">
               {discoverLinks.map((item) => (
@@ -173,13 +178,36 @@ export function Footer() {
             </nav>
           </FooterColumn>
 
-          <FooterColumn title="Politikalar">
+          <FooterColumn className="hidden sm:grid" title="Politikalar">
             <nav aria-label="Yasal ve politika bağlantıları" className="grid gap-2.5">
               {policyLinks.map((item) => (
                 <FooterAnchor item={item} key={item.label} />
               ))}
             </nav>
           </FooterColumn>
+
+          <section className="sm:hidden">
+            <details className="group rounded-lg border border-[rgba(13,20,36,0.1)] bg-white/70">
+              <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-black uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
+                <span>
+                  <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
+                  Yasal
+                </span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="size-4 transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <nav
+                aria-label="Yasal ve politika bağlantıları"
+                className="grid gap-2.5 border-t border-[rgba(13,20,36,0.08)] px-4 py-3"
+              >
+                {policyLinks.map((item) => (
+                  <FooterAnchor item={item} key={item.label} />
+                ))}
+              </nav>
+            </details>
+          </section>
 
           <FooterColumn className="sm:col-span-2 lg:col-span-4" title="İletişim">
             <address className="grid gap-4 not-italic">

@@ -34,3 +34,13 @@ export function isSupportedLocale(value: string | null | undefined): value is Lo
 export function getLocaleConfig(localeCode: string | null | undefined) {
   return supportedLocales.find((locale) => locale.code === localeCode) ?? supportedLocales[0];
 }
+
+export function getLocaleSupportMessage(localeCode: string | null | undefined) {
+  const locale = getLocaleConfig(localeCode);
+
+  if (locale.status === "active") {
+    return `${locale.label} içerik gösteriliyor.`;
+  }
+
+  return "Dil desteği yakında tamamen aktif olacak.";
+}

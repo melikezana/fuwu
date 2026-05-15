@@ -17,9 +17,13 @@ export default function LoginPage() {
       <FuwuWatermark className="-right-20 top-10 text-[9rem] opacity-[0.035] sm:text-[12rem]" />
       <Container className="relative grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(20rem,0.55fr)] lg:items-center lg:py-16">
         <div className="min-w-0 cursor-default select-none">
-          <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo size="md" />
-          </div>
+          </Link>
           <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
             Supabase ile giriş
           </p>

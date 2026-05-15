@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -88,9 +89,13 @@ export default async function RequestPage() {
       <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
       <Container className="relative grid min-h-[620px] gap-8 py-10 sm:py-14 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:py-16">
         <div className="min-w-0 cursor-default select-none">
-          <div className="inline-flex rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[0_24px_70px_rgba(13,20,36,0.18)]">
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex cursor-pointer rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[0_24px_70px_rgba(13,20,36,0.18)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo inverted size="lg" />
-          </div>
+          </Link>
           <p className="mt-7 text-sm font-black uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Talep oluştur
           </p>

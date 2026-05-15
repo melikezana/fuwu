@@ -83,9 +83,13 @@ function ProviderNotFoundState() {
       <Container className="py-12 sm:py-16 lg:py-20">
         <section className="relative mx-auto max-w-2xl cursor-default select-none overflow-hidden rounded-lg bg-white p-6 text-center shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
           <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
-          <div className="relative mx-auto mb-6 inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="relative mx-auto mb-6 inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo size="sm" />
-          </div>
+          </Link>
           <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#111B2E_0%,#22304A_100%)] text-white shadow-[0_16px_36px_rgba(13,20,36,0.18)]">
             <UserSearch aria-hidden="true" className="size-7" />
           </div>
@@ -155,9 +159,13 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         <div className="min-w-0 space-y-6">
           <section className="relative cursor-default select-none overflow-hidden rounded-lg bg-white p-5 shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-7">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
-            <div className="relative mb-6 inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <Link
+              aria-label="Fuwu ana sayfasına git"
+              className="relative mb-6 inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_14px_34px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={appRoutes.home}
+            >
               <FuwuLogo size="sm" />
-            </div>
+            </Link>
 
             <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#111B2E_0%,#22304A_100%)] text-2xl font-black text-white shadow-[0_16px_36px_rgba(13,20,36,0.18)]">
@@ -299,7 +307,13 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           <section className="cursor-default select-none overflow-hidden rounded-lg bg-white shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.1)]">
             <div className="h-1.5 bg-[var(--brand-orange)]" />
             <div className="p-5">
-              <FuwuLogo />
+              <Link
+                aria-label="Fuwu ana sayfasına git"
+                className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                href={appRoutes.home}
+              >
+                <FuwuLogo />
+              </Link>
               <p className="mt-5 text-xs font-black uppercase text-[var(--brand-orange-dark)]">
                 Doğrudan iletişim
               </p>

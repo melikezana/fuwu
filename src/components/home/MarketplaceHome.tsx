@@ -1,15 +1,17 @@
 import Link from "next/link";
+import { VoiceCommandButton } from "@/components/accessibility/VoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
+import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderCard } from "@/components/providers/ProviderCard";
-import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import {
   getProviderPhoneHref,
   getProviderWhatsAppHref,
-  minimumRatingOptions,
 } from "@/lib/constants/providers";
 import { services, type Service } from "@/lib/constants/services";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
@@ -22,17 +24,6 @@ type SectionHeadingProps = {
 };
 
 const serviceOrder = [
-  "Tesisat",
-  "Elektrik",
-  "Temizlik",
-  "Halı Yıkama",
-  "Klima & Beyaz Eşya",
-  "Mobilya Montaj",
-  "Boya Badana",
-  "Nakliye Yardımı",
-];
-
-const heroServiceFilterOptions = [
   "Tesisat",
   "Elektrik",
   "Temizlik",
@@ -84,12 +75,6 @@ const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
   .filter((service): service is Service => Boolean(service));
 
-const fieldBaseClassName =
-  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
-
-const selectClassName = `${fieldBaseClassName} cursor-pointer select-none overflow-hidden text-ellipsis pr-10`;
-const inputClassName = `${fieldBaseClassName} cursor-text select-text`;
-
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   return (
     <div className="max-w-3xl cursor-default select-none">
@@ -107,95 +92,6 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
         </p>
       ) : null}
     </div>
-  );
-}
-
-function HeroField({
-  children,
-  label,
-}: {
-  children: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <label className="block min-w-0 cursor-default">
-      <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions }) {
-  return (
-    <form
-      action={appRoutes.providers}
-      className="mt-8 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
-    >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(10rem,1.15fr)_minmax(8.5rem,0.95fr)_minmax(7.5rem,0.8fr)_minmax(7.5rem,0.8fr)_minmax(9.5rem,0.9fr)_minmax(7.75rem,auto)] 2xl:items-end">
-        <HeroField label="Hizmet">
-          <select className={selectClassName} defaultValue="" name="category">
-            <option value="">Tüm hizmetler</option>
-            {heroServiceFilterOptions.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </HeroField>
-
-        <HeroField label="İlçe">
-          <select className={selectClassName} defaultValue="" name="district">
-            <option value="">Tüm ilçeler</option>
-            {filterOptions.districts.map((district) => (
-              <option key={district} value={district}>
-                {district}
-              </option>
-            ))}
-          </select>
-        </HeroField>
-
-        <HeroField label="Minimum Fiyat">
-          <input
-            className={inputClassName}
-            inputMode="numeric"
-            min="0"
-            name="average_price_min"
-            placeholder="Örn. 500"
-            step="50"
-            type="number"
-          />
-        </HeroField>
-
-        <HeroField label="Maksimum Fiyat">
-          <input
-            className={inputClassName}
-            inputMode="numeric"
-            min="0"
-            name="average_price_max"
-            placeholder="Örn. 2500"
-            step="50"
-            type="number"
-          />
-        </HeroField>
-
-        <HeroField label="Puan">
-          <select className={selectClassName} defaultValue="" name="rating">
-            <option value="">Tüm puanlar</option>
-            {minimumRatingOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </HeroField>
-
-        <Button className="h-12 min-h-12 w-full rounded-md px-5" type="submit">
-          {ctaLabels.findProvider}
-        </Button>
-      </div>
-    </form>
   );
 }
 
@@ -248,7 +144,13 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
       <div className="relative rounded-[1.75rem] bg-[var(--brand-navy)] p-3 shadow-[0_26px_80px_rgba(13,20,36,0.16)]">
         <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
           <div className="flex cursor-default select-none items-center justify-between">
-            <FuwuLogo size="sm" />
+            <Link
+              aria-label="Fuwu ana sayfasına git"
+              className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={appRoutes.home}
+            >
+              <FuwuLogo size="sm" />
+            </Link>
             <span className="rounded-md bg-white px-3 py-1 text-xs font-bold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
               İstanbul
             </span>
@@ -300,11 +202,13 @@ function HeroSection({
   filterOptions,
   heroProviders,
   todayActiveCount,
+  voiceProviders,
 }: {
   districtCount: number;
   filterOptions: ProviderFilterOptions;
   heroProviders: Provider[];
   todayActiveCount: number;
+  voiceProviders: Provider[];
 }) {
   const heroStats = [
     { label: "Bugün uygun ustalar", href: appRoutes.providers },
@@ -317,9 +221,13 @@ function HeroSection({
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
       <Container className="grid max-w-[1360px] gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
         <div className="min-w-0 max-w-[880px] xl:pr-2">
-          <div className="inline-flex cursor-default select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo size="md" />
-          </div>
+          </Link>
 
           <h1 className="mt-5 max-w-3xl cursor-default select-none text-4xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
             Ustaya ulaşmanın en hızlı yolu.
@@ -341,7 +249,12 @@ function HeroSection({
             ))}
           </div>
 
-          <HeroSearch filterOptions={filterOptions} />
+          <HomeHeroFilters filterOptions={filterOptions} />
+          <VoiceCommandButton
+            categories={filterOptions.categories}
+            districts={filterOptions.districts}
+            providers={voiceProviders}
+          />
         </div>
 
         <HeroMockup heroProviders={heroProviders} />
@@ -439,35 +352,37 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
 function HowItWorksSection() {
   return (
     <section className="border-y border-[var(--border)] bg-white" id="how-it-works">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-14 lg:py-16">
         <SectionHeading
           description="Üç adımda ihtiyacını netleştir, profilleri karşılaştır ve doğrudan iletişime geç."
           eyebrow="Nasıl çalışır?"
           title="Usta bulma akışı"
         />
-        <div className="mt-7 grid gap-4 md:grid-cols-3">
-          {howItWorksSteps.map((step, index) => (
-            <Link
-              aria-label={`${step.title} bölümüne git`}
-              className="group cursor-pointer select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_58px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              href={step.href}
-              key={step.title}
-            >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-                0{index + 1}
-              </span>
-              <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                {step.description}
-              </p>
-              <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
-                Bölüme git
-              </span>
-            </Link>
-          ))}
-        </div>
+        <MobileCollapsibleSection contentClassName="mt-7">
+          <div className="grid gap-4 md:grid-cols-3">
+            {howItWorksSteps.map((step, index) => (
+              <Link
+                aria-label={`${step.title} bölümüne git`}
+                className="group cursor-pointer select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_58px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                href={step.href}
+                key={step.title}
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+                  0{index + 1}
+                </span>
+                <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                  {step.description}
+                </p>
+                <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
+                  Bölüme git
+                </span>
+              </Link>
+            ))}
+          </div>
+        </MobileCollapsibleSection>
       </Container>
     </section>
   );
@@ -499,28 +414,30 @@ function AboutSection() {
 function TrustSection() {
   return (
     <section className="bg-[#F7F7F8]" id="trust">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-14 lg:py-16">
         <SectionHeading
           description="Fuwu, müşteri kararını hızlandıran net profil bilgileri ve doğrudan iletişim akışı sunar."
           eyebrow="Fuwu Güvencesi"
           title="Karar vermeyi kolaylaştıran güven sinyalleri"
         />
-        <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {trustItems.map((item) => (
-            <div
-              className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
-              key={item.title}
-            >
-              <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
-              <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                {item.title}
-              </h3>
-              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                {item.description}
-              </p>
-            </div>
-          ))}
-        </div>
+        <MobileCollapsibleSection contentClassName="mt-7">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {trustItems.map((item) => (
+              <div
+                className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
+                key={item.title}
+              >
+                <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
+                <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </MobileCollapsibleSection>
       </Container>
     </section>
   );
@@ -529,7 +446,7 @@ function TrustSection() {
 function FinalCTASection() {
   return (
     <section className="border-t border-[var(--border)] bg-white">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-14 lg:py-16">
         <div className="cursor-default select-none">
           <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
             Fuwu Hizmet
@@ -538,44 +455,46 @@ function FinalCTASection() {
             Müşteri ve usta akışları sade, ayrı ve net.
           </h2>
         </div>
-        <div className="mt-7 grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <div className="cursor-default select-none">
-              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
-                Müşteri
-              </p>
-              <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                Yakındaki ustaları karşılaştır.
-              </h3>
-              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                Kategori, ilçe, puan ve fiyat aralığına göre uygun profilleri gör.
-              </p>
+        <MobileCollapsibleSection contentClassName="mt-7">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+              <div className="cursor-default select-none">
+                <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                  Müşteri
+                </p>
+                <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+                  Yakındaki ustaları karşılaştır.
+                </h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                  Kategori, ilçe, puan ve fiyat aralığına göre uygun profilleri gör.
+                </p>
+              </div>
+              <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providers}>
+                Usta Bul
+              </Button>
             </div>
-            <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providers}>
-              Usta Bul
-            </Button>
-          </div>
-          <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <div className="cursor-default select-none">
-              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
-                Usta
-              </p>
-              <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                Profilini hazırlayıp ağa katıl.
-              </h3>
-              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                Hizmet alanını, çalışma bölgeni ve doğrudan iletişim bilgilerini gönder.
-              </p>
+            <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+              <div className="cursor-default select-none">
+                <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                  Usta
+                </p>
+                <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+                  Profilini hazırlayıp ağa katıl.
+                </h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                  Hizmet alanını, çalışma bölgeni ve doğrudan iletişim bilgilerini gönder.
+                </p>
+              </div>
+              <Button
+                className="mt-5 w-full sm:w-fit"
+                href={appRoutes.providerApplication}
+                variant="secondary"
+              >
+                Usta Ağına Katıl
+              </Button>
             </div>
-            <Button
-              className="mt-5 w-full sm:w-fit"
-              href={appRoutes.providerApplication}
-              variant="secondary"
-            >
-              Usta Ağına Katıl
-            </Button>
           </div>
-        </div>
+        </MobileCollapsibleSection>
       </Container>
     </section>
   );
@@ -590,6 +509,9 @@ export async function MarketplaceHome() {
     (provider) => provider.availability === "Bugün uygun",
   );
   const heroProviders = todayProviders.length > 0 ? todayProviders.slice(0, 2) : allProviders.slice(0, 2);
+  const voiceProviders = Array.from(
+    new Map([...heroProviders, ...previewProviders].map((provider) => [provider.id, provider])).values(),
+  );
   const todayActiveCount = todayProviders.length;
 
   return (
@@ -599,6 +521,7 @@ export async function MarketplaceHome() {
         filterOptions={filterOptions}
         heroProviders={heroProviders}
         todayActiveCount={todayActiveCount}
+        voiceProviders={voiceProviders}
       />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />

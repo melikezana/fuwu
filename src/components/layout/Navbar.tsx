@@ -105,8 +105,8 @@ export function Navbar() {
           ref={navRef}
         >
           <Link
-            aria-label="Fuwu ana sayfa"
-            className="inline-flex min-w-0 cursor-pointer"
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             onClick={() => handleMenuLinkClick(appRoutes.home)}
             href={appRoutes.home}
           >
@@ -183,9 +183,19 @@ export function Navbar() {
 
           {isMenuOpen ? (
             <div
-              className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-50 max-h-[min(70vh,24rem)] overflow-y-auto rounded-lg border border-[rgba(13,20,36,0.08)] bg-white py-2 shadow-[0_22px_60px_rgba(13,20,36,0.16)] xl:hidden"
+              className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-50 max-h-[min(56vh,21rem)] overflow-y-auto rounded-lg border border-[rgba(13,20,36,0.08)] bg-white py-2 shadow-[0_22px_60px_rgba(13,20,36,0.16)] xl:hidden"
               id="mobile-navigation-menu"
             >
+              <div className="border-b border-[var(--border)] px-3 pb-2">
+                <Link
+                  aria-label="Fuwu ana sayfasına git"
+                  className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                  href={appRoutes.home}
+                  onClick={() => handleMenuLinkClick(appRoutes.home)}
+                >
+                  <FuwuLogo size="sm" />
+                </Link>
+              </div>
               <div className="grid gap-1 px-2">
                 {mobileNavigationLinks.map((item) => {
                   const isActive = isActiveLink(item.href);

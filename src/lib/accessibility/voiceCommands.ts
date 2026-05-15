@@ -13,6 +13,10 @@ export type VoiceCommandIntent =
       spokenText: string;
     }
   | {
+      type: "show-providers";
+      spokenText: string;
+    }
+  | {
       type: "whatsapp";
       spokenText: string;
     }
@@ -25,18 +29,53 @@ export type VoiceCommandIntent =
       spokenText: string;
     };
 
-const categoryAliases: Array<{ value: string; aliases: string[] }> = [
-  { value: "Tesisat", aliases: ["tesisat", "tesisatçı", "tesisatci", "su tesisatı", "su tesisati"] },
-  { value: "Elektrik", aliases: ["elektrik", "elektrikçi", "elektrikci"] },
-  { value: "Temizlik", aliases: ["temizlik", "temizlikçi", "temizlikci"] },
-  { value: "Halı Yıkama", aliases: ["halı yıkama", "hali yikama", "halıcı", "halici"] },
+const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
   {
-    value: "Klima & Beyaz Eşya",
+    values: ["Tesisat"],
+    aliases: [
+      "tesisat ara",
+      "tesisatçı ara",
+      "tesisatci ara",
+      "tesisat",
+      "tesisatçı",
+      "tesisatci",
+      "su tesisatı",
+      "su tesisati",
+    ],
+  },
+  {
+    values: ["Elektrik Hizmeti", "Elektrik"],
+    aliases: [
+      "elektrikçi ara",
+      "elektrikci ara",
+      "elektrik ara",
+      "elektrik",
+      "elektrikçi",
+      "elektrikci",
+    ],
+  },
+  {
+    values: ["Temizlik"],
+    aliases: ["temizlik ara", "temizlik", "temizlikçi", "temizlikci"],
+  },
+  {
+    values: ["Halı Yıkama"],
+    aliases: [
+      "halı yıkama ara",
+      "hali yikama ara",
+      "halı yıkama",
+      "hali yikama",
+      "halıcı",
+      "halici",
+    ],
+  },
+  {
+    values: ["Klima & Beyaz Eşya"],
     aliases: ["klima", "beyaz eşya", "beyaz esya", "teknik servis"],
   },
-  { value: "Mobilya Montaj", aliases: ["mobilya", "montaj", "mobilya montaj"] },
-  { value: "Boya Badana", aliases: ["boya", "badana", "boyacı", "boyaci"] },
-  { value: "Nakliye Yardımı", aliases: ["nakliye", "taşıma", "tasima"] },
+  { values: ["Mobilya Montaj"], aliases: ["mobilya", "montaj", "mobilya montaj"] },
+  { values: ["Boya Badana"], aliases: ["boya", "badana", "boyacı", "boyaci"] },
+  { values: ["Nakliye Yardımı"], aliases: ["nakliye", "taşıma", "tasima"] },
 ];
 
 const defaultDistricts = [
@@ -58,9 +97,31 @@ function includesAny(normalizedText: string, aliases: string[]) {
   return aliases.some((alias) => normalizedText.includes(normalizeVoiceText(alias)));
 }
 
+function getAvailableCategoryValue(values: string[], categories: string[] = []) {
+  const normalizedValues = values.map((value) => normalizeVoiceText(value));
+  const exactCategory = categories.find((category) =>
+    normalizedValues.includes(normalizeVoiceText(category)),
+  );
+
+  if (exactCategory) {
+    return exactCategory;
+  }
+
+  const relatedCategory = categories.find((category) => {
+    const normalizedCategory = normalizeVoiceText(category);
+
+    return normalizedValues.some(
+      (value) => normalizedCategory.includes(value) || value.includes(normalizedCategory),
+    );
+  });
+
+  return relatedCategory ?? values[0];
+}
+
 export function interpretVoiceCommand(
   transcript: string,
   options: {
+    categories?: string[];
     districts?: string[];
   } = {},
 ): VoiceCommandIntent {
@@ -69,6 +130,17 @@ export function interpretVoiceCommand(
 
   if (!normalizedText) {
     return { type: "unknown", spokenText };
+  }
+
+  if (
+    includesAny(normalizedText, [
+      "ustaları göster",
+      "ustalari goster",
+      "ustaları listele",
+      "ustalari listele",
+    ])
+  ) {
+    return { type: "show-providers", spokenText };
   }
 
   if (includesAny(normalizedText, ["profilleri oku", "ustaları oku", "ustalari oku"])) {
@@ -86,7 +158,7 @@ export function interpretVoiceCommand(
   if (categoryMatch) {
     return {
       type: "category",
-      value: categoryMatch.value,
+      value: getAvailableCategoryValue(categoryMatch.values, options.categories),
       spokenText,
     };
   }
@@ -109,8 +181,10 @@ export function getKnownVoiceCommandExamples() {
   return [
     "tesisatçı ara",
     "elektrikçi ara",
+    "temizlik ara",
+    "halı yıkama ara",
     "Kadıköy ustaları",
-    "WhatsApp ile yaz",
+    "ustaları göster",
     "profilleri oku",
   ];
 }

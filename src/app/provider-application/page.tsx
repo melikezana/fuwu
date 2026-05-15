@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
+import { appRoutes } from "@/lib/constants/navigation";
 
 export const metadata: Metadata = {
   title: "Usta Ağına Katıl | Fuwu",
@@ -33,9 +35,13 @@ export default function ProviderApplicationPage() {
       <FuwuWatermark className="-left-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
       <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)] xl:items-start xl:gap-10">
         <div className="min-w-0 cursor-default select-none lg:max-w-[620px]">
-          <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <Link
+            aria-label="Fuwu ana sayfasına git"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.home}
+          >
             <FuwuLogo size="md" />
-          </div>
+          </Link>
           <p className="mt-7 text-sm font-black uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Usta ağına katıl
           </p>
