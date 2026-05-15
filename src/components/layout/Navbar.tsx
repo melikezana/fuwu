@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, ctaLabels, navigationLinks } from "@/lib/constants/navigation";
@@ -30,6 +31,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-2 xl:flex">
+            <LanguageSwitcher />
             <Button href={appRoutes.login} variant="ghost">
               {ctaLabels.login}
             </Button>
@@ -40,6 +42,9 @@ export function Navbar() {
           </div>
 
           <div className="grid w-full grid-cols-2 gap-2 border-t border-[var(--border)] pt-3 sm:grid-cols-3 xl:hidden">
+            <div className="col-span-2 sm:col-span-3">
+              <LanguageSwitcher />
+            </div>
             {navigationLinks.map((item) => (
               <Link
                 className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--surface-soft)] px-3 py-2 text-center text-xs font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"

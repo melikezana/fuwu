@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { VoiceCommandButton } from "@/components/accessibility/VoiceCommandButton";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
@@ -205,10 +206,10 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <FuwuLogo size="md" />
             </div>
-            <p className="mt-7 text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
+            <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
               Usta Bul
             </p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-tight text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
               Ustaları karşılaştır, doğru kararı ver.
             </h1>
             <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
@@ -223,7 +224,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <div className="mt-6 flex flex-wrap gap-2">
               {heroBadges.map((badge) => (
                 <Link
-                  className="max-w-full cursor-pointer select-none rounded-md bg-white px-3 py-2 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                  className="max-w-full cursor-pointer select-none rounded-md bg-white px-3 py-2 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                   href={badge.href}
                   key={badge.label}
                 >
@@ -240,7 +241,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             <div className="mt-4 grid grid-cols-3 divide-x divide-[var(--border)] border-y border-[var(--border)] py-4 text-center">
               {marketStats.map((stat) => (
                 <Link
-                  className="cursor-pointer select-none px-2 transition-colors hover:bg-[var(--brand-orange-soft)]"
+                  className="cursor-pointer select-none px-2 transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                   href={stat.href}
                   key={stat.label}
                 >
@@ -277,6 +278,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               rating: selectedRating,
             }}
           />
+          <VoiceCommandButton districts={filterOptions.districts} providers={filteredProviders} />
         </Container>
       </section>
 

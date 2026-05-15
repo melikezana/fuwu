@@ -20,7 +20,10 @@ export const appRoutes = {
   trust: "/#trust",
   faq: "/#faq",
   contact: "#contact",
-  privacy: "#privacy",
+  kvkk: "/kvkk",
+  privacy: "/gizlilik",
+  terms: "/kullanim-sartlari",
+  cookies: "/cerez-politikasi",
 } as const;
 
 export const ctaLabels = {

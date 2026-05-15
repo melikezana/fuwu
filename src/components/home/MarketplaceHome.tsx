@@ -23,7 +23,7 @@ type SectionHeadingProps = {
 
 const serviceOrder = [
   "Tesisat",
-  "Elektrik hizmeti",
+  "Elektrik",
   "Temizlik",
   "Halı Yıkama",
   "Klima & Beyaz Eşya",
@@ -34,7 +34,7 @@ const serviceOrder = [
 
 const heroServiceFilterOptions = [
   "Tesisat",
-  "Elektrik Hizmeti",
+  "Elektrik",
   "Temizlik",
   "Halı Yıkama",
   "Klima & Beyaz Eşya",
@@ -353,11 +353,12 @@ function HeroSection({
 function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
-      className="group flex min-h-40 cursor-pointer flex-col justify-between rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.36)]"
+      aria-label={`${service.title} kategorisinde usta bul`}
+      className="group flex min-h-44 cursor-pointer flex-col justify-between rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={service.href}
     >
-      <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-        <ServiceIcon name={service.iconName} />
+      <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+        <ServiceIcon className="h-7 w-7" name={service.iconName} />
       </span>
       <span className="mt-5 block">
         <span className="block text-xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -365,6 +366,9 @@ function ServiceCard({ service }: { service: Service }) {
         </span>
         <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
           {service.description}
+        </span>
+        <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-black text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
+          Usta Bul
         </span>
       </span>
     </Link>
@@ -526,25 +530,49 @@ function FinalCTASection() {
   return (
     <section className="border-t border-[var(--border)] bg-white">
       <Container className="py-12 sm:py-14 lg:py-16">
-        <div className="grid gap-6 rounded-lg bg-[#F7F7F8] p-6 shadow-[0_20px_56px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-          <div className="cursor-default select-none">
-            <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-              Fuwu Hizmet
-            </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-              Doğru ustaya vakit kaybetmeden ulaş.
-            </h2>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="w-full sm:w-fit" href={appRoutes.providers}>
-              {ctaLabels.findProvider}
+        <div className="cursor-default select-none">
+          <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
+            Fuwu Hizmet
+          </p>
+          <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            Müşteri ve usta akışları sade, ayrı ve net.
+          </h2>
+        </div>
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <div className="cursor-default select-none">
+              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                Müşteri
+              </p>
+              <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+                Yakındaki ustaları karşılaştır.
+              </h3>
+              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                Kategori, ilçe, puan ve fiyat aralığına göre uygun profilleri gör.
+              </p>
+            </div>
+            <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providers}>
+              Usta Bul
             </Button>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <div className="cursor-default select-none">
+              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                Usta
+              </p>
+              <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+                Profilini hazırlayıp ağa katıl.
+              </h3>
+              <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                Hizmet alanını, çalışma bölgeni ve doğrudan iletişim bilgilerini gönder.
+              </p>
+            </div>
             <Button
-              className="w-full sm:w-fit"
+              className="mt-5 w-full sm:w-fit"
               href={appRoutes.providerApplication}
               variant="secondary"
             >
-              {ctaLabels.provider}
+              Usta Ağına Katıl
             </Button>
           </div>
         </div>
