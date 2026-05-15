@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, ctaLabels, navigationLinks } from "@/lib/constants/navigation";
 
+const headerNavigationLinks = navigationLinks.filter((item) => item.id !== "providers");
+
 export function Navbar() {
   return (
     <header className="sticky top-0 z-20 border-b border-[rgba(13,20,36,0.08)] bg-white/[0.97] shadow-[0_10px_30px_rgba(13,20,36,0.045)] backdrop-blur-xl">
       <Container className="py-3 lg:py-0">
-        <nav className="flex flex-wrap items-center justify-between gap-3 xl:h-[78px] xl:flex-nowrap">
+        <nav className="flex flex-wrap items-center justify-between gap-3 xl:h-[74px] xl:flex-nowrap">
           <Link
             aria-label="Fuwu ana sayfa"
             className="inline-flex min-w-0 cursor-pointer"
@@ -18,10 +20,10 @@ export function Navbar() {
             <FuwuLogo size="sm" />
           </Link>
 
-          <div className="hidden items-center gap-1 xl:flex">
-            {navigationLinks.map((item) => (
+          <div className="hidden min-w-0 items-center gap-1 xl:flex">
+            {headerNavigationLinks.map((item) => (
               <Link
-                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-3.5 text-center text-sm font-semibold leading-5 text-[var(--muted)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]"
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-3 text-center text-sm font-semibold leading-5 text-[var(--muted)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]"
                 href={item.href}
                 key={item.id}
               >
@@ -30,11 +32,8 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="hidden items-center gap-2 xl:flex">
+          <div className="hidden shrink-0 items-center gap-2 xl:flex">
             <LanguageSwitcher />
-            <Button href={appRoutes.login} variant="ghost">
-              {ctaLabels.login}
-            </Button>
             <Button href={appRoutes.providerApplication} variant="secondary">
               {ctaLabels.provider}
             </Button>
@@ -42,10 +41,10 @@ export function Navbar() {
           </div>
 
           <div className="grid w-full grid-cols-2 gap-2 border-t border-[var(--border)] pt-3 sm:grid-cols-3 xl:hidden">
-            <div className="col-span-2 sm:col-span-3">
+            <div className="col-span-2 flex justify-start sm:col-span-3">
               <LanguageSwitcher />
             </div>
-            {navigationLinks.map((item) => (
+            {headerNavigationLinks.map((item) => (
               <Link
                 className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--surface-soft)] px-3 py-2 text-center text-xs font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
                 href={item.href}
@@ -54,12 +53,6 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
-              href={appRoutes.login}
-            >
-              {ctaLabels.login}
-            </Link>
             <Link
               className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-white px-3 py-2 text-center text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--surface-soft)]"
               href={appRoutes.providerApplication}

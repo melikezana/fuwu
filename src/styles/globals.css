@@ -69,7 +69,10 @@ p,
 li,
 dt,
 dd,
-legend {
+legend,
+small,
+span,
+strong {
   cursor: default;
 }
 

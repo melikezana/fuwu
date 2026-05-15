@@ -32,7 +32,7 @@ type ProviderFiltersProps = {
 
 function FilterField({ children, label }: { children: ReactNode; label: string }) {
   return (
-    <label className="block min-w-0 cursor-default select-none">
+    <label className="block min-w-0 cursor-default">
       <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
         {label}
       </span>
@@ -42,10 +42,10 @@ function FilterField({ children, label }: { children: ReactNode; label: string }
 }
 
 const selectClassName =
-  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const inputClassName =
-  "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 function getPriceFilterValue(price: string) {
   const priceValues =
@@ -103,7 +103,7 @@ export function ProviderFilters({
             />
           </FilterField>
 
-          <FilterField label="İhtiyacını belirle">
+          <FilterField label="Hizmet">
             <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
               <option value="">Tüm kategoriler</option>
               {categories.map((category) => (
@@ -114,7 +114,7 @@ export function ProviderFilters({
             </select>
           </FilterField>
 
-          <FilterField label="İlçeni belirle">
+          <FilterField label="İlçe">
             <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
               <option value="">Tüm ilçeler</option>
               {districts.map((district) => (
@@ -166,7 +166,7 @@ export function ProviderFilters({
           </FilterField>
         </div>
 
-        <FilterField label="İhtiyacını belirle">
+        <FilterField label="Hizmet">
           <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
             <option value="">Tüm kategoriler</option>
             {categories.map((category) => (
@@ -177,7 +177,7 @@ export function ProviderFilters({
           </select>
         </FilterField>
 
-        <FilterField label="İlçeni belirle">
+        <FilterField label="İlçe">
           <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
             <option value="">Tüm ilçeler</option>
             {districts.map((district) => (
@@ -190,7 +190,7 @@ export function ProviderFilters({
 
         <div className="md:col-span-2 xl:col-span-2">
           <div className="grid gap-3 sm:grid-cols-2">
-            <FilterField label="Minimum fiyat">
+            <FilterField label="Minimum Fiyat">
               <input
                 className={inputClassName}
                 defaultValue={values?.minimumPrice ?? ""}
@@ -203,7 +203,7 @@ export function ProviderFilters({
               />
             </FilterField>
 
-            <FilterField label="Maksimum fiyat">
+            <FilterField label="Maksimum Fiyat">
               <input
                 className={inputClassName}
                 defaultValue={values?.maximumPrice ?? ""}
@@ -218,7 +218,7 @@ export function ProviderFilters({
           </div>
         </div>
 
-        <FilterField label="Minimum puan">
+        <FilterField label="Puan">
           <select className={selectClassName} defaultValue={values?.rating ?? ""} name="rating">
             <option value="">Tüm puanlar</option>
             {minimumRatingOptions.map((option) => (

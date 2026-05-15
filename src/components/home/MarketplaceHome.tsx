@@ -85,7 +85,7 @@ const orderedServices = serviceOrder
   .filter((service): service is Service => Boolean(service));
 
 const fieldBaseClassName =
-  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const selectClassName = `${fieldBaseClassName} cursor-pointer select-none pr-10`;
 const inputClassName = `${fieldBaseClassName} cursor-text select-text`;
@@ -102,7 +102,7 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
+        <p className="mt-4 text-base font-medium leading-7 text-[var(--muted)]">
           {description}
         </p>
       ) : null}
@@ -118,8 +118,8 @@ function HeroField({
   label: string;
 }) {
   return (
-    <label className="block min-w-0 cursor-default select-none">
-      <span className="cursor-default select-none text-xs font-bold uppercase text-[var(--muted)]">
+    <label className="block min-w-0 cursor-default">
+      <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
         {label}
       </span>
       {children}
@@ -131,9 +131,9 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
   return (
     <form
       action={appRoutes.providers}
-      className="mt-9 w-full max-w-[980px] cursor-default select-none rounded-lg bg-white p-3 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4"
+      className="mt-8 w-full cursor-default rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
     >
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(11rem,1.15fr)_minmax(8rem,0.8fr)_minmax(8rem,0.8fr)_minmax(8rem,0.8fr)_minmax(7.5rem,0.7fr)_8rem] xl:items-end">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(10rem,1.15fr)_minmax(8.5rem,0.95fr)_minmax(8rem,0.85fr)_minmax(8rem,0.85fr)_minmax(8.5rem,0.8fr)_minmax(7.75rem,auto)] 2xl:items-end">
         <HeroField label="Hizmet">
           <select className={selectClassName} defaultValue="" name="category">
             <option value="">Tüm hizmetler</option>
@@ -156,7 +156,7 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           </select>
         </HeroField>
 
-        <HeroField label="Minimum fiyat">
+        <HeroField label="Minimum Fiyat">
           <input
             className={inputClassName}
             inputMode="numeric"
@@ -168,7 +168,7 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           />
         </HeroField>
 
-        <HeroField label="Maksimum fiyat">
+        <HeroField label="Maksimum Fiyat">
           <input
             className={inputClassName}
             inputMode="numeric"
@@ -191,7 +191,7 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
           </select>
         </HeroField>
 
-        <Button className="h-12 min-h-12 w-full rounded-md px-6 xl:w-32" type="submit">
+        <Button className="h-12 min-h-12 w-full rounded-md px-5" type="submit">
           {ctaLabels.findProvider}
         </Button>
       </div>
@@ -244,7 +244,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
 
 function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
   return (
-    <aside className="mx-auto w-full max-w-[360px] select-none xl:mx-0 xl:max-w-[370px] xl:justify-self-end 2xl:max-w-[390px]">
+    <aside className="mx-auto w-full max-w-[340px] select-none xl:mx-0 xl:max-w-[350px] xl:justify-self-end 2xl:max-w-[360px]">
       <div className="relative rounded-[1.75rem] bg-[var(--brand-navy)] p-3 shadow-[0_26px_80px_rgba(13,20,36,0.16)]">
         <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
           <div className="flex cursor-default select-none items-center justify-between">
@@ -315,24 +315,24 @@ function HeroSection({
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
-      <Container className="grid max-w-[1360px] gap-10 py-12 sm:py-16 lg:py-20 xl:grid-cols-[minmax(0,1fr)_minmax(300px,370px)] xl:items-center xl:justify-between xl:gap-10 2xl:grid-cols-[minmax(0,1fr)_390px] 2xl:gap-14">
-        <div className="min-w-0 max-w-[840px] xl:pr-2">
+      <Container className="grid max-w-[1360px] gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
+        <div className="min-w-0 max-w-[880px] xl:pr-2">
           <div className="inline-flex cursor-default select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
             <FuwuLogo size="md" />
           </div>
 
-          <h1 className="mt-6 max-w-4xl cursor-default select-none text-4xl font-bold leading-[1.08] text-[var(--brand-navy)] sm:text-5xl lg:text-7xl">
+          <h1 className="mt-5 max-w-3xl cursor-default select-none text-4xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
             Ustaya ulaşmanın en hızlı yolu.
           </h1>
-          <p className="mt-6 max-w-3xl cursor-default select-none text-lg font-semibold leading-8 text-[var(--muted)] sm:text-xl sm:leading-9">
+          <p className="mt-5 max-w-3xl cursor-default select-none text-base font-medium leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
             Hizmetini seç, ilçeni belirle, ustaları fiyat ve puana göre karşılaştır. Telefon veya
             WhatsApp ile direkt iletişime geç.
           </p>
 
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-2.5">
             {heroStats.map((item) => (
               <Link
-                className="cursor-pointer select-none rounded-md bg-white px-4 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                className="cursor-pointer select-none rounded-md bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
                 href={item.href}
                 key={item.label}
               >

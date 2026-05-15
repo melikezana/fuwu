@@ -1,70 +1,117 @@
 "use client";
 
-import { Languages } from "lucide-react";
-import { useId, useState } from "react";
+import { Check, ChevronDown, Languages } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { defaultLocale, supportedLocales, type LocaleCode } from "@/lib/i18n";
 
 export function LanguageSwitcher() {
   const [selectedLocale, setSelectedLocale] = useState<LocaleCode>(defaultLocale);
+  const [isOpen, setIsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Türkçe içerik gösteriliyor.");
+  const switcherRef = useRef<HTMLDivElement>(null);
   const statusId = useId();
+  const menuId = useId();
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!switcherRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   function handleLocaleClick(localeCode: LocaleCode) {
     if (localeCode === "tr") {
       setSelectedLocale("tr");
       setStatusMessage("Türkçe içerik gösteriliyor.");
+      setIsOpen(false);
       return;
     }
 
     if (localeCode === "en") {
       setSelectedLocale("tr");
       setStatusMessage("English desteği hazırlanıyor. Şimdilik Türkçe içerik gösteriliyor.");
+      setIsOpen(false);
       return;
     }
 
     setSelectedLocale("tr");
     setStatusMessage("Arapça ve RTL desteği hazırlanıyor. Şimdilik Türkçe içerik gösteriliyor.");
+    setIsOpen(false);
   }
+
+  const selectedLocaleConfig =
+    supportedLocales.find((locale) => locale.code === selectedLocale) ?? supportedLocales[0];
 
   return (
     <div
-      aria-label="Dil seçenekleri"
-      className="flex min-w-0 items-center gap-1 rounded-full bg-[var(--surface-soft)] p-1 text-xs font-bold text-[var(--brand-navy)]"
-      role="group"
+      className="relative inline-flex min-w-0 text-xs font-bold text-[var(--brand-navy)]"
+      ref={switcherRef}
     >
-      <span className="inline-flex size-8 shrink-0 cursor-default select-none items-center justify-center rounded-full bg-white text-[var(--brand-orange-dark)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)]">
+      <button
+        aria-controls={menuId}
+        aria-describedby={statusId}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        aria-label="Dil seç"
+        className="inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-full bg-[var(--surface-soft)] px-3 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        onClick={() => setIsOpen((currentValue) => !currentValue)}
+        type="button"
+      >
         <Languages aria-hidden="true" className="size-4" />
-      </span>
-      {supportedLocales.map((locale) => {
-        const isSelected = selectedLocale === locale.code;
-        const isPrepared = locale.status === "coming-soon";
+        <span>{selectedLocaleConfig.shortLabel}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={`size-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
 
-        return (
-          <button
-            aria-describedby={statusId}
-            aria-label={
-              isPrepared
-                ? `${locale.label} dil desteği yakında`
-                : `${locale.label} dilini seç`
-            }
-            aria-pressed={isSelected}
-            className={[
-              "inline-flex min-h-8 cursor-pointer select-none items-center justify-center rounded-full px-2.5 text-xs font-black leading-4 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
-              isSelected
-                ? "bg-[var(--brand-navy)] text-white"
-                : "bg-transparent text-[var(--muted)] hover:bg-white hover:text-[var(--brand-navy)]",
-            ].join(" ")}
-            key={locale.code}
-            onClick={() => handleLocaleClick(locale.code)}
-            type="button"
-          >
-            {locale.shortLabel}
-            {isPrepared ? (
-              <span className="ml-1 hidden text-[0.6rem] font-bold sm:inline">Yakında</span>
-            ) : null}
-          </button>
-        );
-      })}
+      {isOpen ? (
+        <div
+          aria-label="Dil seçenekleri"
+          className="absolute left-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[0_18px_44px_rgba(13,20,36,0.14)]"
+          id={menuId}
+          role="menu"
+        >
+          {supportedLocales.map((locale) => {
+            const isSelected = selectedLocale === locale.code;
+
+            return (
+              <button
+                aria-describedby={statusId}
+                className="flex min-h-10 w-full cursor-pointer select-none items-center justify-between gap-3 px-3.5 text-left text-sm font-semibold leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:bg-[var(--brand-orange-soft)] focus:outline-none"
+                key={locale.code}
+                onClick={() => handleLocaleClick(locale.code)}
+                role="menuitem"
+                type="button"
+              >
+                <span>{locale.label}</span>
+                {isSelected ? (
+                  <Check aria-hidden="true" className="size-4 text-[var(--brand-orange-dark)]" />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       <span className="sr-only" id={statusId} role="status">
         {statusMessage}
       </span>
