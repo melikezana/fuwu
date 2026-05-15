@@ -87,7 +87,7 @@ const orderedServices = serviceOrder
 const fieldBaseClassName =
   "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
-const selectClassName = `${fieldBaseClassName} cursor-pointer select-none pr-10`;
+const selectClassName = `${fieldBaseClassName} cursor-pointer select-none overflow-hidden text-ellipsis pr-10`;
 const inputClassName = `${fieldBaseClassName} cursor-text select-text`;
 
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
@@ -131,9 +131,9 @@ function HeroSearch({ filterOptions }: { filterOptions: ProviderFilterOptions })
   return (
     <form
       action={appRoutes.providers}
-      className="mt-8 w-full cursor-default rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
+      className="mt-8 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(10rem,1.15fr)_minmax(8.5rem,0.95fr)_minmax(8rem,0.85fr)_minmax(8rem,0.85fr)_minmax(8.5rem,0.8fr)_minmax(7.75rem,auto)] 2xl:items-end">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(10rem,1.15fr)_minmax(8.5rem,0.95fr)_minmax(7.5rem,0.8fr)_minmax(7.5rem,0.8fr)_minmax(9.5rem,0.9fr)_minmax(7.75rem,auto)] 2xl:items-end">
         <HeroField label="Hizmet">
           <select className={selectClassName} defaultValue="" name="category">
             <option value="">Tüm hizmetler</option>

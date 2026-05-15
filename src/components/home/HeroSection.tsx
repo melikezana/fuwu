@@ -70,10 +70,10 @@ const heroRequests: HeroRequest[] = [
 
 function HeroSearch() {
   return (
-    <div className="mt-8 rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[0_24px_70px_rgba(13,20,36,0.09)]">
+    <div className="mt-8 max-w-full rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[0_24px_70px_rgba(13,20,36,0.09)] sm:p-4">
       <form
         action={appRoutes.request}
-        className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.85fr)_auto]"
+        className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(9rem,auto)]"
       >
         <label className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-4 py-3 focus-within:border-[var(--brand-orange)] focus-within:bg-white">
           <span className="block text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
@@ -109,16 +109,16 @@ function HeroSearch() {
           </span>
         </label>
 
-        <Button className="min-h-[58px] whitespace-nowrap px-6" type="submit">
+        <Button className="min-h-[58px] w-full whitespace-nowrap px-6" type="submit">
           {ctaLabels.request}
         </Button>
       </form>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-bold text-[var(--muted)]">Hızlı başla:</span>
+        <span className="select-none text-sm font-bold text-[var(--muted)]">Hızlı başla:</span>
         {discoveryServices.map((service) => (
           <Link
-            className="rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
+            className="cursor-pointer select-none rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
             href={`${appRoutes.request}?service=${encodeURIComponent(service.title)}`}
             key={service.id}
           >
@@ -206,12 +206,12 @@ function HeroVisual() {
 export function HeroSection() {
   return (
     <section className="overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#fff8ef_0%,var(--background)_52%,#ffffff_100%)]">
-      <Container className="grid gap-8 py-10 sm:gap-10 sm:py-14 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:py-16">
+      <Container className="grid gap-8 py-10 sm:gap-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.86fr)] lg:items-center lg:gap-10 lg:py-14 xl:gap-14">
         <div className="min-w-0">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             İstanbul genelinde yerel hizmet
           </p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
             Ustaya ulaşmanın en hızlı yolu.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
@@ -222,7 +222,7 @@ export function HeroSection() {
           <div className="mt-5 flex flex-wrap gap-2">
             {heroCategoryPills.map((item) => (
               <span
-                className="rounded-md border border-[rgba(255,138,0,0.26)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.04)]"
+                className="cursor-default select-none rounded-md border border-[rgba(255,138,0,0.26)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.04)]"
                 key={item}
               >
                 {item}
@@ -258,7 +258,7 @@ export function HeroSection() {
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {trustSignals.map((signal) => (
               <div
-                className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border border-[var(--border)] bg-white px-4 py-3"
+                className="grid cursor-default select-none grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border border-[var(--border)] bg-white px-4 py-3"
                 key={signal.id}
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[0.68rem] font-black text-[var(--brand-orange-dark)]">
@@ -277,7 +277,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 lg:max-w-[440px] lg:justify-self-end xl:max-w-[480px]">
           <HeroVisual />
         </div>
       </Container>

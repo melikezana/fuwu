@@ -28,7 +28,7 @@ const footerLinkClass =
   "inline-flex max-w-full cursor-pointer select-none items-center gap-2 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
 
 const contactActionClass =
-  "inline-flex min-h-12 w-full cursor-pointer select-none items-center justify-center gap-2.5 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-4 py-3 text-sm font-black text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
+  "inline-flex min-h-12 w-full cursor-pointer select-none items-center justify-center gap-2.5 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-3 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:px-4";
 
 const discoverLinks: FooterLink[] = [
   { label: "Usta Bul", href: appRoutes.providers },
@@ -120,13 +120,15 @@ function FooterAnchor({ item, className }: { className?: string; item: FooterLin
 
 function FooterColumn({
   children,
+  className = "",
   title,
 }: {
   children: React.ReactNode;
+  className?: string;
   title: string;
 }) {
   return (
-    <section className="grid content-start gap-4">
+    <section className={`grid content-start gap-4 ${className}`}>
       <h2 className="cursor-default select-none text-sm font-black uppercase text-[var(--brand-navy)]">
         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
         {title}
@@ -179,15 +181,15 @@ export function Footer() {
             </nav>
           </FooterColumn>
 
-          <FooterColumn title="İletişim">
-            <address className="grid gap-3 not-italic">
+          <FooterColumn className="sm:col-span-2 lg:col-span-4" title="İletişim">
+            <address className="grid gap-4 not-italic">
               <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--muted)]">
                 <span className="inline-flex size-8 shrink-0 items-center justify-center rounded bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
                   <MapPin aria-hidden="true" className="size-4" />
                 </span>
                 <span>İstanbul, Türkiye</span>
               </p>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 {contactActions.map((item) => (
                   <FooterAnchor className={contactActionClass} item={item} key={item.label} />
                 ))}
@@ -196,7 +198,7 @@ export function Footer() {
           </FooterColumn>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 text-sm font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/70 bg-white/55 px-4 py-4 text-sm font-semibold text-[var(--muted)] shadow-[0_12px_34px_rgba(13,20,36,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none">© 2026 Fuwu Hizmet</p>
           <p className="cursor-default select-none">Ustaya ulaşmanın en hızlı yolu.</p>
         </div>

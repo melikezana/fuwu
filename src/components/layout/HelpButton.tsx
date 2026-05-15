@@ -11,7 +11,7 @@ export function HelpButton() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 max-w-[calc(100vw-2rem)]">
+    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 flex max-w-[calc(100vw-2rem)] flex-col items-end sm:bottom-5 sm:right-5">
       {isOpen ? (
         <div className="mb-3 w-[min(calc(100vw-2rem),320px)] cursor-default select-none rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_22px_70px_rgba(13,20,36,0.18)]">
           <div className="flex items-start justify-between gap-3">
@@ -66,7 +66,7 @@ export function HelpButton() {
       <button
         aria-label={isOpen ? "Yardım panelini kapat" : "Yardım panelini aç"}
         aria-expanded={isOpen}
-        className="inline-flex size-12 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] p-0 text-white shadow-[0_18px_44px_rgba(13,20,36,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] p-0 text-white shadow-[0_18px_44px_rgba(13,20,36,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:size-12"
         onClick={() => setIsOpen((current) => !current)}
         type="button"
       >

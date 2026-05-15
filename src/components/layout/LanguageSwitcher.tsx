@@ -1,10 +1,15 @@
 "use client";
 
-import { Check, ChevronDown, Languages } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { defaultLocale, supportedLocales, type LocaleCode } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
-export function LanguageSwitcher() {
+type LanguageSwitcherProps = {
+  align?: "left" | "right";
+};
+
+export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
   const [selectedLocale, setSelectedLocale] = useState<LocaleCode>(defaultLocale);
   const [isOpen, setIsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Türkçe içerik gösteriliyor.");
@@ -72,11 +77,10 @@ export function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         aria-label="Dil seç"
-        className="inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-full bg-[var(--surface-soft)] px-3 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        className="inline-flex min-h-10 min-w-12 cursor-pointer select-none items-center justify-center gap-1.5 rounded-full bg-[var(--surface-soft)] px-3 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         type="button"
       >
-        <Languages aria-hidden="true" className="size-4" />
         <span>{selectedLocaleConfig.shortLabel}</span>
         <ChevronDown
           aria-hidden="true"
@@ -87,7 +91,10 @@ export function LanguageSwitcher() {
       {isOpen ? (
         <div
           aria-label="Dil seçenekleri"
-          className="absolute left-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[0_18px_44px_rgba(13,20,36,0.14)]"
+          className={cn(
+            "absolute top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[0_18px_44px_rgba(13,20,36,0.14)]",
+            align === "right" ? "right-0" : "left-0",
+          )}
           id={menuId}
           role="menu"
         >

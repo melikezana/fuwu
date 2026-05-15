@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -85,16 +85,16 @@ const equipmentOptions: Array<{
 ];
 
 const fieldBaseClassName =
-  "mt-2 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-2 min-h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
-const fileFieldClassName = `${fieldBaseClassName} cursor-pointer select-none file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--brand-orange)] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white`;
-const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer select-none pr-10`;
+const selectFieldClassName = `${fieldBaseClassName} h-12 cursor-pointer select-none py-0 pr-10`;
 
 const labelClassName = "block cursor-default select-none text-sm font-bold text-[var(--brand-navy)]";
 const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 text-[var(--muted)]";
 const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-red-600";
-const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
+const sectionClassName =
+  "rounded-lg border border-[var(--border)] bg-[#FAFAFB] p-4 sm:p-5";
 const isDemoSubmissionMode = isProviderApplicationDemoMode();
 const submissionSuccessMessage =
   "Başvurun alındı. Profilin incelendikten sonra Fuwu’da yayınlanacaktır.";
@@ -144,6 +144,27 @@ function FieldError({ id, message }: { id: string; message?: string }) {
     <p className={errorClassName} id={id} role="alert">
       {message}
     </p>
+  );
+}
+
+function FormSection({
+  children,
+  description,
+  title,
+}: {
+  children: ReactNode;
+  description: string;
+  title: string;
+}) {
+  return (
+    <fieldset className={sectionClassName}>
+      <legend className="sr-only">{title}</legend>
+      <div className="cursor-default select-none">
+        <h3 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">{title}</h3>
+        <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{description}</p>
+      </div>
+      <div className="mt-5 grid gap-5">{children}</div>
+    </fieldset>
   );
 }
 
@@ -274,8 +295,8 @@ export function ProviderApplicationForm() {
   }
 
   return (
-    <Card className="min-w-0">
-      <form className="space-y-6" noValidate onSubmit={handleSubmit}>
+    <Card className="min-w-0 overflow-hidden !p-0">
+      <form className="space-y-6 p-4 sm:p-6" noValidate onSubmit={handleSubmit}>
         <div className="cursor-default select-none border-b border-[var(--border)] pb-5">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Usta başvurusu
@@ -284,12 +305,12 @@ export function ProviderApplicationForm() {
             Profilini oluştur, doğru müşteriye görünür ol.
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Kategori, bölge, deneyim, uygunluk ve iletişim bilgilerini net şekilde paylaş.
+            Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.
           </p>
-          <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+          <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--brand-navy)]">
             {isDemoSubmissionMode
-              ? "Örnek mod: Supabase bağlantısı yokken form güvenli başarı yanıtı gösterir; gerçek özel bilgi veya hassas belge paylaşma."
-              : "Başvuru bilgilerin şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir."}
+              ? "Örnek mod açık: Supabase bağlantısı yokken form güvenli başarı yanıtı gösterir."
+              : "Şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir."}
           </p>
         </div>
 
@@ -305,102 +326,81 @@ export function ProviderApplicationForm() {
         {submittedApplication ? (
           <div
             aria-live="polite"
-            className="cursor-default select-none overflow-hidden rounded-lg border border-[var(--brand-orange)] bg-[var(--brand-navy)] text-white shadow-[0_22px_60px_rgba(13,20,36,0.26)]"
+            className="cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.34)] bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.08)]"
           >
-            <div className="h-1 bg-[var(--brand-orange)]" />
-            <div className="p-5 sm:p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange)]">
-                    {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru alındı"}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-bold leading-tight">
-                    Başvurun alındı
-                  </h3>
-                </div>
-                <div className="w-fit rounded-md bg-white px-3 py-2 text-xs font-bold text-[var(--brand-navy)]">
-                  {submittedApplication.applicationCode}
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-6 text-white/70">{submissionSuccessMessage}</p>
-              <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
-                <div className="rounded-md bg-white/5 p-3">
-                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
-                    Veri durumu
-                  </dt>
-                  <dd className="mt-1 text-sm font-bold">
-                    {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru kuyruğu"}
-                  </dd>
-                </div>
-                <div className="rounded-md bg-white/5 p-3">
-                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
-                    Bağlantı
-                  </dt>
-                  <dd className="mt-1 text-sm font-bold">
-                    {submittedApplication.mode === "demo" ? "Örnek mod" : "Supabase"}
-                  </dd>
-                </div>
-                <div className="rounded-md bg-white/5 p-3">
-                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
-                    Kimlik
-                  </dt>
-                  <dd className="mt-1 text-sm font-bold">Giriş yapılmadı</dd>
-                </div>
-                <div className="rounded-md bg-white/5 p-3">
-                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
-                    Durum
-                  </dt>
-                  <dd className="mt-1 text-sm font-bold text-[var(--brand-orange)]">
-                    Profil değerlendirmesi
-                  </dd>
-                </div>
-                <div className="rounded-md bg-white/5 p-3">
-                  <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
-                    Profil görseli
-                  </dt>
-                  <dd className="mt-1 text-sm font-bold">
-                    {submittedApplication.profileImageStatus === "uploaded"
-                      ? "Yüklendi"
-                      : "Yüklenmedi"}
-                  </dd>
-                </div>
-              </dl>
-              <p className="mt-5 rounded-md border border-white/10 bg-white/5 p-4 text-sm leading-6 text-white/70">
-                {submittedApplication.mode === "demo"
-                  ? "Örnek modda güvenli başarı yanıtı gösterildi. Canlı kayıt için Supabase bağlantısı yapılandırıldığında başvuru değerlendirme kuyruğuna alınır."
-                  : "Başvurun değerlendirme için alındı. Fuwu ekibi profili onayladıktan sonra yayın akışı başlar."}
-              </p>
-              {submittedApplication.profileImageMessage ? (
-                <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.28)] bg-white/5 p-4 text-sm font-bold leading-6 text-[var(--brand-orange)]">
-                  {submittedApplication.profileImageMessage}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+                  {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru alındı"}
                 </p>
-              ) : null}
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <Button className="w-full sm:w-fit" href="/" variant="light">
-                  Ana Sayfaya Dön
-                </Button>
-                <Button className="w-full sm:w-fit" href="/providers" variant="secondary">
-                  Usta Profillerini Gör
-                </Button>
+                <h3 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+                  Başvurun alındı
+                </h3>
               </div>
+              <div className="w-fit rounded-md bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-bold text-[var(--brand-navy)]">
+                {submittedApplication.applicationCode}
+              </div>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
+              {submissionSuccessMessage}
+            </p>
+            <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
+              <div className="rounded-md bg-[#FAFAFB] p-3">
+                <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                  Veri durumu
+                </dt>
+                <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
+                  {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru kuyruğu"}
+                </dd>
+              </div>
+              <div className="rounded-md bg-[#FAFAFB] p-3">
+                <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                  Bağlantı
+                </dt>
+                <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
+                  {submittedApplication.mode === "demo" ? "Örnek mod" : "Supabase"}
+                </dd>
+              </div>
+              <div className="rounded-md bg-[#FAFAFB] p-3">
+                <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                  Durum
+                </dt>
+                <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
+                  Profil değerlendirmesi
+                </dd>
+              </div>
+              <div className="rounded-md bg-[#FAFAFB] p-3">
+                <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                  Profil görseli
+                </dt>
+                <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
+                  {submittedApplication.profileImageStatus === "uploaded"
+                    ? "Yüklendi"
+                    : "Yüklenmedi"}
+                </dd>
+              </div>
+            </dl>
+            {submittedApplication.profileImageMessage ? (
+              <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] p-4 text-sm font-bold leading-6 text-[var(--brand-orange-dark)]">
+                {submittedApplication.profileImageMessage}
+              </p>
+            ) : null}
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <Button className="w-full sm:w-fit" href="/" variant="secondary">
+                Ana Sayfaya Dön
+              </Button>
+              <Button className="w-full sm:w-fit" href="/providers">
+                Usta Profillerini Gör
+              </Button>
             </div>
           </div>
         ) : null}
 
-        <fieldset className="space-y-5">
-          <legend className="cursor-default select-none">
-            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              Adım 1
-            </span>
-            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              İletişim ve hizmet
-            </span>
-          </legend>
-          <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Fuwu’da sunmak istediğin ana hizmeti ve iletişim bilgilerini paylaş.
-          </p>
-
-          <div className="grid gap-5 sm:grid-cols-2">
+        <FormSection
+          description="Profilde görünecek temel adı ve isteğe bağlı profil görselini ekle."
+          title="Temel Bilgiler"
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerFullName">
                 Ad soyad
@@ -426,6 +426,307 @@ export function ProviderApplicationForm() {
               <FieldError id="providerFullName-error" message={errors.fullName} />
             </div>
 
+            <div>
+              <label className={labelClassName} htmlFor="providerProfileImage">
+                Profil görseli{" "}
+                <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
+              </label>
+              <input
+                accept={PROVIDER_IMAGE_ACCEPT}
+                aria-describedby={
+                  errors.profileImage ? "providerProfileImage-error" : "providerProfileImage-helper"
+                }
+                aria-invalid={Boolean(errors.profileImage)}
+                className="sr-only"
+                id="providerProfileImage"
+                key={profileImageInputKey}
+                name="profileImage"
+                onChange={updateProfileImage}
+                type="file"
+              />
+              <label
+                className={cn(
+                  "mt-2 inline-flex min-h-12 w-full cursor-pointer select-none items-center justify-center rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)] focus-within:border-[var(--brand-orange)]",
+                  errors.profileImage && "border-red-500",
+                )}
+                htmlFor="providerProfileImage"
+              >
+                {profileImageFile ? "Görseli değiştir" : "Profil görseli seç"}
+              </label>
+              <p className={helperClassName} id="providerProfileImage-helper">
+                JPG, JPEG, PNG veya WebP formatında; en fazla 3 MB.
+              </p>
+              {profileImageFile ? (
+                <div className="mt-3 flex flex-col gap-3 rounded-md border border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="min-w-0 break-words text-sm font-bold text-[var(--brand-navy)]">
+                    {profileImageFile.name}
+                  </p>
+                  <button
+                    className="w-fit cursor-pointer select-none text-sm font-bold text-[var(--brand-orange-dark)] hover:text-[var(--brand-navy)]"
+                    onClick={clearProfileImage}
+                    type="button"
+                  >
+                    Seçimi kaldır
+                  </button>
+                </div>
+              ) : null}
+              <FieldError id="providerProfileImage-error" message={errors.profileImage} />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection
+          description="Ana uzmanlığını ve düzenli hizmet verebileceğin ilçeleri belirt."
+          title="Hizmet ve Bölge"
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div>
+              <label className={labelClassName} htmlFor="providerServiceCategory">
+                Hizmet kategorisi
+              </label>
+              <select
+                aria-describedby={
+                  errors.serviceCategory
+                    ? "providerServiceCategory-error"
+                    : "providerServiceCategory-helper"
+                }
+                aria-invalid={Boolean(errors.serviceCategory)}
+                className={getSelectFieldClassName("serviceCategory")}
+                id="providerServiceCategory"
+                name="serviceCategory"
+                onChange={(event) => updateField("serviceCategory", event.target.value)}
+                required
+                value={formState.serviceCategory}
+              >
+                <option value="">Ana uzmanlığını seç</option>
+                {services.map((service) => (
+                  <option key={service.id} value={`${service.category} - ${service.title}`}>
+                    {service.category} - {service.title}
+                  </option>
+                ))}
+              </select>
+              <p className={helperClassName} id="providerServiceCategory-helper">
+                En güçlü hizmetine en yakın kategoriyi seç.
+              </p>
+              <FieldError id="providerServiceCategory-error" message={errors.serviceCategory} />
+            </div>
+
+            <div>
+              <label className={labelClassName} htmlFor="providerServiceArea">
+                İlçe / hizmet bölgesi
+              </label>
+              <input
+                aria-describedby={
+                  errors.serviceArea ? "providerServiceArea-error" : "providerServiceArea-helper"
+                }
+                aria-invalid={Boolean(errors.serviceArea)}
+                autoComplete="address-level2"
+                className={getFieldClassName("serviceArea")}
+                id="providerServiceArea"
+                name="serviceArea"
+                onChange={(event) => updateField("serviceArea", event.target.value)}
+                placeholder="Örn. Kadıköy, Ataşehir, Üsküdar"
+                required
+                type="text"
+                value={formState.serviceArea}
+              />
+              <p className={helperClassName} id="providerServiceArea-helper">
+                Düzenli hizmet verebileceğin ilçe veya semtleri yaz.
+              </p>
+              <FieldError id="providerServiceArea-error" message={errors.serviceArea} />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection
+          description="Çalışma düzenini, deneyimini ve müşteriye nasıl hizmet verdiğini netleştir."
+          title="Deneyim ve Açıklama"
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div>
+              <label className={labelClassName} htmlFor="providerYearsOfExperience">
+                Deneyim yılı
+              </label>
+              <input
+                aria-describedby={
+                  errors.yearsOfExperience
+                    ? "providerYearsOfExperience-error"
+                    : "providerYearsOfExperience-helper"
+                }
+                aria-invalid={Boolean(errors.yearsOfExperience)}
+                className={getFieldClassName("yearsOfExperience")}
+                id="providerYearsOfExperience"
+                inputMode="numeric"
+                max="60"
+                min="0"
+                name="yearsOfExperience"
+                onChange={(event) => updateField("yearsOfExperience", event.target.value)}
+                placeholder="Örn. 5"
+                required
+                type="number"
+                value={formState.yearsOfExperience}
+              />
+              <p className={helperClassName} id="providerYearsOfExperience-helper">
+                Yeni ama eğitimli ve hazırsan 0 yazabilirsin.
+              </p>
+              <FieldError
+                id="providerYearsOfExperience-error"
+                message={errors.yearsOfExperience}
+              />
+            </div>
+
+            <div>
+              <label className={labelClassName} htmlFor="providerReferenceLink">
+                Referans veya portfolyo bağlantısı{" "}
+                <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
+              </label>
+              <input
+                aria-describedby={
+                  errors.referenceLink
+                    ? "providerReferenceLink-error"
+                    : "providerReferenceLink-helper"
+                }
+                aria-invalid={Boolean(errors.referenceLink)}
+                autoComplete="url"
+                className={getFieldClassName("referenceLink")}
+                id="providerReferenceLink"
+                inputMode="url"
+                name="referenceLink"
+                onChange={(event) => updateField("referenceLink", event.target.value)}
+                placeholder="instagram.com/isleriniz veya https://portfolyo.com"
+                type="url"
+                value={formState.referenceLink}
+              />
+              <p className={helperClassName} id="providerReferenceLink-helper">
+                İşlerini gösteren web sitesi, sosyal profil veya referans sayfası ekleyebilirsin.
+              </p>
+              <FieldError id="providerReferenceLink-error" message={errors.referenceLink} />
+            </div>
+          </div>
+
+          <div>
+            <span className={labelClassName}>Uygunluk</span>
+            <div className="mt-2 grid gap-3 lg:grid-cols-3">
+              {availabilityOptions.map((option) => {
+                const isSelected = formState.availability === option.value;
+
+                return (
+                  <label
+                    className={cn(
+                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
+                      isSelected
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                        : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                      errors.availability && "border-red-500",
+                    )}
+                    key={option.value}
+                  >
+                    <input
+                      aria-describedby={
+                        errors.availability
+                          ? "providerAvailability-error"
+                          : "providerAvailability-helper"
+                      }
+                      checked={isSelected}
+                      className="sr-only"
+                      name="availability"
+                      onChange={(event) => updateField("availability", event.target.value)}
+                      type="radio"
+                      value={option.value}
+                    />
+                    <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
+                      {option.value}
+                    </span>
+                    <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">
+                      {option.description}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className={helperClassName} id="providerAvailability-helper">
+              Normal çalışma düzenine en yakın seçeneği seç.
+            </p>
+            <FieldError id="providerAvailability-error" message={errors.availability} />
+          </div>
+
+          <div>
+            <span className={labelClassName}>Ekipman durumu</span>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              {equipmentOptions.map((option) => {
+                const isSelected = formState.hasEquipment === option.value;
+
+                return (
+                  <label
+                    className={cn(
+                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
+                      isSelected
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                        : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                      errors.hasEquipment && "border-red-500",
+                    )}
+                    key={option.value}
+                  >
+                    <input
+                      aria-describedby={
+                        errors.hasEquipment
+                          ? "providerHasEquipment-error"
+                          : "providerHasEquipment-helper"
+                      }
+                      checked={isSelected}
+                      className="sr-only"
+                      name="hasEquipment"
+                      onChange={(event) => updateField("hasEquipment", event.target.value)}
+                      type="radio"
+                      value={option.value}
+                    />
+                    <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
+                      {option.value}
+                    </span>
+                    <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">
+                      {option.description}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className={helperClassName} id="providerHasEquipment-helper">
+              Bu bilgi, müşteri beklentisini en baştan netleştirir.
+            </p>
+            <FieldError id="providerHasEquipment-error" message={errors.hasEquipment} />
+          </div>
+
+          <div>
+            <label className={labelClassName} htmlFor="providerShortIntroduction">
+              Açıklama
+            </label>
+            <textarea
+              aria-describedby={
+                errors.shortIntroduction
+                  ? "providerShortIntroduction-error"
+                  : "providerShortIntroduction-helper"
+              }
+              aria-invalid={Boolean(errors.shortIntroduction)}
+              className={`${getFieldClassName("shortIntroduction")} min-h-36 resize-y leading-6`}
+              id="providerShortIntroduction"
+              name="shortIntroduction"
+              onChange={(event) => updateField("shortIntroduction", event.target.value)}
+              placeholder="Hizmet standardını, uzmanlıklarını, müşteri yaklaşımını ve en iyi yaptığın işleri anlat."
+              required
+              value={formState.shortIntroduction}
+            />
+            <p className={helperClassName} id="providerShortIntroduction-helper">
+              Uzmanlık, çalışma standardı veya hizmet verdiğin müşteri türlerini belirtebilirsin.
+            </p>
+            <FieldError id="providerShortIntroduction-error" message={errors.shortIntroduction} />
+          </div>
+        </FormSection>
+
+        <FormSection
+          description="Müşterilerin sana ulaşacağı aktif telefon ve WhatsApp bilgilerini paylaş."
+          title="İletişim"
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerPhone">
                 Telefon numarası
@@ -476,315 +777,11 @@ export function ProviderApplicationForm() {
               <FieldError id="providerWhatsapp-error" message={errors.whatsappNumber} />
             </div>
           </div>
-
-          <div>
-            <label className={labelClassName} htmlFor="providerServiceCategory">
-              Hizmet kategorisi
-            </label>
-            <select
-              aria-describedby={
-                errors.serviceCategory
-                  ? "providerServiceCategory-error"
-                  : "providerServiceCategory-helper"
-              }
-              aria-invalid={Boolean(errors.serviceCategory)}
-              className={getSelectFieldClassName("serviceCategory")}
-              id="providerServiceCategory"
-              name="serviceCategory"
-              onChange={(event) => updateField("serviceCategory", event.target.value)}
-              required
-              value={formState.serviceCategory}
-            >
-              <option value="">Ana uzmanlığını seç</option>
-              {services.map((service) => (
-                <option key={service.id} value={`${service.category} - ${service.title}`}>
-                  {service.category} - {service.title}
-                </option>
-              ))}
-            </select>
-            <p className={helperClassName} id="providerServiceCategory-helper">
-              En güçlü hizmetine en yakın kategoriyi seç.
-            </p>
-            <FieldError id="providerServiceCategory-error" message={errors.serviceCategory} />
-          </div>
-        </fieldset>
-
-        <fieldset className={sectionClassName}>
-          <legend className="cursor-default select-none">
-            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              Adım 2
-            </span>
-            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              Bölge ve hazırlık
-            </span>
-          </legend>
-          <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Nerede çalışabileceğini, deneyimini ve ekipman durumunu netleştir.
-          </p>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className={labelClassName} htmlFor="providerServiceArea">
-                İlçe / hizmet bölgesi
-              </label>
-              <input
-                aria-describedby={
-                  errors.serviceArea ? "providerServiceArea-error" : "providerServiceArea-helper"
-                }
-                aria-invalid={Boolean(errors.serviceArea)}
-                autoComplete="address-level2"
-                className={getFieldClassName("serviceArea")}
-                id="providerServiceArea"
-                name="serviceArea"
-                onChange={(event) => updateField("serviceArea", event.target.value)}
-                placeholder="Örn. Kadıköy, Ataşehir, Üsküdar"
-                required
-                type="text"
-                value={formState.serviceArea}
-              />
-              <p className={helperClassName} id="providerServiceArea-helper">
-                Düzenli hizmet verebileceğin ilçe veya semtleri yaz.
-              </p>
-              <FieldError id="providerServiceArea-error" message={errors.serviceArea} />
-            </div>
-
-            <div>
-              <label className={labelClassName} htmlFor="providerYearsOfExperience">
-                Deneyim yılı
-              </label>
-              <input
-                aria-describedby={
-                  errors.yearsOfExperience
-                    ? "providerYearsOfExperience-error"
-                    : "providerYearsOfExperience-helper"
-                }
-                aria-invalid={Boolean(errors.yearsOfExperience)}
-                className={getFieldClassName("yearsOfExperience")}
-                id="providerYearsOfExperience"
-                inputMode="numeric"
-                max="60"
-                min="0"
-                name="yearsOfExperience"
-                onChange={(event) => updateField("yearsOfExperience", event.target.value)}
-                placeholder="Örn. 5"
-                required
-                type="number"
-                value={formState.yearsOfExperience}
-              />
-              <p className={helperClassName} id="providerYearsOfExperience-helper">
-                Yeni ama eğitimli ve hazırsan 0 yazabilirsin.
-              </p>
-              <FieldError
-                id="providerYearsOfExperience-error"
-                message={errors.yearsOfExperience}
-              />
-            </div>
-          </div>
-
-          <div>
-            <span className={labelClassName}>Uygunluk</span>
-            <div className="mt-2 grid gap-3 sm:grid-cols-3">
-              {availabilityOptions.map((option) => {
-                const isSelected = formState.availability === option.value;
-
-                return (
-                  <label
-                    className={cn(
-                      "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
-                      isSelected
-                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
-                        : "border-[var(--border)] hover:border-[var(--brand-orange)]",
-                      errors.availability && "border-red-500",
-                    )}
-                    key={option.value}
-                  >
-                    <input
-                      aria-describedby={
-                        errors.availability
-                          ? "providerAvailability-error"
-                          : "providerAvailability-helper"
-                      }
-                      checked={isSelected}
-                      className="sr-only"
-                      name="availability"
-                      onChange={(event) => updateField("availability", event.target.value)}
-                      type="radio"
-                      value={option.value}
-                    />
-                    <span className="text-sm font-bold text-[var(--brand-navy)]">
-                      {option.value}
-                    </span>
-                    <span className="mt-3 text-xs leading-5 text-[var(--muted)]">
-                      {option.description}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-            <p className={helperClassName} id="providerAvailability-helper">
-              Normal çalışma düzenine en yakın seçeneği seç.
-            </p>
-            <FieldError id="providerAvailability-error" message={errors.availability} />
-          </div>
-
-          <div>
-            <span className={labelClassName}>Ekipman durumu</span>
-            <div className="mt-2 grid gap-3 sm:grid-cols-2">
-              {equipmentOptions.map((option) => {
-                const isSelected = formState.hasEquipment === option.value;
-
-                return (
-                  <label
-                    className={cn(
-                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
-                      isSelected
-                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
-                        : "border-[var(--border)] hover:border-[var(--brand-orange)]",
-                      errors.hasEquipment && "border-red-500",
-                    )}
-                    key={option.value}
-                  >
-                    <input
-                      aria-describedby={
-                        errors.hasEquipment
-                          ? "providerHasEquipment-error"
-                          : "providerHasEquipment-helper"
-                      }
-                      checked={isSelected}
-                      className="sr-only"
-                      name="hasEquipment"
-                      onChange={(event) => updateField("hasEquipment", event.target.value)}
-                      type="radio"
-                      value={option.value}
-                    />
-                    <span className="text-sm font-bold text-[var(--brand-navy)]">
-                      {option.value}
-                    </span>
-                    <span className="mt-3 text-xs leading-5 text-[var(--muted)]">
-                      {option.description}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-            <p className={helperClassName} id="providerHasEquipment-helper">
-              Bu bilgi, müşteri beklentisini en baştan netleştirir.
-            </p>
-            <FieldError id="providerHasEquipment-error" message={errors.hasEquipment} />
-          </div>
-        </fieldset>
-
-        <fieldset className={sectionClassName}>
-          <legend className="cursor-default select-none">
-            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              Adım 3
-            </span>
-            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              Profil anlatımı
-            </span>
-          </legend>
-          <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Kısa, güçlü bir tanıtım ve varsa geçmiş iş örneklerini ekle.
-          </p>
-
-          <div>
-            <label className={labelClassName} htmlFor="providerShortIntroduction">
-              Açıklama
-            </label>
-            <textarea
-              aria-describedby={
-                errors.shortIntroduction
-                  ? "providerShortIntroduction-error"
-                  : "providerShortIntroduction-helper"
-              }
-              aria-invalid={Boolean(errors.shortIntroduction)}
-              className={`${getFieldClassName("shortIntroduction")} min-h-36 resize-y leading-6`}
-              id="providerShortIntroduction"
-              name="shortIntroduction"
-              onChange={(event) => updateField("shortIntroduction", event.target.value)}
-              placeholder="Hizmet standardını, uzmanlıklarını, müşteri yaklaşımını ve en iyi yaptığın işleri anlat."
-              required
-              value={formState.shortIntroduction}
-            />
-            <p className={helperClassName} id="providerShortIntroduction-helper">
-              Uzmanlık, çalışma standardı veya hizmet verdiğin müşteri türlerini belirtebilirsin.
-            </p>
-            <FieldError id="providerShortIntroduction-error" message={errors.shortIntroduction} />
-          </div>
-
-          <div>
-            <label className={labelClassName} htmlFor="providerReferenceLink">
-              Referans veya portfolyo bağlantısı{" "}
-              <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
-            </label>
-            <input
-              aria-describedby={
-                errors.referenceLink
-                  ? "providerReferenceLink-error"
-                  : "providerReferenceLink-helper"
-              }
-              aria-invalid={Boolean(errors.referenceLink)}
-              autoComplete="url"
-              className={getFieldClassName("referenceLink")}
-              id="providerReferenceLink"
-              inputMode="url"
-              name="referenceLink"
-              onChange={(event) => updateField("referenceLink", event.target.value)}
-              placeholder="instagram.com/isleriniz veya https://portfolyo.com"
-              type="url"
-              value={formState.referenceLink}
-            />
-            <p className={helperClassName} id="providerReferenceLink-helper">
-              İşlerini gösteren web sitesi, sosyal profil veya referans sayfası ekleyebilirsin.
-            </p>
-            <FieldError id="providerReferenceLink-error" message={errors.referenceLink} />
-          </div>
-
-          <div>
-            <label className={labelClassName} htmlFor="providerProfileImage">
-              Profil görseli{" "}
-              <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
-            </label>
-            <input
-              accept={PROVIDER_IMAGE_ACCEPT}
-              aria-describedby={
-                errors.profileImage ? "providerProfileImage-error" : "providerProfileImage-helper"
-              }
-              aria-invalid={Boolean(errors.profileImage)}
-              className={cn(
-                fileFieldClassName,
-                errors.profileImage && "border-red-500 focus:border-red-500 focus:ring-red-100",
-              )}
-              id="providerProfileImage"
-              key={profileImageInputKey}
-              name="profileImage"
-              onChange={updateProfileImage}
-              type="file"
-            />
-            <p className={helperClassName} id="providerProfileImage-helper">
-              JPG, JPEG, PNG veya WebP formatında; en fazla 3 MB.
-            </p>
-            {profileImageFile ? (
-              <div className="mt-3 flex flex-col gap-3 rounded-md border border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="min-w-0 break-words text-sm font-bold text-[var(--brand-navy)]">
-                  {profileImageFile.name}
-                </p>
-                <button
-                  className="w-fit cursor-pointer select-none text-sm font-bold text-[var(--brand-orange-dark)] hover:text-[var(--brand-navy)]"
-                  onClick={clearProfileImage}
-                  type="button"
-                >
-                  Seçimi kaldır
-                </button>
-              </div>
-            ) : null}
-            <FieldError id="providerProfileImage-error" message={errors.profileImage} />
-          </div>
-        </fieldset>
+        </FormSection>
 
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Bu başvuruda şifre, ödeme bilgisi veya hassas belge istenmez.
+            Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.
           </p>
           <Button className="w-full sm:w-fit" disabled={isSubmitting} type="submit">
             {isSubmitting ? "Başvuru gönderiliyor" : "Başvuruyu Gönder"}

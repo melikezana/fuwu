@@ -31,25 +31,25 @@ export default function ProviderApplicationPage() {
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(135deg,#ffffff_0%,#FFF7EC_44%,#F7F7F8_100%)]">
       <FuwuWatermark className="-left-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,720px)_minmax(0,1fr)] xl:items-start">
-        <div className="min-w-0 cursor-default select-none lg:max-w-[720px]">
-          <div className="inline-flex rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[0_24px_70px_rgba(13,20,36,0.18)]">
-            <FuwuLogo inverted size="lg" />
+      <Container className="relative grid max-w-7xl gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)] xl:items-start xl:gap-10">
+        <div className="min-w-0 cursor-default select-none lg:max-w-[620px]">
+          <div className="inline-flex rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <FuwuLogo size="md" />
           </div>
           <p className="mt-7 text-sm font-black uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Usta ağına katıl
           </p>
-          <h1 className="mt-4 max-w-[720px] text-3xl font-black leading-[1.1] tracking-normal text-[var(--brand-navy)] sm:text-4xl lg:text-[2.65rem] xl:text-5xl">
+          <h1 className="mt-4 max-w-[640px] text-3xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl lg:text-[2.5rem]">
             Profilini oluştur, Fuwu’da görünür ol.
           </h1>
           <p className="mt-5 max-w-[680px] text-base font-medium leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
             Müşteriler sana doğrudan telefon veya WhatsApp üzerinden ulaşsın.
           </p>
-          <div className="mt-6 cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-5 shadow-[0_22px_64px_rgba(13,20,36,0.09)]">
+          <div className="mt-6 cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.07)]">
             <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
               Profesyonel görünürlük
             </p>
-            <p className="mt-2 text-base font-bold leading-7 text-[var(--brand-navy)]">
+            <p className="mt-2 text-base font-semibold leading-7 text-[var(--brand-navy)]">
               Hizmet alanını, çalışma bölgeni ve iletişim bilgilerini netleştir; başvurun
               değerlendirme kuyruğuna güvenle alınır.
             </p>
@@ -65,7 +65,7 @@ export default function ProviderApplicationPage() {
                   {item.label}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-lg font-black leading-tight text-[var(--brand-navy)]">
+                  <h2 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
                     {item.title}
                   </h2>
                   <p className="mt-2 text-sm font-medium leading-6 text-[var(--muted)]">
@@ -76,9 +76,9 @@ export default function ProviderApplicationPage() {
             ))}
           </div>
 
-          <Card className="mt-8 cursor-default select-none overflow-hidden !p-0 shadow-[0_22px_60px_rgba(13,20,36,0.08)]">
-            <div className="bg-[var(--brand-navy)] px-5 py-4 text-white">
-              <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange)]">
+          <Card className="mt-8 cursor-default select-none overflow-hidden !p-0 shadow-[0_18px_48px_rgba(13,20,36,0.07)]">
+            <div className="bg-[var(--brand-orange-soft)] px-5 py-4 text-[var(--brand-navy)]">
+              <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
                 Usta ağı
               </p>
               <p className="mt-2 text-lg font-bold leading-6">

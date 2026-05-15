@@ -260,8 +260,8 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
         </Container>
       </section>
 
-      <section className="border-b border-[var(--border)] bg-white" id="provider-filters">
-        <Container className="max-w-7xl py-5 sm:py-6">
+      <section className="border-b border-[var(--border)] bg-[var(--background)]" id="provider-filters">
+        <Container className="max-w-7xl py-6 sm:py-8">
           <ProviderFilters
             availabilityOptions={filterOptions.availabilityOptions}
             averagePrices={filterOptions.averagePrices}
