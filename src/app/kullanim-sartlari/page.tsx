@@ -41,8 +41,10 @@ export default function TermsPage() {
   return (
     <PolicyPage
       description="Fuwu hizmetlerini kullanırken geçerli temel kurallar ve sorumluluklar."
+      descriptionKey="policy.terms.description"
       sections={sections}
       title="Kullanım Şartları"
+      titleKey="policy.terms.title"
       updatedAt="15 Mayıs 2026"
     />
   );

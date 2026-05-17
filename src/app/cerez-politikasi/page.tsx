@@ -40,8 +40,10 @@ export default function CookiePolicyPage() {
   return (
     <PolicyPage
       description="Fuwu’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme."
+      descriptionKey="policy.cookies.description"
       sections={sections}
       title="Çerez Politikası"
+      titleKey="policy.cookies.title"
       updatedAt="15 Mayıs 2026"
     />
   );

@@ -1,5 +1,6 @@
 import type { Provider } from "@/types/provider";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
+import { providerDistricts } from "@/lib/constants/providers";
 
 export type VoiceCommandIntent =
   | {
@@ -78,17 +79,6 @@ const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
   { values: ["Nakliye Yardımı"], aliases: ["nakliye", "taşıma", "tasima"] },
 ];
 
-const defaultDistricts = [
-  "Ataşehir",
-  "Bakırköy",
-  "Beşiktaş",
-  "Kadıköy",
-  "Maltepe",
-  "Şişli",
-  "Ümraniye",
-  "Üsküdar",
-];
-
 function normalizeVoiceText(value: string) {
   return normalizeServiceValue(value);
 }
@@ -116,6 +106,22 @@ function getAvailableCategoryValue(values: string[], categories: string[] = []) 
   });
 
   return relatedCategory ?? values[0];
+}
+
+function getCategoryMatchFromOptions(normalizedText: string, categories: string[] = []) {
+  const categoryOptions = [...new Set([...categories, ...services.map((service) => service.title)])];
+
+  return categoryOptions.find((category) => {
+    const normalizedCategory = normalizeVoiceText(category);
+
+    return (
+      normalizedText === normalizedCategory ||
+      normalizedText.includes(normalizedCategory) ||
+      normalizedText.includes(`${normalizedCategory} ara`) ||
+      normalizedText.includes(`${normalizedCategory} usta`) ||
+      normalizedText.includes(`${normalizedCategory} ustalari`)
+    );
+  });
 }
 
 export function interpretVoiceCommand(
@@ -163,7 +169,17 @@ export function interpretVoiceCommand(
     };
   }
 
-  const districts = [...new Set([...(options.districts ?? []), ...defaultDistricts])];
+  const optionCategoryMatch = getCategoryMatchFromOptions(normalizedText, options.categories);
+
+  if (optionCategoryMatch) {
+    return {
+      type: "category",
+      value: optionCategoryMatch,
+      spokenText,
+    };
+  }
+
+  const districts = [...new Set([...(options.districts ?? []), ...providerDistricts])];
   const districtMatch = districts.find((district) => normalizedText.includes(normalizeVoiceText(district)));
 
   if (districtMatch) {
@@ -199,18 +215,31 @@ export function getProviderSpeechSummary(provider: Provider) {
   )} puan, fiyat aralığı ${provider.averagePrice}`;
 }
 
-export function readProviderSummaries(providers: Provider[]) {
+export function readProviderSummaries(
+  providers: Provider[],
+  messages: {
+    empty: string;
+    reading: string;
+    readingLimited: string;
+    unsupported: string;
+  } = {
+    empty: "Sesli okunacak profil bulunamadı.",
+    reading: "Profiller sesli okunuyor.",
+    readingLimited: "İlk 6 profil sesli okunuyor.",
+    unsupported: "Bu tarayıcı sesli okumayı desteklemiyor.",
+  },
+) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     return {
       ok: false,
-      message: "Bu tarayıcı sesli okumayı desteklemiyor.",
+      message: messages.unsupported,
     };
   }
 
   if (providers.length === 0) {
     return {
       ok: false,
-      message: "Sesli okunacak profil bulunamadı.",
+      message: messages.empty,
     };
   }
 
@@ -225,9 +254,6 @@ export function readProviderSummaries(providers: Provider[]) {
 
   return {
     ok: true,
-    message:
-      providers.length > 6
-        ? "İlk 6 profil sesli okunuyor."
-        : "Profiller sesli okunuyor.",
+    message: providers.length > 6 ? messages.readingLimited : messages.reading,
   };
 }

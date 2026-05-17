@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { VoiceCommandButton } from "@/components/accessibility/VoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
@@ -9,6 +10,7 @@ import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
+import { I18nText, type TranslationKey } from "@/lib/i18n";
 import {
   getProviderPhoneHref,
   getProviderWhatsAppHref,
@@ -18,9 +20,9 @@ import { getProviderDirectory, type ProviderFilterOptions } from "@/services/pro
 import type { Provider } from "@/types/provider";
 
 type SectionHeadingProps = {
-  eyebrow?: string;
-  title: string;
-  description?: string;
+  eyebrow?: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
 };
 
 const serviceOrder = [
@@ -36,40 +38,40 @@ const serviceOrder = [
 
 const howItWorksSteps = [
   {
-    title: "Hizmetini seç",
-    description: "Kategori veya arama alanından ihtiyacını belirle, sonuçları hizmete göre daralt.",
+    descriptionKey: "home.how.step1.description",
     href: "#services",
+    titleKey: "home.how.step1.title",
   },
   {
-    title: "Ustaları karşılaştır",
-    description: "İlçe, fiyat aralığı, puan, deneyim ve uygunluk bilgisini aynı ekranda incele.",
+    descriptionKey: "home.how.step2.description",
     href: "#providers-preview",
+    titleKey: "home.how.step2.title",
   },
   {
-    title: "Direkt iletişime geç",
-    description: "Karar verdiğinde ustayı telefonla ara veya WhatsApp üzerinden hemen yaz.",
+    descriptionKey: "home.how.step3.description",
     href: "#provider-contact-actions",
+    titleKey: "home.how.step3.title",
   },
-];
+] satisfies Array<{ descriptionKey: TranslationKey; href: string; titleKey: TranslationKey }>;
 
 const trustItems = [
   {
-    title: "Şeffaf fiyat aralığı",
-    description: "Her profilde ortalama fiyat aralığını görerek bütçeni hızlıca netleştir.",
+    descriptionKey: "home.trust.item1.description",
+    titleKey: "home.trust.item1.title",
   },
   {
-    title: "Puan ve profil bilgisi",
-    description: "Deneyim, yorum sayısı, hizmet bölgesi ve çalışma saatlerini birlikte değerlendir.",
+    descriptionKey: "home.trust.item2.description",
+    titleKey: "home.trust.item2.title",
   },
   {
-    title: "Doğrudan iletişim",
-    description: "Aracı beklemeden telefon veya WhatsApp ile ustaya doğrudan ulaş.",
+    descriptionKey: "home.trust.item3.description",
+    titleKey: "home.trust.item3.title",
   },
   {
-    title: "Memnuniyetin önceliğimiz",
-    description: "Net bilgiler ve doğrudan iletişimle kararını güvenle vermene yardımcı olur.",
+    descriptionKey: "home.trust.item4.description",
+    titleKey: "home.trust.item4.title",
   },
-];
+] satisfies Array<{ descriptionKey: TranslationKey; titleKey: TranslationKey }>;
 
 const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
@@ -158,13 +160,13 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
 
           <div className="mt-5 cursor-default select-none rounded-lg bg-white p-4 shadow-[0_14px_34px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
             <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
-              Bugün uygun
+              <I18nText i18nKey="home.hero.mockup.available" />
             </p>
             <h2 className="mt-2 text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              Yakındaki ustalar
+              <I18nText i18nKey="home.hero.mockup.nearby" />
             </h2>
             <p className="mt-2 text-xs font-bold leading-5 text-[var(--muted)]">
-              Puan, ilçe ve fiyat aralığını tek ekranda karşılaştır.
+              <I18nText i18nKey="home.hero.mockup.summary" />
             </p>
           </div>
 
@@ -176,10 +178,10 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             ) : (
               <div className="cursor-default rounded-lg bg-white p-4 text-center shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
                 <p className="text-sm font-bold leading-6 text-[var(--brand-navy)]">
-                  Henüz yayında usta bulunmuyor.
+                  <I18nText i18nKey="home.hero.empty.title" />
                 </p>
                 <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted)]">
-                  İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.
+                  <I18nText i18nKey="home.hero.empty.description" />
                 </p>
               </div>
             )}
@@ -189,7 +191,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             className="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-bold text-white shadow-[0_14px_30px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
             href={appRoutes.providers}
           >
-            Tüm ustaları gör
+            <I18nText i18nKey="cta.viewAllProviders" />
           </Link>
         </div>
       </div>
@@ -210,17 +212,29 @@ function HeroSection({
   todayActiveCount: number;
   voiceProviders: Provider[];
 }) {
-  const heroStats = [
-    { label: "Bugün uygun ustalar", href: appRoutes.providers },
-    { label: `${todayActiveCount} bugün aktif`, href: appRoutes.providers },
-    { label: `${services.length} kategori`, href: appRoutes.services },
-    { label: `${districtCount} ilçe`, href: appRoutes.providers },
+  const heroStats: Array<{ href: string; labelKey: TranslationKey; values?: Record<string, number> }> = [
+    { labelKey: "home.hero.stats.available", href: appRoutes.providers },
+    {
+      labelKey: "home.hero.stats.activeToday",
+      href: appRoutes.providers,
+      values: { count: todayActiveCount },
+    },
+    {
+      labelKey: "home.hero.stats.categoryCount",
+      href: appRoutes.services,
+      values: { count: services.length },
+    },
+    {
+      labelKey: "home.hero.stats.districtCount",
+      href: appRoutes.providers,
+      values: { count: districtCount },
+    },
   ];
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
       <Container className="grid max-w-[1360px] gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
-        <div className="min-w-0 max-w-[880px] xl:pr-2">
+        <div className="w-full max-w-full min-w-0 xl:max-w-[880px] xl:pr-2">
           <Link
             aria-label="Fuwu ana sayfasına git"
             className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
@@ -229,22 +243,21 @@ function HeroSection({
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-3xl cursor-default select-none text-4xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:text-5xl lg:text-6xl">
-            Ustaya ulaşmanın en hızlı yolu.
+          <h1 className="mt-5 max-w-full cursor-default select-none text-4xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
+            <I18nText i18nKey="home.hero.title" />
           </h1>
-          <p className="mt-5 max-w-3xl cursor-default select-none text-base font-medium leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
-            Hizmetini seç, ilçeni belirle, ustaları fiyat ve puana göre karşılaştır. Telefon veya
-            WhatsApp ile direkt iletişime geç.
+          <p className="mt-5 max-w-full cursor-default select-none text-base font-medium leading-7 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
+            <I18nText i18nKey="home.hero.subtitle" />
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-2.5">
+          <div className="mt-6 grid max-w-full grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
-                className="cursor-pointer select-none rounded-md bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]"
+                className="min-w-0 cursor-pointer select-none rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)] active:bg-[var(--brand-orange)] active:text-white sm:px-4 sm:text-left"
                 href={item.href}
-                key={item.label}
+                key={item.labelKey}
               >
-                {item.label}
+                <I18nText i18nKey={item.labelKey} values={item.values} />
               </Link>
             ))}
           </div>
@@ -264,6 +277,9 @@ function HeroSection({
 }
 
 function ServiceCard({ service }: { service: Service }) {
+  const titleKey = `services.${service.id}.title` as TranslationKey;
+  const descriptionKey = `services.${service.id}.description` as TranslationKey;
+
   return (
     <Link
       aria-label={`${service.title} kategorisinde usta bul`}
@@ -275,13 +291,13 @@ function ServiceCard({ service }: { service: Service }) {
       </span>
       <span className="mt-5 block">
         <span className="block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-          {service.title}
+          <I18nText i18nKey={titleKey} />
         </span>
         <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
-          {service.description}
+          <I18nText i18nKey={descriptionKey} />
         </span>
         <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-black text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
-          Usta Bul
+          <I18nText i18nKey="cta.findProvider" />
         </span>
       </span>
     </Link>
@@ -293,9 +309,9 @@ function ServicesSection() {
     <section className="border-y border-[var(--border)] bg-white" id="services">
       <Container className="py-12 sm:py-14 lg:py-16">
         <SectionHeading
-          description="Kategori seç, uygun ustaları karşılaştır ve doğrudan iletişime geç."
-          eyebrow="Hizmet kategorileri"
-          title="İhtiyacın olan hizmeti seç"
+          description={<I18nText i18nKey="home.services.description" />}
+          eyebrow={<I18nText i18nKey="home.services.eyebrow" />}
+          title={<I18nText i18nKey="home.services.title" />}
         />
         <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {orderedServices.map((service) => (
@@ -313,15 +329,15 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
       <Container className="py-12 sm:py-14 lg:py-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            description="Puan, ilçe, ortalama fiyat, uygunluk ve telefon bilgisiyle hızlı karşılaştırma yap."
-            eyebrow="Usta keşfi"
-            title="Sana uygun ustalar"
+            description={<I18nText i18nKey="home.providers.description" />}
+            eyebrow={<I18nText i18nKey="home.providers.eyebrow" />}
+            title={<I18nText i18nKey="home.providers.title" />}
           />
           <Link
             className="cursor-pointer text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
             href={appRoutes.providers}
           >
-            Tüm profilleri incele
+            <I18nText i18nKey="cta.reviewProfiles" />
           </Link>
         </div>
         {featuredProviders.length > 0 ? (
@@ -337,10 +353,10 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
         ) : (
           <div className="mt-7 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
             <p className="text-xl font-bold text-[var(--brand-navy)]">
-              Henüz yayında usta bulunmuyor.
+              <I18nText i18nKey="home.hero.empty.title" />
             </p>
             <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
-              İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.
+              <I18nText i18nKey="home.hero.empty.description" />
             </p>
           </div>
         )}
@@ -354,30 +370,29 @@ function HowItWorksSection() {
     <section className="border-y border-[var(--border)] bg-white" id="how-it-works">
       <Container className="py-9 sm:py-14 lg:py-16">
         <SectionHeading
-          description="Üç adımda ihtiyacını netleştir, profilleri karşılaştır ve doğrudan iletişime geç."
-          eyebrow="Nasıl çalışır?"
-          title="Usta bulma akışı"
+          description={<I18nText i18nKey="home.how.description" />}
+          eyebrow={<I18nText i18nKey="home.how.eyebrow" />}
+          title={<I18nText i18nKey="home.how.title" />}
         />
         <MobileCollapsibleSection contentClassName="mt-7">
           <div className="grid gap-4 md:grid-cols-3">
             {howItWorksSteps.map((step, index) => (
               <Link
-                aria-label={`${step.title} bölümüne git`}
                 className="group cursor-pointer select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_58px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 href={step.href}
-                key={step.title}
+                key={step.titleKey}
               >
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                   0{index + 1}
                 </span>
                 <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  {step.title}
+                  <I18nText i18nKey={step.titleKey} />
                 </h3>
                 <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  {step.description}
+                  <I18nText i18nKey={step.descriptionKey} />
                 </p>
                 <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
-                  Bölüme git
+                  <I18nText i18nKey="cta.goToSection" />
                 </span>
               </Link>
             ))}
@@ -395,15 +410,14 @@ function AboutSection() {
         <div className="grid gap-5 lg:grid-cols-[0.45fr_1fr] lg:items-start">
           <div className="cursor-default select-none">
             <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-              Hakkımızda
+              <I18nText i18nKey="home.about.eyebrow" />
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-              Fuwu ile doğru ustaya daha net ulaş.
+              <I18nText i18nKey="home.about.title" />
             </h2>
           </div>
           <p className="max-w-3xl cursor-default select-none text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
-            Fuwu, ev hizmetlerinde doğru ustaya hızlı ve şeffaf şekilde ulaşman için geliştirilen
-            bir hizmet pazaryeridir.
+            <I18nText i18nKey="home.about.description" />
           </p>
         </div>
       </Container>
@@ -416,23 +430,23 @@ function TrustSection() {
     <section className="bg-[#F7F7F8]" id="trust">
       <Container className="py-9 sm:py-14 lg:py-16">
         <SectionHeading
-          description="Fuwu, müşteri kararını hızlandıran net profil bilgileri ve doğrudan iletişim akışı sunar."
-          eyebrow="Fuwu Güvencesi"
-          title="Karar vermeyi kolaylaştıran güven sinyalleri"
+          description={<I18nText i18nKey="home.trust.description" />}
+          eyebrow={<I18nText i18nKey="home.trust.eyebrow" />}
+          title={<I18nText i18nKey="home.trust.title" />}
         />
         <MobileCollapsibleSection contentClassName="mt-7">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trustItems.map((item) => (
               <div
                 className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
-                key={item.title}
+                key={item.titleKey}
               >
                 <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
                 <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  {item.title}
+                  <I18nText i18nKey={item.titleKey} />
                 </h3>
                 <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  {item.description}
+                  <I18nText i18nKey={item.descriptionKey} />
                 </p>
               </div>
             ))}
@@ -449,10 +463,10 @@ function FinalCTASection() {
       <Container className="py-9 sm:py-14 lg:py-16">
         <div className="cursor-default select-none">
           <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-            Fuwu Hizmet
+            <I18nText i18nKey="home.final.eyebrow" />
           </p>
           <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-            Müşteri ve usta akışları sade, ayrı ve net.
+            <I18nText i18nKey="home.final.title" />
           </h2>
         </div>
         <MobileCollapsibleSection contentClassName="mt-7">
@@ -460,29 +474,29 @@ function FinalCTASection() {
             <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <div className="cursor-default select-none">
                 <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
-                  Müşteri
+                  <I18nText i18nKey="home.final.customer" />
                 </p>
                 <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                  Yakındaki ustaları karşılaştır.
+                  <I18nText i18nKey="home.final.customerTitle" />
                 </h3>
                 <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  Kategori, ilçe, puan ve fiyat aralığına göre uygun profilleri gör.
+                  <I18nText i18nKey="home.final.customerDescription" />
                 </p>
               </div>
               <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providers}>
-                Usta Bul
+                <I18nText i18nKey="cta.findProvider" />
               </Button>
             </div>
             <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <div className="cursor-default select-none">
                 <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
-                  Usta
+                  <I18nText i18nKey="home.final.provider" />
                 </p>
                 <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                  Profilini hazırlayıp ağa katıl.
+                  <I18nText i18nKey="home.final.providerTitle" />
                 </h3>
                 <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  Hizmet alanını, çalışma bölgeni ve doğrudan iletişim bilgilerini gönder.
+                  <I18nText i18nKey="home.final.providerDescription" />
                 </p>
               </div>
               <Button
@@ -490,7 +504,7 @@ function FinalCTASection() {
                 href={appRoutes.providerApplication}
                 variant="secondary"
               >
-                Usta Ağına Katıl
+                <I18nText i18nKey="cta.provider" />
               </Button>
             </div>
           </div>

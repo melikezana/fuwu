@@ -3,10 +3,10 @@
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import {
-  defaultLocale,
+  getLocaleConfig,
   getLocaleSupportMessage,
-  isSupportedLocale,
   supportedLocales,
+  useI18n,
   type LocaleCode,
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -15,30 +15,14 @@ type LanguageSwitcherProps = {
   align?: "left" | "right";
 };
 
-const localeStorageKey = "fuwu-locale";
-
 export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
-  const [selectedLocale, setSelectedLocale] = useState<LocaleCode>(defaultLocale);
+  const { locale: selectedLocale, setLocale, t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState(getLocaleSupportMessage(defaultLocale));
   const switcherRef = useRef<HTMLDivElement>(null);
   const statusId = useId();
   const menuId = useId();
-
-  useEffect(() => {
-    const storedLocale = window.localStorage.getItem(localeStorageKey);
-
-    if (!isSupportedLocale(storedLocale)) {
-      return;
-    }
-
-    const localeConfig = supportedLocales.find((locale) => locale.code === storedLocale);
-
-    setSelectedLocale(storedLocale);
-    setStatusMessage(getLocaleSupportMessage(storedLocale));
-    document.documentElement.lang = storedLocale;
-    document.documentElement.dir = localeConfig?.dir ?? "ltr";
-  }, []);
+  const selectedLocaleConfig = getLocaleConfig(selectedLocale);
+  const statusMessage = getLocaleSupportMessage(selectedLocale);
 
   useEffect(() => {
     if (!isOpen) {
@@ -67,19 +51,9 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
   }, [isOpen]);
 
   function handleLocaleClick(localeCode: LocaleCode) {
-    const localeConfig =
-      supportedLocales.find((locale) => locale.code === localeCode) ?? supportedLocales[0];
-
-    setSelectedLocale(localeCode);
-    setStatusMessage(getLocaleSupportMessage(localeCode));
-    window.localStorage.setItem(localeStorageKey, localeCode);
-    document.documentElement.lang = localeCode;
-    document.documentElement.dir = localeConfig.dir;
-    setIsOpen(localeConfig.status !== "active");
+    setLocale(localeCode);
+    setIsOpen(false);
   }
-
-  const selectedLocaleConfig =
-    supportedLocales.find((locale) => locale.code === selectedLocale) ?? supportedLocales[0];
 
   return (
     <div
@@ -91,8 +65,8 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
         aria-describedby={statusId}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        aria-label="Dil seç"
-        className="inline-flex min-h-10 min-w-12 cursor-pointer select-none items-center justify-center gap-1.5 rounded-full bg-[var(--surface-soft)] px-3 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        aria-label={t("language.select")}
+        className="inline-flex min-h-10 min-w-12 cursor-pointer select-none items-center justify-center gap-1.5 rounded-full bg-[var(--surface-soft)] px-3 text-sm font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         type="button"
       >
@@ -105,7 +79,7 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
 
       {isOpen ? (
         <div
-          aria-label="Dil seçenekleri"
+          aria-label={t("language.options")}
           className={cn(
             "absolute top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[0_18px_44px_rgba(13,20,36,0.14)]",
             align === "right" ? "right-0" : "left-0",
@@ -121,7 +95,7 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
                 aria-describedby={statusId}
                 aria-current={isSelected ? "true" : undefined}
                 className={cn(
-                  "flex min-h-10 w-full cursor-pointer select-none items-center justify-between gap-3 px-3.5 text-left text-sm font-semibold leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:bg-[var(--brand-orange-soft)] focus:outline-none",
+                  "flex min-h-10 w-full cursor-pointer select-none items-center justify-between gap-3 px-3.5 text-left text-sm font-semibold leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:bg-[var(--brand-orange-soft)] focus:outline-none",
                   isSelected ? "bg-[var(--brand-orange-soft)]" : undefined,
                 )}
                 key={locale.code}

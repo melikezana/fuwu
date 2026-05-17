@@ -4,8 +4,9 @@ import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
 import { minimumRatingOptions } from "@/lib/constants/providers";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { ProviderFilterOptions } from "@/services/providers";
 
@@ -48,6 +49,7 @@ function HeroField({
 }
 
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
+  const { t } = useI18n();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const advancedPanelId = useId();
   const serviceFilterOptions = Array.from(
@@ -59,11 +61,11 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       action={appRoutes.providers}
       className="mt-8 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
     >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(10rem,1.15fr)_minmax(8.5rem,0.95fr)_minmax(7.5rem,0.8fr)_minmax(7.5rem,0.8fr)_minmax(9.5rem,0.9fr)_minmax(7.75rem,auto)] 2xl:items-end">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end">
         <div className="order-1 min-w-0 md:order-none">
-          <HeroField label="Hizmet">
+          <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
-              <option value="">Tüm hizmetler</option>
+              <option value="">{t("filters.allServices")}</option>
               {serviceFilterOptions.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -74,9 +76,9 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         </div>
 
         <div className="order-2 min-w-0 md:order-none">
-          <HeroField label="İlçe">
+          <HeroField label={t("filters.district")}>
             <select className={selectClassName} defaultValue="" name="district">
-              <option value="">Tüm ilçeler</option>
+              <option value="">{t("filters.allDistricts")}</option>
               {filterOptions.districts.map((district) => (
                 <option key={district} value={district}>
                   {district}
@@ -93,36 +95,36 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           )}
           id={advancedPanelId}
         >
-          <HeroField label="Minimum Fiyat">
+          <HeroField label={t("filters.minimumPrice")}>
             <input
               className={inputClassName}
               inputMode="numeric"
               min="0"
               name="average_price_min"
-              placeholder="Örn. 500"
+              placeholder={t("filters.minimumPricePlaceholder")}
               step="50"
               type="number"
             />
           </HeroField>
 
-          <HeroField label="Maksimum Fiyat">
+          <HeroField label={t("filters.maximumPrice")}>
             <input
               className={inputClassName}
               inputMode="numeric"
               min="0"
               name="average_price_max"
-              placeholder="Örn. 2500"
+              placeholder={t("filters.maximumPricePlaceholder")}
               step="50"
               type="number"
             />
           </HeroField>
 
-          <HeroField label="Puan">
+          <HeroField label={t("filters.rating")}>
             <select className={selectClassName} defaultValue="" name="rating">
-              <option value="">Tüm puanlar</option>
+              <option value="">{t("filters.allRatings")}</option>
               {minimumRatingOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t("filters.ratingAtLeast", { rating: option.value.replace(".", ",") })}
                 </option>
               ))}
             </select>
@@ -130,18 +132,23 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         </div>
 
         <Button className="order-3 h-12 min-h-12 w-full rounded-md px-5 md:order-none" type="submit">
-          {ctaLabels.findProvider}
+          {t("cta.findProvider")}
         </Button>
 
         <div className="order-4 min-w-0 md:hidden">
           <button
             aria-controls={advancedPanelId}
             aria-expanded={isAdvancedOpen}
-            className="inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-[var(--surface-soft)] px-3 text-sm font-black text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className={cn(
+              "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-black transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
+              isAdvancedOpen
+                ? "bg-[var(--brand-orange)] text-white"
+                : "bg-[var(--surface-soft)] text-[var(--brand-navy)]",
+            )}
             onClick={() => setIsAdvancedOpen((currentValue) => !currentValue)}
             type="button"
           >
-            Gelişmiş filtreler
+            {t("filters.advanced")}
             <ChevronDown
               aria-hidden="true"
               className={cn("size-4 transition-transform", isAdvancedOpen ? "rotate-180" : "")}

@@ -9,16 +9,51 @@ export const providerCategories = services
   .map((service) => service.title)
   .sort((firstCategory, secondCategory) => firstCategory.localeCompare(secondCategory, "tr"));
 
-export const providerDistricts = [
+export const istanbulDistricts = [
+  "Adalar",
+  "Arnavutköy",
   "Ataşehir",
+  "Avcılar",
+  "Bağcılar",
+  "Bahçelievler",
   "Bakırköy",
+  "Başakşehir",
+  "Bayrampaşa",
   "Beşiktaş",
+  "Beykoz",
+  "Beylikdüzü",
+  "Beyoğlu",
+  "Büyükçekmece",
+  "Çatalca",
+  "Çekmeköy",
+  "Esenler",
+  "Esenyurt",
+  "Eyüpsultan",
+  "Fatih",
+  "Gaziosmanpaşa",
+  "Güngören",
   "Kadıköy",
+  "Kağıthane",
+  "Kartal",
+  "Küçükçekmece",
   "Maltepe",
+  "Pendik",
+  "Sancaktepe",
+  "Sarıyer",
+  "Silivri",
+  "Sultanbeyli",
+  "Sultangazi",
+  "Şile",
   "Şişli",
+  "Tuzla",
   "Ümraniye",
   "Üsküdar",
-].sort((firstDistrict, secondDistrict) => firstDistrict.localeCompare(secondDistrict, "tr"));
+  "Zeytinburnu",
+];
+
+export const providerDistricts = [...istanbulDistricts].sort((firstDistrict, secondDistrict) =>
+  firstDistrict.localeCompare(secondDistrict, "tr"),
+);
 
 export const providerAveragePrices: string[] = [];
 

@@ -42,8 +42,10 @@ export default function KvkkPage() {
   return (
     <PolicyPage
       description="Kişisel verilerin işlenmesine dair temel bilgilendirme."
+      descriptionKey="policy.kvkk.description"
       sections={sections}
       title="KVKK Aydınlatma Metni"
+      titleKey="policy.kvkk.title"
       updatedAt="15 Mayıs 2026"
     />
   );

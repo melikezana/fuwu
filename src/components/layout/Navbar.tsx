@@ -2,36 +2,32 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { appRoutes, ctaLabels, navigationLinks } from "@/lib/constants/navigation";
+import { appRoutes, navigationLinks } from "@/lib/constants/navigation";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const headerNavigationLinks = navigationLinks.filter((item) => item.id !== "providers");
-const mobileNavigationLinks = [
-  ...headerNavigationLinks,
-  {
-    id: "provider-application",
-    label: ctaLabels.provider,
-    href: appRoutes.providerApplication,
-  },
-  {
-    id: "providers",
-    label: ctaLabels.findProvider,
-    href: appRoutes.providers,
-  },
-];
+const navLabelKeys: Record<string, TranslationKey> = {
+  about: "nav.about",
+  contact: "nav.contact",
+  "how-it-works": "nav.howItWorks",
+  "provider-application": "cta.provider",
+  providers: "nav.providers",
+  services: "nav.services",
+  trust: "nav.trust",
+};
 
-function getActiveHref(pathname: string) {
+const headerNavigationLinks = navigationLinks.filter((item) => item.id !== "providers");
+
+function getActiveHref(pathname: string, links: Array<{ href: string }>) {
   if (typeof window !== "undefined" && window.location.hash) {
     const hash = window.location.hash;
-    const matchingLink = mobileNavigationLinks.find(
-      (item) => item.href === hash || item.href.endsWith(hash),
-    );
+    const matchingLink = links.find((item) => item.href === hash || item.href.endsWith(hash));
 
     if (matchingLink) {
       return matchingLink.href;
@@ -43,13 +39,38 @@ function getActiveHref(pathname: string) {
 
 export function Navbar() {
   const pathname = usePathname();
+  const { t } = useI18n();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("");
   const navRef = useRef<HTMLElement>(null);
+  const translatedHeaderNavigationLinks = useMemo(
+    () =>
+      headerNavigationLinks.map((item) => ({
+        ...item,
+        label: t(navLabelKeys[item.id] ?? "nav.services"),
+      })),
+    [t],
+  );
+  const mobileNavigationLinks = useMemo(
+    () => [
+      ...translatedHeaderNavigationLinks,
+      {
+        id: "provider-application",
+        label: t("cta.provider"),
+        href: appRoutes.providerApplication,
+      },
+      {
+        id: "providers",
+        label: t("cta.findProvider"),
+        href: appRoutes.providers,
+      },
+    ],
+    [t, translatedHeaderNavigationLinks],
+  );
 
   useEffect(() => {
     function updateActiveHref() {
-      setActiveHref(getActiveHref(pathname));
+      setActiveHref(getActiveHref(pathname, mobileNavigationLinks));
     }
 
     updateActiveHref();
@@ -58,7 +79,7 @@ export function Navbar() {
     return () => {
       window.removeEventListener("hashchange", updateActiveHref);
     };
-  }, [pathname]);
+  }, [mobileNavigationLinks, pathname]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -105,7 +126,7 @@ export function Navbar() {
           ref={navRef}
         >
           <Link
-            aria-label="Fuwu ana sayfasına git"
+            aria-label={t("nav.logo")}
             className="inline-flex min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             onClick={() => handleMenuLinkClick(appRoutes.home)}
             href={appRoutes.home}
@@ -114,11 +135,11 @@ export function Navbar() {
           </Link>
 
           <div className="hidden min-w-0 items-center gap-0.5 xl:flex">
-            {headerNavigationLinks.map((item) => (
+            {translatedHeaderNavigationLinks.map((item) => (
               <Link
                 aria-current={isActiveLink(item.href) ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-2.5 text-center text-sm font-semibold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
+                  "inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-2.5 text-center text-sm font-semibold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:text-white",
                   isActiveLink(item.href)
                     ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
                     : "text-[var(--muted)]",
@@ -146,7 +167,7 @@ export function Navbar() {
               onClick={() => setActiveHref(appRoutes.providerApplication)}
               variant="secondary"
             >
-              {ctaLabels.provider}
+              {t("cta.provider")}
             </Button>
             <Button
               aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
@@ -159,7 +180,7 @@ export function Navbar() {
               href={appRoutes.providers}
               onClick={() => setActiveHref(appRoutes.providers)}
             >
-              {ctaLabels.findProvider}
+              {t("cta.findProvider")}
             </Button>
           </div>
 
@@ -168,7 +189,7 @@ export function Navbar() {
             <button
               aria-controls="mobile-navigation-menu"
               aria-expanded={isMenuOpen}
-              aria-label={isMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
+              aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
               className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] text-white shadow-[0_12px_28px_rgba(13,20,36,0.16)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
               type="button"
@@ -188,7 +209,7 @@ export function Navbar() {
             >
               <div className="border-b border-[var(--border)] px-3 pb-2">
                 <Link
-                  aria-label="Fuwu ana sayfasına git"
+                  aria-label={t("nav.logo")}
                   className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                   href={appRoutes.home}
                   onClick={() => handleMenuLinkClick(appRoutes.home)}
@@ -204,7 +225,7 @@ export function Navbar() {
                     <Link
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "flex min-h-11 cursor-pointer select-none items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-bold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1",
+                        "flex min-h-11 cursor-pointer select-none items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-bold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1",
                         isActive
                           ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
                           : "text-[var(--brand-navy)]",

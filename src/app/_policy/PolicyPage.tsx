@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
+import { I18nText, type TranslationKey } from "@/lib/i18n";
 
 export type PolicySection = {
   title: string;
@@ -9,16 +10,22 @@ export type PolicySection = {
 };
 
 type PolicyPageProps = {
+  descriptionKey?: TranslationKey;
   title: string;
   description: string;
+  titleKey?: TranslationKey;
   updatedAt: string;
   sections: PolicySection[];
 };
 
-const legalReviewNote =
-  "Bu metin bilgilendirme amaçlıdır; yayına çıkmadan önce hukuki danışmanlıkla gözden geçirilmelidir.";
-
-export function PolicyPage({ title, description, updatedAt, sections }: PolicyPageProps) {
+export function PolicyPage({
+  description,
+  descriptionKey,
+  sections,
+  title,
+  titleKey,
+  updatedAt,
+}: PolicyPageProps) {
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_54%,#F6F7F9_100%)]">
       <FuwuWatermark className="-right-20 top-10 text-[9rem] opacity-[0.035] sm:text-[12rem]" />
@@ -32,19 +39,19 @@ export function PolicyPage({ title, description, updatedAt, sections }: PolicyPa
             <FuwuLogo size="md" />
           </Link>
           <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
-            Fuwu Politikaları
+            <I18nText i18nKey="policy.eyebrow" />
           </p>
           <h1 className="mt-3 text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
-            {title}
+            {titleKey ? <I18nText i18nKey={titleKey} /> : title}
           </h1>
           <p className="mt-5 text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
-            {description}
+            {descriptionKey ? <I18nText i18nKey={descriptionKey} /> : description}
           </p>
           <p className="mt-4 rounded-md border border-[rgba(255,138,0,0.24)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--muted)]">
-            Son güncelleme: {updatedAt}
+            <I18nText i18nKey="policy.updatedAt" values={{ date: updatedAt }} />
           </p>
           <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.32)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-            {legalReviewNote}
+            <I18nText i18nKey="policy.reviewNote" />
           </p>
         </div>
 

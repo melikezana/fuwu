@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { sanitizeText } from "@/lib/validations";
 
 export type ProviderReview = {
   id: string;
@@ -89,7 +90,7 @@ function mapSupabaseReview(record: SupabaseReviewRow): ProviderReview {
     id: record.id,
     providerId: record.provider_id,
     rating: normalizeRating(record.rating),
-    comment: record.comment?.trim() || "Yorum metni paylaşılmadı.",
+    comment: sanitizeText(record.comment ?? "", 700) || "Yorum metni paylaşılmadı.",
     createdAt: record.created_at,
   };
 }

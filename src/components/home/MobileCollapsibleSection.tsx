@@ -3,6 +3,7 @@
 import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type MobileCollapsibleSectionProps = {
@@ -16,6 +17,7 @@ export function MobileCollapsibleSection({
   className,
   contentClassName,
 }: MobileCollapsibleSectionProps) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const contentId = useId();
 
@@ -28,7 +30,7 @@ export function MobileCollapsibleSection({
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         type="button"
       >
-        {isOpen ? "Kapat" : "Detayları gör"}
+        {isOpen ? t("mobile.close") : t("mobile.details")}
         <ChevronDown
           aria-hidden="true"
           className={cn("size-4 transition-transform", isOpen ? "rotate-180" : "")}

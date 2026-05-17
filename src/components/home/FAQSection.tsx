@@ -4,50 +4,45 @@ import { useState } from "react";
 import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
 import { Container } from "@/components/ui/Container";
 import { SectionIntro } from "@/components/ui/SectionIntro";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type FAQItem = {
+  answerKey: TranslationKey;
   id: string;
-  question: string;
-  answer: string;
+  questionKey: TranslationKey;
 };
 
 const faqItems: FAQItem[] = [
   {
+    answerKey: "home.faq.canRequest.answer",
     id: "can-request-now",
-    question: "Şimdi hizmet talep edebilir miyim?",
-    answer:
-      "Hizmet talebi oluşturmak için giriş yapmalısın. Usta profillerini ise giriş yapmadan inceleyebilir, telefon veya WhatsApp ile iletişime geçebilirsin.",
+    questionKey: "home.faq.canRequest.question",
   },
   {
+    answerKey: "home.faq.providerChecks.answer",
     id: "provider-checks",
-    question: "Ustalar kontrol ediliyor mu?",
-    answer:
-      "Fuwu, ustaları listelemeden önce hizmet uyumu, çalışma bölgesi, deneyim, ekipman ve hazırlık bilgilerini değerlendirir.",
+    questionKey: "home.faq.providerChecks.question",
   },
   {
+    answerKey: "home.faq.payNow.answer",
     id: "pay-now",
-    question: "Şimdi ödeme yapmam gerekiyor mu?",
-    answer:
-      "Hayır. Talep gönderirken ödeme alınmaz. Önce ihtiyaç netleşir; randevu kararı senden onay almadan ilerlemez.",
+    questionKey: "home.faq.payNow.question",
   },
   {
+    answerKey: "home.faq.afterRequest.answer",
     id: "what-happens-after-request",
-    question: "Talep gönderdikten sonra ne olur?",
-    answer:
-      "Fuwu hizmet türünü, konumu, zamanlamayı ve notları net bir özete dönüştürür. Otomatik randevu oluşmaz.",
+    questionKey: "home.faq.afterRequest.question",
   },
   {
+    answerKey: "home.faq.serviceRequest.answer",
     id: "service-request",
-    question: "Hizmet talebi ne zaman gerekli?",
-    answer:
-      "Dizinde uygun profili bulamadığınızda veya daha özel bir kapsamı açıklamak istediğinizde hizmet talebi bırakabilirsiniz.",
+    questionKey: "home.faq.serviceRequest.question",
   },
   {
+    answerKey: "home.faq.urgent.answer",
     id: "urgent-request",
-    question: "Talebim acilse ne yapmalıyım?",
-    answer:
-      "Talep formunda aciliyeti seç ve notu kısa, net, pratik tut. Açık bilgiler daha hızlı dönüş sağlar.",
+    questionKey: "home.faq.urgent.question",
   },
 ];
 
@@ -66,6 +61,7 @@ function PlusIcon({ isOpen }: { isOpen: boolean }) {
 }
 
 export function FAQSection() {
+  const { t } = useI18n();
   const [openItemId, setOpenItemId] = useState(faqItems[0].id);
 
   return (
@@ -74,12 +70,12 @@ export function FAQSection() {
         <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <SectionIntro
-              eyebrow="Sık Sorulan Sorular"
-              title="Başlamadan önce kısa cevaplar"
-              description="Usta bulmadan, talep oluşturmadan veya usta ağına katılmadan önce bilmen gerekenler."
+              eyebrow={t("home.faq.eyebrow")}
+              title={t("home.faq.title")}
+              description={t("home.faq.description")}
             />
             <div className="mt-7 hidden max-w-sm cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-5 text-sm font-bold leading-6 text-[var(--brand-navy)] lg:block">
-              Usta bulmak için hesap gerekmez. Hizmet talebi oluşturmak için giriş yapmalısın.
+              {t("home.faq.note")}
             </div>
           </div>
 
@@ -102,7 +98,7 @@ export function FAQSection() {
                       type="button"
                     >
                       <span className="min-w-0 text-base font-bold leading-6 text-[var(--brand-navy)] sm:text-lg">
-                        {item.question}
+                        {t(item.questionKey)}
                       </span>
                       <span
                         className={cn(
@@ -125,7 +121,7 @@ export function FAQSection() {
                     >
                       <div className="overflow-hidden">
                         <p className="cursor-default select-none px-5 pb-5 text-base leading-7 text-[var(--muted)] sm:px-6 sm:pb-6">
-                          {item.answer}
+                          {t(item.answerKey)}
                         </p>
                       </div>
                     </div>

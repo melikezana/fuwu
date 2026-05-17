@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Camera,
@@ -11,7 +13,8 @@ import {
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { customerServiceContact } from "@/lib/constants/contact";
-import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
+import { appRoutes } from "@/lib/constants/navigation";
+import { useI18n } from "@/lib/i18n";
 
 type FooterLink = {
   ariaLabel?: string;
@@ -26,61 +29,10 @@ type ContactAction = FooterLink & {
 };
 
 const footerLinkClass =
-  "inline-flex max-w-full cursor-pointer select-none items-center gap-2 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
+  "inline-flex max-w-full cursor-pointer select-none items-center gap-2 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] active:text-[var(--brand-orange)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
 
 const contactActionClass =
-  "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
-
-const discoverLinks: FooterLink[] = [
-  { label: "Usta Bul", href: appRoutes.providers },
-  { label: "Hizmetler", href: appRoutes.services },
-  { label: "Hizmet Talep Et", href: appRoutes.request },
-  { label: ctaLabels.provider, href: appRoutes.providerApplication },
-];
-
-const companyLinks: FooterLink[] = [
-  { label: "Hakkımızda", href: appRoutes.about },
-  { label: "Nasıl Çalışır?", href: appRoutes.howItWorks },
-  { label: "Fuwu Güvencesi", href: appRoutes.trust },
-  { label: "SSS", href: appRoutes.faq },
-  { label: "İletişim", href: appRoutes.contact },
-];
-
-const policyLinks: FooterLink[] = [
-  { label: "KVKK Aydınlatma Metni", href: appRoutes.kvkk },
-  { label: "Gizlilik Politikası", href: appRoutes.privacy },
-  { label: "Kullanım Şartları", href: appRoutes.terms },
-  { label: "Çerez Politikası", href: appRoutes.cookies },
-];
-
-const contactActions: ContactAction[] = [
-  {
-    Icon: Phone,
-    ariaLabel: "Fuwu destek hattını telefonla ara",
-    href: customerServiceContact.phoneHref,
-    label: "Telefon",
-  },
-  {
-    Icon: MessageCircle,
-    ariaLabel: "Fuwu desteğine WhatsApp üzerinden yaz",
-    external: true,
-    href: customerServiceContact.whatsappHref,
-    label: "WhatsApp",
-  },
-  {
-    Icon: Mail,
-    ariaLabel: "Fuwu destek ekibine e-posta gönder",
-    href: `mailto:${customerServiceContact.email}`,
-    label: "E-posta",
-  },
-  {
-    Icon: Camera,
-    ariaLabel: "Fuwu Instagram hesabını yeni sekmede aç",
-    external: true,
-    href: customerServiceContact.instagramHref,
-    label: "Instagram",
-  },
-];
+  "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
 
 function FooterAnchor({ item, className }: { className?: string; item: FooterLink }) {
   const isExternal = item.external || item.href.startsWith("http");
@@ -140,6 +92,55 @@ function FooterColumn({
 }
 
 export function Footer() {
+  const { t } = useI18n();
+  const discoverLinks: FooterLink[] = [
+    { label: t("cta.findProvider"), href: appRoutes.providers },
+    { label: t("nav.services"), href: appRoutes.services },
+    { label: t("cta.request"), href: appRoutes.request },
+    { label: t("cta.provider"), href: appRoutes.providerApplication },
+  ];
+  const companyLinks: FooterLink[] = [
+    { label: t("nav.about"), href: appRoutes.about },
+    { label: t("nav.howItWorks"), href: appRoutes.howItWorks },
+    { label: t("nav.trust"), href: appRoutes.trust },
+    { label: t("footer.faq"), href: appRoutes.faq },
+    { label: t("nav.contact"), href: appRoutes.contact },
+  ];
+  const policyLinks: FooterLink[] = [
+    { label: t("footer.kvkk"), href: appRoutes.kvkk },
+    { label: t("footer.privacy"), href: appRoutes.privacy },
+    { label: t("footer.terms"), href: appRoutes.terms },
+    { label: t("footer.cookies"), href: appRoutes.cookies },
+  ];
+  const contactActions: ContactAction[] = [
+    {
+      Icon: Phone,
+      ariaLabel: t("footer.phoneAria"),
+      href: customerServiceContact.phoneHref,
+      label: t("footer.phone"),
+    },
+    {
+      Icon: MessageCircle,
+      ariaLabel: t("footer.whatsappAria"),
+      external: true,
+      href: customerServiceContact.whatsappHref,
+      label: t("footer.whatsapp"),
+    },
+    {
+      Icon: Mail,
+      ariaLabel: t("footer.emailAria"),
+      href: `mailto:${customerServiceContact.email}`,
+      label: t("footer.email"),
+    },
+    {
+      Icon: Camera,
+      ariaLabel: t("footer.instagramAria"),
+      external: true,
+      href: customerServiceContact.instagramHref,
+      label: "Instagram",
+    },
+  ];
+
   return (
     <footer
       className="border-t border-[rgba(13,20,36,0.08)] bg-[linear-gradient(180deg,#FFF7EC_0%,#F8F2E8_52%,#EEF1F5_100%)] text-[var(--brand-navy)]"
@@ -148,38 +149,36 @@ export function Footer() {
       <Container className="py-8 sm:py-12 lg:py-14">
         <div className="max-w-2xl cursor-default select-none">
           <Link
-            aria-label="Fuwu ana sayfasına git"
+            aria-label={t("nav.logo")}
             className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
           <p className="mt-4 text-sm font-semibold leading-7 text-[var(--muted)]">
-            Fuwu, İstanbul’da hizmet arayan müşteriler ile güvenilir yerel ustaları aynı
-            pazaryeri deneyiminde buluşturur. Hizmetini seç, profilleri karşılaştır ve doğrudan
-            iletişime geç.
+            {t("footer.description")}
           </p>
         </div>
 
         <div className="grid gap-7 border-y border-[rgba(13,20,36,0.1)] py-7 sm:grid-cols-2 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
-          <FooterColumn title="Keşfet">
-            <nav aria-label="Keşfet bağlantıları" className="grid gap-2.5">
+          <FooterColumn title={t("footer.discover")}>
+            <nav aria-label={t("footer.discoverAria")} className="grid gap-2.5">
               {discoverLinks.map((item) => (
                 <FooterAnchor item={item} key={item.label} />
               ))}
             </nav>
           </FooterColumn>
 
-          <FooterColumn title="Fuwu">
-            <nav aria-label="Fuwu bağlantıları" className="grid gap-2.5">
+          <FooterColumn title={t("footer.company")}>
+            <nav aria-label={t("footer.companyAria")} className="grid gap-2.5">
               {companyLinks.map((item) => (
                 <FooterAnchor item={item} key={item.label} />
               ))}
             </nav>
           </FooterColumn>
 
-          <FooterColumn className="hidden sm:grid" title="Politikalar">
-            <nav aria-label="Yasal ve politika bağlantıları" className="grid gap-2.5">
+          <FooterColumn className="hidden sm:grid" title={t("footer.policies")}>
+            <nav aria-label={t("footer.policyAria")} className="grid gap-2.5">
               {policyLinks.map((item) => (
                 <FooterAnchor item={item} key={item.label} />
               ))}
@@ -191,7 +190,7 @@ export function Footer() {
               <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-black uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
                 <span>
                   <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
-                  Yasal
+                  {t("footer.legal")}
                 </span>
                 <ChevronDown
                   aria-hidden="true"
@@ -199,7 +198,7 @@ export function Footer() {
                 />
               </summary>
               <nav
-                aria-label="Yasal ve politika bağlantıları"
+                aria-label={t("footer.policyAria")}
                 className="grid gap-2.5 border-t border-[rgba(13,20,36,0.08)] px-4 py-3"
               >
                 {policyLinks.map((item) => (
@@ -209,13 +208,13 @@ export function Footer() {
             </details>
           </section>
 
-          <FooterColumn className="sm:col-span-2 lg:col-span-4" title="İletişim">
+          <FooterColumn className="sm:col-span-2 lg:col-span-4" title={t("footer.contact")}>
             <address className="grid gap-4 not-italic">
               <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--muted)]">
                 <span className="inline-flex size-8 shrink-0 items-center justify-center rounded bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
                   <MapPin aria-hidden="true" className="size-4" />
                 </span>
-                <span>İstanbul, Türkiye</span>
+                <span>{t("footer.location")}</span>
               </p>
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 {contactActions.map((item) => (
@@ -227,8 +226,8 @@ export function Footer() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/70 bg-white/55 px-4 py-4 text-sm font-semibold text-[var(--muted)] shadow-[0_12px_34px_rgba(13,20,36,0.04)] sm:flex-row sm:items-center sm:justify-between">
-          <p className="cursor-default select-none">© 2026 Fuwu Hizmet</p>
-          <p className="cursor-default select-none">Ustaya ulaşmanın en hızlı yolu.</p>
+          <p className="cursor-default select-none">{t("footer.copyright")}</p>
+          <p className="cursor-default select-none">{t("footer.tagline")}</p>
         </div>
       </Container>
     </footer>

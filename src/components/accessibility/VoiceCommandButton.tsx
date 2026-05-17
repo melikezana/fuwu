@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic, Volume2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getKnownVoiceCommandExamples,
@@ -9,6 +9,7 @@ import {
   readProviderSummaries,
 } from "@/lib/accessibility/voiceCommands";
 import { appRoutes } from "@/lib/constants/navigation";
+import { useI18n } from "@/lib/i18n";
 import type { Provider } from "@/types/provider";
 
 type VoiceCommandButtonProps = {
@@ -93,14 +94,24 @@ export function VoiceCommandButton({
   providers,
 }: VoiceCommandButtonProps) {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [statusMessage, setStatusMessage] = useState(
-    `Örnek komutlar: ${getKnownVoiceCommandExamples().join(", ")}.`,
+    t("voice.examples", { examples: getKnownVoiceCommandExamples().join(", ") }),
   );
 
+  useEffect(() => {
+    setStatusMessage(t("voice.examples", { examples: getKnownVoiceCommandExamples().join(", ") }));
+  }, [locale, t]);
+
   function runReadout() {
-    const result = readProviderSummaries(providers);
+    const result = readProviderSummaries(providers, {
+      empty: t("voice.readEmpty"),
+      reading: t("voice.reading"),
+      readingLimited: t("voice.readingLimited"),
+      unsupported: t("voice.readUnsupported"),
+    });
     setStatusMessage(result.message);
   }
 
@@ -108,19 +119,19 @@ export function VoiceCommandButton({
     const command = interpretVoiceCommand(transcript, { categories, districts });
 
     if (command.type === "category") {
-      setStatusMessage(`${command.value} için ustalar açılıyor.`);
+      setStatusMessage(t("voice.categoryOpening", { value: command.value }));
       router.push(createProviderQuery("category", command.value));
       return;
     }
 
     if (command.type === "district") {
-      setStatusMessage(`${command.value} ustaları açılıyor.`);
+      setStatusMessage(t("voice.districtOpening", { value: command.value }));
       router.push(createProviderQuery("district", command.value));
       return;
     }
 
     if (command.type === "show-providers") {
-      setStatusMessage("Usta listesi açılıyor.");
+      setStatusMessage(t("voice.providersOpening"));
       router.push(appRoutes.providers);
       return;
     }
@@ -129,8 +140,8 @@ export function VoiceCommandButton({
       const focused = focusFirstWhatsAppLink();
       setStatusMessage(
         focused
-          ? "İlk WhatsApp düğmesi odaklandı. Açmak için Enter tuşuna basabilirsin."
-          : "Bu listede WhatsApp düğmesi bulunamadı.",
+          ? t("voice.whatsappFocused")
+          : t("voice.whatsappMissing"),
       );
       return;
     }
@@ -140,22 +151,22 @@ export function VoiceCommandButton({
       return;
     }
 
-    setStatusMessage("Komut anlaşılamadı. Tesisatçı ara, Kadıköy ustaları veya profilleri oku diyebilirsin.");
+    setStatusMessage(t("voice.unknown"));
   }
 
   async function handleVoiceCommandClick() {
     const SpeechRecognition = getSpeechRecognitionConstructor();
 
     if (!SpeechRecognition) {
-      setStatusMessage("Bu tarayıcı sesli komutu desteklemiyor.");
+      setStatusMessage(t("voice.unsupported"));
       return;
     }
 
     try {
-      setStatusMessage("Mikrofon izni isteniyor.");
+      setStatusMessage(t("voice.permissionRequest"));
       await requestMicrophonePermission();
     } catch {
-      setStatusMessage("Mikrofon izni verilmedi. Sesli komutu kullanmak için izni açabilirsin.");
+      setStatusMessage(t("voice.permissionDenied"));
       return;
     }
 
@@ -173,7 +184,7 @@ export function VoiceCommandButton({
       executeTranscript(transcript);
     };
     recognition.onerror = () => {
-      setStatusMessage("Sesli komut alınamadı. Mikrofon iznini ve tarayıcı desteğini kontrol edebilirsin.");
+      setStatusMessage(t("voice.error"));
       setIsListening(false);
     };
     recognition.onend = () => {
@@ -181,34 +192,38 @@ export function VoiceCommandButton({
     };
 
     setIsListening(true);
-    setStatusMessage("Dinliyorum. Komutunu söyleyebilirsin.");
+    setStatusMessage(t("voice.listeningStatus"));
     try {
       recognition.start();
     } catch {
       setIsListening(false);
-      setStatusMessage("Sesli komut başlatılamadı. Biraz sonra tekrar deneyebilirsin.");
+      setStatusMessage(t("voice.startFailed"));
     }
   }
 
   return (
     <div className="mt-4 grid gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] p-3 sm:grid-cols-[auto_auto_minmax(0,1fr)] sm:items-center">
       <button
-        aria-label="Sesli komut başlat"
-        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 text-sm font-black text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        aria-label={t("voice.aria.start")}
+        className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-black text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
+          isListening
+            ? "bg-[var(--brand-orange)]"
+            : "bg-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] active:bg-[var(--brand-orange)]"
+        }`}
         onClick={handleVoiceCommandClick}
         type="button"
       >
         <Mic aria-hidden="true" className="size-4" />
-        {isListening ? "Dinleniyor" : "Sesli Komut"}
+        {isListening ? t("voice.button.listening") : t("voice.button.start")}
       </button>
       <button
-        aria-label="Listelenen profilleri sesli oku"
-        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        aria-label={t("voice.aria.read")}
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={runReadout}
         type="button"
       >
         <Volume2 aria-hidden="true" className="size-4" />
-        Profilleri Sesli Oku
+        {t("voice.button.read")}
       </button>
       <p aria-live="polite" className="cursor-default select-none text-sm font-semibold leading-6 text-[var(--muted)]">
         {statusMessage}

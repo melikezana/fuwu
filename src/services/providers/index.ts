@@ -10,6 +10,7 @@ import {
 import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import type {
   Provider,
   ProviderDataSource,
@@ -152,27 +153,29 @@ function createFallbackDescription(name: string, category: string, district: str
 }
 
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
-  const category = getRelationName(record.category ?? record.service_categories);
-  const district = getRelationName(record.district ?? record.districts);
+  const category = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
+  const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
+  const name = sanitizeText(record.name, 120);
+  const phone = sanitizePhone(record.phone);
 
-  if (!category || !district) {
+  if (!category || !district || !name || !phone) {
     return null;
   }
 
   const description =
-    record.description?.trim() || createFallbackDescription(record.name, category, district);
-  const whatsapp = normalizePhoneForWhatsApp(record.whatsapp || record.phone);
+    sanitizeText(record.description ?? "", 900) || createFallbackDescription(name, category, district);
+  const whatsapp = normalizePhoneForWhatsApp(sanitizePhone(record.whatsapp || "") || phone);
   const experienceYears = Math.max(0, Number(record.experience_years ?? 0));
 
   return {
     id: record.id,
-    name: record.name,
+    name,
     category,
     district,
     rating: Number(record.rating ?? 0),
     experience: `${experienceYears} yıl`,
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
-    phone: record.phone,
+    phone,
     whatsapp,
     availability: "Bugün uygun",
     description,
@@ -230,6 +233,25 @@ function getSearchTerms(value: string | undefined) {
 
 function hasFilterValue(value: string | undefined) {
   return Boolean(value?.trim());
+}
+
+function normalizeOptionalFilterText(value: string | undefined, maxLength = 120) {
+  const sanitizedValue = sanitizeText(value ?? "", maxLength);
+
+  return sanitizedValue || undefined;
+}
+
+function normalizeProviderFilters(filters: ProviderFilters = {}): ProviderFilters {
+  return {
+    availability: normalizeOptionalFilterText(filters.availability, 80),
+    category: normalizeOptionalFilterText(filters.category),
+    district: normalizeOptionalFilterText(filters.district),
+    maximumPrice: normalizeOptionalFilterText(filters.maximumPrice, 40),
+    minimumPrice: normalizeOptionalFilterText(filters.minimumPrice, 40),
+    price: normalizeOptionalFilterText(filters.price, 80),
+    query: normalizeOptionalFilterText(filters.query, 160),
+    rating: normalizeOptionalFilterText(filters.rating, 12),
+  };
 }
 
 function matchesExactFilter(providerValue: string, requestedValue: string) {
@@ -760,8 +782,9 @@ async function readProviders(filters: ProviderFilters = {}): Promise<ProviderRea
 export async function getProviderDirectory(
   filters: ProviderFilters = {},
 ): Promise<ProviderDirectory> {
+  const safeFilters = normalizeProviderFilters(filters);
   const [filteredProviderResult, allProviderResult] = await Promise.all([
-    readProviders(filters),
+    readProviders(safeFilters),
     readProviders(),
   ]);
   const allProviders = allProviderResult.providers;
@@ -791,7 +814,7 @@ export async function getProviderDirectory(
 }
 
 export async function getProviders(filters: ProviderFilters = {}): Promise<Provider[]> {
-  const providerResult = await readProviders(filters);
+  const providerResult = await readProviders(normalizeProviderFilters(filters));
 
   return providerResult.providers;
 }

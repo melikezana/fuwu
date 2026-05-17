@@ -5,12 +5,11 @@ import { MapPin, MessageCircle, Phone, Star, UserSearch } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
-  getProviderDataNotice,
   getProviderPhoneHref,
-  getProviderProfileBadge,
   getProviderWhatsAppHref,
 } from "@/lib/constants/providers";
 import { getServiceIconNameForCategory } from "@/lib/constants/services";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { Provider } from "@/types/provider";
 
@@ -31,8 +30,15 @@ function formatAveragePrice(price: string) {
 }
 
 export function ProviderCard({ provider, actionsId, className }: ProviderCardProps) {
+  const { t } = useI18n();
   const profileHref = `${appRoutes.providers}/${provider.id}`;
   const iconName = getServiceIconNameForCategory(provider.category);
+  const profileBadge =
+    provider.source === "supabase" ? t("providerCard.badge.live") : t("providerCard.badge.fallback");
+  const dataNotice =
+    provider.source === "supabase"
+      ? t("providerCard.notice.live")
+      : t("providerCard.notice.fallback");
 
   return (
     <article
@@ -57,14 +63,14 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             </Link>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
-                aria-label={`${provider.category} kategorisindeki ustaları göster`}
+                aria-label={t("providerCard.categoryAria", { category: provider.category })}
                 className="max-w-full cursor-pointer rounded-md bg-[var(--brand-orange-soft)] px-3 py-1.5 text-xs font-black leading-5 text-[var(--brand-orange-dark)] transition-colors hover:bg-[#FFE3BC] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
               >
                 {provider.category}
               </Link>
               <Link
-                aria-label={`${provider.district} ilçesindeki ustaları göster`}
+                aria-label={t("providerCard.districtAria", { district: provider.district })}
                 className="inline-flex max-w-full cursor-pointer items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-black leading-5 text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 href={`${appRoutes.providers}?district=${encodeURIComponent(provider.district)}`}
               >
@@ -76,12 +82,17 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          <span className="inline-flex min-h-10 items-center gap-2 rounded-md bg-[#ECFDF5] px-3 py-2 text-sm font-black leading-5 text-[var(--trust-green)]">
+          <span className="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-md bg-[#ECFDF5] px-3 py-2 text-sm font-black leading-5 text-[var(--trust-green)]">
             <Star aria-hidden="true" className="size-4 fill-current" />
-            {provider.rating.toFixed(1)} puan
+            <span className="min-w-0 break-words">
+              {t("providerCard.rating", { rating: provider.rating.toFixed(1) })}
+            </span>
           </span>
-          <span className="inline-flex min-h-10 items-center rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-black leading-5 text-[var(--brand-navy)]">
-            {formatAveragePrice(provider.averagePrice)}
+          <span className="grid min-h-10 min-w-0 gap-0.5 rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-black leading-5 text-[var(--brand-navy)]">
+            <span className="text-[0.68rem] uppercase leading-4 text-[var(--muted)]">
+              {t("providerCard.priceRange")}
+            </span>
+            <span className="min-w-0 break-words">{formatAveragePrice(provider.averagePrice)}</span>
           </span>
         </div>
 
@@ -92,17 +103,23 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
 
       <dl className="mt-5 grid gap-3 border-y border-[var(--border)] py-4">
         <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
-          <dt className="select-none font-black text-[var(--muted)]">Deneyim</dt>
+          <dt className="select-none font-black text-[var(--muted)]">
+            {t("providerCard.experience")}
+          </dt>
           <dd className="min-w-0 font-bold text-[var(--brand-navy)]">{provider.experience}</dd>
         </div>
         <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
-          <dt className="select-none font-black text-[var(--muted)]">Yorum</dt>
+          <dt className="select-none font-black text-[var(--muted)]">
+            {t("providerCard.reviews")}
+          </dt>
           <dd className="min-w-0 font-bold text-[var(--brand-navy)]">
-            {provider.reviewCount} yorum
+            {t("providerCard.reviewCount", { count: provider.reviewCount })}
           </dd>
         </div>
         <div className="grid gap-1 text-sm sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center sm:gap-3">
-          <dt className="select-none font-black text-[var(--muted)]">Durum</dt>
+          <dt className="select-none font-black text-[var(--muted)]">
+            {t("providerCard.status")}
+          </dt>
           <dd className="min-w-0 font-bold text-[var(--brand-navy)]">{provider.availability}</dd>
         </div>
       </dl>
@@ -112,18 +129,18 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           {provider.responseTime}
         </span>
         <span className="max-w-full select-none rounded-md bg-white px-3 py-1.5 text-sm font-black leading-6 text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.12)]">
-          {getProviderProfileBadge(provider)}
+          {profileBadge}
         </span>
       </div>
 
       <p className="mt-3 cursor-default select-none rounded-md bg-[var(--surface-soft)] px-3 py-2 text-xs font-bold leading-5 text-[var(--muted)]">
-        {getProviderDataNotice(provider)}
+        {dataNotice}
       </p>
 
       <footer className="mt-auto pt-5">
         <div className="grid gap-2 sm:grid-cols-2" id={actionsId}>
           <a
-            aria-label={`${provider.name} ile WhatsApp üzerinden yazış`}
+            aria-label={t("providerCard.whatsappAria", { name: provider.name })}
             className={primaryActionClassName}
             data-provider-whatsapp="true"
             href={getProviderWhatsAppHref(provider)}
@@ -134,7 +151,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             WhatsApp
           </a>
           <a
-            aria-label={`${provider.name} adlı ustayı telefonla ara`}
+            aria-label={t("providerCard.phoneAria", { name: provider.name })}
             className={secondaryActionClassName}
             href={getProviderPhoneHref(provider)}
           >
@@ -142,12 +159,12 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             Telefon
           </a>
           <Link
-            aria-label={`${provider.name} profilini incele`}
+            aria-label={t("providerCard.profileAria", { name: provider.name })}
             className={`${secondaryActionClassName} sm:col-span-2`}
             href={profileHref}
           >
             <UserSearch aria-hidden="true" className="size-4 shrink-0" />
-            Profili İncele
+            {t("providerCard.profileButton")}
           </Link>
         </div>
       </footer>

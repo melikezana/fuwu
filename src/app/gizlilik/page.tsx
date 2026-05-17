@@ -40,8 +40,10 @@ export default function PrivacyPage() {
   return (
     <PolicyPage
       description="Fuwu’da paylaşılan bilgilerin nasıl kullanıldığını anlatan genel gizlilik metni."
+      descriptionKey="policy.privacy.description"
       sections={sections}
       title="Gizlilik Politikası"
+      titleKey="policy.privacy.title"
       updatedAt="15 Mayıs 2026"
     />
   );

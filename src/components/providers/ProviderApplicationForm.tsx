@@ -2,10 +2,12 @@
 
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { services } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import {
@@ -38,6 +40,7 @@ type ProviderField = keyof ProviderApplicationFormState;
 type ProviderFormErrorField = ProviderField | "profileImage";
 type ProviderFormErrors = Partial<Record<ProviderFormErrorField, string>>;
 type SubmittedApplication = ProviderApplicationSubmitResult;
+type ProviderApplicationSectionId = "basic" | "service" | "experience" | "contact";
 
 const initialFormState: ProviderApplicationFormState = {
   fullName: "",
@@ -53,34 +56,41 @@ const initialFormState: ProviderApplicationFormState = {
 };
 
 const availabilityOptions: Array<{
+  descriptionKey: TranslationKey;
+  labelKey: TranslationKey;
   value: Availability;
-  description: string;
 }> = [
   {
+    descriptionKey: "providerApplication.availability.fullDescription",
+    labelKey: "providerApplication.availability.full",
     value: "Tam zamanlı",
-    description: "Hafta içi düzenli taleplere açığım.",
   },
   {
+    descriptionKey: "providerApplication.availability.partDescription",
+    labelKey: "providerApplication.availability.part",
     value: "Yarı zamanlı",
-    description: "Belirli gün ve saatlerde talep alabilirim.",
   },
   {
+    descriptionKey: "providerApplication.availability.weekendDescription",
+    labelKey: "providerApplication.availability.weekend",
     value: "Sadece hafta sonu",
-    description: "Hafta sonu taleplerine açığım.",
   },
 ];
 
 const equipmentOptions: Array<{
+  descriptionKey: TranslationKey;
+  labelKey: TranslationKey;
   value: EquipmentStatus;
-  description: string;
 }> = [
   {
+    descriptionKey: "providerApplication.equipment.yesDescription",
+    labelKey: "providerApplication.yes",
     value: "Evet",
-    description: "Hizmet için gerekli temel ekipmanı getirebilirim.",
   },
   {
+    descriptionKey: "providerApplication.equipment.noDescription",
+    labelKey: "providerApplication.no",
     value: "Hayır",
-    description: "Müşteri malzemesi veya mevcut ekipmanla çalışırım.",
   },
 ];
 
@@ -96,11 +106,6 @@ const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-r
 const sectionClassName =
   "rounded-lg border border-[var(--border)] bg-[#FAFAFB] p-4 sm:p-5";
 const isDemoSubmissionMode = isProviderApplicationDemoMode();
-const submissionSuccessMessage =
-  "Başvurun alındı. Profilin incelendikten sonra Fuwu’da yayınlanacaktır.";
-const submissionErrorMessage =
-  "Başvuru şu anda gönderilemedi. Lütfen bilgilerini kontrol edip tekrar dene.";
-
 function normalizeReferenceLink(value: string) {
   const trimmedValue = value.trim();
 
@@ -148,30 +153,57 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 }
 
 function FormSection({
+  activeSection,
   children,
   description,
+  id,
+  setActiveSection,
   title,
 }: {
+  activeSection: ProviderApplicationSectionId;
   children: ReactNode;
   description: string;
+  id: ProviderApplicationSectionId;
+  setActiveSection: (section: ProviderApplicationSectionId) => void;
   title: string;
 }) {
+  const isOpen = activeSection === id;
+
   return (
     <fieldset className={sectionClassName}>
       <legend className="sr-only">{title}</legend>
-      <div className="cursor-default select-none">
+      <button
+        aria-expanded={isOpen}
+        className="flex min-h-12 w-full cursor-pointer select-none items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
+        onClick={() => setActiveSection(id)}
+        type="button"
+      >
+        <span>{title}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={cn("size-4 transition-transform", isOpen ? "rotate-180" : "")}
+        />
+      </button>
+      <div className="hidden cursor-default select-none md:block">
         <h3 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">{title}</h3>
         <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{description}</p>
       </div>
-      <div className="mt-5 grid gap-5">{children}</div>
+      {isOpen ? (
+        <p className="mt-3 cursor-default select-none text-sm leading-6 text-[var(--muted)] md:hidden">
+          {description}
+        </p>
+      ) : null}
+      <div className={cn("mt-5 gap-5", isOpen ? "grid" : "hidden md:grid")}>{children}</div>
     </fieldset>
   );
 }
 
 export function ProviderApplicationForm() {
+  const { t } = useI18n();
   const [formState, setFormState] = useState<ProviderApplicationFormState>(initialFormState);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [profileImageInputKey, setProfileImageInputKey] = useState(0);
+  const [activeSection, setActiveSection] = useState<ProviderApplicationSectionId>("basic");
   const [errors, setErrors] = useState<ProviderFormErrors>({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -274,7 +306,7 @@ export function ProviderApplicationForm() {
       setProfileImageInputKey((currentKey) => currentKey + 1);
     } catch (error) {
       setSubmittedApplication(null);
-      setFormError(getPublicErrorMessage(error, submissionErrorMessage));
+      setFormError(getPublicErrorMessage(error, t("providerApplication.errorMessage")));
     } finally {
       setIsSubmitting(false);
     }
@@ -299,18 +331,18 @@ export function ProviderApplicationForm() {
       <form className="space-y-6 p-4 sm:p-6" noValidate onSubmit={handleSubmit}>
         <div className="cursor-default select-none border-b border-[var(--border)] pb-5">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-            Usta başvurusu
+            {t("providerApplication.formEyebrow")}
           </p>
           <h2 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-            Profilini oluştur, doğru müşteriye görünür ol.
+            {t("providerApplication.formTitle")}
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.
+            {t("providerApplication.reassurance")}
           </p>
           <p className="mt-3 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--brand-navy)]">
             {isDemoSubmissionMode
-              ? "Örnek mod açık: Supabase bağlantısı yokken form güvenli başarı yanıtı gösterir."
-              : "Şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir."}
+              ? t("providerApplication.demoMode")
+              : t("providerApplication.liveMode")}
           </p>
         </div>
 
@@ -331,10 +363,12 @@ export function ProviderApplicationForm() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                  {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru alındı"}
+                  {submittedApplication.mode === "demo"
+                    ? t("providerApplication.demoSuccessEyebrow")
+                    : t("providerApplication.successEyebrow")}
                 </p>
                 <h3 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                  Başvurun alındı
+                  {t("providerApplication.successTitle")}
                 </h3>
               </div>
               <div className="w-fit rounded-md bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-bold text-[var(--brand-navy)]">
@@ -342,41 +376,45 @@ export function ProviderApplicationForm() {
               </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
-              {submissionSuccessMessage}
+              {t("providerApplication.successMessage")}
             </p>
             <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
               <div className="rounded-md bg-[#FAFAFB] p-3">
                 <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                  Veri durumu
+                  {t("providerApplication.dataStatus")}
                 </dt>
                 <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
-                  {submittedApplication.mode === "demo" ? "Örnek onay" : "Başvuru kuyruğu"}
+                  {submittedApplication.mode === "demo"
+                    ? t("providerApplication.demoApproval")
+                    : t("providerApplication.queue")}
                 </dd>
               </div>
               <div className="rounded-md bg-[#FAFAFB] p-3">
                 <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                  Bağlantı
+                  {t("providerApplication.connection")}
                 </dt>
                 <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
-                  {submittedApplication.mode === "demo" ? "Örnek mod" : "Supabase"}
+                  {submittedApplication.mode === "demo"
+                    ? t("providerApplication.demoModeLabel")
+                    : "Supabase"}
                 </dd>
               </div>
               <div className="rounded-md bg-[#FAFAFB] p-3">
                 <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                  Durum
+                  {t("providerApplication.status")}
                 </dt>
                 <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
-                  Profil değerlendirmesi
+                  {t("providerApplication.profileReview")}
                 </dd>
               </div>
               <div className="rounded-md bg-[#FAFAFB] p-3">
                 <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                  Profil görseli
+                  {t("providerApplication.profileImageStatus")}
                 </dt>
                 <dd className="mt-1 text-sm font-bold text-[var(--brand-navy)]">
                   {submittedApplication.profileImageStatus === "uploaded"
-                    ? "Yüklendi"
-                    : "Yüklenmedi"}
+                    ? t("providerApplication.uploaded")
+                    : t("providerApplication.notUploaded")}
                 </dd>
               </div>
             </dl>
@@ -387,23 +425,26 @@ export function ProviderApplicationForm() {
             ) : null}
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <Button className="w-full sm:w-fit" href="/" variant="secondary">
-                Ana Sayfaya Dön
+                {t("providerApplication.home")}
               </Button>
               <Button className="w-full sm:w-fit" href="/providers">
-                Usta Profillerini Gör
+                {t("providerApplication.viewProfiles")}
               </Button>
             </div>
           </div>
         ) : null}
 
         <FormSection
-          description="Profilde görünecek temel adı ve isteğe bağlı profil görselini ekle."
-          title="Temel Bilgiler"
+          activeSection={activeSection}
+          description={t("providerApplication.section.basicDescription")}
+          id="basic"
+          setActiveSection={setActiveSection}
+          title={t("providerApplication.section.basic")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerFullName">
-                Ad soyad
+                {t("providerApplication.fullName")}
               </label>
               <input
                 aria-describedby={
@@ -415,21 +456,23 @@ export function ProviderApplicationForm() {
                 id="providerFullName"
                 name="fullName"
                 onChange={(event) => updateField("fullName", event.target.value)}
-                placeholder="Resmi adını veya iş adını yaz"
+                placeholder={t("providerApplication.fullNamePlaceholder")}
                 required
                 type="text"
                 value={formState.fullName}
               />
               <p className={helperClassName} id="providerFullName-helper">
-                Müşterilerin göreceği adı kullan.
+                {t("providerApplication.fullNameHelper")}
               </p>
               <FieldError id="providerFullName-error" message={errors.fullName} />
             </div>
 
             <div>
               <label className={labelClassName} htmlFor="providerProfileImage">
-                Profil görseli{" "}
-                <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
+                {t("providerApplication.profileImage")}{" "}
+                <span className="font-normal text-[var(--muted)]">
+                  ({t("providerApplication.optional")})
+                </span>
               </label>
               <input
                 accept={PROVIDER_IMAGE_ACCEPT}
@@ -451,10 +494,12 @@ export function ProviderApplicationForm() {
                 )}
                 htmlFor="providerProfileImage"
               >
-                {profileImageFile ? "Görseli değiştir" : "Profil görseli seç"}
+                {profileImageFile
+                  ? t("providerApplication.changeImage")
+                  : t("providerApplication.chooseImage")}
               </label>
               <p className={helperClassName} id="providerProfileImage-helper">
-                JPG, JPEG, PNG veya WebP formatında; en fazla 3 MB.
+                {t("providerApplication.imageHelper")}
               </p>
               {profileImageFile ? (
                 <div className="mt-3 flex flex-col gap-3 rounded-md border border-[var(--border)] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -466,7 +511,7 @@ export function ProviderApplicationForm() {
                     onClick={clearProfileImage}
                     type="button"
                   >
-                    Seçimi kaldır
+                    {t("providerApplication.removeSelection")}
                   </button>
                 </div>
               ) : null}
@@ -476,13 +521,16 @@ export function ProviderApplicationForm() {
         </FormSection>
 
         <FormSection
-          description="Ana uzmanlığını ve düzenli hizmet verebileceğin ilçeleri belirt."
-          title="Hizmet ve Bölge"
+          activeSection={activeSection}
+          description={t("providerApplication.section.serviceDescription")}
+          id="service"
+          setActiveSection={setActiveSection}
+          title={t("providerApplication.section.service")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerServiceCategory">
-                Hizmet kategorisi
+                {t("providerApplication.serviceCategory")}
               </label>
               <select
                 aria-describedby={
@@ -498,7 +546,7 @@ export function ProviderApplicationForm() {
                 required
                 value={formState.serviceCategory}
               >
-                <option value="">Ana uzmanlığını seç</option>
+                <option value="">{t("providerApplication.servicePlaceholder")}</option>
                 {services.map((service) => (
                   <option key={service.id} value={`${service.category} - ${service.title}`}>
                     {service.category} - {service.title}
@@ -506,14 +554,14 @@ export function ProviderApplicationForm() {
                 ))}
               </select>
               <p className={helperClassName} id="providerServiceCategory-helper">
-                En güçlü hizmetine en yakın kategoriyi seç.
+                {t("providerApplication.serviceHelper")}
               </p>
               <FieldError id="providerServiceCategory-error" message={errors.serviceCategory} />
             </div>
 
             <div>
               <label className={labelClassName} htmlFor="providerServiceArea">
-                İlçe / hizmet bölgesi
+                {t("providerApplication.serviceArea")}
               </label>
               <input
                 aria-describedby={
@@ -525,13 +573,13 @@ export function ProviderApplicationForm() {
                 id="providerServiceArea"
                 name="serviceArea"
                 onChange={(event) => updateField("serviceArea", event.target.value)}
-                placeholder="Örn. Kadıköy, Ataşehir, Üsküdar"
+                placeholder={t("providerApplication.serviceAreaPlaceholder")}
                 required
                 type="text"
                 value={formState.serviceArea}
               />
               <p className={helperClassName} id="providerServiceArea-helper">
-                Düzenli hizmet verebileceğin ilçe veya semtleri yaz.
+                {t("providerApplication.serviceAreaHelper")}
               </p>
               <FieldError id="providerServiceArea-error" message={errors.serviceArea} />
             </div>
@@ -539,13 +587,16 @@ export function ProviderApplicationForm() {
         </FormSection>
 
         <FormSection
-          description="Çalışma düzenini, deneyimini ve müşteriye nasıl hizmet verdiğini netleştir."
-          title="Deneyim ve Açıklama"
+          activeSection={activeSection}
+          description={t("providerApplication.section.experienceDescription")}
+          id="experience"
+          setActiveSection={setActiveSection}
+          title={t("providerApplication.section.experience")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerYearsOfExperience">
-                Deneyim yılı
+                {t("providerApplication.years")}
               </label>
               <input
                 aria-describedby={
@@ -561,13 +612,13 @@ export function ProviderApplicationForm() {
                 min="0"
                 name="yearsOfExperience"
                 onChange={(event) => updateField("yearsOfExperience", event.target.value)}
-                placeholder="Örn. 5"
+                placeholder={t("providerApplication.yearsPlaceholder")}
                 required
                 type="number"
                 value={formState.yearsOfExperience}
               />
               <p className={helperClassName} id="providerYearsOfExperience-helper">
-                Yeni ama eğitimli ve hazırsan 0 yazabilirsin.
+                {t("providerApplication.yearsHelper")}
               </p>
               <FieldError
                 id="providerYearsOfExperience-error"
@@ -577,8 +628,10 @@ export function ProviderApplicationForm() {
 
             <div>
               <label className={labelClassName} htmlFor="providerReferenceLink">
-                Referans veya portfolyo bağlantısı{" "}
-                <span className="font-normal text-[var(--muted)]">(isteğe bağlı)</span>
+                {t("providerApplication.reference")}{" "}
+                <span className="font-normal text-[var(--muted)]">
+                  ({t("providerApplication.optional")})
+                </span>
               </label>
               <input
                 aria-describedby={
@@ -593,19 +646,19 @@ export function ProviderApplicationForm() {
                 inputMode="url"
                 name="referenceLink"
                 onChange={(event) => updateField("referenceLink", event.target.value)}
-                placeholder="instagram.com/isleriniz veya https://portfolyo.com"
+                placeholder={t("providerApplication.referencePlaceholder")}
                 type="url"
                 value={formState.referenceLink}
               />
               <p className={helperClassName} id="providerReferenceLink-helper">
-                İşlerini gösteren web sitesi, sosyal profil veya referans sayfası ekleyebilirsin.
+                {t("providerApplication.referenceHelper")}
               </p>
               <FieldError id="providerReferenceLink-error" message={errors.referenceLink} />
             </div>
           </div>
 
           <div>
-            <span className={labelClassName}>Uygunluk</span>
+            <span className={labelClassName}>{t("providerApplication.availability")}</span>
             <div className="mt-2 grid gap-3 lg:grid-cols-3">
               {availabilityOptions.map((option) => {
                 const isSelected = formState.availability === option.value;
@@ -635,23 +688,23 @@ export function ProviderApplicationForm() {
                       value={option.value}
                     />
                     <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
-                      {option.value}
+                      {t(option.labelKey)}
                     </span>
                     <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">
-                      {option.description}
+                      {t(option.descriptionKey)}
                     </span>
                   </label>
                 );
               })}
             </div>
             <p className={helperClassName} id="providerAvailability-helper">
-              Normal çalışma düzenine en yakın seçeneği seç.
+              {t("providerApplication.availabilityHelper")}
             </p>
             <FieldError id="providerAvailability-error" message={errors.availability} />
           </div>
 
           <div>
-            <span className={labelClassName}>Ekipman durumu</span>
+            <span className={labelClassName}>{t("providerApplication.equipment")}</span>
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
               {equipmentOptions.map((option) => {
                 const isSelected = formState.hasEquipment === option.value;
@@ -681,24 +734,24 @@ export function ProviderApplicationForm() {
                       value={option.value}
                     />
                     <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
-                      {option.value}
+                      {t(option.labelKey)}
                     </span>
                     <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">
-                      {option.description}
+                      {t(option.descriptionKey)}
                     </span>
                   </label>
                 );
               })}
             </div>
             <p className={helperClassName} id="providerHasEquipment-helper">
-              Bu bilgi, müşteri beklentisini en baştan netleştirir.
+              {t("providerApplication.equipmentHelper")}
             </p>
             <FieldError id="providerHasEquipment-error" message={errors.hasEquipment} />
           </div>
 
           <div>
             <label className={labelClassName} htmlFor="providerShortIntroduction">
-              Açıklama
+              {t("providerApplication.description")}
             </label>
             <textarea
               aria-describedby={
@@ -711,25 +764,28 @@ export function ProviderApplicationForm() {
               id="providerShortIntroduction"
               name="shortIntroduction"
               onChange={(event) => updateField("shortIntroduction", event.target.value)}
-              placeholder="Hizmet standardını, uzmanlıklarını, müşteri yaklaşımını ve en iyi yaptığın işleri anlat."
+              placeholder={t("providerApplication.descriptionPlaceholder")}
               required
               value={formState.shortIntroduction}
             />
             <p className={helperClassName} id="providerShortIntroduction-helper">
-              Uzmanlık, çalışma standardı veya hizmet verdiğin müşteri türlerini belirtebilirsin.
+              {t("providerApplication.descriptionHelper")}
             </p>
             <FieldError id="providerShortIntroduction-error" message={errors.shortIntroduction} />
           </div>
         </FormSection>
 
         <FormSection
-          description="Müşterilerin sana ulaşacağı aktif telefon ve WhatsApp bilgilerini paylaş."
-          title="İletişim"
+          activeSection={activeSection}
+          description={t("providerApplication.section.contactDescription")}
+          id="contact"
+          setActiveSection={setActiveSection}
+          title={t("providerApplication.section.contact")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
             <div>
               <label className={labelClassName} htmlFor="providerPhone">
-                Telefon numarası
+                {t("providerApplication.phone")}
               </label>
               <input
                 aria-describedby={errors.phoneNumber ? "providerPhone-error" : "providerPhone-helper"}
@@ -740,20 +796,20 @@ export function ProviderApplicationForm() {
                 inputMode="tel"
                 name="phoneNumber"
                 onChange={(event) => updateField("phoneNumber", event.target.value)}
-                placeholder="+90 5xx xxx xx xx"
+                placeholder={t("providerApplication.phonePlaceholder")}
                 required
                 type="tel"
                 value={formState.phoneNumber}
               />
               <p className={helperClassName} id="providerPhone-helper">
-                Hızlı dönüş için aktif bir numara yaz.
+                {t("providerApplication.phoneHelper")}
               </p>
               <FieldError id="providerPhone-error" message={errors.phoneNumber} />
             </div>
 
             <div>
               <label className={labelClassName} htmlFor="providerWhatsapp">
-                WhatsApp numarası
+                {t("providerApplication.whatsapp")}
               </label>
               <input
                 aria-describedby={
@@ -766,13 +822,13 @@ export function ProviderApplicationForm() {
                 inputMode="tel"
                 name="whatsappNumber"
                 onChange={(event) => updateField("whatsappNumber", event.target.value)}
-                placeholder="+90 5xx xxx xx xx"
+                placeholder={t("providerApplication.phonePlaceholder")}
                 required
                 type="tel"
                 value={formState.whatsappNumber}
               />
               <p className={helperClassName} id="providerWhatsapp-helper">
-                Müşteri yazışmaları için kullandığın aktif WhatsApp numarasını yaz.
+                {t("providerApplication.whatsappHelper")}
               </p>
               <FieldError id="providerWhatsapp-error" message={errors.whatsappNumber} />
             </div>
@@ -781,10 +837,10 @@ export function ProviderApplicationForm() {
 
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.
+            {t("providerApplication.reassurance")}
           </p>
           <Button className="w-full sm:w-fit" disabled={isSubmitting} type="submit">
-            {isSubmitting ? "Başvuru gönderiliyor" : "Başvuruyu Gönder"}
+            {isSubmitting ? t("providerApplication.submitting") : t("providerApplication.submit")}
           </Button>
         </div>
       </form>

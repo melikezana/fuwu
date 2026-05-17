@@ -5,7 +5,7 @@ import {
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
-import { sanitizeText } from "@/lib/validations";
+import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
@@ -646,11 +646,16 @@ async function createProviderFromApplication(
     return createAdminActionResult("provider-create-failed", false);
   }
 
-  const phone = application.phone.trim();
-  const whatsapp = application.whatsapp?.trim() || phone;
+  const phone = sanitizePhone(application.phone);
+  const whatsapp = sanitizePhone(application.whatsapp ?? "") || phone;
   const description =
-    application.description?.trim() ||
-    `${application.full_name} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
+    sanitizeText(application.description ?? "", 1200) ||
+    `${sanitizeText(application.full_name, 120)} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
+  const name = sanitizeText(application.full_name, 120);
+
+  if (!name || !phone) {
+    return createAdminActionResult("provider-create-failed", false);
+  }
 
   const { data: createdProvider, error } = await supabase
     .from("providers")
@@ -661,7 +666,7 @@ async function createProviderFromApplication(
       experience_years: application.experience_years,
       is_active: true,
       is_approved: true,
-      name: application.full_name.trim(),
+      name,
       phone,
       whatsapp,
     })

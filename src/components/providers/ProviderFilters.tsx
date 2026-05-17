@@ -13,6 +13,7 @@ import {
   providerCategories,
   providerDistricts,
 } from "@/lib/constants/providers";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type ProviderFilterValues = {
@@ -77,6 +78,22 @@ function getSelectedPriceValue(price: string | undefined, prices: string[]) {
   return matchingPrice ? getPriceFilterValue(matchingPrice) : price;
 }
 
+function getAvailabilityLabel(value: string, t: ReturnType<typeof useI18n>["t"]) {
+  if (value === "Bugün uygun") {
+    return t("availability.today");
+  }
+
+  if (value === "Yarın uygun") {
+    return t("availability.tomorrow");
+  }
+
+  if (value === "Hafta sonu uygun") {
+    return t("availability.weekend");
+  }
+
+  return value;
+}
+
 export function ProviderFilters({
   values,
   compact = false,
@@ -85,6 +102,7 @@ export function ProviderFilters({
   averagePrices = providerAveragePrices,
   availabilityOptions = providerAvailabilityOptions,
 }: ProviderFiltersProps) {
+  const { t } = useI18n();
   const priceOptions = averagePrices.map((price) => ({
     label: price,
     value: getPriceFilterValue(price),
@@ -100,6 +118,16 @@ export function ProviderFilters({
   );
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(hasAdvancedFilterValue);
   const advancedPanelId = useId();
+  const selectedSelectClassName = (hasValue: boolean) =>
+    cn(
+      selectClassName,
+      hasValue ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)]" : undefined,
+    );
+  const selectedInputClassName = (hasValue: boolean) =>
+    cn(
+      inputClassName,
+      hasValue ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)]" : undefined,
+    );
   const mobileAdvancedClassName = cn(
     "order-4 md:order-none",
     isAdvancedOpen ? "block" : "hidden",
@@ -112,20 +140,24 @@ export function ProviderFilters({
         action={appRoutes.providers}
         className="max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
       >
-        <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(14rem,1.2fr)_minmax(12rem,1fr)_minmax(12rem,1fr)_minmax(9rem,auto)] xl:items-end">
-          <FilterField label="Arama">
+        <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(15rem,1.25fr)_minmax(13rem,1fr)_minmax(13rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
+          <FilterField label={t("filters.search")}>
             <input
-              className={inputClassName}
+              className={selectedInputClassName(Boolean(values?.query))}
               defaultValue={values?.query ?? ""}
               name="q"
-              placeholder="Hizmet veya usta ara"
+              placeholder={t("filters.searchPlaceholder")}
               type="search"
             />
           </FilterField>
 
-          <FilterField label="Hizmet">
-            <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
-              <option value="">Tüm kategoriler</option>
+          <FilterField label={t("filters.service")}>
+            <select
+              className={selectedSelectClassName(Boolean(values?.category))}
+              defaultValue={values?.category ?? ""}
+              name="category"
+            >
+              <option value="">{t("filters.allCategories")}</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -134,9 +166,13 @@ export function ProviderFilters({
             </select>
           </FilterField>
 
-          <FilterField label="İlçe">
-            <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
-              <option value="">Tüm ilçeler</option>
+          <FilterField label={t("filters.district")}>
+            <select
+              className={selectedSelectClassName(Boolean(values?.district))}
+              defaultValue={values?.district ?? ""}
+              name="district"
+            >
+              <option value="">{t("filters.allDistricts")}</option>
               {districts.map((district) => (
                 <option key={district} value={district}>
                   {district}
@@ -146,7 +182,7 @@ export function ProviderFilters({
           </FilterField>
 
           <Button className="h-12 min-h-12 w-full rounded-md px-7" type="submit">
-            Usta Bul
+            {t("cta.findProvider")}
           </Button>
         </div>
       </form>
@@ -161,52 +197,61 @@ export function ProviderFilters({
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="cursor-default select-none">
           <p className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
-            Usta arama filtreleri
+            {t("filters.title")}
           </p>
           <p className="mt-1 hidden text-sm font-semibold text-[var(--muted)] sm:block">
-            Hizmetini ve ilçeni seç; minimum/maksimum fiyat, puan ve uygunluğa göre profilleri daralt.
+            {t("filters.description")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             aria-controls={advancedPanelId}
             aria-expanded={isAdvancedOpen}
-            className="inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-[var(--surface-soft)] px-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
+            className={cn(
+              "inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden",
+              isAdvancedOpen
+                ? "bg-[var(--brand-orange)] text-white"
+                : "bg-[var(--surface-soft)] text-[var(--brand-navy)]",
+            )}
             onClick={() => setIsAdvancedOpen((currentValue) => !currentValue)}
             type="button"
           >
-            Gelişmiş filtreler
+            {t("filters.advanced")}
             <ChevronDown
               aria-hidden="true"
               className={cn("size-4 transition-transform", isAdvancedOpen ? "rotate-180" : "")}
             />
           </button>
           <Link
-            className="inline-flex min-h-10 cursor-pointer select-none items-center rounded-md px-1 text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+            className="inline-flex min-h-10 cursor-pointer select-none items-center rounded-md px-1 text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:px-2 active:text-white"
             href={appRoutes.providers}
           >
-            Filtreleri temizle
+            {t("cta.clearFilters")}
           </Link>
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,1.2fr)_minmax(10rem,1fr)_minmax(8.5rem,0.85fr)_minmax(8.5rem,0.85fr)_minmax(10rem,0.9fr)_minmax(8.75rem,auto)] xl:items-end">
-        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-6")}>
-          <FilterField label="Arama">
+      <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(13rem,1.25fr)_minmax(12rem,1fr)_minmax(9rem,0.85fr)_minmax(9rem,0.85fr)_minmax(10rem,0.9fr)_minmax(8.5rem,auto)] xl:items-end">
+        <div className="hidden md:block md:col-span-2 xl:col-span-6">
+          <FilterField label={t("filters.search")}>
             <input
-              className={inputClassName}
+              className={selectedInputClassName(Boolean(values?.query))}
               defaultValue={values?.query ?? ""}
               name="q"
-              placeholder="Hizmet veya usta ara"
+              placeholder={t("filters.searchPlaceholder")}
               type="search"
             />
           </FilterField>
         </div>
 
         <div className="order-1 md:order-none">
-          <FilterField label="Hizmet">
-            <select className={selectClassName} defaultValue={values?.category ?? ""} name="category">
-              <option value="">Tüm kategoriler</option>
+          <FilterField label={t("filters.service")}>
+            <select
+              className={selectedSelectClassName(Boolean(values?.category))}
+              defaultValue={values?.category ?? ""}
+              name="category"
+            >
+              <option value="">{t("filters.allCategories")}</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -217,9 +262,13 @@ export function ProviderFilters({
         </div>
 
         <div className="order-2 md:order-none">
-          <FilterField label="İlçe">
-            <select className={selectClassName} defaultValue={values?.district ?? ""} name="district">
-              <option value="">Tüm ilçeler</option>
+          <FilterField label={t("filters.district")}>
+            <select
+              className={selectedSelectClassName(Boolean(values?.district))}
+              defaultValue={values?.district ?? ""}
+              name="district"
+            >
+              <option value="">{t("filters.allDistricts")}</option>
               {districts.map((district) => (
                 <option key={district} value={district}>
                   {district}
@@ -229,29 +278,32 @@ export function ProviderFilters({
           </FilterField>
         </div>
 
-        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}>
+        <div
+          className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}
+          id={advancedPanelId}
+        >
           <div className="grid gap-3 sm:grid-cols-2">
-            <FilterField label="Minimum Fiyat">
+            <FilterField label={t("filters.minimumPrice")}>
               <input
-                className={inputClassName}
+                className={selectedInputClassName(Boolean(values?.minimumPrice))}
                 defaultValue={values?.minimumPrice ?? ""}
                 inputMode="numeric"
                 min="0"
                 name="average_price_min"
-                placeholder="Örn. 500"
+                placeholder={t("filters.minimumPricePlaceholder")}
                 step="50"
                 type="number"
               />
             </FilterField>
 
-            <FilterField label="Maksimum Fiyat">
+            <FilterField label={t("filters.maximumPrice")}>
               <input
-                className={inputClassName}
+                className={selectedInputClassName(Boolean(values?.maximumPrice))}
                 defaultValue={values?.maximumPrice ?? ""}
                 inputMode="numeric"
                 min="0"
                 name="average_price_max"
-                placeholder="Örn. 2500"
+                placeholder={t("filters.maximumPricePlaceholder")}
                 step="50"
                 type="number"
               />
@@ -259,13 +311,17 @@ export function ProviderFilters({
           </div>
         </div>
 
-        <div className={mobileAdvancedClassName} id={advancedPanelId}>
-          <FilterField label="Puan">
-            <select className={selectClassName} defaultValue={values?.rating ?? ""} name="rating">
-              <option value="">Tüm puanlar</option>
+        <div className={mobileAdvancedClassName}>
+          <FilterField label={t("filters.rating")}>
+            <select
+              className={selectedSelectClassName(Boolean(values?.rating))}
+              defaultValue={values?.rating ?? ""}
+              name="rating"
+            >
+              <option value="">{t("filters.allRatings")}</option>
               {minimumRatingOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t("filters.ratingAtLeast", { rating: option.value.replace(".", ",") })}
                 </option>
               ))}
             </select>
@@ -279,14 +335,18 @@ export function ProviderFilters({
           )}
           type="submit"
         >
-          Usta Bul
+          {t("cta.findProvider")}
         </Button>
 
         {priceOptions.length > 0 ? (
-          <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}>
-            <FilterField label="Hazır fiyat aralığı">
-              <select className={selectClassName} defaultValue={selectedPriceValue} name="price">
-                <option value="">Tüm fiyatlar</option>
+          <div className="hidden md:block md:col-span-2 xl:col-span-2">
+            <FilterField label={t("filters.pricePreset")}>
+              <select
+                className={selectedSelectClassName(Boolean(selectedPriceValue))}
+                defaultValue={selectedPriceValue}
+                name="price"
+              >
+                <option value="">{t("filters.allPrices")}</option>
                 {priceOptions.map((price) => (
                   <option key={price.label} value={price.value}>
                     {price.label}
@@ -297,17 +357,17 @@ export function ProviderFilters({
           </div>
         ) : null}
 
-        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-4")}>
-          <FilterField label="Uygunluk">
+        <div className="hidden md:block md:col-span-2 xl:col-span-4">
+          <FilterField label={t("filters.availability")}>
             <select
-              className={selectClassName}
+              className={selectedSelectClassName(Boolean(values?.availability))}
               defaultValue={values?.availability ?? ""}
               name="availability"
             >
-              <option value="">Tüm uygunluklar</option>
+              <option value="">{t("filters.allAvailability")}</option>
               {availabilityOptions.map((availability) => (
                 <option key={availability} value={availability}>
-                  {availability}
+                  {getAvailabilityLabel(availability, t)}
                 </option>
               ))}
             </select>
