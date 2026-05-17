@@ -6,10 +6,12 @@ import {
   NotFoundError,
   ValidationError,
 } from "@/lib/errors";
+import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { notifyServiceRequestCreated } from "@/services/notifications";
+import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   ServiceRequestInput,
   ServiceRequestSubmitResult,
@@ -150,7 +152,7 @@ async function buildServiceRequestInsert(
     preferred_date: data.preferredDate.trim() || null,
     preferred_time: parsePreferredTime(data.preferredTimeRange),
     description: createRequestDescription(data),
-    status: "open",
+    status: SERVICE_REQUEST_STATUSES.yeni,
   };
 }
 
@@ -241,7 +243,10 @@ export async function submitServiceRequest(
     requestId: typeof record?.id === "string" ? record.id : null,
   });
 
-  return {
+  const submitResult: ServiceRequestSubmitResult = {
     requestCode,
   };
+  const response = createServiceSuccess(submitResult);
+
+  return response.data ?? submitResult;
 }

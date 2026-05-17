@@ -3,13 +3,25 @@ import {
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+import {
+  PROVIDER_APPLICATION_STATUSES,
+  SERVICE_REQUEST_STATUSES,
+  SERVICE_REQUEST_STATUS_VALUES,
+  normalizeServiceRequestStatus,
+  type ProviderApplicationStatus,
+  type ServiceRequestStatus,
+} from "@/lib/constants/statuses";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, Json } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
 } from "@/services/notifications";
+import {
+  createServiceFailure,
+  createServiceSuccess,
+} from "@/services/serviceResponse";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
@@ -233,6 +245,7 @@ export type AdminProviderApplicationActionCode =
   | "application-already-approved"
   | "application-already-rejected"
   | "application-approved-provider-created"
+  | "application-approved-provider-exists"
   | "application-missing-id"
   | "application-not-found"
   | "application-rejected"
@@ -244,12 +257,7 @@ export type AdminProviderApplicationActionResult = {
   ok: boolean;
 };
 
-export type AdminServiceRequestStatus =
-  | "cancelled"
-  | "completed"
-  | "in_progress"
-  | "matched"
-  | "open";
+export type AdminServiceRequestStatus = ServiceRequestStatus;
 
 export type AdminServiceRequestActionCode =
   | "admin-not-authorized"
@@ -265,13 +273,8 @@ export type AdminServiceRequestActionResult = {
   ok: boolean;
 };
 
-const adminServiceRequestStatuses: AdminServiceRequestStatus[] = [
-  "open",
-  "in_progress",
-  "matched",
-  "completed",
-  "cancelled",
-];
+const adminServiceRequestStatuses: AdminServiceRequestStatus[] =
+  SERVICE_REQUEST_STATUS_VALUES;
 
 const emptyDashboardSummary: AdminDashboardSummary = {
   activeProviders: 0,
@@ -421,6 +424,34 @@ function warnAdminAccessError(context: string, error: unknown) {
   });
 }
 
+async function insertAuditLog({
+  action,
+  actorUserId,
+  entityId,
+  entityType,
+  metadata = {},
+  supabase,
+}: {
+  action: string;
+  actorUserId: string;
+  entityId: string | null;
+  entityType: string;
+  metadata?: Json;
+  supabase: AdminSupabaseClient;
+}) {
+  const { error } = await supabase.from("audit_logs").insert({
+    action,
+    actor_user_id: actorUserId,
+    entity_id: entityId,
+    entity_type: entityType,
+    metadata,
+  });
+
+  if (error) {
+    warnAdminWriteError("audit log insert", error);
+  }
+}
+
 function createAdminActionResult(
   code: AdminProviderApplicationActionCode,
   ok: boolean,
@@ -454,7 +485,9 @@ function createProviderStatusActionResult(
 function isAdminServiceRequestStatus(
   status: string,
 ): status is AdminServiceRequestStatus {
-  return adminServiceRequestStatuses.includes(status as AdminServiceRequestStatus);
+  return adminServiceRequestStatuses.includes(
+    status as AdminServiceRequestStatus,
+  );
 }
 
 function isAdminProviderStatusAction(
@@ -467,10 +500,14 @@ function createEmptyReadResult<T>(
   error: string | null = null,
   isConfigured = isSupabaseServerConfigured,
 ): AdminReadResult<T> {
+  const response = error
+    ? createServiceFailure<T[]>(error)
+    : createServiceSuccess<T[]>([]);
+
   return {
-    error,
+    error: response.error,
     isConfigured,
-    rows: [],
+    rows: response.data ?? [],
   };
 }
 
@@ -584,11 +621,11 @@ async function getSupabaseForAdminWrite() {
 }
 
 function createApplicationStatusConflictResult(status: string) {
-  if (status === "approved") {
+  if (status === PROVIDER_APPLICATION_STATUSES.approved) {
     return createAdminActionResult("application-already-approved", false);
   }
 
-  if (status === "rejected") {
+  if (status === PROVIDER_APPLICATION_STATUSES.rejected) {
     return createAdminActionResult("application-already-rejected", false);
   }
 
@@ -598,13 +635,13 @@ function createApplicationStatusConflictResult(status: string) {
 async function updatePendingProviderApplicationStatus(
   supabase: AdminSupabaseClient,
   applicationId: string,
-  status: "approved" | "rejected",
+  status: Exclude<ProviderApplicationStatus, "pending">,
 ) {
   const { data, error } = await supabase
     .from("provider_applications")
     .update({ status })
     .eq("id", applicationId)
-    .eq("status", "pending")
+    .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
     .select("id")
     .maybeSingle();
 
@@ -618,7 +655,9 @@ async function updatePendingProviderApplicationStatus(
   }
 
   return createAdminActionResult(
-    status === "approved" ? "application-approved-provider-created" : "application-rejected",
+    status === PROVIDER_APPLICATION_STATUSES.approved
+      ? "application-approved-provider-created"
+      : "application-rejected",
     true,
   );
 }
@@ -629,9 +668,9 @@ async function rollbackProviderApplicationStatus(
 ) {
   const { error } = await supabase
     .from("provider_applications")
-    .update({ status: "pending" })
+    .update({ status: PROVIDER_APPLICATION_STATUSES.pending })
     .eq("id", applicationId)
-    .eq("status", "approved");
+    .eq("status", PROVIDER_APPLICATION_STATUSES.approved);
 
   if (error) {
     warnAdminWriteError("provider application approval rollback", error);
@@ -655,6 +694,27 @@ async function createProviderFromApplication(
 
   if (!name || !phone) {
     return createAdminActionResult("provider-create-failed", false);
+  }
+
+  const { data: existingProvider, error: existingProviderError } = await supabase
+    .from("providers")
+    .select("id")
+    .eq("phone", phone)
+    .eq("category_id", application.category_id)
+    .eq("district_id", application.district_id)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingProviderError) {
+    warnAdminWriteError("provider duplicate lookup", existingProviderError);
+    return createAdminActionResult("provider-create-failed", false);
+  }
+
+  if (existingProvider?.id) {
+    return {
+      ...createAdminActionResult("application-approved-provider-exists", true),
+      providerId: existingProvider.id,
+    };
   }
 
   const { data: createdProvider, error } = await supabase
@@ -716,12 +776,12 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
     supabase
       .from("provider_applications")
       .select("id", { count: "exact", head: true })
-      .eq("status", "pending"),
+      .eq("status", PROVIDER_APPLICATION_STATUSES.pending),
     supabase.from("service_requests").select("id", { count: "exact", head: true }),
     supabase
       .from("service_requests")
       .select("id", { count: "exact", head: true })
-      .eq("status", "open"),
+      .or(`status.eq.${SERVICE_REQUEST_STATUSES.yeni},status.eq.open`),
   ]);
 
   const results = [
@@ -801,14 +861,14 @@ export async function approveAdminProviderApplication(
 
   const application = data as AdminProviderApplicationApprovalRecord;
 
-  if (application.status !== "pending") {
+  if (application.status !== PROVIDER_APPLICATION_STATUSES.pending) {
     return createApplicationStatusConflictResult(application.status);
   }
 
   const statusResult = await updatePendingProviderApplicationStatus(
     supabase,
     normalizedApplicationId,
-    "approved",
+    PROVIDER_APPLICATION_STATUSES.approved,
   );
 
   if (!statusResult.ok) {
@@ -828,6 +888,18 @@ export async function approveAdminProviderApplication(
   await notifyProviderApplicationApproved({
     applicationId: normalizedApplicationId,
     providerId: providerResult.providerId,
+  });
+
+  await insertAuditLog({
+    action: "provider_application.approved",
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedApplicationId,
+    entityType: "provider_application",
+    metadata: {
+      providerId: providerResult.providerId ?? null,
+      resultCode: providerResult.code,
+    },
+    supabase,
   });
 
   return providerResult;
@@ -871,14 +943,14 @@ export async function rejectAdminProviderApplication(
 
   const application = data as AdminProviderApplicationRejectionRecord;
 
-  if (application.status !== "pending") {
+  if (application.status !== PROVIDER_APPLICATION_STATUSES.pending) {
     return createApplicationStatusConflictResult(application.status);
   }
 
   const statusResult = await updatePendingProviderApplicationStatus(
     supabase,
     normalizedApplicationId,
-    "rejected",
+    PROVIDER_APPLICATION_STATUSES.rejected,
   );
 
   if (!statusResult.ok) {
@@ -889,6 +961,17 @@ export async function rejectAdminProviderApplication(
     applicationId: normalizedApplicationId,
   });
 
+  await insertAuditLog({
+    action: "provider_application.rejected",
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedApplicationId,
+    entityType: "provider_application",
+    metadata: {
+      resultCode: statusResult.code,
+    },
+    supabase,
+  });
+
   return statusResult;
 }
 
@@ -897,13 +980,13 @@ export async function updateAdminServiceRequestStatus(
   status: string,
 ): Promise<AdminServiceRequestActionResult> {
   const normalizedRequestId = sanitizeText(requestId, 80);
-  const normalizedStatus = sanitizeText(status, 40);
+  const normalizedStatus = normalizeServiceRequestStatus(sanitizeText(status, 40));
 
   if (!normalizedRequestId) {
     return createServiceRequestActionResult("service-request-missing-id", false);
   }
 
-  if (!isAdminServiceRequestStatus(normalizedStatus)) {
+  if (!normalizedStatus || !isAdminServiceRequestStatus(normalizedStatus)) {
     return createServiceRequestActionResult("service-request-invalid-status", false);
   }
 
@@ -918,6 +1001,25 @@ export async function updateAdminServiceRequestStatus(
       false,
     );
   }
+
+  const { data: existingRequest, error: lookupError } = await supabase
+    .from("service_requests")
+    .select("id, status")
+    .eq("id", normalizedRequestId)
+    .maybeSingle();
+
+  if (lookupError) {
+    warnAdminWriteError("service request lookup", lookupError);
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
+  if (!existingRequest) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  const previousStatus =
+    normalizeServiceRequestStatus(String(existingRequest.status)) ??
+    String(existingRequest.status);
 
   const { data, error } = await supabase
     .from("service_requests")
@@ -934,6 +1036,18 @@ export async function updateAdminServiceRequestStatus(
   if (!data) {
     return createServiceRequestActionResult("service-request-not-found", false);
   }
+
+  await insertAuditLog({
+    action: "service_request.status_changed",
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedRequestId,
+    entityType: "service_request",
+    metadata: {
+      previousStatus,
+      status: normalizedStatus,
+    },
+    supabase,
+  });
 
   return createServiceRequestActionResult("service-request-updated", true);
 }
@@ -1000,7 +1114,27 @@ export async function updateAdminProviderStatus(
     unpublish: "provider-unpublished",
   };
 
-  return createProviderStatusActionResult(successCodeByAction[normalizedAction], true);
+  const result = createProviderStatusActionResult(
+    successCodeByAction[normalizedAction],
+    true,
+  );
+
+  await insertAuditLog({
+    action:
+      normalizedAction === "approve"
+        ? "provider.approved"
+        : `provider.${normalizedAction}`,
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedProviderId,
+    entityType: "provider",
+    metadata: {
+      action: normalizedAction,
+      updatePayload,
+    },
+    supabase,
+  });
+
+  return result;
 }
 
 export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider>> {
@@ -1087,7 +1221,7 @@ export async function getAdminProviderApplications(): Promise<
         districts(name)
       `,
     )
-    .eq("status", "pending")
+    .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
     .order("created_at", { ascending: false });
 
   if (error) {

@@ -3,7 +3,8 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
-import { handleServiceError, ValidationError } from "@/lib/errors";
+import { handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
+import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import {
@@ -29,7 +30,6 @@ type LookupRecord = {
 
 type ProviderApplicationInsert =
   Database["public"]["Tables"]["provider_applications"]["Insert"];
-
 const demoApplicationCodePrefix = "DEMO";
 
 function createProviderApplicationClient(): SupabaseClient<Database> | null {
@@ -128,6 +128,18 @@ async function buildProviderApplicationInsert(
     findLookupId(supabase, "districts", primaryServiceArea),
   ]);
 
+  if (!categoryId) {
+    throw new NotFoundError("Provider application category lookup failed.", {
+      publicMessage: "Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.",
+    });
+  }
+
+  if (!districtId) {
+    throw new NotFoundError("Provider application district lookup failed.", {
+      publicMessage: "Seçtiğin hizmet bölgesi şu anda desteklenen bölgeler arasında bulunamadı.",
+    });
+  }
+
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
     phone: data.phoneNumber.trim(),
@@ -140,7 +152,7 @@ async function buildProviderApplicationInsert(
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.shortIntroduction.trim(),
     portfolio_url: normalizeOptionalText(data.referenceLink),
-    status: "pending",
+    status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 
   if (profileImageUpload.status === "uploaded") {

@@ -163,7 +163,7 @@ Important fields:
 | `category_id` | Requested primary service category. |
 | `district_id` | Requested main service district. |
 | `experience_summary` | Applicant experience details. |
-| `status` | Example values: `pending`, `in_review`, `approved`, `rejected`, `withdrawn`. |
+| `status` | Canonical values: `pending`, `approved`, `rejected`. |
 | `reviewed_by_profile_id` | Admin profile that reviewed the application. |
 | `review_notes` | Internal admin notes. |
 | `submitted_at` | Submission timestamp. |
@@ -199,7 +199,7 @@ Important fields:
 | `preferred_time_window` | Optional time preference. |
 | `budget_min` | Optional minimum budget. |
 | `budget_max` | Optional maximum budget. |
-| `status` | Example values: `open`, `matched`, `in_progress`, `completed`, `cancelled`. |
+| `status` | Canonical values: `yeni`, `inceleniyor`, `ustaya_yonlendirildi`, `tamamlandi`, `iptal`. |
 | `assigned_provider_id` | Optional reference to the selected provider. |
 | `created_at` | Record creation timestamp. |
 | `updated_at` | Last request update timestamp. |
@@ -208,7 +208,7 @@ Notes:
 
 - Request creation requires Supabase Auth.
 - Customers should manage only their own requests.
-- Providers should only access relevant public, matched, or assigned requests after RLS policies are defined.
+- Providers should only access relevant new, routed, or assigned requests after RLS policies are defined.
 
 ### `districts`
 
@@ -293,7 +293,7 @@ Notes:
 2. If there is no Supabase session, the user is sent to login.
 3. After login, the request form submits service details.
 4. Backend logic creates a `service_requests` record tied to `customer_profile_id`.
-5. The request starts with a safe initial status such as `open`.
+5. The request starts with the safe initial status `yeni`.
 
 ### Provider applies
 

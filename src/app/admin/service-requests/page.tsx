@@ -20,6 +20,11 @@ import {
   type AdminServiceRequest,
   type AdminServiceRequestStatus,
 } from "@/services/admin";
+import {
+  SERVICE_REQUEST_STATUS_LABELS,
+  SERVICE_REQUEST_STATUSES,
+  normalizeServiceRequestStatus,
+} from "@/lib/constants/statuses";
 
 export const dynamic = "force-dynamic";
 
@@ -85,11 +90,31 @@ const requestStatusActions: Array<{
   status: AdminServiceRequestStatus;
   tone: "approve" | "neutral" | "reject";
 }> = [
-  { label: "Yeni", status: "open", tone: "neutral" },
-  { label: "İnceleniyor", status: "in_progress", tone: "neutral" },
-  { label: "Ustaya Yönlendirildi", status: "matched", tone: "neutral" },
-  { label: "Tamamlandı", status: "completed", tone: "approve" },
-  { label: "İptal", status: "cancelled", tone: "reject" },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.yeni,
+    status: SERVICE_REQUEST_STATUSES.yeni,
+    tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.inceleniyor,
+    status: SERVICE_REQUEST_STATUSES.inceleniyor,
+    tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.ustaya_yonlendirildi,
+    status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.tamamlandi,
+    status: SERVICE_REQUEST_STATUSES.tamamlandi,
+    tone: "approve",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.iptal,
+    status: SERVICE_REQUEST_STATUSES.iptal,
+    tone: "reject",
+  },
 ];
 
 function getFormRequestId(formData: FormData) {
@@ -181,6 +206,25 @@ function getUrgencyView(urgency: string) {
 }
 
 function getRequestStatusView(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+  const normalizedStatusTones: Record<
+    AdminServiceRequestStatus,
+    "green" | "neutral" | "orange" | "red"
+  > = {
+    [SERVICE_REQUEST_STATUSES.yeni]: "orange",
+    [SERVICE_REQUEST_STATUSES.inceleniyor]: "orange",
+    [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "neutral",
+    [SERVICE_REQUEST_STATUSES.tamamlandi]: "green",
+    [SERVICE_REQUEST_STATUSES.iptal]: "red",
+  };
+
+  if (normalizedStatus) {
+    return {
+      label: SERVICE_REQUEST_STATUS_LABELS[normalizedStatus],
+      tone: normalizedStatusTones[normalizedStatus],
+    };
+  }
+
   const statuses: Record<
     string,
     { label: string; tone: "green" | "neutral" | "orange" | "red" }
@@ -248,9 +292,9 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
       {requestStatusActions.map((action) => {
         const isCurrentStatus = request.status === action.status;
         const Icon =
-          action.status === "completed"
+          action.status === SERVICE_REQUEST_STATUSES.tamamlandi
             ? adminActionIcons.approve
-            : action.status === "cancelled"
+            : action.status === SERVICE_REQUEST_STATUSES.iptal
               ? adminActionIcons.reject
               : adminActionIcons.status;
 

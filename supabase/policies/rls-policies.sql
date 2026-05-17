@@ -258,11 +258,11 @@ for insert
 to authenticated
 with check (
   user_id = auth.uid()
-  and status = 'open'
+  and status = 'yeni'
 );
 
 comment on policy service_requests_insert_authenticated_own on public.service_requests is
-  'Authenticated users can create service requests only for themselves and only in the initial open state.';
+  'Authenticated users can create service requests only for themselves and only in the initial yeni state.';
 
 drop policy if exists service_requests_select_own on public.service_requests;
 create policy service_requests_select_own

@@ -63,6 +63,11 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     title: "Başvuru zaten reddedildi",
     tone: "error",
   },
+  "application-approved-provider-exists": {
+    body: "Başvuru onaylandı; aynı telefon, kategori ve ilçe için mevcut usta kaydı bulunduğu için ikinci bir kayıt oluşturulmadı.",
+    title: "Mevcut usta kaydı korundu",
+    tone: "success",
+  },
   "application-approved-provider-created": {
     body: "Başvuru onaylandı ve başvuru bilgileriyle yeni, aktif ve onaylı bir usta kaydı oluşturuldu.",
     title: "Başvuru onaylandı",

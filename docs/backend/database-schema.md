@@ -121,7 +121,7 @@ This is one of the central workflow tables in Fuwu. It should capture what the c
 | `preferred_time_window` | `text` | No | Example: `morning`, `afternoon`, `evening`, or custom text. |
 | `budget_min` | `numeric` | No | Optional minimum budget. |
 | `budget_max` | `numeric` | No | Optional maximum budget. |
-| `status` | `text` | Yes | Example values: `draft`, `open`, `matched`, `in_progress`, `completed`, `cancelled`. |
+| `status` | `text` | Yes | Canonical values: `yeni`, `inceleniyor`, `ustaya_yonlendirildi`, `tamamlandi`, `iptal`. |
 | `assigned_provider_id` | `uuid` | No | References `providers.id` once a provider is selected. |
 | `created_at` | `timestamptz` | Yes | Defaults to current timestamp. |
 | `updated_at` | `timestamptz` | Yes | Updated when request data changes. |
@@ -135,7 +135,7 @@ This is one of the central workflow tables in Fuwu. It should capture what the c
 #### Future Notes
 
 - Add Row Level Security so customers can manage their own requests.
-- Providers should only see requests that are open, relevant, or assigned to them.
+- Providers should only see requests that are new, relevant, or assigned to them.
 - Validate `status` with a check constraint or PostgreSQL enum.
 - Add indexes on `customer_id`, `category_id`, `status`, and `assigned_provider_id`.
 - Consider a separate offers or bids table if multiple providers can respond to one request.
@@ -198,7 +198,7 @@ This table keeps provider approval separate from provider profiles, which makes 
 | `experience_summary` | `text` | Yes | Applicant's description of their experience. |
 | `service_area` | `text` | No | Area where the applicant wants to provide services. |
 | `phone` | `text` | No | Optional contact number for application review. |
-| `status` | `text` | Yes | Example values: `pending`, `in_review`, `approved`, `rejected`, `withdrawn`. |
+| `status` | `text` | Yes | Canonical values: `pending`, `approved`, `rejected`. |
 | `reviewed_by_user_id` | `uuid` | No | References `users.id` for the admin who reviewed it. |
 | `review_notes` | `text` | No | Internal notes from the review process. |
 | `submitted_at` | `timestamptz` | Yes | Defaults to current timestamp. |

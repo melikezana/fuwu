@@ -68,6 +68,8 @@ export type ProviderApplicationSubmitMode = "live" | "demo";
 
 export type ProviderApplicationProfileImageStatus = "uploaded" | "skipped";
 
+export type { ProviderApplicationStatus } from "@/lib/constants/statuses";
+
 export type ProviderApplicationSubmitResult = {
   applicationCode: string;
   mode: ProviderApplicationSubmitMode;

@@ -11,6 +11,7 @@ import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
+import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   Provider,
   ProviderDataSource,
@@ -767,16 +768,24 @@ async function readProviders(filters: ProviderFilters = {}): Promise<ProviderRea
   const supabaseProviders = await fetchProvidersFromSupabase(filters);
 
   if (supabaseProviders !== null) {
-    return {
+    const response = createServiceSuccess<ProviderReadResult>({
+      providers: supabaseProviders,
+      source: "supabase",
+    });
+
+    return response.data ?? {
       providers: supabaseProviders,
       source: "supabase",
     };
   }
 
-  return {
+  const fallbackResult: ProviderReadResult = {
     providers: applyProviderFilters(mockProviders, filters),
     source: "fallback",
   };
+  const response = createServiceSuccess(fallbackResult);
+
+  return response.data ?? fallbackResult;
 }
 
 export async function getProviderDirectory(

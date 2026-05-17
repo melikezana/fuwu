@@ -14,4 +14,6 @@ export type ServiceRequestSubmitResult = {
   requestCode: string;
 };
 
+export type { ServiceRequestStatus } from "@/lib/constants/statuses";
+
 export type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";

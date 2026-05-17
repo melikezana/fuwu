@@ -182,8 +182,8 @@ export type Database = {
           full_name: string;
           phone: string;
           whatsapp: string;
-          category_id: string | null;
-          district_id: string | null;
+          category_id: string;
+          district_id: string;
           experience_years: number;
           description: string;
           availability: string | null;
@@ -192,7 +192,7 @@ export type Database = {
           portfolio_url: string | null;
           profile_image_path: string | null;
           profile_image_url: string | null;
-          status: string;
+          status: "pending" | "approved" | "rejected";
           created_at: string;
           updated_at: string;
         };
@@ -201,8 +201,8 @@ export type Database = {
           full_name: string;
           phone: string;
           whatsapp: string;
-          category_id?: string | null;
-          district_id?: string | null;
+          category_id: string;
+          district_id: string;
           experience_years?: number;
           description: string;
           availability?: string | null;
@@ -211,7 +211,7 @@ export type Database = {
           portfolio_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
-          status?: string;
+          status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
         };
@@ -220,8 +220,8 @@ export type Database = {
           full_name?: string;
           phone?: string;
           whatsapp?: string;
-          category_id?: string | null;
-          district_id?: string | null;
+          category_id?: string;
+          district_id?: string;
           experience_years?: number;
           description?: string;
           availability?: string | null;
@@ -230,7 +230,7 @@ export type Database = {
           portfolio_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
-          status?: string;
+          status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
         };
@@ -262,7 +262,12 @@ export type Database = {
           preferred_date: string | null;
           preferred_time: string | null;
           description: string | null;
-          status: string;
+          status:
+            | "yeni"
+            | "inceleniyor"
+            | "ustaya_yonlendirildi"
+            | "tamamlandi"
+            | "iptal";
           created_at: string;
           updated_at: string;
         };
@@ -276,7 +281,12 @@ export type Database = {
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
-          status?: string;
+          status?:
+            | "yeni"
+            | "inceleniyor"
+            | "ustaya_yonlendirildi"
+            | "tamamlandi"
+            | "iptal";
           created_at?: string;
           updated_at?: string;
         };
@@ -290,7 +300,12 @@ export type Database = {
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
-          status?: string;
+          status?:
+            | "yeni"
+            | "inceleniyor"
+            | "ustaya_yonlendirildi"
+            | "tamamlandi"
+            | "iptal";
           created_at?: string;
           updated_at?: string;
         };
@@ -326,6 +341,7 @@ export type Database = {
           rating: number;
           comment: string | null;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -334,6 +350,7 @@ export type Database = {
           rating: number;
           comment?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -342,6 +359,7 @@ export type Database = {
           rating?: number;
           comment?: string | null;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -354,6 +372,44 @@ export type Database = {
           {
             foreignKeyName: "reviews_user_id_fkey";
             columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      audit_logs: {
+        Row: {
+          id: string;
+          actor_user_id: string | null;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id?: string | null;
+          action: string;
+          entity_type: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          actor_user_id?: string | null;
+          action?: string;
+          entity_type?: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_actor_user_id_fkey";
+            columns: ["actor_user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];

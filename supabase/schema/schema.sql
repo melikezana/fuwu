@@ -23,7 +23,11 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default timezone('utc', now()),
 
   constraint profiles_role_check
-    check (role in ('customer', 'provider', 'admin'))
+    check (role in ('customer', 'provider', 'admin')),
+  constraint profiles_full_name_not_blank_check
+    check (full_name is null or btrim(full_name) <> ''),
+  constraint profiles_phone_not_blank_check
+    check (phone is null or btrim(phone) <> '')
 );
 
 comment on table public.profiles is
@@ -39,7 +43,11 @@ create table if not exists public.service_categories (
   updated_at timestamptz not null default timezone('utc', now()),
 
   constraint service_categories_name_unique unique (name),
-  constraint service_categories_slug_unique unique (slug)
+  constraint service_categories_slug_unique unique (slug),
+  constraint service_categories_name_not_blank_check
+    check (btrim(name) <> ''),
+  constraint service_categories_slug_not_blank_check
+    check (btrim(slug) <> '')
 );
 
 comment on table public.service_categories is
@@ -55,7 +63,13 @@ create table if not exists public.districts (
   updated_at timestamptz not null default timezone('utc', now()),
 
   constraint districts_city_name_unique unique (city, name),
-  constraint districts_slug_unique unique (slug)
+  constraint districts_slug_unique unique (slug),
+  constraint districts_name_not_blank_check
+    check (btrim(name) <> ''),
+  constraint districts_slug_not_blank_check
+    check (btrim(slug) <> ''),
+  constraint districts_city_not_blank_check
+    check (btrim(city) <> '')
 );
 
 comment on table public.districts is
@@ -92,7 +106,11 @@ create table if not exists public.providers (
       or average_price_max >= average_price_min
     ),
   constraint providers_rating_check
-    check (rating >= 0 and rating <= 5)
+    check (rating >= 0 and rating <= 5),
+  constraint providers_name_not_blank_check
+    check (btrim(name) <> ''),
+  constraint providers_phone_not_blank_check
+    check (btrim(phone) <> '')
 );
 
 comment on table public.providers is
@@ -103,8 +121,8 @@ create table if not exists public.provider_applications (
   full_name text not null,
   phone text not null,
   whatsapp text not null,
-  category_id uuid references public.service_categories(id) on delete set null,
-  district_id uuid references public.districts(id) on delete set null,
+  category_id uuid not null references public.service_categories(id) on delete restrict,
+  district_id uuid not null references public.districts(id) on delete restrict,
   experience_years integer not null default 0,
   description text not null,
   availability text,
@@ -120,7 +138,15 @@ create table if not exists public.provider_applications (
   constraint provider_applications_experience_years_check
     check (experience_years >= 0),
   constraint provider_applications_status_check
-    check (status in ('pending', 'approved', 'rejected'))
+    check (status in ('pending', 'approved', 'rejected')),
+  constraint provider_applications_full_name_not_blank_check
+    check (btrim(full_name) <> ''),
+  constraint provider_applications_phone_not_blank_check
+    check (btrim(phone) <> ''),
+  constraint provider_applications_whatsapp_not_blank_check
+    check (btrim(whatsapp) <> ''),
+  constraint provider_applications_description_not_blank_check
+    check (btrim(description) <> '')
 );
 
 comment on table public.provider_applications is
@@ -136,14 +162,16 @@ create table if not exists public.service_requests (
   preferred_date date,
   preferred_time time,
   description text,
-  status text not null default 'open',
+  status text not null default 'yeni',
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
 
   constraint service_requests_urgency_check
     check (urgency in ('low', 'normal', 'high', 'urgent')),
   constraint service_requests_status_check
-    check (status in ('open', 'matched', 'in_progress', 'completed', 'cancelled'))
+    check (status in ('yeni', 'inceleniyor', 'ustaya_yonlendirildi', 'tamamlandi', 'iptal')),
+  constraint service_requests_address_not_blank_check
+    check (btrim(address) <> '')
 );
 
 comment on table public.service_requests is
@@ -156,6 +184,7 @@ create table if not exists public.reviews (
   rating smallint not null,
   comment text,
   created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
 
   constraint reviews_rating_check
     check (rating between 1 and 5),
@@ -304,6 +333,16 @@ begin
   ) then
     create trigger service_requests_set_updated_at
       before update on public.service_requests
+      for each row execute function public.set_updated_at();
+  end if;
+
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'reviews_set_updated_at'
+      and tgrelid = 'public.reviews'::regclass
+  ) then
+    create trigger reviews_set_updated_at
+      before update on public.reviews
       for each row execute function public.set_updated_at();
   end if;
 end;
