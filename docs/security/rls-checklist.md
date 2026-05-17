@@ -12,6 +12,7 @@ This checklist captures the production RLS expectations for Fuwu Supabase tables
 
 - Authenticated users can insert their own `service_requests` only with `user_id = auth.uid()` and initial status `yeni`.
 - Provider applicants can insert `provider_applications` only in `pending` status.
+- Provider owners can read their own `providers` row for `/provider-dashboard`; public visibility still requires approved and active status.
 - Authenticated users can update their own profile details, but cannot self-promote by changing `role`.
 - Review writes should stay tied to `user_id = auth.uid()` and approved active providers.
 

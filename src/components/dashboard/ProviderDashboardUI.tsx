@@ -15,8 +15,6 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
 type ProviderDashboardNavKey = "overview" | "profile" | "requests";
@@ -27,41 +25,6 @@ type ProviderDashboardShellProps = {
   description: string;
   providerName?: string;
   title: string;
-};
-
-type ProviderDashboardRecord = Pick<
-  Database["public"]["Tables"]["providers"]["Row"],
-  | "id"
-  | "name"
-  | "phone"
-  | "whatsapp"
-  | "description"
-  | "average_price_min"
-  | "average_price_max"
-  | "rating"
-  | "is_active"
-  | "is_approved"
-> & {
-  districts: ProviderRelation | ProviderRelation[] | null;
-  service_categories: ProviderRelation | ProviderRelation[] | null;
-};
-
-type ProviderRelation = {
-  name: string | null;
-};
-
-export type ProviderDashboardProfile = {
-  averagePriceRange: string;
-  category: string;
-  description: string;
-  district: string;
-  id: string;
-  isActive: boolean;
-  isApproved: boolean;
-  name: string;
-  phone: string;
-  rating: number;
-  whatsapp: string;
 };
 
 type SummaryCardProps = {
@@ -76,21 +39,6 @@ type ProfileFieldProps = {
   label: string;
   value: string;
 };
-
-const providerSelectQuery = `
-  id,
-  name,
-  phone,
-  whatsapp,
-  description,
-  average_price_min,
-  average_price_max,
-  rating,
-  is_active,
-  is_approved,
-  service_categories(name),
-  districts(name)
-`;
 
 const providerNavItems: Array<{
   href: string;
@@ -118,55 +66,6 @@ const providerNavItems: Array<{
   },
 ];
 
-function getRelationName(relation: ProviderRelation | ProviderRelation[] | null | undefined) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.name?.trim() ?? "";
-  }
-
-  return relation?.name?.trim() ?? "";
-}
-
-function parsePrice(value: number | string | null) {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : null;
-  }
-
-  if (typeof value === "string") {
-    const parsedValue = Number(value);
-    return Number.isFinite(parsedValue) ? parsedValue : null;
-  }
-
-  return null;
-}
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("tr-TR", {
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatAveragePriceRange(
-  minimumPriceValue: number | string | null,
-  maximumPriceValue: number | string | null,
-) {
-  const minimumPrice = parsePrice(minimumPriceValue);
-  const maximumPrice = parsePrice(maximumPriceValue);
-
-  if (typeof minimumPrice === "number" && typeof maximumPrice === "number") {
-    return `${formatPrice(minimumPrice)} - ${formatPrice(maximumPrice)} TL`;
-  }
-
-  if (typeof minimumPrice === "number") {
-    return `${formatPrice(minimumPrice)} TL ve üzeri`;
-  }
-
-  if (typeof maximumPrice === "number") {
-    return `${formatPrice(maximumPrice)} TL'ye kadar`;
-  }
-
-  return "Fiyat görüşmede netleşir";
-}
-
 export function formatProviderRating(rating: number) {
   return Number.isFinite(rating)
     ? rating.toLocaleString("tr-TR", {
@@ -174,67 +73,6 @@ export function formatProviderRating(rating: number) {
         minimumFractionDigits: 1,
       })
     : "0,0";
-}
-
-function mapProviderDashboardRecord(
-  record: ProviderDashboardRecord,
-): ProviderDashboardProfile | null {
-  const category = getRelationName(record.service_categories);
-  const district = getRelationName(record.districts);
-
-  if (!category || !district) {
-    return null;
-  }
-
-  return {
-    averagePriceRange: formatAveragePriceRange(
-      record.average_price_min,
-      record.average_price_max,
-    ),
-    category,
-    description:
-      record.description?.trim() ||
-      "Profil açıklaması Fuwu operasyon ekibi tarafından tamamlanacak.",
-    district,
-    id: record.id,
-    isActive: record.is_active,
-    isApproved: record.is_approved,
-    name: record.name,
-    phone: record.phone,
-    rating: Number(record.rating ?? 0),
-    whatsapp: record.whatsapp?.trim() || record.phone,
-  };
-}
-
-export async function getProviderDashboardProfile() {
-  const supabase = await createSupabaseServerClient();
-
-  if (!supabase) {
-    return null;
-  }
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user?.id) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from("providers")
-    .select(providerSelectQuery)
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .eq("is_approved", true)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return mapProviderDashboardRecord(data as unknown as ProviderDashboardRecord);
 }
 
 export function ProviderDashboardShell({
@@ -297,7 +135,11 @@ export function ProviderDashboardShell({
   );
 }
 
-export function ProviderDashboardAccessPlaceholder() {
+export function ProviderDashboardAccessPlaceholder({
+  message = "Onaylı usta hesabı bağlandığında bu alan açılacak.",
+}: {
+  message?: string;
+}) {
   return (
     <section className="rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-6 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-8">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -311,6 +153,12 @@ export function ProviderDashboardAccessPlaceholder() {
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
             Onaylı usta hesabı bağlandığında profil bilgileri, görünürlük durumu ve gelen talepler
             bu alandan yönetilecek.
+          </p>
+          <p
+            className="mt-4 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-black leading-6 text-[var(--brand-navy)]"
+            role="alert"
+          >
+            {message}
           </p>
         </div>
 

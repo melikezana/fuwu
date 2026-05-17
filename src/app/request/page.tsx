@@ -6,10 +6,9 @@ import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { RequestForm } from "@/components/request/RequestForm";
 import { appRoutes } from "@/lib/constants/navigation";
-import {
-  createSupabaseServerClient,
-  isSupabaseServerConfigured,
-} from "@/lib/supabase/server";
+import { isSupabaseServerConfigured } from "@/lib/supabase/server";
+import { authAccessMessages } from "@/services/auth/constants";
+import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
 export const metadata: Metadata = {
   title: "Talep Oluştur | Fuwu",
@@ -19,34 +18,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-async function getAuthenticatedUserId() {
-  const supabase = await createSupabaseServerClient();
-
-  if (!supabase) {
-    return null;
-  }
-
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session?.user.id) {
-    return null;
-  }
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error) {
-    return null;
-  }
-
-  return user?.id ?? null;
-}
-
 function LoginRequiredState() {
   return (
     <Card className="min-w-0">
@@ -55,7 +26,7 @@ function LoginRequiredState() {
           Giriş gerekli
         </p>
         <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)]">
-          Hizmet talebi oluşturmak için giriş yapmalısın.
+          {authAccessMessages.loginRequired}
         </h2>
         <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
           Usta profillerini giriş yapmadan inceleyebilirsin. Ancak hizmet talebi oluşturmak için
@@ -82,7 +53,7 @@ function LoginRequiredState() {
 }
 
 export default async function RequestPage() {
-  const authenticatedUserId = await getAuthenticatedUserId();
+  const authenticatedUserId = await getAuthenticatedServerUserId();
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">

@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   formatProviderRating,
-  getProviderDashboardProfile,
   ProviderDashboardAccessPlaceholder,
   providerDashboardIcons,
   ProviderDashboardShell,
   ProviderSummaryCard,
 } from "@/components/dashboard/ProviderDashboardUI";
+import {
+  getProviderDashboardAccess,
+  type ProviderDashboardProfile,
+} from "@/services/providers/dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
 function ProviderDashboardSummary({
   provider,
 }: {
-  provider: NonNullable<Awaited<ReturnType<typeof getProviderDashboardProfile>>>;
+  provider: ProviderDashboardProfile;
 }) {
   const cards = [
     {
@@ -74,18 +77,18 @@ function ProviderDashboardSummary({
 }
 
 export default async function ProviderDashboardPage() {
-  const provider = await getProviderDashboardProfile();
+  const providerAccess = await getProviderDashboardAccess();
 
   return (
     <ProviderDashboardShell
       active="overview"
       description="Profil görünürlüğünü, temel durumları ve gelen talep alanını tek ekranda takip et."
-      providerName={provider?.name}
+      providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       title="Usta Paneli"
     >
-      {provider ? (
+      {providerAccess.ok ? (
         <div className="grid gap-6">
-          <ProviderDashboardSummary provider={provider} />
+          <ProviderDashboardSummary provider={providerAccess.profile} />
 
           <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -102,7 +105,7 @@ export default async function ProviderDashboardPage() {
           </section>
         </div>
       ) : (
-        <ProviderDashboardAccessPlaceholder />
+        <ProviderDashboardAccessPlaceholder message={providerAccess.message} />
       )}
     </ProviderDashboardShell>
   );

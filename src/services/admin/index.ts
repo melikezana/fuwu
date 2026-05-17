@@ -1,7 +1,3 @@
-import {
-  createSupabaseServerClient,
-  isSupabaseServerConfigured,
-} from "@/lib/supabase/server";
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
@@ -22,6 +18,8 @@ import {
   createServiceFailure,
   createServiceSuccess,
 } from "@/services/serviceResponse";
+import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
+import { getServerAuthContext } from "@/services/auth/server";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
@@ -31,10 +29,8 @@ type ServiceRequestRow =
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 type AdminSupabaseClient = SupabaseClient<Database>;
 
-const ADMIN_ROLE = "admin";
-const adminMissingSessionMessage =
-  "Admin paneline erişmek için giriş yapmalısın.";
-const adminNotAuthorizedMessage = "Bu alana erişim yetkin yok.";
+const adminMissingSessionMessage = authAccessMessages.loginRequired;
+const adminNotAuthorizedMessage = authAccessMessages.accessDenied;
 
 type NamedRelation = {
   name: string | null;
@@ -417,13 +413,6 @@ function warnAdminWriteError(context: string, error: unknown) {
   });
 }
 
-function warnAdminAccessError(context: string, error: unknown) {
-  handleServiceError(error, {
-    logContext: `Admin access ${context} failed.`,
-    publicMessage: adminNotAuthorizedMessage,
-  });
-}
-
 async function insertAuditLog({
   action,
   actorUserId,
@@ -498,7 +487,7 @@ function isAdminProviderStatusAction(
 
 function createEmptyReadResult<T>(
   error: string | null = null,
-  isConfigured = isSupabaseServerConfigured,
+  isConfigured = true,
 ): AdminReadResult<T> {
   const response = error
     ? createServiceFailure<T[]>(error)
@@ -511,64 +500,13 @@ function createEmptyReadResult<T>(
   };
 }
 
-async function getAdminAccessForClient(
-  supabase: AdminSupabaseClient,
-): Promise<AdminAccessResult> {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    warnAdminAccessError("user lookup", userError);
-  }
-
-  if (!user) {
-    return {
-      isConfigured: isSupabaseServerConfigured,
-      message: adminMissingSessionMessage,
-      ok: false,
-      reason: "missing-session",
-    };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, full_name, phone, role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profileError) {
-    warnAdminAccessError("profile role lookup", profileError);
-  }
-
-  const adminProfile = profile as AdminProfile | null;
-
-  if (adminProfile?.role === ADMIN_ROLE) {
-    return {
-      isConfigured: true,
-      ok: true,
-      profile: adminProfile,
-      role: ADMIN_ROLE,
-      userId: user.id,
-    };
-  }
-
-  return {
-    isConfigured: true,
-    message: adminNotAuthorizedMessage,
-    ok: false,
-    reason: "not-admin",
-    role: adminProfile?.role ?? null,
-    userId: user.id,
-  };
-}
-
 async function getAdminSupabaseAccess(): Promise<AdminSupabaseAccess> {
-  if (!isSupabaseServerConfigured) {
+  const authContext = await getServerAuthContext();
+
+  if (!authContext.supabase) {
     return {
       access: {
-        isConfigured: false,
+        isConfigured: authContext.isConfigured,
         message: adminMissingSessionMessage,
         ok: false,
         reason: "missing-session",
@@ -577,12 +515,10 @@ async function getAdminSupabaseAccess(): Promise<AdminSupabaseAccess> {
     };
   }
 
-  const supabase = await createSupabaseServerClient();
-
-  if (!supabase) {
+  if (!authContext.user) {
     return {
       access: {
-        isConfigured: false,
+        isConfigured: authContext.isConfigured,
         message: adminMissingSessionMessage,
         ok: false,
         reason: "missing-session",
@@ -591,18 +527,29 @@ async function getAdminSupabaseAccess(): Promise<AdminSupabaseAccess> {
     };
   }
 
-  const access = await getAdminAccessForClient(supabase);
-
-  if (!access.ok) {
+  if (hasAdminRole(authContext.profile)) {
     return {
-      access,
-      supabase: null,
+      access: {
+        isConfigured: true,
+        ok: true,
+        profile: authContext.profile as AdminProfile,
+        role: "admin",
+        userId: authContext.user.id,
+      },
+      supabase: authContext.supabase,
     };
   }
 
   return {
-    access,
-    supabase,
+    access: {
+      isConfigured: true,
+      message: adminNotAuthorizedMessage,
+      ok: false,
+      reason: "not-admin",
+      role: authContext.profile?.role ?? null,
+      userId: authContext.user.id,
+    },
+    supabase: null,
   };
 }
 

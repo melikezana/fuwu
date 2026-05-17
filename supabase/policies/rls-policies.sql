@@ -173,6 +173,16 @@ using (public.current_user_is_admin());
 comment on policy providers_select_admin_all on public.providers is
   'Admins can read all provider records, including inactive or pending rows, from admin tooling.';
 
+drop policy if exists providers_select_own_profile on public.providers;
+create policy providers_select_own_profile
+on public.providers
+for select
+to authenticated
+using (user_id = auth.uid());
+
+comment on policy providers_select_own_profile on public.providers is
+  'Provider owners can read their own provider profile for the provider dashboard, including non-public review states.';
+
 drop policy if exists providers_insert_admin on public.providers;
 create policy providers_insert_admin
 on public.providers

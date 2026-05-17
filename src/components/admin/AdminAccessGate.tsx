@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Home, LockKeyhole, LogIn, ShieldAlert } from "lucide-react";
 import { appRoutes } from "@/lib/constants/navigation";
+import { authAccessMessages } from "@/services/auth/constants";
 import type { AdminAccessResult } from "@/types/admin";
 
 type AdminAccessGateProps = {
@@ -35,8 +36,7 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
               Admin paneline erişim
             </h1>
             <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-              Bu alan yalnızca Fuwu operasyon ekibindeki admin rolüne sahip
-              hesaplar içindir.
+              {authAccessMessages.adminRequired}
             </p>
           </div>
         </div>

@@ -1,22 +1,33 @@
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getSafeRedirectPath } from "@/lib/security";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { Database } from "@/lib/supabase/types";
 import { validateLoginEmailInput } from "@/lib/validations";
-import type { CurrentUserProfile, ProfileRole } from "@/types/auth";
+import type { CurrentUserProfile } from "@/types/auth";
+import { authAccessMessages } from "./constants";
 
 export type { CurrentUserProfile, ProfileRole } from "@/types/auth";
-
-export const adminProfileRole: ProfileRole = "admin";
+export {
+  adminProfileRole,
+  authAccessMessages,
+  hasAdminRole,
+  hasProviderRole,
+  hasRole,
+  profileRoles,
+  providerProfileRole,
+} from "./constants";
 
 const authUnavailableMessage =
   "Giriş sistemi şu anda kullanılamıyor. Ustaları giriş yapmadan inceleyebilirsin.";
 
+type AuthSupabaseClient = SupabaseClient<Database>;
+
 function warnAuthError(message: string, error: unknown) {
   handleServiceError(error, {
     logContext: message,
-    publicMessage: "Giriş bilgileri şu anda doğrulanamadı.",
+    publicMessage: authAccessMessages.profileUnavailable,
   });
 }
 
@@ -31,6 +42,22 @@ function getAuthClient() {
   }
 
   return supabase;
+}
+
+async function getCurrentUserForClient(
+  supabase: AuthSupabaseClient,
+): Promise<User | null> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    warnAuthError("Supabase current user check failed.", error);
+    return null;
+  }
+
+  return user;
 }
 
 function sanitizeAuthRedirectUrl(redirectTo: string) {
@@ -72,17 +99,7 @@ export async function getCurrentUser(): Promise<User | null> {
     return null;
   }
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error) {
-    warnAuthError("Supabase current user check failed.", error);
-    return null;
-  }
-
-  return user;
+  return getCurrentUserForClient(supabase);
 }
 
 export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null> {
@@ -92,15 +109,7 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
     return null;
   }
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    warnAuthError("Supabase current user check failed.", userError);
-    return null;
-  }
+  const user = await getCurrentUserForClient(supabase);
 
   if (!user) {
     return null;
@@ -118,12 +127,6 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
   }
 
   return data as CurrentUserProfile | null;
-}
-
-export function hasAdminRole(
-  profile: Pick<CurrentUserProfile, "role"> | null | undefined,
-) {
-  return profile?.role === adminProfileRole;
 }
 
 export async function signInWithEmailMagicLink(email: string, redirectTo: string) {

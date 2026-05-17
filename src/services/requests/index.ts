@@ -10,6 +10,7 @@ import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
+import { authAccessMessages, getCurrentUser } from "@/services/auth";
 import { notifyServiceRequestCreated } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
@@ -33,7 +34,7 @@ export type {
 } from "@/types/request";
 
 export const serviceRequestLoginRequiredMessage =
-  "Hizmet talebi oluşturmak için giriş yapmalısın.";
+  authAccessMessages.loginRequired;
 
 export const serviceRequestSubmitErrorMessage =
   "Talebin şu anda gönderilemedi. Lütfen bilgilerini kontrol edip tekrar dene.";
@@ -183,39 +184,9 @@ export async function submitServiceRequest(
     });
   }
 
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
+  const user = await getCurrentUser();
 
-  if (sessionError) {
-    warnServiceRequestError("Service request session check failed.", sessionError);
-    throw new AuthError("Service request session check failed.", {
-      cause: sessionError,
-      publicMessage: serviceRequestLoginRequiredMessage,
-    });
-  }
-
-  if (!session?.user.id) {
-    throw new AuthError("Service request session is missing.", {
-      publicMessage: serviceRequestLoginRequiredMessage,
-    });
-  }
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError) {
-    warnServiceRequestError("Service request user check failed.", authError);
-    throw new AuthError("Service request user check failed.", {
-      cause: authError,
-      publicMessage: serviceRequestLoginRequiredMessage,
-    });
-  }
-
-  if (!user || user.id !== authenticatedUserId || user.id !== session.user.id) {
+  if (!user || user.id !== authenticatedUserId) {
     throw new AuthError("Service request authenticated user mismatch.", {
       publicMessage: serviceRequestLoginRequiredMessage,
     });

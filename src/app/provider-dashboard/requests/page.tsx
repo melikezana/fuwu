@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import {
-  getProviderDashboardProfile,
   ProviderDashboardAccessPlaceholder,
   ProviderDashboardShell,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -22,16 +22,16 @@ const requestPlaceholders: Array<{
 }> = [];
 
 export default async function ProviderDashboardRequestsPage() {
-  const provider = await getProviderDashboardProfile();
+  const providerAccess = await getProviderDashboardAccess();
 
   return (
     <ProviderDashboardShell
       active="requests"
       description="Usta hesabına bağlanacak gelen talepler için hazırlanan sade takip alanı."
-      providerName={provider?.name}
+      providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       title="Gelen Talepler"
     >
-      {provider ? (
+      {providerAccess.ok ? (
         <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
           <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="cursor-default select-none">
@@ -72,7 +72,7 @@ export default async function ProviderDashboardRequestsPage() {
           </div>
         </section>
       ) : (
-        <ProviderDashboardAccessPlaceholder />
+        <ProviderDashboardAccessPlaceholder message={providerAccess.message} />
       )}
     </ProviderDashboardShell>
   );
