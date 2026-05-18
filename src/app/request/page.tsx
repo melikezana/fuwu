@@ -11,7 +11,7 @@ import { authAccessMessages } from "@/services/auth/constants";
 import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
 export const metadata: Metadata = {
-  title: "Talep Oluştur | Fuwu",
+  title: "Talep Oluştur",
   description:
     "Fuwu hizmet talebi oluşturma akışı giriş yapan kullanıcılar için güvenli şekilde hazırlanır.",
 };

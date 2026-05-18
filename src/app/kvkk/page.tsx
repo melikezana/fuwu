@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "KVKK Aydınlatma Metni | Fuwu",
+  title: "KVKK Aydınlatma Metni",
   description:
     "Fuwu kullanıcıları ve usta başvuru sahipleri için KVKK kapsamında bilgilendirme metni.",
 };

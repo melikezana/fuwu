@@ -241,7 +241,7 @@ export function ProviderStatusBadge({
 
 export function ProviderRequestsEmptyState() {
   return (
-    <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[linear-gradient(180deg,#ffffff_0%,#fffaf3_100%)] p-8 text-center">
+    <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[linear-gradient(180deg,#ffffff_0%,#fffaf3_100%)] p-8 text-center" role="status">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
         <Inbox className="h-6 w-6" aria-hidden />
       </div>
@@ -249,8 +249,11 @@ export function ProviderRequestsEmptyState() {
         Henüz gelen talep bulunmuyor.
       </h2>
       <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
-        Müşteri talepleri usta hesabına bağlandığında burada sırayla görünecek.
+        Müşteri talepleri usta hesabına bağlandığında burada sırayla görünecek. Bu sırada profil bilgilerini ve uygunluk durumunu güncel tutabilirsin.
       </p>
+      <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providerDashboardProfile} variant="secondary">
+        Profilini kontrol et
+      </Button>
     </div>
   );
 }

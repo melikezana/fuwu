@@ -10,6 +10,7 @@ import { getPublicErrorMessage } from "@/lib/errors";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { validateProviderApplicationInput } from "@/lib/validations";
+import { trackProviderApplicationSubmitted } from "@/services/analytics";
 import {
   isProviderApplicationDemoMode,
   submitProviderApplication,
@@ -299,6 +300,11 @@ export function ProviderApplicationForm() {
       const submitResult = await submitProviderApplication({
         ...normalizedApplication,
         profileImage: profileImageFile,
+      });
+      trackProviderApplicationSubmitted({
+        category: normalizedApplication.serviceCategory,
+        mode: submitResult.mode,
+        serviceArea: normalizedApplication.serviceArea,
       });
       setSubmittedApplication(submitResult);
       setFormState(initialFormState);
@@ -666,7 +672,7 @@ export function ProviderApplicationForm() {
                 return (
                   <label
                     className={cn(
-                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
+                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
                         ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",
@@ -712,7 +718,7 @@ export function ProviderApplicationForm() {
                 return (
                   <label
                     className={cn(
-                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
+                      "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
                         ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",

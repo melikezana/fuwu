@@ -1,4 +1,9 @@
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+import {
+  isProviderAvailabilityStatus,
+  normalizeProviderAvailabilityStatus,
+  type ProviderAvailabilityStatus,
+} from "@/lib/constants/statuses";
 import type { Database } from "@/lib/supabase/types";
 import { authAccessMessages, hasProviderRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -16,6 +21,7 @@ type ProviderDashboardRecord = Pick<
   | "is_active"
   | "is_approved"
 > & {
+  availability?: string | null;
   districts: ProviderRelation | ProviderRelation[] | null;
   service_categories: ProviderRelation | ProviderRelation[] | null;
 };
@@ -26,6 +32,7 @@ type ProviderRelation = {
 
 export type ProviderDashboardProfile = {
   averagePriceRange: string;
+  availability: ProviderAvailabilityStatus;
   category: string;
   description: string;
   district: string;
@@ -59,7 +66,37 @@ export type ProviderDashboardAccessResult =
   | ProviderDashboardAccessAllowed
   | ProviderDashboardAccessDenied;
 
+export type ProviderAvailabilityActionCode =
+  | "availability-invalid"
+  | "availability-missing-profile"
+  | "availability-schema-missing"
+  | "availability-update-failed"
+  | "availability-updated"
+  | "provider-not-authorized"
+  | "supabase-not-configured";
+
+export type ProviderAvailabilityActionResult = {
+  code: ProviderAvailabilityActionCode;
+  ok: boolean;
+};
+
 const providerSelectQuery = `
+  id,
+  name,
+  phone,
+  whatsapp,
+  description,
+  average_price_min,
+  average_price_max,
+  rating,
+  availability,
+  is_active,
+  is_approved,
+  service_categories(name),
+  districts(name)
+`;
+
+const providerSelectQueryWithoutAvailability = `
   id,
   name,
   phone,
@@ -140,6 +177,7 @@ function mapProviderDashboardRecord(
       record.average_price_min,
       record.average_price_max,
     ),
+    availability: normalizeProviderAvailabilityStatus(record.availability),
     category,
     description:
       record.description?.trim() ||
@@ -153,6 +191,20 @@ function mapProviderDashboardRecord(
     rating: Number(record.rating ?? 0),
     whatsapp: record.whatsapp?.trim() || record.phone,
   };
+}
+
+function isMissingAvailabilityColumn(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; details?: unknown; message?: unknown };
+  const errorText = [record.code, record.details, record.message]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("availability") && errorText.includes("column");
 }
 
 function getProviderDashboardReadError(error: unknown) {
@@ -187,11 +239,22 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  const { data, error } = await authContext.supabase
+  let { data, error } = await authContext.supabase
     .from("providers")
     .select(providerSelectQuery)
     .eq("user_id", authContext.user.id)
     .maybeSingle();
+
+  if (error && isMissingAvailabilityColumn(error)) {
+    const fallbackResult = await authContext.supabase
+      .from("providers")
+      .select(providerSelectQueryWithoutAvailability)
+      .eq("user_id", authContext.user.id)
+      .maybeSingle();
+
+    data = fallbackResult.data as typeof data;
+    error = fallbackResult.error;
+  }
 
   if (error) {
     return {
@@ -232,4 +295,60 @@ export async function getProviderDashboardProfile() {
   const access = await getProviderDashboardAccess();
 
   return access.ok ? access.profile : null;
+}
+
+function createAvailabilityActionResult(
+  code: ProviderAvailabilityActionCode,
+  ok: boolean,
+): ProviderAvailabilityActionResult {
+  return {
+    code,
+    ok,
+  };
+}
+
+export async function updateProviderDashboardAvailability(
+  availability: string,
+): Promise<ProviderAvailabilityActionResult> {
+  const normalizedAvailability = availability.trim().toLocaleLowerCase("tr");
+
+  if (!isProviderAvailabilityStatus(normalizedAvailability)) {
+    return createAvailabilityActionResult("availability-invalid", false);
+  }
+
+  const authContext = await getServerAuthContext();
+
+  if (!authContext.supabase) {
+    return createAvailabilityActionResult("supabase-not-configured", false);
+  }
+
+  if (!authContext.user || !hasProviderRole(authContext.profile)) {
+    return createAvailabilityActionResult("provider-not-authorized", false);
+  }
+
+  const { data, error } = await authContext.supabase
+    .from("providers")
+    .update({ availability: normalizedAvailability })
+    .eq("user_id", authContext.user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingAvailabilityColumn(error)) {
+      return createAvailabilityActionResult("availability-schema-missing", false);
+    }
+
+    handleServiceError(error, {
+      logContext: "Provider availability update failed.",
+      publicMessage: "Uygunluk durumu şu anda güncellenemedi.",
+    });
+
+    return createAvailabilityActionResult("availability-update-failed", false);
+  }
+
+  if (!data) {
+    return createAvailabilityActionResult("availability-missing-profile", false);
+  }
+
+  return createAvailabilityActionResult("availability-updated", true);
 }

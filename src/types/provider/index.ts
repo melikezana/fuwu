@@ -1,3 +1,5 @@
+import type { ProviderAvailabilityStatus } from "@/lib/constants/statuses";
+
 export type Provider = {
   id: string;
   name: string;
@@ -7,8 +9,9 @@ export type Provider = {
   experience: string;
   averagePrice: string;
   phone: string;
+  profileImageUrl?: string;
   whatsapp: string;
-  availability: string;
+  availability: ProviderAvailabilityStatus;
   description: string;
   shortDescription: string;
   serviceAreas: string[];

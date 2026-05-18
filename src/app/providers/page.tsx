@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { VoiceCommandButton } from "@/components/accessibility/VoiceCommandButton";
+import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/lib/constants/navigation";
 import { services } from "@/lib/constants/services";
+import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 import {
   createPageMetadata,
@@ -184,7 +185,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   });
   const { allProviders, filterOptions, providers: filteredProviders, source } = providerDirectory;
   const todayActiveCount = allProviders.filter(
-    (provider) => provider.availability === "Bugün uygun",
+    (provider) => provider.availability === PROVIDER_AVAILABILITY_STATUSES.musait,
   ).length;
   const todayActiveHref = appRoutes.providers;
   const heroBadges: Array<{ labelKey: TranslationKey; href: string }> = [
@@ -288,7 +289,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               rating: selectedRating,
             }}
           />
-          <VoiceCommandButton
+          <LazyVoiceCommandButton
             categories={filterOptions.categories}
             districts={filterOptions.districts}
             providers={filteredProviders}

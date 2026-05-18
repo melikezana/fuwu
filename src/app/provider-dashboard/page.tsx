@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { appRoutes } from "@/lib/constants/navigation";
+import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import {
   formatProviderRating,
   ProviderDashboardAccessPlaceholder,
@@ -15,7 +16,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Usta Paneli | Fuwu",
+  title: "Usta Paneli",
   description: "Fuwu onaylı ustaları için profil ve talep yönetimi temeli.",
 };
 
@@ -45,6 +46,13 @@ function ProviderDashboardSummary({
       value: provider.isActive && provider.isApproved ? "Yayında" : "Kapalı",
     },
     {
+      description: "Public kartlarda gösterilen güncel çalışma kapasiten.",
+      href: appRoutes.providerDashboardProfile,
+      icon: providerDashboardIcons.eye,
+      label: "Uygunluk Durumu",
+      value: getProviderAvailabilityLabel(provider.availability),
+    },
+    {
       description: "Talep eşleşmesi altyapısı hazırlanıyor.",
       href: appRoutes.providerDashboardRequests,
       icon: providerDashboardIcons.inbox,
@@ -61,7 +69,7 @@ function ProviderDashboardSummary({
   ];
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {cards.map((card) => (
         <ProviderSummaryCard
           description={card.description}

@@ -7,7 +7,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Giriş | Fuwu",
+  title: "Giriş",
   description:
     "Fuwu giriş sistemi Supabase ile şifresiz e-posta ve Google akışlarını destekler; ustalar girişsiz incelenebilir.",
 };

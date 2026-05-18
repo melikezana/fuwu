@@ -13,6 +13,7 @@ type ProviderListProps = {
 };
 
 export function ProviderList({
+  hasActiveFilters = false,
   providers,
   totalCount,
 }: ProviderListProps) {
@@ -35,7 +36,7 @@ export function ProviderList({
           <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
             {resultHeading}
           </h2>
-          <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
+          <p aria-live="polite" className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
             {t("providers.list.description", { count: totalCount })}
           </p>
         </div>
@@ -52,6 +53,9 @@ export function ProviderList({
         </div>
       ) : (
         <div className="mt-6 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-lg font-black text-[var(--brand-orange-dark)]">
+            0
+          </div>
           <p className="text-xl font-bold text-[var(--brand-navy)]">
             {hasNoPublicProviders
               ? t("providers.empty.noPublicTitle")
@@ -62,14 +66,19 @@ export function ProviderList({
               ? t("providers.empty.noPublicDescription")
               : t("providers.empty.noMatchesDescription")}
           </p>
-          {hasNoPublicProviders ? null : (
+          {!hasNoPublicProviders && hasActiveFilters ? (
             <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
               <Button href={appRoutes.providers}>{t("cta.clearFilters")}</Button>
               <Button href={appRoutes.providerApplication} variant="secondary">
                 {t("cta.provider")}
               </Button>
             </div>
-          )}
+          ) : null}
+          {hasNoPublicProviders ? (
+            <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button href={appRoutes.providerApplication}>{t("cta.provider")}</Button>
+            </div>
+          ) : null}
         </div>
       )}
     </section>

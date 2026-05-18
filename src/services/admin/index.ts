@@ -1,9 +1,11 @@
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
+  normalizeProviderAvailabilityStatus,
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_VALUES,
   normalizeServiceRequestStatus,
+  type ProviderAvailabilityStatus,
   type ProviderApplicationStatus,
   type ServiceRequestStatus,
 } from "@/lib/constants/statuses";
@@ -91,6 +93,7 @@ type AdminProviderRecord = Pick<
   | "rating"
   | "whatsapp"
 > & {
+  availability?: string | null;
   districts: MaybeRelation;
   service_categories: MaybeRelation;
 };
@@ -155,6 +158,7 @@ type AdminProviderApplicationProviderActionResult =
 
 export type AdminProvider = {
   averagePriceRange: string;
+  availability: ProviderAvailabilityStatus;
   category: string;
   district: string;
   id: string;
@@ -411,6 +415,20 @@ function warnAdminWriteError(context: string, error: unknown) {
     logContext: `Admin Supabase ${context} failed.`,
     publicMessage: "Admin işlemi şu anda tamamlanamadı.",
   });
+}
+
+function isMissingAvailabilityColumn(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; details?: unknown; message?: unknown };
+  const errorText = [record.code, record.details, record.message]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("availability") && errorText.includes("column");
 }
 
 async function insertAuditLog({
@@ -1095,10 +1113,21 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
     );
   }
 
-  const { data, error } = await supabase
-    .from("providers")
-    .select(
-      `
+  const providerSelectQuery = `
+        id,
+        name,
+        phone,
+        whatsapp,
+        average_price_min,
+        average_price_max,
+        rating,
+        availability,
+        is_active,
+        is_approved,
+        service_categories(name),
+        districts(name)
+      `;
+  const providerSelectQueryWithoutAvailability = `
         id,
         name,
         phone,
@@ -1110,9 +1139,22 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
         is_approved,
         service_categories(name),
         districts(name)
-      `,
-    )
+      `;
+
+  let { data, error } = await supabase
+    .from("providers")
+    .select(providerSelectQuery)
     .order("created_at", { ascending: false });
+
+  if (error && isMissingAvailabilityColumn(error)) {
+    const fallbackResult = await supabase
+      .from("providers")
+      .select(providerSelectQueryWithoutAvailability)
+      .order("created_at", { ascending: false });
+
+    data = fallbackResult.data as typeof data;
+    error = fallbackResult.error;
+  }
 
   if (error) {
     return createEmptyReadResult(getAdminReadError(error));
@@ -1129,6 +1171,7 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
       category: getRelationName(provider.service_categories),
       district: getRelationName(provider.districts),
       id: provider.id,
+      availability: normalizeProviderAvailabilityStatus(provider.availability),
       isActive: provider.is_active,
       isApproved: provider.is_approved,
       name: provider.name,

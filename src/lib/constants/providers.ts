@@ -1,8 +1,14 @@
 import type { Provider } from "@/types/provider";
+import {
+  PROVIDER_AVAILABILITY_STATUS_LABELS,
+  PROVIDER_AVAILABILITY_STATUS_VALUES,
+  type ProviderAvailabilityStatus,
+} from "@/lib/constants/statuses";
 import { services } from "./services";
 
 export type { Provider };
 
+// Keep this intentionally empty: public provider fallback must not show demo providers as live supply.
 export const providers: Provider[] = [];
 
 export const providerCategories = services
@@ -57,11 +63,7 @@ export const providerDistricts = [...istanbulDistricts].sort((firstDistrict, sec
 
 export const providerAveragePrices: string[] = [];
 
-export const providerAvailabilityOptions = [
-  "Bugün uygun",
-  "Yarın uygun",
-  "Hafta sonu uygun",
-];
+export const providerAvailabilityOptions = [...PROVIDER_AVAILABILITY_STATUS_VALUES];
 
 export const minimumRatingOptions = [
   { label: "4,9 ve üzeri", value: "4.9" },
@@ -88,9 +90,25 @@ export function getProviderPhoneHref(provider: Provider) {
   return `tel:${provider.phone.replace(/[^\d+]/g, "")}`;
 }
 
+export function getProviderAvailabilityLabel(availability: ProviderAvailabilityStatus) {
+  return PROVIDER_AVAILABILITY_STATUS_LABELS[availability];
+}
+
+export function getProviderAvailabilityTone(availability: ProviderAvailabilityStatus) {
+  if (availability === "müsait") {
+    return "green";
+  }
+
+  if (availability === "yoğun") {
+    return "orange";
+  }
+
+  return "neutral";
+}
+
 export function getProviderWhatsAppHref(provider: Provider) {
   const message = encodeURIComponent(
-    `Merhaba ${provider.name}, Fuwu profilinizi gördüm. ${provider.category} hizmeti için bilgi almak istiyorum.`,
+    `Merhaba, Fuwu üzerinden ulaşıyorum. ${provider.district} için ${provider.category} hizmeti almak istiyorum.`,
   );
 
   return `https://wa.me/${provider.whatsapp}?text=${message}`;

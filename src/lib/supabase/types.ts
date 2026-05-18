@@ -111,6 +111,7 @@ export type Database = {
           average_price_min: number | null;
           average_price_max: number | null;
           rating: number;
+          availability: string;
           is_active: boolean;
           is_approved: boolean;
           created_at: string;
@@ -129,6 +130,7 @@ export type Database = {
           average_price_min?: number | null;
           average_price_max?: number | null;
           rating?: number;
+          availability?: string;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;
@@ -147,6 +149,7 @@ export type Database = {
           average_price_min?: number | null;
           average_price_max?: number | null;
           rating?: number;
+          availability?: string;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;

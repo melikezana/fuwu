@@ -47,6 +47,48 @@ export function normalizeServiceRequestStatus(
   return LEGACY_SERVICE_REQUEST_STATUS_MAP[normalizedStatus] ?? null;
 }
 
+export const PROVIDER_AVAILABILITY_STATUSES = {
+  musait: "müsait",
+  yogun: "yoğun",
+  cevrimdisi: "çevrimdışı",
+} as const;
+
+export type ProviderAvailabilityStatus =
+  (typeof PROVIDER_AVAILABILITY_STATUSES)[keyof typeof PROVIDER_AVAILABILITY_STATUSES];
+
+export const PROVIDER_AVAILABILITY_STATUS_VALUES = Object.values(
+  PROVIDER_AVAILABILITY_STATUSES,
+) as ProviderAvailabilityStatus[];
+
+export const PROVIDER_AVAILABILITY_STATUS_LABELS: Record<
+  ProviderAvailabilityStatus,
+  string
+> = {
+  [PROVIDER_AVAILABILITY_STATUSES.musait]: "Müsait",
+  [PROVIDER_AVAILABILITY_STATUSES.yogun]: "Yoğun",
+  [PROVIDER_AVAILABILITY_STATUSES.cevrimdisi]: "Çevrimdışı",
+};
+
+export function isProviderAvailabilityStatus(
+  status: string,
+): status is ProviderAvailabilityStatus {
+  return PROVIDER_AVAILABILITY_STATUS_VALUES.includes(
+    status as ProviderAvailabilityStatus,
+  );
+}
+
+export function normalizeProviderAvailabilityStatus(
+  status: string | null | undefined,
+): ProviderAvailabilityStatus {
+  const normalizedStatus = status?.trim().toLocaleLowerCase("tr") ?? "";
+
+  if (isProviderAvailabilityStatus(normalizedStatus)) {
+    return normalizedStatus;
+  }
+
+  return PROVIDER_AVAILABILITY_STATUSES.musait;
+}
+
 export const PROVIDER_APPLICATION_STATUSES = {
   pending: "pending",
   approved: "approved",

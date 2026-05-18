@@ -82,10 +82,6 @@ export function Navbar() {
   }, [mobileNavigationLinks, pathname]);
 
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!isMenuOpen) {
       return;
     }

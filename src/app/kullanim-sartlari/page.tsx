@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Kullanım Şartları | Fuwu",
+  title: "Kullanım Şartları",
   description: "Fuwu hizmet pazaryeri kullanım şartları.",
 };
 

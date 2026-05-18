@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import {
   ProviderDashboardAccessPlaceholder,
   ProviderDashboardShell,
+  ProviderStatusBadge,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Talepler | Fuwu Usta Paneli",
+  title: "Talepler | Usta Paneli",
   description: "Fuwu onaylı ustaları için gelen talep görünümü.",
 };
 
@@ -42,10 +44,22 @@ export default async function ProviderDashboardRequestsPage() {
                 Yeni müşteri talepleri
               </h2>
             </div>
-            <p className="cursor-default select-none text-sm font-bold text-[var(--muted)]">
-              {requestPlaceholders.length} talep
-            </p>
+            <div className="flex flex-wrap gap-2">
+              <ProviderStatusBadge tone={providerAccess.profile.isApproved ? "green" : "orange"}>
+                {providerAccess.profile.isApproved ? "Profil onaylı" : "Profil incelemede"}
+              </ProviderStatusBadge>
+              <ProviderStatusBadge tone={providerAccess.profile.availability === "müsait" ? "green" : "orange"}>
+                {getProviderAvailabilityLabel(providerAccess.profile.availability)}
+              </ProviderStatusBadge>
+              <ProviderStatusBadge tone="orange">
+                {requestPlaceholders.length} talep
+              </ProviderStatusBadge>
+            </div>
           </div>
+
+          <p className="mt-5 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+            Gerçek talep yönlendirme ilişkisi aktif edildiğinde bu ekran yalnızca ilgili ustaya yönlendirilen talepleri gösterecek. Şimdilik güvenli hazırlık görünümü korunuyor.
+          </p>
 
           <div className="mt-5 hidden overflow-hidden rounded-lg border border-[var(--border)] md:block">
             <div className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">

@@ -14,6 +14,10 @@ import {
 } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import {
+  getProviderAvailabilityLabel,
+  getProviderAvailabilityTone,
+} from "@/lib/constants/providers";
+import {
   getAdminAccess,
   getAdminProviders,
   updateAdminProviderStatus,
@@ -24,7 +28,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ustalar | Fuwu Admin",
+  title: "Ustalar | Admin",
   description: "Fuwu usta kayıtları için admin görünümü.",
 };
 
@@ -299,6 +303,9 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
           {provider.averagePriceRange}
         </p>
         <div className="flex flex-wrap gap-2">
+          <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
+            {getProviderAvailabilityLabel(provider.availability)}
+          </AdminStatusBadge>
           <BooleanStatus
             falseLabel="Pasif"
             trueLabel="Aktif"
@@ -368,6 +375,7 @@ export default async function AdminProvidersPage({
                   <th className="px-4 py-3">Telefon</th>
                   <th className="px-4 py-3">WhatsApp</th>
                   <th className="px-4 py-3">Puan</th>
+                  <th className="px-4 py-3">Uygunluk</th>
                   <th className="px-4 py-3">Ortalama Fiyat</th>
                   <th className="px-4 py-3">Aktiflik</th>
                   <th className="px-4 py-3">Onay</th>
@@ -394,6 +402,11 @@ export default async function AdminProvidersPage({
                     </td>
                     <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
                       {formatRating(provider.rating)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
+                        {getProviderAvailabilityLabel(provider.availability)}
+                      </AdminStatusBadge>
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
                       {provider.averagePriceRange}

@@ -7,6 +7,7 @@ export const seoConfig = {
   domain: "fuwu.com.tr",
   siteUrl: "https://fuwu.com.tr",
   twitterHandle: "@fuwuapp",
+  titleTemplate: "%s | Fuwu",
   defaultTitle: "Fuwu | Ev Hizmetleri Platformu",
   defaultDescription:
     "İstanbul’da tesisatçı, elektrikçi, temizlik ve ev hizmeti ustalarını karşılaştır; telefon veya WhatsApp ile direkt iletişime geç.",
@@ -106,6 +107,14 @@ export function createAbsoluteUrl(path = "/") {
   return new URL(path, seoConfig.siteUrl).toString();
 }
 
+export function createCanonicalPath(path = "/") {
+  if (!path.trim()) {
+    return "/";
+  }
+
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
 export function createPageMetadata({
   title,
   description,
@@ -114,18 +123,21 @@ export function createPageMetadata({
   noIndex = false,
 }: PageMetadataInput): Metadata {
   const mergedKeywords = Array.from(new Set([...defaultKeywords, ...keywords].filter(Boolean)));
+  const canonicalPath = createCanonicalPath(path);
 
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     keywords: mergedKeywords,
     alternates: {
-      canonical: path,
+      canonical: canonicalPath,
     },
     openGraph: {
       title,
       description,
-      url: path,
+      url: canonicalPath,
       siteName: seoConfig.siteName,
       locale: seoConfig.locale,
       type: "website",

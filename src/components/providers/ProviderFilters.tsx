@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
+  getProviderAvailabilityLabel,
   minimumRatingOptions,
   providerAvailabilityOptions,
   providerAveragePrices,
@@ -15,6 +16,7 @@ import {
 } from "@/lib/constants/providers";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { trackFilterUsed } from "@/services/analytics";
 
 export type ProviderFilterValues = {
   category?: string;
@@ -78,17 +80,9 @@ function getSelectedPriceValue(price: string | undefined, prices: string[]) {
   return matchingPrice ? getPriceFilterValue(matchingPrice) : price;
 }
 
-function getAvailabilityLabel(value: string, t: ReturnType<typeof useI18n>["t"]) {
-  if (value === "Bugün uygun") {
-    return t("availability.today");
-  }
-
-  if (value === "Yarın uygun") {
-    return t("availability.tomorrow");
-  }
-
-  if (value === "Hafta sonu uygun") {
-    return t("availability.weekend");
+function getAvailabilityLabel(value: string) {
+  if (value === "müsait" || value === "yoğun" || value === "çevrimdışı") {
+    return getProviderAvailabilityLabel(value);
   }
 
   return value;
@@ -116,6 +110,16 @@ export function ProviderFilters({
       values?.query ||
       values?.rating,
   );
+  const hasActiveFilters = Boolean(
+    values?.category ||
+      values?.district ||
+      values?.availability ||
+      values?.maximumPrice ||
+      values?.minimumPrice ||
+      values?.price ||
+      values?.query ||
+      values?.rating,
+  );
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(hasAdvancedFilterValue);
   const advancedPanelId = useId();
   const selectedSelectClassName = (hasValue: boolean) =>
@@ -133,12 +137,27 @@ export function ProviderFilters({
     isAdvancedOpen ? "block" : "hidden",
     "md:block",
   );
+  const handleFilterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(event.currentTarget);
+
+    trackFilterUsed({
+      availability: String(formData.get("availability") ?? ""),
+      category: String(formData.get("category") ?? ""),
+      district: String(formData.get("district") ?? ""),
+      hasQuery: Boolean(String(formData.get("q") ?? "").trim()),
+      maximumPrice: String(formData.get("average_price_max") ?? ""),
+      minimumPrice: String(formData.get("average_price_min") ?? ""),
+      rating: String(formData.get("rating") ?? ""),
+    });
+  };
 
   if (compact) {
     return (
       <form
+        aria-label={t("filters.title")}
         action={appRoutes.providers}
         className="max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
+        onSubmit={handleFilterSubmit}
       >
         <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(15rem,1.25fr)_minmax(13rem,1fr)_minmax(13rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
           <FilterField label={t("filters.search")}>
@@ -185,14 +204,24 @@ export function ProviderFilters({
             {t("cta.findProvider")}
           </Button>
         </div>
+        {hasActiveFilters ? (
+          <Link
+            className="mt-4 inline-flex min-h-11 cursor-pointer select-none items-center rounded-md px-2 text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.providers}
+          >
+            {t("cta.clearFilters")}
+          </Link>
+        ) : null}
       </form>
     );
   }
 
   return (
     <form
+      aria-label={t("filters.title")}
       action={appRoutes.providers}
       className="max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_22px_58px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:p-6"
+      onSubmit={handleFilterSubmit}
     >
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="cursor-default select-none">
@@ -208,7 +237,7 @@ export function ProviderFilters({
             aria-controls={advancedPanelId}
             aria-expanded={isAdvancedOpen}
             className={cn(
-              "inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden",
+              "inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden",
               isAdvancedOpen
                 ? "bg-[var(--brand-orange)] text-white"
                 : "bg-[var(--surface-soft)] text-[var(--brand-navy)]",
@@ -222,12 +251,15 @@ export function ProviderFilters({
               className={cn("size-4 transition-transform", isAdvancedOpen ? "rotate-180" : "")}
             />
           </button>
-          <Link
-            className="inline-flex min-h-10 cursor-pointer select-none items-center rounded-md px-1 text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:px-2 active:text-white"
-            href={appRoutes.providers}
-          >
-            {t("cta.clearFilters")}
-          </Link>
+          {hasActiveFilters ? (
+            <Link
+              aria-label={t("cta.clearFilters")}
+              className="inline-flex min-h-11 cursor-pointer select-none items-center rounded-md px-2 text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={appRoutes.providers}
+            >
+              {t("cta.clearFilters")}
+            </Link>
+          ) : null}
         </div>
       </div>
 
@@ -367,7 +399,7 @@ export function ProviderFilters({
               <option value="">{t("filters.allAvailability")}</option>
               {availabilityOptions.map((availability) => (
                 <option key={availability} value={availability}>
-                  {getAvailabilityLabel(availability, t)}
+                  {getAvailabilityLabel(availability)}
                 </option>
               ))}
             </select>

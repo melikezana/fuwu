@@ -237,7 +237,6 @@ export function LoginOptions() {
         </form>
 
         <div
-          aria-disabled="true"
           className="grid min-h-16 cursor-default select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-left text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.1)]"
           role="note"
         >

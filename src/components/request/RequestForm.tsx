@@ -9,6 +9,7 @@ import { services } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
+import { trackRequestCreated } from "@/services/analytics";
 import {
   serviceRequestSubmitErrorMessage,
   submitServiceRequest,
@@ -188,6 +189,12 @@ export function RequestForm({
 
     try {
       const result = await submitServiceRequest(normalizedRequest, authenticatedUserId);
+      trackRequestCreated({
+        category: normalizedRequest.serviceCategory,
+        district: normalizedRequest.district,
+        requestCode: result.requestCode,
+        urgencyLevel: normalizedRequest.urgencyLevel,
+      });
       setSubmittedRequest(result);
       setFormState(initialFormState);
     } catch (error) {
@@ -416,7 +423,7 @@ export function RequestForm({
                 return (
                   <label
                     className={cn(
-                      "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
+                      "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
                         ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",

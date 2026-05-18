@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic, Volume2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getKnownVoiceCommandExamples,
@@ -12,7 +12,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { useI18n } from "@/lib/i18n";
 import type { Provider } from "@/types/provider";
 
-type VoiceCommandButtonProps = {
+export type VoiceCommandButtonProps = {
   categories?: string[];
   districts: string[];
   providers: Provider[];
@@ -94,16 +94,13 @@ export function VoiceCommandButton({
   providers,
 }: VoiceCommandButtonProps) {
   const router = useRouter();
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [isListening, setIsListening] = useState(false);
-  const [statusMessage, setStatusMessage] = useState(
-    t("voice.examples", { examples: getKnownVoiceCommandExamples().join(", ") }),
-  );
-
-  useEffect(() => {
-    setStatusMessage(t("voice.examples", { examples: getKnownVoiceCommandExamples().join(", ") }));
-  }, [locale, t]);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const defaultStatusMessage = t("voice.examples", {
+    examples: getKnownVoiceCommandExamples().join(", "),
+  });
 
   function runReadout() {
     const result = readProviderSummaries(providers, {
@@ -226,7 +223,7 @@ export function VoiceCommandButton({
         {t("voice.button.read")}
       </button>
       <p aria-live="polite" className="cursor-default select-none text-sm font-semibold leading-6 text-[var(--muted)]">
-        {statusMessage}
+        {statusMessage ?? defaultStatusMessage}
       </p>
     </div>
   );

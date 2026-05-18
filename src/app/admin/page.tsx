@@ -23,7 +23,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin Paneli | Fuwu",
+  title: "Admin Paneli",
   description: "Fuwu iç operasyonları için yetkili admin paneli.",
 };
 

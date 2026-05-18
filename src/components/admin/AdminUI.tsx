@@ -241,7 +241,7 @@ export function AdminActionButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-center text-xs font-black leading-4 transition-colors disabled:opacity-75",
+        "inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-center text-xs font-black leading-4 transition-colors disabled:opacity-75",
         disabled
           ? "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]"
           : enabledToneClasses[tone],
@@ -260,7 +260,7 @@ export function AdminActionButton({
 
 export function AdminEmptyState({ children, title }: AdminEmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed border-[var(--border)] bg-white p-8 text-center">
+    <div className="rounded-lg border border-dashed border-[var(--border)] bg-white p-8 text-center" role="status">
       <p className="text-base font-black text-[var(--brand-navy)]">{title}</p>
       <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
         {children}

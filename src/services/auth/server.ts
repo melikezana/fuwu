@@ -36,6 +36,13 @@ async function getServerUser(supabase: ServerAuthSupabaseClient) {
   } = await supabase.auth.getUser();
 
   if (error) {
+    if (error.message === "Auth session missing!") {
+      return {
+        error: authAccessMessages.loginRequired,
+        user: null,
+      };
+    }
+
     return {
       error: warnServerAuthError("Supabase server user check failed.", error),
       user: null,

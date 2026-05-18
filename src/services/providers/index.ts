@@ -1,5 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  normalizeProviderAvailabilityStatus,
+  type ProviderAvailabilityStatus,
+} from "@/lib/constants/statuses";
+import {
   getProviderById as getMockProviderById,
   providerAvailabilityOptions,
   providerAveragePrices,
@@ -47,6 +51,7 @@ type SupabaseProviderRecord = Pick<
   | "average_price_max"
   | "rating"
 > & {
+  availability?: string | null;
   category?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
   district?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
   districts?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
@@ -70,6 +75,21 @@ type ProviderReadResult = {
 };
 
 const providerSelectQuery = `
+  id,
+  name,
+  phone,
+  whatsapp,
+  description,
+  experience_years,
+  average_price_min,
+  average_price_max,
+  rating,
+  availability,
+  category:service_categories(name, slug),
+  district:districts(name, slug)
+`;
+
+const providerSelectQueryWithoutAvailability = `
   id,
   name,
   phone,
@@ -153,6 +173,10 @@ function createFallbackDescription(name: string, category: string, district: str
   return `${name}; ${district} bölgesinde ${category} hizmeti için doğrudan iletişime hazır bir Fuwu profilidir.`;
 }
 
+function getProviderAvailability(value: string | null | undefined): ProviderAvailabilityStatus {
+  return normalizeProviderAvailabilityStatus(value);
+}
+
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
   const category = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
   const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
@@ -178,7 +202,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
     phone,
     whatsapp,
-    availability: "Bugün uygun",
+    availability: getProviderAvailability(record.availability),
     description,
     shortDescription: description,
     serviceAreas: [district],
@@ -195,6 +219,20 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     featured: index < 6,
     source: "supabase",
   };
+}
+
+function isMissingAvailabilityColumn(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; details?: unknown; message?: unknown };
+  const errorText = [record.code, record.details, record.message]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("availability") && errorText.includes("column");
 }
 
 function isProvider(provider: Provider | null): provider is Provider {
@@ -234,6 +272,10 @@ function getSearchTerms(value: string | undefined) {
 
 function hasFilterValue(value: string | undefined) {
   return Boolean(value?.trim());
+}
+
+function hasAnyProviderFilterValue(filters: ProviderFilters) {
+  return Object.values(filters).some((value) => hasFilterValue(value));
 }
 
 function normalizeOptionalFilterText(value: string | undefined, maxLength = 120) {
@@ -513,9 +555,13 @@ function mergeLookupFilterOptions(
   lookups: Pick<ProviderFilterOptions, "categories" | "districts">,
 ): ProviderFilterOptions {
   const providerOptions = buildFilterOptions(providers);
+  const fallbackOptions = buildFallbackFilterOptions();
 
   return {
     ...providerOptions,
+    availabilityOptions: providerOptions.availabilityOptions.length
+      ? providerOptions.availabilityOptions
+      : fallbackOptions.availabilityOptions,
     categories: lookups.categories,
     districts: lookups.districts,
   };
@@ -669,11 +715,14 @@ async function fetchProvidersFromSupabase(
     const priceRange = explicitPriceRange ?? parsePriceRangeFilter(filters.price);
     const minimumRating = parseMinimumRating(filters.rating);
 
-    let query = supabase
-      .from("providers")
-      .select(providerSelectQuery)
-      .eq("is_active", true)
-      .eq("is_approved", true);
+    const createQuery = (selectQuery: string) =>
+      supabase
+        .from("providers")
+        .select(selectQuery)
+        .eq("is_active", true)
+        .eq("is_approved", true);
+
+    let query = createQuery(providerSelectQuery);
 
     if (categoryIds) {
       query = query.in("category_id", categoryIds);
@@ -709,7 +758,49 @@ async function fetchProvidersFromSupabase(
       query = query.gte("rating", minimumRating);
     }
 
-    const { data, error } = await query.order("rating", { ascending: false });
+    let { data, error } = await query.order("rating", { ascending: false });
+
+    if (error && isMissingAvailabilityColumn(error)) {
+      let fallbackQuery = createQuery(providerSelectQueryWithoutAvailability);
+
+      if (categoryIds) {
+        fallbackQuery = fallbackQuery.in("category_id", categoryIds);
+      }
+
+      if (districtIds) {
+        fallbackQuery = fallbackQuery.in("district_id", districtIds);
+      }
+
+      if (explicitPriceRange) {
+        if (typeof explicitPriceRange.minimumPrice === "number") {
+          fallbackQuery = fallbackQuery.gte("average_price_min", explicitPriceRange.minimumPrice);
+        }
+
+        if (typeof explicitPriceRange.maximumPrice === "number") {
+          fallbackQuery = fallbackQuery.lte("average_price_max", explicitPriceRange.maximumPrice);
+        }
+      } else if (priceRange) {
+        if (priceRange.minimumPrice === null) {
+          fallbackQuery = fallbackQuery.is("average_price_min", null);
+        } else {
+          fallbackQuery = fallbackQuery.eq("average_price_min", priceRange.minimumPrice);
+        }
+
+        if (priceRange.maximumPrice === null) {
+          fallbackQuery = fallbackQuery.is("average_price_max", null);
+        } else {
+          fallbackQuery = fallbackQuery.eq("average_price_max", priceRange.maximumPrice);
+        }
+      }
+
+      if (minimumRating) {
+        fallbackQuery = fallbackQuery.gte("rating", minimumRating);
+      }
+
+      const fallbackResult = await fallbackQuery.order("rating", { ascending: false });
+      data = fallbackResult.data as typeof data;
+      error = fallbackResult.error;
+    }
 
     if (error) {
       return handleSupabaseListError(error);
@@ -742,13 +833,26 @@ async function fetchProviderByIdFromSupabase(
       return null;
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("providers")
       .select(providerSelectQuery)
       .eq("id", id)
       .eq("is_active", true)
       .eq("is_approved", true)
       .maybeSingle();
+
+    if (error && isMissingAvailabilityColumn(error)) {
+      const fallbackResult = await supabase
+        .from("providers")
+        .select(providerSelectQueryWithoutAvailability)
+        .eq("id", id)
+        .eq("is_active", true)
+        .eq("is_approved", true)
+        .maybeSingle();
+
+      data = fallbackResult.data as typeof data;
+      error = fallbackResult.error;
+    }
 
     if (error) {
       return handleSupabaseDetailError(error);
@@ -792,19 +896,33 @@ export async function getProviderDirectory(
   filters: ProviderFilters = {},
 ): Promise<ProviderDirectory> {
   const safeFilters = normalizeProviderFilters(filters);
-  const [filteredProviderResult, allProviderResult] = await Promise.all([
-    readProviders(safeFilters),
-    readProviders(),
-  ]);
+  const hasActiveFilters = hasAnyProviderFilterValue(safeFilters);
+  let filteredProviderResult: ProviderReadResult;
+  let allProviderResult: ProviderReadResult;
+
+  if (hasActiveFilters) {
+    [filteredProviderResult, allProviderResult] = await Promise.all([
+      readProviders(safeFilters),
+      readProviders(),
+    ]);
+  } else {
+    allProviderResult = await readProviders();
+    filteredProviderResult = allProviderResult;
+  }
+
   const allProviders = allProviderResult.providers;
   const filterLookups =
     allProviderResult.source === "supabase" ? await fetchFilterLookupsFromSupabase() : null;
   const fallbackFilterOptions = buildFallbackFilterOptions();
+  const providerFilterOptions = buildFilterOptions(allProviders);
   const filterOptions = filterLookups
     ? mergeLookupFilterOptions(allProviders, filterLookups)
     : allProviderResult.source === "supabase"
       ? {
-          ...buildFilterOptions(allProviders),
+          ...providerFilterOptions,
+          availabilityOptions: providerFilterOptions.availabilityOptions.length
+            ? providerFilterOptions.availabilityOptions
+            : fallbackFilterOptions.availabilityOptions,
           categories: fallbackFilterOptions.categories,
           districts: fallbackFilterOptions.districts,
         }

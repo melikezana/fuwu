@@ -7,7 +7,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Usta Ağına Katıl | Fuwu",
+  title: "Usta Ağına Katıl",
   description: "Fuwu’da görünür olmak, doğru müşterilerden telefon ve WhatsApp ile talep almak için usta başvurusu yap.",
 };
 

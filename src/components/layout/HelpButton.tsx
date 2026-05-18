@@ -66,7 +66,7 @@ export function HelpButton() {
       <button
         aria-label={isOpen ? "Yardım panelini kapat" : "Yardım panelini aç"}
         aria-expanded={isOpen}
-        className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] p-0 text-white shadow-[0_18px_44px_rgba(13,20,36,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:size-12"
+        className="inline-flex size-12 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] p-0 text-white shadow-[0_18px_44px_rgba(13,20,36,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={() => setIsOpen((current) => !current)}
         type="button"
       >

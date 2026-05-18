@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Çerez Politikası | Fuwu",
+  title: "Çerez Politikası",
   description: "Fuwu çerez kullanımı ve tarayıcı tercihleri hakkında bilgilendirme.",
 };
 

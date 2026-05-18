@@ -29,10 +29,10 @@ type ContactAction = FooterLink & {
 };
 
 const footerLinkClass =
-  "inline-flex max-w-full cursor-pointer select-none items-center gap-2 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] active:text-[var(--brand-orange)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
+  "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center gap-2 rounded-md px-1 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] active:text-[var(--brand-orange)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0 sm:px-0";
 
 const contactActionClass =
-  "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
+  "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
 
 function FooterAnchor({ item, className }: { className?: string; item: FooterLink }) {
   const isExternal = item.external || item.href.startsWith("http");

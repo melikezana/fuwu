@@ -140,7 +140,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
             aria-controls={advancedPanelId}
             aria-expanded={isAdvancedOpen}
             className={cn(
-              "inline-flex min-h-10 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-black transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
+              "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-black transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
               isAdvancedOpen
                 ? "bg-[var(--brand-orange)] text-white"
                 : "bg-[var(--surface-soft)] text-[var(--brand-navy)]",

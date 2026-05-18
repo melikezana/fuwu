@@ -3,10 +3,11 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 import {
   defaultLocale,
@@ -29,6 +30,7 @@ type LocaleContextValue = {
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
+const localeChangeEventName = "fuwu-locale-change";
 
 function applyDocumentLocale(locale: LocaleCode) {
   const localeConfig = getLocaleConfig(locale);
@@ -37,31 +39,47 @@ function applyDocumentLocale(locale: LocaleCode) {
   document.documentElement.dir = localeConfig.dir;
 }
 
+function getStoredLocale() {
+  if (typeof window === "undefined") {
+    return defaultLocale;
+  }
+
+  const storedLocale = window.localStorage.getItem(localeStorageKey);
+
+  return isSupportedLocale(storedLocale) ? storedLocale : defaultLocale;
+}
+
+function subscribeToLocaleChanges(callback: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener("storage", callback);
+  window.addEventListener(localeChangeEventName, callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(localeChangeEventName, callback);
+  };
+}
+
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<LocaleCode>(defaultLocale);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    const storedLocale = window.localStorage.getItem(localeStorageKey);
-
-    if (isSupportedLocale(storedLocale)) {
-      setLocale(storedLocale);
-      setIsInitialized(true);
-      return;
-    }
-
-    applyDocumentLocale(defaultLocale);
-    setIsInitialized(true);
+  const locale = useSyncExternalStore(
+    subscribeToLocaleChanges,
+    getStoredLocale,
+    () => defaultLocale,
+  );
+  const setLocale = useCallback((nextLocale: LocaleCode) => {
+    window.localStorage.setItem(localeStorageKey, nextLocale);
+    window.dispatchEvent(new Event(localeChangeEventName));
   }, []);
 
   useEffect(() => {
-    if (!isInitialized) {
-      return;
-    }
-
     applyDocumentLocale(locale);
-    window.localStorage.setItem(localeStorageKey, locale);
-  }, [isInitialized, locale]);
+    if (window.localStorage.getItem(localeStorageKey) !== locale) {
+      window.localStorage.setItem(localeStorageKey, locale);
+    }
+  }, [locale]);
 
   const value = useMemo<LocaleContextValue>(() => {
     const localeConfig = getLocaleConfig(locale);
@@ -72,7 +90,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       setLocale,
       t: (key, values) => getTranslation(locale, key, values),
     };
-  }, [locale]);
+  }, [locale, setLocale]);
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

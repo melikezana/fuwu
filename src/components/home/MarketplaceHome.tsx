@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { VoiceCommandButton } from "@/components/accessibility/VoiceCommandButton";
+import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
 import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 import {
-  getProviderPhoneHref,
-  getProviderWhatsAppHref,
+  getProviderAvailabilityLabel,
 } from "@/lib/constants/providers";
+import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
 import type { Provider } from "@/types/provider";
@@ -113,28 +114,33 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
           <p className="mt-1 text-xs font-bold text-[var(--muted)]">
             {provider.category} · {provider.district}
           </p>
+          <p className="mt-1 text-xs font-black text-[var(--trust-green)]">
+            {getProviderAvailabilityLabel(provider.availability)}
+          </p>
         </div>
         <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[0.68rem] font-bold text-[var(--brand-orange-dark)]">
           {provider.rating.toFixed(1)}
         </span>
       </div>
       <div className="pointer-events-none relative z-10 mt-3 grid grid-cols-2 gap-2">
-        <a
+        <ProviderContactLink
           aria-label={`${provider.name} WhatsApp ile yaz`}
-          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-3 text-[0.7rem] font-bold text-white"
-          href={getProviderWhatsAppHref(provider)}
+          className="pointer-events-auto inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-3 text-xs font-bold text-white"
+          kind="whatsapp"
+          provider={provider}
           rel="noopener noreferrer"
           target="_blank"
         >
           WhatsApp
-        </a>
-        <a
+        </ProviderContactLink>
+        <ProviderContactLink
           aria-label={`${provider.name} telefonla ara`}
-          className="pointer-events-auto inline-flex min-h-8 cursor-pointer items-center justify-center rounded-md bg-[var(--surface-soft)] px-3 text-[0.7rem] font-bold text-[var(--brand-navy)]"
-          href={getProviderPhoneHref(provider)}
+          className="pointer-events-auto inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-[var(--surface-soft)] px-3 text-xs font-bold text-[var(--brand-navy)]"
+          kind="phone"
+          provider={provider}
         >
           Telefon
-        </a>
+        </ProviderContactLink>
       </div>
     </article>
   );
@@ -263,7 +269,7 @@ function HeroSection({
           </div>
 
           <HomeHeroFilters filterOptions={filterOptions} />
-          <VoiceCommandButton
+          <LazyVoiceCommandButton
             categories={filterOptions.categories}
             districts={filterOptions.districts}
             providers={voiceProviders}
@@ -520,7 +526,7 @@ export async function MarketplaceHome() {
   const previewProviders =
     featuredProviders.length > 0 ? featuredProviders : allProviders.slice(0, 3);
   const todayProviders = allProviders.filter(
-    (provider) => provider.availability === "Bugün uygun",
+    (provider) => provider.availability === PROVIDER_AVAILABILITY_STATUSES.musait,
   );
   const heroProviders = todayProviders.length > 0 ? todayProviders.slice(0, 2) : allProviders.slice(0, 2);
   const voiceProviders = Array.from(

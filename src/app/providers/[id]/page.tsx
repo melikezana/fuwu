@@ -4,19 +4,23 @@ import { ArrowLeft, Home, MessageCircle, Phone, UserSearch } from "lucide-react"
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import {
+  ProviderContactLink,
+  ProviderProfileViewTracker,
+} from "@/components/providers/ProviderAnalytics";
+import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
+  getProviderAvailabilityLabel,
+  getProviderAvailabilityTone,
   getProviderDataNotice,
-  getProviderInitials,
-  getProviderPhoneHref,
   getProviderProfileBadge,
-  getProviderWhatsAppHref,
   isLiveProvider,
 } from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
-import { getProviderById, getProviders } from "@/services/providers";
+import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderReviews } from "@/services/reviews";
 
 export const dynamic = "force-dynamic";
@@ -124,7 +128,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   }
 
   const [providers, reviewData] = await Promise.all([
-    getProviders(),
+    getProvidersByCategory(provider.category),
     getProviderReviews(provider.id),
   ]);
   const relatedProviders = providers
@@ -133,9 +137,18 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         relatedProvider.id !== provider.id && relatedProvider.category === provider.category,
     )
     .slice(0, 2);
+  const availabilityLabel = getProviderAvailabilityLabel(provider.availability);
+  const availabilityTone = getProviderAvailabilityTone(provider.availability);
+  const availabilityBadgeClassName =
+    availabilityTone === "green"
+      ? "bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : availabilityTone === "orange"
+        ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
+        : "bg-[var(--surface-soft)] text-[var(--muted)]";
 
   return (
     <div className="bg-[var(--background)]">
+      <ProviderProfileViewTracker provider={provider} />
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
         <Container className="relative py-6 sm:py-8">
@@ -168,9 +181,11 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </Link>
 
             <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#111B2E_0%,#22304A_100%)] text-2xl font-black text-white shadow-[0_16px_36px_rgba(13,20,36,0.18)]">
-                {getProviderInitials(provider)}
-              </div>
+              <ProviderAvatar
+                className="bg-[linear-gradient(145deg,#ffffff_0%,#fff2df_100%)] shadow-[0_16px_36px_rgba(13,20,36,0.12)]"
+                provider={provider}
+                variant="profile"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
@@ -188,8 +203,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                   <span className="max-w-full rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--muted)]">
                     {getProviderProfileBadge(provider)}
                   </span>
-                  <span className="max-w-full rounded-md bg-[var(--trust-green-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--trust-green)]">
-                    {provider.availability}
+                  <span className={`max-w-full rounded-md px-3 py-1 text-xs font-black leading-5 ${availabilityBadgeClassName}`}>
+                    {availabilityLabel}
                   </span>
                 </div>
                 <h1 className="mt-4 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
@@ -201,6 +216,28 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 <p className="mt-4 max-w-2xl rounded-md bg-[var(--surface-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--muted)]">
                   {getProviderDataNotice(provider)}
                 </p>
+                <div className="relative mt-6 grid gap-3 sm:grid-cols-2 lg:hidden">
+                  <ProviderContactLink
+                    aria-label={`${provider.name} ile WhatsApp üzerinden yazış`}
+                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                    kind="whatsapp"
+                    provider={provider}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
+                    WhatsApp ile Yaz
+                  </ProviderContactLink>
+                  <ProviderContactLink
+                    aria-label={`${provider.name} adlı ustayı telefonla ara`}
+                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-soft)] hover:shadow-[inset_0_0_0_1px_rgba(13,20,36,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                    kind="phone"
+                    provider={provider}
+                  >
+                    <Phone aria-hidden="true" className="size-4 shrink-0" />
+                    Hemen Ara
+                  </ProviderContactLink>
+                </div>
               </div>
             </div>
 
@@ -209,7 +246,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 ["Puan", `${provider.rating.toFixed(1)} (${provider.reviewCount})`],
                 ["Deneyim", provider.experience],
                 ["Ortalama fiyat aralığı", provider.averagePrice],
-                ["Uygunluk", provider.availability],
+                ["Uygunluk", availabilityLabel],
                 ["Hızlı dönüş", provider.responseTime],
               ].map(([label, value]) => (
                 <div className="rounded-md bg-[var(--surface-soft)] p-4" key={label}>
@@ -330,22 +367,24 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               </p>
 
               <div className="mt-5 grid gap-3">
-                <a
+                <ProviderContactLink
                   className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                  href={getProviderWhatsAppHref(provider)}
+                  kind="whatsapp"
+                  provider={provider}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
                   <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
                   WhatsApp ile Yaz
-                </a>
-                <a
+                </ProviderContactLink>
+                <ProviderContactLink
                   className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-white px-4 py-3 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-soft)] hover:shadow-[inset_0_0_0_1px_rgba(13,20,36,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                  href={getProviderPhoneHref(provider)}
+                  kind="phone"
+                  provider={provider}
                 >
                   <Phone aria-hidden="true" className="size-4 shrink-0" />
                   Hemen Ara
-                </a>
+                </ProviderContactLink>
                 <Button href={appRoutes.providers} variant="secondary">
                   <ArrowLeft aria-hidden="true" className="mr-2 size-4 shrink-0" />
                   Ustalara Geri Dön
@@ -387,7 +426,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </p>
             <p className="mt-2 text-lg font-black leading-7">
               {provider.completedJobs}+ tamamlanan iş, {provider.averagePrice} ortalama fiyat
-              aralığı ve {provider.availability.toLocaleLowerCase("tr")} bilgisiyle doğrudan
+              aralığı ve {availabilityLabel.toLocaleLowerCase("tr")} bilgisiyle doğrudan
               iletişime hazır.
             </p>
             <Link

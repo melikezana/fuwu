@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(seoConfig.siteUrl),
   title: {
     default: seoConfig.defaultTitle,
-    template: "%s",
+    template: seoConfig.titleTemplate,
   },
   applicationName: seoConfig.legalName,
   authors: [{ name: seoConfig.siteName, url: seoConfig.siteUrl }],
@@ -35,6 +37,9 @@ export default function RootLayout({
     <html data-scroll-behavior="smooth" dir="ltr" lang="tr" suppressHydrationWarning>
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <LocaleProvider>
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
           <div className="flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>

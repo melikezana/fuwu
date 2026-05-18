@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { appRoutes } from "@/lib/constants/navigation";
 
 export const metadata: Metadata = {
-  title: "Talep Oluştur | Fuwu",
+  title: "Talep Oluştur",
   description: "Fuwu’da ihtiyacını belirle, konumunu belirt ve uygun ustaya ulaşmak için talep oluştur.",
 };
 
