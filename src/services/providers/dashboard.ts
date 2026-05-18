@@ -7,6 +7,7 @@ import {
 import type { Database } from "@/lib/supabase/types";
 import { authAccessMessages, hasProviderRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
+import { sanitizePhone, sanitizeText } from "@/lib/validations";
 
 type ProviderDashboardRecord = Pick<
   Database["public"]["Tables"]["providers"]["Row"],
@@ -165,10 +166,12 @@ function formatAveragePriceRange(
 function mapProviderDashboardRecord(
   record: ProviderDashboardRecord,
 ): ProviderDashboardProfile | null {
-  const category = getRelationName(record.service_categories);
-  const district = getRelationName(record.districts);
+  const category = sanitizeText(getRelationName(record.service_categories), 120);
+  const district = sanitizeText(getRelationName(record.districts), 120);
+  const name = sanitizeText(record.name, 120);
+  const phone = sanitizePhone(record.phone);
 
-  if (!category || !district) {
+  if (!category || !district || !name || !phone) {
     return null;
   }
 
@@ -186,10 +189,10 @@ function mapProviderDashboardRecord(
     id: record.id,
     isActive: record.is_active,
     isApproved: record.is_approved,
-    name: record.name,
-    phone: record.phone,
+    name,
+    phone,
     rating: Number(record.rating ?? 0),
-    whatsapp: record.whatsapp?.trim() || record.phone,
+    whatsapp: sanitizePhone(record.whatsapp ?? "") || phone,
   };
 }
 
@@ -310,7 +313,7 @@ function createAvailabilityActionResult(
 export async function updateProviderDashboardAvailability(
   availability: string,
 ): Promise<ProviderAvailabilityActionResult> {
-  const normalizedAvailability = availability.trim().toLocaleLowerCase("tr");
+  const normalizedAvailability = sanitizeText(availability, 40).toLocaleLowerCase("tr");
 
   if (!isProviderAvailabilityStatus(normalizedAvailability)) {
     return createAvailabilityActionResult("availability-invalid", false);

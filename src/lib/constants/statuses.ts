@@ -21,6 +21,34 @@ export const SERVICE_REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string>
   [SERVICE_REQUEST_STATUSES.iptal]: "İptal",
 };
 
+export const SERVICE_REQUEST_STATUS_DESCRIPTIONS: Record<ServiceRequestStatus, string> = {
+  [SERVICE_REQUEST_STATUSES.yeni]: "Talep yeni alındı ve ilk kontrol bekliyor.",
+  [SERVICE_REQUEST_STATUSES.inceleniyor]: "Operasyon ekibi talebi inceliyor.",
+  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Talep uygun ustaya yönlendirildi.",
+  [SERVICE_REQUEST_STATUSES.tamamlandi]: "Talep tamamlandı.",
+  [SERVICE_REQUEST_STATUSES.iptal]: "Talep iptal edildi.",
+};
+
+export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
+  ServiceRequestStatus,
+  ServiceRequestStatus[]
+> = {
+  [SERVICE_REQUEST_STATUSES.yeni]: [
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.iptal,
+  ],
+  [SERVICE_REQUEST_STATUSES.inceleniyor]: [
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.iptal,
+  ],
+  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: [
+    SERVICE_REQUEST_STATUSES.tamamlandi,
+    SERVICE_REQUEST_STATUSES.iptal,
+  ],
+  [SERVICE_REQUEST_STATUSES.tamamlandi]: [],
+  [SERVICE_REQUEST_STATUSES.iptal]: [],
+};
+
 export const LEGACY_SERVICE_REQUEST_STATUS_MAP: Record<string, ServiceRequestStatus> = {
   cancelled: SERVICE_REQUEST_STATUSES.iptal,
   completed: SERVICE_REQUEST_STATUSES.tamamlandi,
@@ -45,6 +73,22 @@ export function normalizeServiceRequestStatus(
   }
 
   return LEGACY_SERVICE_REQUEST_STATUS_MAP[normalizedStatus] ?? null;
+}
+
+export function getAllowedServiceRequestTransitions(
+  status: ServiceRequestStatus,
+) {
+  return SERVICE_REQUEST_ALLOWED_TRANSITIONS[status];
+}
+
+export function isServiceRequestTransitionAllowed(
+  fromStatus: ServiceRequestStatus,
+  toStatus: ServiceRequestStatus,
+) {
+  return (
+    fromStatus === toStatus ||
+    SERVICE_REQUEST_ALLOWED_TRANSITIONS[fromStatus].includes(toStatus)
+  );
 }
 
 export const PROVIDER_AVAILABILITY_STATUSES = {

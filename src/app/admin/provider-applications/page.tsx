@@ -54,7 +54,7 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     tone: "error",
   },
   "application-already-approved": {
-    body: "Onaylanmış başvurular bu ekrandan reddedilmedi. Gerekirse ilgili usta kaydını Ustalar ekranından yönetin.",
+    body: "Bu başvuru daha önce onaylanmış. Aynı başvurudan ikinci bir usta kaydı oluşturulmadı; ilgili profili Ustalar ekranından yönetin.",
     title: "Başvuru zaten onaylı",
     tone: "error",
   },
@@ -329,9 +329,9 @@ export default async function AdminProviderApplicationsPage({
     >
       <ApplicationActionNotice feedback={actionFeedback} />
       {result.rows.length === 0 ? (
-        <AdminEmptyState title="Bekleyen başvuru yok">
-          Yeni usta başvuruları geldiğinde onay ve ret aksiyonlarıyla burada
-          görünecek.
+        <AdminEmptyState title="Henüz başvuru yok">
+          Yeni usta başvuruları geldiğinde beklemede, onaylandı ve reddedildi
+          durumlarıyla burada görünecek.
         </AdminEmptyState>
       ) : (
         <>

@@ -36,6 +36,21 @@ const requiredRequestFields: Array<{
   { field: "shortDescription", message: "Açıklama alanı zorunludur." },
 ];
 
+function isValidDateInput(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+}
+
 export function validateServiceRequestInput(
   input: ServiceRequestInput,
 ): ValidationResult<ServiceRequestInput, ServiceRequestField> {
@@ -60,6 +75,13 @@ export function validateServiceRequestInput(
     issues.push({
       field: "phoneNumber",
       message: commonValidationMessages.phoneInvalid,
+    });
+  }
+
+  if (sanitizedData.preferredDate && !isValidDateInput(sanitizedData.preferredDate)) {
+    issues.push({
+      field: "preferredDate",
+      message: "Geçerli bir tarih seç.",
     });
   }
 

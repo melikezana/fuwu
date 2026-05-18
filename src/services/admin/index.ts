@@ -4,6 +4,7 @@ import {
   normalizeProviderAvailabilityStatus,
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_VALUES,
+  isServiceRequestTransitionAllowed,
   normalizeServiceRequestStatus,
   type ProviderAvailabilityStatus,
   type ProviderApplicationStatus,
@@ -263,6 +264,7 @@ export type AdminServiceRequestActionCode =
   | "admin-not-authorized"
   | "service-request-action-failed"
   | "service-request-invalid-status"
+  | "service-request-invalid-transition"
   | "service-request-missing-id"
   | "service-request-not-found"
   | "service-request-updated"
@@ -507,14 +509,22 @@ function createEmptyReadResult<T>(
   error: string | null = null,
   isConfigured = true,
 ): AdminReadResult<T> {
+  return createAdminReadResult([], error, isConfigured);
+}
+
+function createAdminReadResult<T>(
+  rows: T[],
+  error: string | null = null,
+  isConfigured = true,
+): AdminReadResult<T> {
   const response = error
     ? createServiceFailure<T[]>(error)
-    : createServiceSuccess<T[]>([]);
+    : createServiceSuccess<T[]>(rows);
 
   return {
     error: response.error,
     isConfigured,
-    rows: response.data ?? [],
+    rows: response.data ?? rows,
   };
 }
 
@@ -616,6 +626,21 @@ async function updatePendingProviderApplicationStatus(
   }
 
   if (!data) {
+    const { data: currentApplication, error: lookupError } = await supabase
+      .from("provider_applications")
+      .select("status")
+      .eq("id", applicationId)
+      .maybeSingle();
+
+    if (lookupError) {
+      warnAdminWriteError("provider application status conflict lookup", lookupError);
+      return createAdminActionResult("application-action-failed", false);
+    }
+
+    if (currentApplication?.status) {
+      return createApplicationStatusConflictResult(String(currentApplication.status));
+    }
+
     return createAdminActionResult("application-not-found", false);
   }
 
@@ -982,16 +1007,26 @@ export async function updateAdminServiceRequestStatus(
     return createServiceRequestActionResult("service-request-not-found", false);
   }
 
-  const previousStatus =
-    normalizeServiceRequestStatus(String(existingRequest.status)) ??
-    String(existingRequest.status);
+  const previousStatusValue = String(existingRequest.status);
+  const previousStatus = normalizeServiceRequestStatus(previousStatusValue);
 
-  const { data, error } = await supabase
+  if (
+    previousStatus &&
+    !isServiceRequestTransitionAllowed(previousStatus, normalizedStatus)
+  ) {
+    return createServiceRequestActionResult("service-request-invalid-transition", false);
+  }
+
+  const updateQuery = supabase
     .from("service_requests")
     .update({ status: normalizedStatus })
-    .eq("id", normalizedRequestId)
-    .select("id")
-    .maybeSingle();
+    .eq("id", normalizedRequestId);
+
+  if (previousStatus) {
+    updateQuery.eq("status", previousStatus);
+  }
+
+  const { data, error } = await updateQuery.select("id").maybeSingle();
 
   if (error) {
     warnAdminWriteError("service request status update", error);
@@ -1008,7 +1043,7 @@ export async function updateAdminServiceRequestStatus(
     entityId: normalizedRequestId,
     entityType: "service_request",
     metadata: {
-      previousStatus,
+      previousStatus: previousStatus ?? previousStatusValue,
       status: normalizedStatus,
     },
     supabase,
@@ -1160,26 +1195,24 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
     return createEmptyReadResult(getAdminReadError(error));
   }
 
-  return {
-    error: null,
-    isConfigured: true,
-    rows: ((data ?? []) as unknown as AdminProviderRecord[]).map((provider) => ({
+  return createAdminReadResult(
+    ((data ?? []) as unknown as AdminProviderRecord[]).map((provider) => ({
       averagePriceRange: formatAveragePriceRange(
         provider.average_price_min,
         provider.average_price_max,
       ),
-      category: getRelationName(provider.service_categories),
-      district: getRelationName(provider.districts),
+      category: sanitizeText(getRelationName(provider.service_categories), 120),
+      district: sanitizeText(getRelationName(provider.districts), 120),
       id: provider.id,
       availability: normalizeProviderAvailabilityStatus(provider.availability),
       isActive: provider.is_active,
       isApproved: provider.is_approved,
-      name: provider.name,
-      phone: provider.phone,
+      name: sanitizeText(provider.name, 120),
+      phone: sanitizePhone(provider.phone) || "Belirtilmedi",
       rating: Number(provider.rating ?? 0),
-      whatsapp: provider.whatsapp?.trim() || "Belirtilmedi",
+      whatsapp: sanitizePhone(provider.whatsapp ?? "") || "Belirtilmedi",
     })),
-  };
+  );
 }
 
 export async function getAdminProviderApplications(): Promise<
@@ -1211,31 +1244,28 @@ export async function getAdminProviderApplications(): Promise<
         districts(name)
       `,
     )
-    .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
     .order("created_at", { ascending: false });
 
   if (error) {
     return createEmptyReadResult(getAdminReadError(error));
   }
 
-  return {
-    error: null,
-    isConfigured: true,
-    rows: ((data ?? []) as unknown as AdminProviderApplicationRecord[]).map(
+  return createAdminReadResult(
+    ((data ?? []) as unknown as AdminProviderApplicationRecord[]).map(
       (application) => ({
-        category: getRelationName(application.service_categories),
+        category: sanitizeText(getRelationName(application.service_categories), 120),
         createdAt: application.created_at,
-        description: application.description,
-        district: getRelationName(application.districts),
+        description: sanitizeText(application.description, 1200),
+        district: sanitizeText(getRelationName(application.districts), 120),
         experience: `${application.experience_years} yıl`,
-        fullName: application.full_name,
+        fullName: sanitizeText(application.full_name, 120),
         id: application.id,
-        phone: application.phone,
+        phone: sanitizePhone(application.phone) || "Belirtilmedi",
         status: application.status,
-        whatsapp: application.whatsapp,
+        whatsapp: sanitizePhone(application.whatsapp) || "Belirtilmedi",
       }),
     ),
-  };
+  );
 }
 
 export async function getAdminServiceRequests(): Promise<
@@ -1274,24 +1304,21 @@ export async function getAdminServiceRequests(): Promise<
     return createEmptyReadResult(getAdminReadError(error));
   }
 
-  return {
-    error: null,
-    isConfigured: true,
-    rows: ((data ?? []) as unknown as AdminServiceRequestRecord[]).map((request) => ({
-      category: getRelationName(request.service_categories),
+  return createAdminReadResult(
+    ((data ?? []) as unknown as AdminServiceRequestRecord[]).map((request) => ({
+      category: sanitizeText(getRelationName(request.service_categories), 120),
       createdAt: request.created_at,
-      customerName: getRequestCustomerName(
-        request.profiles,
-        request.user_id,
-        request.description,
+      customerName: sanitizeText(
+        getRequestCustomerName(request.profiles, request.user_id, request.description),
+        120,
       ),
-      district: getRelationName(request.districts),
+      district: sanitizeText(getRelationName(request.districts), 120),
       id: request.id,
-      phone: getRequestPhone(request.profiles, request.description),
+      phone: sanitizePhone(getRequestPhone(request.profiles, request.description)) || "Belirtilmedi",
       preferredDate: request.preferred_date,
       preferredTime: request.preferred_time,
-      status: request.status,
-      urgency: request.urgency,
+      status: sanitizeText(request.status, 40),
+      urgency: sanitizeText(request.urgency, 40),
     })),
-  };
+  );
 }

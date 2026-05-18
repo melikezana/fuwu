@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
 
 function ProviderNotFoundState() {
   return (
-    <div className="bg-[var(--background)]">
+    <div className="bg-[var(--background)] pb-24 lg:pb-0">
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
         <Container className="relative py-6 sm:py-8">
@@ -466,6 +466,31 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           </Container>
         </section>
       ) : null}
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[rgba(13,20,36,0.08)] bg-white/95 px-4 py-3 shadow-[0_-16px_44px_rgba(13,20,36,0.14)] backdrop-blur lg:hidden">
+        <div className="mx-auto grid max-w-xl grid-cols-[minmax(0,1fr)_auto] gap-2">
+          <ProviderContactLink
+            aria-label={`${provider.name} ile WhatsApp üzerinden yazış`}
+            className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            kind="whatsapp"
+            provider={provider}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
+            WhatsApp ile Yaz
+          </ProviderContactLink>
+          <ProviderContactLink
+            aria-label={`${provider.name} adlı ustayı telefonla ara`}
+            className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-white px-4 py-3 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            kind="phone"
+            provider={provider}
+          >
+            <Phone aria-hidden="true" className="size-4 shrink-0" />
+            <span className="sr-only">Telefon</span>
+          </ProviderContactLink>
+        </div>
+      </div>
     </div>
   );
 }

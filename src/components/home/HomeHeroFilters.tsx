@@ -1,13 +1,10 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
-import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
 import { minimumRatingOptions } from "@/lib/constants/providers";
 import { useI18n } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 import type { ProviderFilterOptions } from "@/services/providers";
 
 type HomeHeroFiltersProps = {
@@ -50,8 +47,6 @@ function HeroField({
 
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const { t } = useI18n();
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const advancedPanelId = useId();
   const serviceFilterOptions = Array.from(
     new Set([...heroServiceFilterOptions, ...filterOptions.categories]),
   );
@@ -59,7 +54,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   return (
     <form
       action={appRoutes.providers}
-      className="mt-8 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-4 shadow-[0_22px_60px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
+      className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
     >
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end">
         <div className="order-1 min-w-0 md:order-none">
@@ -89,11 +84,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         </div>
 
         <div
-          className={cn(
-            "order-5 grid min-w-0 gap-3 md:contents",
-            isAdvancedOpen ? "grid" : "hidden md:contents",
-          )}
-          id={advancedPanelId}
+          className="hidden min-w-0 gap-3 md:contents"
         >
           <HeroField label={t("filters.minimumPrice")}>
             <input
@@ -134,27 +125,6 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         <Button className="order-3 h-12 min-h-12 w-full rounded-md px-5 md:order-none" type="submit">
           {t("cta.findProvider")}
         </Button>
-
-        <div className="order-4 min-w-0 md:hidden">
-          <button
-            aria-controls={advancedPanelId}
-            aria-expanded={isAdvancedOpen}
-            className={cn(
-              "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-black transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
-              isAdvancedOpen
-                ? "bg-[var(--brand-orange)] text-white"
-                : "bg-[var(--surface-soft)] text-[var(--brand-navy)]",
-            )}
-            onClick={() => setIsAdvancedOpen((currentValue) => !currentValue)}
-            type="button"
-          >
-            {t("filters.advanced")}
-            <ChevronDown
-              aria-hidden="true"
-              className={cn("size-4 transition-transform", isAdvancedOpen ? "rotate-180" : "")}
-            />
-          </button>
-        </div>
       </div>
     </form>
   );

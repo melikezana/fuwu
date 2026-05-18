@@ -122,7 +122,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
     <article
       aria-labelledby={`provider-${provider.id}-title`}
       className={cn(
-        "flex h-full min-w-0 cursor-default flex-col rounded-lg bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.34)] sm:p-6",
+        "flex h-full min-w-0 cursor-default flex-col rounded-lg bg-white p-4 shadow-[0_18px_48px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.34)] sm:p-6",
         className,
       )}
     >
@@ -131,7 +131,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           <ProviderAvatar provider={provider} />
           <div className="min-w-0">
             <Link
-              className="block cursor-pointer break-words text-2xl font-black leading-tight text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="block cursor-pointer break-words text-xl font-black leading-tight text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:text-2xl"
               href={profileHref}
               id={`provider-${provider.id}-title`}
             >
@@ -153,6 +153,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
                 <MapPin aria-hidden="true" className="size-3.5" />
                 {provider.district}
               </Link>
+              <span className={availabilityClassName}>{availabilityLabel}</span>
             </div>
           </div>
         </div>
@@ -234,7 +235,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
       </p>
 
       <footer className="mt-auto pt-5">
-        <div className="grid gap-2 sm:grid-cols-2" id={actionsId}>
+        <div className="grid grid-cols-2 gap-2" id={actionsId}>
           <a
             aria-label={t("providerCard.whatsappAria", { name: provider.name })}
             className={primaryActionClassName}
@@ -258,7 +259,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           </a>
           <Link
             aria-label={t("providerCard.profileAria", { name: provider.name })}
-            className={`${secondaryActionClassName} sm:col-span-2`}
+            className={`${secondaryActionClassName} col-span-2`}
             href={profileHref}
           >
             <UserSearch aria-hidden="true" className="size-4 shrink-0" />

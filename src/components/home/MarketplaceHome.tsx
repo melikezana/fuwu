@@ -1,5 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  MessageCircle,
+  ShieldCheck,
+  WalletCards,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
@@ -74,6 +81,16 @@ const trustItems = [
   },
 ] satisfies Array<{ descriptionKey: TranslationKey; titleKey: TranslationKey }>;
 
+const mobileTrustSignals: Array<{
+  icon: LucideIcon;
+  label: string;
+}> = [
+  { icon: ShieldCheck, label: "Onaylı profiller" },
+  { icon: MessageCircle, label: "Direkt iletişim" },
+  { icon: WalletCards, label: "Şeffaf fiyat aralığı" },
+  { icon: Zap, label: "Hızlı dönüş" },
+];
+
 const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
   .filter((service): service is Service => Boolean(service));
@@ -94,6 +111,26 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
           {description}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+function MobileHeroTrustSignals() {
+  return (
+    <div className="mt-4 grid grid-cols-2 gap-2 md:hidden" aria-label="Fuwu güven sinyalleri">
+      {mobileTrustSignals.map((signal) => {
+        const Icon = signal.icon;
+
+        return (
+          <div
+            className="inline-flex min-h-10 cursor-default select-none items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-black leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)]"
+            key={signal.label}
+          >
+            <Icon aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange-dark)]" />
+            <span className="min-w-0">{signal.label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -148,7 +185,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
 
 function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
   return (
-    <aside className="mx-auto w-full max-w-[340px] select-none xl:mx-0 xl:max-w-[350px] xl:justify-self-end 2xl:max-w-[360px]">
+    <aside className="mx-auto hidden w-full max-w-[340px] select-none xl:block xl:mx-0 xl:max-w-[350px] xl:justify-self-end 2xl:max-w-[360px]">
       <div className="relative rounded-[1.75rem] bg-[var(--brand-navy)] p-3 shadow-[0_26px_80px_rgba(13,20,36,0.16)]">
         <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
           <div className="flex cursor-default select-none items-center justify-between">
@@ -239,7 +276,7 @@ function HeroSection({
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
-      <Container className="grid max-w-[1360px] gap-8 py-10 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
+      <Container className="grid max-w-[1360px] gap-7 py-7 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
         <div className="w-full max-w-full min-w-0 xl:max-w-[880px] xl:pr-2">
           <Link
             aria-label="Fuwu ana sayfasına git"
@@ -249,14 +286,19 @@ function HeroSection({
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-full cursor-default select-none text-4xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
             <I18nText i18nKey="home.hero.title" />
           </h1>
-          <p className="mt-5 max-w-full cursor-default select-none text-base font-medium leading-7 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
-            <I18nText i18nKey="home.hero.subtitle" />
+          <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-semibold leading-6 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
+            <span className="sm:hidden">
+              Hizmet seç. İlçe seç. Usta Bul.
+            </span>
+            <span className="hidden sm:inline">
+              <I18nText i18nKey="home.hero.subtitle" />
+            </span>
           </p>
 
-          <div className="mt-6 grid max-w-full grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
+          <div className="mt-6 hidden max-w-full grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
                 className="min-w-0 cursor-pointer select-none rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)] active:bg-[var(--brand-orange)] active:text-white sm:px-4 sm:text-left"
@@ -269,11 +311,14 @@ function HeroSection({
           </div>
 
           <HomeHeroFilters filterOptions={filterOptions} />
-          <LazyVoiceCommandButton
-            categories={filterOptions.categories}
-            districts={filterOptions.districts}
-            providers={voiceProviders}
-          />
+          <MobileHeroTrustSignals />
+          <div className="hidden md:block">
+            <LazyVoiceCommandButton
+              categories={filterOptions.categories}
+              districts={filterOptions.districts}
+              providers={voiceProviders}
+            />
+          </div>
         </div>
 
         <HeroMockup heroProviders={heroProviders} />
@@ -412,7 +457,7 @@ function HowItWorksSection() {
 function AboutSection() {
   return (
     <section className="border-y border-[var(--border)] bg-white" id="about">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-14 lg:py-16">
         <div className="grid gap-5 lg:grid-cols-[0.45fr_1fr] lg:items-start">
           <div className="cursor-default select-none">
             <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
@@ -422,9 +467,11 @@ function AboutSection() {
               <I18nText i18nKey="home.about.title" />
             </h2>
           </div>
-          <p className="max-w-3xl cursor-default select-none text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
-            <I18nText i18nKey="home.about.description" />
-          </p>
+          <MobileCollapsibleSection contentClassName="mt-4 lg:mt-0">
+            <p className="max-w-3xl cursor-default select-none text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
+              <I18nText i18nKey="home.about.description" />
+            </p>
+          </MobileCollapsibleSection>
         </div>
       </Container>
     </section>

@@ -21,8 +21,11 @@ import {
   type AdminServiceRequestStatus,
 } from "@/services/admin";
 import {
+  SERVICE_REQUEST_STATUS_DESCRIPTIONS,
   SERVICE_REQUEST_STATUS_LABELS,
   SERVICE_REQUEST_STATUSES,
+  getAllowedServiceRequestTransitions,
+  isServiceRequestTransitionAllowed,
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 
@@ -61,6 +64,11 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
   "service-request-invalid-status": {
     body: "Seçilen durum bu hizmet talebi için geçerli değil.",
     title: "Geçersiz durum",
+    tone: "error",
+  },
+  "service-request-invalid-transition": {
+    body: "Bu talep mevcut durumundan seçilen duruma doğrudan geçirilemez. Önce operasyon sırasındaki bir sonraki adımı seçin.",
+    title: "Durum sırası korunuyor",
     tone: "error",
   },
   "service-request-missing-id": {
@@ -287,10 +295,19 @@ function RequestActionNotice({
 }
 
 function RequestActions({ request }: { request: AdminServiceRequest }) {
+  const normalizedRequestStatus = normalizeServiceRequestStatus(request.status);
+  const nextStatuses = normalizedRequestStatus
+    ? getAllowedServiceRequestTransitions(normalizedRequestStatus)
+    : [];
+
   return (
     <div className="flex max-w-full flex-wrap gap-2 lg:max-w-[34rem]">
       {requestStatusActions.map((action) => {
-        const isCurrentStatus = request.status === action.status;
+        const isCurrentStatus = normalizedRequestStatus === action.status;
+        const isAllowedTransition = normalizedRequestStatus
+          ? isServiceRequestTransitionAllowed(normalizedRequestStatus, action.status)
+          : true;
+        const isDisabled = isCurrentStatus || !isAllowedTransition;
         const Icon =
           action.status === SERVICE_REQUEST_STATUSES.tamamlandi
             ? adminActionIcons.approve
@@ -304,11 +321,17 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
             <input name="status" type="hidden" value={action.status} />
             <AdminActionButton
               className="w-full min-w-0 sm:w-auto sm:min-w-[6.5rem]"
-              disabled={isCurrentStatus}
+              disabled={isDisabled}
               icon={Icon}
               title={
                 isCurrentStatus
                   ? `Talep zaten ${action.label.toLocaleLowerCase("tr")}`
+                  : !isAllowedTransition
+                    ? nextStatuses.length > 0
+                      ? `Sıradaki uygun adımlar: ${nextStatuses
+                          .map((status) => SERVICE_REQUEST_STATUS_LABELS[status])
+                          .join(", ")}`
+                      : "Tamamlanan veya iptal edilen talepler tekrar açılamaz"
                   : `Durumu ${action.label} olarak güncelle`
               }
               tone={action.tone}
@@ -324,6 +347,8 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
 }
 
 function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
+  const normalizedRequestStatus = normalizeServiceRequestStatus(request.status);
+
   return (
     <AdminMobileCard>
       <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
@@ -345,6 +370,11 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
         </p>
         <div className="flex flex-wrap gap-2">
           <UrgencyBadge urgency={request.urgency} />
+          {normalizedRequestStatus ? (
+            <AdminStatusBadge tone="neutral">
+              {SERVICE_REQUEST_STATUS_DESCRIPTIONS[normalizedRequestStatus]}
+            </AdminStatusBadge>
+          ) : null}
         </div>
         <p>
           <span className="font-black text-[var(--brand-navy)]">Tercih edilen tarih: </span>
