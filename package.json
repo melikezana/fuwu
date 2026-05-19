@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.3",
     "lucide-react": "^1.14.0",
+=======
+    "@supabase/supabase-js": "^2.106.0",
+    "lucide-react": "^1.16.0",
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
     "next": "16.2.4",
     "react": "19.2.5",
     "react-dom": "19.2.5"

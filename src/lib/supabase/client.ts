@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -43,3 +44,13 @@ export function createClient(): SupabaseClient<Database> | null {
 
 export const createSupabaseBrowserClient = createClient;
 export type SupabaseDatabase = Database;
+=======
+import { createClient } from "@supabase/supabase-js";
+
+// Safe fallback for frontend (these would normally be in .env.local)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-url.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+
+// Create a single supabase client for interacting with your database
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)

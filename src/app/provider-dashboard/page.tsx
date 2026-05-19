@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from "next";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
@@ -116,5 +117,114 @@ export default async function ProviderDashboardPage() {
         <ProviderDashboardAccessPlaceholder message={providerAccess.message} />
       )}
     </ProviderDashboardShell>
+=======
+"use client";
+
+import Navbar from "@/components/layout/Navbar";
+import { Alert } from "@/components/ui/Alerts";
+import { Settings, Calendar, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { authService } from "@/services/auth";
+import Link from "next/link";
+
+export default function ProviderDashboardPage() {
+  const [isProvider, setIsProvider] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    checkProvider();
+  }, []);
+
+  const checkProvider = async () => {
+    try {
+      const providerStatus = await authService.isProvider();
+      setIsProvider(providerStatus);
+    } catch (err) {
+      setIsProvider(false);
+    }
+  };
+
+  if (isProvider === null) {
+    return (
+      <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+        <Navbar />
+        <div className="flex-1 p-6 lg:px-12 max-w-7xl mx-auto w-full py-12">
+          <div className="animate-pulse bg-white rounded-3xl p-8 shadow-sm h-64"></div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!isProvider) {
+    return (
+      <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-sm text-center flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-[#0D1424] mb-4">Erişim Bekleniyor</h2>
+            <Alert 
+              type="info" 
+              message="Usta paneli için giriş ve profil eşleştirme yakında aktif olacak. Eğer başvurunuz onaylandıysa, giriş bilgileriniz SMS ile iletilecektir." 
+              className="mb-6 text-left"
+            />
+            <Link 
+              href="/"
+              className="w-full bg-[#FF8A00] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#E67A00] transition-colors"
+            >
+              Ana Sayfaya Dön
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 lg:px-12 max-w-7xl mx-auto w-full py-12">
+        <h1 className="text-3xl font-bold text-[#0D1424] mb-2">Usta Paneli</h1>
+        <p className="text-gray-500 mb-8">Profilinizi ve müsaitlik durumunuzu yönetin.</p>
+        
+        <Alert 
+          type="info" 
+          title="Geliştirme Aşamasında" 
+          message="Usta paneli şu anda geliştirme aşamasındadır. Yakında profilinizi düzenleyebilecek ve doğrudan talepleri yanıtlayabileceksiniz." 
+          className="mb-8"
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 opacity-60 pointer-events-none">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Calendar size={28} />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-1">Müsaitlik Durumu</h3>
+              <p className="text-sm text-gray-500">Müşterilere şu an müsait olup olmadığınızı gösterin.</p>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 text-[#FF8A00] flex items-center justify-center">
+              <CheckCircle size={28} />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-1">Gelen Talepler</h3>
+              <p className="text-sm text-gray-500">Bölgenizdeki yeni iş fırsatlarını inceleyin.</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 text-gray-600 flex items-center justify-center">
+              <Settings size={28} />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-1">Profil Ayarları</h3>
+              <p className="text-sm text-gray-500">Hizmet bilgilerinizi ve fiyatlandırmanızı güncelleyin.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
@@ -153,5 +154,45 @@ export default async function AdminDashboardPage() {
       </section>
       </AdminPageShell>
     </AdminAccessGate>
+=======
+import Navbar from "@/components/layout/Navbar";
+import Link from "next/link";
+import { Users, ClipboardList } from "lucide-react";
+import AdminProtectedRoute from "@/components/auth/AdminProtectedRoute";
+
+export default function AdminDashboardPage() {
+  return (
+    <AdminProtectedRoute>
+    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 lg:px-12 max-w-7xl mx-auto w-full py-12">
+        <h1 className="text-3xl font-bold text-[#0D1424] mb-2">Admin Kontrol Paneli</h1>
+        <p className="text-gray-500 mb-10">Fuwu pazar yeri yönetim sistemine hoş geldiniz.</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Link href="/admin/requests" className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-6 group hover:border-[#FF8A00] transition-colors">
+            <div className="w-16 h-16 rounded-2xl bg-orange-50 text-[#FF8A00] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <ClipboardList size={32} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-[#0D1424] mb-1">Müşteri Talepleri</h2>
+              <p className="text-gray-500 text-sm">Gelen hizmet taleplerini inceleyin ve yönetin.</p>
+            </div>
+          </Link>
+          
+          <Link href="/admin/providers" className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-6 group hover:border-[#FF8A00] transition-colors">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <Users size={32} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-[#0D1424] mb-1">Usta Başvuruları</h2>
+              <p className="text-gray-500 text-sm">Yeni usta başvurularını onaylayın veya reddedin.</p>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </main>
+    </AdminProtectedRoute>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

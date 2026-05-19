@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { SectionIntro } from "@/components/ui/SectionIntro";
@@ -29,6 +30,40 @@ export function FeatureSection() {
               <p className="mt-3 leading-7 text-[var(--muted)]">{feature.description}</p>
             </div>
           ))}
+=======
+"use client";
+
+import { useTranslation } from "@/lib/i18n";
+import { ShieldCheck, Zap, PhoneCall } from "lucide-react";
+
+export default function FeatureSection() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      key: "trust",
+      icon: <ShieldCheck size={28} className="text-white" />,
+    },
+    {
+      key: "speed",
+      icon: <Zap size={28} className="text-white" />,
+    },
+    {
+      key: "support",
+      icon: <PhoneCall size={28} className="text-white" />,
+    }
+  ];
+
+  return (
+    <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-3">
+      {features.map((item) => (
+        <div key={item.key} className="rounded-3xl bg-white p-7 shadow-md transition-transform hover:-translate-y-1">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FF8A00] shadow-sm shadow-[#FF8A00]/20">
+            {item.icon}
+          </div>
+          <h4 className="mb-3 text-xl font-bold">{t(`features.${item.key}.title` as any)}</h4>
+          <p className="text-gray-600">{t(`features.${item.key}.desc` as any)}</p>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
         </div>
 
         <div className="mt-8 flex flex-col gap-3 rounded-lg border border-[rgba(255,138,0,0.26)] bg-[var(--brand-orange-soft)] p-5 sm:flex-row sm:items-center sm:justify-between">

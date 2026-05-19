@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
@@ -48,5 +49,26 @@ export default function KvkkPage() {
       titleKey="policy.kvkk.title"
       updatedAt="15 Mayıs 2026"
     />
+=======
+import Navbar from "@/components/layout/Navbar";
+
+export default function KVKKPage() {
+  return (
+    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 lg:px-12 max-w-4xl mx-auto w-full py-12">
+        <h1 className="text-3xl font-bold text-[#0D1424] mb-6">KVKK Aydınlatma Metni</h1>
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 prose prose-gray max-w-none">
+          <p>Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, Fuwu platformu olarak kişisel verilerinizin işlenmesi ve korunması ile ilgili sizi bilgilendirmek isteriz.</p>
+          <h3>1. Veri Sorumlusu</h3>
+          <p>Fuwu Bilişim Hizmetleri olarak, KVKK uyarınca "Veri Sorumlusu" sıfatıyla kişisel verilerinizi işliyoruz.</p>
+          <h3>2. İşlenen Kişisel Veriler</h3>
+          <p>Platformumuzu kullanırken sağladığınız ad, soyad, telefon numarası, e-posta adresi, konum bilgileri ve hizmet talebi detayları işlenmektedir.</p>
+          <h3>3. Kişisel Verilerin İşlenme Amacı</h3>
+          <p>Verileriniz, hizmet taleplerinizin ustalara iletilmesi, kullanıcı güvenliğinin sağlanması ve platform hizmetlerinin iyileştirilmesi amaçlarıyla işlenmektedir.</p>
+        </div>
+      </div>
+    </main>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

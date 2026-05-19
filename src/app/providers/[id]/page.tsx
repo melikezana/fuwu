@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Home, MessageCircle, Phone, UserSearch } from "lucide-react";
@@ -492,5 +493,162 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </div>
       </div>
     </div>
+=======
+"use client";
+
+import { use, useEffect, useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import { Alert } from "@/components/ui/Alerts";
+import { supabase } from "@/lib/supabase/client";
+import { Provider } from "@/services/providers";
+import { Star, MapPin, Wrench, Phone, MessageCircle, ChevronLeft } from "lucide-react";
+import { whatsappHelper } from "@/lib/whatsapp";
+import { analyticsService } from "@/services/analytics";
+import Link from "next/link";
+
+export default function ProviderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProvider();
+  }, [resolvedParams.id]);
+
+  const fetchProvider = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("providers")
+        .select("*")
+        .eq("id", resolvedParams.id)
+        .eq("status", "approved")
+        .single();
+
+      if (error) throw error;
+      setProvider(data);
+      analyticsService.trackProviderView(resolvedParams.id);
+    } catch (err: any) {
+      setError("Usta profili bulunamadı veya artık aktif değil.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+        <Navbar />
+        <div className="flex-1 max-w-3xl mx-auto w-full p-6 lg:p-12">
+          <div className="animate-pulse bg-white rounded-3xl p-8 shadow-sm h-64"></div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !provider) {
+    return (
+      <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full text-center">
+            <Alert type="error" message={error || "Kayıt bulunamadı"} className="mb-4" />
+            <Link href="/providers" className="text-[#FF8A00] font-medium hover:underline">
+              Ustalar listesine dön
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const handleWhatsApp = () => {
+    analyticsService.trackWhatsAppClick(provider.id);
+    const url = whatsappHelper.generateLeadUrl(provider.whatsapp, provider.category, provider.district);
+    window.open(url, "_blank");
+  };
+
+  const handlePhone = () => {
+    analyticsService.trackPhoneClick(provider.id);
+    window.open(`tel:${provider.phone}`);
+  };
+
+  const statusColors = {
+    müsait: "bg-green-100 text-green-700",
+    yoğun: "bg-orange-100 text-orange-700",
+    çevrimdışı: "bg-gray-100 text-gray-600",
+  };
+
+  return (
+    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+      <Navbar />
+      <div className="flex-1 max-w-3xl mx-auto w-full p-6 lg:py-12">
+        <Link href="/providers" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 font-medium transition-colors w-max">
+          <ChevronLeft size={20} />
+          <span>Geri Dön</span>
+        </Link>
+        
+        <div className="bg-white rounded-3xl p-6 lg:p-10 shadow-sm border border-gray-100">
+          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+            <div className="flex gap-4 items-center">
+              <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-3xl font-bold">
+                {provider.name.charAt(0)}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-[#0D1424] mb-2">{provider.name}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 font-medium">
+                  <span className="flex items-center gap-1"><Wrench size={16} /> {provider.category}</span>
+                  <span className="flex items-center gap-1"><MapPin size={16} /> {provider.district}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
+              <span className={`px-3 py-1 rounded-full text-sm font-bold ${statusColors[provider.availability]}`}>
+                {provider.availability.charAt(0).toUpperCase() + provider.availability.slice(1)}
+              </span>
+              <div className="flex items-center gap-1.5 text-[#FF8A00] font-bold text-lg">
+                <Star size={20} className="fill-[#FF8A00]" />
+                <span>{provider.rating.toFixed(1)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-bold mb-4">Hizmet Bilgileri</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                <span className="block text-sm text-gray-500 mb-1">Fiyat Aralığı</span>
+                <span className="font-bold">{provider.price_range || "Belirtilmemiş"}</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                <span className="block text-sm text-gray-500 mb-1">Katılım Tarihi</span>
+                <span className="font-bold">{new Date(provider.created_at).toLocaleDateString("tr-TR")}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-100">
+            <button 
+              onClick={handleWhatsApp}
+              className="w-full flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 py-4 rounded-2xl font-bold transition-colors text-lg"
+            >
+              <MessageCircle size={22} />
+              <span>WhatsApp</span>
+            </button>
+            
+            <button 
+              onClick={handlePhone}
+              className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 py-4 rounded-2xl font-bold transition-colors text-lg"
+            >
+              <Phone size={22} />
+              <span>Telefon</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

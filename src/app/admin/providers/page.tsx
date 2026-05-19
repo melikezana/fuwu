@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -438,5 +439,112 @@ export default async function AdminProvidersPage({
       )}
       </AdminPageShell>
     </AdminAccessGate>
+=======
+"use client";
+
+import { useEffect, useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import { adminService } from "@/services/admin";
+import { ProviderStatus, Provider } from "@/services/providers";
+import { Alert } from "@/components/ui/Alerts";
+import AdminProtectedRoute from "@/components/auth/AdminProtectedRoute";
+
+export default function AdminProvidersPage() {
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchPendingProviders();
+  }, []);
+
+  const fetchPendingProviders = async () => {
+    setLoading(true);
+    try {
+      const data = await adminService.getPendingProviders();
+      setProviders(data);
+    } catch (err: any) {
+      setError("Usta başvuruları yüklenemedi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (id: string, newStatus: ProviderStatus) => {
+    try {
+      await adminService.updateProviderStatus(id, newStatus);
+      // Remove from pending list
+      setProviders(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      alert("Durum güncellenemedi.");
+    }
+  };
+
+  return (
+    <AdminProtectedRoute>
+    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
+      <Navbar />
+      <div className="flex-1 p-6 lg:px-12 max-w-7xl mx-auto w-full">
+        <h2 className="text-2xl font-bold mb-6">Usta Başvuruları Yönetimi</h2>
+
+        {error && <Alert type="error" message={error} className="mb-6" />}
+
+        {loading ? (
+          <div className="animate-pulse space-y-4">
+            {[1, 2].map(i => (
+              <div key={i} className="h-20 bg-white rounded-xl shadow-sm border border-gray-100"></div>
+            ))}
+          </div>
+        ) : providers.length === 0 ? (
+          <Alert type="success" message="Bekleyen usta başvurusu bulunmamaktadır." />
+        ) : (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-gray-50 text-gray-600 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 font-medium">Usta / Firma</th>
+                    <th className="px-6 py-4 font-medium">Hizmet / Bölge</th>
+                    <th className="px-6 py-4 font-medium">İletişim</th>
+                    <th className="px-6 py-4 font-medium">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {providers.map(provider => (
+                    <tr key={provider.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 font-medium">{provider.name}</td>
+                      <td className="px-6 py-4">
+                        <span className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600 mr-2">{provider.category}</span>
+                        <span className="text-gray-500">{provider.district}</span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        <div>Tel: {provider.phone}</div>
+                        <div className="text-xs text-gray-400">WA: {provider.whatsapp}</div>
+                      </td>
+                      <td className="px-6 py-4 flex gap-2">
+                        <button 
+                          onClick={() => handleStatusChange(provider.id, "approved")}
+                          className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl font-medium transition-colors"
+                        >
+                          Onayla
+                        </button>
+                        <button 
+                          onClick={() => handleStatusChange(provider.id, "rejected")}
+                          className="px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl font-medium transition-colors"
+                        >
+                          Reddet
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+    </AdminProtectedRoute>
+>>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }
