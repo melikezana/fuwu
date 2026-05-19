@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -269,106 +268,5 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
         </div>
       </footer>
     </article>
-=======
-import { Star, MapPin, Wrench, Phone, MessageCircle, ChevronRight } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
-import { Provider } from "@/services/providers";
-import { analyticsService } from "@/services/analytics";
-import { whatsappHelper } from "@/lib/whatsapp";
-
-interface ProviderCardProps {
-  provider: Provider;
-}
-
-export default function ProviderCard({ provider }: ProviderCardProps) {
-  const { t } = useTranslation();
-
-  const handleWhatsApp = () => {
-    analyticsService.trackWhatsAppClick(provider.id);
-    const url = whatsappHelper.generateLeadUrl(provider.whatsapp, provider.category, provider.district);
-    window.open(url, "_blank");
-  };
-
-  const handlePhone = () => {
-    analyticsService.trackPhoneClick(provider.id);
-    window.open(`tel:${provider.phone}`);
-  };
-
-  const handleViewProfile = () => {
-    analyticsService.trackProviderView(provider.id);
-    // Future router.push(`/providers/${provider.id}`)
-  };
-
-  // Status badge styling
-  const statusColors = {
-    müsait: "bg-green-100 text-green-700",
-    yoğun: "bg-orange-100 text-orange-700",
-    çevrimdışı: "bg-gray-100 text-gray-600",
-  };
-
-  const statusLabel = {
-    müsait: t("provider.availability.available" as any) || "Müsait",
-    yoğun: t("provider.availability.busy" as any) || "Yoğun",
-    çevrimdışı: t("provider.availability.offline" as any) || "Çevrimdışı",
-  };
-
-  return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-3 items-center">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-            {/* Avatar placeholder */}
-            <span className="font-bold text-lg">{provider.name.charAt(0)}</span>
-          </div>
-          <div>
-            <h3 className="font-bold text-[#0D1424] text-lg">{provider.name}</h3>
-            <div className="flex items-center gap-1 text-sm text-gray-500">
-              <Wrench size={14} />
-              <span>{provider.category}</span>
-              <span className="mx-1">•</span>
-              <MapPin size={14} />
-              <span>{provider.district}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-col items-end gap-2">
-          <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[provider.availability]}`}>
-            {statusLabel[provider.availability]}
-          </span>
-          <div className="flex items-center gap-1 text-[#FF8A00] font-bold text-sm">
-            <Star size={14} className="fill-[#FF8A00]" />
-            <span>{provider.rating.toFixed(1)}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 mt-2">
-        <button 
-          onClick={handleWhatsApp}
-          className="flex-1 flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 py-2.5 rounded-xl font-medium transition-colors"
-        >
-          <MessageCircle size={18} />
-          <span className="text-sm">WhatsApp</span>
-        </button>
-        
-        <button 
-          onClick={handlePhone}
-          className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 py-2.5 rounded-xl font-medium transition-colors"
-        >
-          <Phone size={18} />
-          <span className="text-sm">Telefon</span>
-        </button>
-      </div>
-
-      <button 
-        onClick={handleViewProfile}
-        className="w-full flex items-center justify-between text-sm text-gray-600 hover:text-[#0D1424] font-medium py-2 border-t border-gray-100 mt-2 transition-colors group"
-      >
-        <span>{t("provider.inspectProfile" as any) || "Profili İncele"}</span>
-        <ChevronRight size={16} className="text-gray-400 group-hover:text-[#0D1424] group-hover:translate-x-1 transition-all" />
-      </button>
-    </div>
->>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

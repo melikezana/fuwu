@@ -47,19 +47,13 @@ type SpeechRecognitionLike = {
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
 function getSpeechRecognitionConstructor() {
   if (typeof window === "undefined") {
     return null;
   }
 
-  return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
+  const win = window as any;
+  return win.SpeechRecognition ?? win.webkitSpeechRecognition ?? null;
 }
 
 function createProviderQuery(kind: "category" | "district", value: string) {
@@ -205,12 +199,12 @@ export function VoiceCommandButton({
     recognition.interimResults = false;
     recognition.lang = "tr-TR";
     recognition.maxAlternatives = 1;
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: SpeechRecognitionEventLike) => {
       const lastResult = event.results[event.results.length - 1];
       const transcript = lastResult?.[0]?.transcript ?? "";
       executeTranscript(transcript);
     };
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: { error?: string }) => {
       setStatusMessage(event.error === "not-allowed" ? t("voice.permissionDenied") : t("voice.error"));
       setIsListening(false);
     };

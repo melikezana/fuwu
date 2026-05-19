@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
@@ -48,26 +47,5 @@ export default function TermsPage() {
       titleKey="policy.terms.title"
       updatedAt="15 Mayıs 2026"
     />
-=======
-import Navbar from "@/components/layout/Navbar";
-
-export default function KullanimSartlariPage() {
-  return (
-    <main className="min-h-screen bg-[#F5F6F8] flex flex-col">
-      <Navbar />
-      <div className="flex-1 p-6 lg:px-12 max-w-4xl mx-auto w-full py-12">
-        <h1 className="text-3xl font-bold text-[#0D1424] mb-6">Kullanım Şartları</h1>
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 prose prose-gray max-w-none">
-          <p>Fuwu platformunu kullanarak aşağıdaki şartları kabul etmiş sayılırsınız.</p>
-          <h3>1. Hizmet Tanımı</h3>
-          <p>Fuwu, hizmet almak isteyen kullanıcılar ile bağımsız hizmet veren ustaları bir araya getiren bir aracı platformdur.</p>
-          <h3>2. Kullanıcı Sorumlulukları</h3>
-          <p>Kullanıcılar platforma doğru ve güncel bilgi vermekle yükümlüdür. Yanlış bilgi verilmesi durumunda hesap askıya alınabilir.</p>
-          <h3>3. Uyuşmazlık Çözümü</h3>
-          <p>Hizmet veren ile hizmet alan arasında çıkabilecek olası uyuşmazlıklarda Fuwu sadece arabulucu rolü üstlenebilir, hukuki sorumluluk kabul etmez.</p>
-        </div>
-      </div>
-    </main>
->>>>>>> 41e55ab (Full marketplace backend auth and production update)
   );
 }

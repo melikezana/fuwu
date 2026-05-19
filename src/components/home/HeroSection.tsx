@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -155,43 +154,6 @@ function HeroVisual() {
           <div className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-3" key={label}>
             <p className="text-xl font-black leading-none text-[var(--brand-navy)]">{value}</p>
             <p className="mt-1 text-xs font-bold text-[var(--muted)]">{label}</p>
-=======
-"use client";
-
-import Button from "@/components/common/Button";
-import ServiceGrid from "@/components/home/ServiceGrid";
-import { useTranslation } from "@/lib/i18n";
-import VoiceCommand from "@/components/voice/VoiceCommand";
-
-export default function HeroSection() {
-  const { t } = useTranslation();
-
-  return (
-    <section className="px-6 py-20">
-      <div className="mx-auto max-w-6xl overflow-hidden rounded-[36px] bg-white shadow-xl">
-        <div className="grid items-center gap-10 p-10 md:grid-cols-2 md:p-14">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-semibold tracking-wide text-[#FF8A00]">
-                {t("hero.badge" as any)}
-              </p>
-              <VoiceCommand />
-            </div>
-
-            <h2 className="mb-6 text-4xl font-bold leading-tight md:text-5xl">
-              {t("hero.title" as any)}
-              <span className="text-[#FF8A00]">{t("hero.titleHighlight" as any)}</span>
-            </h2>
-
-            <p className="mb-8 text-lg leading-relaxed text-gray-600">
-              {t("hero.subtitle" as any)}
-            </p>
-
-            <div className="flex gap-4">
-              <Button>{t("hero.ctaPrimary" as any)}</Button>
-              <Button variant="secondary">{t("hero.ctaSecondary" as any)}</Button>
-            </div>
->>>>>>> 41e55ab (Full marketplace backend auth and production update)
           </div>
         ))}
       </div>
