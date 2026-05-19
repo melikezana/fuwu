@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, Volume2 } from "lucide-react";
+import { Mic, RotateCcw, Square, Volume2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/lib/accessibility/voiceCommands";
 import { appRoutes } from "@/lib/constants/navigation";
 import { useI18n } from "@/lib/i18n";
+import { trackVoiceCommandUsage } from "@/services/analytics";
 import type { Provider } from "@/types/provider";
 
 export type VoiceCommandButtonProps = {
@@ -40,7 +41,7 @@ type SpeechRecognitionLike = {
   abort: () => void;
   start: () => void;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
   onresult: ((event: SpeechRecognitionEventLike) => void) | null;
 };
 
@@ -109,6 +110,10 @@ export function VoiceCommandButton({
       readingLimited: t("voice.readingLimited"),
       unsupported: t("voice.readUnsupported"),
     });
+    trackVoiceCommandUsage({
+      action: "read-profiles",
+      matched: result.ok,
+    });
     setStatusMessage(result.message);
   }
 
@@ -116,18 +121,21 @@ export function VoiceCommandButton({
     const command = interpretVoiceCommand(transcript, { categories, districts });
 
     if (command.type === "category") {
+      trackVoiceCommandUsage({ action: "category", matched: true });
       setStatusMessage(t("voice.categoryOpening", { value: command.value }));
       router.push(createProviderQuery("category", command.value));
       return;
     }
 
     if (command.type === "district") {
+      trackVoiceCommandUsage({ action: "district", matched: true });
       setStatusMessage(t("voice.districtOpening", { value: command.value }));
       router.push(createProviderQuery("district", command.value));
       return;
     }
 
     if (command.type === "show-providers") {
+      trackVoiceCommandUsage({ action: "show-providers", matched: true });
       setStatusMessage(t("voice.providersOpening"));
       router.push(appRoutes.providers);
       return;
@@ -135,6 +143,7 @@ export function VoiceCommandButton({
 
     if (command.type === "whatsapp") {
       const focused = focusFirstWhatsAppLink();
+      trackVoiceCommandUsage({ action: "whatsapp", matched: focused });
       setStatusMessage(
         focused
           ? t("voice.whatsappFocused")
@@ -148,13 +157,33 @@ export function VoiceCommandButton({
       return;
     }
 
+    trackVoiceCommandUsage({ action: "unknown", matched: false });
     setStatusMessage(t("voice.unknown"));
+  }
+
+  function stopVoiceCommand(statusMessage: string) {
+    recognitionRef.current?.abort();
+    recognitionRef.current = null;
+    setIsListening(false);
+    setStatusMessage(statusMessage);
+  }
+
+  function handleStopClick() {
+    stopVoiceCommand(t("voice.stopped"));
+    trackVoiceCommandUsage({ action: "stop", matched: true });
+  }
+
+  function handleResetClick() {
+    stopVoiceCommand(t("voice.reset"));
+    window.speechSynthesis?.cancel();
+    trackVoiceCommandUsage({ action: "reset", matched: true });
   }
 
   async function handleVoiceCommandClick() {
     const SpeechRecognition = getSpeechRecognitionConstructor();
 
     if (!SpeechRecognition) {
+      trackVoiceCommandUsage({ action: "unsupported", matched: false });
       setStatusMessage(t("voice.unsupported"));
       return;
     }
@@ -163,6 +192,7 @@ export function VoiceCommandButton({
       setStatusMessage(t("voice.permissionRequest"));
       await requestMicrophonePermission();
     } catch {
+      trackVoiceCommandUsage({ action: "start", matched: false });
       setStatusMessage(t("voice.permissionDenied"));
       return;
     }
@@ -180,8 +210,8 @@ export function VoiceCommandButton({
       const transcript = lastResult?.[0]?.transcript ?? "";
       executeTranscript(transcript);
     };
-    recognition.onerror = () => {
-      setStatusMessage(t("voice.error"));
+    recognition.onerror = (event) => {
+      setStatusMessage(event.error === "not-allowed" ? t("voice.permissionDenied") : t("voice.error"));
       setIsListening(false);
     };
     recognition.onend = () => {
@@ -192,14 +222,16 @@ export function VoiceCommandButton({
     setStatusMessage(t("voice.listeningStatus"));
     try {
       recognition.start();
+      trackVoiceCommandUsage({ action: "start", matched: true });
     } catch {
       setIsListening(false);
+      trackVoiceCommandUsage({ action: "start", matched: false });
       setStatusMessage(t("voice.startFailed"));
     }
   }
 
   return (
-    <div className="mt-4 grid gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] p-3 sm:grid-cols-[auto_auto_minmax(0,1fr)] sm:items-center">
+    <div className="mt-4 grid gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] p-3 sm:grid-cols-[auto_auto_auto_auto_minmax(0,1fr)] sm:items-center">
       <button
         aria-label={t("voice.aria.start")}
         className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-black text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
@@ -214,6 +246,16 @@ export function VoiceCommandButton({
         {isListening ? t("voice.button.listening") : t("voice.button.start")}
       </button>
       <button
+        aria-label={t("voice.aria.stop")}
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55"
+        disabled={!isListening}
+        onClick={handleStopClick}
+        type="button"
+      >
+        <Square aria-hidden="true" className="size-4" />
+        {t("voice.button.stop")}
+      </button>
+      <button
         aria-label={t("voice.aria.read")}
         className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={runReadout}
@@ -221,6 +263,15 @@ export function VoiceCommandButton({
       >
         <Volume2 aria-hidden="true" className="size-4" />
         {t("voice.button.read")}
+      </button>
+      <button
+        aria-label={t("voice.aria.reset")}
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:col-auto"
+        onClick={handleResetClick}
+        type="button"
+      >
+        <RotateCcw aria-hidden="true" className="size-4" />
+        {t("voice.button.reset")}
       </button>
       <p aria-live="polite" className="cursor-default select-none text-sm font-semibold leading-6 text-[var(--muted)]">
         {statusMessage ?? defaultStatusMessage}

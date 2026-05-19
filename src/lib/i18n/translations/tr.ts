@@ -46,6 +46,7 @@ export const trTranslations = {
   "home.hero.title": "Ustaya ulaşmanın en hızlı yolu.",
   "home.hero.subtitle":
     "Hizmetini seç, ilçeni belirle, ustaları fiyat ve puana göre karşılaştır. Telefon veya WhatsApp ile direkt iletişime geç.",
+  "home.hero.mobileSummary": "Hizmet seç. İlçe seç. Usta Bul.",
   "home.hero.stats.available": "Müsait ustalar",
   "home.hero.stats.activeToday": "{count} müsait",
   "home.hero.stats.categoryCount": "{count} kategori",
@@ -161,6 +162,10 @@ export const trTranslations = {
   "home.trust.item4.title": "Memnuniyet önceliği",
   "home.trust.item4.description":
     "Net bilgiler ve doğrudan iletişimle kararını güvenle vermene yardımcı olur.",
+  "home.trust.signal.approved": "Onaylı profiller",
+  "home.trust.signal.direct": "Direkt iletişim",
+  "home.trust.signal.price": "Şeffaf fiyat aralığı",
+  "home.trust.signal.fast": "Hızlı dönüş",
   "home.faq.eyebrow": "Sık Sorulan Sorular",
   "home.faq.title": "Başlamadan önce kısa cevaplar",
   "home.faq.description":
@@ -331,8 +336,12 @@ export const trTranslations = {
   "voice.examples": "Örnek komutlar: {examples}.",
   "voice.button.start": "Sesli Komut",
   "voice.button.listening": "Dinleniyor...",
+  "voice.button.stop": "Durdur",
+  "voice.button.reset": "Sıfırla",
   "voice.button.read": "Profilleri Sesli Oku",
   "voice.aria.start": "Sesli komut başlat",
+  "voice.aria.stop": "Sesli komutu durdur",
+  "voice.aria.reset": "Sesli komut durumunu sıfırla",
   "voice.aria.read": "Listelenen profilleri sesli oku",
   "voice.categoryOpening": "{value} için ustalar açılıyor.",
   "voice.districtOpening": "{value} ustaları açılıyor.",
@@ -344,6 +353,8 @@ export const trTranslations = {
   "voice.permissionDenied": "Mikrofon izni verilmedi. Sesli komutu kullanmak için izni açabilirsin.",
   "voice.error": "Sesli komut alınamadı. Mikrofon iznini ve tarayıcı desteğini kontrol edebilirsin.",
   "voice.listeningStatus": "Dinleniyor...",
+  "voice.stopped": "Sesli komut durduruldu.",
+  "voice.reset": "Sesli komut sıfırlandı.",
   "voice.startFailed": "Sesli komut başlatılamadı. Biraz sonra tekrar deneyebilirsin.",
   "voice.unknown":
     "Komut anlaşılamadı. Tesisatçı ara, Kadıköy ustaları veya profilleri oku diyebilirsin.",

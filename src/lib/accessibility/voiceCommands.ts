@@ -1,6 +1,9 @@
-import type { Provider } from "@/types/provider";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { providerDistricts } from "@/lib/constants/providers";
+export {
+  getProviderSpeechSummary,
+  readProviderSummaries,
+} from "@/lib/accessibility/providerReadout";
 
 export type VoiceCommandIntent =
   | {
@@ -207,53 +210,4 @@ export function getKnownVoiceCommandExamples() {
 
 export function getVoiceCommandCategories() {
   return services.map((service) => service.title);
-}
-
-export function getProviderSpeechSummary(provider: Provider) {
-  return `${provider.name}, ${provider.district}, ${provider.category}, ${provider.rating.toFixed(
-    1,
-  )} puan, fiyat aralığı ${provider.averagePrice}`;
-}
-
-export function readProviderSummaries(
-  providers: Provider[],
-  messages: {
-    empty: string;
-    reading: string;
-    readingLimited: string;
-    unsupported: string;
-  } = {
-    empty: "Sesli okunacak profil bulunamadı.",
-    reading: "Profiller sesli okunuyor.",
-    readingLimited: "İlk 6 profil sesli okunuyor.",
-    unsupported: "Bu tarayıcı sesli okumayı desteklemiyor.",
-  },
-) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    return {
-      ok: false,
-      message: messages.unsupported,
-    };
-  }
-
-  if (providers.length === 0) {
-    return {
-      ok: false,
-      message: messages.empty,
-    };
-  }
-
-  const summaries = providers.slice(0, 6).map(getProviderSpeechSummary);
-  const utterance = new SpeechSynthesisUtterance(summaries.join(". "));
-
-  utterance.lang = "tr-TR";
-  utterance.rate = 0.92;
-  utterance.pitch = 1;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
-
-  return {
-    ok: true,
-    message: providers.length > 6 ? messages.readingLimited : messages.reading,
-  };
 }

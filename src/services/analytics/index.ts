@@ -38,6 +38,16 @@ type ProviderApplicationSubmittedPayload = {
   serviceArea?: string;
 };
 
+type LoginAttemptPayload = {
+  method: "email" | "google" | "phone";
+  status: "attempted" | "blocked" | "failed" | "success";
+};
+
+type VoiceCommandPayload = {
+  action: "category" | "district" | "read-profiles" | "reset" | "show-providers" | "start" | "stop" | "unsupported" | "unknown" | "whatsapp";
+  matched?: boolean;
+};
+
 declare global {
   interface Window {
     gtag?: (command: "event", eventName: string, parameters?: Record<string, AnalyticsValue>) => void;
@@ -46,11 +56,13 @@ declare global {
 
 const analyticsEvents = {
   filterUsed: "filter_used",
+  loginAttempt: "login_attempt",
   pageView: "page_view",
   phoneClick: "phone_click",
   providerApplicationSubmitted: "provider_application_submitted",
   providerDetailOpen: "provider_detail_open",
   requestSubmit: "request_submit",
+  voiceCommandUsage: "voice_command_usage",
   whatsappClick: "whatsapp_click",
 } as const;
 
@@ -172,5 +184,19 @@ export function trackProviderApplicationSubmitted(
     category: payload.category,
     mode: payload.mode,
     service_area: payload.serviceArea,
+  });
+}
+
+export function trackLoginAttempt(payload: LoginAttemptPayload) {
+  trackOperationalEvent(analyticsEvents.loginAttempt, {
+    method: payload.method,
+    status: payload.status,
+  });
+}
+
+export function trackVoiceCommandUsage(payload: VoiceCommandPayload) {
+  trackOperationalEvent(analyticsEvents.voiceCommandUsage, {
+    action: payload.action,
+    matched: payload.matched,
   });
 }

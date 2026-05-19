@@ -264,7 +264,7 @@ export function ProviderFilters({
       </div>
 
       <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(13rem,1.25fr)_minmax(12rem,1fr)_minmax(9rem,0.85fr)_minmax(9rem,0.85fr)_minmax(10rem,0.9fr)_minmax(8.5rem,auto)] xl:items-end">
-        <div className="hidden md:block md:col-span-2 xl:col-span-6">
+        <div className="order-0 md:order-none md:col-span-2 xl:col-span-6">
           <FilterField label={t("filters.search")}>
             <input
               className={selectedInputClassName(Boolean(values?.query))}
@@ -371,7 +371,7 @@ export function ProviderFilters({
         </Button>
 
         {priceOptions.length > 0 ? (
-          <div className="hidden md:block md:col-span-2 xl:col-span-2">
+          <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}>
             <FilterField label={t("filters.pricePreset")}>
               <select
                 className={selectedSelectClassName(Boolean(selectedPriceValue))}
@@ -389,7 +389,7 @@ export function ProviderFilters({
           </div>
         ) : null}
 
-        <div className="hidden md:block md:col-span-2 xl:col-span-4">
+        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-4")}>
           <FilterField label={t("filters.availability")}>
             <select
               className={selectedSelectClassName(Boolean(values?.availability))}

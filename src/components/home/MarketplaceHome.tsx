@@ -83,12 +83,12 @@ const trustItems = [
 
 const mobileTrustSignals: Array<{
   icon: LucideIcon;
-  label: string;
+  labelKey: TranslationKey;
 }> = [
-  { icon: ShieldCheck, label: "Onaylı profiller" },
-  { icon: MessageCircle, label: "Direkt iletişim" },
-  { icon: WalletCards, label: "Şeffaf fiyat aralığı" },
-  { icon: Zap, label: "Hızlı dönüş" },
+  { icon: ShieldCheck, labelKey: "home.trust.signal.approved" },
+  { icon: MessageCircle, labelKey: "home.trust.signal.direct" },
+  { icon: WalletCards, labelKey: "home.trust.signal.price" },
+  { icon: Zap, labelKey: "home.trust.signal.fast" },
 ];
 
 const orderedServices = serviceOrder
@@ -124,10 +124,12 @@ function MobileHeroTrustSignals() {
         return (
           <div
             className="inline-flex min-h-10 cursor-default select-none items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-black leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)]"
-            key={signal.label}
+            key={signal.labelKey}
           >
             <Icon aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange-dark)]" />
-            <span className="min-w-0">{signal.label}</span>
+            <span className="min-w-0">
+              <I18nText i18nKey={signal.labelKey} />
+            </span>
           </div>
         );
       })}
@@ -291,7 +293,7 @@ function HeroSection({
           </h1>
           <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-semibold leading-6 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
             <span className="sm:hidden">
-              Hizmet seç. İlçe seç. Usta Bul.
+              <I18nText i18nKey="home.hero.mobileSummary" />
             </span>
             <span className="hidden sm:inline">
               <I18nText i18nKey="home.hero.subtitle" />

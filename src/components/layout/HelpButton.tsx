@@ -1,17 +1,28 @@
 "use client";
 
 import { HelpCircle, Mail, MessageCircle, Phone, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { customerServiceContact } from "@/lib/constants/contact";
+import { cn } from "@/lib/utils";
 
 const helpActionClassName =
   "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--surface-soft)] px-3 text-sm font-black text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2";
 
 export function HelpButton() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const hasMobileContactBar = /^\/providers\/[^/]+/.test(pathname ?? "");
 
   return (
-    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 flex max-w-[calc(100vw-2rem)] flex-col items-end sm:bottom-5 sm:right-5">
+    <div
+      className={cn(
+        "fixed right-4 z-40 flex max-w-[calc(100vw-2rem)] flex-col items-end sm:bottom-5 sm:right-5",
+        hasMobileContactBar
+          ? "bottom-[calc(5.75rem+env(safe-area-inset-bottom))] lg:bottom-[calc(1rem+env(safe-area-inset-bottom))]"
+          : "bottom-[calc(1rem+env(safe-area-inset-bottom))]",
+      )}
+    >
       {isOpen ? (
         <div className="mb-3 w-[min(calc(100vw-2rem),320px)] cursor-default select-none rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_22px_70px_rgba(13,20,36,0.18)]">
           <div className="flex items-start justify-between gap-3">

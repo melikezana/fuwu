@@ -107,11 +107,12 @@ export function getProviderAvailabilityTone(availability: ProviderAvailabilitySt
 }
 
 export function getProviderWhatsAppHref(provider: Provider) {
+  const whatsappNumber = provider.whatsapp.replace(/\D/g, "");
   const message = encodeURIComponent(
     `Merhaba, Fuwu üzerinden ulaşıyorum. ${provider.district} için ${provider.category} hizmeti almak istiyorum.`,
   );
 
-  return `https://wa.me/${provider.whatsapp}?text=${message}`;
+  return `https://wa.me/${whatsappNumber}?text=${message}`;
 }
 
 export function isLiveProvider(provider: Provider) {

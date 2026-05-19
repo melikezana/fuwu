@@ -31,6 +31,7 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 const localeChangeEventName = "fuwu-locale-change";
+let volatileLocale: LocaleCode = defaultLocale;
 
 function applyDocumentLocale(locale: LocaleCode) {
   const localeConfig = getLocaleConfig(locale);
@@ -44,9 +45,15 @@ function getStoredLocale() {
     return defaultLocale;
   }
 
-  const storedLocale = window.localStorage.getItem(localeStorageKey);
+  let storedLocale: string | null = null;
 
-  return isSupportedLocale(storedLocale) ? storedLocale : defaultLocale;
+  try {
+    storedLocale = window.localStorage.getItem(localeStorageKey);
+  } catch {
+    return volatileLocale;
+  }
+
+  return isSupportedLocale(storedLocale) ? storedLocale : volatileLocale;
 }
 
 function subscribeToLocaleChanges(callback: () => void) {
@@ -70,14 +77,27 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     () => defaultLocale,
   );
   const setLocale = useCallback((nextLocale: LocaleCode) => {
-    window.localStorage.setItem(localeStorageKey, nextLocale);
+    volatileLocale = nextLocale;
+
+    try {
+      window.localStorage.setItem(localeStorageKey, nextLocale);
+    } catch {
+      // Keep the visible locale responsive even when browser storage is blocked.
+    }
+
     window.dispatchEvent(new Event(localeChangeEventName));
   }, []);
 
   useEffect(() => {
+    volatileLocale = locale;
     applyDocumentLocale(locale);
-    if (window.localStorage.getItem(localeStorageKey) !== locale) {
-      window.localStorage.setItem(localeStorageKey, locale);
+
+    try {
+      if (window.localStorage.getItem(localeStorageKey) !== locale) {
+        window.localStorage.setItem(localeStorageKey, locale);
+      }
+    } catch {
+      // Turkish remains the safe runtime fallback when persistence is unavailable.
     }
   }, [locale]);
 
