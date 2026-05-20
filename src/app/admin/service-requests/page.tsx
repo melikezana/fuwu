@@ -28,6 +28,7 @@ import {
   isServiceRequestTransitionAllowed,
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
+import { AssignProviderSection } from "./AssignProviderSection";
 
 export const dynamic = "force-dynamic";
 
@@ -392,6 +393,14 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
 
       <div className="mt-4">
         <RequestActions request={request} />
+        <div className="mt-2">
+          <AssignProviderSection 
+            requestId={request.id} 
+            status={request.status} 
+            assignedProviderId={request.assignedProviderId}
+            assignedProviderName={request.assignedProviderName}
+          />
+        </div>
       </div>
     </AdminMobileCard>
   );
@@ -483,6 +492,14 @@ export default async function AdminServiceRequestsPage({
                     </td>
                     <td className="px-4 py-4">
                       <RequestActions request={request} />
+                      <div className="mt-2">
+                        <AssignProviderSection 
+                          requestId={request.id} 
+                          status={request.status} 
+                          assignedProviderId={request.assignedProviderId}
+                          assignedProviderName={request.assignedProviderName}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

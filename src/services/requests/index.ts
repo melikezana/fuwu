@@ -221,3 +221,144 @@ export async function submitServiceRequest(
 
   return response.data ?? submitResult;
 }
+
+export async function getMatchedProviders(requestId: string) {
+  const supabase = createServiceRequestClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  // 1. Get request's category_id and district_id
+  const { data: requestData, error: requestError } = await supabase
+    .from("service_requests")
+    .select("category_id, district_id")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (requestError || !requestData) {
+    return [];
+  }
+
+  // 2. Fetch matched providers
+  const { data, error } = await supabase
+    .from("providers")
+    .select("id, name, phone, whatsapp, rating, average_price_min, average_price_max, experience_years, district_id")
+    .eq("category_id", requestData.category_id)
+    .eq("is_active", true)
+    .eq("is_approved", true);
+
+  if (error) {
+    warnServiceRequestError("Matched providers read failed.", error);
+    return [];
+  }
+
+  const providers = data ?? [];
+
+  // Sort providers so the ones in the exact same district come first
+  return providers.sort((a, b) => {
+    if (a.district_id === requestData.district_id && b.district_id !== requestData.district_id) return -1;
+    if (a.district_id !== requestData.district_id && b.district_id === requestData.district_id) return 1;
+    return 0;
+  });
+}
+
+export async function assignProviderToRequest(requestId: string, providerId: string) {
+  const supabase = createServiceRequestClient();
+
+  if (!supabase) {
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: "Atama işlemi tamamlanamadı.",
+    });
+  }
+
+  const { error } = await supabase
+    .from("service_requests")
+    .update({ 
+      assigned_provider_id: providerId,
+      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi 
+    })
+    .eq("id", requestId);
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Assign provider to request failed.",
+      publicMessage: "Atama işlemi Supabase üzerinde başarısız oldu.",
+    });
+  }
+
+  return true;
+}
+
+export async function getProviderAssignedRequests(providerId: string) {
+  const supabase = createServiceRequestClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("service_requests")
+    .select(`
+      id,
+      urgency,
+      status,
+      preferred_date,
+      preferred_time,
+      description,
+      created_at,
+      service_categories(name),
+      districts(name),
+      profiles(full_name, phone)
+    `)
+    .eq("assigned_provider_id", providerId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    warnServiceRequestError("Provider assigned requests read failed.", error);
+    return [];
+  }
+
+  // Format to standard UI layout similar to AdminServiceRequest
+  return (data ?? []).map((request: any) => ({
+    id: request.id,
+    status: request.status,
+    urgency: request.urgency,
+    preferredDate: request.preferred_date,
+    preferredTime: request.preferred_time,
+    createdAt: request.created_at,
+    category: Array.isArray(request.service_categories) ? request.service_categories[0]?.name : request.service_categories?.name ?? "Belirtilmedi",
+    district: Array.isArray(request.districts) ? request.districts[0]?.name : request.districts?.name ?? "Belirtilmedi",
+    customerName: Array.isArray(request.profiles) ? request.profiles[0]?.full_name : request.profiles?.full_name ?? "Müşteri",
+    phone: Array.isArray(request.profiles) ? request.profiles[0]?.phone : request.profiles?.phone ?? "Belirtilmedi",
+    description: request.description ?? "",
+  }));
+}
+
+export async function updateProviderAssignedRequestStatus(
+  requestId: string,
+  providerId: string,
+  status: "tamamlandi" | "iptal"
+) {
+  const supabase = createServiceRequestClient();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("service_requests")
+    .update({ status })
+    .eq("id", requestId)
+    .eq("assigned_provider_id", providerId)
+    // they can only update if it is currently in 'ustaya_yonlendirildi'
+    .eq("status", SERVICE_REQUEST_STATUSES.ustayaYonlendirildi);
+
+  if (error) {
+    warnServiceRequestError("Provider request status update failed.", error);
+    return false;
+  }
+
+  return true;
+}
+

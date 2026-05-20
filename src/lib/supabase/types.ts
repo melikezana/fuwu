@@ -271,6 +271,7 @@ export type Database = {
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
+          assigned_provider_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -290,6 +291,7 @@ export type Database = {
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
+          assigned_provider_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -309,6 +311,7 @@ export type Database = {
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
+          assigned_provider_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -332,6 +335,13 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_requests_assigned_provider_id_fkey";
+            columns: ["assigned_provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
             referencedColumns: ["id"];
           },
         ];

@@ -142,10 +142,12 @@ type AdminServiceRequestRecord = Pick<
   | "status"
   | "urgency"
   | "user_id"
+  | "assigned_provider_id"
 > & {
   districts: MaybeRelation;
   profiles: MaybeProfileRelation;
   service_categories: MaybeRelation;
+  providers: { id: string; name: string } | { id: string; name: string }[] | null;
 };
 
 type AdminProviderPublicationUpdate = Partial<
@@ -195,6 +197,8 @@ export type AdminServiceRequest = {
   preferredTime: string | null;
   status: string;
   urgency: string;
+  assignedProviderId: string | null;
+  assignedProviderName: string | null;
 };
 
 export type AdminReadResult<T> = {
@@ -1052,6 +1056,69 @@ export async function updateAdminServiceRequestStatus(
   return createServiceRequestActionResult("service-request-updated", true);
 }
 
+export async function assignAdminServiceRequest(
+  requestId: string,
+  providerId: string,
+): Promise<AdminServiceRequestActionResult> {
+  const normalizedRequestId = sanitizeText(requestId, 80);
+  const normalizedProviderId = sanitizeText(providerId, 80);
+
+  if (!normalizedRequestId) {
+    return createServiceRequestActionResult("service-request-missing-id", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createServiceRequestActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const { data: existingRequest, error: lookupError } = await supabase
+    .from("service_requests")
+    .select("id, status")
+    .eq("id", normalizedRequestId)
+    .maybeSingle();
+
+  if (lookupError || !existingRequest) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  const { data, error } = await supabase
+    .from("service_requests")
+    .update({ 
+      assigned_provider_id: normalizedProviderId,
+      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi 
+    })
+    .eq("id", normalizedRequestId)
+    .select("id")
+    .maybeSingle();
+
+  if (error || !data) {
+    warnAdminWriteError("service request provider assignment", error);
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
+  await insertAuditLog({
+    action: "service_request.assigned",
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedRequestId,
+    entityType: "service_request",
+    metadata: {
+      providerId: normalizedProviderId,
+      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    },
+    supabase,
+  });
+
+  return createServiceRequestActionResult("service-request-updated", true);
+}
+
 export async function updateAdminProviderStatus(
   providerId: string,
   action: string,
@@ -1293,9 +1360,11 @@ export async function getAdminServiceRequests(): Promise<
         preferred_time,
         description,
         created_at,
+        assigned_provider_id,
         service_categories(name),
         districts(name),
-        profiles(full_name, phone)
+        profiles(full_name, phone),
+        providers(id, name)
       `,
     )
     .order("created_at", { ascending: false });
@@ -1319,6 +1388,8 @@ export async function getAdminServiceRequests(): Promise<
       preferredTime: request.preferred_time,
       status: sanitizeText(request.status, 40),
       urgency: sanitizeText(request.urgency, 40),
+      assignedProviderId: request.assigned_provider_id ?? null,
+      assignedProviderName: Array.isArray(request.providers) ? request.providers[0]?.name : request.providers?.name ?? null,
     })),
   );
 }

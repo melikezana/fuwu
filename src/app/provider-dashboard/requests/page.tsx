@@ -7,6 +7,9 @@ import {
 } from "@/components/dashboard/ProviderDashboardUI";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
+import { getProviderAssignedRequests } from "@/services/requests";
+import { providerUpdateRequestStatusAction } from "./actions";
+import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +18,12 @@ export const metadata: Metadata = {
   description: "Fuwu onaylı ustaları için gelen talep görünümü.",
 };
 
-const requestPlaceholders: Array<{
-  id: string;
-  district: string;
-  service: string;
-  status: string;
-  time: string;
-}> = [];
-
 export default async function ProviderDashboardRequestsPage() {
   const providerAccess = await getProviderDashboardAccess();
+  
+  const assignedRequests = providerAccess.ok 
+    ? await getProviderAssignedRequests(providerAccess.profile.id)
+    : [];
 
   return (
     <ProviderDashboardShell
@@ -52,7 +51,7 @@ export default async function ProviderDashboardRequestsPage() {
                 {getProviderAvailabilityLabel(providerAccess.profile.availability)}
               </ProviderStatusBadge>
               <ProviderStatusBadge tone="orange">
-                {requestPlaceholders.length} talep
+                {assignedRequests.length} talep
               </ProviderStatusBadge>
             </div>
           </div>
@@ -68,21 +67,49 @@ export default async function ProviderDashboardRequestsPage() {
               <span>Zaman</span>
               <span>Durum</span>
             </div>
-            {requestPlaceholders.map((request) => (
+            {assignedRequests.map((request) => (
               <article
-                className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] border-t border-[var(--border)] px-4 py-4 text-sm font-bold text-[var(--brand-navy)]"
+                className="flex flex-col gap-3 border-t border-[var(--border)] px-4 py-4 md:grid md:grid-cols-[1.1fr_1fr_1fr_0.8fr]"
                 key={request.id}
               >
-                <span>{request.service}</span>
-                <span>{request.district}</span>
-                <span>{request.time}</span>
-                <span>{request.status}</span>
+                <div className="flex flex-col">
+                  <span className="font-black text-[var(--brand-navy)]">{request.category}</span>
+                  <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
+                </div>
+                <div className="flex items-center text-sm font-bold text-[var(--brand-navy)]">
+                  <span>{request.district}</span>
+                </div>
+                <div className="flex flex-col justify-center text-sm">
+                  <span className="font-bold text-[var(--brand-navy)]">{request.preferredDate || "Tarih esnek"}</span>
+                  <span className="text-[var(--muted)]">{request.preferredTime || "Saat esnek"}</span>
+                </div>
+                <div className="flex flex-col gap-2 justify-center">
+                  <span className="text-sm font-bold text-[var(--brand-navy)]">{request.status}</span>
+                  {request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi && (
+                    <div className="flex gap-2 mt-2">
+                      <form action={providerUpdateRequestStatusAction}>
+                        <input type="hidden" name="requestId" value={request.id} />
+                        <input type="hidden" name="status" value="tamamlandi" />
+                        <button type="submit" className="text-xs font-black px-3 py-1.5 rounded-md border bg-[var(--trust-green-soft)] text-[var(--trust-green)] border-[rgba(23,116,95,0.24)] hover:bg-[rgba(23,116,95,0.15)] transition-colors active:scale-[0.98]">
+                          Tamamla
+                        </button>
+                      </form>
+                      <form action={providerUpdateRequestStatusAction}>
+                        <input type="hidden" name="requestId" value={request.id} />
+                        <input type="hidden" name="status" value="iptal" />
+                        <button type="submit" className="text-xs font-black px-3 py-1.5 rounded-md border bg-red-50 text-red-700 border-red-200 hover:bg-red-100 transition-colors active:scale-[0.98]">
+                          İptal
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
               </article>
             ))}
           </div>
 
           <div className="mt-5">
-            {requestPlaceholders.length > 0 ? null : <ProviderRequestsEmptyState />}
+            {assignedRequests.length > 0 ? null : <ProviderRequestsEmptyState />}
           </div>
         </section>
       ) : (
