@@ -154,7 +154,7 @@ function formatAveragePrice(minimumPrice: number | null, maximumPrice: number | 
     return `${formatPrice(maximumPrice)} TL'ye kadar`;
   }
 
-  return "Fiyat görüşmede netleşir";
+  return "Fiyat bilgisi yakında";
 }
 
 function normalizePhoneForWhatsApp(value: string) {

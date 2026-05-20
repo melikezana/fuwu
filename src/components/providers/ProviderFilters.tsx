@@ -326,7 +326,7 @@ export function ProviderFilters({
                 inputMode="numeric"
                 min="0"
                 name="average_price_min"
-                placeholder={t("filters.minimumPricePlaceholder")}
+                placeholder="En az"
                 step="50"
                 type="number"
               />
@@ -337,7 +337,7 @@ export function ProviderFilters({
                 inputMode="numeric"
                 min="0"
                 name="average_price_max"
-                placeholder={t("filters.maximumPricePlaceholder")}
+                placeholder="En çok"
                 step="50"
                 type="number"
               />
