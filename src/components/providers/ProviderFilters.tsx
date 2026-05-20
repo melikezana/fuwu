@@ -314,10 +314,14 @@ export function ProviderFilters({
           className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}
           id={advancedPanelId}
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <FilterField label={t("filters.minimumPrice")}>
+          <div className="block min-w-0 cursor-default">
+            <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
+              Fiyat Aralığı
+            </span>
+            <div className="mt-2 grid grid-cols-2 gap-2">
               <input
-                className={selectedInputClassName(Boolean(values?.minimumPrice))}
+                aria-label={t("filters.minimumPrice")}
+                className={selectedInputClassName(Boolean(values?.minimumPrice)).replace("mt-2", "")}
                 defaultValue={values?.minimumPrice ?? ""}
                 inputMode="numeric"
                 min="0"
@@ -326,11 +330,9 @@ export function ProviderFilters({
                 step="50"
                 type="number"
               />
-            </FilterField>
-
-            <FilterField label={t("filters.maximumPrice")}>
               <input
-                className={selectedInputClassName(Boolean(values?.maximumPrice))}
+                aria-label={t("filters.maximumPrice")}
+                className={selectedInputClassName(Boolean(values?.maximumPrice)).replace("mt-2", "")}
                 defaultValue={values?.maximumPrice ?? ""}
                 inputMode="numeric"
                 min="0"
@@ -339,7 +341,7 @@ export function ProviderFilters({
                 step="50"
                 type="number"
               />
-            </FilterField>
+            </div>
           </div>
         </div>
 
