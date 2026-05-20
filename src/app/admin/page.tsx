@@ -19,6 +19,18 @@ import {
   getAdminDashboardSummary,
   type AdminDashboardSummary,
 } from "@/services/admin";
+import { 
+  getAdminOverviewMetrics,
+  getRequestAnalytics,
+  getProviderAnalytics,
+  getAssignmentMonitoring,
+  getLatestAuditLogs 
+} from "@/services/admin/operations";
+import { MetricCard } from "@/components/admin/MetricCard";
+import { AdminSection } from "@/components/admin/AdminSection";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
+import { SERVICE_REQUEST_STATUS_LABELS } from "@/lib/constants/statuses";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +108,182 @@ function DashboardSummaryCards({ summary }: { summary: AdminDashboardSummary }) 
   );
 }
 
+function OperationalAlerts({ overview }: { overview: any }) {
+  const alerts = [];
+  if (overview.onayBekleyenUsta > 0) alerts.push(`${overview.onayBekleyenUsta} onay bekleyen usta başvurusu var.`);
+  if (overview.bekleyenTalep > 0) alerts.push(`${overview.bekleyenTalep} atanmamış/bekleyen talep var.`);
+  if (overview.aktifUsta < 10) alerts.push("Aktif usta sayısı düşük, platform kapasitesi sınırlı olabilir.");
+  
+  if (alerts.length === 0) return null;
+
+  return (
+    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-semibold">
+      <h3 className="flex items-center gap-2 mb-2 text-base font-black">
+        <AlertTriangle className="h-5 w-5" /> Operasyonel Uyarılar
+      </h3>
+      <ul className="list-disc pl-5 space-y-1">
+        {alerts.map((a, i) => <li key={i}>{a}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+function OverviewMetrics({ overview }: { overview: any }) {
+  return (
+    <AdminSection title="Operasyonel Özet">
+      <div className="flex gap-4 min-w-max pb-2">
+        <MetricCard label="Toplam Talep" value={overview.toplamTalep} />
+        <MetricCard label="Bekleyen Talep" value={overview.bekleyenTalep} />
+        <MetricCard label="İncelenen Talep" value={overview.incelenenTalep} />
+        <MetricCard label="Ustaya Yönlendirilen" value={overview.ustayaYonlendirildi} />
+        <MetricCard label="Tamamlanan" value={overview.tamamlananTalep} />
+        <MetricCard label="İptal Edilen" value={overview.iptalEdilenTalep} />
+        <MetricCard label="Aktif Usta" value={overview.aktifUsta} />
+        <MetricCard label="Onay Bekleyen Usta" value={overview.onayBekleyenUsta} />
+      </div>
+    </AdminSection>
+  );
+}
+
+function RequestAnalyticsSection({ analytics }: { analytics: any }) {
+  if (!analytics) return null;
+  return (
+    <AdminSection title="Talep Analitiği">
+      <div className="grid md:grid-cols-3 gap-6 min-w-[600px]">
+        <div>
+          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Duruma Göre</h4>
+          {Object.entries(analytics.byStatus).map(([status, count]: any) => (
+            <div key={status} className="flex justify-between text-sm py-1 border-b last:border-0">
+              <span className="font-semibold text-[var(--brand-navy)]">{SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || status}</span>
+              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
+          {Object.entries(analytics.byCategory).map(([cat, count]: any) => (
+            <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
+              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
+              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
+          {Object.entries(analytics.byDistrict).map(([dist, count]: any) => (
+            <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
+              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
+              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AdminSection>
+  );
+}
+
+function ProviderAnalyticsSection({ analytics }: { analytics: any }) {
+  if (!analytics) return null;
+  return (
+    <AdminSection title="Usta Analitiği">
+      <div className="flex gap-4 mb-6 min-w-max">
+        <MetricCard label="Aktif Ustalar" value={analytics.active} />
+        <MetricCard label="Onaylı Ustalar" value={analytics.approved} />
+        <MetricCard label="Pasif/Askıda" value={analytics.inactive} />
+      </div>
+      <div className="grid md:grid-cols-2 gap-6 min-w-[400px]">
+        <div>
+          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
+          {Object.entries(analytics.byCategory).map(([cat, count]: any) => (
+            <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
+              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
+              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
+          {Object.entries(analytics.byDistrict).map(([dist, count]: any) => (
+            <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
+              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
+              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AdminSection>
+  );
+}
+
+function AssignmentMonitoringSection({ assignments }: { assignments: any[] }) {
+  return (
+    <AdminSection title="Aktif Atamalar ve Eşleşmeler" description="Ustaya yönlendirilmiş ancak henüz tamamlanmamış veya yakın zamanda atanmış son 50 talep.">
+      {assignments.length === 0 ? (
+        <EmptyAdminState message="Şu anda takip edilen atanmış talep bulunmuyor." />
+      ) : (
+        <table className="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr className="border-b-2 border-[var(--border)]">
+              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Müşteri Tel</th>
+              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Kategori & İlçe</th>
+              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Atanan Usta</th>
+              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assignments.map(a => (
+              <tr key={a.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]">
+                <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">{a.customerPhone}</td>
+                <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">
+                  {a.category}<br/>
+                  <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
+                </td>
+                <td className="py-3 px-4 text-sm font-black text-[var(--brand-orange)]">{a.assignedProviderName}</td>
+                <td className="py-3 px-4">
+                  <StatusBadge status={SERVICE_REQUEST_STATUS_LABELS[a.status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || a.status} tone={a.status === 'tamamlandi' ? 'success' : 'info'} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </AdminSection>
+  );
+}
+
+function AuditLogsSection({ logsData }: { logsData: any }) {
+  return (
+    <AdminSection title="Sistem İşlem Geçmişi (Audit Logs)">
+      {logsData.error ? (
+        <EmptyAdminState message="Audit log altyapısı için tablo hazırlandığında burada işlem geçmişi görünecek." />
+      ) : logsData.data.length === 0 ? (
+        <EmptyAdminState message="Kayıtlı işlem geçmişi bulunmuyor." />
+      ) : (
+        <table className="w-full text-left border-collapse min-w-[600px]">
+          <thead>
+            <tr className="border-b border-[var(--border)]">
+              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Tarih</th>
+              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Aksiyon</th>
+              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Varlık Türü</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logsData.data.map((l: any) => (
+              <tr key={l.id} className="border-b border-[var(--border)] last:border-0">
+                <td className="py-2 px-4 text-sm text-[var(--muted)]">
+                  {new Date(l.created_at).toLocaleString("tr-TR")}
+                </td>
+                <td className="py-2 px-4 text-sm font-bold text-[var(--brand-navy)]">{l.action}</td>
+                <td className="py-2 px-4 text-sm text-[var(--brand-orange)]">{l.entity_type}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </AdminSection>
+  );
+}
+
 export default async function AdminDashboardPage() {
   const adminAccess = await getAdminAccess();
 
@@ -105,6 +293,12 @@ export default async function AdminDashboardPage() {
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
+
+  const overview = await getAdminOverviewMetrics();
+  const reqAnalytics = await getRequestAnalytics();
+  const provAnalytics = await getProviderAnalytics();
+  const assignments = await getAssignmentMonitoring();
+  const auditLogs = await getLatestAuditLogs();
 
   return (
     <AdminAccessGate access={adminAccess}>
@@ -151,6 +345,14 @@ export default async function AdminDashboardPage() {
           })}
         </div>
       </section>
+
+      {overview && <OperationalAlerts overview={overview} />}
+      {overview && <OverviewMetrics overview={overview} />}
+      {reqAnalytics && <RequestAnalyticsSection analytics={reqAnalytics} />}
+      {provAnalytics && <ProviderAnalyticsSection analytics={provAnalytics} />}
+      {assignments && <AssignmentMonitoringSection assignments={assignments} />}
+      {auditLogs && <AuditLogsSection logsData={auditLogs} />}
+      
       </AdminPageShell>
     </AdminAccessGate>
   );

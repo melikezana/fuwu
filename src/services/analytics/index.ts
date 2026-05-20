@@ -64,6 +64,7 @@ const analyticsEvents = {
   requestSubmit: "request_submit",
   voiceCommandUsage: "voice_command_usage",
   whatsappClick: "whatsapp_click",
+  adminAction: "admin_action",
 } as const;
 
 type AnalyticsEventName = (typeof analyticsEvents)[keyof typeof analyticsEvents];
@@ -198,5 +199,14 @@ export function trackVoiceCommandUsage(payload: VoiceCommandPayload) {
   trackOperationalEvent(analyticsEvents.voiceCommandUsage, {
     action: payload.action,
     matched: payload.matched,
+  });
+}
+
+export function trackAdminAction(actionName: string, payload: { targetId?: string; status?: string } = {}) {
+  // Safe helper exclusively for tracking high-level admin operations
+  trackOperationalEvent(analyticsEvents.adminAction, {
+    action_name: actionName,
+    target_id: payload.targetId,
+    status: payload.status,
   });
 }
