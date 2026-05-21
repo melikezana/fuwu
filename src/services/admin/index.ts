@@ -723,6 +723,9 @@ async function createProviderFromApplication(
       name,
       phone,
       whatsapp,
+      rating: 5, // Default rating for new providers
+      average_price_min: null,
+      average_price_max: null,
     })
     .select("id")
     .maybeSingle();

@@ -19,6 +19,8 @@ export {
   providerProfileRole,
 } from "./constants";
 
+export { hasRole as getUserRole } from "./constants";
+
 const authUnavailableMessage =
   "Giriş sistemi şu anda kullanılamıyor. Ustaları giriş yapmadan inceleyebilirsin.";
 
@@ -92,6 +94,8 @@ export async function getSession(): Promise<Session | null> {
   return data.session;
 }
 
+export const getCurrentSession = getSession;
+
 export async function getCurrentUser(): Promise<User | null> {
   const supabase = createSupabaseBrowserClient();
 
@@ -100,6 +104,15 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   return getCurrentUserForClient(supabase);
+}
+
+export async function signOut(): Promise<void> {
+  const supabase = getAuthClient();
+  const { error } = await supabase.auth.signOut();
+  
+  if (error) {
+    warnAuthError("Supabase sign out failed.", error);
+  }
 }
 
 export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null> {
@@ -128,6 +141,8 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
 
   return data as CurrentUserProfile | null;
 }
+
+export const getCurrentProfile = getCurrentUserProfile;
 
 export async function signInWithEmailMagicLink(email: string, redirectTo: string) {
   const validationResult = validateLoginEmailInput(email);

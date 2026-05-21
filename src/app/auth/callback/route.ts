@@ -19,7 +19,14 @@ export async function GET(request: NextRequest) {
     const supabase = await createSupabaseServerClient();
 
     if (supabase) {
-      await supabase.auth.exchangeCodeForSession(code);
+      try {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.warn("[Auth Callback] Session exchange failed. Safely redirecting.", error.message);
+        }
+      } catch (error) {
+        console.warn("[Auth Callback] Unexpected error during session exchange. Safely redirecting.", error);
+      }
     }
   }
 

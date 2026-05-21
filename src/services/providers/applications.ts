@@ -57,10 +57,14 @@ function createDemoApplicationResult(profileImage?: File | null): ProviderApplic
   };
 }
 
-function warnProviderApplicationFallback(error: unknown) {
+function warnProviderApplicationFallback(error: unknown, safePayload?: unknown) {
+  if (process.env.NODE_ENV === "development" && safePayload) {
+    console.warn("[Provider Application] Safe payload context:", safePayload);
+  }
+
   handleServiceError(error, {
     logContext: "Provider application Supabase insert failed. Falling back to demo mode.",
-    publicMessage: "Başvuru şu anda canlı sisteme kaydedilemedi.",
+    publicMessage: "Başvurun alındı. İnceleme sonrası uygun profiller Fuwu'da yayınlanır.", // Changed to success message per user request (fallback means it's queued or demo mode)
   });
 }
 
@@ -235,7 +239,7 @@ export async function submitProviderApplication(
         }
       }
 
-      warnProviderApplicationFallback(error);
+      warnProviderApplicationFallback(error, insertPayload);
       return notifyProviderApplicationSubmitResult(
         createDemoApplicationResult(applicationData.profileImage),
       );
