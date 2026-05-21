@@ -56,7 +56,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       action={appRoutes.providers}
       className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
     >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,1.5fr)_minmax(12rem,1.25fr)_minmax(8.5rem,1fr)_minmax(8.5rem,1fr)_minmax(9rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
         <div className="order-1 min-w-0 md:order-none">
           <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
@@ -92,7 +92,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
               inputMode="numeric"
               min="0"
               name="average_price_min"
-              placeholder={t("filters.minimumPricePlaceholder")}
+              placeholder="En az"
               step="50"
               type="number"
             />
@@ -104,7 +104,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
               inputMode="numeric"
               min="0"
               name="average_price_max"
-              placeholder={t("filters.maximumPricePlaceholder")}
+              placeholder="En çok"
               step="50"
               type="number"
             />
