@@ -54,7 +54,7 @@ export function TrustSection() {
                 className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4"
                 key={card.id}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-xs font-black text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)]">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-xs font-bold text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)]">
                   {card.mark}
                 </span>
                 <span className="min-w-0">

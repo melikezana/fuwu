@@ -228,7 +228,7 @@ export function VoiceCommandButton({
     <div className="mt-4 grid gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] p-3 sm:grid-cols-[auto_auto_auto_auto_minmax(0,1fr)] sm:items-center">
       <button
         aria-label={t("voice.aria.start")}
-        className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-black text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
+        className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
           isListening
             ? "bg-[var(--brand-orange)]"
             : "bg-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] active:bg-[var(--brand-orange)]"
@@ -241,7 +241,7 @@ export function VoiceCommandButton({
       </button>
       <button
         aria-label={t("voice.aria.stop")}
-        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55"
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55"
         disabled={!isListening}
         onClick={handleStopClick}
         type="button"
@@ -251,7 +251,7 @@ export function VoiceCommandButton({
       </button>
       <button
         aria-label={t("voice.aria.read")}
-        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         onClick={runReadout}
         type="button"
       >
@@ -260,7 +260,7 @@ export function VoiceCommandButton({
       </button>
       <button
         aria-label={t("voice.aria.reset")}
-        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:col-auto"
+        className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:col-auto"
         onClick={handleResetClick}
         type="button"
       >

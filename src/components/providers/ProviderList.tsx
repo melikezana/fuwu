@@ -53,7 +53,7 @@ export function ProviderList({
         </div>
       ) : (
         <div className="mt-6 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-lg font-black text-[var(--brand-orange-dark)]">
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-lg font-bold text-[var(--brand-orange-dark)]">
             0
           </div>
           <p className="text-xl font-bold text-[var(--brand-navy)]">

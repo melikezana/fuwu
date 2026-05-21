@@ -106,17 +106,17 @@ export function AdminPageShell({
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+              <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
                 Fuwu İç Operasyon
               </p>
-              <h1 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-4xl">
+              <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                 {title}
               </h1>
               <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base">
                 {description}
               </p>
             </div>
-            <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-black leading-4 text-[var(--brand-orange-dark)]">
+            <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-bold leading-4 text-[var(--brand-orange-dark)]">
               <ShieldAlert className="h-4 w-4" aria-hidden />
               Yetkili admin alanı
             </div>
@@ -130,7 +130,7 @@ export function AdminPageShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-black leading-5 transition-colors",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-bold leading-5 transition-colors",
                     isActive
                       ? "bg-[var(--brand-navy)] text-white"
                       : "bg-[var(--surface-soft)] text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
@@ -170,7 +170,7 @@ export function AdminAccessNotice({
           aria-hidden
         />
         <div className="min-w-0">
-          <p className="text-sm font-black text-[var(--brand-navy)]">
+          <p className="text-sm font-bold text-[var(--brand-navy)]">
             Yetkili admin alanı
           </p>
           <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -207,8 +207,8 @@ export function AdminSummaryCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-black text-[var(--muted)]">{label}</p>
-          <p className="mt-3 text-3xl font-black text-[var(--brand-navy)]">
+          <p className="text-sm font-bold text-[var(--muted)]">{label}</p>
+          <p className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
             {value}
           </p>
         </div>
@@ -241,7 +241,7 @@ export function AdminActionButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-center text-xs font-black leading-4 transition-colors disabled:opacity-75",
+        "inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-center text-xs font-bold leading-4 transition-colors disabled:opacity-75",
         disabled
           ? "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]"
           : enabledToneClasses[tone],
@@ -261,7 +261,7 @@ export function AdminActionButton({
 export function AdminEmptyState({ children, title }: AdminEmptyStateProps) {
   return (
     <div className="rounded-lg border border-dashed border-[var(--border)] bg-white p-8 text-center" role="status">
-      <p className="text-base font-black text-[var(--brand-navy)]">{title}</p>
+      <p className="text-base font-bold text-[var(--brand-navy)]">{title}</p>
       <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
         {children}
       </p>
@@ -287,7 +287,7 @@ export function AdminStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-8 max-w-full items-center rounded-md border px-2.5 py-1 text-xs font-black leading-4",
+        "inline-flex min-h-8 max-w-full items-center rounded-md border px-2.5 py-1 text-xs font-bold leading-4",
         toneClasses[tone],
       )}
     >

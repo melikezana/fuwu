@@ -51,7 +51,7 @@ function PlusIcon({ isOpen }: { isOpen: boolean }) {
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex h-5 w-5 items-center justify-center text-xl font-black leading-none transition-colors duration-200",
+        "inline-flex h-5 w-5 items-center justify-center text-xl font-bold leading-none transition-colors duration-200",
         isOpen && "text-[var(--brand-navy)]",
       )}
     >

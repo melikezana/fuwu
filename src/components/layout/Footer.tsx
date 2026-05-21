@@ -82,7 +82,7 @@ function FooterColumn({
 }) {
   return (
     <section className={`grid content-start gap-4 ${className}`}>
-      <h2 className="cursor-default select-none text-sm font-black uppercase text-[var(--brand-navy)]">
+      <h2 className="cursor-default select-none text-sm font-bold uppercase text-[var(--brand-navy)]">
         <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
         {title}
       </h2>
@@ -187,7 +187,7 @@ export function Footer() {
 
           <section className="sm:hidden">
             <details className="group rounded-lg border border-[rgba(13,20,36,0.1)] bg-white/70">
-              <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-black uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-bold uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
                 <span>
                   <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
                   {t("footer.legal")}

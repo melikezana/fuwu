@@ -54,7 +54,7 @@ export function HowItWorksSection() {
               key={step.id}
             >
               <div className="flex items-start justify-between gap-4">
-                <span className="rounded-md bg-[var(--brand-orange)] px-3 py-2 text-xs font-black uppercase text-[var(--brand-navy)] shadow-[0_14px_32px_rgba(255,138,0,0.2)]">
+                <span className="rounded-md bg-[var(--brand-orange)] px-3 py-2 text-xs font-bold uppercase text-[var(--brand-navy)] shadow-[0_14px_32px_rgba(255,138,0,0.2)]">
                   {step.stage}
                 </span>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] text-sm font-bold text-[var(--muted)]">

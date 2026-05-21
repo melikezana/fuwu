@@ -123,7 +123,7 @@ function MobileHeroTrustSignals() {
 
         return (
           <div
-            className="inline-flex min-h-10 cursor-default select-none items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-black leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)]"
+            className="inline-flex min-h-10 cursor-default select-none items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)]"
             key={signal.labelKey}
           >
             <Icon aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange-dark)]" />
@@ -153,7 +153,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
           <p className="mt-1 text-xs font-bold text-[var(--muted)]">
             {provider.category} · {provider.district}
           </p>
-          <p className="mt-1 text-xs font-black text-[var(--trust-green)]">
+          <p className="mt-1 text-xs font-bold text-[var(--trust-green)]">
             {getProviderAvailabilityLabel(provider.availability)}
           </p>
         </div>
@@ -349,7 +349,7 @@ function ServiceCard({ service }: { service: Service }) {
         <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
           <I18nText i18nKey={descriptionKey} />
         </span>
-        <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-black text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
+        <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
           <I18nText i18nKey="cta.findProvider" />
         </span>
       </span>
@@ -528,7 +528,7 @@ function FinalCTASection() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <div className="cursor-default select-none">
-                <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
                   <I18nText i18nKey="home.final.customer" />
                 </p>
                 <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -544,7 +544,7 @@ function FinalCTASection() {
             </div>
             <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
               <div className="cursor-default select-none">
-                <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+                <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
                   <I18nText i18nKey="home.final.provider" />
                 </p>
                 <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">

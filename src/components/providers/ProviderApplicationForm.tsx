@@ -175,7 +175,7 @@ function FormSection({
       <legend className="sr-only">{title}</legend>
       <button
         aria-expanded={isOpen}
-        className="flex min-h-12 w-full cursor-pointer select-none items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
+        className="flex min-h-12 w-full cursor-pointer select-none items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
         onClick={() => setActiveSection(id)}
         type="button"
       >

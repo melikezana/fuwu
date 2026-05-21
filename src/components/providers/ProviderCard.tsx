@@ -9,11 +9,13 @@ import {
   Star,
   UserSearch,
 } from "lucide-react";
+import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   getProviderPhoneHref,
   getProviderWhatsAppHref,
 } from "@/lib/constants/providers";
+import { getServiceIconNameForCategory } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
@@ -54,10 +56,10 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
   };
 
   // Primary Action (Fuwu Orange)
-  const primaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
+  const primaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
   
   // Secondary Action (Calm Gray/Navy)
-  const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
+  const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
 
   // Clamp description
   const descriptionPreview = provider.shortDescription || provider.description;
@@ -77,13 +79,13 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             <Link
               href={profileHref}
               id={`provider-${provider.id}-title`}
-              className="block truncate text-lg sm:text-xl font-black text-[var(--brand-navy)] hover:text-[var(--brand-orange)] transition-colors"
+              className="block truncate text-lg sm:text-xl font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-orange)] transition-colors"
             >
               {provider.name}
             </Link>
           </div>
           {provider.rating > 0 && (
-            <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs font-bold shrink-0 border border-yellow-100">
+            <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold shrink-0 border border-yellow-100">
               <Star className="size-3.5 fill-current" />
               {provider.rating.toFixed(1)}
             </div>
@@ -95,8 +97,9 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           {provider.category && (
             <Link
               href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
-              className="inline-flex items-center rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)] hover:bg-[#E5E7EB] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-navy)] hover:bg-[#E5E7EB] transition-colors"
             >
+              <ServiceIcon name={getServiceIconNameForCategory(provider.category)} className="size-3.5 text-[var(--brand-orange)]" />
               {provider.category}
             </Link>
           )}
@@ -122,10 +125,10 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
       {/* Bottom Row: Price + Actions */}
       <div className="border-t border-[var(--border)] bg-[#FAFAFA] p-4 sm:p-5 mt-auto">
         <div className="mb-4">
-          <span className="block text-xs font-bold text-[var(--muted)] uppercase mb-0.5">
+          <span className="block text-xs font-semibold text-[var(--muted)] uppercase mb-0.5">
             Fiyat Aralığı
           </span>
-          <span className="block text-sm font-black text-[var(--brand-navy)]">
+          <span className="block text-sm font-semibold text-[var(--brand-navy)]">
             {provider.averagePrice || "Fiyat bilgisi yakında"}
           </span>
         </div>

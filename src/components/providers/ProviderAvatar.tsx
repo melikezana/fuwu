@@ -39,7 +39,7 @@ export function ProviderAvatar({
           src={provider.profileImageUrl}
         />
       ) : isProfileVariant ? (
-        <span className="text-2xl font-black text-[var(--brand-navy)]">
+        <span className="text-2xl font-bold text-[var(--brand-navy)]">
           {getProviderInitials(provider)}
         </span>
       ) : (

@@ -29,10 +29,10 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
             <ShieldAlert className="h-6 w-6" aria-hidden />
           </span>
           <div>
-            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
               Yetkili admin alanı
             </p>
-            <h1 className="mt-2 text-2xl font-black leading-tight text-[var(--brand-navy)] sm:text-3xl">
+            <h1 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)] sm:text-3xl">
               Admin paneline erişim
             </h1>
             <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -47,20 +47,20 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
         >
           <div className="flex gap-3">
             <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-            <p className="text-sm font-black leading-6">{access.message}</p>
+            <p className="text-sm font-bold leading-6">{access.message}</p>
           </div>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-black text-white transition-colors hover:bg-[var(--brand-navy-soft)]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-navy-soft)]"
             href={primaryHref}
           >
             <PrimaryIcon className="h-4 w-4" aria-hidden />
             {isMissingSession ? "Giriş yap" : "Ana sayfaya dön"}
           </Link>
           <Link
-            className="inline-flex min-h-12 items-center justify-center rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm font-black text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)]"
+            className="inline-flex min-h-12 items-center justify-center rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)]"
             href={appRoutes.providers}
           >
             Ustaları incele

@@ -40,7 +40,7 @@ const loginOptions: LoginOption[] = [
 function LoginIcon({ Icon }: { Icon: LoginOption["Icon"] | typeof Phone }) {
   if (Icon === "google") {
     return (
-      <span className="inline-flex size-9 items-center justify-center rounded-full bg-white text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)]">
+      <span className="inline-flex size-9 items-center justify-center rounded-full bg-white text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)]">
         G
       </span>
     );
@@ -176,7 +176,7 @@ export function LoginOptions() {
       <div className="grid gap-3">
         <button
           aria-describedby="login-auth-status"
-          className="grid min-h-14 w-full cursor-pointer select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+          className="grid min-h-14 w-full cursor-pointer select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
           disabled={isGoogleLoading}
           onClick={() => void handleGoogleLogin()}
           type="button"
@@ -194,14 +194,14 @@ export function LoginOptions() {
               {getOptionDescription(loginOptions[0], t)}
             </span>
           </span>
-          <span className="w-fit rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-[0.68rem] font-black text-[var(--muted)]">
+          <span className="w-fit rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-[0.68rem] font-bold text-[var(--muted)]">
             {getOptionStatus("google", isGoogleLoading, t)}
           </span>
         </button>
 
         <form className="grid gap-3" noValidate onSubmit={handleEmailLogin}>
           <label className="block min-w-0 cursor-default select-none">
-            <span className="mb-2 block text-sm font-black text-[var(--brand-navy)]">
+            <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
               {t(loginOptions[1].labelKey)}
             </span>
             <span className="grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-3 rounded-md bg-white px-4 py-3 shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)] focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2">
@@ -220,7 +220,7 @@ export function LoginOptions() {
           </label>
           <button
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
             disabled={isEmailLoading}
             type="submit"
           >
@@ -237,7 +237,7 @@ export function LoginOptions() {
         </form>
 
         <div
-          className="grid min-h-16 cursor-default select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-left text-sm font-black text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.1)]"
+          className="grid min-h-16 cursor-default select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.1)]"
           role="note"
         >
           <LoginIcon Icon={Phone} />
@@ -247,13 +247,13 @@ export function LoginOptions() {
               {t("login.phoneUnavailable")}
             </span>
           </span>
-          <span className="w-fit rounded-md bg-white px-2.5 py-1 text-[0.68rem] font-black text-[var(--muted)]">
+          <span className="w-fit rounded-md bg-white px-2.5 py-1 text-[0.68rem] font-bold text-[var(--muted)]">
             {t("login.statusSoon")}
           </span>
         </div>
 
         <Link
-          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
           href={appRoutes.providers}
         >
           {t("login.continueWithoutLogin")}

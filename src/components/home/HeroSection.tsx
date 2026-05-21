@@ -80,7 +80,7 @@ function HeroSearch() {
             Hizmet
           </span>
           <span className="mt-2 flex items-center gap-2 text-[var(--brand-navy)]">
-            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-black uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
+            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
               Talep
             </span>
             <input
@@ -97,7 +97,7 @@ function HeroSearch() {
             Konum
           </span>
           <span className="mt-2 flex items-center gap-2 text-[var(--brand-navy)]">
-            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-black uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
+            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
               Bölge
             </span>
             <input
@@ -152,7 +152,7 @@ function HeroVisual() {
           ["0", "ön ödeme"],
         ].map(([value, label]) => (
           <div className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-3" key={label}>
-            <p className="text-xl font-black leading-none text-[var(--brand-navy)]">{value}</p>
+            <p className="text-xl font-bold leading-none text-[var(--brand-navy)]">{value}</p>
             <p className="mt-1 text-xs font-bold text-[var(--muted)]">{label}</p>
           </div>
         ))}
@@ -261,7 +261,7 @@ export function HeroSection() {
                 className="grid cursor-default select-none grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border border-[var(--border)] bg-white px-4 py-3"
                 key={signal.id}
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[0.68rem] font-black text-[var(--brand-orange-dark)]">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[0.68rem] font-bold text-[var(--brand-orange-dark)]">
                   {signal.mark}
                 </span>
                 <span className="min-w-0">

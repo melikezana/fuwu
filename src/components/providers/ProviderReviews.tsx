@@ -85,10 +85,10 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
     <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+          <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
             Yorumlar
           </p>
-          <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+          <h2 className="mt-2 text-2xl font-bold text-[var(--brand-navy)]">
             Müşteri değerlendirmeleri
           </h2>
         </div>
@@ -105,7 +105,7 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
 
       {notice ? (
         <p
-          className="mt-4 rounded-md bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-black leading-6 text-[var(--brand-navy)]"
+          className="mt-4 rounded-md bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]"
           role="status"
         >
           {notice}
@@ -116,21 +116,21 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
         <div className="rounded-md bg-[var(--surface-soft)] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase text-[var(--muted)]">
+              <p className="text-xs font-bold uppercase text-[var(--muted)]">
                 Ortalama puan
               </p>
-              <p className="mt-2 text-4xl font-black leading-none text-[var(--brand-navy)]">
+              <p className="mt-2 text-4xl font-bold leading-none text-[var(--brand-navy)]">
                 {formatRating(summary.averageRating)}
               </p>
             </div>
-            <span className="rounded-md bg-white px-3 py-1.5 text-xs font-black leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)]">
+            <span className="rounded-md bg-white px-3 py-1.5 text-xs font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)]">
               {source === "supabase" ? "Canlı yorumlar" : "Örnek yorumlar"}
             </span>
           </div>
           <div className="mt-4">
             <RatingStars rating={summary.averageRating} />
           </div>
-          <p className="mt-3 text-sm font-black text-[var(--muted)]">
+          <p className="mt-3 text-sm font-bold text-[var(--muted)]">
             {summary.reviewCount} yorum
           </p>
         </div>
@@ -148,14 +148,14 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
                       <MessageSquareText aria-hidden="true" className="size-4" />
                     </span>
                     <div>
-                      <p className="text-sm font-black text-[var(--brand-navy)]">
+                      <p className="text-sm font-bold text-[var(--brand-navy)]">
                         {formatRating(review.rating)}
                       </p>
                       <RatingStars rating={review.rating} />
                     </div>
                   </div>
                   <time
-                    className="text-xs font-black uppercase text-[var(--muted)]"
+                    className="text-xs font-bold uppercase text-[var(--muted)]"
                     dateTime={review.createdAt}
                   >
                     {formatReviewDate(review.createdAt)}
@@ -167,7 +167,7 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
               </article>
             ))
           ) : (
-            <div className="rounded-md border border-dashed border-[var(--border)] bg-white p-5 text-sm font-black text-[var(--muted)]">
+            <div className="rounded-md border border-dashed border-[var(--border)] bg-white p-5 text-sm font-bold text-[var(--muted)]">
               Henüz yorum yok.
             </div>
           )}

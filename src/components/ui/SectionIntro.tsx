@@ -37,7 +37,7 @@ export function SectionIntro({
       </p>
       <h2
         className={cn(
-          "mt-3 text-3xl font-black leading-tight tracking-normal sm:text-4xl",
+          "mt-3 text-3xl font-bold leading-tight tracking-normal sm:text-4xl",
           isDark ? "text-white" : "text-[var(--brand-navy)]",
         )}
       >
