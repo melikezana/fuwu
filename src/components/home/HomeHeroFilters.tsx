@@ -57,7 +57,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
     >
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,1.5fr)_minmax(12rem,1.25fr)_minmax(8.5rem,1fr)_minmax(8.5rem,1fr)_minmax(9rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
-        <div className="order-1 min-w-0 md:order-none">
+        <div className="min-w-0">
           <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
               <option value="">{t("filters.allServices")}</option>
@@ -70,7 +70,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="order-2 min-w-0 md:order-none">
+        <div className="min-w-0">
           <HeroField label={t("filters.district")}>
             <select className={selectClassName} defaultValue="" name="district">
               <option value="">{t("filters.allDistricts")}</option>
@@ -83,9 +83,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div
-          className="hidden min-w-0 gap-3 md:contents"
-        >
+        <div className="hidden min-w-0 md:block">
           <HeroField label={t("filters.minimumPrice")}>
             <input
               className={inputClassName}
@@ -97,7 +95,9 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
               type="number"
             />
           </HeroField>
+        </div>
 
+        <div className="hidden min-w-0 md:block">
           <HeroField label={t("filters.maximumPrice")}>
             <input
               className={inputClassName}
@@ -109,7 +109,9 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
               type="number"
             />
           </HeroField>
+        </div>
 
+        <div className="hidden min-w-0 md:block">
           <HeroField label={t("filters.rating")}>
             <select className={selectClassName} defaultValue="" name="rating">
               <option value="">{t("filters.allRatings")}</option>
@@ -122,7 +124,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <Button className="order-3 h-12 min-h-12 w-full rounded-md px-5 md:order-none" type="submit">
+        <Button className="h-12 min-h-12 w-full rounded-md px-5" type="submit">
           {t("cta.findProvider")}
         </Button>
       </div>

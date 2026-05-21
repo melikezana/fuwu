@@ -141,7 +141,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
   const profileHref = `${appRoutes.providers}/${provider.id}`;
 
   return (
-    <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3 shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.34)]">
+    <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3.5 shadow-sm ring-1 ring-[var(--border)] transition-all hover:shadow-md hover:ring-gray-300">
       <Link
         aria-label={`${provider.name} profilini incele`}
         className="absolute inset-0 z-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
@@ -149,22 +149,26 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
       />
       <div className="pointer-events-none relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0 cursor-default select-none">
-          <p className="text-sm font-bold leading-5 text-[var(--brand-navy)]">{provider.name}</p>
-          <p className="mt-1 text-xs font-bold text-[var(--muted)]">
-            {provider.category} · {provider.district}
+          <p className="text-sm font-semibold leading-5 text-[var(--brand-navy)]">{provider.name}</p>
+          <p className="mt-0.5 text-xs font-medium text-[var(--muted)]">
+            {provider.category} • {provider.district}
           </p>
-          <p className="mt-1 text-xs font-bold text-[var(--trust-green)]">
-            {getProviderAvailabilityLabel(provider.availability)}
-          </p>
+          {provider.averagePrice && (
+            <p className="mt-1.5 text-xs font-semibold text-[var(--brand-navy)]">
+              {provider.averagePrice}
+            </p>
+          )}
         </div>
-        <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[0.68rem] font-bold text-[var(--brand-orange-dark)]">
-          {provider.rating.toFixed(1)}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)]">
+            ⭐ {provider.rating.toFixed(1)}
+          </span>
+        </div>
       </div>
       <div className="pointer-events-none relative z-10 mt-3 grid grid-cols-2 gap-2">
         <ProviderContactLink
           aria-label={`${provider.name} WhatsApp ile yaz`}
-          className="pointer-events-auto inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-3 text-xs font-bold text-white"
+          className="pointer-events-auto inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-[#25D366]/10 px-3 text-xs font-semibold text-[#1DA851] transition-colors hover:bg-[#25D366]/20"
           kind="whatsapp"
           provider={provider}
           rel="noopener noreferrer"
@@ -174,7 +178,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
         </ProviderContactLink>
         <ProviderContactLink
           aria-label={`${provider.name} telefonla ara`}
-          className="pointer-events-auto inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-[var(--surface-soft)] px-3 text-xs font-bold text-[var(--brand-navy)]"
+          className="pointer-events-auto inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-gray-100 px-3 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-gray-200"
           kind="phone"
           provider={provider}
         >
@@ -203,14 +207,14 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             </span>
           </div>
 
-          <div className="mt-5 cursor-default select-none rounded-lg bg-white p-4 shadow-[0_14px_34px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+          <div className="mt-5 cursor-default select-none rounded-lg bg-white p-4 shadow-sm ring-1 ring-[var(--border)]">
+            <p className="text-xs font-semibold text-[var(--trust-green)]">
               <I18nText i18nKey="home.hero.mockup.available" />
             </p>
-            <h2 className="mt-2 text-xl font-bold leading-tight text-[var(--brand-navy)]">
+            <h2 className="mt-1 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
               <I18nText i18nKey="home.hero.mockup.nearby" />
             </h2>
-            <p className="mt-2 text-xs font-bold leading-5 text-[var(--muted)]">
+            <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--muted)]">
               <I18nText i18nKey="home.hero.mockup.summary" />
             </p>
           </div>
@@ -300,14 +304,17 @@ function HeroSection({
             </span>
           </p>
 
-          <div className="mt-6 hidden max-w-full grid-cols-2 gap-2.5 sm:flex sm:flex-wrap">
+          <div className="mt-6 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
-                className="min-w-0 cursor-pointer select-none rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.045)] ring-1 ring-[rgba(13,20,36,0.07)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)] active:bg-[var(--brand-orange)] active:text-white sm:px-4 sm:text-left"
+                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-[var(--muted)] shadow-sm ring-1 ring-[var(--border)] transition-colors hover:bg-gray-50 hover:text-[var(--brand-navy)]"
                 href={item.href}
                 key={item.labelKey}
               >
-                <I18nText i18nKey={item.labelKey} values={item.values} />
+                <span className="size-1.5 shrink-0 rounded-full bg-[var(--trust-green)]" />
+                <span>
+                  <I18nText i18nKey={item.labelKey} values={item.values} />
+                </span>
               </Link>
             ))}
           </div>

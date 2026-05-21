@@ -52,8 +52,8 @@ export const trTranslations = {
   "home.hero.stats.categoryCount": "{count} kategori",
   "home.hero.stats.districtCount": "{count} ilçe",
   "home.hero.mockup.available": "Müsait",
-  "home.hero.mockup.nearby": "Yakındaki ustalar",
-  "home.hero.mockup.summary": "Puan, ilçe ve fiyat aralığını tek ekranda karşılaştır.",
+  "home.hero.mockup.nearby": "Yakındaki uygun ustalar",
+  "home.hero.mockup.summary": "Puan, ilçe ve fiyat aralığını karşılaştır.",
   "home.hero.empty.title": "Henüz yayında usta bulunmuyor.",
   "home.hero.empty.description":
     "İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.",
