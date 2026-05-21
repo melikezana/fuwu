@@ -56,7 +56,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       action={appRoutes.providers}
       className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
     >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,1.5fr)_minmax(12rem,1.25fr)_minmax(8.5rem,1fr)_minmax(8.5rem,1fr)_minmax(9rem,1fr)_minmax(8.5rem,auto)] xl:items-end">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(9rem,1.5fr)_minmax(9rem,1.25fr)_minmax(7.5rem,1fr)_minmax(7.5rem,1fr)_minmax(8rem,1fr)_minmax(8.5rem,auto)] lg:items-end">
         <div className="min-w-0">
           <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
@@ -83,7 +83,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="hidden min-w-0 md:block">
+        <div className="min-w-0">
           <HeroField label={t("filters.minimumPrice")}>
             <input
               className={inputClassName}
@@ -97,7 +97,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="hidden min-w-0 md:block">
+        <div className="min-w-0">
           <HeroField label={t("filters.maximumPrice")}>
             <input
               className={inputClassName}
@@ -111,7 +111,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="hidden min-w-0 md:block">
+        <div className="min-w-0">
           <HeroField label={t("filters.rating")}>
             <select className={selectClassName} defaultValue="" name="rating">
               <option value="">{t("filters.allRatings")}</option>
