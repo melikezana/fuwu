@@ -24,6 +24,7 @@ export const appRoutes = {
   privacy: "/gizlilik",
   terms: "/kullanim-sartlari",
   cookies: "/cerez-politikasi",
+  adminDashboard: "/admin",
 } as const;
 
 export const ctaLabels = {

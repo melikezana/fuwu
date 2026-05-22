@@ -11,6 +11,8 @@ import { Container } from "@/components/ui/Container";
 import { appRoutes, navigationLinks } from "@/lib/constants/navigation";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { getCurrentProfile } from "@/services/auth";
+import type { CurrentUserProfile } from "@/types/auth";
 
 const navLabelKeys: Record<string, TranslationKey> = {
   about: "nav.about",
@@ -42,6 +44,8 @@ export function Navbar() {
   const { t } = useI18n();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("");
+  const [userProfile, setUserProfile] = useState<CurrentUserProfile | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const navRef = useRef<HTMLElement>(null);
   const translatedHeaderNavigationLinks = useMemo(
     () =>
@@ -52,21 +56,60 @@ export function Navbar() {
     [t],
   );
   const mobileNavigationLinks = useMemo(
-    () => [
-      ...translatedHeaderNavigationLinks,
-      {
-        id: "provider-application",
-        label: t("cta.provider"),
-        href: appRoutes.providerApplication,
-      },
-      {
-        id: "providers",
-        label: t("cta.findProvider"),
-        href: appRoutes.providers,
-      },
-    ],
-    [t, translatedHeaderNavigationLinks],
+    () => {
+      const links = [
+        ...translatedHeaderNavigationLinks,
+        {
+          id: "provider-application",
+          label: t("cta.provider"),
+          href: appRoutes.providerApplication,
+        },
+        {
+          id: "providers",
+          label: t("cta.findProvider"),
+          href: appRoutes.providers,
+        },
+      ];
+
+      if (!isAuthLoading) {
+        if (userProfile) {
+          links.push({
+            id: "account",
+            label: t("nav.account"),
+            href: userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard,
+          });
+        } else {
+          links.push({
+            id: "login",
+            label: t("nav.login"),
+            href: appRoutes.login,
+          });
+        }
+      }
+
+      return links;
+    },
+    [t, translatedHeaderNavigationLinks, isAuthLoading, userProfile],
   );
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadAuth() {
+      try {
+        const profile = await getCurrentProfile();
+        if (mounted) setUserProfile(profile);
+      } catch {
+        // ignore
+      } finally {
+        if (mounted) setIsAuthLoading(false);
+      }
+    }
+    loadAuth();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     function updateActiveHref() {
@@ -178,6 +221,27 @@ export function Navbar() {
             >
               {t("cta.findProvider")}
             </Button>
+            {!isAuthLoading && (
+              userProfile ? (
+                <Button
+                  className="px-5"
+                  href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard}
+                  onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard)}
+                  variant="secondary"
+                >
+                  {t("nav.account")}
+                </Button>
+              ) : (
+                <Button
+                  className="px-5"
+                  href={appRoutes.login}
+                  onClick={() => setActiveHref(appRoutes.login)}
+                  variant="secondary"
+                >
+                  {t("nav.login")}
+                </Button>
+              )
+            )}
           </div>
 
           <div className="flex shrink-0 items-center gap-2 xl:hidden">
