@@ -81,10 +81,10 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
               id={`provider-${provider.id}-title`}
               className="block truncate text-lg sm:text-xl font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-orange)] transition-colors"
             >
-              {provider.name}
+              {provider.name || "İsimsiz Usta"}
             </Link>
           </div>
-          {provider.rating > 0 && (
+          {typeof provider.rating === 'number' && !isNaN(provider.rating) && provider.rating > 0 && (
             <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold shrink-0 border border-yellow-100">
               <Star className="size-3.5 fill-current" />
               {provider.rating.toFixed(1)}

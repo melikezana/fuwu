@@ -103,7 +103,7 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+      <h2 className="mt-3 text-3xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-4xl">
         {title}
       </h2>
       {description ? (
@@ -202,7 +202,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             >
               <FuwuLogo size="sm" />
             </Link>
-            <span className="rounded-md bg-white px-3 py-1 text-xs font-bold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
+            <span className="rounded-md bg-white px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
               İstanbul
             </span>
           </div>
@@ -292,7 +292,7 @@ function HeroSection({
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-bold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-semibold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
             <I18nText i18nKey="home.hero.title" />
           </h1>
           <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-semibold leading-6 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
@@ -350,7 +350,7 @@ function ServiceCard({ service }: { service: Service }) {
         <ServiceIcon className="h-7 w-7" name={service.iconName} />
       </span>
       <span className="mt-5 block">
-        <span className="block text-xl font-bold leading-tight text-[var(--brand-navy)]">
+        <span className="block text-xl font-semibold leading-tight text-[var(--brand-navy)]">
           <I18nText i18nKey={titleKey} />
         </span>
         <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">

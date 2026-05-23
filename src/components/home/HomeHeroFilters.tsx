@@ -101,32 +101,34 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="min-w-0">
-          <HeroField label={t("filters.minimumPrice")}>
-            <input
-              className={inputClassName}
-              inputMode="numeric"
-              min="0"
-              name="average_price_min"
-              placeholder="En az"
-              step="50"
-              type="number"
-            />
-          </HeroField>
-        </div>
+        <div className="grid grid-cols-2 gap-3 sm:contents">
+          <div className="min-w-0">
+            <HeroField label={t("filters.minimumPrice")}>
+              <input
+                className={inputClassName}
+                inputMode="numeric"
+                min="0"
+                name="average_price_min"
+                placeholder="En az"
+                step="50"
+                type="number"
+              />
+            </HeroField>
+          </div>
 
-        <div className="min-w-0">
-          <HeroField label={t("filters.maximumPrice")}>
-            <input
-              className={inputClassName}
-              inputMode="numeric"
-              min="0"
-              name="average_price_max"
-              placeholder="En çok"
-              step="50"
-              type="number"
-            />
-          </HeroField>
+          <div className="min-w-0">
+            <HeroField label={t("filters.maximumPrice")}>
+              <input
+                className={inputClassName}
+                inputMode="numeric"
+                min="0"
+                name="average_price_max"
+                placeholder="En çok"
+                step="50"
+                type="number"
+              />
+            </HeroField>
+          </div>
         </div>
 
         <div className="min-w-0">
