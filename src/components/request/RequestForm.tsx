@@ -12,7 +12,7 @@ import { validateServiceRequestInput } from "@/lib/validations";
 import { trackRequestCreated } from "@/services/analytics";
 import {
   serviceRequestSubmitErrorMessage,
-  submitServiceRequest,
+  createServiceRequest,
   type ServiceRequestSubmitResult,
 } from "@/services/requests";
 
@@ -90,7 +90,7 @@ const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 tex
 const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-red-600";
 const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
 const serviceRequestSuccessMessage =
-  "Talebin alındı. Uygun ustalarla eşleşme süreci başlayacak.";
+  "Talebin alındı. Fuwu ekibi uygun ustaları yönlendirecek.";
 
 function normalizeForm(values: RequestFormState): RequestFormState {
   return {
@@ -188,7 +188,7 @@ export function RequestForm({
     setIsSubmitting(true);
 
     try {
-      const result = await submitServiceRequest(normalizedRequest, authenticatedUserId);
+      const result = await createServiceRequest(normalizedRequest, authenticatedUserId);
       trackRequestCreated({
         category: normalizedRequest.serviceCategory,
         district: normalizedRequest.district,

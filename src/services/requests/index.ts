@@ -157,7 +157,7 @@ async function buildServiceRequestInsert(
   };
 }
 
-export async function submitServiceRequest(
+export async function createServiceRequest(
   data: ServiceRequestInput,
   authenticatedUserId: string,
 ): Promise<ServiceRequestSubmitResult> {
