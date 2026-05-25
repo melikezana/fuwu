@@ -413,6 +413,15 @@ export const trTranslations = {
   "services.moving-help.title": "Nakliye Yardımı",
   "services.moving-help.description":
     "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği için usta bul.",
+  "services.locksmith.title": "Çilingir",
+  "services.locksmith.description":
+    "Kapıda kalma, kilit değiştirme ve oto çilingir ihtiyaçları için hemen usta bul.",
+  "services.garden.title": "Bahçe Bakımı",
+  "services.garden.description":
+    "Peyzaj, çim biçme ve bahçe düzenleme işleriniz için uygun ustaları keşfedin.",
+  "services.pool.title": "Havuz Bakımı",
+  "services.pool.description":
+    "Havuz temizliği, motor bakımı ve kimyasal denge için uzman destek alın.",
 } as const;
 
 export type TranslationDictionary = Record<keyof typeof trTranslations, string>;

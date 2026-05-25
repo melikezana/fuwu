@@ -35,12 +35,14 @@ export type ProviderFilters = {
   price?: string;
   rating?: string;
   availability?: string;
+  budget?: string;
   query?: string;
 };
 
 export type ProviderFilterOptions = {
   availabilityOptions: string[];
   averagePrices: string[];
+  budgetOptions: string[];
   categories: string[];
   districts: string[];
 };

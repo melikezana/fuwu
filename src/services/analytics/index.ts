@@ -22,7 +22,9 @@ type FilterAnalyticsPayload = {
   hasQuery?: boolean;
   maximumPrice?: string;
   minimumPrice?: string;
+  price?: string;
   rating?: string;
+  budget?: string;
 };
 
 type RequestCreatedPayload = {

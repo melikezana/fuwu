@@ -23,6 +23,7 @@ type ProvidersSearchParams = {
   district?: string | string[];
   average_price_max?: string | string[];
   average_price_min?: string | string[];
+  budget?: string | string[];
   maxPrice?: string | string[];
   minPrice?: string | string[];
   price?: string | string[];
@@ -55,6 +56,7 @@ function createProvidersCanonicalPath(params: {
   price?: string;
   query?: string;
   rating?: string;
+  budget?: string;
 }) {
   const canonicalParams = new URLSearchParams();
 
@@ -82,6 +84,10 @@ function createProvidersCanonicalPath(params: {
     canonicalParams.set("rating", params.rating);
   }
 
+  if (params.budget) {
+    canonicalParams.set("budget", params.budget);
+  }
+
   if (params.availability) {
     canonicalParams.set("availability", params.availability);
   }
@@ -107,6 +113,7 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
   const selectedRating = getSearchParam(params?.rating);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
+  const selectedBudget = getSearchParam(params?.budget);
   const areaLabel = selectedDistrict ? toTurkishTitleCase(selectedDistrict) : "İstanbul";
   const categoryLabel = selectedCategory ? getProviderListingLabel(selectedCategory) : "";
   const hasGranularFilters = Boolean(
@@ -138,6 +145,7 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
       price: selectedPrice,
       query: selectedQuery,
       rating: selectedRating,
+      budget: selectedBudget,
     }),
     keywords: [
       selectedCategory,
@@ -163,6 +171,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const selectedRating = getSearchParam(params?.rating);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
+  const selectedBudget = getSearchParam(params?.budget);
   const hasActiveFilters = [
     selectedAvailability,
     selectedCategory,
@@ -172,6 +181,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     selectedPrice,
     selectedQuery,
     selectedRating,
+    selectedBudget,
   ].some((value) => Boolean(value.trim()));
   const providerDirectory = await getProviderDirectory({
     availability: selectedAvailability,
@@ -182,6 +192,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     price: selectedPrice,
     query: selectedQuery,
     rating: selectedRating,
+    budget: selectedBudget,
   });
   const { allProviders, filterOptions, providers: filteredProviders, source } = providerDirectory;
   const todayActiveCount = allProviders.filter(

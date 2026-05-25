@@ -101,6 +101,18 @@ const categoryLabels: Record<string, { listing: string; profession: string }> = 
     listing: "Tamir Ustaları",
     profession: "Tamirci",
   },
+  cilingir: {
+    listing: "Çilingirler",
+    profession: "Çilingir",
+  },
+  "bahce bakimi": {
+    listing: "Bahçe Bakımı Hizmetleri",
+    profession: "Bahçe Bakımı Ustası",
+  },
+  "havuz bakimi": {
+    listing: "Havuz Bakımı Hizmetleri",
+    profession: "Havuz Bakımı Ustası",
+  },
 };
 
 export function createAbsoluteUrl(path = "/") {

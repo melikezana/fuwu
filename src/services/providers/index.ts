@@ -412,6 +412,23 @@ function parsePriceBoundary(value: string | undefined) {
   return priceValue ? parseLocalizedNumber(priceValue) : null;
 }
 
+function parseBudgetPriceRangeFilter(filters: ProviderFilters): PriceRangeFilter | null {
+  if (!filters.budget) {
+    return null;
+  }
+
+  switch (filters.budget.toLowerCase()) {
+    case "ekonomik":
+      return { minimumPrice: null, maximumPrice: 1000 };
+    case "standart":
+      return { minimumPrice: 1000, maximumPrice: 3000 };
+    case "premium":
+      return { minimumPrice: 3000, maximumPrice: null };
+    default:
+      return null;
+  }
+}
+
 function parseExplicitPriceRangeFilter(filters: ProviderFilters): PriceRangeFilter | null {
   const minimumPrice = parsePriceBoundary(filters.minimumPrice);
   const maximumPrice = parsePriceBoundary(filters.maximumPrice);
@@ -444,7 +461,7 @@ function isProviderWithinPriceRange(
 
 function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   const providerRange = parsePriceRangeFilter(providerPrice);
-  const explicitRange = parseExplicitPriceRangeFilter(filters);
+  const explicitRange = parseBudgetPriceRangeFilter(filters) ?? parseExplicitPriceRangeFilter(filters);
 
   if (explicitRange) {
     return providerRange ? isProviderWithinPriceRange(providerRange, explicitRange) : false;
@@ -466,8 +483,12 @@ function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   );
 }
 
-function matchesProviderSearchQuery(provider: Provider, query: string | undefined) {
+function matchesProviderSearchQuery(provider: Provider, query: string | undefined, budget: string | undefined) {
   const searchTerms = getSearchTerms(query);
+  
+  if (budget?.toLowerCase() === "acil") {
+    searchTerms.push("acil");
+  }
 
   if (searchTerms.length === 0) {
     return true;
@@ -494,6 +515,7 @@ function matchesProviderSearchQuery(provider: Provider, query: string | undefine
 function applyProviderFilters(providers: Provider[], filters: ProviderFilters = {}) {
   const minimumRating = parseMinimumRating(filters.rating);
   const hasPriceFilter =
+    hasFilterValue(filters.budget) ||
     hasFilterValue(filters.price) ||
     hasFilterValue(filters.minimumPrice) ||
     hasFilterValue(filters.maximumPrice);
@@ -513,7 +535,7 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
     const availabilityMatches =
       !hasFilterValue(filters.availability) ||
       matchesExactFilter(provider.availability, filters.availability ?? "");
-    const queryMatches = matchesProviderSearchQuery(provider, filters.query);
+    const queryMatches = matchesProviderSearchQuery(provider, filters.query, filters.budget);
 
     return (
       categoryMatches &&
@@ -534,6 +556,7 @@ function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
     averagePrices: Array.from(
       new Set(providers.map((provider) => provider.averagePrice).filter(Boolean)),
     ),
+    budgetOptions: ["ekonomik", "standart", "premium", "acil"],
     categories: getUniqueSortedOptions(providers.map((provider) => provider.category)),
     districts: getUniqueSortedOptions(
       providers.flatMap((provider) => [provider.district, ...provider.serviceAreas]),
@@ -545,6 +568,7 @@ function buildFallbackFilterOptions(): ProviderFilterOptions {
   return {
     availabilityOptions: [...providerAvailabilityOptions],
     averagePrices: [...providerAveragePrices],
+    budgetOptions: ["ekonomik", "standart", "premium", "acil"],
     categories: [...providerCategories],
     districts: [...providerDistricts],
   };
@@ -711,7 +735,7 @@ async function fetchProvidersFromSupabase(
       return [];
     }
 
-    const explicitPriceRange = parseExplicitPriceRangeFilter(filters);
+    const explicitPriceRange = parseBudgetPriceRangeFilter(filters) ?? parseExplicitPriceRangeFilter(filters);
     const priceRange = explicitPriceRange ?? parsePriceRangeFilter(filters.price);
     const minimumRating = parseMinimumRating(filters.rating);
 
@@ -730,6 +754,13 @@ async function fetchProvidersFromSupabase(
 
     if (districtIds) {
       query = query.in("district_id", districtIds);
+    }
+
+    if (filters.budget?.toLowerCase() === "acil") {
+      // Just safely prioritize or search if possible, for now we let frontend handle text filter 
+      // or we can use an 'or' / 'textSearch' if we had one. Since we don't have a reliable full-text search 
+      // exposed via our Supabase client without breaking `isMissingAvailabilityColumn`, we'll rely on the 
+      // static fallback/text filter above or simply leave it as a safe intent for now.
     }
 
     if (explicitPriceRange) {

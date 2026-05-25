@@ -26,6 +26,7 @@ export type ProviderFilterValues = {
   price?: string;
   rating?: string;
   availability?: string;
+  budget?: string;
   query?: string;
 };
 
@@ -148,6 +149,7 @@ export function ProviderFilters({
       maximumPrice: String(formData.get("average_price_max") ?? ""),
       minimumPrice: String(formData.get("average_price_min") ?? ""),
       rating: String(formData.get("rating") ?? ""),
+      budget: String(formData.get("budget") ?? ""),
     });
   };
 
@@ -315,33 +317,19 @@ export function ProviderFilters({
           id={advancedPanelId}
         >
           <div className="block min-w-0 cursor-default">
-            <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
-              Fiyat Aralığı
-            </span>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <input
-                aria-label={t("filters.minimumPrice")}
-                className={selectedInputClassName(Boolean(values?.minimumPrice)).replace("mt-2", "")}
-                defaultValue={values?.minimumPrice ?? ""}
-                inputMode="numeric"
-                min="0"
-                name="average_price_min"
-                placeholder="En az"
-                step="50"
-                type="number"
-              />
-              <input
-                aria-label={t("filters.maximumPrice")}
-                className={selectedInputClassName(Boolean(values?.maximumPrice)).replace("mt-2", "")}
-                defaultValue={values?.maximumPrice ?? ""}
-                inputMode="numeric"
-                min="0"
-                name="average_price_max"
-                placeholder="En çok"
-                step="50"
-                type="number"
-              />
-            </div>
+            <FilterField label="Bütçe Tercihi">
+              <select
+                className={selectedSelectClassName(Boolean(values?.budget))}
+                defaultValue={values?.budget ?? ""}
+                name="budget"
+              >
+                <option value="">Tümü</option>
+                <option value="ekonomik">Ekonomik</option>
+                <option value="standart">Standart</option>
+                <option value="premium">Premium</option>
+                <option value="acil">Acil Hizmet</option>
+              </select>
+            </FilterField>
           </div>
         </div>
 
