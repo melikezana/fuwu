@@ -9,8 +9,8 @@ export type HealthCheckResult = {
     categoriesReadable: boolean;
     districtsReadable: boolean;
     providersReadable: boolean;
-    applicationsInsertable: string; // Documented logic check
-    requestsInsertable: string; // Documented logic check
+    applicationsAccessible: boolean;
+    requestsAccessible: boolean;
   };
   errors: string[];
 };
@@ -24,8 +24,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       categoriesReadable: false,
       districtsReadable: false,
       providersReadable: false,
-      applicationsInsertable: "Requires Authentication or Public Check",
-      requestsInsertable: "Requires Authentication",
+      applicationsAccessible: false,
+      requestsAccessible: false,
     },
     errors: [],
   };
@@ -77,12 +77,32 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       result.errors.push(`Providers read failed: ${e.message}`);
     }
 
+    // Check Provider Applications
+    try {
+      const { error } = await supabase.from("provider_applications").select("id").limit(1);
+      if (error) throw error;
+      result.checks.applicationsAccessible = true;
+    } catch (e: any) {
+      result.errors.push(`Provider applications access failed: ${e.message}`);
+    }
+
+    // Check Service Requests
+    try {
+      const { error } = await supabase.from("service_requests").select("id").limit(1);
+      if (error) throw error;
+      result.checks.requestsAccessible = true;
+    } catch (e: any) {
+      result.errors.push(`Service requests access failed: ${e.message}`);
+    }
+
     // Evaluate overall status
     const allChecksPassed = 
       result.checks.authClient && 
       result.checks.categoriesReadable && 
       result.checks.districtsReadable && 
-      result.checks.providersReadable;
+      result.checks.providersReadable &&
+      result.checks.applicationsAccessible &&
+      result.checks.requestsAccessible;
 
     if (allChecksPassed) {
       result.status = "healthy";
