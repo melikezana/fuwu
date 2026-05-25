@@ -8,6 +8,7 @@ export type HealthCheckResult = {
     passed: boolean;
   }[];
   warnings: string[];
+  recommendations: string[];
 };
 
 export async function checkBackendHealth(): Promise<HealthCheckResult> {
@@ -25,10 +26,12 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       { name: "admin operations readiness", passed: true },
     ],
     warnings: [],
+    recommendations: [],
   };
 
   if (!isSupabaseConfigured) {
     result.warnings.push("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+    result.recommendations.push("Ensure Supabase is configured in .env.local before proceeding.");
     return result;
   }
 
@@ -97,8 +100,12 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
 
     if (allPassed) {
       result.status = "healthy";
+      result.recommendations.push("The backend is fully operational and healthy. No actions are required.");
     } else if (somePassed) {
       result.status = "degraded";
+      result.recommendations.push("Investigate the failed checks and ensure all required schemas are fully migrated.");
+    } else {
+      result.recommendations.push("The backend is completely unresponsive. Check network logs and database connection.");
     }
 
   } catch (globalError: any) {
