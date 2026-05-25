@@ -9,6 +9,8 @@ export type HealthCheckResult = {
     categoriesReadable: boolean;
     districtsReadable: boolean;
     providersReadable: boolean;
+    applicationsInsertable: string; // Documented logic check
+    requestsInsertable: string; // Documented logic check
   };
   errors: string[];
 };
@@ -22,6 +24,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       categoriesReadable: false,
       districtsReadable: false,
       providersReadable: false,
+      applicationsInsertable: "Requires Authentication or Public Check",
+      requestsInsertable: "Requires Authentication",
     },
     errors: [],
   };
