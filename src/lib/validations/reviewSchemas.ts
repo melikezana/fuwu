@@ -5,7 +5,7 @@ import {
   type ValidationIssue,
   type ValidationResult,
 } from "./commonSchemas";
-import { sanitizeText } from "./sanitize";
+import { sanitizeText } from "./text";
 
 export type ReviewField = "comment" | "rating";
 

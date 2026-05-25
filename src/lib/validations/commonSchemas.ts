@@ -1,4 +1,5 @@
-import { sanitizeEmail, sanitizePhone, sanitizeText } from "./sanitize";
+import { sanitizePhone } from "./phone";
+import { sanitizeEmail, sanitizeText } from "./text";
 
 export type ValidationIssue<TField extends string = string> = {
   field: TField;

@@ -6,7 +6,7 @@ import {
   type ValidationIssue,
   type ValidationResult,
 } from "./commonSchemas";
-import { sanitizeEmail } from "./sanitize";
+import { sanitizeEmail } from "./text";
 
 export type LoginEmailField = "email";
 

@@ -8,7 +8,8 @@ import {
   type ValidationIssue,
   type ValidationResult,
 } from "./commonSchemas";
-import { sanitizePhone, sanitizeText } from "./sanitize";
+import { sanitizePhone } from "./phone";
+import { sanitizeText } from "./text";
 
 export type ServiceRequestField =
   | "district"

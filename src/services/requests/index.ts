@@ -193,6 +193,24 @@ export async function createServiceRequest(
   }
 
   const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
+
+  // Anti-spam duplicate request check (same user, category, and district within pending status)
+  const { data: existingRequest } = await supabase
+    .from("service_requests")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("category_id", insertPayload.category_id)
+    .eq("district_id", insertPayload.district_id)
+    .eq("status", SERVICE_REQUEST_STATUSES.yeni)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingRequest?.id) {
+    throw new ValidationError("Duplicate service request detected.", {
+      publicMessage: "Bu alanda halihazırda yeni bir talebiniz bulunuyor.",
+    });
+  }
+
   const { data: insertedRequest, error } = await supabase
     .from("service_requests")
     .insert(insertPayload)

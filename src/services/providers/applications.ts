@@ -219,6 +219,22 @@ export async function submitProviderApplication(
       applicationData,
       profileImageUpload,
     );
+
+    // Anti-spam duplicate phone check
+    const { data: existingApplication } = await supabase
+      .from("provider_applications")
+      .select("id")
+      .eq("phone", insertPayload.phone)
+      .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingApplication?.id) {
+      throw new ValidationError("Duplicate provider application detected.", {
+        publicMessage: "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.",
+      });
+    }
+
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
