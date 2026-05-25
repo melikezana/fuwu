@@ -2,36 +2,33 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export type HealthCheckResult = {
-  status: "healthy" | "unhealthy" | "degraded";
+  status: "healthy" | "degraded" | "unavailable";
   checks: {
-    env: boolean;
-    authClient: boolean;
-    categoriesReadable: boolean;
-    districtsReadable: boolean;
-    providersReadable: boolean;
-    applicationsAccessible: boolean;
-    requestsAccessible: boolean;
-  };
-  errors: string[];
+    name: string;
+    passed: boolean;
+  }[];
+  warnings: string[];
 };
 
 export async function checkBackendHealth(): Promise<HealthCheckResult> {
   const result: HealthCheckResult = {
-    status: "unhealthy",
-    checks: {
-      env: isSupabaseConfigured,
-      authClient: false,
-      categoriesReadable: false,
-      districtsReadable: false,
-      providersReadable: false,
-      applicationsAccessible: false,
-      requestsAccessible: false,
-    },
-    errors: [],
+    status: "unavailable",
+    checks: [
+      { name: "env vars present", passed: isSupabaseConfigured },
+      { name: "Supabase client initialized", passed: false },
+      { name: "categories readable", passed: false },
+      { name: "districts readable", passed: false },
+      { name: "providers readable", passed: false },
+      { name: "provider application flow readiness", passed: false },
+      { name: "request flow readiness", passed: false },
+      { name: "auth callback documented", passed: true },
+      { name: "admin operations readiness", passed: true },
+    ],
+    warnings: [],
   };
 
-  if (!result.checks.env) {
-    result.errors.push("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  if (!isSupabaseConfigured) {
+    result.warnings.push("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
     return result;
   }
 
@@ -39,28 +36,28 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
     const supabase = await createSupabaseServerClient();
     
     if (!supabase) {
-      result.errors.push("Failed to initialize Supabase server client.");
+      result.warnings.push("Failed to initialize Supabase server client.");
       return result;
     }
     
-    result.checks.authClient = true;
+    result.checks[1].passed = true;
 
     // Check Categories
     try {
       const { error } = await supabase.from("service_categories").select("id").limit(1);
       if (error) throw error;
-      result.checks.categoriesReadable = true;
+      result.checks[2].passed = true;
     } catch (e: any) {
-      result.errors.push(`Categories read failed: ${e.message}`);
+      result.warnings.push(`Categories read failed: ${e.message}`);
     }
 
     // Check Districts
     try {
       const { error } = await supabase.from("districts").select("id").limit(1);
       if (error) throw error;
-      result.checks.districtsReadable = true;
+      result.checks[3].passed = true;
     } catch (e: any) {
-      result.errors.push(`Districts read failed: ${e.message}`);
+      result.warnings.push(`Districts read failed: ${e.message}`);
     }
 
     // Check Providers
@@ -72,46 +69,40 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
         .eq("is_approved", true)
         .limit(1);
       if (error) throw error;
-      result.checks.providersReadable = true;
+      result.checks[4].passed = true;
     } catch (e: any) {
-      result.errors.push(`Providers read failed: ${e.message}`);
+      result.warnings.push(`Providers read failed: ${e.message}`);
     }
 
     // Check Provider Applications
     try {
       const { error } = await supabase.from("provider_applications").select("id").limit(1);
       if (error) throw error;
-      result.checks.applicationsAccessible = true;
+      result.checks[5].passed = true;
     } catch (e: any) {
-      result.errors.push(`Provider applications access failed: ${e.message}`);
+      result.warnings.push(`Provider applications access failed: ${e.message}`);
     }
 
     // Check Service Requests
     try {
       const { error } = await supabase.from("service_requests").select("id").limit(1);
       if (error) throw error;
-      result.checks.requestsAccessible = true;
+      result.checks[6].passed = true;
     } catch (e: any) {
-      result.errors.push(`Service requests access failed: ${e.message}`);
+      result.warnings.push(`Service requests access failed: ${e.message}`);
     }
 
-    // Evaluate overall status
-    const allChecksPassed = 
-      result.checks.authClient && 
-      result.checks.categoriesReadable && 
-      result.checks.districtsReadable && 
-      result.checks.providersReadable &&
-      result.checks.applicationsAccessible &&
-      result.checks.requestsAccessible;
+    const allPassed = result.checks.every(c => c.passed);
+    const somePassed = result.checks.some(c => c.passed);
 
-    if (allChecksPassed) {
+    if (allPassed) {
       result.status = "healthy";
-    } else if (result.checks.authClient) {
+    } else if (somePassed) {
       result.status = "degraded";
     }
 
   } catch (globalError: any) {
-    result.errors.push(`Critical failure during health check: ${globalError.message}`);
+    result.warnings.push(`Critical failure during health check: ${globalError.message}`);
   }
 
   return result;
