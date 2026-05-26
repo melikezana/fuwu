@@ -9,6 +9,48 @@ type ServiceIconProps = {
 export function ServiceIcon({ name, className }: ServiceIconProps) {
   const iconClassName = cn("h-6 w-6", className);
 
+  if (name === "leaf") {
+    return (
+      <svg aria-hidden="true" className={iconClassName} fill="none" viewBox="0 0 24 24">
+        <path
+          d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M2 22l10-10"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+      </svg>
+    );
+  }
+
+  if (name === "droplets") {
+    return (
+      <svg aria-hidden="true" className={iconClassName} fill="none" viewBox="0 0 24 24">
+        <path
+          d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 6.3 7 6.3s-2.29 2.76-2.29 2.76C3.57 9.99 3 11.09 3 12.25 3 14.47 4.8 16.3 7 16.3Z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M17 21c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S17 11 17 11s-2.29 2.76-2.29 2.76c-1.14.93-1.71 2.03-1.71 3.19C13 19.17 14.8 21 17 21Z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+      </svg>
+    );
+  }
+
   if (name === "faucet" || name === "pipe") {
     return (
       <svg aria-hidden="true" className={iconClassName} fill="none" viewBox="0 0 24 24">

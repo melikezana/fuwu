@@ -13,6 +13,8 @@ export type ServiceIconName =
   | "pipe"
   | "rug"
   | "sparkles"
+  | "leaf"
+  | "droplets"
   | "truck"
   | "wrench";
 

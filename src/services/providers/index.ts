@@ -142,16 +142,19 @@ function formatPrice(value: number) {
 }
 
 function formatAveragePrice(minimumPrice: number | null, maximumPrice: number | null) {
-  if (typeof minimumPrice === "number" && typeof maximumPrice === "number") {
-    return `${formatPrice(minimumPrice)} - ${formatPrice(maximumPrice)} TL`;
+  const isMinValid = typeof minimumPrice === "number" && Number.isFinite(minimumPrice);
+  const isMaxValid = typeof maximumPrice === "number" && Number.isFinite(maximumPrice);
+
+  if (isMinValid && isMaxValid) {
+    return `${formatPrice(minimumPrice as number)} - ${formatPrice(maximumPrice as number)} TL`;
   }
 
-  if (typeof minimumPrice === "number") {
-    return `${formatPrice(minimumPrice)} TL ve üzeri`;
+  if (isMinValid) {
+    return `${formatPrice(minimumPrice as number)} TL ve üzeri`;
   }
 
-  if (typeof maximumPrice === "number") {
-    return `${formatPrice(maximumPrice)} TL'ye kadar`;
+  if (isMaxValid) {
+    return `${formatPrice(maximumPrice as number)} TL'ye kadar`;
   }
 
   return "Fiyat bilgisi yakında";
@@ -412,22 +415,7 @@ function parsePriceBoundary(value: string | undefined) {
   return priceValue ? parseLocalizedNumber(priceValue) : null;
 }
 
-function parseBudgetPriceRangeFilter(filters: ProviderFilters): PriceRangeFilter | null {
-  if (!filters.budget) {
-    return null;
-  }
-
-  switch (filters.budget.toLowerCase()) {
-    case "ekonomik":
-      return { minimumPrice: null, maximumPrice: 1000 };
-    case "standart":
-      return { minimumPrice: 1000, maximumPrice: 3000 };
-    case "premium":
-      return { minimumPrice: 3000, maximumPrice: null };
-    default:
-      return null;
-  }
-}
+// Removed parseBudgetPriceRangeFilter to use explicit query logic instead
 
 function parseExplicitPriceRangeFilter(filters: ProviderFilters): PriceRangeFilter | null {
   const minimumPrice = parsePriceBoundary(filters.minimumPrice);
@@ -461,7 +449,31 @@ function isProviderWithinPriceRange(
 
 function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   const providerRange = parsePriceRangeFilter(providerPrice);
-  const explicitRange = parseBudgetPriceRangeFilter(filters) ?? parseExplicitPriceRangeFilter(filters);
+
+  if (filters.budget) {
+    const budget = filters.budget.toLowerCase();
+    
+    // No price bound for Acil
+    if (budget === "acil") return true;
+
+    if (!providerRange) return false;
+
+    if (budget === "ekonomik") {
+      return typeof providerRange.minimumPrice === "number" && providerRange.minimumPrice <= 1000;
+    }
+    
+    if (budget === "standart") {
+      return typeof providerRange.minimumPrice === "number" && providerRange.minimumPrice <= 2500;
+    }
+
+    if (budget === "premium") {
+      return typeof providerRange.maximumPrice === "number" && providerRange.maximumPrice >= 2500;
+    }
+
+    return true;
+  }
+
+  const explicitRange = parseExplicitPriceRangeFilter(filters);
 
   if (explicitRange) {
     return providerRange ? isProviderWithinPriceRange(providerRange, explicitRange) : false;
@@ -735,7 +747,7 @@ async function fetchProvidersFromSupabase(
       return [];
     }
 
-    const explicitPriceRange = parseBudgetPriceRangeFilter(filters) ?? parseExplicitPriceRangeFilter(filters);
+    const explicitPriceRange = parseExplicitPriceRangeFilter(filters);
     const priceRange = explicitPriceRange ?? parsePriceRangeFilter(filters.price);
     const minimumRating = parseMinimumRating(filters.rating);
 
@@ -756,14 +768,17 @@ async function fetchProvidersFromSupabase(
       query = query.in("district_id", districtIds);
     }
 
-    if (filters.budget?.toLowerCase() === "acil") {
+    const budget = filters.budget?.toLowerCase();
+    
+    if (budget === "ekonomik") {
+      query = query.lte("average_price_min", 1000);
+    } else if (budget === "standart") {
+      query = query.lte("average_price_min", 2500);
+    } else if (budget === "premium") {
+      query = query.gte("average_price_max", 2500);
+    } else if (budget === "acil") {
       // Just safely prioritize or search if possible, for now we let frontend handle text filter 
-      // or we can use an 'or' / 'textSearch' if we had one. Since we don't have a reliable full-text search 
-      // exposed via our Supabase client without breaking `isMissingAvailabilityColumn`, we'll rely on the 
-      // static fallback/text filter above or simply leave it as a safe intent for now.
-    }
-
-    if (explicitPriceRange) {
+    } else if (explicitPriceRange) {
       if (typeof explicitPriceRange.minimumPrice === "number") {
         query = query.gte("average_price_min", explicitPriceRange.minimumPrice);
       }
@@ -802,7 +817,15 @@ async function fetchProvidersFromSupabase(
         fallbackQuery = fallbackQuery.in("district_id", districtIds);
       }
 
-      if (explicitPriceRange) {
+      if (budget === "ekonomik") {
+        fallbackQuery = fallbackQuery.lte("average_price_min", 1000);
+      } else if (budget === "standart") {
+        fallbackQuery = fallbackQuery.lte("average_price_min", 2500);
+      } else if (budget === "premium") {
+        fallbackQuery = fallbackQuery.gte("average_price_max", 2500);
+      } else if (budget === "acil") {
+        // Just safely prioritize or search if possible, for now we let frontend handle text filter 
+      } else if (explicitPriceRange) {
         if (typeof explicitPriceRange.minimumPrice === "number") {
           fallbackQuery = fallbackQuery.gte("average_price_min", explicitPriceRange.minimumPrice);
         }

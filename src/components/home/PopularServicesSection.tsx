@@ -54,6 +54,24 @@ const popularServices: PopularService[] = [
     detail: "Detayları paylaş",
     iconName: "box",
   },
+  {
+    id: "garden-care",
+    title: "Bahçe Bakımı",
+    category: "Açık Alan",
+    description: "Bahçe düzenleme, bakım ve temizlik.",
+    badge: "Yeni",
+    detail: "Teklif iste",
+    iconName: "leaf",
+  },
+  {
+    id: "pool-maintenance",
+    title: "Havuz Bakımı",
+    category: "Açık Alan",
+    description: "Havuz temizlik, bakım ve kontrol.",
+    badge: "Yeni",
+    detail: "Teklif iste",
+    iconName: "droplets",
+  },
 ];
 
 export function PopularServicesSection() {
@@ -71,7 +89,7 @@ export function PopularServicesSection() {
           </Button>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4 xl:gap-5">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
           {popularServices.map((service) => (
             <Link
               aria-label={`${service.title} için talep oluştur`}

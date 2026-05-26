@@ -318,17 +318,68 @@ export function ProviderFilters({
         >
           <div className="block min-w-0 cursor-default">
             <FilterField label="Bütçe Tercihi">
-              <select
-                className={selectedSelectClassName(Boolean(values?.budget))}
-                defaultValue={values?.budget ?? ""}
-                name="budget"
-              >
-                <option value="">Tümü</option>
-                <option value="ekonomik">Ekonomik</option>
-                <option value="standart">Standart</option>
-                <option value="premium">Premium</option>
-                <option value="acil">Acil Hizmet</option>
-              </select>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="budget"
+                    value=""
+                    defaultChecked={!values?.budget}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
+                    Tümü
+                  </span>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="budget"
+                    value="ekonomik"
+                    defaultChecked={values?.budget === "ekonomik"}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
+                    Ekonomik
+                  </span>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="budget"
+                    value="standart"
+                    defaultChecked={values?.budget === "standart"}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
+                    Standart
+                  </span>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="budget"
+                    value="premium"
+                    defaultChecked={values?.budget === "premium"}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
+                    Premium
+                  </span>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="budget"
+                    value="acil"
+                    defaultChecked={values?.budget === "acil"}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
+                    Acil Hizmet
+                  </span>
+                </label>
+              </div>
             </FilterField>
           </div>
         </div>
