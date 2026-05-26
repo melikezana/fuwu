@@ -12,7 +12,9 @@ values
   ('Klima & Beyaz Eşya', 'klima-beyaz-esya', 'Klima, kombi ve beyaz eşya bakım onarım hizmetleri.', true),
   ('Mobilya Montaj', 'mobilya-montaj', 'Mobilya kurulum, demontaj ve tamir hizmetleri.', true),
   ('Boya Badana', 'boya-badana', 'Ic cephe boya, badana ve tadilat destek hizmetleri.', true),
-  ('Nakliye Yardımı', 'nakliye-yardimi', 'Kucuk nakliye, eşya taşıma ve taşınma yardımı hizmetleri.', true)
+  ('Nakliye Yardımı', 'nakliye-yardimi', 'Kucuk nakliye, eşya taşıma ve taşınma yardımı hizmetleri.', true),
+  ('Bahçe Bakımı', 'bahce-bakimi', 'Bahçe düzenleme, bakım ve temizlik hizmetleri.', true),
+  ('Havuz Bakımı', 'havuz-bakimi', 'Havuz temizlik, bakım ve kontrol hizmetleri.', true)
 on conflict (slug) do update
 set
   name = excluded.name,

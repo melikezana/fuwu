@@ -118,6 +118,7 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
   const categoryLabel = selectedCategory ? getProviderListingLabel(selectedCategory) : "";
   const hasGranularFilters = Boolean(
     selectedAvailability ||
+      selectedBudget ||
       selectedMaximumPrice ||
       selectedMinimumPrice ||
       selectedPrice ||
@@ -296,6 +297,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               maximumPrice: selectedMaximumPrice,
               minimumPrice: selectedMinimumPrice,
               price: selectedPrice,
+              budget: selectedBudget,
               query: selectedQuery,
               rating: selectedRating,
             }}

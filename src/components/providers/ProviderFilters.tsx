@@ -10,7 +10,7 @@ import {
   getProviderAvailabilityLabel,
   minimumRatingOptions,
   providerAvailabilityOptions,
-  providerAveragePrices,
+  providerBudgetOptions,
   providerCategories,
   providerDistricts,
 } from "@/lib/constants/providers";
@@ -56,31 +56,6 @@ const selectClassName =
 const inputClassName =
   "mt-2 h-12 w-full min-w-0 cursor-text select-text rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
-function getPriceFilterValue(price: string) {
-  const priceValues =
-    price
-      .match(/\d[\d.,]*/g)
-      ?.map((value) => value.replace(/\./g, "").replace(",", "."))
-      .filter(Boolean) ?? [];
-
-  if (priceValues.length >= 2) {
-    return `${priceValues[0]}-${priceValues[1]}`;
-  }
-
-  return price;
-}
-
-function getSelectedPriceValue(price: string | undefined, prices: string[]) {
-  if (!price) {
-    return "";
-  }
-
-  const normalizedPrice = getPriceFilterValue(price);
-  const matchingPrice = prices.find((option) => getPriceFilterValue(option) === normalizedPrice);
-
-  return matchingPrice ? getPriceFilterValue(matchingPrice) : price;
-}
-
 function getAvailabilityLabel(value: string) {
   if (value === "müsait" || value === "yoğun" || value === "çevrimdışı") {
     return getProviderAvailabilityLabel(value);
@@ -89,22 +64,47 @@ function getAvailabilityLabel(value: string) {
   return value;
 }
 
+function getSelectedBudgetValue(value: string | undefined) {
+  const normalizedValue = value?.trim().toLocaleLowerCase("tr").replace(/\s+/g, "-") ?? "";
+
+  return normalizedValue === "acil" ? "acil-hizmet" : normalizedValue;
+}
+
+function BudgetPreferenceTags({ selectedBudget }: { selectedBudget?: string }) {
+  const selectedBudgetValue = getSelectedBudgetValue(selectedBudget);
+  const allOptions = [{ label: "Tümü", value: "" }, ...providerBudgetOptions];
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {allOptions.map((option) => (
+        <label className="min-w-0 cursor-pointer" key={option.value || "all"}>
+          <input
+            className="peer sr-only"
+            defaultChecked={option.value ? selectedBudgetValue === option.value : !selectedBudgetValue}
+            name="budget"
+            type="radio"
+            value={option.value}
+          />
+          <span className="inline-flex min-h-10 max-w-full select-none items-center justify-center whitespace-nowrap rounded-md border border-[rgba(13,20,36,0.08)] bg-[#F7F3EC] px-3 text-sm font-semibold leading-5 text-[var(--brand-navy)] shadow-sm transition-all hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_12px_26px_rgba(255,138,0,0.2)]">
+            {option.label}
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 export function ProviderFilters({
   values,
   compact = false,
   categories = providerCategories,
   districts = providerDistricts,
-  averagePrices = providerAveragePrices,
   availabilityOptions = providerAvailabilityOptions,
 }: ProviderFiltersProps) {
   const { t } = useI18n();
-  const priceOptions = averagePrices.map((price) => ({
-    label: price,
-    value: getPriceFilterValue(price),
-  }));
-  const selectedPriceValue = getSelectedPriceValue(values?.price, averagePrices);
   const hasAdvancedFilterValue = Boolean(
     values?.availability ||
+      values?.budget ||
       values?.maximumPrice ||
       values?.minimumPrice ||
       values?.price ||
@@ -115,6 +115,7 @@ export function ProviderFilters({
     values?.category ||
       values?.district ||
       values?.availability ||
+      values?.budget ||
       values?.maximumPrice ||
       values?.minimumPrice ||
       values?.price ||
@@ -265,8 +266,8 @@ export function ProviderFilters({
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(13rem,1.25fr)_minmax(12rem,1fr)_minmax(9rem,0.85fr)_minmax(9rem,0.85fr)_minmax(10rem,0.9fr)_minmax(8.5rem,auto)] xl:items-end">
-        <div className="order-0 md:order-none md:col-span-2 xl:col-span-6">
+      <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(13rem,1.15fr)_minmax(12rem,1fr)_minmax(17rem,1.45fr)_minmax(10rem,0.85fr)_minmax(8.5rem,auto)] xl:items-end">
+        <div className="order-0 md:order-none md:col-span-2 xl:col-span-5">
           <FilterField label={t("filters.search")}>
             <input
               className={selectedInputClassName(Boolean(values?.query))}
@@ -313,73 +314,12 @@ export function ProviderFilters({
         </div>
 
         <div
-          className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}
+          className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-1")}
           id={advancedPanelId}
         >
           <div className="block min-w-0 cursor-default">
             <FilterField label="Bütçe Tercihi">
-              <div className="mt-2 flex flex-wrap gap-2">
-                <label className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="budget"
-                    value=""
-                    defaultChecked={!values?.budget}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
-                    Tümü
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="budget"
-                    value="ekonomik"
-                    defaultChecked={values?.budget === "ekonomik"}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
-                    Ekonomik
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="budget"
-                    value="standart"
-                    defaultChecked={values?.budget === "standart"}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
-                    Standart
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="budget"
-                    value="premium"
-                    defaultChecked={values?.budget === "premium"}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
-                    Premium
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="budget"
-                    value="acil"
-                    defaultChecked={values?.budget === "acil"}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center justify-center rounded-full bg-[var(--surface-soft)] px-4 text-sm font-semibold text-[var(--muted)] transition-colors peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#F3F4F6] peer-checked:hover:bg-[var(--brand-orange-dark)]">
-                    Acil Hizmet
-                  </span>
-                </label>
-              </div>
+              <BudgetPreferenceTags selectedBudget={values?.budget} />
             </FilterField>
           </div>
         </div>
@@ -411,26 +351,7 @@ export function ProviderFilters({
           {t("cta.findProvider")}
         </Button>
 
-        {priceOptions.length > 0 ? (
-          <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}>
-            <FilterField label={t("filters.pricePreset")}>
-              <select
-                className={selectedSelectClassName(Boolean(selectedPriceValue))}
-                defaultValue={selectedPriceValue}
-                name="price"
-              >
-                <option value="">{t("filters.allPrices")}</option>
-                {priceOptions.map((price) => (
-                  <option key={price.label} value={price.value}>
-                    {price.label}
-                  </option>
-                ))}
-              </select>
-            </FilterField>
-          </div>
-        ) : null}
-
-        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-4")}>
+        <div className={cn(mobileAdvancedClassName, "md:col-span-2 xl:col-span-2")}>
           <FilterField label={t("filters.availability")}>
             <select
               className={selectedSelectClassName(Boolean(values?.availability))}

@@ -42,6 +42,8 @@ const serviceOrder = [
   "Mobilya Montaj",
   "Boya Badana",
   "Nakliye Yardımı",
+  "Bahçe Bakımı",
+  "Havuz Bakımı",
 ];
 
 const howItWorksSteps = [
@@ -139,6 +141,10 @@ function MobileHeroTrustSignals() {
 
 function PhoneProviderRow({ provider }: { provider: Provider }) {
   const profileHref = `${appRoutes.providers}/${provider.id}`;
+  const displayPrice =
+    provider.averagePrice && !/\b(null|undefined|nan)\b/i.test(provider.averagePrice)
+      ? provider.averagePrice
+      : "";
 
   return (
     <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3.5 shadow-sm ring-1 ring-[var(--border)] transition-all hover:shadow-md hover:ring-gray-300">
@@ -153,11 +159,11 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
           <p className="mt-0.5 text-xs font-medium text-[var(--muted)]">
             {provider.category} • {provider.district}
           </p>
-          {provider.averagePrice && (
+          {displayPrice ? (
             <p className="mt-1.5 text-xs font-semibold text-[var(--brand-navy)]">
-              {provider.averagePrice}
+              {displayPrice}
             </p>
-          )}
+          ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)]">

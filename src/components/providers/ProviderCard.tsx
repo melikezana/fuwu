@@ -42,11 +42,26 @@ function createProviderFilterHref(
   return `${appRoutes.providers}?${nextParams.toString()}`;
 }
 
+function getDisplayPriceRange(value: string | undefined) {
+  const normalizedValue = value?.trim() ?? "";
+
+  if (!normalizedValue) {
+    return "Fiyat bilgisi yakında";
+  }
+
+  if (/\b(null|undefined|nan)\b/i.test(normalizedValue)) {
+    return "Fiyat bilgisi yakında";
+  }
+
+  return normalizedValue;
+}
+
 export function ProviderCard({ provider, actionsId, className }: ProviderCardProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const currentSearchParams = new URLSearchParams(searchParams.toString());
   const profileHref = `${appRoutes.providers}/${provider.id}`;
+  const priceRange = getDisplayPriceRange(provider.averagePrice);
   
   const analyticsPayload = {
     category: provider.category,
@@ -126,10 +141,10 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
       <div className="border-t border-[var(--border)] bg-[#FAFAFA] p-4 sm:p-5 mt-auto">
         <div className="mb-4">
           <span className="block text-xs font-semibold text-[var(--muted)] uppercase mb-0.5">
-            Fiyat Aralığı
+            {t("providerCard.priceRange")}
           </span>
           <span className="block text-sm font-semibold text-[var(--brand-navy)]">
-            {provider.averagePrice || "Fiyat bilgisi yakında"}
+            {priceRange}
           </span>
         </div>
 

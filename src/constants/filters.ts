@@ -2,9 +2,13 @@ export const CATEGORIES = [
   "Tesisat",
   "Elektrik",
   "Temizlik",
-  "Nakliyat",
+  "Halı Yıkama",
+  "Klima & Beyaz Eşya",
+  "Mobilya Montaj",
   "Boya & Badana",
-  "Klima & Kombi"
+  "Nakliye Yardımı",
+  "Bahçe Bakımı",
+  "Havuz Bakımı"
 ];
 
 export const DISTRICTS = [

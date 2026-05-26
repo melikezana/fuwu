@@ -7,9 +7,11 @@ import {
   getProviderById as getMockProviderById,
   providerAvailabilityOptions,
   providerAveragePrices,
+  providerBudgetOptions,
   providerCategories,
   providerDistricts,
   providers as mockProviders,
+  type ProviderBudgetValue,
 } from "@/lib/constants/providers";
 import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -146,7 +148,7 @@ function formatAveragePrice(minimumPrice: number | null, maximumPrice: number | 
   const isMaxValid = typeof maximumPrice === "number" && Number.isFinite(maximumPrice);
 
   if (isMinValid && isMaxValid) {
-    return `${formatPrice(minimumPrice as number)} - ${formatPrice(maximumPrice as number)} TL`;
+    return `${formatPrice(minimumPrice as number)} TL - ${formatPrice(maximumPrice as number)} TL`;
   }
 
   if (isMinValid) {
@@ -259,6 +261,26 @@ function normalizeFilterValue(value: string) {
     .trim();
 }
 
+function normalizeBudgetFilterValue(value: string | undefined): ProviderBudgetValue | undefined {
+  const normalizedValue = normalizeFilterValue(value ?? "");
+
+  if (!normalizedValue) {
+    return undefined;
+  }
+
+  if (normalizedValue === "acil") {
+    return "acil-hizmet";
+  }
+
+  const matchingOption = providerBudgetOptions.find(
+    (option) =>
+      normalizeFilterValue(option.value) === normalizedValue ||
+      normalizeFilterValue(option.label) === normalizedValue,
+  );
+
+  return matchingOption?.value;
+}
+
 function normalizeSlugValue(value: string) {
   return normalizeFilterValue(value).replace(/\s+/g, "-");
 }
@@ -295,6 +317,7 @@ function normalizeProviderFilters(filters: ProviderFilters = {}): ProviderFilter
     maximumPrice: normalizeOptionalFilterText(filters.maximumPrice, 40),
     minimumPrice: normalizeOptionalFilterText(filters.minimumPrice, 40),
     price: normalizeOptionalFilterText(filters.price, 80),
+    budget: normalizeBudgetFilterValue(filters.budget),
     query: normalizeOptionalFilterText(filters.query, 160),
     rating: normalizeOptionalFilterText(filters.rating, 12),
   };
@@ -449,12 +472,12 @@ function isProviderWithinPriceRange(
 
 function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   const providerRange = parsePriceRangeFilter(providerPrice);
+  const budget = normalizeBudgetFilterValue(filters.budget);
 
-  if (filters.budget) {
-    const budget = filters.budget.toLowerCase();
-    
-    // No price bound for Acil
-    if (budget === "acil") return true;
+  if (budget) {
+    if (budget === "acil-hizmet") {
+      return true;
+    }
 
     if (!providerRange) return false;
 
@@ -495,12 +518,8 @@ function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
   );
 }
 
-function matchesProviderSearchQuery(provider: Provider, query: string | undefined, budget: string | undefined) {
+function matchesProviderSearchQuery(provider: Provider, query: string | undefined) {
   const searchTerms = getSearchTerms(query);
-  
-  if (budget?.toLowerCase() === "acil") {
-    searchTerms.push("acil");
-  }
 
   if (searchTerms.length === 0) {
     return true;
@@ -547,7 +566,7 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
     const availabilityMatches =
       !hasFilterValue(filters.availability) ||
       matchesExactFilter(provider.availability, filters.availability ?? "");
-    const queryMatches = matchesProviderSearchQuery(provider, filters.query, filters.budget);
+    const queryMatches = matchesProviderSearchQuery(provider, filters.query);
 
     return (
       categoryMatches &&
@@ -568,7 +587,7 @@ function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
     averagePrices: Array.from(
       new Set(providers.map((provider) => provider.averagePrice).filter(Boolean)),
     ),
-    budgetOptions: ["ekonomik", "standart", "premium", "acil"],
+    budgetOptions: providerBudgetOptions.map((option) => option.value),
     categories: getUniqueSortedOptions(providers.map((provider) => provider.category)),
     districts: getUniqueSortedOptions(
       providers.flatMap((provider) => [provider.district, ...provider.serviceAreas]),
@@ -580,7 +599,7 @@ function buildFallbackFilterOptions(): ProviderFilterOptions {
   return {
     availabilityOptions: [...providerAvailabilityOptions],
     averagePrices: [...providerAveragePrices],
-    budgetOptions: ["ekonomik", "standart", "premium", "acil"],
+    budgetOptions: providerBudgetOptions.map((option) => option.value),
     categories: [...providerCategories],
     districts: [...providerDistricts],
   };
@@ -598,7 +617,7 @@ function mergeLookupFilterOptions(
     availabilityOptions: providerOptions.availabilityOptions.length
       ? providerOptions.availabilityOptions
       : fallbackOptions.availabilityOptions,
-    categories: lookups.categories,
+    categories: getUniqueSortedOptions([...lookups.categories, ...fallbackOptions.categories]),
     districts: lookups.districts,
   };
 }
@@ -768,7 +787,7 @@ async function fetchProvidersFromSupabase(
       query = query.in("district_id", districtIds);
     }
 
-    const budget = filters.budget?.toLowerCase();
+    const budget = normalizeBudgetFilterValue(filters.budget);
     
     if (budget === "ekonomik") {
       query = query.lte("average_price_min", 1000);
@@ -776,8 +795,8 @@ async function fetchProvidersFromSupabase(
       query = query.lte("average_price_min", 2500);
     } else if (budget === "premium") {
       query = query.gte("average_price_max", 2500);
-    } else if (budget === "acil") {
-      // Just safely prioritize or search if possible, for now we let frontend handle text filter 
+    } else if (budget === "acil-hizmet") {
+      // Intent-only tag until urgent availability data exists.
     } else if (explicitPriceRange) {
       if (typeof explicitPriceRange.minimumPrice === "number") {
         query = query.gte("average_price_min", explicitPriceRange.minimumPrice);
@@ -823,8 +842,8 @@ async function fetchProvidersFromSupabase(
         fallbackQuery = fallbackQuery.lte("average_price_min", 2500);
       } else if (budget === "premium") {
         fallbackQuery = fallbackQuery.gte("average_price_max", 2500);
-      } else if (budget === "acil") {
-        // Just safely prioritize or search if possible, for now we let frontend handle text filter 
+      } else if (budget === "acil-hizmet") {
+        // Intent-only tag until urgent availability data exists.
       } else if (explicitPriceRange) {
         if (typeof explicitPriceRange.minimumPrice === "number") {
           fallbackQuery = fallbackQuery.gte("average_price_min", explicitPriceRange.minimumPrice);
@@ -866,6 +885,7 @@ async function fetchProvidersFromSupabase(
 
     return applyProviderFilters(providers, {
       availability: filters.availability,
+      budget: filters.budget,
       query: filters.query,
     });
   } catch (error) {
