@@ -2,8 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
-import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
-import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
@@ -42,42 +40,22 @@ const serviceOrder = [
   "Havuz Bakımı",
 ];
 
-const howItWorksSteps = [
+const quickSteps = [
   {
-    descriptionKey: "home.how.step1.description",
-    href: "#services",
-    titleKey: "home.how.step1.title",
+    description: "İhtiyacına en yakın kategoriyi seç.",
+    title: "Hizmet seç",
   },
   {
-    descriptionKey: "home.how.step2.description",
-    href: "#providers-preview",
-    titleKey: "home.how.step2.title",
+    description: "Sadece çalışılacak ilçeyi belirt.",
+    title: "İlçe seç",
   },
   {
-    descriptionKey: "home.how.step3.description",
-    href: "#provider-contact-actions",
-    titleKey: "home.how.step3.title",
+    description: "Ekonomik, Standart veya Premium seç.",
+    title: "Bütçe seç",
   },
-] satisfies Array<{ descriptionKey: TranslationKey; href: string; titleKey: TranslationKey }>;
+] satisfies Array<{ description: string; title: string }>;
 
-const trustItems = [
-  {
-    descriptionKey: "home.trust.item1.description",
-    titleKey: "home.trust.item1.title",
-  },
-  {
-    descriptionKey: "home.trust.item2.description",
-    titleKey: "home.trust.item2.title",
-  },
-  {
-    descriptionKey: "home.trust.item3.description",
-    titleKey: "home.trust.item3.title",
-  },
-  {
-    descriptionKey: "home.trust.item4.description",
-    titleKey: "home.trust.item4.title",
-  },
-] satisfies Array<{ descriptionKey: TranslationKey; titleKey: TranslationKey }>;
+const trustSignals = ["Net fiyat aralığı", "Puan bilgisi", "Direkt WhatsApp", "Telefonla arama"];
 
 const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
@@ -87,15 +65,15 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   return (
     <div className="max-w-3xl cursor-default select-none">
       {eyebrow ? (
-        <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
+        <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="mt-3 text-3xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+      <h2 className="mt-2 text-2xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-3xl">
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-base font-medium leading-7 text-[var(--muted)]">
+        <p className="mt-2 text-sm font-medium leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
           {description}
         </p>
       ) : null}
@@ -252,25 +230,21 @@ function HeroSection({
 
 function ServiceCard({ service }: { service: Service }) {
   const titleKey = `services.${service.id}.title` as TranslationKey;
-  const descriptionKey = `services.${service.id}.description` as TranslationKey;
 
   return (
     <Link
       aria-label={`${service.title} kategorisinde usta bul`}
-      className="group flex min-h-44 cursor-pointer flex-col justify-between rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="group grid min-h-20 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg bg-white p-4 shadow-[0_10px_28px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(13,20,36,0.07)] hover:ring-[rgba(255,138,0,0.34)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={service.href}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-        <ServiceIcon className="h-7 w-7" name={service.iconName} />
+      <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+        <ServiceIcon className="h-5 w-5" name={service.iconName} />
       </span>
-      <span className="mt-5 block">
-        <span className="block text-xl font-semibold leading-tight text-[var(--brand-navy)]">
+      <span className="block min-w-0">
+        <span className="block truncate text-base font-semibold leading-tight text-[var(--brand-navy)]">
           <I18nText i18nKey={titleKey} />
         </span>
-        <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
-          <I18nText i18nKey={descriptionKey} />
-        </span>
-        <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
+        <span className="mt-1 inline-flex text-sm font-semibold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
           <I18nText i18nKey="cta.findProvider" />
         </span>
       </span>
@@ -281,13 +255,13 @@ function ServiceCard({ service }: { service: Service }) {
 function ServicesSection() {
   return (
     <section className="border-y border-[var(--border)] bg-white" id="services">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-11 lg:py-12">
         <SectionHeading
           description={<I18nText i18nKey="home.services.description" />}
           eyebrow={<I18nText i18nKey="home.services.eyebrow" />}
           title={<I18nText i18nKey="home.services.title" />}
         />
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {orderedServices.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
@@ -300,7 +274,7 @@ function ServicesSection() {
 function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Provider[] }) {
   return (
     <section className="bg-[var(--background)]" id="providers-preview">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="py-9 sm:py-11 lg:py-12">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             description={<I18nText i18nKey="home.providers.description" />}
@@ -308,14 +282,14 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
             title={<I18nText i18nKey="home.providers.title" />}
           />
           <Link
-            className="cursor-pointer text-sm font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+            className="cursor-pointer text-sm font-semibold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
             href={appRoutes.providers}
           >
             <I18nText i18nKey="cta.reviewProfiles" />
           </Link>
         </div>
         {featuredProviders.length > 0 ? (
-          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {featuredProviders.map((provider, index) => (
               <ProviderCard
                 actionsId={index === 0 ? "provider-contact-actions" : undefined}
@@ -325,11 +299,11 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
             ))}
           </div>
         ) : (
-          <div className="mt-7 cursor-default rounded-lg bg-white p-7 text-center shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <p className="text-xl font-bold text-[var(--brand-navy)]">
+          <div className="mt-5 cursor-default rounded-lg bg-white p-5 text-center shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <p className="text-lg font-semibold text-[var(--brand-navy)]">
               <I18nText i18nKey="home.hero.empty.title" />
             </p>
-            <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
+            <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
               <I18nText i18nKey="home.hero.empty.description" />
             </p>
           </div>
@@ -339,152 +313,61 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
   );
 }
 
-function HowItWorksSection() {
+function CompactProofSection() {
   return (
     <section className="border-y border-[var(--border)] bg-white" id="how-it-works">
-      <Container className="py-9 sm:py-14 lg:py-16">
-        <SectionHeading
-          description={<I18nText i18nKey="home.how.description" />}
-          eyebrow={<I18nText i18nKey="home.how.eyebrow" />}
-          title={<I18nText i18nKey="home.how.title" />}
-        />
-        <MobileCollapsibleSection contentClassName="mt-7">
-          <div className="grid gap-4 md:grid-cols-3">
-            {howItWorksSteps.map((step, index) => (
-              <Link
-                className="group cursor-pointer select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_58px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                href={step.href}
-                key={step.titleKey}
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-                  0{index + 1}
-                </span>
-                <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey={step.titleKey} />
-                </h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey={step.descriptionKey} />
-                </p>
-                <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
-                  <I18nText i18nKey="cta.goToSection" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </MobileCollapsibleSection>
-      </Container>
-    </section>
-  );
-}
-
-function AboutSection() {
-  return (
-    <section className="border-y border-[var(--border)] bg-white" id="about">
-      <Container className="py-9 sm:py-14 lg:py-16">
-        <div className="grid gap-5 lg:grid-cols-[0.45fr_1fr] lg:items-start">
-          <div className="cursor-default select-none">
-            <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-              <I18nText i18nKey="home.about.eyebrow" />
+      <Container className="py-8 sm:py-10 lg:py-11">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-start">
+          <div className="cursor-default select-none" id="about">
+            <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
+              Nasıl çalışır?
             </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-              <I18nText i18nKey="home.about.title" />
+            <h2 className="mt-2 max-w-lg text-2xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-3xl">
+              Üç seçim yap, uygun ustaya direkt ulaş.
             </h2>
-          </div>
-          <MobileCollapsibleSection contentClassName="mt-4 lg:mt-0">
-            <p className="max-w-3xl cursor-default select-none text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
+            <p className="mt-3 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
               <I18nText i18nKey="home.about.description" />
             </p>
-          </MobileCollapsibleSection>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-function TrustSection() {
-  return (
-    <section className="bg-[#F7F7F8]" id="trust">
-      <Container className="py-9 sm:py-14 lg:py-16">
-        <SectionHeading
-          description={<I18nText i18nKey="home.trust.description" />}
-          eyebrow={<I18nText i18nKey="home.trust.eyebrow" />}
-          title={<I18nText i18nKey="home.trust.title" />}
-        />
-        <MobileCollapsibleSection contentClassName="mt-7">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {trustItems.map((item) => (
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {quickSteps.map((step, index) => (
               <div
-                className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
-                key={item.titleKey}
+                className="rounded-lg bg-[#F7F7F8] p-4 ring-1 ring-[rgba(13,20,36,0.08)]"
+                key={step.title}
               >
-                <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
-                <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey={item.titleKey} />
+                <span className="inline-flex size-8 items-center justify-center rounded-md bg-[var(--brand-orange)] text-sm font-semibold text-white">
+                  {index + 1}
+                </span>
+                <h3 className="mt-3 text-base font-semibold leading-tight text-[var(--brand-navy)]">
+                  {step.title}
                 </h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey={item.descriptionKey} />
+                <p className="mt-1 text-sm font-medium leading-6 text-[var(--muted)]">
+                  {step.description}
                 </p>
               </div>
             ))}
           </div>
-        </MobileCollapsibleSection>
-      </Container>
-    </section>
-  );
-}
-
-function FinalCTASection() {
-  return (
-    <section className="border-t border-[var(--border)] bg-white">
-      <Container className="py-9 sm:py-14 lg:py-16">
-        <div className="cursor-default select-none">
-          <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-            <I18nText i18nKey="home.final.eyebrow" />
-          </p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-            <I18nText i18nKey="home.final.title" />
-          </h2>
         </div>
-        <MobileCollapsibleSection contentClassName="mt-7">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg bg-[#F7F7F8] p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
-              <div className="cursor-default select-none">
-                <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-                  <I18nText i18nKey="home.final.customer" />
-                </p>
-                <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey="home.final.customerTitle" />
-                </h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey="home.final.customerDescription" />
-                </p>
-              </div>
-              <Button className="mt-5 w-full sm:w-fit" href={appRoutes.providers}>
-                <I18nText i18nKey="cta.findProvider" />
-              </Button>
-            </div>
-            <div className="rounded-lg bg-white p-6 shadow-[0_18px_48px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
-              <div className="cursor-default select-none">
-                <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
-                  <I18nText i18nKey="home.final.provider" />
-                </p>
-                <h3 className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey="home.final.providerTitle" />
-                </h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey="home.final.providerDescription" />
-                </p>
-              </div>
-              <Button
-                className="mt-5 w-full sm:w-fit"
-                href={appRoutes.providerApplication}
-                variant="secondary"
-              >
-                <I18nText i18nKey="cta.provider" />
-              </Button>
-            </div>
-          </div>
-        </MobileCollapsibleSection>
+
+        <div
+          className="mt-5 flex flex-wrap gap-2 border-t border-[var(--border)] pt-5"
+          id="trust"
+        >
+          {trustSignals.map((signal) => (
+            <span
+              className="inline-flex min-h-9 cursor-default select-none items-center rounded-md bg-[var(--brand-orange-soft)] px-3 text-sm font-semibold text-[var(--brand-navy)] ring-1 ring-[rgba(255,138,0,0.24)]"
+              key={signal}
+            >
+              {signal}
+            </span>
+          ))}
+          <Link
+            className="inline-flex min-h-9 cursor-pointer select-none items-center rounded-md bg-[var(--brand-navy)] px-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.providers}
+          >
+            Ustaları gör
+          </Link>
+        </div>
       </Container>
     </section>
   );
@@ -533,11 +416,8 @@ export async function MarketplaceHome({
       />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />
-      <HowItWorksSection />
-      <AboutSection />
-      <TrustSection />
+      <CompactProofSection />
       <FAQSection />
-      <FinalCTASection />
     </div>
   );
 }

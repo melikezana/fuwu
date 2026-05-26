@@ -67,7 +67,7 @@ function BudgetPreferenceTags({
             type="radio"
             value={option.value}
           />
-          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center whitespace-nowrap rounded px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_8px_18px_rgba(255,138,0,0.2)] sm:text-sm">
+          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap rounded px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_8px_18px_rgba(255,138,0,0.2)] sm:text-sm">
             {option.label}
           </span>
         </label>
@@ -104,7 +104,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       className="mt-5 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-4 lg:mt-6"
       onSubmit={handleSubmit}
     >
-      <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(12rem,1fr)_minmax(11rem,0.9fr)_minmax(18rem,1.25fr)_minmax(8rem,auto)] lg:items-end">
+      <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(9rem,1fr)_minmax(8.5rem,0.9fr)_minmax(14rem,1.1fr)_minmax(7rem,auto)] lg:items-end">
         <div className="min-w-0">
           <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
@@ -132,9 +132,12 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         </div>
 
         <div className="min-w-0">
-          <HeroField label="Bütçe">
+          <div className="block min-w-0 cursor-default">
+            <span className="block cursor-default select-none text-[0.68rem] font-semibold uppercase leading-4 text-[var(--muted)]">
+              Bütçe
+            </span>
             <BudgetPreferenceTags />
-          </HeroField>
+          </div>
         </div>
 
         <Button

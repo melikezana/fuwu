@@ -165,11 +165,11 @@ export function SmartMatchSection({
               <Sparkles className="size-4" />
               Hızlı eşleşme
             </p>
-            <h2 className="mt-2 max-w-xl text-2xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-3xl">
+            <h2 className="mt-2 max-w-[22rem] break-words text-2xl font-semibold leading-tight text-[var(--brand-navy)] sm:max-w-xl sm:text-3xl">
               Uygun ustaları saniyeler içinde gör.
             </h2>
           </div>
-          <p className="max-w-md text-sm font-medium leading-6 text-[var(--muted)]">
+          <p className="max-w-[22rem] break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-md">
             Hizmet, ilçe ve bütçe seç. Sonuçlarda direkt WhatsApp veya telefonla ilerle.
           </p>
         </div>
