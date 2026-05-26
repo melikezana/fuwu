@@ -7,7 +7,6 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
 import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
@@ -19,9 +18,6 @@ import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
-import {
-  getProviderAvailabilityLabel,
-} from "@/lib/constants/providers";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
@@ -147,13 +143,13 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
       : "";
 
   return (
-    <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3.5 shadow-sm ring-1 ring-[var(--border)] transition-all hover:shadow-md hover:ring-gray-300">
+    <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3 shadow-[0_10px_24px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all hover:shadow-[0_14px_32px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.28)]">
       <Link
         aria-label={`${provider.name} profilini incele`}
         className="absolute inset-0 z-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
         href={profileHref}
       />
-      <div className="pointer-events-none relative z-10 flex items-start justify-between gap-3">
+      <div className="pointer-events-none relative z-10 flex items-start justify-between gap-2.5">
         <div className="min-w-0 cursor-default select-none">
           <p className="text-sm font-semibold leading-5 text-[var(--brand-navy)]">{provider.name}</p>
           <p className="mt-0.5 text-xs font-medium text-[var(--muted)]">
@@ -166,15 +162,15 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
           ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)]">
+          <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-[0.7rem] font-semibold text-[var(--brand-navy)]">
             ⭐ {provider.rating.toFixed(1)}
           </span>
         </div>
       </div>
-      <div className="pointer-events-none relative z-10 mt-3 grid grid-cols-2 gap-2">
+      <div className="pointer-events-none relative z-10 mt-2.5 grid grid-cols-2 gap-2">
         <ProviderContactLink
           aria-label={`${provider.name} WhatsApp ile yaz`}
-          className="pointer-events-auto inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-[#25D366]/10 px-3 text-xs font-semibold text-[#1DA851] transition-colors hover:bg-[#25D366]/20"
+          className="pointer-events-auto inline-flex h-8 cursor-pointer items-center justify-center rounded-md bg-[#25D366]/10 px-2.5 text-xs font-semibold text-[#1DA851] transition-colors hover:bg-[#25D366]/20"
           kind="whatsapp"
           provider={provider}
           rel="noopener noreferrer"
@@ -184,7 +180,7 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
         </ProviderContactLink>
         <ProviderContactLink
           aria-label={`${provider.name} telefonla ara`}
-          className="pointer-events-auto inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-gray-100 px-3 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-gray-200"
+          className="pointer-events-auto inline-flex h-8 cursor-pointer items-center justify-center rounded-md bg-gray-100 px-2.5 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-gray-200"
           kind="phone"
           provider={provider}
         >
@@ -197,9 +193,9 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
 
 function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
   return (
-    <aside className="mx-auto hidden w-full max-w-[340px] select-none xl:block xl:mx-0 xl:max-w-[350px] xl:justify-self-end 2xl:max-w-[360px]">
-      <div className="relative rounded-[1.75rem] bg-[var(--brand-navy)] p-3 shadow-[0_26px_80px_rgba(13,20,36,0.16)]">
-        <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
+    <aside className="mx-auto hidden w-full max-w-[310px] select-none lg:block lg:mx-0 lg:justify-self-end xl:max-w-[326px]">
+      <div className="relative rounded-[1.65rem] bg-[var(--brand-navy)] p-2.5 shadow-[0_24px_66px_rgba(13,20,36,0.14)]">
+        <div className="rounded-[1.35rem] bg-[#F7F7F8] p-3.5">
           <div className="flex cursor-default select-none items-center justify-between">
             <Link
               aria-label="Fuwu ana sayfasına git"
@@ -208,16 +204,16 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
             >
               <FuwuLogo size="sm" />
             </Link>
-            <span className="rounded-md bg-white px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.06)]">
+            <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_18px_rgba(13,20,36,0.05)]">
               İstanbul
             </span>
           </div>
 
-          <div className="mt-5 cursor-default select-none rounded-lg bg-white p-4 shadow-sm ring-1 ring-[var(--border)]">
-            <p className="text-xs font-semibold text-[var(--trust-green)]">
+          <div className="mt-4 cursor-default select-none rounded-lg bg-white p-3.5 shadow-[0_10px_26px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <p className="text-[0.7rem] font-semibold uppercase text-[var(--trust-green)]">
               <I18nText i18nKey="home.hero.mockup.available" />
             </p>
-            <h2 className="mt-1 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
+            <h2 className="mt-1 text-base font-semibold leading-tight text-[var(--brand-navy)]">
               <I18nText i18nKey="home.hero.mockup.nearby" />
             </h2>
             <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--muted)]">
@@ -231,11 +227,11 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
                 <PhoneProviderRow key={provider.id} provider={provider} />
               ))
             ) : (
-              <div className="cursor-default rounded-lg bg-white p-4 text-center shadow-[0_12px_28px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                <p className="text-sm font-bold leading-6 text-[var(--brand-navy)]">
+              <div className="cursor-default rounded-lg bg-white p-3.5 text-center shadow-[0_10px_24px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]">
+                <p className="text-sm font-semibold leading-5 text-[var(--brand-navy)]">
                   <I18nText i18nKey="home.hero.empty.title" />
                 </p>
-                <p className="mt-1 text-xs font-bold leading-5 text-[var(--muted)]">
+                <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--muted)]">
                   <I18nText i18nKey="home.hero.empty.description" />
                 </p>
               </div>
@@ -243,7 +239,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
           </div>
 
           <Link
-            className="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-bold text-white shadow-[0_14px_30px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
+            className="mt-3.5 inline-flex min-h-10 w-full cursor-pointer items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(255,138,0,0.22)] transition-colors hover:bg-[var(--brand-orange-dark)]"
             href={appRoutes.providers}
           >
             <I18nText i18nKey="cta.viewAllProviders" />
@@ -259,49 +255,34 @@ function HeroSection({
   filterOptions,
   heroProviders,
   todayActiveCount,
-  voiceProviders,
 }: {
   districtCount: number;
   filterOptions: ProviderFilterOptions;
   heroProviders: Provider[];
   todayActiveCount: number;
-  voiceProviders: Provider[];
 }) {
-  const heroStats: Array<{ href: string; labelKey: TranslationKey; values?: Record<string, number> }> = [
-    { labelKey: "home.hero.stats.available", href: appRoutes.providers },
-    {
-      labelKey: "home.hero.stats.activeToday",
-      href: appRoutes.providers,
-      values: { count: todayActiveCount },
-    },
-    {
-      labelKey: "home.hero.stats.categoryCount",
-      href: appRoutes.services,
-      values: { count: services.length },
-    },
-    {
-      labelKey: "home.hero.stats.districtCount",
-      href: appRoutes.providers,
-      values: { count: districtCount },
-    },
+  const heroStats: Array<{ href: string; label: string }> = [
+    { href: appRoutes.providers, label: `${todayActiveCount} aktif usta` },
+    { href: appRoutes.services, label: `${services.length} kategori` },
+    { href: appRoutes.providers, label: `${districtCount} ilçe` },
   ];
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
-      <Container className="grid max-w-[1360px] gap-7 py-7 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
-        <div className="w-full max-w-full min-w-0 xl:max-w-[880px] xl:pr-2">
+    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_58%,#F7F7F8_100%)]">
+      <Container className="grid max-w-[1240px] gap-7 py-7 sm:py-11 lg:grid-cols-[minmax(0,1fr)_minmax(292px,316px)] lg:items-center lg:gap-7 lg:py-12 xl:grid-cols-[minmax(0,830px)_316px] xl:justify-between xl:gap-8">
+        <div className="w-full max-w-full min-w-0 xl:max-w-[830px]">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer select-none rounded-lg bg-white px-3.5 py-2.5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-semibold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 max-w-[21rem] cursor-default select-none break-words text-[1.75rem] font-semibold leading-[1.12] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl sm:leading-[1.08] lg:text-[3.5rem] xl:text-[3.75rem]">
             <I18nText i18nKey="home.hero.title" />
           </h1>
-          <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-semibold leading-6 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
+          <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-[44rem] sm:text-lg sm:leading-8">
             <span className="sm:hidden">
               <I18nText i18nKey="home.hero.mobileSummary" />
             </span>
@@ -313,27 +294,18 @@ function HeroSection({
           <div className="mt-6 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
-                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-[var(--muted)] shadow-sm ring-1 ring-[var(--border)] transition-colors hover:bg-gray-50 hover:text-[var(--brand-navy)]"
+                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-full border border-[rgba(13,20,36,0.08)] bg-white/90 px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_22px_rgba(13,20,36,0.04)] transition-colors hover:border-[rgba(255,138,0,0.28)] hover:bg-white"
                 href={item.href}
-                key={item.labelKey}
+                key={item.label}
               >
-                <span className="size-1.5 shrink-0 rounded-full bg-[var(--trust-green)]" />
-                <span>
-                  <I18nText i18nKey={item.labelKey} values={item.values} />
-                </span>
+                <span className="size-1.5 shrink-0 rounded-full bg-[var(--brand-orange)]" />
+                <span>{item.label}</span>
               </Link>
             ))}
           </div>
 
           <HomeHeroFilters filterOptions={filterOptions} />
           <MobileHeroTrustSignals />
-          <div className="hidden md:block">
-            <LazyVoiceCommandButton
-              categories={filterOptions.categories}
-              districts={filterOptions.districts}
-              providers={voiceProviders}
-            />
-          </div>
         </div>
 
         <HeroMockup heroProviders={heroProviders} />
@@ -591,9 +563,6 @@ export async function MarketplaceHome() {
     (provider) => provider.availability === PROVIDER_AVAILABILITY_STATUSES.musait,
   );
   const heroProviders = todayProviders.length > 0 ? todayProviders.slice(0, 2) : allProviders.slice(0, 2);
-  const voiceProviders = Array.from(
-    new Map([...heroProviders, ...previewProviders].map((provider) => [provider.id, provider])).values(),
-  );
   const todayActiveCount = todayProviders.length;
 
   return (
@@ -603,7 +572,6 @@ export async function MarketplaceHome() {
         filterOptions={filterOptions}
         heroProviders={heroProviders}
         todayActiveCount={todayActiveCount}
-        voiceProviders={voiceProviders}
       />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />
