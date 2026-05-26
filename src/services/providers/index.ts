@@ -17,6 +17,11 @@ import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
+import {
+  isProviderPriceRangeRelevantToBudget,
+  mapBudgetTagToPriceRange,
+  normalizeBudgetTag,
+} from "@/services/matching/budget";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   Provider,
@@ -262,23 +267,7 @@ function normalizeFilterValue(value: string) {
 }
 
 function normalizeBudgetFilterValue(value: string | undefined): ProviderBudgetValue | undefined {
-  const normalizedValue = normalizeFilterValue(value ?? "");
-
-  if (!normalizedValue) {
-    return undefined;
-  }
-
-  if (normalizedValue === "acil") {
-    return "acil-hizmet";
-  }
-
-  const matchingOption = providerBudgetOptions.find(
-    (option) =>
-      normalizeFilterValue(option.value) === normalizedValue ||
-      normalizeFilterValue(option.label) === normalizedValue,
-  );
-
-  return matchingOption?.value;
+  return normalizeBudgetTag(value);
 }
 
 function normalizeSlugValue(value: string) {
@@ -479,21 +468,7 @@ function matchesPriceFilter(providerPrice: string, filters: ProviderFilters) {
       return true;
     }
 
-    if (!providerRange) return false;
-
-    if (budget === "ekonomik") {
-      return typeof providerRange.minimumPrice === "number" && providerRange.minimumPrice <= 1000;
-    }
-    
-    if (budget === "standart") {
-      return typeof providerRange.minimumPrice === "number" && providerRange.minimumPrice <= 2500;
-    }
-
-    if (budget === "premium") {
-      return typeof providerRange.maximumPrice === "number" && providerRange.maximumPrice >= 2500;
-    }
-
-    return true;
+    return isProviderPriceRangeRelevantToBudget(providerRange, mapBudgetTagToPriceRange(budget));
   }
 
   const explicitRange = parseExplicitPriceRangeFilter(filters);
@@ -789,12 +764,16 @@ async function fetchProvidersFromSupabase(
 
     const budget = normalizeBudgetFilterValue(filters.budget);
     
-    if (budget === "ekonomik") {
-      query = query.lte("average_price_min", 1000);
-    } else if (budget === "standart") {
-      query = query.lte("average_price_min", 2500);
-    } else if (budget === "premium") {
-      query = query.gte("average_price_max", 2500);
+    const budgetPriceRange = mapBudgetTagToPriceRange(budget);
+
+    if (budgetPriceRange) {
+      if (typeof budgetPriceRange.minimumPrice === "number") {
+        query = query.gte("average_price_max", budgetPriceRange.minimumPrice);
+      }
+
+      if (typeof budgetPriceRange.maximumPrice === "number") {
+        query = query.lte("average_price_min", budgetPriceRange.maximumPrice);
+      }
     } else if (budget === "acil-hizmet") {
       // Intent-only tag until urgent availability data exists.
     } else if (explicitPriceRange) {
@@ -836,12 +815,14 @@ async function fetchProvidersFromSupabase(
         fallbackQuery = fallbackQuery.in("district_id", districtIds);
       }
 
-      if (budget === "ekonomik") {
-        fallbackQuery = fallbackQuery.lte("average_price_min", 1000);
-      } else if (budget === "standart") {
-        fallbackQuery = fallbackQuery.lte("average_price_min", 2500);
-      } else if (budget === "premium") {
-        fallbackQuery = fallbackQuery.gte("average_price_max", 2500);
+      if (budgetPriceRange) {
+        if (typeof budgetPriceRange.minimumPrice === "number") {
+          fallbackQuery = fallbackQuery.gte("average_price_max", budgetPriceRange.minimumPrice);
+        }
+
+        if (typeof budgetPriceRange.maximumPrice === "number") {
+          fallbackQuery = fallbackQuery.lte("average_price_min", budgetPriceRange.maximumPrice);
+        }
       } else if (budget === "acil-hizmet") {
         // Intent-only tag until urgent availability data exists.
       } else if (explicitPriceRange) {

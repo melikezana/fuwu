@@ -16,6 +16,40 @@ export const metadata: Metadata = createPageMetadata({
   ],
 });
 
-export default function Home() {
-  return <MarketplaceHome />;
+type HomeSearchParams = {
+  match_budget?: string | string[];
+  match_district?: string | string[];
+  match_notes?: string | string[];
+  match_service?: string | string[];
+  smart_match?: string | string[];
+};
+
+type HomePageProps = {
+  searchParams?: Promise<HomeSearchParams>;
+};
+
+function getSearchParam(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const smartMatchInput = {
+    budgetTag: getSearchParam(params?.match_budget),
+    district: getSearchParam(params?.match_district),
+    notes: getSearchParam(params?.match_notes),
+    service: getSearchParam(params?.match_service),
+  };
+  const isSmartMatchActive = getSearchParam(params?.smart_match) === "1";
+
+  return (
+    <MarketplaceHome
+      isSmartMatchActive={isSmartMatchActive}
+      smartMatchInput={smartMatchInput}
+    />
+  );
 }

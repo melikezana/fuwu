@@ -5,11 +5,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
-import { services } from "@/lib/constants/services";
+import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { trackRequestCreated } from "@/services/analytics";
+import { getBudgetTagLabel, normalizeBudgetTag } from "@/services/matching/budget";
 import {
   serviceRequestSubmitErrorMessage,
   createServiceRequest,
@@ -36,11 +37,16 @@ type SubmittedRequest = ServiceRequestSubmitResult;
 
 type RequestFormProps = {
   authenticatedUserId: string;
+  initialBudgetTag?: string;
   initialDistrict?: string;
+  initialNotes?: string;
   initialService?: string;
 };
 
-type RequestInitialFormProps = Pick<RequestFormProps, "initialDistrict" | "initialService">;
+type RequestInitialFormProps = Pick<
+  RequestFormProps,
+  "initialBudgetTag" | "initialDistrict" | "initialNotes" | "initialService"
+>;
 
 const initialFormState: RequestFormState = {
   serviceCategory: "",
@@ -107,17 +113,44 @@ function normalizeForm(values: RequestFormState): RequestFormState {
 }
 
 function createInitialFormState({
+  initialBudgetTag = "",
   initialDistrict = "",
+  initialNotes = "",
   initialService = "",
 }: RequestInitialFormProps): RequestFormState {
-  const matchedService = services.find(
-    (service) => service.title.toLowerCase() === initialService.trim().toLowerCase(),
+  const trimmedInitialService = initialService.trim();
+  const normalizedInitialService = normalizeServiceValue(trimmedInitialService);
+  const matchedService = services.find((service) =>
+    [
+      service.title,
+      `${service.category} - ${service.title}`,
+      service.href.replace("/providers?category=", ""),
+    ]
+      .map(normalizeServiceValue)
+      .includes(normalizedInitialService),
   );
+  const normalizedBudgetTag = normalizeBudgetTag(initialBudgetTag);
+  const budgetLabel = getBudgetTagLabel(normalizedBudgetTag);
+  const normalizedNotes = normalizeServiceValue(initialNotes);
+  const shouldAppendBudgetNote =
+    budgetLabel && !normalizedNotes.includes("butce tercihi");
+  const shortDescription = [
+    initialNotes.trim(),
+    shouldAppendBudgetNote ? `Bütçe tercihi: ${budgetLabel}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   return {
     ...initialFormState,
-    serviceCategory: matchedService ? `${matchedService.category} - ${matchedService.title}` : "",
+    serviceCategory: matchedService
+      ? `${matchedService.category} - ${matchedService.title}`
+      : trimmedInitialService.includes(" - ")
+        ? trimmedInitialService
+        : "",
     district: initialDistrict.trim(),
+    urgencyLevel: normalizedBudgetTag === "acil-hizmet" ? "Acil" : "",
+    shortDescription,
   };
 }
 
@@ -141,16 +174,24 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 export function RequestForm({
   authenticatedUserId,
+  initialBudgetTag,
   initialDistrict,
+  initialNotes,
   initialService,
 }: RequestFormProps) {
   const [formState, setFormState] = useState<RequestFormState>(() =>
-    createInitialFormState({ initialDistrict, initialService }),
+    createInitialFormState({ initialBudgetTag, initialDistrict, initialNotes, initialService }),
   );
   const [errors, setErrors] = useState<RequestFormErrors>({});
   const [submittedRequest, setSubmittedRequest] = useState<SubmittedRequest | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasSmartMatchPrefill = Boolean(
+    initialBudgetTag?.trim() ||
+      initialDistrict?.trim() ||
+      initialNotes?.trim() ||
+      initialService?.trim(),
+  );
 
   function updateField(field: keyof RequestFormState, value: string) {
     setFormState((currentState) => ({
@@ -236,6 +277,12 @@ export function RequestForm({
             Bu form şifre toplamaz. Talep bilgilerin giriş yapan hesabınla güvenli şekilde
             kaydedilir.
           </p>
+          {hasSmartMatchPrefill ? (
+            <p className="mt-3 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+              Hızlı Eşleşme seçimlerin forma eklendi. Adres ve zaman bilgisini tamamlayarak
+              gönderebilirsin.
+            </p>
+          ) : null}
         </div>
 
         {submittedRequest ? (

@@ -14,12 +14,18 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { FAQSection } from "@/components/home/FAQSection";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { SmartMatchSection } from "@/components/home/SmartMatchSection";
 import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
+import {
+  createMatchQuery,
+  getMatchedProviders,
+  type MatchInput,
+} from "@/services/matching";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
 import type { Provider } from "@/types/provider";
 
@@ -554,8 +560,19 @@ function FinalCTASection() {
   );
 }
 
-export async function MarketplaceHome() {
-  const { allProviders, filterOptions } = await getProviderDirectory();
+export async function MarketplaceHome({
+  isSmartMatchActive = false,
+  smartMatchInput = {},
+}: {
+  isSmartMatchActive?: boolean;
+  smartMatchInput?: MatchInput;
+}) {
+  const matchQuery = createMatchQuery(smartMatchInput);
+  const [providerDirectory, matchedProviders] = await Promise.all([
+    getProviderDirectory(),
+    isSmartMatchActive ? getMatchedProviders(smartMatchInput, 3) : Promise.resolve([]),
+  ]);
+  const { allProviders, filterOptions } = providerDirectory;
   const featuredProviders = allProviders.filter((provider) => provider.featured).slice(0, 3);
   const previewProviders =
     featuredProviders.length > 0 ? featuredProviders : allProviders.slice(0, 3);
@@ -572,6 +589,12 @@ export async function MarketplaceHome() {
         filterOptions={filterOptions}
         heroProviders={heroProviders}
         todayActiveCount={todayActiveCount}
+      />
+      <SmartMatchSection
+        filterOptions={filterOptions}
+        isActive={isSmartMatchActive}
+        matchQuery={matchQuery}
+        matchedProviders={matchedProviders}
       />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />
