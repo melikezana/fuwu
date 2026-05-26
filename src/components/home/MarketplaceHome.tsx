@@ -1,12 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  MessageCircle,
-  ShieldCheck,
-  WalletCards,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
 import { MobileCollapsibleSection } from "@/components/home/MobileCollapsibleSection";
@@ -86,16 +79,6 @@ const trustItems = [
   },
 ] satisfies Array<{ descriptionKey: TranslationKey; titleKey: TranslationKey }>;
 
-const mobileTrustSignals: Array<{
-  icon: LucideIcon;
-  labelKey: TranslationKey;
-}> = [
-  { icon: ShieldCheck, labelKey: "home.trust.signal.approved" },
-  { icon: MessageCircle, labelKey: "home.trust.signal.direct" },
-  { icon: WalletCards, labelKey: "home.trust.signal.price" },
-  { icon: Zap, labelKey: "home.trust.signal.fast" },
-];
-
 const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
   .filter((service): service is Service => Boolean(service));
@@ -116,28 +99,6 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
           {description}
         </p>
       ) : null}
-    </div>
-  );
-}
-
-function MobileHeroTrustSignals() {
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-2 md:hidden" aria-label="Fuwu güven sinyalleri">
-      {mobileTrustSignals.map((signal) => {
-        const Icon = signal.icon;
-
-        return (
-          <div
-            className="inline-flex min-h-10 cursor-default select-none items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)]"
-            key={signal.labelKey}
-          >
-            <Icon aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange-dark)]" />
-            <span className="min-w-0">
-              <I18nText i18nKey={signal.labelKey} />
-            </span>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -258,38 +219,20 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
 }
 
 function HeroSection({
-  districtCount,
   filterOptions,
   heroProviders,
-  todayActiveCount,
 }: {
-  districtCount: number;
   filterOptions: ProviderFilterOptions;
   heroProviders: Provider[];
-  todayActiveCount: number;
 }) {
-  const heroStats: Array<{ href: string; label: string }> = [
-    { href: appRoutes.providers, label: `${todayActiveCount} aktif usta` },
-    { href: appRoutes.services, label: `${services.length} kategori` },
-    { href: appRoutes.providers, label: `${districtCount} ilçe` },
-  ];
-
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_58%,#F7F7F8_100%)]">
-      <Container className="grid max-w-[1240px] gap-7 py-7 sm:py-11 lg:grid-cols-[minmax(0,1fr)_minmax(292px,316px)] lg:items-center lg:gap-7 lg:py-12 xl:grid-cols-[minmax(0,830px)_316px] xl:justify-between xl:gap-8">
+      <Container className="grid max-w-[1180px] gap-6 py-6 sm:py-9 lg:grid-cols-[minmax(0,1fr)_minmax(292px,316px)] lg:items-center lg:gap-7 lg:py-11 xl:grid-cols-[minmax(0,760px)_316px] xl:justify-between xl:gap-8">
         <div className="w-full max-w-full min-w-0 xl:max-w-[830px]">
-          <Link
-            aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer select-none rounded-lg bg-white px-3.5 py-2.5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-            href={appRoutes.home}
-          >
-            <FuwuLogo size="md" />
-          </Link>
-
-          <h1 className="mt-5 max-w-[21rem] cursor-default select-none break-words text-[1.75rem] font-semibold leading-[1.12] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl sm:leading-[1.08] lg:text-[3.5rem] xl:text-[3.75rem]">
+          <h1 className="max-w-[23rem] cursor-default select-none break-words text-[2rem] font-semibold leading-[1.12] text-[var(--brand-navy)] sm:max-w-3xl sm:text-4xl sm:leading-[1.1] lg:text-5xl">
             <I18nText i18nKey="home.hero.title" />
           </h1>
-          <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-[44rem] sm:text-lg sm:leading-8">
+          <p className="mt-3 max-w-full cursor-default select-none break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-[38rem] sm:text-base sm:leading-7">
             <span className="sm:hidden">
               <I18nText i18nKey="home.hero.mobileSummary" />
             </span>
@@ -298,30 +241,7 @@ function HeroSection({
             </span>
           </p>
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button className="w-full sm:w-fit" href="#instant-match">
-              Hemen Eşleş
-            </Button>
-            <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
-              Ustaları Listele
-            </Button>
-          </div>
-
-          <div className="mt-5 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-            {heroStats.map((item) => (
-              <Link
-                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-full border border-[rgba(13,20,36,0.08)] bg-white/90 px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_22px_rgba(13,20,36,0.04)] transition-colors hover:border-[rgba(255,138,0,0.28)] hover:bg-white"
-                href={item.href}
-                key={item.label}
-              >
-                <span className="size-1.5 shrink-0 rounded-full bg-[var(--brand-orange)]" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </div>
-
           <HomeHeroFilters filterOptions={filterOptions} />
-          <MobileHeroTrustSignals />
         </div>
 
         <HeroMockup heroProviders={heroProviders} />
@@ -598,15 +518,12 @@ export async function MarketplaceHome({
     (provider) => provider.availability === PROVIDER_AVAILABILITY_STATUSES.musait,
   );
   const heroProviders = todayProviders.length > 0 ? todayProviders.slice(0, 2) : allProviders.slice(0, 2);
-  const todayActiveCount = todayProviders.length;
 
   return (
     <div className="bg-[var(--background)]">
       <HeroSection
-        districtCount={filterOptions.districts.length}
         filterOptions={filterOptions}
         heroProviders={heroProviders}
-        todayActiveCount={todayActiveCount}
       />
       <SmartMatchSection
         filterOptions={filterOptions}

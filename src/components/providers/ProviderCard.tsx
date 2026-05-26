@@ -7,7 +7,6 @@ import {
   MessageCircle,
   Phone,
   Star,
-  UserSearch,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -70,117 +69,92 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
     source: provider.source,
   };
 
-  // Primary Action (Fuwu Orange)
   const primaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
-  
-  // Secondary Action (Calm Gray/Navy)
-  const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
 
-  // Clamp description
-  const descriptionPreview = provider.shortDescription || provider.description;
+  const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
 
   return (
     <article
       aria-labelledby={`provider-${provider.id}-title`}
       className={cn(
-        "flex flex-col h-full min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm transition-all duration-200 hover:shadow-md",
+        "flex h-full min-w-0 flex-col rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md sm:p-5",
         className,
       )}
     >
-      <div className="p-4 sm:p-5 flex flex-col flex-1">
-        {/* Top Row: Name + Rating */}
-        <div className="flex justify-between items-start gap-3">
-          <div className="min-w-0">
-            <Link
-              href={profileHref}
-              id={`provider-${provider.id}-title`}
-              className="block truncate text-lg sm:text-xl font-semibold text-[var(--brand-navy)] hover:text-[var(--brand-orange)] transition-colors"
-            >
-              {provider.name || "İsimsiz Usta"}
-            </Link>
+      <div className="flex items-start justify-between gap-3">
+        <Link
+          className="block min-w-0 truncate text-lg font-semibold text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange)]"
+          href={profileHref}
+          id={`provider-${provider.id}-title`}
+        >
+          {provider.name || "İsimsiz Usta"}
+        </Link>
+        {typeof provider.rating === "number" && !isNaN(provider.rating) && provider.rating > 0 ? (
+          <div className="flex shrink-0 items-center gap-1 rounded-md border border-yellow-100 bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-700">
+            <Star className="size-3.5 fill-current" />
+            {provider.rating.toFixed(1)}
           </div>
-          {typeof provider.rating === 'number' && !isNaN(provider.rating) && provider.rating > 0 && (
-            <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold shrink-0 border border-yellow-100">
-              <Star className="size-3.5 fill-current" />
-              {provider.rating.toFixed(1)}
-            </div>
-          )}
-        </div>
-
-        {/* Middle Row: Badges */}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {provider.category && (
-            <Link
-              href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-navy)] hover:bg-[#E5E7EB] transition-colors"
-            >
-              <ServiceIcon name={getServiceIconNameForCategory(provider.category)} className="size-3.5 text-[var(--brand-orange)]" />
-              {provider.category}
-            </Link>
-          )}
-          {provider.district && (
-            <Link
-              href={createProviderFilterHref(currentSearchParams, "district", provider.district)}
-              className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)] hover:bg-[#E5E7EB] transition-colors"
-            >
-              <MapPin className="size-3" />
-              {provider.district}
-            </Link>
-          )}
-        </div>
-
-        {/* Description Preview */}
-        {descriptionPreview && (
-          <p className="mt-3 text-sm text-[var(--muted)] line-clamp-2 leading-relaxed">
-            {descriptionPreview}
-          </p>
-        )}
+        ) : null}
       </div>
 
-      {/* Bottom Row: Price + Actions */}
-      <div className="border-t border-[var(--border)] bg-[#FAFAFA] p-4 sm:p-5 mt-auto">
-        <div className="mb-4">
-          <span className="block text-xs font-semibold text-[var(--muted)] uppercase mb-0.5">
+      <div className="mt-3 grid gap-2 text-sm">
+        <div className="flex min-w-0 flex-wrap gap-2">
+          {provider.category ? (
+            <Link
+              className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2.5 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+              href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
+            >
+              <ServiceIcon
+                className="size-3.5 shrink-0 text-[var(--brand-orange)]"
+                name={getServiceIconNameForCategory(provider.category)}
+              />
+              <span className="truncate">{provider.category}</span>
+            </Link>
+          ) : null}
+          {provider.district ? (
+            <Link
+              className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2.5 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+              href={createProviderFilterHref(currentSearchParams, "district", provider.district)}
+            >
+              <MapPin className="size-3 shrink-0" />
+              <span className="truncate">{provider.district}</span>
+            </Link>
+          ) : null}
+        </div>
+
+        <div className="rounded-md bg-[#FAFAFA] px-3 py-2">
+          <span className="block text-xs font-semibold uppercase text-[var(--muted)]">
             {t("providerCard.priceRange")}
           </span>
-          <span className="block text-sm font-semibold text-[var(--brand-navy)]">
+          <span className="mt-0.5 block text-sm font-semibold text-[var(--brand-navy)]">
             {priceRange}
           </span>
         </div>
+      </div>
 
-        <div className="flex flex-col gap-2" id={actionsId}>
-          <div className="grid grid-cols-2 gap-2">
-            {provider.whatsapp && (
-              <a
-                className={primaryActionClassName}
-                href={getProviderWhatsAppHref(provider)}
-                onClick={() => trackWhatsappClick(analyticsPayload)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="size-4 shrink-0" />
-                <span>WhatsApp</span>
-              </a>
-            )}
-            {provider.phone && (
-              <a
-                className={secondaryActionClassName}
-                href={getProviderPhoneHref(provider)}
-                onClick={() => trackPhoneClick(analyticsPayload)}
-              >
-                <Phone className="size-4 shrink-0" />
-                <span>Telefon</span>
-              </a>
-            )}
-          </div>
-          <Link
-            className={secondaryActionClassName}
-            href={profileHref}
+      <div className="mt-4 grid grid-cols-2 gap-2" id={actionsId}>
+        {provider.whatsapp ? (
+          <a
+            className={primaryActionClassName}
+            href={getProviderWhatsAppHref(provider)}
+            onClick={() => trackWhatsappClick(analyticsPayload)}
+            rel="noopener noreferrer"
+            target="_blank"
           >
-            <UserSearch className="size-4 shrink-0" />
-            Profili İncele
-          </Link>
-        </div>
+            <MessageCircle className="size-4 shrink-0" />
+            <span>WhatsApp</span>
+          </a>
+        ) : null}
+        {provider.phone ? (
+          <a
+            className={secondaryActionClassName}
+            href={getProviderPhoneHref(provider)}
+            onClick={() => trackPhoneClick(analyticsPayload)}
+          >
+            <Phone className="size-4 shrink-0" />
+            <span>Telefon</span>
+          </a>
+        ) : null}
       </div>
     </article>
   );
