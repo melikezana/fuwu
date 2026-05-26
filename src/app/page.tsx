@@ -17,10 +17,12 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 type HomeSearchParams = {
+  instant_match?: string | string[];
   match_budget?: string | string[];
   match_district?: string | string[];
   match_notes?: string | string[];
   match_service?: string | string[];
+  match_time?: string | string[];
   smart_match?: string | string[];
 };
 
@@ -43,8 +45,11 @@ export default async function Home({ searchParams }: HomePageProps) {
     district: getSearchParam(params?.match_district),
     notes: getSearchParam(params?.match_notes),
     service: getSearchParam(params?.match_service),
+    timePreference: getSearchParam(params?.match_time),
   };
-  const isSmartMatchActive = getSearchParam(params?.smart_match) === "1";
+  const isSmartMatchActive =
+    getSearchParam(params?.instant_match) === "1" ||
+    getSearchParam(params?.smart_match) === "1";
 
   return (
     <MarketplaceHome

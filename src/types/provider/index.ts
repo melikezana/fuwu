@@ -3,10 +3,14 @@ import type { ProviderAvailabilityStatus } from "@/lib/constants/statuses";
 export type Provider = {
   id: string;
   name: string;
+  categoryId?: string;
   category: string;
+  districtId?: string;
   district: string;
   rating: number;
   experience: string;
+  averagePriceMin?: number | null;
+  averagePriceMax?: number | null;
   averagePrice: string;
   phone: string;
   profileImageUrl?: string;

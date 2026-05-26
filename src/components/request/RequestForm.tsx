@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { trackRequestCreated } from "@/services/analytics";
 import { getBudgetTagLabel, normalizeBudgetTag } from "@/services/matching/budget";
+import { mapTimePreferenceToRequestIntent } from "@/services/matching/time";
 import {
   serviceRequestSubmitErrorMessage,
   createServiceRequest,
@@ -41,11 +42,12 @@ type RequestFormProps = {
   initialDistrict?: string;
   initialNotes?: string;
   initialService?: string;
+  initialTimePreference?: string;
 };
 
 type RequestInitialFormProps = Pick<
   RequestFormProps,
-  "initialBudgetTag" | "initialDistrict" | "initialNotes" | "initialService"
+  "initialBudgetTag" | "initialDistrict" | "initialNotes" | "initialService" | "initialTimePreference"
 >;
 
 const initialFormState: RequestFormState = {
@@ -112,11 +114,27 @@ function normalizeForm(values: RequestFormState): RequestFormState {
   };
 }
 
+function formatPreferredDateFromOffset(offsetDays: number | null) {
+  if (typeof offsetDays !== "number") {
+    return "";
+  }
+
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function createInitialFormState({
   initialBudgetTag = "",
   initialDistrict = "",
   initialNotes = "",
   initialService = "",
+  initialTimePreference = "",
 }: RequestInitialFormProps): RequestFormState {
   const trimmedInitialService = initialService.trim();
   const normalizedInitialService = normalizeServiceValue(trimmedInitialService);
@@ -131,12 +149,16 @@ function createInitialFormState({
   );
   const normalizedBudgetTag = normalizeBudgetTag(initialBudgetTag);
   const budgetLabel = getBudgetTagLabel(normalizedBudgetTag);
+  const timeIntent = mapTimePreferenceToRequestIntent(initialTimePreference);
   const normalizedNotes = normalizeServiceValue(initialNotes);
   const shouldAppendBudgetNote =
     budgetLabel && !normalizedNotes.includes("butce tercihi");
+  const shouldAppendTimeNote =
+    timeIntent.requestNote && !normalizedNotes.includes("zaman tercihi");
   const shortDescription = [
     initialNotes.trim(),
     shouldAppendBudgetNote ? `Bütçe tercihi: ${budgetLabel}` : "",
+    shouldAppendTimeNote ? timeIntent.requestNote : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -149,7 +171,10 @@ function createInitialFormState({
         ? trimmedInitialService
         : "",
     district: initialDistrict.trim(),
-    urgencyLevel: normalizedBudgetTag === "acil-hizmet" ? "Acil" : "",
+    preferredDate: formatPreferredDateFromOffset(timeIntent.preferredDateOffsetDays),
+    urgencyLevel:
+      timeIntent.urgencyLevel ||
+      (normalizedBudgetTag === "acil-hizmet" ? "Acil" : ""),
     shortDescription,
   };
 }
@@ -178,9 +203,16 @@ export function RequestForm({
   initialDistrict,
   initialNotes,
   initialService,
+  initialTimePreference,
 }: RequestFormProps) {
   const [formState, setFormState] = useState<RequestFormState>(() =>
-    createInitialFormState({ initialBudgetTag, initialDistrict, initialNotes, initialService }),
+    createInitialFormState({
+      initialBudgetTag,
+      initialDistrict,
+      initialNotes,
+      initialService,
+      initialTimePreference,
+    }),
   );
   const [errors, setErrors] = useState<RequestFormErrors>({});
   const [submittedRequest, setSubmittedRequest] = useState<SubmittedRequest | null>(null);
@@ -190,7 +222,8 @@ export function RequestForm({
     initialBudgetTag?.trim() ||
       initialDistrict?.trim() ||
       initialNotes?.trim() ||
-      initialService?.trim(),
+      initialService?.trim() ||
+      initialTimePreference?.trim(),
   );
 
   function updateField(field: keyof RequestFormState, value: string) {

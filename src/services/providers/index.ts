@@ -49,6 +49,8 @@ type SupabaseNamedRelation = {
 type SupabaseProviderRecord = Pick<
   SupabaseProviderRow,
   | "id"
+  | "category_id"
+  | "district_id"
   | "name"
   | "phone"
   | "whatsapp"
@@ -83,6 +85,8 @@ type ProviderReadResult = {
 
 const providerSelectQuery = `
   id,
+  category_id,
+  district_id,
   name,
   phone,
   whatsapp,
@@ -98,6 +102,8 @@ const providerSelectQuery = `
 
 const providerSelectQueryWithoutAvailability = `
   id,
+  category_id,
+  district_id,
   name,
   phone,
   whatsapp,
@@ -205,10 +211,14 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
   return {
     id: record.id,
     name,
+    categoryId: record.category_id,
     category,
+    districtId: record.district_id,
     district,
     rating: Number(record.rating ?? 0),
     experience: `${experienceYears} yıl`,
+    averagePriceMin: record.average_price_min,
+    averagePriceMax: record.average_price_max,
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
     phone,
     whatsapp,

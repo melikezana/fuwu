@@ -1,5 +1,6 @@
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
-import { normalizeServiceValue } from "@/lib/constants/services";
+import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
+import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
 import { getProviders } from "@/services/providers";
 import type { Provider, ProviderFilters } from "@/types/provider";
@@ -11,13 +12,24 @@ import {
   type BudgetPriceRange,
   type BudgetTag,
 } from "./budget";
+import {
+  getTimePreferenceLabel,
+  mapTimePreferenceToRequestIntent,
+  normalizeTimePreference,
+  type InstantMatchTimeValue,
+  type TimePreferenceRequestIntent,
+} from "./time";
 
 export type { BudgetPriceRange, BudgetTag };
+export type { InstantMatchTimeValue, TimePreferenceRequestIntent };
 export {
   getBudgetTagLabel,
+  getTimePreferenceLabel,
   isProviderPriceRangeRelevantToBudget,
   mapBudgetTagToPriceRange,
+  mapTimePreferenceToRequestIntent,
   normalizeBudgetTag,
+  normalizeTimePreference,
 };
 
 export type MatchInput = {
@@ -25,22 +37,41 @@ export type MatchInput = {
   district?: string;
   notes?: string;
   service?: string;
+  timePreference?: string;
 };
+
+export type InstantMatchInput = MatchInput;
 
 export type MatchQuery = {
   budgetTag?: BudgetTag;
+  category: string;
   district: string;
   filters: ProviderFilters;
   isComplete: boolean;
   notes: string;
   priceRange: BudgetPriceRange | null;
   service: string;
+  serviceLabel: string;
+  timeIntent: TimePreferenceRequestIntent;
+  timePreference?: InstantMatchTimeValue;
 };
 
-type RankedProvider = {
+export type InstantMatchQuery = MatchQuery;
+
+export type MatchedProviderScore = {
+  budgetScore: number;
   categoryScore: number;
   districtScore: number;
   provider: Provider;
+};
+
+export type InstantMatchedProvidersResult = {
+  exactMatchCount: number;
+  fallbackReason: "budget" | "district" | "none" | null;
+  isExactMatch: boolean;
+  isFallback: boolean;
+  providers: Provider[];
+  query: InstantMatchQuery;
 };
 
 function parseLocalizedNumber(value: string) {
@@ -87,6 +118,22 @@ function parseProviderPriceRange(value: string | undefined): BudgetPriceRange | 
   return null;
 }
 
+function getProviderPriceRange(provider: Provider): BudgetPriceRange | null {
+  const hasMinimumPrice =
+    typeof provider.averagePriceMin === "number" && Number.isFinite(provider.averagePriceMin);
+  const hasMaximumPrice =
+    typeof provider.averagePriceMax === "number" && Number.isFinite(provider.averagePriceMax);
+
+  if (hasMinimumPrice || hasMaximumPrice) {
+    return {
+      minimumPrice: hasMinimumPrice ? provider.averagePriceMin ?? null : null,
+      maximumPrice: hasMaximumPrice ? provider.averagePriceMax ?? null : null,
+    };
+  }
+
+  return parseProviderPriceRange(provider.averagePrice);
+}
+
 function matchesCategory(providerCategory: string, service: string) {
   const normalizedProviderCategory = normalizeServiceValue(providerCategory);
   const normalizedService = normalizeServiceValue(service);
@@ -102,12 +149,47 @@ function matchesCategory(providerCategory: string, service: string) {
   );
 }
 
+function resolveInstantMatchService(value: string) {
+  const selectedService = sanitizeText(value, 120);
+  const normalizedService = normalizeServiceValue(selectedService);
+
+  if (!normalizedService) {
+    return {
+      category: "",
+      label: "",
+    };
+  }
+
+  const matchingInstantOption = instantMatchServiceOptions.find(
+    (option) =>
+      normalizeServiceValue(option.value) === normalizedService ||
+      normalizeServiceValue(option.label) === normalizedService ||
+      normalizeServiceValue(option.matchCategory) === normalizedService,
+  );
+  const matchingService = services.find((service) => {
+    const normalizedTitle = normalizeServiceValue(service.title);
+    const normalizedHref = normalizeServiceValue(service.href);
+
+    return (
+      normalizedTitle === normalizedService ||
+      normalizedTitle.includes(normalizedService) ||
+      normalizedService.includes(normalizedTitle) ||
+      normalizedHref.includes(normalizedService)
+    );
+  });
+
+  return {
+    category: matchingInstantOption?.matchCategory ?? matchingService?.title ?? selectedService,
+    label: matchingInstantOption?.label ?? matchingService?.title ?? selectedService,
+  };
+}
+
 function getCategoryScore(provider: Provider, query: MatchQuery) {
-  if (matchesCategory(provider.category, query.service)) {
+  if (matchesCategory(provider.category, query.category)) {
     return 100;
   }
 
-  return provider.servicesOffered.some((service) => matchesCategory(service, query.service))
+  return provider.servicesOffered.some((service) => matchesCategory(service, query.category))
     ? 80
     : 0;
 }
@@ -133,78 +215,147 @@ function getBudgetScore(provider: Provider, query: MatchQuery) {
     return provider.availability === PROVIDER_AVAILABILITY_STATUSES.musait ? 12 : 4;
   }
 
-  const providerRange = parseProviderPriceRange(provider.averagePrice);
+  const providerRange = getProviderPriceRange(provider);
 
   return isProviderPriceRangeRelevantToBudget(providerRange, query.priceRange) ? 12 : 0;
 }
 
-export function createMatchQuery(input: MatchInput = {}): MatchQuery {
-  const service = sanitizeText(input.service ?? "", 120);
+function scoreProvider(provider: Provider, query: MatchQuery): MatchedProviderScore {
+  return {
+    budgetScore: getBudgetScore(provider, query),
+    categoryScore: getCategoryScore(provider, query),
+    districtScore: getDistrictScore(provider, query.district),
+    provider,
+  };
+}
+
+function isExactBudgetMatch(score: MatchedProviderScore, query: MatchQuery) {
+  if (query.budgetTag === "acil-hizmet") {
+    return score.budgetScore > 0;
+  }
+
+  return score.budgetScore > 0;
+}
+
+function isExactMatch(score: MatchedProviderScore, query: MatchQuery) {
+  return (
+    score.categoryScore > 0 &&
+    score.districtScore > 0 &&
+    isExactBudgetMatch(score, query)
+  );
+}
+
+export function createInstantMatchQuery(input: InstantMatchInput = {}): InstantMatchQuery {
+  const resolvedService = resolveInstantMatchService(input.service ?? "");
   const district = sanitizeText(input.district ?? "", 120);
   const budgetTag = normalizeBudgetTag(input.budgetTag);
-  const notes = sanitizeText(input.notes ?? "", 500);
+  const timePreference = normalizeTimePreference(input.timePreference);
+  const timeIntent = mapTimePreferenceToRequestIntent(timePreference);
   const priceRange = mapBudgetTagToPriceRange(budgetTag);
   const filters: ProviderFilters = {
-    category: service || undefined,
+    category: resolvedService.category || undefined,
+    district: district || undefined,
     budget: budgetTag,
   };
+  const notes = sanitizeText(input.notes ?? "", 500);
 
   return {
     budgetTag,
+    category: resolvedService.category,
     district,
     filters,
-    isComplete: Boolean(service && district && budgetTag),
+    isComplete: Boolean(resolvedService.category && district && budgetTag && timePreference),
     notes,
     priceRange,
-    service,
+    service: resolvedService.category,
+    serviceLabel: resolvedService.label,
+    timeIntent,
+    timePreference,
   };
 }
 
-export function rankProviders(providers: Provider[], query: MatchQuery) {
-  const rankedProviders: RankedProvider[] = providers
-    .map((provider) => ({
-      categoryScore: getCategoryScore(provider, query),
-      districtScore: getDistrictScore(provider, query.district),
-      provider,
-    }))
-    .filter(({ categoryScore, provider }) => {
-      if (categoryScore <= 0) {
-        return false;
-      }
+export const createMatchQuery = createInstantMatchQuery;
 
-      if (query.budgetTag === "acil-hizmet") {
-        return true;
-      }
-
-      const providerRange = parseProviderPriceRange(provider.averagePrice);
-      return isProviderPriceRangeRelevantToBudget(providerRange, query.priceRange);
-    });
-
-  return rankedProviders
-    .sort((firstProvider, secondProvider) => {
-      const firstBudgetScore = getBudgetScore(firstProvider.provider, query);
-      const secondBudgetScore = getBudgetScore(secondProvider.provider, query);
-
-      return (
-        secondProvider.categoryScore - firstProvider.categoryScore ||
-        secondProvider.districtScore - firstProvider.districtScore ||
-        secondBudgetScore - firstBudgetScore ||
-        secondProvider.provider.rating - firstProvider.provider.rating ||
-        secondProvider.provider.completedJobs - firstProvider.provider.completedJobs ||
-        firstProvider.provider.name.localeCompare(secondProvider.provider.name, "tr")
-      );
-    })
+export function rankMatchedProviders(providers: Provider[], query: MatchQuery) {
+  return providers
+    .map((provider) => scoreProvider(provider, query))
+    .filter(({ categoryScore }) => categoryScore > 0)
+    .sort((firstProvider, secondProvider) =>
+      secondProvider.categoryScore - firstProvider.categoryScore ||
+      secondProvider.districtScore - firstProvider.districtScore ||
+      secondProvider.budgetScore - firstProvider.budgetScore ||
+      secondProvider.provider.rating - firstProvider.provider.rating ||
+      secondProvider.provider.completedJobs - firstProvider.provider.completedJobs ||
+      firstProvider.provider.name.localeCompare(secondProvider.provider.name, "tr"),
+    )
     .map(({ provider }) => provider);
 }
 
-export async function getMatchedProviders(input: MatchInput, limit = 6) {
-  const query = createMatchQuery(input);
+export const rankProviders = rankMatchedProviders;
+
+function countExactMatches(providers: Provider[], query: InstantMatchQuery) {
+  return providers
+    .map((provider) => scoreProvider(provider, query))
+    .filter((score) => isExactMatch(score, query)).length;
+}
+
+function createInstantMatchResult(
+  query: InstantMatchQuery,
+  providers: Provider[],
+  exactMatchCount: number,
+  fallbackReason: InstantMatchedProvidersResult["fallbackReason"],
+): InstantMatchedProvidersResult {
+  const isExact = exactMatchCount > 0;
+
+  return {
+    exactMatchCount,
+    fallbackReason,
+    isExactMatch: isExact,
+    isFallback: !isExact && providers.length > 0,
+    providers,
+    query,
+  };
+}
+
+export async function getInstantMatchedProviders(
+  input: InstantMatchInput,
+  limit = 6,
+): Promise<InstantMatchedProvidersResult> {
+  const query = createInstantMatchQuery(input);
 
   if (!query.isComplete) {
-    return [];
+    return createInstantMatchResult(query, [], 0, null);
   }
 
-  const providers = await getProviders(query.filters);
+  const exactDistrictProviders = await getProviders({
+    category: query.category,
+    district: query.district,
+  });
+  const rankedExactDistrictProviders = rankMatchedProviders(exactDistrictProviders, query);
+  const exactMatchCount = countExactMatches(rankedExactDistrictProviders, query);
 
-  return rankProviders(providers, query).slice(0, limit);
+  if (rankedExactDistrictProviders.length > 0) {
+    return createInstantMatchResult(
+      query,
+      rankedExactDistrictProviders.slice(0, limit),
+      exactMatchCount,
+      exactMatchCount > 0 ? null : "budget",
+    );
+  }
+
+  const sameCategoryProviders = await getProviders({ category: query.category });
+  const rankedSameCategoryProviders = rankMatchedProviders(sameCategoryProviders, query);
+
+  return createInstantMatchResult(
+    query,
+    rankedSameCategoryProviders.slice(0, limit),
+    0,
+    rankedSameCategoryProviders.length > 0 ? "district" : "none",
+  );
+}
+
+export async function getMatchedProviders(input: MatchInput, limit = 6) {
+  const result = await getInstantMatchedProviders(input, limit);
+
+  return result.providers;
 }

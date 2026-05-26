@@ -25,8 +25,10 @@ type RequestSearchParams = {
   match_district?: string | string[];
   match_notes?: string | string[];
   match_service?: string | string[];
+  match_time?: string | string[];
   notes?: string | string[];
   service?: string | string[];
+  time?: string | string[];
 };
 
 type RequestPageProps = {
@@ -83,6 +85,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
     getSearchParam(params?.district) || getSearchParam(params?.match_district);
   const initialBudgetTag = getSearchParam(params?.budget) || getSearchParam(params?.match_budget);
   const initialNotes = getSearchParam(params?.notes) || getSearchParam(params?.match_notes);
+  const initialTimePreference = getSearchParam(params?.time) || getSearchParam(params?.match_time);
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
@@ -115,6 +118,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             initialDistrict={initialDistrict}
             initialNotes={initialNotes}
             initialService={initialService}
+            initialTimePreference={initialTimePreference}
           />
         ) : (
           <LoginRequiredState />

@@ -22,9 +22,10 @@ import { I18nText, type TranslationKey } from "@/lib/i18n";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
 import {
-  createMatchQuery,
-  getMatchedProviders,
-  type MatchInput,
+  createInstantMatchQuery,
+  getInstantMatchedProviders,
+  type InstantMatchedProvidersResult,
+  type InstantMatchInput,
 } from "@/services/matching";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
 import type { Provider } from "@/types/provider";
@@ -297,7 +298,16 @@ function HeroSection({
             </span>
           </p>
 
-          <div className="mt-6 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button className="w-full sm:w-fit" href="#instant-match">
+              Hemen Eşleş
+            </Button>
+            <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
+              Ustaları Listele
+            </Button>
+          </div>
+
+          <div className="mt-5 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
                 className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-full border border-[rgba(13,20,36,0.08)] bg-white/90 px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] shadow-[0_8px_22px_rgba(13,20,36,0.04)] transition-colors hover:border-[rgba(255,138,0,0.28)] hover:bg-white"
@@ -565,12 +575,20 @@ export async function MarketplaceHome({
   smartMatchInput = {},
 }: {
   isSmartMatchActive?: boolean;
-  smartMatchInput?: MatchInput;
+  smartMatchInput?: InstantMatchInput;
 }) {
-  const matchQuery = createMatchQuery(smartMatchInput);
+  const matchQuery = createInstantMatchQuery(smartMatchInput);
+  const emptyMatchResult: InstantMatchedProvidersResult = {
+    exactMatchCount: 0,
+    fallbackReason: null,
+    isExactMatch: false,
+    isFallback: false,
+    providers: [],
+    query: matchQuery,
+  };
   const [providerDirectory, matchedProviders] = await Promise.all([
     getProviderDirectory(),
-    isSmartMatchActive ? getMatchedProviders(smartMatchInput, 3) : Promise.resolve([]),
+    isSmartMatchActive ? getInstantMatchedProviders(smartMatchInput, 6) : Promise.resolve(emptyMatchResult),
   ]);
   const { allProviders, filterOptions } = providerDirectory;
   const featuredProviders = allProviders.filter((provider) => provider.featured).slice(0, 3);
@@ -594,7 +612,7 @@ export async function MarketplaceHome({
         filterOptions={filterOptions}
         isActive={isSmartMatchActive}
         matchQuery={matchQuery}
-        matchedProviders={matchedProviders}
+        matchResult={matchedProviders}
       />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />

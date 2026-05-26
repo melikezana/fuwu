@@ -45,10 +45,10 @@ export const trTranslations = {
   "availability.today": "Bugün uygun",
   "availability.tomorrow": "Yarın uygun",
   "availability.weekend": "Hafta sonu uygun",
-  "home.hero.title": "Ustaya ulaşmanın en hızlı yolu.",
+  "home.hero.title": "İhtiyacını seç, bütçeni belirle, uygun ustayla hemen eşleş.",
   "home.hero.subtitle":
-    "Hizmetini seç, ilçeni belirle, ustaları fiyat ve puana göre karşılaştır. Telefon veya WhatsApp ile direkt iletişime geç.",
-  "home.hero.mobileSummary": "Hizmet seç. İlçe seç. Usta Bul.",
+    "Uzun form doldurmadan hizmetini, ilçeni, bütçeni ve zamanını seç. Fuwu onaylı uygun ustaları direkt iletişim seçenekleriyle gösterir.",
+  "home.hero.mobileSummary": "Hizmet seç. Bütçe belirle. Hemen eşleş.",
   "home.hero.stats.available": "Müsait ustalar",
   "home.hero.stats.activeToday": "{count} müsait",
   "home.hero.stats.categoryCount": "{count} kategori",
