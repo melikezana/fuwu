@@ -29,21 +29,6 @@ const faqItems: FAQItem[] = [
     id: "pay-now",
     questionKey: "home.faq.payNow.question",
   },
-  {
-    answerKey: "home.faq.afterRequest.answer",
-    id: "what-happens-after-request",
-    questionKey: "home.faq.afterRequest.question",
-  },
-  {
-    answerKey: "home.faq.serviceRequest.answer",
-    id: "service-request",
-    questionKey: "home.faq.serviceRequest.question",
-  },
-  {
-    answerKey: "home.faq.urgent.answer",
-    id: "urgent-request",
-    questionKey: "home.faq.urgent.question",
-  },
 ];
 
 function PlusIcon({ isOpen }: { isOpen: boolean }) {
@@ -66,15 +51,15 @@ export function FAQSection() {
 
   return (
     <section className="border-y border-[var(--border)] bg-[var(--background)]" id="faq">
-      <Container className="py-9 sm:py-16 lg:py-20">
-        <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-12">
+      <Container className="py-8 sm:py-10 lg:py-12">
+        <div className="grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-8">
           <div className="min-w-0">
             <SectionIntro
               eyebrow={t("home.faq.eyebrow")}
               title={t("home.faq.title")}
               description={t("home.faq.description")}
             />
-            <div className="mt-7 hidden max-w-sm cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-5 text-sm font-bold leading-6 text-[var(--brand-navy)] lg:block">
+            <div className="mt-5 hidden max-w-sm cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-4 text-sm font-semibold leading-6 text-[var(--brand-navy)] lg:block">
               {t("home.faq.note")}
             </div>
           </div>
@@ -93,11 +78,11 @@ export function FAQSection() {
                     <button
                       aria-controls={contentId}
                       aria-expanded={isOpen}
-                      className="group flex w-full items-center justify-between gap-5 px-5 py-5 text-left transition-colors duration-200 hover:bg-[var(--brand-orange-soft)] focus:outline-none focus-visible:bg-[var(--brand-orange-soft)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-orange)] sm:px-6"
+                      className="group flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors duration-200 hover:bg-[var(--brand-orange-soft)] focus:outline-none focus-visible:bg-[var(--brand-orange-soft)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-orange)] sm:px-5"
                       onClick={() => setOpenItemId(isOpen ? "" : item.id)}
                       type="button"
                     >
-                      <span className="min-w-0 text-base font-bold leading-6 text-[var(--brand-navy)] sm:text-lg">
+                      <span className="min-w-0 text-base font-semibold leading-6 text-[var(--brand-navy)]">
                         {t(item.questionKey)}
                       </span>
                       <span
@@ -120,7 +105,7 @@ export function FAQSection() {
                       id={contentId}
                     >
                       <div className="overflow-hidden">
-                        <p className="cursor-default select-none px-5 pb-5 text-base leading-7 text-[var(--muted)] sm:px-6 sm:pb-6">
+                        <p className="cursor-default select-none px-4 pb-4 text-sm font-medium leading-6 text-[var(--muted)] sm:px-5">
                           {t(item.answerKey)}
                         </p>
                       </div>

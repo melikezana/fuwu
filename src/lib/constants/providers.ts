@@ -63,6 +63,15 @@ export const providerDistricts = [...istanbulDistricts].sort((firstDistrict, sec
 
 export const providerAveragePrices: string[] = [];
 
+export const providerBudgetOptions = [
+  { label: "Ekonomik", value: "ekonomik" },
+  { label: "Standart", value: "standart" },
+  { label: "Premium", value: "premium" },
+  { label: "Acil Hizmet", value: "acil-hizmet" },
+] as const;
+
+export type ProviderBudgetValue = (typeof providerBudgetOptions)[number]["value"];
+
 export const providerAvailabilityOptions = [...PROVIDER_AVAILABILITY_STATUS_VALUES];
 
 export const minimumRatingOptions = [

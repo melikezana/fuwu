@@ -22,7 +22,7 @@ export const trTranslations = {
   "cta.goToSection": "Bölüme git",
   "filters.title": "Usta arama filtreleri",
   "filters.description":
-    "Hizmetini ve ilçeni seç; minimum/maksimum fiyat, puan ve uygunluğa göre profilleri daralt.",
+    "Hizmetini ve ilçeni seç; bütçe tercihi, puan ve uygunluğa göre profilleri daralt.",
   "filters.search": "Arama",
   "filters.service": "Hizmet",
   "filters.district": "İlçe",
@@ -45,10 +45,10 @@ export const trTranslations = {
   "availability.today": "Bugün uygun",
   "availability.tomorrow": "Yarın uygun",
   "availability.weekend": "Hafta sonu uygun",
-  "home.hero.title": "Ustaya ulaşmanın en hızlı yolu.",
+  "home.hero.title": "İhtiyacını seç, bütçeni belirle, uygun ustayla hemen eşleş.",
   "home.hero.subtitle":
-    "Hizmetini seç, ilçeni belirle, ustaları fiyat ve puana göre karşılaştır. Telefon veya WhatsApp ile direkt iletişime geç.",
-  "home.hero.mobileSummary": "Hizmet seç. İlçe seç. Usta Bul.",
+    "Uzun form doldurmadan hizmetini, ilçeni, bütçeni ve zamanını seç. Fuwu onaylı uygun ustaları direkt iletişim seçenekleriyle gösterir.",
+  "home.hero.mobileSummary": "Hizmet seç. Bütçe belirle. Hemen eşleş.",
   "home.hero.stats.available": "Müsait ustalar",
   "home.hero.stats.activeToday": "{count} müsait",
   "home.hero.stats.categoryCount": "{count} kategori",
@@ -106,7 +106,7 @@ export const trTranslations = {
   "providers.hero.fallbackNote":
     "Örnek liste notu: Bu listedeki profiller örnek veridir; canlı doğrulama, ödeme veya hesap sistemi yoktur.",
   "providers.badge.today": "Müsait ustalar",
-  "providers.badge.price": "Minimum/maksimum fiyat",
+  "providers.badge.price": "Bütçe tercihi",
   "providers.badge.contact": "Doğrudan iletişim",
   "providers.summary.eyebrow": "Pazaryeri özeti",
   "providers.summary.activeToday": "müsait",
@@ -418,10 +418,10 @@ export const trTranslations = {
     "Kapıda kalma, kilit değiştirme ve oto çilingir ihtiyaçları için hemen usta bul.",
   "services.garden.title": "Bahçe Bakımı",
   "services.garden.description":
-    "Peyzaj, çim biçme ve bahçe düzenleme işleriniz için uygun ustaları keşfedin.",
+    "Bahçe düzenleme, bakım ve temizlik",
   "services.pool.title": "Havuz Bakımı",
   "services.pool.description":
-    "Havuz temizliği, motor bakımı ve kimyasal denge için uzman destek alın.",
+    "Havuz temizlik, bakım ve kontrol",
 } as const;
 
 export type TranslationDictionary = Record<keyof typeof trTranslations, string>;

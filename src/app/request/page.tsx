@@ -18,6 +18,31 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+type RequestSearchParams = {
+  budget?: string | string[];
+  district?: string | string[];
+  match_budget?: string | string[];
+  match_district?: string | string[];
+  match_notes?: string | string[];
+  match_service?: string | string[];
+  match_time?: string | string[];
+  notes?: string | string[];
+  service?: string | string[];
+  time?: string | string[];
+};
+
+type RequestPageProps = {
+  searchParams?: Promise<RequestSearchParams>;
+};
+
+function getSearchParam(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
+
 function LoginRequiredState() {
   return (
     <Card className="min-w-0">
@@ -52,8 +77,15 @@ function LoginRequiredState() {
   );
 }
 
-export default async function RequestPage() {
+export default async function RequestPage({ searchParams }: RequestPageProps) {
+  const params = await searchParams;
   const authenticatedUserId = await getAuthenticatedServerUserId();
+  const initialService = getSearchParam(params?.service) || getSearchParam(params?.match_service);
+  const initialDistrict =
+    getSearchParam(params?.district) || getSearchParam(params?.match_district);
+  const initialBudgetTag = getSearchParam(params?.budget) || getSearchParam(params?.match_budget);
+  const initialNotes = getSearchParam(params?.notes) || getSearchParam(params?.match_notes);
+  const initialTimePreference = getSearchParam(params?.time) || getSearchParam(params?.match_time);
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
@@ -80,7 +112,14 @@ export default async function RequestPage() {
         </div>
 
         {authenticatedUserId ? (
-          <RequestForm authenticatedUserId={authenticatedUserId} />
+          <RequestForm
+            authenticatedUserId={authenticatedUserId}
+            initialBudgetTag={initialBudgetTag}
+            initialDistrict={initialDistrict}
+            initialNotes={initialNotes}
+            initialService={initialService}
+            initialTimePreference={initialTimePreference}
+          />
         ) : (
           <LoginRequiredState />
         )}
