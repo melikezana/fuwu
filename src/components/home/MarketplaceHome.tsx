@@ -44,23 +44,6 @@ const serviceOrder = [
   "Nakliye Yardımı",
 ];
 
-const howItWorksSteps = [
-  {
-    descriptionKey: "home.how.step1.description",
-    href: "#services",
-    titleKey: "home.how.step1.title",
-  },
-  {
-    descriptionKey: "home.how.step2.description",
-    href: "#providers-preview",
-    titleKey: "home.how.step2.title",
-  },
-  {
-    descriptionKey: "home.how.step3.description",
-    href: "#provider-contact-actions",
-    titleKey: "home.how.step3.title",
-  },
-] satisfies Array<{ descriptionKey: TranslationKey; href: string; titleKey: TranslationKey }>;
 
 const trustItems = [
   {
@@ -191,9 +174,9 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
 
 function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
   return (
-    <aside className="mx-auto hidden w-full max-w-[340px] select-none xl:block xl:mx-0 xl:max-w-[350px] xl:justify-self-end 2xl:max-w-[360px]">
-      <div className="relative rounded-[1.75rem] bg-[var(--brand-navy)] p-3 shadow-[0_26px_80px_rgba(13,20,36,0.16)]">
-        <div className="rounded-[1.45rem] bg-[#F7F7F8] p-4">
+    <aside className="mx-auto hidden w-full max-w-[320px] select-none xl:block xl:mx-0 xl:max-w-[300px] xl:justify-self-end 2xl:max-w-[320px]">
+      <div className="relative rounded-[2rem] bg-white p-2 shadow-[0_32px_80px_rgba(13,20,36,0.12)] ring-1 ring-[rgba(13,20,36,0.06)]">
+        <div className="rounded-[1.6rem] bg-[#F9FAFB] p-4 ring-1 ring-[rgba(13,20,36,0.04)] inset-ring-white">
           <div className="flex cursor-default select-none items-center justify-between">
             <Link
               aria-label="Fuwu ana sayfasına git"
@@ -281,9 +264,9 @@ function HeroSection({
   ];
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFBFC_55%,#F7F7F8_100%)]">
-      <Container className="grid max-w-[1360px] gap-7 py-7 sm:py-14 lg:py-16 xl:grid-cols-[minmax(0,1fr)_minmax(280px,350px)] xl:items-center xl:justify-between xl:gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-12">
-        <div className="w-full max-w-full min-w-0 xl:max-w-[880px] xl:pr-2">
+    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[#FAFAFA]">
+      <Container className="grid max-w-[1400px] gap-8 py-10 sm:py-16 lg:py-20 xl:grid-cols-[1.3fr_auto] xl:items-center xl:justify-between xl:gap-12">
+        <div className="w-full max-w-full min-w-0 xl:max-w-[820px] xl:pr-6">
           <Link
             aria-label="Fuwu ana sayfasına git"
             className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
@@ -292,10 +275,10 @@ function HeroSection({
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-semibold leading-[1.1] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-extrabold tracking-tight leading-[1.15] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-[4rem]">
             <I18nText i18nKey="home.hero.title" />
           </h1>
-          <p className="mt-4 max-w-full cursor-default select-none break-words text-sm font-semibold leading-6 text-[var(--muted)] sm:max-w-3xl sm:text-lg sm:leading-8">
+          <p className="mt-5 max-w-full cursor-default select-none break-words text-[15px] font-medium leading-relaxed text-[#4B5563] sm:max-w-3xl sm:text-xl sm:leading-[1.7]">
             <span className="sm:hidden">
               <I18nText i18nKey="home.hero.mobileSummary" />
             </span>
@@ -304,14 +287,14 @@ function HeroSection({
             </span>
           </p>
 
-          <div className="mt-6 hidden max-w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <div className="mt-8 hidden max-w-full gap-3 sm:flex sm:flex-wrap">
             {heroStats.map((item) => (
               <Link
-                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-[var(--muted)] shadow-sm ring-1 ring-[var(--border)] transition-colors hover:bg-gray-50 hover:text-[var(--brand-navy)]"
+                className="inline-flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-[0.8rem] font-bold text-[#4B5563] shadow-sm ring-1 ring-[#E5E7EB] transition-all hover:bg-[#F9FAFB] hover:text-[var(--brand-navy)] hover:shadow-md"
                 href={item.href}
                 key={item.labelKey}
               >
-                <span className="size-1.5 shrink-0 rounded-full bg-[var(--trust-green)]" />
+                <span className="size-2 shrink-0 rounded-full bg-[var(--brand-orange)] shadow-[0_0_8px_rgba(255,138,0,0.6)]" />
                 <span>
                   <I18nText i18nKey={item.labelKey} values={item.values} />
                 </span>
@@ -343,37 +326,42 @@ function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       aria-label={`${service.title} kategorisinde usta bul`}
-      className="group flex min-h-44 cursor-pointer flex-col justify-between rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="group relative flex cursor-pointer flex-col rounded-[1.25rem] bg-white p-4 shadow-[0_4px_20px_rgba(13,20,36,0.03)] ring-1 ring-[#F3F4F6] transition-all hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.2)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
       href={service.href}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-        <ServiceIcon className="h-7 w-7" name={service.iconName} />
-      </span>
-      <span className="mt-5 block">
-        <span className="block text-xl font-semibold leading-tight text-[var(--brand-navy)]">
-          <I18nText i18nKey={titleKey} />
+      <div className="flex items-center gap-3">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFF8EF] text-[var(--brand-orange-dark)] transition-transform group-hover:scale-105">
+          <ServiceIcon className="h-6 w-6" name={service.iconName} />
         </span>
-        <span className="mt-2 block text-sm font-semibold leading-6 text-[var(--muted)]">
-          <I18nText i18nKey={descriptionKey} />
-        </span>
-        <span className="mt-4 inline-flex rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-bold text-[var(--brand-navy)] transition-colors group-hover:bg-[var(--brand-orange-soft)]">
-          <I18nText i18nKey="cta.findProvider" />
-        </span>
-      </span>
+        <div className="min-w-0 flex-1">
+          <span className="block truncate text-base font-bold text-[var(--brand-navy)]">
+            <I18nText i18nKey={titleKey} />
+          </span>
+          <span className="mt-0.5 block truncate text-xs font-medium text-[#6B7280]">
+            <I18nText i18nKey={descriptionKey} />
+          </span>
+        </div>
+      </div>
+      <div className="mt-4 flex w-full items-center justify-center rounded-lg bg-[var(--brand-orange)] py-2 text-sm font-bold text-white shadow-[0_4px_12px_rgba(255,138,0,0.2)] transition-colors group-hover:bg-[var(--brand-orange-dark)] group-hover:shadow-[0_6px_16px_rgba(255,138,0,0.3)]">
+        Usta Bul
+      </div>
     </Link>
   );
 }
 
 function ServicesSection() {
   return (
-    <section className="border-y border-[var(--border)] bg-white" id="services">
-      <Container className="py-12 sm:py-14 lg:py-16">
-        <SectionHeading
-          description={<I18nText i18nKey="home.services.description" />}
-          eyebrow={<I18nText i18nKey="home.services.eyebrow" />}
-          title={<I18nText i18nKey="home.services.title" />}
-        />
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="bg-[#FAFAFA]" id="services">
+      <Container className="py-12 sm:py-16">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-[var(--brand-navy)] sm:text-3xl">
+            İhtiyacını Seç
+          </h2>
+          <p className="mt-2 text-sm font-medium text-[#6B7280]">
+            Anında uygun ustaları filtrele
+          </p>
+        </div>
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {orderedServices.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
@@ -427,37 +415,40 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
 
 function HowItWorksSection() {
   return (
-    <section className="border-y border-[var(--border)] bg-white" id="how-it-works">
-      <Container className="py-9 sm:py-14 lg:py-16">
-        <SectionHeading
-          description={<I18nText i18nKey="home.how.description" />}
-          eyebrow={<I18nText i18nKey="home.how.eyebrow" />}
-          title={<I18nText i18nKey="home.how.title" />}
-        />
-        <MobileCollapsibleSection contentClassName="mt-7">
-          <div className="grid gap-4 md:grid-cols-3">
-            {howItWorksSteps.map((step, index) => (
-              <Link
-                className="group cursor-pointer select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_58px_rgba(13,20,36,0.1)] hover:ring-[rgba(255,138,0,0.36)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                href={step.href}
-                key={step.titleKey}
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
-                  0{index + 1}
-                </span>
-                <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey={step.titleKey} />
-                </h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey={step.descriptionKey} />
-                </p>
-                <span className="mt-5 inline-flex text-sm font-bold text-[var(--brand-orange-dark)] transition-colors group-hover:text-[var(--brand-navy)]">
-                  <I18nText i18nKey="cta.goToSection" />
-                </span>
-              </Link>
-            ))}
+    <section className="border-y border-[var(--border)] bg-[#FAFAFA]" id="how-it-works">
+      <Container className="py-12 sm:py-16">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[var(--brand-navy)] sm:text-3xl">Fuwu ile Hızlı Eşleş</h2>
+          <p className="mt-2 text-sm font-medium text-[#6B7280]">Tek platform, anında çözüm</p>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm ring-1 ring-[#F3F4F6]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F4F6] text-xl font-bold text-[var(--brand-navy)]">1</span>
+            <h3 className="mt-4 font-bold text-[var(--brand-navy)]">İhtiyacını Seç</h3>
+            <p className="mt-1 text-sm text-[#6B7280]">Hizmet ve ilçeni belirle.</p>
           </div>
-        </MobileCollapsibleSection>
+          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm ring-1 ring-[#F3F4F6]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F4F6] text-xl font-bold text-[var(--brand-navy)]">2</span>
+            <h3 className="mt-4 font-bold text-[var(--brand-navy)]">Bütçeni Belirle</h3>
+            <p className="mt-1 text-sm text-[#6B7280]">Tahmini fiyat aralığını gör.</p>
+            <span className="mt-3 inline-flex items-center rounded-md bg-[#FFF8EF] px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-[var(--brand-orange-dark)]">Tahmini Fiyat</span>
+          </div>
+          <div className="rounded-[1.25rem] bg-white p-5 shadow-sm ring-1 ring-[#F3F4F6]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F4F6] text-xl font-bold text-[var(--brand-navy)]">3</span>
+            <h3 className="mt-4 font-bold text-[var(--brand-navy)]">Usta Bul</h3>
+            <p className="mt-1 text-sm text-[#6B7280]">Uygun ustalarla anında eşleş.</p>
+            <span className="mt-3 inline-flex items-center rounded-md bg-[#F0FDF4] px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-[#166534]">Yaklaşık Geliş Süresi</span>
+          </div>
+          <div className="rounded-[1.25rem] bg-[var(--brand-navy)] p-5 shadow-[0_8px_24px_rgba(13,20,36,0.12)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-xl font-bold text-white">4</span>
+            <h3 className="mt-4 font-bold text-white">Fuwu Güvencesi</h3>
+            <p className="mt-1 text-sm text-white/70">Çok yakında uygulamada!</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="inline-flex items-center rounded-md bg-white/10 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-white">Canlı Takip</span>
+              <span className="inline-flex items-center rounded-md bg-white/10 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-white">Güvenli Ödeme</span>
+            </div>
+          </div>
+        </div>
       </Container>
     </section>
   );

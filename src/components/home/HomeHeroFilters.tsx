@@ -24,10 +24,9 @@ const heroServiceFilterOptions = [
 ];
 
 const fieldBaseClassName =
-  "mt-2 h-12 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "mt-1.5 h-12 w-full min-w-0 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-all placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:bg-white focus:ring-4 focus:ring-[rgba(255,138,0,0.15)] hover:border-[#D1D5DB]";
 
-const selectClassName = `${fieldBaseClassName} cursor-pointer select-none overflow-hidden text-ellipsis pr-10`;
-const inputClassName = `${fieldBaseClassName} cursor-text select-text`;
+const selectClassName = `${fieldBaseClassName} cursor-pointer select-none overflow-hidden text-ellipsis pr-10 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat`;
 
 function HeroField({
   children,
@@ -38,7 +37,7 @@ function HeroField({
 }) {
   return (
     <label className="block min-w-0 cursor-default">
-      <span className="block cursor-default select-none text-xs font-bold uppercase leading-4 text-[var(--muted)]">
+      <span className="block cursor-default select-none text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280] ml-1">
         {label}
       </span>
       {children}
@@ -71,10 +70,10 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   return (
     <form
       action={appRoutes.providers}
-      className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-lg bg-white p-3 shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
+      className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-xl bg-white p-4 shadow-[0_20px_60px_rgba(13,20,36,0.08)] ring-1 ring-[#F3F4F6] sm:p-6 lg:mt-8"
       onSubmit={handleSubmit}
     >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(9rem,1.5fr)_minmax(9rem,1.25fr)_minmax(7.5rem,1fr)_minmax(7.5rem,1fr)_minmax(8rem,1fr)_minmax(8.5rem,auto)] lg:items-end">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_auto] lg:items-end">
         <div className="min-w-0">
           <HeroField label={t("filters.service")}>
             <select className={selectClassName} defaultValue="" name="category">
@@ -101,45 +100,6 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:contents">
-          <div className="min-w-0">
-            <HeroField label="Bütçe Tercihi">
-              <div className="flex flex-wrap gap-2">
-                <label className="cursor-pointer">
-                  <input type="radio" name="budget" value="" defaultChecked className="peer sr-only" />
-                  <span className="inline-flex h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors peer-checked:bg-[var(--brand-orange)] hover:bg-white/20">
-                    Tümü
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input type="radio" name="budget" value="ekonomik" className="peer sr-only" />
-                  <span className="inline-flex h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors peer-checked:bg-[var(--brand-orange)] hover:bg-white/20">
-                    Ekonomik
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input type="radio" name="budget" value="standart" className="peer sr-only" />
-                  <span className="inline-flex h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors peer-checked:bg-[var(--brand-orange)] hover:bg-white/20">
-                    Standart
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input type="radio" name="budget" value="premium" className="peer sr-only" />
-                  <span className="inline-flex h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors peer-checked:bg-[var(--brand-orange)] hover:bg-white/20">
-                    Premium
-                  </span>
-                </label>
-                <label className="cursor-pointer">
-                  <input type="radio" name="budget" value="acil" className="peer sr-only" />
-                  <span className="inline-flex h-11 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white transition-colors peer-checked:bg-[var(--brand-orange)] hover:bg-white/20">
-                    Acil
-                  </span>
-                </label>
-              </div>
-            </HeroField>
-          </div>
-        </div>
-
         <div className="min-w-0">
           <HeroField label={t("filters.rating")}>
             <select className={selectClassName} defaultValue="" name="rating">
@@ -153,9 +113,52 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </HeroField>
         </div>
 
-        <Button className="h-12 min-h-12 w-full rounded-md px-5" type="submit">
+        <Button 
+          className="h-12 min-h-[3rem] w-full min-w-[140px] rounded-lg bg-[var(--brand-orange)] px-6 font-bold text-white shadow-[0_8px_20px_rgba(255,138,0,0.25)] transition-all hover:bg-[var(--brand-orange-dark)] hover:shadow-[0_12px_24px_rgba(255,138,0,0.35)]" 
+          type="submit"
+        >
           {t("cta.findProvider")}
         </Button>
+      </div>
+
+      <div className="mt-5 pt-5 border-t border-[#F3F4F6]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <span className="block cursor-default select-none text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280]">
+            Bütçe Tercihi
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <label className="cursor-pointer">
+              <input type="radio" name="budget" value="" defaultChecked className="peer sr-only" />
+              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
+                Tümü
+              </span>
+            </label>
+            <label className="cursor-pointer">
+              <input type="radio" name="budget" value="ekonomik" className="peer sr-only" />
+              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
+                Ekonomik
+              </span>
+            </label>
+            <label className="cursor-pointer">
+              <input type="radio" name="budget" value="standart" className="peer sr-only" />
+              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
+                Standart
+              </span>
+            </label>
+            <label className="cursor-pointer">
+              <input type="radio" name="budget" value="premium" className="peer sr-only" />
+              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
+                Premium
+              </span>
+            </label>
+            <label className="cursor-pointer">
+              <input type="radio" name="budget" value="acil" className="peer sr-only" />
+              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
+                Acil Hizmet
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
     </form>
   );
