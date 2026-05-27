@@ -1,6 +1,11 @@
 export const SERVICE_REQUEST_STATUSES = {
+  accepted: "accepted",
+  cancelled: "cancelled",
+  completed: "completed",
   yeni: "yeni",
   inceleniyor: "inceleniyor",
+  onTheWay: "on_the_way",
+  pending: "pending",
   ustayaYonlendirildi: "ustaya_yonlendirildi",
   tamamlandi: "tamamlandi",
   iptal: "iptal",
@@ -14,6 +19,11 @@ export const SERVICE_REQUEST_STATUS_VALUES = Object.values(
 ) as ServiceRequestStatus[];
 
 export const SERVICE_REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string> = {
+  [SERVICE_REQUEST_STATUSES.pending]: "Bekliyor",
+  [SERVICE_REQUEST_STATUSES.accepted]: "Kabul edildi",
+  [SERVICE_REQUEST_STATUSES.onTheWay]: "Yolda",
+  [SERVICE_REQUEST_STATUSES.completed]: "Tamamlandı",
+  [SERVICE_REQUEST_STATUSES.cancelled]: "İptal edildi",
   [SERVICE_REQUEST_STATUSES.yeni]: "Yeni",
   [SERVICE_REQUEST_STATUSES.inceleniyor]: "İnceleniyor",
   [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Ustaya Yönlendirildi",
@@ -22,6 +32,11 @@ export const SERVICE_REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string>
 };
 
 export const SERVICE_REQUEST_STATUS_DESCRIPTIONS: Record<ServiceRequestStatus, string> = {
+  [SERVICE_REQUEST_STATUSES.pending]: "Acil talep uygun usta ataması bekliyor.",
+  [SERVICE_REQUEST_STATUSES.accepted]: "Usta talebi kabul etti.",
+  [SERVICE_REQUEST_STATUSES.onTheWay]: "Usta konuma doğru yolda.",
+  [SERVICE_REQUEST_STATUSES.completed]: "Talep tamamlandı.",
+  [SERVICE_REQUEST_STATUSES.cancelled]: "Talep iptal edildi.",
   [SERVICE_REQUEST_STATUSES.yeni]: "Talep yeni alındı ve ilk kontrol bekliyor.",
   [SERVICE_REQUEST_STATUSES.inceleniyor]: "Operasyon ekibi talebi inceliyor.",
   [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Talep uygun ustaya yönlendirildi.",
@@ -33,17 +48,46 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
   ServiceRequestStatus,
   ServiceRequestStatus[]
 > = {
+  [SERVICE_REQUEST_STATUSES.pending]: [
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.cancelled,
+  ],
+  [SERVICE_REQUEST_STATUSES.accepted]: [
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.cancelled,
+  ],
+  [SERVICE_REQUEST_STATUSES.onTheWay]: [
+    SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.cancelled,
+  ],
+  [SERVICE_REQUEST_STATUSES.completed]: [],
+  [SERVICE_REQUEST_STATUSES.cancelled]: [],
   [SERVICE_REQUEST_STATUSES.yeni]: [
     SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.iptal,
+    SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.inceleniyor]: [
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.iptal,
+    SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: [
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.tamamlandi,
     SERVICE_REQUEST_STATUSES.iptal,
+    SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.tamamlandi]: [],
   [SERVICE_REQUEST_STATUSES.iptal]: [],

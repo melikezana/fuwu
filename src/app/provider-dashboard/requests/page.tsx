@@ -9,9 +9,90 @@ import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
 import { providerUpdateRequestStatusAction } from "./actions";
-import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
+import {
+  SERVICE_REQUEST_STATUSES,
+  SERVICE_REQUEST_STATUS_LABELS,
+} from "@/lib/constants/statuses";
+import { getPaymentPreferenceLabel } from "@/services/payments";
+import { liveTrackingSoonText } from "@/services/tracking";
 
 export const dynamic = "force-dynamic";
+
+type ProviderAssignedRequest = Awaited<ReturnType<typeof getProviderAssignedRequests>>[number];
+
+function ProviderRequestActionButton({
+  label,
+  requestId,
+  status,
+  tone,
+}: {
+  label: string;
+  requestId: string;
+  status: "accepted" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal";
+  tone: "green" | "neutral" | "red";
+}) {
+  const toneClassName =
+    tone === "green"
+      ? "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)] hover:bg-[rgba(23,116,95,0.15)]"
+      : tone === "red"
+        ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+        : "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:bg-[var(--surface-soft)]";
+
+  return (
+    <form action={providerUpdateRequestStatusAction}>
+      <input type="hidden" name="requestId" value={requestId} />
+      <input type="hidden" name="status" value={status} />
+      <button
+        type="submit"
+        className={`rounded-md border px-3 py-1.5 text-xs font-black transition-colors active:scale-[0.98] ${toneClassName}`}
+      >
+        {label}
+      </button>
+    </form>
+  );
+}
+
+function ProviderEmergencyActions({ request }: { request: ProviderAssignedRequest }) {
+  if (request.urgencyType !== "emergency") {
+    return null;
+  }
+
+  if (
+    request.status === SERVICE_REQUEST_STATUSES.pending ||
+    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+  ) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="cancelled" tone="red" />
+      </div>
+    );
+  }
+
+  if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        <ProviderRequestActionButton label="Yola çıktım" requestId={request.id} status="on_the_way" tone="neutral" />
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
+      </div>
+    );
+  }
+
+  if (request.status === SERVICE_REQUEST_STATUSES.onTheWay) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
+        <ProviderRequestActionButton label="İptal" requestId={request.id} status="cancelled" tone="red" />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function ProviderRequestStatusText({ status }: { status: string }) {
+  return SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ?? status;
+}
 
 export const metadata: Metadata = {
   title: "Talepler | Usta Paneli",
@@ -75,6 +156,11 @@ export default async function ProviderDashboardRequestsPage() {
                 <div className="flex flex-col">
                   <span className="font-black text-[var(--brand-navy)]">{request.category}</span>
                   <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
+                  {request.urgencyType === "emergency" ? (
+                    <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
+                      Acil Hizmet · {getPaymentPreferenceLabel(request.paymentPreference)}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex items-center text-sm font-bold text-[var(--brand-navy)]">
                   <span>{request.district}</span>
@@ -82,10 +168,25 @@ export default async function ProviderDashboardRequestsPage() {
                 <div className="flex flex-col justify-center text-sm">
                   <span className="font-bold text-[var(--brand-navy)]">{request.preferredDate || "Tarih esnek"}</span>
                   <span className="text-[var(--muted)]">{request.preferredTime || "Saat esnek"}</span>
+                  {request.urgencyType === "emergency" ? (
+                    <span className="mt-1 text-xs font-bold text-[var(--brand-orange-dark)]">
+                      {request.estimatedArrivalText ?? liveTrackingSoonText}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex flex-col gap-2 justify-center">
-                  <span className="text-sm font-bold text-[var(--brand-navy)]">{request.status}</span>
-                  {request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi && (
+                  <span className="text-sm font-bold text-[var(--brand-navy)]">
+                    <ProviderRequestStatusText status={request.status} />
+                  </span>
+                  {request.urgencyType === "emergency" ? (
+                    <>
+                      <span className="text-xs font-bold text-[var(--muted)]">
+                        Kod: {request.confirmationCode ?? "Kabul sonrası"}
+                      </span>
+                      <ProviderEmergencyActions request={request} />
+                    </>
+                  ) : null}
+                  {request.urgencyType !== "emergency" && request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi && (
                     <div className="flex gap-2 mt-2">
                       <form action={providerUpdateRequestStatusAction}>
                         <input type="hidden" name="requestId" value={request.id} />

@@ -13,6 +13,12 @@ import { trackRequestCreated } from "@/services/analytics";
 import { getBudgetTagLabel, normalizeBudgetTag } from "@/services/matching/budget";
 import { mapTimePreferenceToRequestIntent } from "@/services/matching/time";
 import {
+  PAYMENT_PREFERENCES,
+  getPaymentPreferenceLabel,
+  type ServiceRequestPaymentPreference,
+} from "@/services/payments";
+import { liveTrackingSoonText } from "@/services/tracking";
+import {
   serviceRequestSubmitErrorMessage,
   createServiceRequest,
   type ServiceRequestSubmitResult,
@@ -21,10 +27,15 @@ import {
 type UrgencyLevel = "Esnek" | "Bu hafta" | "Acil";
 
 type RequestFormState = {
+  approximateLocation: string;
+  budgetTag: string;
   serviceCategory: string;
   district: string;
   fullAddress: string;
+  offerAmount: string;
+  paymentPreference: string;
   urgencyLevel: UrgencyLevel | "";
+  urgencyType: "standard" | "emergency";
   preferredDate: string;
   preferredTimeRange: string;
   fullName: string;
@@ -38,23 +49,38 @@ type SubmittedRequest = ServiceRequestSubmitResult;
 
 type RequestFormProps = {
   authenticatedUserId: string;
+  initialApproximateLocation?: string;
   initialBudgetTag?: string;
   initialDistrict?: string;
   initialNotes?: string;
+  initialOfferAmount?: string;
+  initialPaymentPreference?: string;
   initialService?: string;
   initialTimePreference?: string;
 };
 
 type RequestInitialFormProps = Pick<
   RequestFormProps,
-  "initialBudgetTag" | "initialDistrict" | "initialNotes" | "initialService" | "initialTimePreference"
+  | "initialApproximateLocation"
+  | "initialBudgetTag"
+  | "initialDistrict"
+  | "initialNotes"
+  | "initialOfferAmount"
+  | "initialPaymentPreference"
+  | "initialService"
+  | "initialTimePreference"
 >;
 
 const initialFormState: RequestFormState = {
+  approximateLocation: "",
+  budgetTag: "",
   serviceCategory: "",
   district: "",
   fullAddress: "",
+  offerAmount: "",
+  paymentPreference: "",
   urgencyLevel: "",
+  urgencyType: "standard",
   preferredDate: "",
   preferredTimeRange: "",
   fullName: "",
@@ -87,6 +113,28 @@ const timeRangeOptions = [
   "Akşam (18:00 - 21:00)",
 ];
 
+const emergencyPaymentOptions: Array<{
+  description: string;
+  label: string;
+  value: ServiceRequestPaymentPreference;
+}> = [
+  {
+    description: "Usta kabulünden sonra netleşen nakit ödeme niyeti.",
+    label: "Nakit",
+    value: PAYMENT_PREFERENCES.cash,
+  },
+  {
+    description: "IBAN bilgisi yalnızca usta kabulünden sonra paylaşılır.",
+    label: "IBAN ile ödeme",
+    value: PAYMENT_PREFERENCES.iban,
+  },
+  {
+    description: "Güvenli online ödeme altyapısı hazır olduğunda açılacak.",
+    label: "Online ödeme yakında",
+    value: PAYMENT_PREFERENCES.onlineSoon,
+  },
+];
+
 const fieldBaseClassName =
   "mt-2 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
 
@@ -102,10 +150,15 @@ const serviceRequestSuccessMessage =
 
 function normalizeForm(values: RequestFormState): RequestFormState {
   return {
+    approximateLocation: values.approximateLocation.trim(),
+    budgetTag: values.budgetTag.trim(),
     serviceCategory: values.serviceCategory.trim(),
     district: values.district.trim(),
     fullAddress: values.fullAddress.trim(),
+    offerAmount: values.offerAmount.trim(),
+    paymentPreference: values.paymentPreference,
     urgencyLevel: values.urgencyLevel,
+    urgencyType: values.urgencyType,
     preferredDate: values.preferredDate.trim(),
     preferredTimeRange: values.preferredTimeRange.trim(),
     fullName: values.fullName.trim(),
@@ -130,9 +183,12 @@ function formatPreferredDateFromOffset(offsetDays: number | null) {
 }
 
 function createInitialFormState({
+  initialApproximateLocation = "",
   initialBudgetTag = "",
   initialDistrict = "",
   initialNotes = "",
+  initialOfferAmount = "",
+  initialPaymentPreference = "",
   initialService = "",
   initialTimePreference = "",
 }: RequestInitialFormProps): RequestFormState {
@@ -148,6 +204,7 @@ function createInitialFormState({
       .includes(normalizedInitialService),
   );
   const normalizedBudgetTag = normalizeBudgetTag(initialBudgetTag);
+  const isEmergencyFlow = normalizedBudgetTag === "acil-hizmet";
   const budgetLabel = getBudgetTagLabel(normalizedBudgetTag);
   const timeIntent = mapTimePreferenceToRequestIntent(initialTimePreference);
   const normalizedNotes = normalizeServiceValue(initialNotes);
@@ -165,16 +222,29 @@ function createInitialFormState({
 
   return {
     ...initialFormState,
+    approximateLocation: initialApproximateLocation.trim(),
+    budgetTag: normalizedBudgetTag ?? "",
     serviceCategory: matchedService
       ? `${matchedService.category} - ${matchedService.title}`
       : trimmedInitialService.includes(" - ")
         ? trimmedInitialService
         : "",
     district: initialDistrict.trim(),
-    preferredDate: formatPreferredDateFromOffset(timeIntent.preferredDateOffsetDays),
+    offerAmount: initialOfferAmount.trim(),
+    paymentPreference:
+      initialPaymentPreference === PAYMENT_PREFERENCES.cash ||
+      initialPaymentPreference === PAYMENT_PREFERENCES.iban ||
+      initialPaymentPreference === PAYMENT_PREFERENCES.onlineSoon
+        ? initialPaymentPreference
+        : "",
+    preferredDate:
+      formatPreferredDateFromOffset(timeIntent.preferredDateOffsetDays) ||
+      (isEmergencyFlow ? formatPreferredDateFromOffset(0) : ""),
+    preferredTimeRange: isEmergencyFlow ? "En kısa süre" : "",
     urgencyLevel:
       timeIntent.urgencyLevel ||
       (normalizedBudgetTag === "acil-hizmet" ? "Acil" : ""),
+    urgencyType: isEmergencyFlow ? "emergency" : "standard",
     shortDescription,
   };
 }
@@ -199,17 +269,23 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 export function RequestForm({
   authenticatedUserId,
+  initialApproximateLocation,
   initialBudgetTag,
   initialDistrict,
   initialNotes,
+  initialOfferAmount,
+  initialPaymentPreference,
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({
+      initialApproximateLocation,
       initialBudgetTag,
       initialDistrict,
       initialNotes,
+      initialOfferAmount,
+      initialPaymentPreference,
       initialService,
       initialTimePreference,
     }),
@@ -218,13 +294,18 @@ export function RequestForm({
   const [submittedRequest, setSubmittedRequest] = useState<SubmittedRequest | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const hasSmartMatchPrefill = Boolean(
-    initialBudgetTag?.trim() ||
+    initialApproximateLocation?.trim() ||
+      initialBudgetTag?.trim() ||
       initialDistrict?.trim() ||
       initialNotes?.trim() ||
+      initialOfferAmount?.trim() ||
+      initialPaymentPreference?.trim() ||
       initialService?.trim() ||
       initialTimePreference?.trim(),
   );
+  const isEmergencyFlow = formState.urgencyType === "emergency";
 
   function updateField(field: keyof RequestFormState, value: string) {
     setFormState((currentState) => ({
@@ -242,6 +323,31 @@ export function RequestForm({
     });
     setSubmittedRequest(null);
     setSubmitError(null);
+  }
+
+  function handleUseApproximateLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus("Tarayıcı yaklaşık konum paylaşımını desteklemiyor.");
+      return;
+    }
+
+    setLocationStatus("Konum izni bekleniyor.");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude.toFixed(3);
+        const longitude = position.coords.longitude.toFixed(3);
+        updateField("approximateLocation", `${latitude}, ${longitude}`);
+        setLocationStatus("Yaklaşık konum eklendi.");
+      },
+      () => {
+        setLocationStatus("Konum izni verilmedi. İlçe ve adres ile devam edebilirsin.");
+      },
+      {
+        enableHighAccuracy: false,
+        maximumAge: 5 * 60 * 1000,
+        timeout: 8000,
+      },
+    );
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -368,6 +474,34 @@ export function RequestForm({
                     Eşleşme bekliyor
                   </dd>
                 </div>
+                {submittedRequest.urgencyType === "emergency" ? (
+                  <>
+                    <div className="rounded-md bg-white/5 p-3">
+                      <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
+                        Doğrulama kodu
+                      </dt>
+                      <dd className="mt-1 text-sm font-bold text-[var(--brand-orange)]">
+                        {submittedRequest.confirmationCode ?? "Hazırlanıyor"}
+                      </dd>
+                    </div>
+                    <div className="rounded-md bg-white/5 p-3">
+                      <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
+                        Tahmini varış
+                      </dt>
+                      <dd className="mt-1 text-sm font-bold">
+                        {submittedRequest.estimatedArrivalText ?? liveTrackingSoonText}
+                      </dd>
+                    </div>
+                    <div className="rounded-md bg-white/5 p-3">
+                      <dt className="text-xs font-bold uppercase tracking-normal text-white/50">
+                        Ödeme tercihi
+                      </dt>
+                      <dd className="mt-1 text-sm font-bold">
+                        {getPaymentPreferenceLabel(submittedRequest.paymentPreference)}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
               </dl>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="light">
@@ -479,6 +613,41 @@ export function RequestForm({
               <FieldError id="fullAddress-error" message={errors.fullAddress} />
             </div>
           </div>
+          {isEmergencyFlow ? (
+            <div className="rounded-md border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-4">
+              <label className={labelClassName} htmlFor="approximateLocation">
+                Yaklaşık konum
+              </label>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input
+                  aria-describedby="approximateLocation-helper"
+                  className={getFieldClassName("approximateLocation")}
+                  id="approximateLocation"
+                  name="approximateLocation"
+                  onChange={(event) => updateField("approximateLocation", event.target.value)}
+                  placeholder="Örn. cadde, site veya yaklaşık nokta"
+                  type="text"
+                  value={formState.approximateLocation}
+                />
+                <Button
+                  className="w-full shrink-0 sm:w-fit"
+                  onClick={handleUseApproximateLocation}
+                  type="button"
+                  variant="secondary"
+                >
+                  Konumumu Ekle
+                </Button>
+              </div>
+              <p className={helperClassName} id="approximateLocation-helper">
+                Tarayıcı konumu yalnızca bu butona bastığında sorulur.
+              </p>
+              {locationStatus ? (
+                <p className="mt-2 text-xs font-bold text-[var(--brand-navy)]">
+                  {locationStatus}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </fieldset>
 
         <fieldset className={sectionClassName}>
@@ -487,13 +656,91 @@ export function RequestForm({
               Adım 2
             </span>
             <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              Zamanlama
+              {isEmergencyFlow ? "Teklif ve ödeme" : "Zamanlama"}
             </span>
           </legend>
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
             Ne kadar hızlı destek istediğini ve sana uygun zaman aralığını belirt.
           </p>
 
+          {isEmergencyFlow ? (
+            <div className="space-y-5">
+              <div>
+                <label className={labelClassName} htmlFor="offerAmount">
+                  Teklif / bütçe tutarı
+                </label>
+                <input
+                  aria-describedby={errors.offerAmount ? "offerAmount-error" : "offerAmount-helper"}
+                  aria-invalid={Boolean(errors.offerAmount)}
+                  className={getFieldClassName("offerAmount")}
+                  id="offerAmount"
+                  inputMode="numeric"
+                  name="offerAmount"
+                  onChange={(event) => updateField("offerAmount", event.target.value)}
+                  placeholder="Örn. 1.500 TL"
+                  required
+                  type="text"
+                  value={formState.offerAmount}
+                />
+                <p className={helperClassName} id="offerAmount-helper">
+                  Bu tutar teklif niyetidir; ödeme onayı değildir.
+                </p>
+                <FieldError id="offerAmount-error" message={errors.offerAmount} />
+              </div>
+
+              <div>
+                <span className={labelClassName}>Ödeme tercihi</span>
+                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                  {emergencyPaymentOptions.map((option) => {
+                    const isSelected = formState.paymentPreference === option.value;
+
+                    return (
+                      <label
+                        className={cn(
+                          "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                          isSelected
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                          errors.paymentPreference && "border-red-500",
+                        )}
+                        key={option.value}
+                      >
+                        <input
+                          checked={isSelected}
+                          className="sr-only"
+                          name="paymentPreference"
+                          onChange={(event) => updateField("paymentPreference", event.target.value)}
+                          required
+                          type="radio"
+                          value={option.value}
+                        />
+                        <span className="text-sm font-bold text-[var(--brand-navy)]">
+                          {option.label}
+                        </span>
+                        <span className="mt-3 text-xs leading-5 text-[var(--muted)]">
+                          {option.description}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className={helperClassName}>
+                  IBAN bilgisi kamuya açık gösterilmez; atanan usta kabulünden sonra ilerler.
+                </p>
+                <FieldError id="paymentPreference-error" message={errors.paymentPreference} />
+              </div>
+
+              <div className="rounded-md border border-[rgba(13,20,36,0.08)] bg-white p-4">
+                <p className="text-sm font-bold text-[var(--brand-navy)]">
+                  Tahmini varış süresi usta kabul edince gösterilecek.
+                </p>
+                <p className="mt-1 text-xs font-bold text-[var(--muted)]">
+                  {liveTrackingSoonText}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
           <div>
             <span className={labelClassName}>Aciliyet</span>
             <div className="mt-2 grid gap-3 sm:grid-cols-3">
@@ -594,6 +841,8 @@ export function RequestForm({
               <FieldError id="preferredTimeRange-error" message={errors.preferredTimeRange} />
             </div>
           </div>
+            </>
+          )}
         </fieldset>
 
         <fieldset className={sectionClassName}>
@@ -667,7 +916,9 @@ export function RequestForm({
                 errors.shortDescription ? "shortDescription-error" : "shortDescription-helper"
               }
               aria-invalid={Boolean(errors.shortDescription)}
-              className={`${getFieldClassName("shortDescription")} min-h-36 resize-y leading-6`}
+              className={`${getFieldClassName("shortDescription")} ${
+                isEmergencyFlow ? "min-h-12 resize-none" : "min-h-36 resize-y"
+              } leading-6`}
               id="shortDescription"
               name="shortDescription"
               onChange={(event) => updateField("shortDescription", event.target.value)}
@@ -686,7 +937,16 @@ export function RequestForm({
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
             Şifre talep edilmez; bilgiler yalnızca talep eşleşmesi için kullanılır.
           </p>
-          <Button className="w-full sm:w-fit" disabled={isSubmitting} type="submit">
+          {isEmergencyFlow ? (
+            <Button className="w-full sm:w-fit" disabled={isSubmitting} type="submit">
+              {isSubmitting ? "Gönderiliyor..." : "Acil Usta Çağır"}
+            </Button>
+          ) : null}
+          <Button
+            className={cn("w-full sm:w-fit", isEmergencyFlow && "hidden")}
+            disabled={isSubmitting}
+            type="submit"
+          >
             {isSubmitting ? "Gönderiliyor..." : "Talebi Gönder"}
           </Button>
         </div>

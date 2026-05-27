@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -48,6 +49,8 @@ function HeroField({
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const { t } = useI18n();
   const router = useRouter();
+  const [selectedBudget, setSelectedBudget] = useState("");
+  const isEmergencyBudget = selectedBudget === "acil-hizmet";
   const serviceFilterOptions = Array.from(
     new Set([...heroServiceFilterOptions, ...filterOptions.categories]),
   );
@@ -57,6 +60,35 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
     const formData = new FormData(e.currentTarget);
     const params = new URLSearchParams();
     
+    if (isEmergencyBudget) {
+      const category = String(formData.get("category") ?? "").trim();
+      const district = String(formData.get("district") ?? "").trim();
+      const offerAmount = String(formData.get("match_offer_amount") ?? "").trim();
+      const paymentPreference = String(formData.get("match_payment_preference") ?? "").trim();
+
+      if (category) {
+        params.set("match_service", category);
+      }
+
+      if (district) {
+        params.set("match_district", district);
+      }
+
+      params.set("match_budget", "acil-hizmet");
+      params.set("match_time", "bugun");
+
+      if (offerAmount) {
+        params.set("match_offer_amount", offerAmount);
+      }
+
+      if (paymentPreference) {
+        params.set("match_payment_preference", paymentPreference);
+      }
+
+      router.push(`${appRoutes.request}?${params.toString()}`);
+      return;
+    }
+
     for (const [key, value] of formData.entries()) {
       if (typeof value === "string" && value.trim() !== "") {
         params.set(key, value.trim());
@@ -76,7 +108,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_auto] lg:items-end">
         <div className="min-w-0">
           <HeroField label={t("filters.service")}>
-            <select className={selectClassName} defaultValue="" name="category">
+            <select className={selectClassName} defaultValue="" name="category" required={isEmergencyBudget}>
               <option value="">{t("filters.allServices")}</option>
               {serviceFilterOptions.map((category) => (
                 <option key={category} value={category}>
@@ -89,7 +121,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
 
         <div className="min-w-0">
           <HeroField label={t("filters.district")}>
-            <select className={selectClassName} defaultValue="" name="district">
+            <select className={selectClassName} defaultValue="" name="district" required={isEmergencyBudget}>
               <option value="">{t("filters.allDistricts")}</option>
               {filterOptions.districts.map((district) => (
                 <option key={district} value={district}>
@@ -117,7 +149,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           className="h-12 min-h-[3rem] w-full min-w-[140px] rounded-lg bg-[var(--brand-orange)] px-6 font-bold text-white shadow-[0_8px_20px_rgba(255,138,0,0.25)] transition-all hover:bg-[var(--brand-orange-dark)] hover:shadow-[0_12px_24px_rgba(255,138,0,0.35)]" 
           type="submit"
         >
-          {t("cta.findProvider")}
+          {isEmergencyBudget ? "Acil Usta Çağır" : t("cta.findProvider")}
         </Button>
       </div>
 
@@ -128,37 +160,72 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </span>
           <div className="flex flex-wrap gap-2">
             <label className="cursor-pointer">
-              <input type="radio" name="budget" value="" defaultChecked className="peer sr-only" />
+              <input
+                type="radio"
+                name="budget"
+                value=""
+                defaultChecked
+                className="peer sr-only"
+                onChange={(event) => setSelectedBudget(event.target.value)}
+              />
               <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
                 Tümü
               </span>
             </label>
             <label className="cursor-pointer">
-              <input type="radio" name="budget" value="ekonomik" className="peer sr-only" />
+              <input type="radio" name="budget" value="ekonomik" className="peer sr-only" onChange={(event) => setSelectedBudget(event.target.value)} />
               <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
                 Ekonomik
               </span>
             </label>
             <label className="cursor-pointer">
-              <input type="radio" name="budget" value="standart" className="peer sr-only" />
+              <input type="radio" name="budget" value="standart" className="peer sr-only" onChange={(event) => setSelectedBudget(event.target.value)} />
               <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
                 Standart
               </span>
             </label>
             <label className="cursor-pointer">
-              <input type="radio" name="budget" value="premium" className="peer sr-only" />
+              <input type="radio" name="budget" value="premium" className="peer sr-only" onChange={(event) => setSelectedBudget(event.target.value)} />
               <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
                 Premium
               </span>
             </label>
             <label className="cursor-pointer">
-              <input type="radio" name="budget" value="acil" className="peer sr-only" />
+              <input type="radio" name="budget" value="acil-hizmet" className="peer sr-only" onChange={(event) => setSelectedBudget(event.target.value)} />
               <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
                 Acil Hizmet
               </span>
             </label>
           </div>
         </div>
+        {isEmergencyBudget ? (
+          <div className="mt-5 grid gap-3 rounded-lg border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] p-3 sm:grid-cols-2">
+            <label className="block min-w-0">
+              <span className="block text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280]">
+                Teklif / bütçe
+              </span>
+              <input
+                className={fieldBaseClassName}
+                inputMode="numeric"
+                name="match_offer_amount"
+                placeholder="Örn. 1.500 TL"
+                required
+                type="text"
+              />
+            </label>
+            <label className="block min-w-0">
+              <span className="block text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280]">
+                Ödeme tercihi
+              </span>
+              <select className={selectClassName} name="match_payment_preference" required>
+                <option value="">Seç</option>
+                <option value="cash">Nakit</option>
+                <option value="iban">IBAN ile ödeme</option>
+                <option value="online_soon">Online ödeme yakında</option>
+              </select>
+            </label>
+          </div>
+        ) : null}
       </div>
     </form>
   );

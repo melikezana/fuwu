@@ -29,6 +29,8 @@ import {
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { AssignProviderSection } from "./AssignProviderSection";
+import { getPaymentPreferenceLabel } from "@/services/payments";
+import { liveTrackingSoonText } from "@/services/tracking";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +124,38 @@ const requestStatusActions: Array<{
   {
     label: SERVICE_REQUEST_STATUS_LABELS.iptal,
     status: SERVICE_REQUEST_STATUSES.iptal,
+    tone: "reject",
+  },
+];
+
+const emergencyRequestStatusActions: Array<{
+  label: string;
+  status: AdminServiceRequestStatus;
+  tone: "approve" | "neutral" | "reject";
+}> = [
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.pending,
+    status: SERVICE_REQUEST_STATUSES.pending,
+    tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.accepted,
+    status: SERVICE_REQUEST_STATUSES.accepted,
+    tone: "approve",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
+    status: SERVICE_REQUEST_STATUSES.onTheWay,
+    tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.completed,
+    status: SERVICE_REQUEST_STATUSES.completed,
+    tone: "approve",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.cancelled,
+    status: SERVICE_REQUEST_STATUSES.cancelled,
     tone: "reject",
   },
 ];
@@ -220,6 +254,11 @@ function getRequestStatusView(status: string) {
     AdminServiceRequestStatus,
     "green" | "neutral" | "orange" | "red"
   > = {
+    [SERVICE_REQUEST_STATUSES.pending]: "orange",
+    [SERVICE_REQUEST_STATUSES.accepted]: "green",
+    [SERVICE_REQUEST_STATUSES.onTheWay]: "orange",
+    [SERVICE_REQUEST_STATUSES.completed]: "green",
+    [SERVICE_REQUEST_STATUSES.cancelled]: "red",
     [SERVICE_REQUEST_STATUSES.yeni]: "orange",
     [SERVICE_REQUEST_STATUSES.inceleniyor]: "orange",
     [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "neutral",
@@ -264,6 +303,41 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
   );
 }
 
+function UrgencyTypeBadge({ urgencyType }: { urgencyType: string }) {
+  if (urgencyType !== "emergency") {
+    return <AdminStatusBadge tone="neutral">Normal akÄ±ÅŸ</AdminStatusBadge>;
+  }
+
+  return <AdminStatusBadge tone="red">Acil Hizmet</AdminStatusBadge>;
+}
+
+function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
+  if (request.urgencyType !== "emergency") {
+    return null;
+  }
+
+  return (
+    <div className="mt-3 grid gap-2 rounded-md border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-3 text-sm font-semibold text-[var(--brand-navy)]">
+      <p>
+        <span className="font-black">Ã–deme tercihi: </span>
+        {getPaymentPreferenceLabel(request.paymentPreference)}
+      </p>
+      <p>
+        <span className="font-black">DoÄŸrulama kodu: </span>
+        {request.confirmationCode ?? "Usta kabulÃ¼nden sonra"}
+      </p>
+      <p>
+        <span className="font-black">Tahmini varÄ±ÅŸ: </span>
+        {request.estimatedArrivalText ?? "Usta kabulÃ¼nden sonra"}
+      </p>
+      <p>
+        <span className="font-black">CanlÄ± takip: </span>
+        {liveTrackingSoonText}
+      </p>
+    </div>
+  );
+}
+
 function RequestActionNotice({
   feedback,
 }: {
@@ -297,22 +371,29 @@ function RequestActionNotice({
 
 function RequestActions({ request }: { request: AdminServiceRequest }) {
   const normalizedRequestStatus = normalizeServiceRequestStatus(request.status);
+  const actions =
+    request.urgencyType === "emergency"
+      ? emergencyRequestStatusActions
+      : requestStatusActions;
   const nextStatuses = normalizedRequestStatus
     ? getAllowedServiceRequestTransitions(normalizedRequestStatus)
     : [];
 
   return (
     <div className="flex max-w-full flex-wrap gap-2 lg:max-w-[34rem]">
-      {requestStatusActions.map((action) => {
+      {actions.map((action) => {
         const isCurrentStatus = normalizedRequestStatus === action.status;
         const isAllowedTransition = normalizedRequestStatus
           ? isServiceRequestTransitionAllowed(normalizedRequestStatus, action.status)
           : true;
         const isDisabled = isCurrentStatus || !isAllowedTransition;
         const Icon =
-          action.status === SERVICE_REQUEST_STATUSES.tamamlandi
+          action.status === SERVICE_REQUEST_STATUSES.tamamlandi ||
+          action.status === SERVICE_REQUEST_STATUSES.completed ||
+          action.status === SERVICE_REQUEST_STATUSES.accepted
             ? adminActionIcons.approve
-            : action.status === SERVICE_REQUEST_STATUSES.iptal
+            : action.status === SERVICE_REQUEST_STATUSES.iptal ||
+                action.status === SERVICE_REQUEST_STATUSES.cancelled
               ? adminActionIcons.reject
               : adminActionIcons.status;
 
@@ -370,6 +451,7 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
           {request.phone}
         </p>
         <div className="flex flex-wrap gap-2">
+          <UrgencyTypeBadge urgencyType={request.urgencyType} />
           <UrgencyBadge urgency={request.urgency} />
           {normalizedRequestStatus ? (
             <AdminStatusBadge tone="neutral">
@@ -390,6 +472,8 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
           {formatCreatedAt(request.createdAt)}
         </p>
       </div>
+
+      <EmergencyRequestMeta request={request} />
 
       <div className="mt-4">
         <RequestActions request={request} />
@@ -445,14 +529,17 @@ export default async function AdminServiceRequestsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1360px] text-left text-sm">
+            <table className="w-full min-w-[1580px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Müşteri</th>
                   <th className="px-4 py-3">Telefon</th>
                   <th className="px-4 py-3">Kategori</th>
                   <th className="px-4 py-3">İlçe</th>
+                  <th className="px-4 py-3">Akış</th>
                   <th className="px-4 py-3">Aciliyet</th>
+                  <th className="px-4 py-3">Ödeme</th>
+                  <th className="px-4 py-3">Kod / ETA</th>
                   <th className="px-4 py-3">Tercih Tarihi</th>
                   <th className="px-4 py-3">Tercih Saati</th>
                   <th className="px-4 py-3">Durum</th>
@@ -476,7 +563,29 @@ export default async function AdminServiceRequestsPage({
                       {request.district}
                     </td>
                     <td className="px-4 py-4">
+                      <UrgencyTypeBadge urgencyType={request.urgencyType} />
+                    </td>
+                    <td className="px-4 py-4">
                       <UrgencyBadge urgency={request.urgency} />
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {request.urgencyType === "emergency"
+                        ? getPaymentPreferenceLabel(request.paymentPreference)
+                        : "Belirtilmedi"}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {request.urgencyType === "emergency" ? (
+                        <div className="max-w-[13rem]">
+                          <p className="font-black text-[var(--brand-navy)]">
+                            {request.confirmationCode ?? "Kod bekliyor"}
+                          </p>
+                          <p className="mt-1 text-xs leading-5">
+                            {request.estimatedArrivalText ?? liveTrackingSoonText}
+                          </p>
+                        </div>
+                      ) : (
+                        "Belirtilmedi"
+                      )}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {formatPreferredDate(request.preferredDate)}

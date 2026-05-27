@@ -42,9 +42,7 @@ const optionCardClassName =
 const compactOptionClassName =
   "flex min-h-11 w-full min-w-0 select-none items-center justify-center rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)] transition-all hover:border-[rgba(255,138,0,0.38)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_10px_24px_rgba(255,138,0,0.2)]";
 
-const visibleBudgetOptions = providerBudgetOptions.filter(
-  (option) => option.value !== "acil-hizmet",
-);
+const visibleBudgetOptions = providerBudgetOptions;
 
 function isSelectedValue(currentValue: string | undefined, optionValue: string) {
   return normalizeServiceValue(currentValue ?? "") === normalizeServiceValue(optionValue);
@@ -154,6 +152,7 @@ export function SmartMatchSection({
   const budgetLabel = getBudgetTagLabel(matchQuery.budgetTag);
   const matchedProviders = matchResult.providers;
   const hasResults = matchedProviders.length > 0;
+  const isEmergencyMatch = matchQuery.budgetTag === "acil-hizmet";
   const shouldShowFallbackNotice = isActive && matchQuery.isComplete && matchResult.isFallback;
 
   return (
@@ -227,7 +226,7 @@ export function SmartMatchSection({
 
             <div className="min-w-0">
               <SmartMatchStepLabel step={3}>Bütçe seç</SmartMatchStepLabel>
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                 {visibleBudgetOptions.map((option) => (
                   <label className="min-w-0 cursor-pointer" key={option.value}>
                     <input
@@ -248,14 +247,96 @@ export function SmartMatchSection({
               </div>
             </div>
 
-            <Button className="h-12 min-h-12 w-full whitespace-nowrap" type="submit">
+            {isEmergencyMatch ? (
+              <Button className="h-12 min-h-12 w-full whitespace-nowrap" type="submit">
+                Acil Usta Çağır
+              </Button>
+            ) : null}
+            <Button
+              className={`h-12 min-h-12 w-full whitespace-nowrap ${isEmergencyMatch ? "hidden" : ""}`}
+              type="submit"
+            >
               <span className="hidden sm:inline">Uygun Ustaları Göster</span>
               <span className="sm:hidden">Ustaları Göster</span>
             </Button>
           </div>
         </form>
 
-        {isActive && matchQuery.isComplete ? (
+        {isActive && matchQuery.isComplete && isEmergencyMatch ? (
+          <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="cursor-default select-none">
+                <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
+                  4. Ödeme tercihi
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
+                  Acil Hizmet çağrısı
+                </h3>
+                <p className="mt-1 text-sm font-medium leading-6 text-[var(--muted)]">
+                  {matchQuery.serviceLabel} â€¢ {matchQuery.district} â€¢ {budgetLabel}
+                </p>
+              </div>
+              <span className="w-fit rounded-md bg-[var(--brand-navy)] px-3 py-2 text-xs font-bold text-white">
+                Canlı takip yakında
+              </span>
+            </div>
+
+            <form
+              action={appRoutes.request}
+              className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end"
+              method="get"
+            >
+              <input name="match_service" type="hidden" value={matchQuery.serviceLabel} />
+              <input name="match_district" type="hidden" value={matchQuery.district} />
+              <input name="match_budget" type="hidden" value="acil-hizmet" />
+              <input name="match_time" type="hidden" value="bugun" />
+              <label className="min-w-0">
+                <span className="text-xs font-semibold uppercase text-[var(--muted)]">
+                  Teklif / bütçe
+                </span>
+                <input
+                  className="mt-2 h-12 w-full min-w-0 rounded-md border border-[rgba(13,20,36,0.12)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+                  inputMode="numeric"
+                  name="match_offer_amount"
+                  placeholder="Örn. 1.500 TL"
+                  required
+                  type="text"
+                />
+              </label>
+              <label className="min-w-0">
+                <span className="text-xs font-semibold uppercase text-[var(--muted)]">
+                  Ödeme tercihi
+                </span>
+                <select
+                  className="mt-2 h-12 w-full min-w-0 cursor-pointer rounded-md border border-[rgba(13,20,36,0.12)] bg-white px-3.5 pr-10 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+                  name="match_payment_preference"
+                  required
+                >
+                  <option value="">Seç</option>
+                  <option value="cash">Nakit</option>
+                  <option value="iban">IBAN ile ödeme</option>
+                  <option value="online_soon">Online ödeme yakında</option>
+                </select>
+              </label>
+              <Button className="h-12 min-h-12 w-full whitespace-nowrap" type="submit">
+                Acil Usta Çağır
+              </Button>
+            </form>
+
+            <div className="mt-5 rounded-md border border-[rgba(13,20,36,0.08)] bg-white p-4">
+              <p className="text-sm font-semibold text-[var(--brand-navy)]">
+                {hasResults
+                  ? `${matchedProviders.length} uygun usta havuzu hazır.`
+                  : "Bu seçim için uygun usta havuzu hazırlanıyor."}
+              </p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
+                IBAN veya ödeme bilgisi herkese açık gösterilmez; ödeme tercihi yalnızca niyet olarak kaydedilir.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        {isActive && matchQuery.isComplete && !isEmergencyMatch ? (
           <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="cursor-default select-none">

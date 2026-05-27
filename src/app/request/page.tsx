@@ -19,14 +19,19 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type RequestSearchParams = {
+  approximate_location?: string | string[];
   budget?: string | string[];
   district?: string | string[];
   match_budget?: string | string[];
   match_district?: string | string[];
   match_notes?: string | string[];
+  match_offer_amount?: string | string[];
+  match_payment_preference?: string | string[];
   match_service?: string | string[];
   match_time?: string | string[];
   notes?: string | string[];
+  offer_amount?: string | string[];
+  payment_preference?: string | string[];
   service?: string | string[];
   time?: string | string[];
 };
@@ -86,6 +91,12 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
   const initialBudgetTag = getSearchParam(params?.budget) || getSearchParam(params?.match_budget);
   const initialNotes = getSearchParam(params?.notes) || getSearchParam(params?.match_notes);
   const initialTimePreference = getSearchParam(params?.time) || getSearchParam(params?.match_time);
+  const initialOfferAmount =
+    getSearchParam(params?.offer_amount) || getSearchParam(params?.match_offer_amount);
+  const initialPaymentPreference =
+    getSearchParam(params?.payment_preference) ||
+    getSearchParam(params?.match_payment_preference);
+  const initialApproximateLocation = getSearchParam(params?.approximate_location);
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
@@ -114,9 +125,12 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
         {authenticatedUserId ? (
           <RequestForm
             authenticatedUserId={authenticatedUserId}
+            initialApproximateLocation={initialApproximateLocation}
             initialBudgetTag={initialBudgetTag}
             initialDistrict={initialDistrict}
             initialNotes={initialNotes}
+            initialOfferAmount={initialOfferAmount}
+            initialPaymentPreference={initialPaymentPreference}
             initialService={initialService}
             initialTimePreference={initialTimePreference}
           />

@@ -21,6 +21,8 @@ import {
   createServiceFailure,
   createServiceSuccess,
 } from "@/services/serviceResponse";
+import { assignProviderToEmergencyRequest } from "@/services/requests";
+import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
 
@@ -141,6 +143,13 @@ type AdminServiceRequestRecord = Pick<
   | "preferred_time"
   | "status"
   | "urgency"
+  | "urgency_type"
+  | "budget_tag"
+  | "payment_preference"
+  | "confirmation_code"
+  | "estimated_arrival_text"
+  | "approximate_location"
+  | "accepted_at"
   | "user_id"
   | "assigned_provider_id"
 > & {
@@ -197,6 +206,13 @@ export type AdminServiceRequest = {
   preferredTime: string | null;
   status: string;
   urgency: string;
+  urgencyType: string;
+  budgetTag: string | null;
+  paymentPreference: string | null;
+  confirmationCode: string | null;
+  estimatedArrivalText: string | null;
+  approximateLocation: string | null;
+  acceptedAt: string | null;
   assignedProviderId: string | null;
   assignedProviderName: string | null;
 };
@@ -1001,7 +1017,7 @@ export async function updateAdminServiceRequestStatus(
 
   const { data: existingRequest, error: lookupError } = await supabase
     .from("service_requests")
-    .select("id, status")
+    .select("id, status, urgency_type, districts(name)")
     .eq("id", normalizedRequestId)
     .maybeSingle();
 
@@ -1024,9 +1040,33 @@ export async function updateAdminServiceRequestStatus(
     return createServiceRequestActionResult("service-request-invalid-transition", false);
   }
 
+  const updatePayload: Partial<ServiceRequestRow> = {
+    status: normalizedStatus,
+  };
+  const isEmergencyRequest = existingRequest.urgency_type === "emergency";
+  const acceptedAt =
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
+      ? new Date().toISOString()
+      : null;
+
+  if (isEmergencyRequest && acceptedAt) {
+    const districtRelation = (existingRequest as any).districts;
+    const districtName = Array.isArray(districtRelation)
+      ? districtRelation[0]?.name
+      : districtRelation?.name;
+
+    updatePayload.accepted_at = acceptedAt;
+    updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
+      acceptedAt,
+      district: typeof districtName === "string" ? districtName : null,
+      urgencyType: "emergency",
+    });
+  }
+
   const updateQuery = supabase
     .from("service_requests")
-    .update({ status: normalizedStatus })
+    .update(updatePayload)
     .eq("id", normalizedRequestId);
 
   if (previousStatus) {
@@ -1084,12 +1124,36 @@ export async function assignAdminServiceRequest(
 
   const { data: existingRequest, error: lookupError } = await supabase
     .from("service_requests")
-    .select("id, status")
+    .select("id, status, urgency, urgency_type")
     .eq("id", normalizedRequestId)
     .maybeSingle();
 
   if (lookupError || !existingRequest) {
     return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  if (existingRequest.urgency_type === "emergency" || existingRequest.urgency === "urgent") {
+    try {
+      await assignProviderToEmergencyRequest(normalizedRequestId, normalizedProviderId, supabase);
+    } catch (error) {
+      warnAdminWriteError("emergency service request provider assignment", error);
+      return createServiceRequestActionResult("service-request-action-failed", false);
+    }
+
+    await insertAuditLog({
+      action: "service_request.emergency_assigned",
+      actorUserId: adminAccess.access.userId,
+      entityId: normalizedRequestId,
+      entityType: "service_request",
+      metadata: {
+        providerId: normalizedProviderId,
+        status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+        urgencyType: "emergency",
+      },
+      supabase,
+    });
+
+    return createServiceRequestActionResult("service-request-updated", true);
   }
 
   const { data, error } = await supabase
@@ -1358,10 +1422,17 @@ export async function getAdminServiceRequests(): Promise<
         id,
         user_id,
         urgency,
+        urgency_type,
+        budget_tag,
+        payment_preference,
+        confirmation_code,
+        estimated_arrival_text,
+        approximate_location,
         status,
         preferred_date,
         preferred_time,
         description,
+        accepted_at,
         created_at,
         assigned_provider_id,
         service_categories(name),
@@ -1391,6 +1462,21 @@ export async function getAdminServiceRequests(): Promise<
       preferredTime: request.preferred_time,
       status: sanitizeText(request.status, 40),
       urgency: sanitizeText(request.urgency, 40),
+      urgencyType: sanitizeText(request.urgency_type ?? "standard", 40),
+      budgetTag: request.budget_tag ? sanitizeText(request.budget_tag, 40) : null,
+      paymentPreference: request.payment_preference
+        ? sanitizeText(request.payment_preference, 40)
+        : null,
+      confirmationCode: request.confirmation_code
+        ? sanitizeText(request.confirmation_code, 40)
+        : null,
+      estimatedArrivalText: request.estimated_arrival_text
+        ? sanitizeText(request.estimated_arrival_text, 120)
+        : null,
+      approximateLocation: request.approximate_location
+        ? sanitizeText(request.approximate_location, 220)
+        : null,
+      acceptedAt: request.accepted_at ?? null,
       assignedProviderId: request.assigned_provider_id ?? null,
       assignedProviderName: Array.isArray(request.providers) ? request.providers[0]?.name : request.providers?.name ?? null,
     })),

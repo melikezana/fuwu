@@ -12,15 +12,20 @@ import { sanitizePhone } from "./phone";
 import { sanitizeText } from "./text";
 
 export type ServiceRequestField =
+  | "approximateLocation"
+  | "budgetTag"
   | "district"
   | "fullAddress"
   | "fullName"
+  | "offerAmount"
+  | "paymentPreference"
   | "phoneNumber"
   | "preferredDate"
   | "preferredTimeRange"
   | "serviceCategory"
   | "shortDescription"
-  | "urgencyLevel";
+  | "urgencyLevel"
+  | "urgencyType";
 
 const requiredRequestFields: Array<{
   field: ServiceRequestField;
@@ -56,21 +61,44 @@ export function validateServiceRequestInput(
   input: ServiceRequestInput,
 ): ValidationResult<ServiceRequestInput, ServiceRequestField> {
   const sanitizedData: ServiceRequestInput = {
+    approximateLocation: sanitizeText(input.approximateLocation ?? "", 220),
+    budgetTag: sanitizeText(input.budgetTag ?? "", 40),
     district: sanitizeText(input.district, 120),
     fullAddress: sanitizeText(input.fullAddress, 500),
     fullName: sanitizeText(input.fullName, 120),
+    offerAmount: sanitizeText(input.offerAmount ?? "", 80),
+    paymentPreference: sanitizeText(input.paymentPreference ?? "", 40),
     phoneNumber: sanitizePhone(input.phoneNumber),
     preferredDate: sanitizeText(input.preferredDate, 30),
     preferredTimeRange: sanitizeText(input.preferredTimeRange, 80),
     serviceCategory: sanitizeText(input.serviceCategory, 220),
     shortDescription: sanitizeText(input.shortDescription, 1500),
     urgencyLevel: sanitizeText(input.urgencyLevel, 40),
+    urgencyType: sanitizeText(input.urgencyType ?? "", 40),
   };
   const issues: Array<ValidationIssue<ServiceRequestField>> = [];
+  const isEmergencyRequest =
+    sanitizedData.urgencyType === "emergency" ||
+    sanitizedData.budgetTag === "acil-hizmet";
 
   requiredRequestFields.forEach(({ field, message }) => {
-    addRequiredTextIssue(issues, field, sanitizedData[field], message);
+    addRequiredTextIssue(issues, field, sanitizedData[field] ?? "", message);
   });
+
+  if (isEmergencyRequest) {
+    addRequiredTextIssue(
+      issues,
+      "paymentPreference",
+      sanitizedData.paymentPreference ?? "",
+      "Ã–deme tercihi zorunludur.",
+    );
+    addRequiredTextIssue(
+      issues,
+      "offerAmount",
+      sanitizedData.offerAmount ?? "",
+      "Teklif tutarÄ± zorunludur.",
+    );
+  }
 
   if (sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
     issues.push({

@@ -262,16 +262,28 @@ export type Database = {
           district_id: string;
           address: string;
           urgency: string;
+          urgency_type: "standard" | "emergency";
+          budget_tag: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          payment_preference: "cash" | "iban" | "online_soon" | null;
+          confirmation_code: string | null;
+          estimated_arrival_text: string | null;
+          approximate_location: string | null;
           preferred_date: string | null;
           preferred_time: string | null;
           description: string | null;
           status:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
             | "yeni"
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
           assigned_provider_id: string | null;
+          accepted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -282,16 +294,28 @@ export type Database = {
           district_id: string;
           address: string;
           urgency?: string;
+          urgency_type?: "standard" | "emergency";
+          budget_tag?: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          confirmation_code?: string | null;
+          estimated_arrival_text?: string | null;
+          approximate_location?: string | null;
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
             | "yeni"
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
           assigned_provider_id?: string | null;
+          accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -302,16 +326,28 @@ export type Database = {
           district_id?: string;
           address?: string;
           urgency?: string;
+          urgency_type?: "standard" | "emergency";
+          budget_tag?: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          confirmation_code?: string | null;
+          estimated_arrival_text?: string | null;
+          approximate_location?: string | null;
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
             | "yeni"
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal";
           assigned_provider_id?: string | null;
+          accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
