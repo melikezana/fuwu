@@ -2,8 +2,14 @@ import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
+import { savePaymentPreference } from "@/services/payments";
 import { getProviders } from "@/services/providers";
+import { calculateEstimatedArrivalText } from "@/services/tracking";
 import type { Provider, ProviderFilters } from "@/types/provider";
+import type {
+  ServiceRequestPaymentPreference,
+  ServiceRequestUrgencyType,
+} from "@/types/request";
 import {
   getBudgetTagLabel,
   isProviderPriceRangeRelevantToBudget,
@@ -41,6 +47,24 @@ export type MatchInput = {
 };
 
 export type InstantMatchInput = MatchInput;
+
+export type EmergencyMatchRequestInput = InstantMatchInput & {
+  approximateLocation?: string;
+  confirmationCode: string;
+  offerAmount?: string;
+  paymentPreference?: string;
+};
+
+export type EmergencyMatchRequest = {
+  approximateLocation: string | null;
+  budgetTag: "acil-hizmet";
+  confirmationCode: string;
+  estimatedArrivalText: string | null;
+  offerAmount: string | null;
+  paymentPreference: ServiceRequestPaymentPreference | null;
+  query: InstantMatchQuery;
+  urgencyType: Extract<ServiceRequestUrgencyType, "emergency">;
+};
 
 export type MatchQuery = {
   budgetTag?: BudgetTag;
@@ -275,6 +299,32 @@ export function createInstantMatchQuery(input: InstantMatchInput = {}): InstantM
 }
 
 export const createMatchQuery = createInstantMatchQuery;
+
+export function isEmergencyBudgetTag(value: string | undefined) {
+  return normalizeBudgetTag(value) === "acil-hizmet";
+}
+
+export function createEmergencyMatchRequest(
+  input: EmergencyMatchRequestInput,
+): EmergencyMatchRequest {
+  const query = createInstantMatchQuery({
+    ...input,
+    budgetTag: "acil-hizmet",
+    timePreference: input.timePreference || "bugun",
+  });
+  const urgencyType = "emergency";
+
+  return {
+    approximateLocation: sanitizeText(input.approximateLocation ?? "", 220) || null,
+    budgetTag: "acil-hizmet",
+    confirmationCode: input.confirmationCode,
+    estimatedArrivalText: calculateEstimatedArrivalText({ urgencyType }),
+    offerAmount: sanitizeText(input.offerAmount ?? "", 80) || null,
+    paymentPreference: savePaymentPreference(input.paymentPreference),
+    query,
+    urgencyType,
+  };
+}
 
 export function rankMatchedProviders(providers: Provider[], query: MatchQuery) {
   return providers

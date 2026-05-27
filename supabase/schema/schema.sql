@@ -159,17 +159,43 @@ create table if not exists public.service_requests (
   district_id uuid not null references public.districts(id) on delete restrict,
   address text not null,
   urgency text not null default 'normal',
+  urgency_type text not null default 'standard',
+  budget_tag text,
+  payment_preference text,
+  confirmation_code text,
+  estimated_arrival_text text,
+  approximate_location text,
   preferred_date date,
   preferred_time time,
   description text,
   status text not null default 'yeni',
+  accepted_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
 
   constraint service_requests_urgency_check
     check (urgency in ('low', 'normal', 'high', 'urgent')),
+  constraint service_requests_urgency_type_check
+    check (urgency_type in ('standard', 'emergency')),
+  constraint service_requests_budget_tag_check
+    check (budget_tag is null or budget_tag in ('ekonomik', 'standart', 'premium', 'acil-hizmet')),
+  constraint service_requests_payment_preference_check
+    check (payment_preference is null or payment_preference in ('cash', 'iban', 'online_soon')),
   constraint service_requests_status_check
-    check (status in ('yeni', 'inceleniyor', 'ustaya_yonlendirildi', 'tamamlandi', 'iptal')),
+    check (
+      status in (
+        'yeni',
+        'inceleniyor',
+        'ustaya_yonlendirildi',
+        'tamamlandi',
+        'iptal',
+        'pending',
+        'accepted',
+        'on_the_way',
+        'completed',
+        'cancelled'
+      )
+    ),
   constraint service_requests_address_not_blank_check
     check (btrim(address) <> '')
 );
@@ -259,11 +285,23 @@ create index if not exists service_requests_status_idx
 create index if not exists service_requests_urgency_idx
   on public.service_requests (urgency);
 
+create index if not exists service_requests_urgency_type_idx
+  on public.service_requests (urgency_type);
+
+create index if not exists service_requests_budget_tag_idx
+  on public.service_requests (budget_tag);
+
+create index if not exists service_requests_payment_preference_idx
+  on public.service_requests (payment_preference);
+
 create index if not exists service_requests_category_district_status_idx
   on public.service_requests (category_id, district_id, status);
 
 create index if not exists service_requests_created_at_idx
   on public.service_requests (created_at desc);
+
+create index if not exists service_requests_accepted_at_idx
+  on public.service_requests (accepted_at desc);
 
 create index if not exists reviews_provider_id_idx
   on public.reviews (provider_id);

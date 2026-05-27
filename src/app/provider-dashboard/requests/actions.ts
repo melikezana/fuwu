@@ -6,7 +6,13 @@ import { revalidatePath } from "next/cache";
 
 export async function providerUpdateRequestStatusAction(formData: FormData) {
   const requestId = formData.get("requestId") as string;
-  const status = formData.get("status") as "tamamlandi" | "iptal";
+  const status = formData.get("status") as
+    | "accepted"
+    | "on_the_way"
+    | "completed"
+    | "cancelled"
+    | "tamamlandi"
+    | "iptal";
 
   if (!requestId || !status) return;
 
