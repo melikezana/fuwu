@@ -8,7 +8,10 @@ import { RequestForm } from "@/components/request/RequestForm";
 import { appRoutes } from "@/lib/constants/navigation";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { authAccessMessages } from "@/services/auth/constants";
-import { getAuthenticatedServerUserId } from "@/services/auth/server";
+import {
+  getAuthenticatedServerUserId,
+  getCurrentServerUserProfile,
+} from "@/services/auth/server";
 
 export const metadata: Metadata = {
   title: "Talep Oluştur",
@@ -84,7 +87,10 @@ function LoginRequiredState() {
 
 export default async function RequestPage({ searchParams }: RequestPageProps) {
   const params = await searchParams;
-  const authenticatedUserId = await getAuthenticatedServerUserId();
+  const [authenticatedUserId, profile] = await Promise.all([
+    getAuthenticatedServerUserId(),
+    getCurrentServerUserProfile(),
+  ]);
   const initialService = getSearchParam(params?.service) || getSearchParam(params?.match_service);
   const initialDistrict =
     getSearchParam(params?.district) || getSearchParam(params?.match_district);
@@ -131,6 +137,8 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             initialNotes={initialNotes}
             initialOfferAmount={initialOfferAmount}
             initialPaymentPreference={initialPaymentPreference}
+            initialProfileFullName={profile?.full_name}
+            initialProfilePhone={profile?.phone}
             initialService={initialService}
             initialTimePreference={initialTimePreference}
           />

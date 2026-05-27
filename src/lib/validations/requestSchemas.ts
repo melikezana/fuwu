@@ -1,4 +1,5 @@
 import type { ServiceRequestInput } from "@/types/request";
+import { isEmergencyPaymentPreference } from "@/services/payments";
 import {
   addRequiredTextIssue,
   commonValidationMessages,
@@ -27,7 +28,7 @@ export type ServiceRequestField =
   | "urgencyLevel"
   | "urgencyType";
 
-const requiredRequestFields: Array<{
+const standardRequiredRequestFields: Array<{
   field: ServiceRequestField;
   message: string;
 }> = [
@@ -40,6 +41,16 @@ const requiredRequestFields: Array<{
   { field: "fullName", message: "Ad soyad alanı zorunludur." },
   { field: "phoneNumber", message: "Telefon numarası zorunludur." },
   { field: "shortDescription", message: "Açıklama alanı zorunludur." },
+];
+
+const emergencyRequiredRequestFields: Array<{
+  field: ServiceRequestField;
+  message: string;
+}> = [
+  { field: "serviceCategory", message: "Hizmet kategorisi zorunludur." },
+  { field: "district", message: "İlçe alanı zorunludur." },
+  { field: "offerAmount", message: "Teklif tutarı zorunludur." },
+  { field: "paymentPreference", message: "Ödeme tercihi zorunludur." },
 ];
 
 function isValidDateInput(value: string) {
@@ -81,47 +92,62 @@ export function validateServiceRequestInput(
     sanitizedData.urgencyType === "emergency" ||
     sanitizedData.budgetTag === "acil-hizmet";
 
-  requiredRequestFields.forEach(({ field, message }) => {
+  const requiredFields = isEmergencyRequest
+    ? emergencyRequiredRequestFields
+    : standardRequiredRequestFields;
+
+  requiredFields.forEach(({ field, message }) => {
     addRequiredTextIssue(issues, field, sanitizedData[field] ?? "", message);
   });
 
   if (isEmergencyRequest) {
-    addRequiredTextIssue(
-      issues,
-      "paymentPreference",
-      sanitizedData.paymentPreference ?? "",
-      "Ã–deme tercihi zorunludur.",
+    if (
+      sanitizedData.paymentPreference &&
+      !isEmergencyPaymentPreference(sanitizedData.paymentPreference)
+    ) {
+      issues.push({
+        field: "paymentPreference",
+        message: "Acil hizmette ödeme tercihi Nakit veya IBAN olmalıdır.",
+      });
+    }
+
+    const offeredPrice = Number(
+      (sanitizedData.offerAmount ?? "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, ""),
     );
-    addRequiredTextIssue(
-      issues,
-      "offerAmount",
-      sanitizedData.offerAmount ?? "",
-      "Teklif tutarÄ± zorunludur.",
-    );
+
+    if (sanitizedData.offerAmount && (!Number.isFinite(offeredPrice) || offeredPrice <= 0)) {
+      issues.push({
+        field: "offerAmount",
+        message: "Geçerli bir teklif tutarı seç.",
+      });
+    }
   }
 
-  if (sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
+  if (!isEmergencyRequest && sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
     issues.push({
       field: "phoneNumber",
       message: commonValidationMessages.phoneInvalid,
     });
   }
 
-  if (sanitizedData.preferredDate && !isValidDateInput(sanitizedData.preferredDate)) {
+  if (!isEmergencyRequest && sanitizedData.preferredDate && !isValidDateInput(sanitizedData.preferredDate)) {
     issues.push({
       field: "preferredDate",
       message: "Geçerli bir tarih seç.",
     });
   }
 
-  if (sanitizedData.fullAddress && sanitizedData.fullAddress.length < 10) {
+  if (!isEmergencyRequest && sanitizedData.fullAddress && sanitizedData.fullAddress.length < 10) {
     issues.push({
       field: "fullAddress",
       message: "Açık adres çok kısa.",
     });
   }
 
-  if (sanitizedData.shortDescription && sanitizedData.shortDescription.length < 12) {
+  if (!isEmergencyRequest && sanitizedData.shortDescription && sanitizedData.shortDescription.length < 12) {
     issues.push({
       field: "shortDescription",
       message: commonValidationMessages.descriptionTooShort,

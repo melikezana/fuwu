@@ -145,10 +145,13 @@ type AdminServiceRequestRecord = Pick<
   | "urgency"
   | "urgency_type"
   | "budget_tag"
+  | "offered_price"
   | "payment_preference"
   | "confirmation_code"
   | "estimated_arrival_text"
   | "approximate_location"
+  | "emergency_status"
+  | "accepted_provider_id"
   | "accepted_at"
   | "user_id"
   | "assigned_provider_id"
@@ -208,10 +211,13 @@ export type AdminServiceRequest = {
   urgency: string;
   urgencyType: string;
   budgetTag: string | null;
+  offeredPrice: number | null;
   paymentPreference: string | null;
   confirmationCode: string | null;
   estimatedArrivalText: string | null;
   approximateLocation: string | null;
+  emergencyStatus: string | null;
+  acceptedProviderId: string | null;
   acceptedAt: string | null;
   assignedProviderId: string | null;
   assignedProviderName: string | null;
@@ -1017,7 +1023,7 @@ export async function updateAdminServiceRequestStatus(
 
   const { data: existingRequest, error: lookupError } = await supabase
     .from("service_requests")
-    .select("id, status, urgency_type, districts(name)")
+    .select("id, status, urgency_type, assigned_provider_id, districts(name)")
     .eq("id", normalizedRequestId)
     .maybeSingle();
 
@@ -1044,6 +1050,15 @@ export async function updateAdminServiceRequestStatus(
     status: normalizedStatus,
   };
   const isEmergencyRequest = existingRequest.urgency_type === "emergency";
+
+  if (
+    isEmergencyRequest &&
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted &&
+    !existingRequest.assigned_provider_id
+  ) {
+    return createServiceRequestActionResult("service-request-invalid-transition", false);
+  }
+
   const acceptedAt =
     normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
     normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
@@ -1057,11 +1072,21 @@ export async function updateAdminServiceRequestStatus(
       : districtRelation?.name;
 
     updatePayload.accepted_at = acceptedAt;
+    updatePayload.accepted_provider_id = existingRequest.assigned_provider_id;
+    updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
       district: typeof districtName === "string" ? districtName : null,
       urgencyType: "emergency",
     });
+  }
+
+  if (
+    isEmergencyRequest &&
+    (normalizedStatus === SERVICE_REQUEST_STATUSES.completed ||
+      normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled)
+  ) {
+    updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
   }
 
   const updateQuery = supabase
@@ -1424,14 +1449,17 @@ export async function getAdminServiceRequests(): Promise<
         urgency,
         urgency_type,
         budget_tag,
+        offered_price,
         payment_preference,
         confirmation_code,
         estimated_arrival_text,
         approximate_location,
+        emergency_status,
         status,
         preferred_date,
         preferred_time,
         description,
+        accepted_provider_id,
         accepted_at,
         created_at,
         assigned_provider_id,
@@ -1464,6 +1492,12 @@ export async function getAdminServiceRequests(): Promise<
       urgency: sanitizeText(request.urgency, 40),
       urgencyType: sanitizeText(request.urgency_type ?? "standard", 40),
       budgetTag: request.budget_tag ? sanitizeText(request.budget_tag, 40) : null,
+      offeredPrice:
+        typeof request.offered_price === "number"
+          ? request.offered_price
+          : request.offered_price
+            ? Number(request.offered_price)
+            : null,
       paymentPreference: request.payment_preference
         ? sanitizeText(request.payment_preference, 40)
         : null,
@@ -1476,6 +1510,10 @@ export async function getAdminServiceRequests(): Promise<
       approximateLocation: request.approximate_location
         ? sanitizeText(request.approximate_location, 220)
         : null,
+      emergencyStatus: request.emergency_status
+        ? sanitizeText(request.emergency_status, 40)
+        : null,
+      acceptedProviderId: request.accepted_provider_id ?? null,
       acceptedAt: request.accepted_at ?? null,
       assignedProviderId: request.assigned_provider_id ?? null,
       assignedProviderName: Array.isArray(request.providers) ? request.providers[0]?.name : request.providers?.name ?? null,

@@ -14,6 +14,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
 import {
+  calculateSuggestedPrice,
   createEmergencyMatchRequest,
   isEmergencyBudgetTag,
   normalizeBudgetTag,
@@ -21,7 +22,10 @@ import {
 import { getPaymentPreferenceLabel } from "@/services/payments";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, getCurrentUser } from "@/services/auth";
-import { notifyServiceRequestCreated } from "@/services/notifications";
+import {
+  notifyEmergencyRequestDispatched,
+  notifyServiceRequestCreated,
+} from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   ServiceRequestPaymentPreference,
@@ -70,6 +74,8 @@ export function generateJobConfirmationCode() {
 
   return `FW-${String(randomNumber + 1000).padStart(4, "0")}`;
 }
+
+export const generateConfirmationCode = generateJobConfirmationCode;
 
 export function saveUrgencyType(
   urgencyType: string | null | undefined,
@@ -130,24 +136,52 @@ function getTodayDateInput() {
   return `${year}-${month}-${day}`;
 }
 
+function parseOfferedPrice(value: string | number | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const normalizedValue = value?.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "") ?? "";
+  const parsedValue = Number(normalizedValue);
+
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : null;
+}
+
+function formatPriceLabel(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value)} TL`;
+}
+
 function createRequestDescription(data: ServiceRequestInput) {
   const paymentPreferenceLabel = getPaymentPreferenceLabel(data.paymentPreference);
-  const emergencyDetails =
-    saveUrgencyType(data.urgencyType, data.budgetTag) === "emergency"
-      ? [
-          data.offerAmount?.trim() ? `Teklif tutarı: ${data.offerAmount.trim()}` : "",
-          paymentPreferenceLabel !== "Belirtilmedi"
-            ? `Ödeme yöntemi tercihi: ${paymentPreferenceLabel}`
-            : "",
-          data.approximateLocation?.trim()
-            ? `Yaklaşık konum: ${data.approximateLocation.trim()}`
-            : "",
-        ]
-      : [];
+  const urgencyType = saveUrgencyType(data.urgencyType, data.budgetTag);
+  const offeredPriceLabel = formatPriceLabel(parseOfferedPrice(data.offerAmount));
+
+  if (urgencyType === "emergency") {
+    return [
+      `Acil hizmet talebi: ${parseServiceCategoryName(data.serviceCategory)}`,
+      offeredPriceLabel ? `Teklif tutarı: ${offeredPriceLabel}` : "",
+      paymentPreferenceLabel !== "Belirtilmedi"
+        ? `Ödeme tercihi: ${paymentPreferenceLabel}`
+        : "",
+      data.district?.trim() ? `İlçe: ${data.district.trim()}` : "",
+      data.approximateLocation?.trim()
+        ? `Yaklaşık konum: ${data.approximateLocation.trim()}`
+        : "",
+      data.fullName?.trim() || data.phoneNumber?.trim()
+        ? `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`
+        : "",
+      "Bildirim temeli: provider dashboard, ileride WhatsApp/SMS/push.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
 
   return [
     data.shortDescription.trim(),
-    ...emergencyDetails,
     `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`,
     `Tercih edilen saat aralığı: ${data.preferredTimeRange.trim()}`,
   ]
@@ -205,6 +239,14 @@ async function buildServiceRequestInsert(
 
   const budgetTag = normalizeBudgetTag(data.budgetTag);
   const urgencyType = saveUrgencyType(data.urgencyType, budgetTag);
+  const suggestedEmergencyPrice =
+    urgencyType === "emergency"
+      ? calculateSuggestedPrice({
+          budgetTag: "acil-hizmet",
+          district: data.district,
+          service: serviceCategoryName,
+        })
+      : 0;
   const emergencyRequest =
     urgencyType === "emergency"
       ? createEmergencyMatchRequest({
@@ -219,22 +261,34 @@ async function buildServiceRequestInsert(
           timePreference: "bugun",
         })
       : null;
+  const emergencyAddress = [data.district.trim(), data.approximateLocation?.trim()]
+    .filter(Boolean)
+    .join(" - ");
+  const offeredPrice =
+    emergencyRequest?.offeredPrice ??
+    (suggestedEmergencyPrice > 0 ? suggestedEmergencyPrice : null);
 
   return {
     user_id: userId,
     category_id: categoryId,
     district_id: districtId,
-    address: data.fullAddress.trim(),
+    address:
+      urgencyType === "emergency"
+        ? data.fullAddress.trim() || emergencyAddress || "Acil hizmet konumu"
+        : data.fullAddress.trim(),
     urgency: urgencyType === "emergency" ? "urgent" : mapUrgencyLevel(data.urgencyLevel),
     urgency_type: urgencyType,
     budget_tag: emergencyRequest?.budgetTag ?? budgetTag ?? null,
+    offered_price: urgencyType === "emergency" ? offeredPrice : null,
     payment_preference: emergencyRequest?.paymentPreference ?? null,
     confirmation_code: emergencyRequest?.confirmationCode ?? null,
     estimated_arrival_text: emergencyRequest?.estimatedArrivalText ?? null,
     approximate_location: emergencyRequest?.approximateLocation ?? null,
     preferred_date: data.preferredDate.trim() || (urgencyType === "emergency" ? getTodayDateInput() : null),
-    preferred_time: parsePreferredTime(data.preferredTimeRange),
+    preferred_time: urgencyType === "emergency" ? null : parsePreferredTime(data.preferredTimeRange),
     description: createRequestDescription(data),
+    emergency_status:
+      urgencyType === "emergency" ? SERVICE_REQUEST_STATUSES.pending : null,
     status:
       urgencyType === "emergency"
         ? SERVICE_REQUEST_STATUSES.pending
@@ -317,9 +371,22 @@ export async function createServiceRequest(
     requestId: typeof record?.id === "string" ? record.id : null,
   });
 
+  if (insertPayload.urgency_type === "emergency") {
+    await notifyEmergencyRequestDispatched({
+      requestCode,
+      requestId: typeof record?.id === "string" ? record.id : null,
+    });
+  }
+
   const submitResult: ServiceRequestSubmitResult = {
     confirmationCode: insertPayload.confirmation_code ?? null,
+    emergencyStatus: insertPayload.emergency_status ?? null,
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
+    notificationMessage:
+      insertPayload.urgency_type === "emergency"
+        ? "Uygun ustalara bildirim gönderildi."
+        : null,
+    offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
     requestCode,
     requestId: typeof record?.id === "string" ? record.id : null,
@@ -328,6 +395,23 @@ export async function createServiceRequest(
   const response = createServiceSuccess(submitResult);
 
   return response.data ?? submitResult;
+}
+
+export async function createEmergencyRequest(
+  data: ServiceRequestInput,
+  authenticatedUserId: string,
+): Promise<ServiceRequestSubmitResult> {
+  return createServiceRequest(
+    {
+      ...data,
+      budgetTag: "acil-hizmet",
+      preferredDate: data.preferredDate || getTodayDateInput(),
+      preferredTimeRange: data.preferredTimeRange || "En kısa süre",
+      urgencyLevel: "Acil",
+      urgencyType: "emergency",
+    },
+    authenticatedUserId,
+  );
 }
 
 export async function getMatchedProviders(requestId: string) {
@@ -367,7 +451,7 @@ export async function getMatchedProviders(requestId: string) {
   return providers.sort((a, b) => {
     if (a.district_id === requestData.district_id && b.district_id !== requestData.district_id) return -1;
     if (a.district_id !== requestData.district_id && b.district_id === requestData.district_id) return 1;
-    return 0;
+    return Number(b.rating ?? 0) - Number(a.rating ?? 0);
   });
 }
 
@@ -411,10 +495,36 @@ export async function assignProviderToEmergencyRequest(
     });
   }
 
+  const [{ data: request }, { data: provider }] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select("category_id, district_id")
+      .eq("id", requestId)
+      .maybeSingle(),
+    supabase
+      .from("providers")
+      .select("category_id, district_id, is_active, is_approved")
+      .eq("id", providerId)
+      .maybeSingle(),
+  ]);
+
+  if (
+    !request ||
+    !provider?.is_active ||
+    !provider?.is_approved ||
+    request.category_id !== provider.category_id
+  ) {
+    throw new ValidationError("Provider is not eligible for emergency request.", {
+      publicMessage: "Seçilen usta bu acil talep için uygun değil.",
+    });
+  }
+
   const { error } = await supabase
     .from("service_requests")
     .update({
       assigned_provider_id: providerId,
+      accepted_provider_id: null,
+      emergency_status: SERVICE_REQUEST_STATUSES.pending,
       status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
       urgency_type: "emergency",
     })
@@ -437,17 +547,19 @@ export async function getProviderAssignedRequests(providerId: string) {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from("service_requests")
-    .select(`
+  const requestSelect = `
       id,
       urgency,
       urgency_type,
       budget_tag,
+      offered_price,
       payment_preference,
       confirmation_code,
       estimated_arrival_text,
       approximate_location,
+      emergency_status,
+      accepted_provider_id,
+      assigned_provider_id,
       status,
       address,
       preferred_date,
@@ -458,7 +570,10 @@ export async function getProviderAssignedRequests(providerId: string) {
       service_categories(name),
       districts(name),
       profiles(full_name, phone)
-    `)
+    `;
+  const { data: assignedRequests, error } = await supabase
+    .from("service_requests")
+    .select(requestSelect)
     .eq("assigned_provider_id", providerId)
     .order("created_at", { ascending: false });
 
@@ -467,17 +582,52 @@ export async function getProviderAssignedRequests(providerId: string) {
     return [];
   }
 
-  // Format to standard UI layout similar to AdminServiceRequest
-  return (data ?? []).map((request: any) => ({
+  const { data: provider } = await supabase
+    .from("providers")
+    .select("category_id, district_id, is_active, is_approved")
+    .eq("id", providerId)
+    .maybeSingle();
+  const providerCategoryId =
+    provider?.is_active && provider?.is_approved ? provider.category_id : null;
+  const providerDistrictId =
+    provider?.is_active && provider?.is_approved ? provider.district_id : null;
+  const canSeeEligibleEmergencyRequests = Boolean(providerCategoryId && providerDistrictId);
+  const { data: eligibleEmergencyRequests } = canSeeEligibleEmergencyRequests
+    ? await supabase
+        .from("service_requests")
+        .select(requestSelect)
+        .eq("urgency_type", "emergency")
+        .eq("status", SERVICE_REQUEST_STATUSES.pending)
+        .eq("category_id", providerCategoryId as string)
+        .eq("district_id", providerDistrictId as string)
+        .is("assigned_provider_id", null)
+        .order("created_at", { ascending: false })
+    : { data: [] };
+  const requestsById = new Map<string, any>();
+
+  [...(assignedRequests ?? []), ...(eligibleEmergencyRequests ?? [])].forEach((request: any) => {
+    requestsById.set(request.id, request);
+  });
+
+  return Array.from(requestsById.values())
+    .sort(
+      (firstRequest, secondRequest) =>
+        new Date(secondRequest.created_at).getTime() - new Date(firstRequest.created_at).getTime(),
+    )
+    .map((request: any) => ({
     id: request.id,
     status: request.status,
     urgency: request.urgency,
     urgencyType: request.urgency_type ?? "standard",
     budgetTag: request.budget_tag ?? null,
+    offeredPrice: request.offered_price ?? null,
     paymentPreference: request.payment_preference ?? null,
     confirmationCode: request.confirmation_code ?? null,
     estimatedArrivalText: request.estimated_arrival_text ?? null,
     approximateLocation: request.approximate_location ?? null,
+    emergencyStatus: request.emergency_status ?? null,
+    acceptedProviderId: request.accepted_provider_id ?? null,
+    assignedProviderId: request.assigned_provider_id ?? null,
     acceptedAt: request.accepted_at ?? null,
     address: request.address ?? "",
     preferredDate: request.preferred_date,
@@ -489,6 +639,99 @@ export async function getProviderAssignedRequests(providerId: string) {
     phone: Array.isArray(request.profiles) ? request.profiles[0]?.phone : request.profiles?.phone ?? "Belirtilmedi",
     description: request.description ?? "",
   }));
+}
+
+export async function acceptEmergencyRequest(
+  requestId: string,
+  providerId: string,
+  supabaseClient?: SupabaseClient<Database>,
+) {
+  const supabase = supabaseClient ?? createServiceRequestClient();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { data: provider, error: providerError } = await supabase
+    .from("providers")
+    .select("id, category_id, district_id, is_active, is_approved")
+    .eq("id", providerId)
+    .maybeSingle();
+
+  if (providerError || !provider?.is_active || !provider?.is_approved) {
+    warnServiceRequestError("Emergency provider eligibility lookup failed.", providerError);
+    return false;
+  }
+
+  const { data: currentRequest, error: requestError } = await supabase
+    .from("service_requests")
+    .select("id, status, urgency_type, category_id, district_id, assigned_provider_id, districts(name)")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (requestError || !currentRequest) {
+    warnServiceRequestError("Emergency request accept lookup failed.", requestError);
+    return false;
+  }
+
+  if (currentRequest.urgency_type !== "emergency") {
+    return false;
+  }
+
+  if (currentRequest.category_id !== provider.category_id) {
+    return false;
+  }
+
+  const isAssignedToProvider = currentRequest.assigned_provider_id === providerId;
+  const isOpenNearbyRequest =
+    !currentRequest.assigned_provider_id && currentRequest.district_id === provider.district_id;
+
+  if (!isAssignedToProvider && !isOpenNearbyRequest) {
+    return false;
+  }
+
+  if (
+    currentRequest.status !== SERVICE_REQUEST_STATUSES.pending &&
+    currentRequest.status !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+  ) {
+    return false;
+  }
+
+  const acceptedAt = new Date().toISOString();
+  const districtRelation = (currentRequest as any).districts;
+  const districtName = Array.isArray(districtRelation)
+    ? districtRelation[0]?.name
+    : districtRelation?.name;
+  const updatePayload: ServiceRequestUpdate = {
+    accepted_at: acceptedAt,
+    accepted_provider_id: providerId,
+    assigned_provider_id: providerId,
+    emergency_status: SERVICE_REQUEST_STATUSES.accepted,
+    estimated_arrival_text: calculateEstimatedArrivalText({
+      acceptedAt,
+      district: typeof districtName === "string" ? districtName : null,
+      urgencyType: "emergency",
+    }),
+    status: SERVICE_REQUEST_STATUSES.accepted,
+  };
+  let updateQuery = supabase
+    .from("service_requests")
+    .update(updatePayload)
+    .eq("id", requestId)
+    .eq("status", currentRequest.status);
+
+  updateQuery = currentRequest.assigned_provider_id
+    ? updateQuery.eq("assigned_provider_id", providerId)
+    : updateQuery.is("assigned_provider_id", null);
+
+  const { data, error } = await updateQuery.select("id").maybeSingle();
+
+  if (error || !data) {
+    warnServiceRequestError("Emergency request accept update failed.", error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function updateProviderAssignedRequestStatus(
@@ -506,6 +749,10 @@ export async function updateProviderAssignedRequestStatus(
 
   if (!normalizedStatus) {
     return false;
+  }
+
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
+    return acceptEmergencyRequest(requestId, providerId, supabase);
   }
 
   const { data: currentRequest, error: currentRequestError } = await supabase
@@ -526,7 +773,6 @@ export async function updateProviderAssignedRequestStatus(
     : districtRelation?.name;
   const isEmergencyRequest = currentRequest.urgency_type === "emergency";
   const acceptedAt =
-    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
     normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
       ? new Date().toISOString()
       : null;
@@ -536,11 +782,21 @@ export async function updateProviderAssignedRequestStatus(
 
   if (isEmergencyRequest && acceptedAt) {
     updatePayload.accepted_at = acceptedAt;
+    updatePayload.accepted_provider_id = providerId;
+    updatePayload.emergency_status = normalizedStatus as ServiceRequestUpdate["emergency_status"];
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
       district: typeof districtName === "string" ? districtName : null,
       urgencyType: "emergency",
     });
+  }
+
+  if (
+    isEmergencyRequest &&
+    (normalizedStatus === SERVICE_REQUEST_STATUSES.completed ||
+      normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled)
+  ) {
+    updatePayload.emergency_status = normalizedStatus as ServiceRequestUpdate["emergency_status"];
   }
 
   const { error } = await supabase

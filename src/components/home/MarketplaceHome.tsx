@@ -414,6 +414,29 @@ function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Prov
 }
 
 function HowItWorksSection() {
+  const steps = [
+    {
+      title: "Hizmetini seç",
+      description: "İhtiyacına en yakın ev hizmetini işaretle.",
+      label: "Hizmet",
+    },
+    {
+      title: "Bütçeni belirle",
+      description: "Tahmini fiyatı gör, bütçeni netleştir.",
+      label: "Bütçe",
+    },
+    {
+      title: "Uygun ustayı bul",
+      description: "Kategori, ilçe ve puana göre eşleş.",
+      label: "Eşleşme",
+    },
+    {
+      title: "Kodla işi başlat",
+      description: "Ustayla aynı kodu karşılaştırıp işi başlat.",
+      label: "Kod",
+    },
+  ];
+
   return (
     <section className="border-y border-[var(--border)] bg-[#FAFAFA]" id="how-it-works">
       <Container className="py-12 sm:py-16">
@@ -422,6 +445,7 @@ function HowItWorksSection() {
           <p className="mt-2 text-sm font-medium text-[#6B7280]">Tek platform, anında çözüm</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<<<<<<< HEAD
           <div className="rounded-[1.25rem] bg-white p-5 shadow-sm ring-1 ring-[#F3F4F6]">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F4F6] text-xl font-bold text-[var(--brand-navy)]">1</span>
             <h3 className="mt-4 font-bold text-[var(--brand-navy)]">Hizmetini Seç</h3>
@@ -446,8 +470,30 @@ function HowItWorksSection() {
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="inline-flex items-center rounded-md bg-[#F3F4F6] px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-[#4B5563]">Karşılıklı Onay</span>
               <span className="inline-flex items-center rounded-md bg-[#F3F4F6] px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-[#4B5563]">Güvenli Ödeme</span>
+=======
+          {steps.map((step, index) => (
+            <div
+              className="rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
+              key={step.title}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-base font-bold text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
+                  {index + 1}
+                </span>
+                <span className="rounded-md bg-[#FFF8EF] px-2 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-[var(--brand-orange-dark)]">
+                  {step.label}
+                </span>
+              </div>
+              <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
+                {step.title}
+              </h3>
+              <p className="mt-2 text-sm font-medium leading-6 text-[#6B7280]">
+                {step.description}
+              </p>
+              <div className="mt-4 h-1 w-12 rounded-full bg-[var(--brand-orange)]" />
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
             </div>
-          </div>
+          ))}
         </div>
       </Container>
     </section>

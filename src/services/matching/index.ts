@@ -2,7 +2,7 @@ import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
-import { savePaymentPreference } from "@/services/payments";
+import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { getProviders } from "@/services/providers";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import type { Provider, ProviderFilters } from "@/types/provider";
@@ -51,7 +51,7 @@ export type InstantMatchInput = MatchInput;
 export type EmergencyMatchRequestInput = InstantMatchInput & {
   approximateLocation?: string;
   confirmationCode: string;
-  offerAmount?: string;
+  offerAmount?: number | string;
   paymentPreference?: string;
 };
 
@@ -60,7 +60,7 @@ export type EmergencyMatchRequest = {
   budgetTag: "acil-hizmet";
   confirmationCode: string;
   estimatedArrivalText: string | null;
-  offerAmount: string | null;
+  offeredPrice: number | null;
   paymentPreference: ServiceRequestPaymentPreference | null;
   query: InstantMatchQuery;
   urgencyType: Extract<ServiceRequestUrgencyType, "emergency">;
@@ -102,6 +102,73 @@ function parseLocalizedNumber(value: string) {
   const parsedValue = Number(value.replace(/\./g, "").replace(",", "."));
 
   return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function normalizePriceValue(value: number | string | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const trimmedValue = value?.trim() ?? "";
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  const parsedValue = parseLocalizedNumber(trimmedValue.replace(/[^\d.,-]/g, ""));
+
+  return typeof parsedValue === "number" ? parsedValue : null;
+}
+
+function roundToNearestTen(value: number) {
+  return Math.max(100, Math.round(value / 10) * 10);
+}
+
+const emergencyBasePrices: Array<{
+  keywords: string[];
+  price: number;
+}> = [
+  { keywords: ["tesisat", "su", "gider"], price: 900 },
+  { keywords: ["elektrik", "sigorta", "priz"], price: 850 },
+  { keywords: ["cilingir", "kilit"], price: 750 },
+  { keywords: ["temizlik"], price: 1200 },
+  { keywords: ["klima", "beyaz esya"], price: 1250 },
+  { keywords: ["montaj", "mobilya"], price: 950 },
+  { keywords: ["boya"], price: 1800 },
+  { keywords: ["hali"], price: 850 },
+  { keywords: ["nakliye", "tasima"], price: 1400 },
+  { keywords: ["bahce", "havuz"], price: 1100 },
+];
+
+export function calculateSuggestedPrice({
+  budgetTag,
+  district,
+  service,
+}: Pick<MatchInput, "budgetTag" | "district" | "service"> = {}) {
+  const normalizedService = normalizeServiceValue(service ?? "");
+
+  if (!normalizedService) {
+    return 0;
+  }
+
+  const matchedPrice =
+    emergencyBasePrices.find((item) =>
+      item.keywords.some((keyword) => normalizedService.includes(keyword)),
+    )?.price ?? 950;
+  const districtSignal = normalizeServiceValue(district ?? "");
+  const districtAdjustment = districtSignal ? 50 : 0;
+  const emergencyAdjustment = normalizeBudgetTag(budgetTag) === "acil-hizmet" ? 150 : 0;
+
+  return roundToNearestTen(matchedPrice + districtAdjustment + emergencyAdjustment);
+}
+
+export function adjustOfferedPrice(
+  currentPrice: number | string | null | undefined,
+  delta: -10 | 10 | 50 | number,
+) {
+  const normalizedPrice = normalizePriceValue(currentPrice) ?? 0;
+
+  return roundToNearestTen(normalizedPrice + delta);
 }
 
 function parseProviderPriceRange(value: string | undefined): BudgetPriceRange | null {
@@ -319,8 +386,13 @@ export function createEmergencyMatchRequest(
     budgetTag: "acil-hizmet",
     confirmationCode: input.confirmationCode,
     estimatedArrivalText: calculateEstimatedArrivalText({ urgencyType }),
-    offerAmount: sanitizeText(input.offerAmount ?? "", 80) || null,
-    paymentPreference: savePaymentPreference(input.paymentPreference),
+    offeredPrice: (normalizePriceValue(input.offerAmount) ??
+      calculateSuggestedPrice({
+        budgetTag: "acil-hizmet",
+        district: input.district,
+        service: input.service,
+      })) || null,
+    paymentPreference: saveEmergencyPaymentPreference(input.paymentPreference),
     query,
     urgencyType,
   };
@@ -408,4 +480,29 @@ export async function getMatchedProviders(input: MatchInput, limit = 6) {
   const result = await getInstantMatchedProviders(input, limit);
 
   return result.providers;
+}
+
+export async function getNearbyEligibleProviders(input: MatchInput, limit = 12) {
+  const query = createInstantMatchQuery({
+    ...input,
+    budgetTag: input.budgetTag || "acil-hizmet",
+    timePreference: input.timePreference || "bugun",
+  });
+
+  if (!query.category) {
+    return [];
+  }
+
+  const districtProviders = query.district
+    ? await getProviders({
+        category: query.category,
+        district: query.district,
+      })
+    : [];
+  const sameCategoryProviders = await getProviders({ category: query.category });
+  const providersById = new Map(
+    [...districtProviders, ...sameCategoryProviders].map((provider) => [provider.id, provider]),
+  );
+
+  return rankMatchedProviders(Array.from(providersById.values()), query).slice(0, limit);
 }

@@ -262,6 +262,7 @@ export type Database = {
           district_id: string;
           address: string;
           urgency: string;
+<<<<<<< HEAD
           urgency_type?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
@@ -271,6 +272,16 @@ export type Database = {
           approximate_location?: string | null;
           emergency_status?: string | null;
           accepted_at?: string | null;
+=======
+          urgency_type: "standard" | "emergency";
+          budget_tag: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          offered_price: number | null;
+          payment_preference: "cash" | "iban" | "online_soon" | null;
+          confirmation_code: string | null;
+          estimated_arrival_text: string | null;
+          approximate_location: string | null;
+          emergency_status: "pending" | "accepted" | "on_the_way" | "completed" | "cancelled" | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           preferred_date: string | null;
           preferred_time: string | null;
           description: string | null;
@@ -281,6 +292,11 @@ export type Database = {
             | "tamamlandi"
             | "iptal";
           assigned_provider_id: string | null;
+<<<<<<< HEAD
+=======
+          accepted_provider_id: string | null;
+          accepted_at: string | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           created_at: string;
           updated_at: string;
         };
@@ -291,6 +307,7 @@ export type Database = {
           district_id: string;
           address: string;
           urgency?: string;
+<<<<<<< HEAD
           urgency_type?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
@@ -300,6 +317,16 @@ export type Database = {
           approximate_location?: string | null;
           emergency_status?: string | null;
           accepted_at?: string | null;
+=======
+          urgency_type?: "standard" | "emergency";
+          budget_tag?: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          offered_price?: number | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          confirmation_code?: string | null;
+          estimated_arrival_text?: string | null;
+          approximate_location?: string | null;
+          emergency_status?: "pending" | "accepted" | "on_the_way" | "completed" | "cancelled" | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
@@ -310,6 +337,11 @@ export type Database = {
             | "tamamlandi"
             | "iptal";
           assigned_provider_id?: string | null;
+<<<<<<< HEAD
+=======
+          accepted_provider_id?: string | null;
+          accepted_at?: string | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           created_at?: string;
           updated_at?: string;
         };
@@ -320,6 +352,7 @@ export type Database = {
           district_id?: string;
           address?: string;
           urgency?: string;
+<<<<<<< HEAD
           urgency_type?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
@@ -329,6 +362,16 @@ export type Database = {
           approximate_location?: string | null;
           emergency_status?: string | null;
           accepted_at?: string | null;
+=======
+          urgency_type?: "standard" | "emergency";
+          budget_tag?: "ekonomik" | "standart" | "premium" | "acil-hizmet" | null;
+          offered_price?: number | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          confirmation_code?: string | null;
+          estimated_arrival_text?: string | null;
+          approximate_location?: string | null;
+          emergency_status?: "pending" | "accepted" | "on_the_way" | "completed" | "cancelled" | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
@@ -339,6 +382,11 @@ export type Database = {
             | "tamamlandi"
             | "iptal";
           assigned_provider_id?: string | null;
+<<<<<<< HEAD
+=======
+          accepted_provider_id?: string | null;
+          accepted_at?: string | null;
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
           created_at?: string;
           updated_at?: string;
         };
@@ -367,6 +415,13 @@ export type Database = {
           {
             foreignKeyName: "service_requests_assigned_provider_id_fkey";
             columns: ["assigned_provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_requests_accepted_provider_id_fkey";
+            columns: ["accepted_provider_id"];
             isOneToOne: false;
             referencedRelation: "providers";
             referencedColumns: ["id"];

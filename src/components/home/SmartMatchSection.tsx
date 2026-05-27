@@ -19,6 +19,7 @@ import {
 } from "@/lib/constants/providers";
 import { getServiceIconNameForCategory, normalizeServiceValue } from "@/lib/constants/services";
 import {
+  calculateSuggestedPrice,
   getBudgetTagLabel,
   type InstantMatchedProvidersResult,
   type InstantMatchQuery,
@@ -154,6 +155,13 @@ export function SmartMatchSection({
   const hasResults = matchedProviders.length > 0;
   const isEmergencyMatch = matchQuery.budgetTag === "acil-hizmet";
   const shouldShowFallbackNotice = isActive && matchQuery.isComplete && matchResult.isFallback;
+  const suggestedEmergencyPrice = isEmergencyMatch
+    ? calculateSuggestedPrice({
+        budgetTag: "acil-hizmet",
+        district: matchQuery.district,
+        service: matchQuery.serviceLabel,
+      })
+    : 0;
 
   return (
     <section className="border-b border-[var(--border)] bg-white" id="instant-match">
@@ -267,7 +275,7 @@ export function SmartMatchSection({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="cursor-default select-none">
                 <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
-                  4. Ödeme tercihi
+                  4. Acil çağrı
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
                   Acil Hizmet çağrısı
@@ -276,48 +284,23 @@ export function SmartMatchSection({
                   {matchQuery.serviceLabel} â€¢ {matchQuery.district} â€¢ {budgetLabel}
                 </p>
               </div>
-              <span className="w-fit rounded-md bg-[var(--brand-navy)] px-3 py-2 text-xs font-bold text-white">
-                Canlı takip yakında
+              <span className="w-fit rounded-md bg-[var(--brand-orange-soft)] px-3 py-2 text-xs font-bold text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
+                {suggestedEmergencyPrice.toLocaleString("tr-TR")} TL öneri
               </span>
             </div>
 
             <form
               action={appRoutes.request}
-              className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end"
+              className="mt-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center"
               method="get"
             >
               <input name="match_service" type="hidden" value={matchQuery.serviceLabel} />
               <input name="match_district" type="hidden" value={matchQuery.district} />
               <input name="match_budget" type="hidden" value="acil-hizmet" />
               <input name="match_time" type="hidden" value="bugun" />
-              <label className="min-w-0">
-                <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-                  Teklif / bütçe
-                </span>
-                <input
-                  className="mt-2 h-12 w-full min-w-0 rounded-md border border-[rgba(13,20,36,0.12)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
-                  inputMode="numeric"
-                  name="match_offer_amount"
-                  placeholder="Örn. 1.500 TL"
-                  required
-                  type="text"
-                />
-              </label>
-              <label className="min-w-0">
-                <span className="text-xs font-semibold uppercase text-[var(--muted)]">
-                  Ödeme tercihi
-                </span>
-                <select
-                  className="mt-2 h-12 w-full min-w-0 cursor-pointer rounded-md border border-[rgba(13,20,36,0.12)] bg-white px-3.5 pr-10 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
-                  name="match_payment_preference"
-                  required
-                >
-                  <option value="">Seç</option>
-                  <option value="cash">Nakit</option>
-                  <option value="iban">IBAN ile ödeme</option>
-                  <option value="online_soon">Online ödeme yakında</option>
-                </select>
-              </label>
+              <p className="rounded-md bg-white px-4 py-3 text-sm font-semibold leading-6 text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
+                Fiyatı -10 TL, +10 TL veya +50 TL ile sonraki adımda ayarlarsın.
+              </p>
               <Button className="h-12 min-h-12 w-full whitespace-nowrap" type="submit">
                 Acil Usta Çağır
               </Button>

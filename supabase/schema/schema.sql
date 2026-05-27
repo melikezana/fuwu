@@ -161,14 +161,18 @@ create table if not exists public.service_requests (
   urgency text not null default 'normal',
   urgency_type text not null default 'standard',
   budget_tag text,
+  offered_price numeric(10, 2),
   payment_preference text,
   confirmation_code text,
   estimated_arrival_text text,
   approximate_location text,
+  emergency_status text,
   preferred_date date,
   preferred_time time,
   description text,
   status text not null default 'yeni',
+  assigned_provider_id uuid references public.providers(id) on delete set null,
+  accepted_provider_id uuid references public.providers(id) on delete set null,
   accepted_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -179,8 +183,15 @@ create table if not exists public.service_requests (
     check (urgency_type in ('standard', 'emergency')),
   constraint service_requests_budget_tag_check
     check (budget_tag is null or budget_tag in ('ekonomik', 'standart', 'premium', 'acil-hizmet')),
+  constraint service_requests_offered_price_check
+    check (offered_price is null or offered_price >= 0),
   constraint service_requests_payment_preference_check
     check (payment_preference is null or payment_preference in ('cash', 'iban', 'online_soon')),
+  constraint service_requests_emergency_status_check
+    check (
+      emergency_status is null
+      or emergency_status in ('pending', 'accepted', 'on_the_way', 'completed', 'cancelled')
+    ),
   constraint service_requests_status_check
     check (
       status in (
@@ -291,8 +302,20 @@ create index if not exists service_requests_urgency_type_idx
 create index if not exists service_requests_budget_tag_idx
   on public.service_requests (budget_tag);
 
+create index if not exists service_requests_offered_price_idx
+  on public.service_requests (offered_price);
+
 create index if not exists service_requests_payment_preference_idx
   on public.service_requests (payment_preference);
+
+create index if not exists service_requests_emergency_status_idx
+  on public.service_requests (emergency_status);
+
+create index if not exists service_requests_assigned_provider_id_idx
+  on public.service_requests (assigned_provider_id);
+
+create index if not exists service_requests_accepted_provider_id_idx
+  on public.service_requests (accepted_provider_id);
 
 create index if not exists service_requests_category_district_status_idx
   on public.service_requests (category_id, district_id, status);

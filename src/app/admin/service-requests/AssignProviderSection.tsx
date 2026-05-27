@@ -13,7 +13,11 @@ export async function AssignProviderSection({
   assignedProviderId: string | null;
   assignedProviderName: string | null;
 }) {
-  if (status !== SERVICE_REQUEST_STATUSES.yeni && status !== SERVICE_REQUEST_STATUSES.inceleniyor) {
+  if (
+    status !== SERVICE_REQUEST_STATUSES.yeni &&
+    status !== SERVICE_REQUEST_STATUSES.inceleniyor &&
+    status !== SERVICE_REQUEST_STATUSES.pending
+  ) {
     if (assignedProviderId) {
       return (
         <div className="text-sm font-semibold text-[var(--brand-navy)] bg-[var(--surface-soft)] px-3 py-2 rounded-md border inline-block">

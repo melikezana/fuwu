@@ -71,6 +71,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
     const formData = new FormData(e.currentTarget);
     const district = formData.get("district") as string;
     
+<<<<<<< HEAD
     if (budget === "acil") {
       setIsSubmitting(true);
       try {
@@ -102,6 +103,24 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       } finally {
         setIsSubmitting(false);
       }
+=======
+    if (isEmergencyBudget) {
+      const category = String(formData.get("category") ?? "").trim();
+      const district = String(formData.get("district") ?? "").trim();
+
+      if (category) {
+        params.set("match_service", category);
+      }
+
+      if (district) {
+        params.set("match_district", district);
+      }
+
+      params.set("match_budget", "acil-hizmet");
+      params.set("match_time", "bugun");
+
+      router.push(`${appRoutes.request}?${params.toString()}`);
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
       return;
     }
 
@@ -281,6 +300,16 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
             </label>
           </div>
         </div>
+<<<<<<< HEAD
+=======
+        {isEmergencyBudget ? (
+          <div className="mt-5 rounded-lg border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] p-3">
+            <p className="text-sm font-bold leading-6 text-[var(--brand-navy)]">
+              Fiyat önerisi ve ödeme tercihi sonraki adımda tek dokunuşla seçilir.
+            </p>
+          </div>
+        ) : null}
+>>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
       </div>
     </form>
   );

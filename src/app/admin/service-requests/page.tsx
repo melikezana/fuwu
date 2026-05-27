@@ -139,11 +139,6 @@ const emergencyRequestStatusActions: Array<{
     tone: "neutral",
   },
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.accepted,
-    status: SERVICE_REQUEST_STATUSES.accepted,
-    tone: "approve",
-  },
-  {
     label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
     status: SERVICE_REQUEST_STATUSES.onTheWay,
     tone: "neutral",
@@ -319,6 +314,12 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
   return (
     <div className="mt-3 grid gap-2 rounded-md border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-3 text-sm font-semibold text-[var(--brand-navy)]">
       <p>
+        <span className="font-black">Teklif: </span>
+        {request.offeredPrice
+          ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+          : "Belirtilmedi"}
+      </p>
+      <p>
         <span className="font-black">Ã–deme tercihi: </span>
         {getPaymentPreferenceLabel(request.paymentPreference)}
       </p>
@@ -329,6 +330,10 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
       <p>
         <span className="font-black">Tahmini varÄ±ÅŸ: </span>
         {request.estimatedArrivalText ?? "Usta kabulÃ¼nden sonra"}
+      </p>
+      <p>
+        <span className="font-black">Acil durum: </span>
+        {request.emergencyStatus ?? request.status}
       </p>
       <p>
         <span className="font-black">CanlÄ± takip: </span>
@@ -570,7 +575,11 @@ export default async function AdminServiceRequestsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {request.urgencyType === "emergency"
-                        ? getPaymentPreferenceLabel(request.paymentPreference)
+                        ? `${getPaymentPreferenceLabel(request.paymentPreference)}${
+                            request.offeredPrice
+                              ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+                              : ""
+                          }`
                         : "Belirtilmedi"}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">

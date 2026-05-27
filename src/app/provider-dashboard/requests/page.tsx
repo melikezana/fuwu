@@ -159,6 +159,9 @@ export default async function ProviderDashboardRequestsPage() {
                   {request.urgencyType === "emergency" ? (
                     <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
                       Acil Hizmet · {getPaymentPreferenceLabel(request.paymentPreference)}
+                      {request.offeredPrice
+                        ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+                        : ""}
                     </span>
                   ) : null}
                 </div>
@@ -181,7 +184,9 @@ export default async function ProviderDashboardRequestsPage() {
                   {request.urgencyType === "emergency" ? (
                     <>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        Kod: {request.confirmationCode ?? "Kabul sonrası"}
+                        Kod: {request.status === SERVICE_REQUEST_STATUSES.pending
+                          ? "Kabul sonrası"
+                          : request.confirmationCode ?? "Kabul sonrası"}
                       </span>
                       <ProviderEmergencyActions request={request} />
                     </>

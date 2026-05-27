@@ -10,6 +10,7 @@ The helper functions live in `src/services/notifications/index.ts`:
 - `notifyProviderApplicationApproved()`
 - `notifyProviderApplicationRejected()`
 - `notifyServiceRequestCreated()`
+- `notifyEmergencyRequestDispatched()`
 
 Today these helpers return a mock success response with `sent: false`. In development they also write a small console message that includes only safe event metadata such as application code, request code, or internal ids. They do not read API keys, do not call an email provider, and do not expose secrets.
 
@@ -23,6 +24,25 @@ The mock helpers are prepared at the service layer so future email delivery can 
 | Provider application approved | After `approveAdminProviderApplication()` successfully approves the application and provider state |
 | Provider application rejected | After `rejectAdminProviderApplication()` successfully rejects the application |
 | Service request created | After `submitServiceRequest()` creates a service request |
+| Emergency request dispatched | After an Acil Hizmet request is saved as `pending` for eligible providers/admin views |
+
+## Emergency Notification Foundation
+
+Acil Hizmet does not send real push, SMS, or WhatsApp messages yet. The safe foundation is:
+
+- `service_requests.status = pending`
+- `service_requests.emergency_status = pending`
+- eligible provider/admin dashboards can surface the urgent request
+- the customer UI says "Uygun ustalara bildirim gönderildi."
+
+Future delivery channels should preserve the same service helper and add adapters in this order:
+
+- Provider dashboard polling or realtime
+- WhatsApp provider alert
+- SMS provider alert
+- Native/browser push notification
+
+Do not expose full IBAN data in notifications. If IBAN is selected, send only the payment preference; IBAN details are shared after a provider accepts.
 
 ## Future Option: Resend
 
