@@ -20,8 +20,15 @@ export type ServiceRequestInput = {
 export type ServiceRequestSubmitResult = {
   requestCode: string;
   confirmationCode?: string; // Mutually visible verification code
+  urgencyType?: string;
+  paymentPreference?: string;
+  estimatedArrivalText?: string;
+  offeredPrice?: number;
+  requestId?: string | null;
 };
 
 export type { ServiceRequestStatus } from "@/lib/constants/statuses";
 
 export type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";
+export type ServiceRequestPaymentPreference = "cash" | "iban" | "online_soon";
+export type ServiceRequestUrgencyType = "standard" | "emergency";

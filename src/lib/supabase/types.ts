@@ -279,7 +279,12 @@ export type Database = {
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
-            | "iptal";
+            | "iptal"
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled";
           assigned_provider_id: string | null;
           created_at: string;
           updated_at: string;
@@ -308,7 +313,12 @@ export type Database = {
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
-            | "iptal";
+            | "iptal"
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled";
           assigned_provider_id?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -337,7 +347,12 @@ export type Database = {
             | "inceleniyor"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
-            | "iptal";
+            | "iptal"
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled";
           assigned_provider_id?: string | null;
           created_at?: string;
           updated_at?: string;

@@ -17,7 +17,7 @@ export type ServiceRequestField =
   | "district"
   | "fullAddress"
   | "fullName"
-  | "offerAmount"
+  | "offeredPrice"
   | "paymentPreference"
   | "phoneNumber"
   | "preferredDate"
@@ -66,7 +66,7 @@ export function validateServiceRequestInput(
     district: sanitizeText(input.district, 120),
     fullAddress: sanitizeText(input.fullAddress, 500),
     fullName: sanitizeText(input.fullName, 120),
-    offerAmount: sanitizeText(input.offerAmount ?? "", 80),
+    offeredPrice: typeof input.offeredPrice === "number" ? input.offeredPrice : undefined,
     paymentPreference: sanitizeText(input.paymentPreference ?? "", 40),
     phoneNumber: sanitizePhone(input.phoneNumber),
     preferredDate: sanitizeText(input.preferredDate, 30),
@@ -82,7 +82,7 @@ export function validateServiceRequestInput(
     sanitizedData.budgetTag === "acil-hizmet";
 
   requiredRequestFields.forEach(({ field, message }) => {
-    addRequiredTextIssue(issues, field, sanitizedData[field] ?? "", message);
+    addRequiredTextIssue(issues, field, String(sanitizedData[field] ?? ""), message);
   });
 
   if (isEmergencyRequest) {
@@ -94,9 +94,9 @@ export function validateServiceRequestInput(
     );
     addRequiredTextIssue(
       issues,
-      "offerAmount",
-      sanitizedData.offerAmount ?? "",
-      "Teklif tutarÄ± zorunludur.",
+      "offeredPrice" as any,
+      sanitizedData.offeredPrice ? String(sanitizedData.offeredPrice) : "",
+      "Teklif tutarı zorunludur.",
     );
   }
 

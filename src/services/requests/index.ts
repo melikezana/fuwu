@@ -135,7 +135,7 @@ function createRequestDescription(data: ServiceRequestInput) {
   const emergencyDetails =
     saveUrgencyType(data.urgencyType, data.budgetTag) === "emergency"
       ? [
-          data.offerAmount?.trim() ? `Teklif tutarı: ${data.offerAmount.trim()}` : "",
+          data.offeredPrice ? `Teklif tutarı: ₺${data.offeredPrice}` : "",
           paymentPreferenceLabel !== "Belirtilmedi"
             ? `Ödeme yöntemi tercihi: ${paymentPreferenceLabel}`
             : "",
@@ -213,7 +213,7 @@ async function buildServiceRequestInsert(
           confirmationCode: generateJobConfirmationCode(),
           district: data.district,
           notes: data.shortDescription,
-          offerAmount: data.offerAmount,
+          offerAmount: data.offeredPrice ? String(data.offeredPrice) : "",
           paymentPreference: data.paymentPreference,
           service: serviceCategoryName,
           timePreference: "bugun",
@@ -318,9 +318,9 @@ export async function createServiceRequest(
   });
 
   const submitResult: ServiceRequestSubmitResult = {
-    confirmationCode: insertPayload.confirmation_code ?? null,
-    estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
-    paymentPreference: insertPayload.payment_preference ?? null,
+    confirmationCode: insertPayload.confirmation_code ?? undefined,
+    estimatedArrivalText: insertPayload.estimated_arrival_text ?? undefined,
+    paymentPreference: insertPayload.payment_preference ?? undefined,
     requestCode,
     requestId: typeof record?.id === "string" ? record.id : null,
     urgencyType: insertPayload.urgency_type ?? "standard",
