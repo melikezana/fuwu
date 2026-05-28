@@ -120,6 +120,10 @@ function normalizePriceValue(value: number | string | null | undefined) {
   return typeof parsedValue === "number" ? parsedValue : null;
 }
 
+export function parseEmergencyPriceValue(value: number | string | null | undefined) {
+  return normalizePriceValue(value);
+}
+
 function roundToNearestTen(value: number) {
   return Math.max(100, Math.round(value / 10) * 10);
 }
@@ -136,13 +140,20 @@ export type EmergencyPriceRange = {
   suggestedPrice: number;
 };
 
+export type EmergencyPriceValidationResult = {
+  message: string | null;
+  ok: boolean;
+  price: number | null;
+  range: EmergencyPriceRange;
+};
+
 const defaultEmergencyPriceRange: EmergencyPriceRange = {
   maximumPrice: 3500,
   minimumPrice: 500,
   options: [
     { label: "500 TL", value: 500 },
     { label: "1.000 TL", value: 1000 },
-    { label: "2.000 TL", value: 2000 },
+    { label: "2.500 TL", value: 2500 },
     { label: "3.500 TL+", value: 3500 },
   ],
   suggestedPrice: 1000,
@@ -155,15 +166,15 @@ const emergencyPriceRanges: Array<{
   {
     keywords: ["temizlik"],
     range: {
-      maximumPrice: 1200,
+      maximumPrice: 1500,
       minimumPrice: 300,
       options: [
         { label: "300 TL", value: 300 },
-        { label: "500 TL", value: 500 },
-        { label: "850 TL", value: 850 },
-        { label: "1.200 TL+", value: 1200 },
+        { label: "600 TL", value: 600 },
+        { label: "1.000 TL", value: 1000 },
+        { label: "1.500 TL+", value: 1500 },
       ],
-      suggestedPrice: 500,
+      suggestedPrice: 600,
     },
   },
   {
@@ -187,11 +198,11 @@ const emergencyPriceRanges: Array<{
       minimumPrice: 400,
       options: [
         { label: "400 TL", value: 400 },
-        { label: "750 TL", value: 750 },
+        { label: "800 TL", value: 800 },
         { label: "1.500 TL", value: 1500 },
         { label: "2.500 TL+", value: 2500 },
       ],
-      suggestedPrice: 750,
+      suggestedPrice: 800,
     },
   },
   {
@@ -258,6 +269,43 @@ export function getEmergencyPriceRange(service?: string | null): EmergencyPriceR
 
 export function getEmergencyPriceOptions(service?: string | null) {
   return getEmergencyPriceRange(service).options;
+}
+
+function formatEmergencyPriceBoundary(value: number) {
+  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value)} TL`;
+}
+
+export function validateEmergencyPrice(
+  value: number | string | null | undefined,
+  service?: string | null,
+): EmergencyPriceValidationResult {
+  const normalizedPrice = normalizePriceValue(value);
+  const range = getEmergencyPriceRange(service);
+
+  if (typeof normalizedPrice !== "number") {
+    return {
+      message: "Teklif tutarı gir veya öneri seç.",
+      ok: false,
+      price: null,
+      range,
+    };
+  }
+
+  if (normalizedPrice < range.minimumPrice || normalizedPrice > range.maximumPrice) {
+    return {
+      message: `Teklif ${formatEmergencyPriceBoundary(range.minimumPrice)} - ${formatEmergencyPriceBoundary(range.maximumPrice)} aralığında olmalı.`,
+      ok: false,
+      price: null,
+      range,
+    };
+  }
+
+  return {
+    message: null,
+    ok: true,
+    price: roundToNearestTen(normalizedPrice),
+    range,
+  };
 }
 
 export function clampEmergencyPrice(

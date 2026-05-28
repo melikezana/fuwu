@@ -35,7 +35,7 @@ export async function calculateSuggestedPrice(category: string): Promise<number>
 }
 
 /**
- * Creates an emergency service request simulating a TAG-style flow.
+ * Creates an emergency service request for the fast-match flow.
  */
 export async function createEmergencyMatchRequest(
   input: ServiceRequestInput

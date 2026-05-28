@@ -15,10 +15,10 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
 import {
-  calculateSuggestedPrice,
   createEmergencyMatchRequest,
   isEmergencyBudgetTag,
   normalizeBudgetTag,
+  validateEmergencyPrice,
 } from "@/services/matching";
 import { getPaymentPreferenceLabel } from "@/services/payments";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
@@ -304,23 +304,19 @@ async function buildServiceRequestInsert(
 
   const budgetTag = normalizeBudgetTag(data.budgetTag);
   const urgencyType = saveUrgencyType(data.urgencyType, budgetTag);
-  const suggestedEmergencyPrice =
+  const emergencyPriceValidation =
     urgencyType === "emergency"
-      ? calculateSuggestedPrice({
-          budgetTag: "acil-hizmet",
-          district: data.district,
-          service: serviceCategoryName,
-        })
-      : 0;
+      ? validateEmergencyPrice(data.offerAmount, serviceCategoryName)
+      : null;
   const emergencyRequest =
     urgencyType === "emergency"
       ? createEmergencyMatchRequest({
           approximateLocation: data.approximateLocation,
           budgetTag: "acil-hizmet",
-          confirmationCode: null,
+          confirmationCode: generateJobConfirmationCode(),
           district: data.district,
           notes: data.shortDescription,
-          offerAmount: data.offerAmount,
+          offerAmount: emergencyPriceValidation?.price ?? data.offerAmount,
           paymentPreference: data.paymentPreference,
           service: serviceCategoryName,
           timePreference: "bugun",
@@ -329,9 +325,7 @@ async function buildServiceRequestInsert(
   const emergencyAddress = [data.district.trim(), data.approximateLocation?.trim()]
     .filter(Boolean)
     .join(" - ");
-  const offeredPrice =
-    emergencyRequest?.offeredPrice ??
-    (suggestedEmergencyPrice > 0 ? suggestedEmergencyPrice : null);
+  const offeredPrice = emergencyRequest?.offeredPrice ?? null;
 
   if (urgencyType === "emergency") {
     if (!emergencyRequest?.query.category) {
@@ -346,15 +340,27 @@ async function buildServiceRequestInsert(
       });
     }
 
-    if (typeof offeredPrice !== "number" || !Number.isFinite(offeredPrice) || offeredPrice <= 0) {
+    if (
+      !emergencyPriceValidation?.ok ||
+      typeof offeredPrice !== "number" ||
+      !Number.isFinite(offeredPrice) ||
+      offeredPrice <= 0
+    ) {
       throw new ValidationError("Emergency offered price is required.", {
-        publicMessage: "Acil hizmet için tahmini teklif seçimi zorunludur.",
+        publicMessage:
+          emergencyPriceValidation?.message ?? "Acil hizmet için tahmini teklif seçimi zorunludur.",
       });
     }
 
     if (!emergencyRequest.paymentPreference) {
       throw new ValidationError("Emergency payment preference is required.", {
         publicMessage: "Acil hizmet için ödeme tercihi zorunludur.",
+      });
+    }
+
+    if (!emergencyRequest.confirmationCode) {
+      throw new ValidationError("Emergency confirmation code is required.", {
+        publicMessage: serviceRequestSubmitErrorMessage,
       });
     }
   }
@@ -425,7 +431,7 @@ export async function createServiceRequest(
   const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
 
   // Anti-spam duplicate request check (same user, category, and district within pending status)
-  const { data: existingRequest } = await supabase
+  const { data: existingRequest, error: duplicateCheckError } = await supabase
     .from("service_requests")
     .select("id")
     .eq("user_id", user.id)
@@ -434,6 +440,13 @@ export async function createServiceRequest(
     .in("status", [SERVICE_REQUEST_STATUSES.yeni, SERVICE_REQUEST_STATUSES.pending])
     .limit(1)
     .maybeSingle();
+
+  if (duplicateCheckError) {
+    throw handleServiceError(duplicateCheckError, {
+      logContext: "Service request duplicate check failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+  }
 
   if (existingRequest?.id) {
     throw new ValidationError("Duplicate service request detected.", {

@@ -8,7 +8,7 @@ export type ServiceRequestInput = {
   fullName: string;
   phoneNumber: string;
   shortDescription: string;
-  // TAG-style Emergency Fields
+  // Emergency request fields
   urgencyType?: string; // 'normal' | 'emergency'
   budgetTag?: string; // 'ekonomik' | 'standart' | 'premium' | 'acil'
   offerAmount?: string;
