@@ -1,9 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 import { getProviderDirectory } from "@/services/providers";
+
+type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 
 /**
  * Generates a simple 4-digit confirmation code.
@@ -98,22 +101,23 @@ export async function createEmergencyMatchRequest(
   
   // Future-ready text
   const estimatedArrivalText = "15-20 dk";
+  const paymentPreference = input.paymentPreference === "iban" ? "iban" : "cash";
 
   // Simulate assignment
   const { allProviders } = await getProviderDirectory();
   const availableProviders = allProviders.filter((p) => p.district === input.district);
   const assignedProviderId = availableProviders.length > 0 ? availableProviders[0].id : null;
 
-  const requestInsert = {
+  const requestInsert: ServiceRequestInsert = {
     user_id: userId,
     category_id: categoryId,
     district_id: districtId,
     address: input.fullAddress || "Yaklaşık Konum",
     urgency: input.urgencyLevel || "acil",
-    urgency_type: input.urgencyType || "emergency",
+    urgency_type: "emergency",
     budget_tag: input.budgetTag || "acil",
     offered_price: input.offeredPrice || null,
-    payment_preference: input.paymentPreference || "nakit",
+    payment_preference: paymentPreference,
     approximate_location: input.approximateLocation || input.district,
     confirmation_code: confirmationCode,
     estimated_arrival_text: estimatedArrivalText,

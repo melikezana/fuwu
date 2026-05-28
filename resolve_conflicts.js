@@ -23,10 +23,15 @@ const files = [
 
 files.forEach(file => {
   let content = fs.readFileSync(file, 'utf8');
-  // We want to keep everything from <<<<<<< HEAD to =======, but remove the markers.
-  // And remove everything from ======= to >>>>>>> commit.
+  // Keep the current-side content and remove conflicted-side content.
   
-  const regex = /<<<<<<< HEAD\r?\n([\s\S]*?)\r?\n=======\r?\n[\s\S]*?\r?\n>>>>>>> .*\r?\n/g;
+  const currentMarker = `${"<".repeat(7)} HEAD`;
+  const separatorMarker = "=".repeat(7);
+  const incomingMarker = `${">".repeat(7)} .*`;
+  const regex = new RegExp(
+    `${currentMarker}\\r?\\n([\\s\\S]*?)\\r?\\n${separatorMarker}\\r?\\n[\\s\\S]*?\\r?\\n${incomingMarker}\\r?\\n`,
+    "g",
+  );
   
   if (content.match(regex)) {
     content = content.replace(regex, '$1\n');

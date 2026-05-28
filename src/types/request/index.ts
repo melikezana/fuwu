@@ -11,6 +11,7 @@ export type ServiceRequestInput = {
   // TAG-style Emergency Fields
   urgencyType?: string; // 'normal' | 'emergency'
   budgetTag?: string; // 'ekonomik' | 'standart' | 'premium' | 'acil'
+  offerAmount?: string;
   offeredPrice?: number;
   paymentPreference?: string; // 'nakit' | 'iban'
   approximateLocation?: string;
@@ -18,24 +19,20 @@ export type ServiceRequestInput = {
 };
 
 export type ServiceRequestSubmitResult = {
-<<<<<<< HEAD
-=======
   confirmationCode?: string | null;
   emergencyStatus?: ServiceRequestEmergencyStatus | null;
   estimatedArrivalText?: string | null;
   notificationMessage?: string | null;
   offeredPrice?: number | null;
   paymentPreference?: ServiceRequestPaymentPreference | null;
->>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
   requestCode: string;
-  confirmationCode?: string; // Mutually visible verification code
+  requestId?: string | null;
+  urgencyType?: ServiceRequestUrgencyType | null;
 };
 
 export type { ServiceRequestStatus } from "@/lib/constants/statuses";
 
 export type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";
-<<<<<<< HEAD
-=======
 
 export type ServiceRequestUrgencyType = "standard" | "emergency";
 
@@ -47,4 +44,3 @@ export type ServiceRequestEmergencyStatus =
   | "on_the_way"
   | "completed"
   | "cancelled";
->>>>>>> 1ee0e96 (TASK 136 true TAG style emergency flow and design cleanup)
