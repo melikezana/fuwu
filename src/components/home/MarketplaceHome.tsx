@@ -262,7 +262,7 @@ function HeroSection({
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[#FAFAFA]">
       <Container className="grid max-w-[1400px] gap-8 py-10 sm:py-16 lg:py-20 xl:grid-cols-[1.3fr_auto] xl:items-center xl:justify-between xl:gap-12">
-        <div className="w-full max-w-full min-w-0 xl:max-w-[820px] xl:pr-6">
+        <div className="w-full max-w-[calc(100vw-2rem)] min-w-0 sm:max-w-full xl:max-w-[820px] xl:pr-6">
           <Link
             aria-label="Fuwu ana sayfasına git"
             className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
@@ -271,7 +271,7 @@ function HeroSection({
             <FuwuLogo size="md" />
           </Link>
 
-          <h1 className="mt-5 max-w-full cursor-default select-none text-3xl font-extrabold tracking-tight leading-[1.15] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-[4rem]">
+          <h1 className="text-wrap-anywhere mt-5 max-w-full cursor-default select-none break-words text-3xl font-extrabold tracking-tight leading-[1.15] text-[var(--brand-navy)] sm:max-w-3xl sm:text-5xl lg:text-[4rem]">
             <I18nText i18nKey="home.hero.title" />
           </h1>
           <p className="mt-5 max-w-full cursor-default select-none break-words text-[15px] font-medium leading-relaxed text-[#4B5563] sm:max-w-3xl sm:text-xl sm:leading-[1.7]">

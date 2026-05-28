@@ -1,27 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
+  Check,
   CheckCircle2,
   Clock3,
   MapPin,
+  Search,
   ShieldCheck,
   WalletCards,
   Zap,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Button } from "@/components/ui/Button";
+import { getPublicErrorMessage } from "@/lib/errors";
 import { appRoutes } from "@/lib/constants/navigation";
 import { providerDistricts } from "@/lib/constants/providers";
-import { services, type Service } from "@/lib/constants/services";
+import { normalizeServiceValue, services, type Service } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import { getCurrentUser } from "@/services/auth";
-import {
-  calculateSuggestedPrice,
-  getEmergencyPriceOptions,
-  getEmergencyPriceRange,
-} from "@/services/matching";
+import { getEmergencyPriceOptions } from "@/services/matching";
 import {
   PAYMENT_PREFERENCES,
   getPaymentPreferenceLabel,
@@ -34,10 +40,26 @@ type HomeHeroFiltersProps = {
   filterOptions: ProviderFilterOptions;
 };
 
+type EmergencyStep = "service" | "district" | "price" | "payment" | "submit";
+
 type PaymentOption = {
   description: string;
   label: string;
   value: ServiceRequestPaymentPreference;
+};
+
+type SummaryPillProps = {
+  label: string;
+  onClick: () => void;
+  value: string;
+};
+
+type StepShellProps = {
+  children: ReactNode;
+  description: string;
+  icon: ReactNode;
+  stepNumber: number;
+  title: string;
 };
 
 const emergencyServiceIds = [
@@ -49,6 +71,15 @@ const emergencyServiceIds = [
   "climate-appliance-service",
 ] as const;
 
+const emergencyServiceLabels: Record<string, string> = {
+  "climate-appliance-service": "Klima & Beyaz Eşya",
+  cleaning: "Temizlik",
+  electrical: "Elektrik",
+  garden: "Bahçe Bakımı",
+  plumbing: "Tesisat",
+  pool: "Havuz Bakımı",
+};
+
 const paymentOptions: PaymentOption[] = [
   {
     description: "Usta geldiğinde öde",
@@ -56,7 +87,7 @@ const paymentOptions: PaymentOption[] = [
     value: PAYMENT_PREFERENCES.cash,
   },
   {
-    description: "Usta kabul edince paylaşılır",
+    description: "IBAN bilgisi usta kabulünden sonra paylaşılır.",
     label: "IBAN",
     value: PAYMENT_PREFERENCES.iban,
   },
@@ -68,6 +99,10 @@ function getEmergencyServices() {
     .filter((service): service is Service => Boolean(service));
 
   return selectedServices.length ? selectedServices : services.slice(0, 6);
+}
+
+function getEmergencyServiceLabel(service: Service) {
+  return emergencyServiceLabels[service.id] ?? service.title;
 }
 
 function formatPrice(value: number | null | undefined) {
@@ -82,87 +117,237 @@ function buildRequestHref({
   district,
   offerAmount,
   paymentPreference,
-  service,
+  serviceLabel,
 }: {
   district: string;
   offerAmount: number;
   paymentPreference: ServiceRequestPaymentPreference;
-  service: Service;
+  serviceLabel: string;
 }) {
   const params = new URLSearchParams({
     budget: "acil-hizmet",
     district,
     offer_amount: String(offerAmount),
     payment_preference: paymentPreference,
-    service: service.title,
+    service: serviceLabel,
     time: "bugun",
   });
 
   return `${appRoutes.request}?${params.toString()}`;
 }
 
+function SummaryPill({ label, onClick, value }: SummaryPillProps) {
+  return (
+    <button
+      className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-full border border-[rgba(255,138,0,0.3)] bg-[var(--brand-orange-soft)] px-3 py-2 text-left text-xs font-bold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[#fff3df] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+      onClick={onClick}
+      type="button"
+    >
+      <Check className="size-3.5 shrink-0 text-[var(--brand-orange-dark)]" aria-hidden />
+      <span className="shrink-0 text-[var(--brand-orange-dark)]">{label}</span>
+      <span className="min-w-0 truncate">{value}</span>
+    </button>
+  );
+}
+
+function StepShell({ children, description, icon, stepNumber, title }: StepShellProps) {
+  return (
+    <section className="min-w-0 max-w-full overflow-hidden rounded-lg border border-[rgba(255,138,0,0.34)] bg-[#fffdf9] p-4 shadow-[0_18px_48px_rgba(13,20,36,0.07)] ring-2 ring-[rgba(255,138,0,0.16)] sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange)] text-sm font-extrabold text-white shadow-[0_12px_26px_rgba(255,138,0,0.24)]">
+          {stepNumber}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-wrap-anywhere break-words text-lg font-semibold leading-tight text-[var(--brand-navy)]">
+                {title}
+              </h3>
+              <p className="text-wrap-anywhere mt-1 break-words text-sm font-medium leading-6 text-[var(--muted)]">
+                {description}
+              </p>
+            </div>
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-white text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)]">
+              {icon}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const router = useRouter();
   const emergencyServices = useMemo(getEmergencyServices, []);
-  const districtOptions = useMemo(
-    () =>
-      Array.from(new Set([...providerDistricts, ...filterOptions.districts])).sort(
-        (firstDistrict, secondDistrict) => firstDistrict.localeCompare(secondDistrict, "tr"),
-      ),
-    [filterOptions.districts],
-  );
-  const [selectedServiceId, setSelectedServiceId] = useState(
-    emergencyServices[0]?.id ?? services[0]?.id ?? "",
-  );
-  const selectedService =
-    emergencyServices.find((service) => service.id === selectedServiceId) ??
-    emergencyServices[0] ??
-    services[0];
+  const districtOptions = useMemo(() => {
+    const districtsByKey = new Map<string, string>();
+
+    [...providerDistricts, ...filterOptions.districts].forEach((districtOption) => {
+      const normalizedDistrict = normalizeServiceValue(districtOption);
+
+      if (normalizedDistrict && !districtsByKey.has(normalizedDistrict)) {
+        districtsByKey.set(normalizedDistrict, districtOption);
+      }
+    });
+
+    return Array.from(districtsByKey.values()).sort((firstDistrict, secondDistrict) =>
+      firstDistrict.localeCompare(secondDistrict, "tr"),
+    );
+  }, [filterOptions.districts]);
+  const [activeStep, setActiveStep] = useState<EmergencyStep>("service");
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  const selectedService = emergencyServices.find((service) => service.id === selectedServiceId);
+  const selectedServiceLabel = selectedService ? getEmergencyServiceLabel(selectedService) : "";
   const [district, setDistrict] = useState("");
-  const [offeredPrice, setOfferedPrice] = useState(() =>
-    calculateSuggestedPrice({
-      budgetTag: "acil-hizmet",
-      service: selectedService?.title,
-    }),
-  );
+  const [districtSearch, setDistrictSearch] = useState("");
+  const [highlightedDistrictIndex, setHighlightedDistrictIndex] = useState(0);
+  const [offeredPrice, setOfferedPrice] = useState<number | null>(null);
   const [paymentPreference, setPaymentPreference] =
-    useState<ServiceRequestPaymentPreference>(PAYMENT_PREFERENCES.cash);
+    useState<ServiceRequestPaymentPreference | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedRequest, setSubmittedRequest] =
     useState<ServiceRequestSubmitResult | null>(null);
-  const priceRange = getEmergencyPriceRange(selectedService?.title);
-  const priceOptions = getEmergencyPriceOptions(selectedService?.title);
-  const requestHref = selectedService
-    ? buildRequestHref({
-        district,
-        offerAmount: offeredPrice || priceRange.suggestedPrice,
-        paymentPreference,
-        service: selectedService,
-      })
-    : appRoutes.request;
+  const priceOptions = getEmergencyPriceOptions(selectedServiceLabel);
+  const filteredDistrictOptions = useMemo(() => {
+    const normalizedSearch = normalizeServiceValue(districtSearch);
+
+    if (!normalizedSearch) {
+      return districtOptions;
+    }
+
+    return districtOptions.filter((districtOption) =>
+      normalizeServiceValue(districtOption).includes(normalizedSearch),
+    );
+  }, [districtOptions, districtSearch]);
+  const requestHref =
+    selectedServiceLabel &&
+    district &&
+    typeof offeredPrice === "number" &&
+    paymentPreference
+      ? buildRequestHref({
+          district,
+          offerAmount: offeredPrice,
+          paymentPreference,
+          serviceLabel: selectedServiceLabel,
+        })
+      : appRoutes.request;
 
   useEffect(() => {
-    if (!selectedService) {
+    setHighlightedDistrictIndex(0);
+  }, [districtSearch, filteredDistrictOptions.length]);
+
+  function goToStep(step: EmergencyStep) {
+    setSubmitError(null);
+
+    if (step === "district") {
+      setDistrictSearch("");
+    }
+
+    setActiveStep(step);
+  }
+
+  function handleServiceSelect(service: Service) {
+    setSelectedServiceId(service.id);
+    setDistrict("");
+    setDistrictSearch("");
+    setOfferedPrice(null);
+    setPaymentPreference("");
+    setSubmitError(null);
+    setActiveStep("district");
+  }
+
+  function handleDistrictSearchChange(value: string) {
+    setDistrictSearch(value);
+
+    if (district) {
+      setDistrict("");
+      setOfferedPrice(null);
+      setPaymentPreference("");
+    }
+  }
+
+  function handleDistrictSelect(nextDistrict: string) {
+    setDistrict(nextDistrict);
+    setDistrictSearch(nextDistrict);
+    setOfferedPrice(null);
+    setPaymentPreference("");
+    setSubmitError(null);
+    setActiveStep("price");
+  }
+
+  function handleDistrictKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedDistrictIndex((currentIndex) =>
+        Math.min(currentIndex + 1, Math.max(filteredDistrictOptions.length - 1, 0)),
+      );
       return;
     }
 
-    const nextPrice = calculateSuggestedPrice({
-      budgetTag: "acil-hizmet",
-      district,
-      service: selectedService.title,
-    });
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedDistrictIndex((currentIndex) => Math.max(currentIndex - 1, 0));
+      return;
+    }
 
-    setOfferedPrice(nextPrice || priceRange.suggestedPrice);
-  }, [district, priceRange.suggestedPrice, selectedService]);
+    if (event.key === "Enter") {
+      const highlightedDistrict = filteredDistrictOptions[highlightedDistrictIndex];
+
+      if (highlightedDistrict) {
+        event.preventDefault();
+        handleDistrictSelect(highlightedDistrict);
+      }
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setDistrictSearch("");
+    }
+  }
+
+  function handlePriceSelect(nextPrice: number) {
+    setOfferedPrice(nextPrice);
+    setPaymentPreference("");
+    setSubmitError(null);
+    setActiveStep("payment");
+  }
+
+  function handlePaymentSelect(nextPaymentPreference: ServiceRequestPaymentPreference) {
+    setPaymentPreference(nextPaymentPreference);
+    setSubmitError(null);
+    setActiveStep("submit");
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError(null);
     setSubmittedRequest(null);
 
-    if (!selectedService || !district) {
-      setSubmitError("Hizmet ve ilçe seçerek devam et.");
+    if (!selectedServiceLabel) {
+      setSubmitError("Hizmet seçerek devam et.");
+      setActiveStep("service");
+      return;
+    }
+
+    if (!district) {
+      setSubmitError("İlçe seçerek devam et.");
+      setActiveStep("district");
+      return;
+    }
+
+    if (typeof offeredPrice !== "number") {
+      setSubmitError("Tahmini teklif seçerek devam et.");
+      setActiveStep("price");
+      return;
+    }
+
+    if (!paymentPreference) {
+      setSubmitError("Ödeme tercihi seçerek devam et.");
+      setActiveStep("payment");
       return;
     }
 
@@ -183,14 +368,14 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           district,
           fullAddress: district,
           fullName: "",
-          offerAmount: String(offeredPrice || priceRange.suggestedPrice),
-          offeredPrice: offeredPrice || priceRange.suggestedPrice,
+          offerAmount: String(offeredPrice),
+          offeredPrice,
           paymentPreference,
           phoneNumber: "",
           preferredDate: "",
           preferredTimeRange: "",
-          serviceCategory: selectedService.title,
-          shortDescription: `Acil ${selectedService.title} talebi`,
+          serviceCategory: selectedServiceLabel,
+          shortDescription: `Acil ${selectedServiceLabel} talebi`,
           urgencyLevel: "Acil",
           urgencyType: "emergency",
         },
@@ -198,12 +383,50 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       );
 
       setSubmittedRequest(result);
-    } catch {
-      setSubmitError("Acil çağrı şu anda başlatılamadı. Seçimlerin korunarak devam edebilirsin.");
+    } catch (error) {
+      setSubmitError(
+        getPublicErrorMessage(
+          error,
+          "Acil çağrı şu anda başlatılamadı. Seçimlerin korunarak devam edebilirsin.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const completedStepPills = [
+    selectedServiceLabel
+      ? {
+          label: "Hizmet",
+          onClick: () => goToStep("service"),
+          value: selectedServiceLabel,
+        }
+      : null,
+    district
+      ? {
+          label: "İlçe",
+          onClick: () => goToStep("district"),
+          value: district,
+        }
+      : null,
+    typeof offeredPrice === "number"
+      ? {
+          label: "Teklif",
+          onClick: () => goToStep("price"),
+          value: formatPrice(offeredPrice),
+        }
+      : null,
+    paymentPreference
+      ? {
+          label: "Ödeme",
+          onClick: () => goToStep("payment"),
+          value: getPaymentPreferenceLabel(paymentPreference),
+        }
+      : null,
+  ].filter(
+    (item): item is { label: string; onClick: () => void; value: string } => Boolean(item),
+  );
 
   if (submittedRequest) {
     return (
@@ -252,16 +475,16 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
 
   return (
     <form
-      className="mt-6 w-full overflow-hidden rounded-xl bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
+      className="mt-6 w-full max-w-[calc(100vw-2rem)] min-w-0 rounded-xl bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:max-w-full sm:p-5 lg:mt-8"
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-2 border-b border-[rgba(13,20,36,0.08)] pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
             Acil eşleşme
           </p>
-          <h2 className="mt-1 text-xl font-semibold leading-tight text-[var(--brand-navy)]">
-            Hizmeti seç, ilçeyi belirle, çağrıyı başlat.
+          <h2 className="text-wrap-anywhere mt-1 break-words text-xl font-semibold leading-tight text-[var(--brand-navy)]">
+            Her adımda tek karar, hızlı usta çağrısı.
           </h2>
         </div>
         <span className="inline-flex w-fit items-center gap-2 rounded-md bg-[#F9FAFB] px-3 py-2 text-xs font-bold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.06)]">
@@ -270,135 +493,249 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         </span>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.35fr_0.9fr_1fr_0.9fr]">
-        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-bold uppercase text-[var(--muted)]">Hizmet</span>
-            <Zap className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {emergencyServices.map((service) => {
-              const isSelected = service.id === selectedServiceId;
+      {completedStepPills.length > 0 ? (
+        <div
+          aria-label="Tamamlanan acil eşleşme adımları"
+          className="mt-4 flex flex-wrap gap-2"
+        >
+          {completedStepPills.map((pill) => (
+            <SummaryPill
+              key={pill.label}
+              label={pill.label}
+              onClick={pill.onClick}
+              value={pill.value}
+            />
+          ))}
+        </div>
+      ) : null}
 
-              return (
-                <button
-                  aria-pressed={isSelected}
-                  className={cn(
-                    "group flex min-h-16 min-w-0 items-center gap-2 rounded-lg border bg-white p-2.5 text-left transition-all",
-                    isSelected
-                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_30px_rgba(255,138,0,0.16)]"
-                      : "border-[rgba(13,20,36,0.08)] hover:border-[rgba(255,138,0,0.5)] hover:bg-[#fffaf3]",
-                  )}
-                  key={service.id}
-                  onClick={() => setSelectedServiceId(service.id)}
-                  type="button"
-                >
-                  <span
-                    className={cn(
-                      "flex size-9 shrink-0 items-center justify-center rounded-md transition-colors",
-                      isSelected
-                        ? "bg-[var(--brand-orange)] text-white"
-                        : "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] group-hover:bg-[var(--brand-orange)] group-hover:text-white",
-                    )}
-                  >
-                    <ServiceIcon className="size-4" name={service.iconName} />
-                  </span>
-                  <span className="min-w-0 text-sm font-semibold leading-4 text-[var(--brand-navy)]">
-                    {service.title}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <label className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
-          <span className="flex items-center justify-between gap-3 text-xs font-bold uppercase text-[var(--muted)]">
-            İlçe
-            <MapPin className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
-          </span>
-          <select
-            className="mt-3 h-12 w-full rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
-            onChange={(event) => setDistrict(event.target.value)}
-            required
-            value={district}
+      <div className="mt-4">
+        {activeStep === "service" ? (
+          <StepShell
+            description="Önce yalnızca ihtiyacı seç. Sonraki adımları seçimin netleştikçe açacağız."
+            icon={<Zap className="size-4" aria-hidden />}
+            stepNumber={1}
+            title="Hizmet seç"
           >
-            <option value="">İlçe seç</option>
-            {districtOptions.map((districtOption) => (
-              <option key={districtOption} value={districtOption}>
-                {districtOption}
-              </option>
-            ))}
-          </select>
-          <span className="mt-2 block text-xs font-medium text-[var(--muted)]">
-            İstanbul geneli desteklenir.
-          </span>
-        </label>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {emergencyServices.map((service) => {
+                const serviceLabel = getEmergencyServiceLabel(service);
+                const isSelected = service.id === selectedServiceId;
 
-        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-bold uppercase text-[var(--muted)]">Teklif</span>
-            <span className="text-xs font-semibold text-[var(--brand-navy)]">
-              {formatPrice(priceRange.minimumPrice)} - {formatPrice(priceRange.maximumPrice)}
-            </span>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {priceOptions.map((option) => {
-              const isSelected = option.value === offeredPrice;
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={cn(
+                      "group flex min-h-20 min-w-0 flex-col items-start justify-between rounded-lg border bg-white p-3 text-left transition-all sm:min-h-24",
+                      isSelected
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_30px_rgba(255,138,0,0.16)]"
+                        : "border-[rgba(13,20,36,0.08)] hover:border-[rgba(255,138,0,0.5)] hover:bg-[#fffaf3]",
+                    )}
+                    key={service.id}
+                    onClick={() => handleServiceSelect(service)}
+                    type="button"
+                  >
+                    <span
+                      className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-md transition-colors",
+                        isSelected
+                          ? "bg-[var(--brand-orange)] text-white"
+                          : "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] group-hover:bg-[var(--brand-orange)] group-hover:text-white",
+                      )}
+                    >
+                      <ServiceIcon className="size-5" name={service.iconName} />
+                    </span>
+                    <span className="mt-3 min-w-0 text-sm font-semibold leading-5 text-[var(--brand-navy)]">
+                      {serviceLabel}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </StepShell>
+        ) : null}
 
-              return (
-                <button
-                  aria-pressed={isSelected}
-                  className={cn(
-                    "min-h-10 rounded-md border px-2 text-sm font-semibold transition-all",
-                    isSelected
-                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
-                      : "border-[rgba(13,20,36,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
-                  )}
-                  key={option.value}
-                  onClick={() => setOfferedPrice(option.value)}
-                  type="button"
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        {activeStep === "district" ? (
+          <StepShell
+            description="İlçeyi yazmaya başla; liste anında daralır ve native dropdown açılmaz."
+            icon={<MapPin className="size-4" aria-hidden />}
+            stepNumber={2}
+            title="İlçe seç"
+          >
+            <div className="rounded-lg bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+              <label className="relative block">
+                <span className="sr-only">İlçe ara</span>
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--muted)]"
+                  aria-hidden
+                />
+                <input
+                  aria-activedescendant={
+                    filteredDistrictOptions[highlightedDistrictIndex]
+                      ? `emergency-district-${highlightedDistrictIndex}`
+                      : undefined
+                  }
+                  aria-autocomplete="list"
+                  aria-controls="emergency-district-list"
+                  aria-expanded="true"
+                  className="h-12 w-full rounded-md border border-[rgba(13,20,36,0.1)] bg-white pl-10 pr-3 text-base font-semibold text-[var(--brand-navy)] outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+                  onChange={(event) => handleDistrictSearchChange(event.target.value)}
+                  onKeyDown={handleDistrictKeyDown}
+                  placeholder="Kadıköy, Kağıthane, Kartal..."
+                  role="combobox"
+                  type="text"
+                  value={districtSearch}
+                />
+              </label>
 
-        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-bold uppercase text-[var(--muted)]">Ödeme</span>
-            <WalletCards className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
-          </div>
-          <div className="mt-3 grid gap-2">
-            {paymentOptions.map((option) => {
-              const isSelected = option.value === paymentPreference;
+              <div
+                className="mt-3 max-h-60 overflow-y-auto rounded-md border border-[rgba(13,20,36,0.08)] bg-[#F9FAFB] p-1"
+                id="emergency-district-list"
+                role="listbox"
+              >
+                {filteredDistrictOptions.length > 0 ? (
+                  filteredDistrictOptions.map((districtOption, index) => {
+                    const isHighlighted = index === highlightedDistrictIndex;
+                    const isSelected = districtOption === district;
 
-              return (
-                <button
-                  aria-pressed={isSelected}
-                  className={cn(
-                    "rounded-md border px-3 py-2 text-left transition-all",
-                    isSelected
-                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
-                      : "border-[rgba(13,20,36,0.08)] bg-white hover:border-[var(--brand-orange)]",
-                  )}
-                  key={option.value}
-                  onClick={() => setPaymentPreference(option.value)}
-                  type="button"
-                >
-                  <span className="block text-sm font-semibold text-[var(--brand-navy)]">
+                    return (
+                      <button
+                        aria-selected={isSelected}
+                        className={cn(
+                          "flex min-h-10 w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm font-semibold transition-colors",
+                          isSelected || isHighlighted
+                            ? "bg-[var(--brand-orange-soft)] text-[var(--brand-navy)]"
+                            : "text-[var(--muted)] hover:bg-white hover:text-[var(--brand-navy)]",
+                        )}
+                        id={`emergency-district-${index}`}
+                        key={districtOption}
+                        onClick={() => handleDistrictSelect(districtOption)}
+                        onMouseEnter={() => setHighlightedDistrictIndex(index)}
+                        role="option"
+                        type="button"
+                      >
+                        <span className="min-w-0 truncate">{districtOption}</span>
+                        {isSelected ? (
+                          <Check className="size-4 shrink-0 text-[var(--brand-orange-dark)]" aria-hidden />
+                        ) : null}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="px-3 py-4 text-sm font-semibold text-[var(--muted)]">
+                    Bu aramayla eşleşen İstanbul ilçesi bulunamadı.
+                  </p>
+                )}
+              </div>
+            </div>
+          </StepShell>
+        ) : null}
+
+        {activeStep === "price" ? (
+          <StepShell
+            description={`${selectedServiceLabel} için 3-4 net seçenek gösteriyoruz; serbest fiyat alanı yok.`}
+            icon={<WalletCards className="size-4" aria-hidden />}
+            stepNumber={3}
+            title="Tahmini teklif"
+          >
+            <div className="flex flex-wrap gap-2">
+              {priceOptions.map((option) => {
+                const isSelected = option.value === offeredPrice;
+
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={cn(
+                      "min-h-12 rounded-md border px-4 text-sm font-bold transition-all",
+                      isSelected
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
+                        : "border-[rgba(13,20,36,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
+                    )}
+                    key={option.value}
+                    onClick={() => handlePriceSelect(option.value)}
+                    type="button"
+                  >
                     {option.label}
-                  </span>
-                  <span className="mt-0.5 block text-xs font-medium leading-4 text-[var(--muted)]">
-                    {option.description}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                  </button>
+                );
+              })}
+            </div>
+          </StepShell>
+        ) : null}
+
+        {activeStep === "payment" ? (
+          <StepShell
+            description="Ödeme niyetini seç; kart veya ödeme alma ekranı açılmayacak."
+            icon={<WalletCards className="size-4" aria-hidden />}
+            stepNumber={4}
+            title="Ödeme tercihi"
+          >
+            <div className="grid gap-2 sm:grid-cols-2">
+              {paymentOptions.map((option) => {
+                const isSelected = option.value === paymentPreference;
+
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={cn(
+                      "rounded-md border px-4 py-3 text-left transition-all",
+                      isSelected
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
+                        : "border-[rgba(13,20,36,0.08)] bg-white hover:border-[var(--brand-orange)]",
+                    )}
+                    key={option.value}
+                    onClick={() => handlePaymentSelect(option.value)}
+                    type="button"
+                  >
+                    <span className="block text-base font-semibold text-[var(--brand-navy)]">
+                      {option.label}
+                    </span>
+                    <span className="mt-1 block text-sm font-medium leading-5 text-[var(--muted)]">
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </StepShell>
+        ) : null}
+
+        {activeStep === "submit" && paymentPreference ? (
+          <section className="rounded-lg border border-[rgba(255,138,0,0.34)] bg-[#fffdf9] p-4 shadow-[0_18px_48px_rgba(13,20,36,0.07)] ring-2 ring-[rgba(255,138,0,0.16)] sm:p-5">
+            <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+                  Çağrı hazır
+                </p>
+                <h3 className="mt-1 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
+                  Acil Usta Çağır
+                </h3>
+                <p className="mt-2 text-sm font-medium leading-6 text-[var(--muted)]">
+                  {selectedServiceLabel} · {district} · {formatPrice(offeredPrice)} ·{" "}
+                  {getPaymentPreferenceLabel(paymentPreference)}
+                </p>
+                {paymentPreference === PAYMENT_PREFERENCES.iban ? (
+                  <p className="mt-3 rounded-md bg-white px-3 py-2 text-sm font-semibold leading-6 text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
+                    IBAN bilgisi usta kabulünden sonra paylaşılır.
+                  </p>
+                ) : null}
+              </div>
+              <Button
+                className="h-12 min-h-12 w-full px-7 text-base shadow-[0_16px_34px_rgba(255,138,0,0.28)] lg:w-fit"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting ? "Çağrı açılıyor..." : "Acil Usta Çağır"}
+              </Button>
+            </div>
+            <div className="mt-4 flex min-w-0 items-start gap-3 rounded-lg bg-white p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[var(--trust-green)]" aria-hidden />
+              <p className="text-sm font-medium leading-6 text-[var(--muted)]">
+                Usta kabul edince geçici doğrulama üretilir. Nakit veya IBAN tercihin kayıt altında kalır.
+              </p>
+            </div>
+          </section>
+        ) : null}
       </div>
 
       {submitError ? (
@@ -409,22 +746,6 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </a>
         </p>
       ) : null}
-
-      <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
-        <div className="flex min-w-0 items-start gap-3 rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[var(--trust-green)]" aria-hidden />
-          <p className="text-sm font-medium leading-6 text-[var(--muted)]">
-            Usta kabul edince geçici doğrulama üretilir. Nakit veya IBAN tercihin kayıt altında kalır.
-          </p>
-        </div>
-        <Button
-          className="h-12 min-h-12 w-full px-7 text-base shadow-[0_16px_34px_rgba(255,138,0,0.28)] lg:w-fit"
-          disabled={isSubmitting || !district}
-          type="submit"
-        >
-          {isSubmitting ? "Çağrı açılıyor..." : "Acil Usta Çağır"}
-        </Button>
-      </div>
     </form>
   );
 }

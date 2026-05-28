@@ -333,6 +333,32 @@ async function buildServiceRequestInsert(
     emergencyRequest?.offeredPrice ??
     (suggestedEmergencyPrice > 0 ? suggestedEmergencyPrice : null);
 
+  if (urgencyType === "emergency") {
+    if (!emergencyRequest?.query.category) {
+      throw new ValidationError("Emergency service category is required.", {
+        publicMessage: "Acil hizmet için hizmet seçimi zorunludur.",
+      });
+    }
+
+    if (!emergencyRequest.query.district) {
+      throw new ValidationError("Emergency district is required.", {
+        publicMessage: "Acil hizmet için ilçe seçimi zorunludur.",
+      });
+    }
+
+    if (typeof offeredPrice !== "number" || !Number.isFinite(offeredPrice) || offeredPrice <= 0) {
+      throw new ValidationError("Emergency offered price is required.", {
+        publicMessage: "Acil hizmet için tahmini teklif seçimi zorunludur.",
+      });
+    }
+
+    if (!emergencyRequest.paymentPreference) {
+      throw new ValidationError("Emergency payment preference is required.", {
+        publicMessage: "Acil hizmet için ödeme tercihi zorunludur.",
+      });
+    }
+  }
+
   return {
     user_id: userId,
     category_id: categoryId,
