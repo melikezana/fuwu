@@ -5,6 +5,7 @@ import {
   ProviderStatusBadge,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
@@ -64,7 +65,6 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="cancelled" tone="red" />
       </div>
     );
   }
@@ -100,10 +100,13 @@ export const metadata: Metadata = {
 };
 
 export default async function ProviderDashboardRequestsPage() {
-  const providerAccess = await getProviderDashboardAccess();
+  const [providerAccess, authContext] = await Promise.all([
+    getProviderDashboardAccess(),
+    getServerAuthContext(),
+  ]);
   
-  const assignedRequests = providerAccess.ok 
-    ? await getProviderAssignedRequests(providerAccess.profile.id)
+  const assignedRequests = providerAccess.ok && authContext.supabase
+    ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
     : [];
 
   return (

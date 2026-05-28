@@ -12,8 +12,9 @@ import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { trackRequestCreated } from "@/services/analytics";
 import {
-  adjustOfferedPrice,
   calculateSuggestedPrice,
+  getEmergencyPriceOptions,
+  getEmergencyPriceRange,
   getBudgetTagLabel,
   normalizeBudgetTag,
 } from "@/services/matching";
@@ -389,6 +390,14 @@ export function RequestForm({
         : 0,
     [formState.district, formState.serviceCategory, isEmergencyFlow],
   );
+  const emergencyPriceRange = useMemo(
+    () => getEmergencyPriceRange(formState.serviceCategory),
+    [formState.serviceCategory],
+  );
+  const emergencyPriceOptions = useMemo(
+    () => getEmergencyPriceOptions(formState.serviceCategory),
+    [formState.serviceCategory],
+  );
   const hasSmartMatchPrefill = Boolean(
     initialApproximateLocation?.trim() ||
       initialBudgetTag?.trim() ||
@@ -444,11 +453,6 @@ export function RequestForm({
     });
     setSubmittedRequest(null);
     setSubmitError(null);
-  }
-
-  function handleEmergencyPriceAdjustment(delta: -10 | 10 | 50) {
-    const currentPrice = formState.offerAmount || suggestedEmergencyPrice;
-    updateField("offerAmount", String(adjustOfferedPrice(currentPrice, delta)));
   }
 
   function handleUseApproximateLocation() {
@@ -847,31 +851,39 @@ export function RequestForm({
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <Button
-                    className="min-h-11 px-2"
-                    onClick={() => handleEmergencyPriceAdjustment(-10)}
-                    type="button"
-                    variant="secondary"
-                  >
-                    -10 TL
-                  </Button>
-                  <Button
-                    className="min-h-11 px-2"
-                    onClick={() => handleEmergencyPriceAdjustment(10)}
-                    type="button"
-                    variant="secondary"
-                  >
-                    +10 TL
-                  </Button>
-                  <Button
-                    className="min-h-11 px-2"
-                    onClick={() => handleEmergencyPriceAdjustment(50)}
-                    type="button"
-                    variant="secondary"
-                  >
-                    +50 TL
-                  </Button>
+                <div className="mt-4 rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs font-bold uppercase text-[var(--muted)]">
+                      Kategori aralığı
+                    </p>
+                    <p className="text-xs font-bold text-[var(--brand-navy)]">
+                      {formatPrice(emergencyPriceRange.minimumPrice)} - {formatPrice(emergencyPriceRange.maximumPrice)}
+                    </p>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {emergencyPriceOptions.map((option) => {
+                      const isSelected =
+                        parsePriceValue(formState.offerAmount || suggestedEmergencyPrice) ===
+                        option.value;
+
+                      return (
+                        <button
+                          aria-pressed={isSelected}
+                          className={cn(
+                            "min-h-11 rounded-md border px-3 text-sm font-bold transition-all",
+                            isSelected
+                              ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.14)]"
+                              : "border-[rgba(13,20,36,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
+                          )}
+                          key={option.value}
+                          onClick={() => updateField("offerAmount", String(option.value))}
+                          type="button"
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <FieldError id="offerAmount-error" message={errors.offerAmount} />
               </div>
@@ -1142,7 +1154,7 @@ export function RequestForm({
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
             {isEmergencyFlow
-              ? "Kod, usta ve müşteri aynı yerdeyken karşılaştırılır; ödeme tamamlandı sayılmaz."
+              ? "Doğrulama, usta ve müşteri aynı yerdeyken güvenli başlangıç için kullanılır; ödeme tamamlandı sayılmaz."
               : "Şifre talep edilmez; bilgiler yalnızca talep eşleşmesi için kullanılır."}
           </p>
           <Button className="w-full sm:w-fit" disabled={isSubmitting} type="submit">

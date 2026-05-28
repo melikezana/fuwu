@@ -10,6 +10,7 @@ import {
   SERVICE_REQUEST_STATUSES,
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
+import { normalizeServiceValue } from "@/lib/constants/services";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
@@ -39,6 +40,8 @@ type LookupTable = "service_categories" | "districts";
 
 type LookupRecord = {
   id?: unknown;
+  name?: unknown;
+  slug?: unknown;
 };
 
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
@@ -194,24 +197,86 @@ async function findLookupId(
   table: LookupTable,
   displayName: string,
 ): Promise<string | null> {
-  if (!displayName.trim()) {
+  const requestedName = displayName.trim();
+
+  if (!requestedName) {
     return null;
   }
 
   const { data, error } = await supabase
     .from(table)
-    .select("id")
-    .ilike("name", displayName.trim())
-    .limit(1)
-    .maybeSingle();
+    .select("id, name, slug")
+    .eq("is_active", true);
 
   if (error) {
     warnServiceRequestError(`Service request ${table} lookup failed.`, error);
     return null;
   }
 
-  const record = data as LookupRecord | null;
-  return typeof record?.id === "string" ? record.id : null;
+  const requestedValue = normalizeServiceValue(requestedName);
+  const matchingRecord = ((data ?? []) as LookupRecord[]).find((record) => {
+    if (typeof record.id !== "string") {
+      return false;
+    }
+
+    const name = typeof record.name === "string" ? record.name : "";
+    const slug = typeof record.slug === "string" ? record.slug : "";
+    const normalizedName = normalizeServiceValue(name);
+    const normalizedSlug = normalizeServiceValue(slug);
+
+    if (table === "districts") {
+      return normalizedName === requestedValue || normalizedSlug === requestedValue;
+    }
+
+    return (
+      normalizedName === requestedValue ||
+      normalizedSlug === requestedValue ||
+      normalizedName.includes(requestedValue) ||
+      requestedValue.includes(normalizedName)
+    );
+  });
+
+  return typeof matchingRecord?.id === "string" ? matchingRecord.id : null;
+}
+
+async function countEligibleEmergencyProviders(
+  supabase: SupabaseClient<Database>,
+  categoryId: string,
+  districtId: string,
+) {
+  const baseQuery = supabase
+    .from("providers")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", categoryId)
+    .eq("is_active", true)
+    .eq("is_approved", true);
+  const { count: exactDistrictCount, error: exactDistrictError } = await baseQuery.eq(
+    "district_id",
+    districtId,
+  );
+
+  if (exactDistrictError) {
+    warnServiceRequestError("Eligible emergency provider exact count failed.", exactDistrictError);
+    return 0;
+  }
+
+  if (exactDistrictCount && exactDistrictCount > 0) {
+    return exactDistrictCount;
+  }
+
+  const { count: sameCategoryCount, error: sameCategoryError } = await supabase
+    .from("providers")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", categoryId)
+    .eq("is_active", true)
+    .eq("is_approved", true);
+
+  if (sameCategoryError) {
+    warnServiceRequestError("Eligible emergency provider fallback count failed.", sameCategoryError);
+    return 0;
+  }
+
+  return sameCategoryCount ?? 0;
 }
 
 async function buildServiceRequestInsert(
@@ -252,7 +317,7 @@ async function buildServiceRequestInsert(
       ? createEmergencyMatchRequest({
           approximateLocation: data.approximateLocation,
           budgetTag: "acil-hizmet",
-          confirmationCode: generateJobConfirmationCode(),
+          confirmationCode: null,
           district: data.district,
           notes: data.shortDescription,
           offerAmount: data.offerAmount,
@@ -365,14 +430,25 @@ export async function createServiceRequest(
 
   const record = insertedRequest as LookupRecord | null;
   const requestCode = createLiveRequestCode(record?.id);
+  const eligibleProviderCount =
+    insertPayload.urgency_type === "emergency"
+      ? await countEligibleEmergencyProviders(
+          supabase,
+          insertPayload.category_id,
+          insertPayload.district_id,
+        )
+      : undefined;
 
   await notifyServiceRequestCreated({
+    eligibleProviderCount,
     requestCode,
     requestId: typeof record?.id === "string" ? record.id : null,
   });
 
   if (insertPayload.urgency_type === "emergency") {
     await notifyEmergencyRequestDispatched({
+      eligibleProviderCount,
+      notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
       requestCode,
       requestId: typeof record?.id === "string" ? record.id : null,
     });
@@ -384,7 +460,9 @@ export async function createServiceRequest(
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
     notificationMessage:
       insertPayload.urgency_type === "emergency"
-        ? "Uygun ustalara bildirim gönderildi."
+        ? eligibleProviderCount && eligibleProviderCount > 0
+          ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
+          : "Uygun ustalara bildirim gönderildi."
         : null,
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
@@ -540,8 +618,11 @@ export async function assignProviderToEmergencyRequest(
   return true;
 }
 
-export async function getProviderAssignedRequests(providerId: string) {
-  const supabase = createServiceRequestClient();
+export async function getProviderAssignedRequests(
+  providerId: string,
+  supabaseClient?: SupabaseClient<Database>,
+) {
+  const supabase = supabaseClient ?? createServiceRequestClient();
 
   if (!supabase) {
     return [];
@@ -706,6 +787,7 @@ export async function acceptEmergencyRequest(
     accepted_at: acceptedAt,
     accepted_provider_id: providerId,
     assigned_provider_id: providerId,
+    confirmation_code: generateJobConfirmationCode(),
     emergency_status: SERVICE_REQUEST_STATUSES.accepted,
     estimated_arrival_text: calculateEstimatedArrivalText({
       acceptedAt,
@@ -737,9 +819,10 @@ export async function acceptEmergencyRequest(
 export async function updateProviderAssignedRequestStatus(
   requestId: string,
   providerId: string,
-  status: "accepted" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal"
+  status: "accepted" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal",
+  supabaseClient?: SupabaseClient<Database>,
 ) {
-  const supabase = createServiceRequestClient();
+  const supabase = supabaseClient ?? createServiceRequestClient();
 
   if (!supabase) {
     return false;

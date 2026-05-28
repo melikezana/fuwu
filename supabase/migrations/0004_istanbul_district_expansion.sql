@@ -1,0 +1,50 @@
+-- Full Istanbul district support for request matching and provider filters.
+-- Data-only and non-destructive: existing rows are updated by slug.
+
+insert into public.districts (name, slug, city, is_active)
+values
+  ('Adalar', 'adalar', 'Istanbul', true),
+  ('Arnavutköy', 'arnavutkoy', 'Istanbul', true),
+  ('Ataşehir', 'atasehir', 'Istanbul', true),
+  ('Avcılar', 'avcilar', 'Istanbul', true),
+  ('Bağcılar', 'bagcilar', 'Istanbul', true),
+  ('Bahçelievler', 'bahcelievler', 'Istanbul', true),
+  ('Bakırköy', 'bakirkoy', 'Istanbul', true),
+  ('Başakşehir', 'basaksehir', 'Istanbul', true),
+  ('Bayrampaşa', 'bayrampasa', 'Istanbul', true),
+  ('Beşiktaş', 'besiktas', 'Istanbul', true),
+  ('Beykoz', 'beykoz', 'Istanbul', true),
+  ('Beylikdüzü', 'beylikduzu', 'Istanbul', true),
+  ('Beyoğlu', 'beyoglu', 'Istanbul', true),
+  ('Büyükçekmece', 'buyukcekmece', 'Istanbul', true),
+  ('Çatalca', 'catalca', 'Istanbul', true),
+  ('Çekmeköy', 'cekmekoy', 'Istanbul', true),
+  ('Esenler', 'esenler', 'Istanbul', true),
+  ('Esenyurt', 'esenyurt', 'Istanbul', true),
+  ('Eyüpsultan', 'eyupsultan', 'Istanbul', true),
+  ('Fatih', 'fatih', 'Istanbul', true),
+  ('Gaziosmanpaşa', 'gaziosmanpasa', 'Istanbul', true),
+  ('Güngören', 'gungoren', 'Istanbul', true),
+  ('Kadıköy', 'kadikoy', 'Istanbul', true),
+  ('Kağıthane', 'kagithane', 'Istanbul', true),
+  ('Kartal', 'kartal', 'Istanbul', true),
+  ('Küçükçekmece', 'kucukcekmece', 'Istanbul', true),
+  ('Maltepe', 'maltepe', 'Istanbul', true),
+  ('Pendik', 'pendik', 'Istanbul', true),
+  ('Sancaktepe', 'sancaktepe', 'Istanbul', true),
+  ('Sarıyer', 'sariyer', 'Istanbul', true),
+  ('Silivri', 'silivri', 'Istanbul', true),
+  ('Sultanbeyli', 'sultanbeyli', 'Istanbul', true),
+  ('Sultangazi', 'sultangazi', 'Istanbul', true),
+  ('Şile', 'sile', 'Istanbul', true),
+  ('Şişli', 'sisli', 'Istanbul', true),
+  ('Tuzla', 'tuzla', 'Istanbul', true),
+  ('Ümraniye', 'umraniye', 'Istanbul', true),
+  ('Üsküdar', 'uskudar', 'Istanbul', true),
+  ('Zeytinburnu', 'zeytinburnu', 'Istanbul', true)
+on conflict (slug) do update
+set
+  name = excluded.name,
+  city = excluded.city,
+  is_active = excluded.is_active,
+  updated_at = timezone('utc', now());

@@ -427,9 +427,9 @@ function HowItWorksSection() {
       label: "Eşleşme",
     },
     {
-      title: "Kodla işi başlat",
-      description: "Ustayla aynı kodu karşılaştırıp güvenle başla.",
-      label: "Kod",
+      title: "Ustan gelsin",
+      description: "Doğrulama ile güvenli başlangıç yap.",
+      label: "Güvenli başlangıç",
     },
   ];
 

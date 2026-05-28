@@ -299,7 +299,7 @@ export function SmartMatchSection({
               <input name="match_budget" type="hidden" value="acil-hizmet" />
               <input name="match_time" type="hidden" value="bugun" />
               <p className="rounded-md bg-white px-4 py-3 text-sm font-semibold leading-6 text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                Fiyatı -10 TL, +10 TL veya +50 TL ile sonraki adımda ayarlarsın.
+                Fiyat aralığı kategoriye göre hazırlanır; sonraki adımda net teklif seçilir.
               </p>
               <Button className="h-12 min-h-12 w-full whitespace-nowrap" type="submit">
                 Acil Usta Çağır

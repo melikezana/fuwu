@@ -1,288 +1,429 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import {
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  ShieldCheck,
+  WalletCards,
+  Zap,
+} from "lucide-react";
+import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
-import { minimumRatingOptions } from "@/lib/constants/providers";
-import { useI18n } from "@/lib/i18n";
+import { providerDistricts } from "@/lib/constants/providers";
+import { services, type Service } from "@/lib/constants/services";
+import { cn } from "@/lib/utils";
+import { getCurrentUser } from "@/services/auth";
+import {
+  calculateSuggestedPrice,
+  getEmergencyPriceOptions,
+  getEmergencyPriceRange,
+} from "@/services/matching";
+import {
+  PAYMENT_PREFERENCES,
+  getPaymentPreferenceLabel,
+  type ServiceRequestPaymentPreference,
+} from "@/services/payments";
+import { createEmergencyRequest, type ServiceRequestSubmitResult } from "@/services/requests";
 import type { ProviderFilterOptions } from "@/services/providers";
 
 type HomeHeroFiltersProps = {
   filterOptions: ProviderFilterOptions;
 };
 
-const heroServiceFilterOptions = [
-  "Tesisat",
-  "Elektrik",
-  "Temizlik",
-  "Halı Yıkama",
-  "Klima & Beyaz Eşya",
-  "Mobilya Montaj",
-  "Boya Badana",
-  "Nakliye Yardımı",
+type PaymentOption = {
+  description: string;
+  label: string;
+  value: ServiceRequestPaymentPreference;
+};
+
+const emergencyServiceIds = [
+  "plumbing",
+  "electrical",
+  "cleaning",
+  "pool",
+  "garden",
+  "climate-appliance-service",
+] as const;
+
+const paymentOptions: PaymentOption[] = [
+  {
+    description: "Usta geldiğinde öde",
+    label: "Nakit",
+    value: PAYMENT_PREFERENCES.cash,
+  },
+  {
+    description: "Usta kabul edince paylaşılır",
+    label: "IBAN",
+    value: PAYMENT_PREFERENCES.iban,
+  },
 ];
 
-const fieldBaseClassName =
-  "mt-1.5 h-12 w-full min-w-0 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-all placeholder:text-[#6B7280] focus:border-[var(--brand-orange)] focus:bg-white focus:ring-4 focus:ring-[rgba(255,138,0,0.15)] hover:border-[#D1D5DB]";
+function getEmergencyServices() {
+  const selectedServices = emergencyServiceIds
+    .map((id) => services.find((service) => service.id === id))
+    .filter((service): service is Service => Boolean(service));
 
-const selectClassName = `${fieldBaseClassName} cursor-pointer select-none overflow-hidden text-ellipsis pr-10 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat`;
+  return selectedServices.length ? selectedServices : services.slice(0, 6);
+}
 
-function HeroField({
-  children,
-  label,
+function formatPrice(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "Teklif seç";
+  }
+
+  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value)} TL`;
+}
+
+function buildRequestHref({
+  district,
+  offerAmount,
+  paymentPreference,
+  service,
 }: {
-  children: ReactNode;
-  label: string;
+  district: string;
+  offerAmount: number;
+  paymentPreference: ServiceRequestPaymentPreference;
+  service: Service;
 }) {
-  return (
-    <label className="block min-w-0 cursor-default">
-      <span className="block cursor-default select-none text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280] ml-1">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
+  const params = new URLSearchParams({
+    budget: "acil-hizmet",
+    district,
+    offer_amount: String(offerAmount),
+    payment_preference: paymentPreference,
+    service: service.title,
+    time: "bugun",
+  });
+
+  return `${appRoutes.request}?${params.toString()}`;
 }
 
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
-  const { t } = useI18n();
   const router = useRouter();
-  const serviceFilterOptions = Array.from(
-    new Set([...heroServiceFilterOptions, ...filterOptions.categories]),
+  const emergencyServices = useMemo(getEmergencyServices, []);
+  const districtOptions = useMemo(
+    () =>
+      Array.from(new Set([...providerDistricts, ...filterOptions.districts])).sort(
+        (firstDistrict, secondDistrict) => firstDistrict.localeCompare(secondDistrict, "tr"),
+      ),
+    [filterOptions.districts],
   );
-
-  const [budget, setBudget] = useState("");
-  const [category, setCategory] = useState("");
-  const [offeredPrice, setOfferedPrice] = useState<number>(500);
+  const [selectedServiceId, setSelectedServiceId] = useState(
+    emergencyServices[0]?.id ?? services[0]?.id ?? "",
+  );
+  const selectedService =
+    emergencyServices.find((service) => service.id === selectedServiceId) ??
+    emergencyServices[0] ??
+    services[0];
+  const [district, setDistrict] = useState("");
+  const [offeredPrice, setOfferedPrice] = useState(() =>
+    calculateSuggestedPrice({
+      budgetTag: "acil-hizmet",
+      service: selectedService?.title,
+    }),
+  );
+  const [paymentPreference, setPaymentPreference] =
+    useState<ServiceRequestPaymentPreference>(PAYMENT_PREFERENCES.cash);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emergencyResult, setEmergencyResult] = useState<{
-    requestCode: string;
-    confirmationCode?: string | null;
-  } | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedRequest, setSubmittedRequest] =
+    useState<ServiceRequestSubmitResult | null>(null);
+  const priceRange = getEmergencyPriceRange(selectedService?.title);
+  const priceOptions = getEmergencyPriceOptions(selectedService?.title);
+  const requestHref = selectedService
+    ? buildRequestHref({
+        district,
+        offerAmount: offeredPrice || priceRange.suggestedPrice,
+        paymentPreference,
+        service: selectedService,
+      })
+    : appRoutes.request;
 
   useEffect(() => {
-    if (budget === "acil" && category) {
-      import("@/services/requests/emergency").then(({ calculateSuggestedPrice }) => {
-        calculateSuggestedPrice(category).then(setOfferedPrice);
-      });
-    }
-  }, [budget, category]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const district = formData.get("district") as string;
-    
-    if (budget === "acil") {
-      setIsSubmitting(true);
-      try {
-        const { createEmergencyMatchRequest } = await import("@/services/requests/emergency");
-        const paymentPreference = formData.get("paymentPreference") as string;
-        
-        const result = await createEmergencyMatchRequest({
-          serviceCategory: category || "Genel Hizmet",
-          district: district || "Bilinmiyor",
-          fullAddress: district || "Bilinmiyor",
-          urgencyLevel: "acil",
-          preferredDate: "Hemen",
-          preferredTimeRange: "Acil",
-          fullName: "Fuwu Müşterisi",
-          phoneNumber: "",
-          shortDescription: `Acil Hizmet Talebi`,
-          urgencyType: "emergency",
-          budgetTag: "acil",
-          offeredPrice: offeredPrice,
-          paymentPreference: paymentPreference || "nakit",
-          approximateLocation: district || "Bilinmiyor",
-        });
-        
-        setEmergencyResult(result);
-      } catch (error) {
-        console.error("Acil talep oluşturulamadı", error);
-        alert("Talep oluşturulurken bir hata oluştu.");
-      } finally {
-        setIsSubmitting(false);
-      }
+    if (!selectedService) {
       return;
     }
 
-    // Normal Flow
-    const params = new URLSearchParams();
-    for (const [key, value] of formData.entries()) {
-      if (typeof value === "string" && value.trim() !== "") {
-        params.set(key, value.trim());
-      }
+    const nextPrice = calculateSuggestedPrice({
+      budgetTag: "acil-hizmet",
+      district,
+      service: selectedService.title,
+    });
+
+    setOfferedPrice(nextPrice || priceRange.suggestedPrice);
+  }, [district, priceRange.suggestedPrice, selectedService]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitError(null);
+    setSubmittedRequest(null);
+
+    if (!selectedService || !district) {
+      setSubmitError("Hizmet ve ilçe seçerek devam et.");
+      return;
     }
 
-    const queryString = params.toString();
-    router.push(queryString ? `${appRoutes.providers}?${queryString}` : appRoutes.providers);
-  };
+    setIsSubmitting(true);
 
-  if (emergencyResult) {
+    try {
+      const user = await getCurrentUser();
+
+      if (!user) {
+        router.push(requestHref);
+        return;
+      }
+
+      const result = await createEmergencyRequest(
+        {
+          approximateLocation: district,
+          budgetTag: "acil-hizmet",
+          district,
+          fullAddress: district,
+          fullName: "",
+          offerAmount: String(offeredPrice || priceRange.suggestedPrice),
+          offeredPrice: offeredPrice || priceRange.suggestedPrice,
+          paymentPreference,
+          phoneNumber: "",
+          preferredDate: "",
+          preferredTimeRange: "",
+          serviceCategory: selectedService.title,
+          shortDescription: `Acil ${selectedService.title} talebi`,
+          urgencyLevel: "Acil",
+          urgencyType: "emergency",
+        },
+        user.id,
+      );
+
+      setSubmittedRequest(result);
+    } catch {
+      setSubmitError("Acil çağrı şu anda başlatılamadı. Seçimlerin korunarak devam edebilirsin.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (submittedRequest) {
     return (
-      <div className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-xl bg-white p-6 shadow-[0_20px_60px_rgba(13,20,36,0.08)] ring-1 ring-[#F3F4F6] text-center lg:mt-8">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F0FDF4] text-[#166534] mb-4">
-          <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 className="text-2xl font-bold text-[var(--brand-navy)]">Uygun Ustalara Bildirim Gönderildi!</h3>
-        <p className="mt-2 text-sm font-medium text-[#6B7280]">Birazdan usta eşleşmesi gerçekleşecek. Lütfen bekleyin.</p>
-        
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 text-left">
-          <div className="rounded-xl bg-[#F9FAFB] p-4 ring-1 ring-[#F3F4F6]">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#6B7280]">Tahmini Varış Süresi</p>
-            <p className="mt-1 text-lg font-bold text-[var(--brand-orange-dark)]">15-20 dk</p>
+      <div className="mt-6 w-full overflow-hidden rounded-xl bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6 lg:mt-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-2 rounded-md bg-[var(--trust-green-soft)] px-3 py-1.5 text-xs font-bold text-[var(--trust-green)]">
+              <CheckCircle2 className="size-4" aria-hidden />
+              Uygun ustalara bildirim gönderildi
+            </span>
+            <h2 className="mt-4 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
+              Ustan gelsin
+            </h2>
+            <p className="mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
+              İlk uygun usta kabul ettiğinde varış bilgisi ve güvenli başlangıç doğrulaması aynı akışta görünür.
+            </p>
           </div>
-          <div className="rounded-xl bg-[#F9FAFB] p-4 ring-1 ring-[#F3F4F6]">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#6B7280]">Karşılıklı Doğrulama Kodu</p>
-            <p className="mt-1 text-lg font-bold text-[var(--brand-navy)] tracking-widest">{emergencyResult.confirmationCode}</p>
-          </div>
+          <span className="w-fit rounded-md bg-[#F9FAFB] px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            {submittedRequest.requestCode}
+          </span>
         </div>
-        <div className="mt-6 rounded-lg bg-[var(--brand-orange-soft)] p-3 text-xs font-medium text-[var(--brand-orange-dark)]">
-          İş güvenliği için doğrulama kodunu ustaya iş başlangıcında iletin. IBAN bilginiz gizli tutulmaktadır.
-        </div>
+
+        <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Tahmini varış", submittedRequest.estimatedArrivalText ?? "Usta kabul edince netleşir"],
+            ["Teklif", formatPrice(submittedRequest.offeredPrice ?? offeredPrice)],
+            ["Ödeme", getPaymentPreferenceLabel(submittedRequest.paymentPreference ?? paymentPreference)],
+            ["Başlangıç", "Doğrulama ile güvenli"],
+          ].map(([label, value]) => (
+            <div
+              className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]"
+              key={label}
+            >
+              <dt className="text-[0.68rem] font-bold uppercase text-[var(--muted)]">
+                {label}
+              </dt>
+              <dd className="mt-1 text-sm font-semibold leading-5 text-[var(--brand-navy)]">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     );
   }
 
   return (
     <form
-      action={appRoutes.providers}
-      className="mt-6 w-full max-w-full cursor-default overflow-hidden rounded-xl bg-white p-4 shadow-[0_20px_60px_rgba(13,20,36,0.08)] ring-1 ring-[#F3F4F6] sm:p-6 lg:mt-8"
+      className="mt-6 w-full overflow-hidden rounded-xl bg-white p-4 shadow-[0_24px_70px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:mt-8"
       onSubmit={handleSubmit}
     >
-      <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_auto] lg:items-end">
-        <div className="min-w-0">
-          <HeroField label={t("filters.service")}>
-            <select 
-              className={selectClassName} 
-              value={category} 
-              onChange={(e) => setCategory(e.target.value)} 
-              name="category" 
-              required
-            >
-              <option value="">{t("filters.allServices")}</option>
-              {serviceFilterOptions.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </HeroField>
+      <div className="flex flex-col gap-2 border-b border-[rgba(13,20,36,0.08)] pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+            Acil eşleşme
+          </p>
+          <h2 className="mt-1 text-xl font-semibold leading-tight text-[var(--brand-navy)]">
+            Hizmeti seç, ilçeyi belirle, çağrıyı başlat.
+          </h2>
         </div>
-
-        <div className="min-w-0">
-          <HeroField label={t("filters.district")}>
-            <select className={selectClassName} defaultValue="" name="district" required>
-              <option value="">{t("filters.allDistricts")}</option>
-              {filterOptions.districts.map((district) => (
-                <option key={district} value={district}>
-                  {district}
-                </option>
-              ))}
-            </select>
-          </HeroField>
-        </div>
-
-        {budget === "acil" ? (
-          <>
-            <div className="min-w-0">
-              <HeroField label="Teklif Tutarı (₺)">
-                <div className="mt-1.5 flex h-12 items-center justify-between rounded-lg border border-[#E5E7EB] bg-white px-2 shadow-sm">
-                  <button 
-                    type="button" 
-                    onClick={() => setOfferedPrice(p => Math.max(0, p - 10))}
-                    className="flex h-8 w-12 items-center justify-center rounded-md bg-[#F3F4F6] text-sm font-bold text-[#4B5563] hover:bg-[#E5E7EB] active:bg-[#D1D5DB]"
-                  >-10</button>
-                  <span className="text-lg font-bold text-[var(--brand-navy)]">{offeredPrice} ₺</span>
-                  <div className="flex gap-1">
-                    <button 
-                      type="button" 
-                      onClick={() => setOfferedPrice(p => p + 10)}
-                      className="flex h-8 w-12 items-center justify-center rounded-md bg-[#F0FDF4] text-sm font-bold text-[#166534] hover:bg-[#DCFCE7] active:bg-[#BBF7D0]"
-                    >+10</button>
-                    <button 
-                      type="button" 
-                      onClick={() => setOfferedPrice(p => p + 50)}
-                      className="flex h-8 w-12 items-center justify-center rounded-md bg-[#F0FDF4] text-sm font-bold text-[#166534] hover:bg-[#DCFCE7] active:bg-[#BBF7D0]"
-                    >+50</button>
-                  </div>
-                </div>
-              </HeroField>
-            </div>
-            <div className="min-w-0">
-              <HeroField label="Ödeme Tercihi">
-                <select className={selectClassName} defaultValue="nakit" name="paymentPreference">
-                  <option value="nakit">Nakit</option>
-                  <option value="iban">IBAN ile Ödeme</option>
-                </select>
-              </HeroField>
-            </div>
-          </>
-        ) : (
-          <div className="min-w-0">
-            <HeroField label={t("filters.rating")}>
-              <select className={selectClassName} defaultValue="" name="rating">
-                <option value="">{t("filters.allRatings")}</option>
-                {minimumRatingOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {t("filters.ratingAtLeast", { rating: option.value.replace(".", ",") })}
-                  </option>
-                ))}
-              </select>
-            </HeroField>
-          </div>
-        )}
-
-        <Button 
-          className={`h-12 min-h-[3rem] w-full min-w-[140px] rounded-lg px-6 font-bold text-white shadow-[0_8px_20px_rgba(255,138,0,0.25)] transition-all hover:shadow-[0_12px_24px_rgba(255,138,0,0.35)] lg:col-span-1 ${budget === "acil" ? "bg-[#DC2626] hover:bg-[#B91C1C] shadow-[0_8px_20px_rgba(220,38,38,0.25)] hover:shadow-[0_12px_24px_rgba(220,38,38,0.35)]" : "bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-dark)]"} ${budget === "acil" ? "sm:col-span-2 lg:col-span-full" : ""}`}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "İşleniyor..." : (budget === "acil" ? "Acil Usta Çağır" : t("cta.findProvider"))}
-        </Button>
+        <span className="inline-flex w-fit items-center gap-2 rounded-md bg-[#F9FAFB] px-3 py-2 text-xs font-bold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.06)]">
+          <Clock3 className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
+          TAG tarzı hızlı akış
+        </span>
       </div>
 
-      <div className="mt-5 pt-5 border-t border-[#F3F4F6]">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <span className="block cursor-default select-none text-[0.7rem] font-bold uppercase tracking-wide text-[#6B7280]">
-            Bütçe Tercihi
-          </span>
-          <div className="flex flex-wrap gap-2">
-            <label className="cursor-pointer">
-              <input type="radio" name="budget" value="" checked={budget === ""} onChange={(e) => setBudget(e.target.value)} className="peer sr-only" />
-              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
-                Tümü
-              </span>
-            </label>
-            <label className="cursor-pointer">
-              <input type="radio" name="budget" value="ekonomik" checked={budget === "ekonomik"} onChange={(e) => setBudget(e.target.value)} className="peer sr-only" />
-              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
-                Ekonomik
-              </span>
-            </label>
-            <label className="cursor-pointer">
-              <input type="radio" name="budget" value="standart" checked={budget === "standart"} onChange={(e) => setBudget(e.target.value)} className="peer sr-only" />
-              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
-                Standart
-              </span>
-            </label>
-            <label className="cursor-pointer">
-              <input type="radio" name="budget" value="premium" checked={budget === "premium"} onChange={(e) => setBudget(e.target.value)} className="peer sr-only" />
-              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[var(--brand-orange)] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[var(--brand-orange-dark)] peer-checked:shadow-[0_4px_12px_rgba(255,138,0,0.25)]">
-                Premium
-              </span>
-            </label>
-            <label className="cursor-pointer">
-              <input type="radio" name="budget" value="acil" checked={budget === "acil"} onChange={(e) => setBudget(e.target.value)} className="peer sr-only" />
-              <span className="inline-flex h-9 items-center justify-center rounded-full bg-[#F3F4F6] px-4 text-xs font-bold text-[#4B5563] transition-all peer-checked:bg-[#DC2626] peer-checked:text-white hover:bg-[#E5E7EB] peer-checked:hover:bg-[#B91C1C] peer-checked:shadow-[0_4px_12px_rgba(220,38,38,0.25)]">
-                Acil Hizmet
-              </span>
-            </label>
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1.35fr_0.9fr_1fr_0.9fr]">
+        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase text-[var(--muted)]">Hizmet</span>
+            <Zap className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
           </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {emergencyServices.map((service) => {
+              const isSelected = service.id === selectedServiceId;
+
+              return (
+                <button
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "group flex min-h-16 min-w-0 items-center gap-2 rounded-lg border bg-white p-2.5 text-left transition-all",
+                    isSelected
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_30px_rgba(255,138,0,0.16)]"
+                      : "border-[rgba(13,20,36,0.08)] hover:border-[rgba(255,138,0,0.5)] hover:bg-[#fffaf3]",
+                  )}
+                  key={service.id}
+                  onClick={() => setSelectedServiceId(service.id)}
+                  type="button"
+                >
+                  <span
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-md transition-colors",
+                      isSelected
+                        ? "bg-[var(--brand-orange)] text-white"
+                        : "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] group-hover:bg-[var(--brand-orange)] group-hover:text-white",
+                    )}
+                  >
+                    <ServiceIcon className="size-4" name={service.iconName} />
+                  </span>
+                  <span className="min-w-0 text-sm font-semibold leading-4 text-[var(--brand-navy)]">
+                    {service.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <label className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+          <span className="flex items-center justify-between gap-3 text-xs font-bold uppercase text-[var(--muted)]">
+            İlçe
+            <MapPin className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
+          </span>
+          <select
+            className="mt-3 h-12 w-full rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+            onChange={(event) => setDistrict(event.target.value)}
+            required
+            value={district}
+          >
+            <option value="">İlçe seç</option>
+            {districtOptions.map((districtOption) => (
+              <option key={districtOption} value={districtOption}>
+                {districtOption}
+              </option>
+            ))}
+          </select>
+          <span className="mt-2 block text-xs font-medium text-[var(--muted)]">
+            İstanbul geneli desteklenir.
+          </span>
+        </label>
+
+        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase text-[var(--muted)]">Teklif</span>
+            <span className="text-xs font-semibold text-[var(--brand-navy)]">
+              {formatPrice(priceRange.minimumPrice)} - {formatPrice(priceRange.maximumPrice)}
+            </span>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {priceOptions.map((option) => {
+              const isSelected = option.value === offeredPrice;
+
+              return (
+                <button
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "min-h-10 rounded-md border px-2 text-sm font-semibold transition-all",
+                    isSelected
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
+                      : "border-[rgba(13,20,36,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
+                  )}
+                  key={option.value}
+                  onClick={() => setOfferedPrice(option.value)}
+                  type="button"
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold uppercase text-[var(--muted)]">Ödeme</span>
+            <WalletCards className="size-4 text-[var(--brand-orange-dark)]" aria-hidden />
+          </div>
+          <div className="mt-3 grid gap-2">
+            {paymentOptions.map((option) => {
+              const isSelected = option.value === paymentPreference;
+
+              return (
+                <button
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "rounded-md border px-3 py-2 text-left transition-all",
+                    isSelected
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_10px_24px_rgba(255,138,0,0.12)]"
+                      : "border-[rgba(13,20,36,0.08)] bg-white hover:border-[var(--brand-orange)]",
+                  )}
+                  key={option.value}
+                  onClick={() => setPaymentPreference(option.value)}
+                  type="button"
+                >
+                  <span className="block text-sm font-semibold text-[var(--brand-navy)]">
+                    {option.label}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-medium leading-4 text-[var(--muted)]">
+                    {option.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+
+      {submitError ? (
+        <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          {submitError}{" "}
+          <a className="font-bold underline underline-offset-2" href={requestHref}>
+            Güvenli akışla devam et
+          </a>
+        </p>
+      ) : null}
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="flex min-w-0 items-start gap-3 rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]">
+          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[var(--trust-green)]" aria-hidden />
+          <p className="text-sm font-medium leading-6 text-[var(--muted)]">
+            Usta kabul edince geçici doğrulama üretilir. Nakit veya IBAN tercihin kayıt altında kalır.
+          </p>
         </div>
+        <Button
+          className="h-12 min-h-12 w-full px-7 text-base shadow-[0_16px_34px_rgba(255,138,0,0.28)] lg:w-fit"
+          disabled={isSubmitting || !district}
+          type="submit"
+        >
+          {isSubmitting ? "Çağrı açılıyor..." : "Acil Usta Çağır"}
+        </Button>
       </div>
     </form>
   );

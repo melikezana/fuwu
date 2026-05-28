@@ -50,7 +50,7 @@ export type InstantMatchInput = MatchInput;
 
 export type EmergencyMatchRequestInput = InstantMatchInput & {
   approximateLocation?: string;
-  confirmationCode: string;
+  confirmationCode?: string | null;
   offerAmount?: number | string;
   paymentPreference?: string;
 };
@@ -58,7 +58,7 @@ export type EmergencyMatchRequestInput = InstantMatchInput & {
 export type EmergencyMatchRequest = {
   approximateLocation: string | null;
   budgetTag: "acil-hizmet";
-  confirmationCode: string;
+  confirmationCode: string | null;
   estimatedArrivalText: string | null;
   offeredPrice: number | null;
   paymentPreference: ServiceRequestPaymentPreference | null;
@@ -124,24 +124,157 @@ function roundToNearestTen(value: number) {
   return Math.max(100, Math.round(value / 10) * 10);
 }
 
-const emergencyBasePrices: Array<{
+export type EmergencyPriceOption = {
+  label: string;
+  value: number;
+};
+
+export type EmergencyPriceRange = {
+  maximumPrice: number;
+  minimumPrice: number;
+  options: EmergencyPriceOption[];
+  suggestedPrice: number;
+};
+
+const defaultEmergencyPriceRange: EmergencyPriceRange = {
+  maximumPrice: 3500,
+  minimumPrice: 500,
+  options: [
+    { label: "500 TL", value: 500 },
+    { label: "1.000 TL", value: 1000 },
+    { label: "2.000 TL", value: 2000 },
+    { label: "3.500 TL+", value: 3500 },
+  ],
+  suggestedPrice: 1000,
+};
+
+const emergencyPriceRanges: Array<{
   keywords: string[];
-  price: number;
+  range: EmergencyPriceRange;
 }> = [
-  { keywords: ["tesisat", "su", "gider"], price: 900 },
-  { keywords: ["elektrik", "sigorta", "priz"], price: 850 },
-  { keywords: ["cilingir", "kilit"], price: 750 },
-  { keywords: ["temizlik"], price: 1200 },
-  { keywords: ["klima", "beyaz esya"], price: 1250 },
-  { keywords: ["montaj", "mobilya"], price: 950 },
-  { keywords: ["boya"], price: 1800 },
-  { keywords: ["hali"], price: 850 },
-  { keywords: ["nakliye", "tasima"], price: 1400 },
-  { keywords: ["bahce", "havuz"], price: 1100 },
+  {
+    keywords: ["temizlik"],
+    range: {
+      maximumPrice: 1200,
+      minimumPrice: 300,
+      options: [
+        { label: "300 TL", value: 300 },
+        { label: "500 TL", value: 500 },
+        { label: "850 TL", value: 850 },
+        { label: "1.200 TL+", value: 1200 },
+      ],
+      suggestedPrice: 500,
+    },
+  },
+  {
+    keywords: ["tesisat", "su", "gider", "faucet", "pipe"],
+    range: {
+      maximumPrice: 3500,
+      minimumPrice: 500,
+      options: [
+        { label: "500 TL", value: 500 },
+        { label: "1.000 TL", value: 1000 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "3.500 TL+", value: 3500 },
+      ],
+      suggestedPrice: 1000,
+    },
+  },
+  {
+    keywords: ["elektrik", "sigorta", "priz"],
+    range: {
+      maximumPrice: 2500,
+      minimumPrice: 400,
+      options: [
+        { label: "400 TL", value: 400 },
+        { label: "750 TL", value: 750 },
+        { label: "1.500 TL", value: 1500 },
+        { label: "2.500 TL+", value: 2500 },
+      ],
+      suggestedPrice: 750,
+    },
+  },
+  {
+    keywords: ["havuz"],
+    range: {
+      maximumPrice: 15000,
+      minimumPrice: 2000,
+      options: [
+        { label: "2.000 TL", value: 2000 },
+        { label: "5.000 TL", value: 5000 },
+        { label: "10.000 TL", value: 10000 },
+        { label: "15.000 TL+", value: 15000 },
+      ],
+      suggestedPrice: 5000,
+    },
+  },
+  {
+    keywords: ["bahce", "peyzaj", "dis mekan"],
+    range: {
+      maximumPrice: 10000,
+      minimumPrice: 1000,
+      options: [
+        { label: "1.000 TL", value: 1000 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "5.000 TL", value: 5000 },
+        { label: "10.000 TL+", value: 10000 },
+      ],
+      suggestedPrice: 2500,
+    },
+  },
+  {
+    keywords: ["klima", "beyaz esya", "servis"],
+    range: {
+      maximumPrice: 4500,
+      minimumPrice: 600,
+      options: [
+        { label: "600 TL", value: 600 },
+        { label: "1.250 TL", value: 1250 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "4.500 TL+", value: 4500 },
+      ],
+      suggestedPrice: 1250,
+    },
+  },
+  {
+    keywords: ["montaj", "mobilya", "cilingir", "kilit", "hali", "boya", "nakliye", "tasima"],
+    range: defaultEmergencyPriceRange,
+  },
 ];
 
+export function getEmergencyPriceRange(service?: string | null): EmergencyPriceRange {
+  const normalizedService = normalizeServiceValue(service ?? "");
+
+  if (!normalizedService) {
+    return defaultEmergencyPriceRange;
+  }
+
+  return (
+    emergencyPriceRanges.find((item) =>
+      item.keywords.some((keyword) => normalizedService.includes(keyword)),
+    )?.range ?? defaultEmergencyPriceRange
+  );
+}
+
+export function getEmergencyPriceOptions(service?: string | null) {
+  return getEmergencyPriceRange(service).options;
+}
+
+export function clampEmergencyPrice(
+  value: number | string | null | undefined,
+  service?: string | null,
+) {
+  const normalizedPrice = normalizePriceValue(value);
+  const range = getEmergencyPriceRange(service);
+
+  if (typeof normalizedPrice !== "number") {
+    return null;
+  }
+
+  return Math.min(range.maximumPrice, Math.max(range.minimumPrice, roundToNearestTen(normalizedPrice)));
+}
+
 export function calculateSuggestedPrice({
-  budgetTag,
   district,
   service,
 }: Pick<MatchInput, "budgetTag" | "district" | "service"> = {}) {
@@ -151,15 +284,11 @@ export function calculateSuggestedPrice({
     return 0;
   }
 
-  const matchedPrice =
-    emergencyBasePrices.find((item) =>
-      item.keywords.some((keyword) => normalizedService.includes(keyword)),
-    )?.price ?? 950;
+  const range = getEmergencyPriceRange(service);
   const districtSignal = normalizeServiceValue(district ?? "");
-  const districtAdjustment = districtSignal ? 50 : 0;
-  const emergencyAdjustment = normalizeBudgetTag(budgetTag) === "acil-hizmet" ? 150 : 0;
+  const districtAdjustment = districtSignal ? Math.min(250, Math.round(range.suggestedPrice * 0.05)) : 0;
 
-  return roundToNearestTen(matchedPrice + districtAdjustment + emergencyAdjustment);
+  return Math.min(range.maximumPrice, roundToNearestTen(range.suggestedPrice + districtAdjustment));
 }
 
 export function adjustOfferedPrice(
@@ -384,9 +513,9 @@ export function createEmergencyMatchRequest(
   return {
     approximateLocation: sanitizeText(input.approximateLocation ?? "", 220) || null,
     budgetTag: "acil-hizmet",
-    confirmationCode: input.confirmationCode,
+    confirmationCode: input.confirmationCode ?? null,
     estimatedArrivalText: calculateEstimatedArrivalText({ urgencyType }),
-    offeredPrice: (normalizePriceValue(input.offerAmount) ??
+    offeredPrice: (clampEmergencyPrice(input.offerAmount, input.service) ??
       calculateSuggestedPrice({
         budgetTag: "acil-hizmet",
         district: input.district,
