@@ -51,7 +51,25 @@ function getSearchParam(value?: string | string[]) {
   return value ?? "";
 }
 
-function LoginRequiredState() {
+function createRequestNextPath(params?: RequestSearchParams) {
+  const nextParams = new URLSearchParams();
+
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    const paramValue = getSearchParam(value);
+
+    if (paramValue.trim()) {
+      nextParams.set(key, paramValue);
+    }
+  });
+
+  const queryString = nextParams.toString();
+
+  return queryString ? `${appRoutes.request}?${queryString}` : appRoutes.request;
+}
+
+function LoginRequiredState({ nextPath }: { nextPath: string }) {
+  const loginHref = `${appRoutes.login}?next=${encodeURIComponent(nextPath)}`;
+
   return (
     <Card className="min-w-0">
       <div className="cursor-default select-none">
@@ -74,7 +92,7 @@ function LoginRequiredState() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button className="w-full sm:w-fit" href={appRoutes.login}>
+        <Button className="w-full sm:w-fit" href={loginHref}>
           Giriş Yap
         </Button>
         <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
@@ -87,6 +105,7 @@ function LoginRequiredState() {
 
 export default async function RequestPage({ searchParams }: RequestPageProps) {
   const params = await searchParams;
+  const nextPath = createRequestNextPath(params);
   const [authenticatedUserId, profile] = await Promise.all([
     getAuthenticatedServerUserId(),
     getCurrentServerUserProfile(),
@@ -143,7 +162,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             initialTimePreference={initialTimePreference}
           />
         ) : (
-          <LoginRequiredState />
+          <LoginRequiredState nextPath={nextPath} />
         )}
       </Container>
     </section>

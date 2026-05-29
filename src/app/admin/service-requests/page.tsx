@@ -388,15 +388,24 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
   const nextStatuses = normalizedRequestStatus
     ? getAllowedServiceRequestTransitions(normalizedRequestStatus)
     : [];
+  const emergencyStatusesRequiringProvider = new Set<AdminServiceRequestStatus>([
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
+  ]);
 
   return (
     <div className="flex max-w-full flex-wrap gap-2 lg:max-w-[34rem]">
       {actions.map((action) => {
         const isCurrentStatus = normalizedRequestStatus === action.status;
+        const requiresProviderBeforeTransition =
+          request.urgencyType === "emergency" &&
+          emergencyStatusesRequiringProvider.has(action.status) &&
+          !request.assignedProviderId;
         const isAllowedTransition = normalizedRequestStatus
           ? isServiceRequestTransitionAllowed(normalizedRequestStatus, action.status)
           : true;
-        const isDisabled = isCurrentStatus || !isAllowedTransition;
+        const isDisabled =
+          isCurrentStatus || !isAllowedTransition || requiresProviderBeforeTransition;
         const Icon =
           action.status === SERVICE_REQUEST_STATUSES.tamamlandi ||
           action.status === SERVICE_REQUEST_STATUSES.completed ||
@@ -418,6 +427,8 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
               title={
                 isCurrentStatus
                   ? `Talep zaten ${action.label.toLocaleLowerCase("tr")}`
+                  : requiresProviderBeforeTransition
+                    ? "Acil talebi ilerletmeden önce uygun bir usta ata"
                   : !isAllowedTransition
                     ? nextStatuses.length > 0
                       ? `Sıradaki uygun adımlar: ${nextStatuses

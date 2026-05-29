@@ -1063,9 +1063,15 @@ export async function updateAdminServiceRequestStatus(
   };
   const isEmergencyRequest = existingRequest.urgency_type === "emergency";
 
+  const emergencyStatusRequiresProvider = new Set<ServiceRequestStatus>([
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
+  ]);
+
   if (
     isEmergencyRequest &&
-    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted &&
+    emergencyStatusRequiresProvider.has(normalizedStatus) &&
     !existingRequest.assigned_provider_id
   ) {
     return createServiceRequestActionResult("service-request-invalid-transition", false);

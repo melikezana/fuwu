@@ -30,31 +30,13 @@ type LookupRecord = {
 
 type ProviderApplicationInsert =
   Database["public"]["Tables"]["provider_applications"]["Insert"];
-const demoApplicationCodePrefix = "DEMO";
 
 function createProviderApplicationClient(): SupabaseClient<Database> | null {
   return createSupabaseBrowserClient();
 }
 
-function createDemoApplicationCode() {
-  return `${demoApplicationCodePrefix}-${new Date().getFullYear()}-${Math.floor(
-    1000 + Math.random() * 9000,
-  )}`;
-}
-
 function createLiveApplicationCode() {
   return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-}
-
-function createDemoApplicationResult(profileImage?: File | null): ProviderApplicationSubmitResult {
-  return {
-    applicationCode: createDemoApplicationCode(),
-    mode: "demo",
-    profileImageStatus: "skipped",
-    profileImageMessage: profileImage
-      ? "Örnek modda profil görseli yüklenmedi."
-      : undefined,
-  };
 }
 
 function createProviderApplicationFailure(error: unknown) {
