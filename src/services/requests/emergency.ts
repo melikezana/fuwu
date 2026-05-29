@@ -1,146 +1,305 @@
 "use server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  AuthError,
+  DatabaseError,
+  handleServiceError,
+  NotFoundError,
+  ValidationError,
+} from "@/lib/errors";
+import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
+import { normalizeServiceValue } from "@/lib/constants/services";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
+import {
+  createEmergencyMatchRequest as buildEmergencyMatchRequest,
+  validateEmergencyPrice,
+} from "@/services/matching";
+import { saveEmergencyPaymentPreference } from "@/services/payments";
+import { notifyEmergencyRequestDispatched } from "@/services/notifications";
+import { createServiceSuccess } from "@/services/serviceResponse";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
-import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
-import { getProviderDirectory } from "@/services/providers";
 
+type LookupTable = "service_categories" | "districts";
+type LookupRecord = {
+  id?: unknown;
+  name?: unknown;
+  slug?: unknown;
+};
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 
-/**
- * Generates a simple 4-digit confirmation code.
- */
+const emergencyRequestSubmitErrorMessage =
+  "Acil talep şu anda oluşturulamadı. Lütfen bilgilerini kontrol edip tekrar dene.";
+
+function createRequestCode(id: unknown) {
+  if (typeof id !== "string" || !id.trim()) {
+    return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  return `FW-${id.slice(0, 8).toLocaleUpperCase("tr")}`;
+}
+
 export async function generateJobConfirmationCode(): Promise<string> {
-  return Math.floor(1000 + Math.random() * 9000).toString();
+  return `FW-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-/**
- * Calculates a base suggested price for an emergency request.
- */
 export async function calculateSuggestedPrice(category: string): Promise<number> {
-  // Mock base logic: Some services are more expensive
-  const basePrices: Record<string, number> = {
-    "Tesisat": 750,
-    "Elektrik": 600,
-    "Temizlik": 1000,
-    "Halı Yıkama": 500,
-    "Klima & Beyaz Eşya": 850,
-    "Mobilya Montaj": 600,
-    "Boya Badana": 2500,
-    "Nakliye Yardımı": 1500,
-  };
-  
-  return basePrices[category] || 500;
+  const emergencyRequest = buildEmergencyMatchRequest({
+    budgetTag: "acil-hizmet",
+    service: category,
+    timePreference: "bugun",
+  });
+
+  return emergencyRequest.offeredPrice ?? 500;
 }
 
-/**
- * Creates an emergency service request for the fast-match flow.
- */
+function parseServiceCategoryName(serviceCategory: string) {
+  const categoryParts = serviceCategory.split(" - ");
+  return categoryParts[categoryParts.length - 1]?.trim() ?? serviceCategory.trim();
+}
+
+async function findLookupId(
+  supabase: SupabaseClient<Database>,
+  table: LookupTable,
+  displayName: string,
+) {
+  const requestedName = displayName.trim();
+
+  if (!requestedName) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from(table)
+    .select("id, name, slug")
+    .eq("is_active", true);
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: `Emergency request ${table} lookup failed.`,
+      publicMessage: emergencyRequestSubmitErrorMessage,
+    });
+  }
+
+  const requestedValue = normalizeServiceValue(requestedName);
+  const record = ((data ?? []) as LookupRecord[]).find((item) => {
+    const name = typeof item.name === "string" ? item.name : "";
+    const slug = typeof item.slug === "string" ? item.slug : "";
+    const normalizedName = normalizeServiceValue(name);
+    const normalizedSlug = normalizeServiceValue(slug);
+
+    return (
+      normalizedName === requestedValue ||
+      normalizedSlug === requestedValue ||
+      (table === "service_categories" &&
+        (normalizedName.includes(requestedValue) || requestedValue.includes(normalizedName)))
+    );
+  });
+
+  return typeof record?.id === "string" ? record.id : null;
+}
+
+function getTodayDateInput() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function createEmergencyDescription(input: ServiceRequestInput, offeredPrice: number) {
+  return [
+    `Acil hizmet talebi: ${parseServiceCategoryName(input.serviceCategory)}`,
+    `Teklif tutarı: ${new Intl.NumberFormat("tr-TR", {
+      maximumFractionDigits: 0,
+    }).format(offeredPrice)} TL`,
+    input.district.trim() ? `İlçe: ${input.district.trim()}` : "",
+    input.approximateLocation?.trim()
+      ? `Yaklaşık konum: ${input.approximateLocation.trim()}`
+      : "",
+    input.shortDescription.trim(),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+async function createEmergencyInsert(
+  supabase: SupabaseClient<Database>,
+  input: ServiceRequestInput,
+  userId: string,
+): Promise<ServiceRequestInsert> {
+  const serviceName = parseServiceCategoryName(input.serviceCategory);
+  const [categoryId, districtId] = await Promise.all([
+    findLookupId(supabase, "service_categories", serviceName),
+    findLookupId(supabase, "districts", input.district),
+  ]);
+
+  if (!categoryId) {
+    throw new NotFoundError("Emergency service category lookup failed.", {
+      publicMessage: "Acil hizmet için seçtiğin kategori bulunamadı.",
+    });
+  }
+
+  if (!districtId) {
+    throw new NotFoundError("Emergency district lookup failed.", {
+      publicMessage: "Acil hizmet için seçtiğin ilçe desteklenen bölgeler arasında bulunamadı.",
+    });
+  }
+
+  const priceValidation = validateEmergencyPrice(
+    input.offerAmount ?? input.offeredPrice ?? null,
+    serviceName,
+  );
+
+  if (!priceValidation.ok || typeof priceValidation.price !== "number") {
+    throw new ValidationError("Emergency offered price is required.", {
+      publicMessage: priceValidation.message ?? "Acil hizmet için teklif tutarı zorunludur.",
+    });
+  }
+
+  const paymentPreference = saveEmergencyPaymentPreference(input.paymentPreference);
+
+  if (!paymentPreference) {
+    throw new ValidationError("Emergency payment preference is required.", {
+      publicMessage: "Acil hizmet için ödeme tercihi zorunludur.",
+    });
+  }
+
+  const confirmationCode = await generateJobConfirmationCode();
+  const emergencyRequest = buildEmergencyMatchRequest({
+    approximateLocation: input.approximateLocation,
+    budgetTag: "acil-hizmet",
+    confirmationCode,
+    district: input.district,
+    notes: input.shortDescription,
+    offerAmount: priceValidation.price,
+    paymentPreference,
+    service: serviceName,
+    timePreference: "bugun",
+  });
+  const emergencyAddress = [input.district.trim(), input.approximateLocation?.trim()]
+    .filter(Boolean)
+    .join(" - ");
+
+  return {
+    user_id: userId,
+    category_id: categoryId,
+    district_id: districtId,
+    address: input.fullAddress.trim() || emergencyAddress || "Acil hizmet konumu",
+    urgency: "urgent",
+    urgency_type: "emergency",
+    budget_tag: "acil-hizmet",
+    offered_price: priceValidation.price,
+    payment_preference: paymentPreference,
+    confirmation_code: confirmationCode,
+    estimated_arrival_text: emergencyRequest.estimatedArrivalText,
+    approximate_location: emergencyRequest.approximateLocation,
+    preferred_date: input.preferredDate.trim() || getTodayDateInput(),
+    preferred_time: null,
+    description: createEmergencyDescription(input, priceValidation.price),
+    emergency_status: SERVICE_REQUEST_STATUSES.pending,
+    status: SERVICE_REQUEST_STATUSES.pending,
+  };
+}
+
 export async function createEmergencyMatchRequest(
-  input: ServiceRequestInput
+  input: ServiceRequestInput,
 ): Promise<ServiceRequestSubmitResult> {
   const supabase = await createClient();
 
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: emergencyRequestSubmitErrorMessage,
+    });
   }
 
-  // 1. Resolve Category ID
-  const { data: categories } = await supabase
-    .from("service_categories")
-    .select("id")
-    .eq("name", input.serviceCategory)
-    .limit(1);
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  let categoryId = categories?.[0]?.id;
+  if (authError) {
+    throw handleServiceError(authError, {
+      logContext: "Emergency request auth lookup failed.",
+      publicMessage: "Acil talep oluşturmak için giriş yapmalısın.",
+    });
+  }
 
-  if (!categoryId) {
-    const { data: newCategory } = await supabase
-      .from("service_categories")
-      .insert({ 
-        name: input.serviceCategory, 
-        slug: input.serviceCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        description: input.serviceCategory 
-      })
+  if (!user) {
+    throw new AuthError("Emergency request requires an authenticated user.", {
+      publicMessage: "Acil talep oluşturmak için giriş yapmalısın.",
+    });
+  }
+
+  const insertPayload = await createEmergencyInsert(supabase, input, user.id);
+
+  if (insertPayload.category_id && insertPayload.district_id) {
+    const duplicateStatuses = [
+      SERVICE_REQUEST_STATUSES.pending,
+      SERVICE_REQUEST_STATUSES.yeni,
+      SERVICE_REQUEST_STATUSES.inceleniyor,
+      SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    ];
+    const { data: duplicateRequest, error: duplicateError } = await supabase
+      .from("service_requests")
       .select("id")
-      .single();
-    if (newCategory) categoryId = newCategory.id;
+      .eq("user_id", user.id)
+      .eq("category_id", insertPayload.category_id)
+      .eq("district_id", insertPayload.district_id)
+      .eq("urgency_type", "emergency")
+      .in("status", duplicateStatuses)
+      .maybeSingle();
+
+    if (duplicateError) {
+      throw handleServiceError(duplicateError, {
+        logContext: "Emergency request duplicate lookup failed.",
+        publicMessage: emergencyRequestSubmitErrorMessage,
+      });
+    }
+
+    if (duplicateRequest) {
+      throw new ValidationError("Duplicate active emergency request.", {
+        publicMessage:
+          "Aynı kategori ve ilçe için açık bir acil talebin zaten var.",
+      });
+    }
   }
-
-  // 2. Resolve District ID
-  const { data: districts } = await supabase
-    .from("districts")
-    .select("id")
-    .eq("name", input.district)
-    .limit(1);
-
-  let districtId = districts?.[0]?.id;
-
-  if (!districtId) {
-    const { data: newDistrict } = await supabase
-      .from("districts")
-      .insert({ 
-        name: input.district, 
-        slug: input.district.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        city: "Bilinmiyor" 
-      })
-      .select("id")
-      .single();
-    if (newDistrict) districtId = newDistrict.id;
-  }
-
-  if (!categoryId || !districtId) {
-    throw new Error("Category or District could not be resolved.");
-  }
-
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData?.user?.id || "00000000-0000-0000-0000-000000000000";
-
-  const confirmationCode = await generateJobConfirmationCode();
-  
-  // Future-ready text
-  const estimatedArrivalText = "15-20 dk";
-  const paymentPreference = input.paymentPreference === "iban" ? "iban" : "cash";
-
-  // Simulate assignment
-  const { allProviders } = await getProviderDirectory();
-  const availableProviders = allProviders.filter((p) => p.district === input.district);
-  const assignedProviderId = availableProviders.length > 0 ? availableProviders[0].id : null;
-
-  const requestInsert: ServiceRequestInsert = {
-    user_id: userId,
-    category_id: categoryId,
-    district_id: districtId,
-    address: input.fullAddress || "Yaklaşık Konum",
-    urgency: input.urgencyLevel || "acil",
-    urgency_type: "emergency",
-    budget_tag: input.budgetTag || "acil",
-    offered_price: input.offeredPrice || null,
-    payment_preference: paymentPreference,
-    approximate_location: input.approximateLocation || input.district,
-    confirmation_code: confirmationCode,
-    estimated_arrival_text: estimatedArrivalText,
-    description: input.shortDescription || "Acil Hizmet Talebi",
-    status: assignedProviderId ? SERVICE_REQUEST_STATUSES.ustayaYonlendirildi : SERVICE_REQUEST_STATUSES.yeni,
-    emergency_status: assignedProviderId ? "accepted" : "pending",
-    assigned_provider_id: assignedProviderId,
-    accepted_at: assignedProviderId ? new Date().toISOString() : null,
-  };
 
   const { data, error } = await supabase
     .from("service_requests")
-    .insert(requestInsert)
+    .insert(insertPayload)
     .select("id")
     .single();
 
   if (error) {
-    console.error("Error creating emergency request:", error);
-    throw new Error("Acil talep oluşturulamadı. Lütfen tekrar deneyin.");
+    throw handleServiceError(error, {
+      logContext: "Emergency request insert failed.",
+      publicMessage: emergencyRequestSubmitErrorMessage,
+    });
   }
 
-  return {
-    requestCode: data.id,
-    confirmationCode: confirmationCode,
+  const requestCode = createRequestCode(data?.id);
+
+  await notifyEmergencyRequestDispatched({
+    notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
+    requestCode,
+    requestId: typeof data?.id === "string" ? data.id : null,
+  });
+
+  const result: ServiceRequestSubmitResult = {
+    confirmationCode: insertPayload.confirmation_code ?? null,
+    emergencyStatus: insertPayload.emergency_status ?? null,
+    estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
+    notificationMessage: "Uygun ustalara bildirim gönderildi.",
+    offeredPrice: insertPayload.offered_price ?? null,
+    paymentPreference: insertPayload.payment_preference ?? null,
+    requestCode,
+    requestId: typeof data?.id === "string" ? data.id : null,
+    urgencyType: "emergency",
   };
+  const response = createServiceSuccess(result);
+
+  return response.data ?? result;
 }

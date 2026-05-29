@@ -8,7 +8,13 @@ export async function assignServiceRequestAction(formData: FormData) {
   const requestId = formData.get("requestId") as string;
   const providerId = formData.get("providerId") as string;
 
-  if (!requestId || !providerId) return;
+  if (!requestId) {
+    redirect("/admin/service-requests?requestAction=service-request-missing-id");
+  }
+
+  if (!providerId) {
+    redirect("/admin/service-requests?requestAction=service-request-missing-provider");
+  }
 
   const result = await assignAdminServiceRequest(requestId, providerId);
   revalidatePath("/admin/service-requests");

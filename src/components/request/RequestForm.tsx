@@ -620,7 +620,7 @@ export function RequestForm({
                         Doğrulama kodu
                       </dt>
                       <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
-                        Usta kabul edince paylaşılacak
+                        {submittedRequest.confirmationCode ?? "Usta kabul edince paylaşılacak"}
                       </dd>
                     </div>
                     <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">

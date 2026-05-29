@@ -1,4 +1,4 @@
-import { getMatchedProviders } from "@/services/requests";
+import { getAdminAssignableProvidersForRequest } from "@/services/admin";
 import { AssignProviderForm } from "./AssignProviderForm";
 import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 
@@ -28,13 +28,18 @@ export async function AssignProviderSection({
     return null;
   }
 
-  const providers = await getMatchedProviders(requestId);
+  const result = await getAdminAssignableProvidersForRequest(requestId);
 
   return (
     <div className="mt-2 w-full">
+      {result.error ? (
+        <div className="mb-2 rounded-md border border-red-200 bg-red-50 p-2 text-xs font-semibold text-red-700">
+          {result.error}
+        </div>
+      ) : null}
       <AssignProviderForm 
         requestId={requestId} 
-        providers={providers} 
+        providers={result.rows} 
         assignedProviderId={assignedProviderId} 
       />
     </div>

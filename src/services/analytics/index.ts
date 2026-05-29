@@ -46,7 +46,7 @@ type LoginAttemptPayload = {
 };
 
 type VoiceCommandPayload = {
-  action: "category" | "district" | "read-profiles" | "reset" | "show-providers" | "start" | "stop" | "unsupported" | "unknown" | "whatsapp";
+  action: "category" | "category-district" | "district" | "emergency" | "read-profiles" | "reset" | "show-providers" | "start" | "stop" | "unsupported" | "unknown" | "whatsapp";
   matched?: boolean;
 };
 

@@ -177,7 +177,7 @@ function createRequestDescription(data: ServiceRequestInput) {
       data.fullName?.trim() || data.phoneNumber?.trim()
         ? `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`
         : "",
-      "Bildirim temeli: provider dashboard, ileride WhatsApp/SMS/push.",
+      "Bildirim kanalı: usta paneli, ileride WhatsApp/SMS/push.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -572,8 +572,12 @@ export async function getMatchedProviders(requestId: string) {
   });
 }
 
-export async function assignProviderToRequest(requestId: string, providerId: string) {
-  const supabase = createServiceRequestClient();
+export async function assignProviderToRequest(
+  requestId: string,
+  providerId: string,
+  supabaseClient?: SupabaseClient<Database>,
+) {
+  const supabase = supabaseClient ?? createServiceRequestClient();
 
   if (!supabase) {
     throw new DatabaseError("Supabase client is not configured.", {
@@ -581,18 +585,88 @@ export async function assignProviderToRequest(requestId: string, providerId: str
     });
   }
 
-  const { error } = await supabase
+  const [
+    { data: request, error: requestError },
+    { data: provider, error: providerError },
+  ] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select("id, category_id, status")
+      .eq("id", requestId)
+      .maybeSingle(),
+    supabase
+      .from("providers")
+      .select("id, category_id, is_active, is_approved")
+      .eq("id", providerId)
+      .maybeSingle(),
+  ]);
+
+  if (requestError) {
+    throw handleServiceError(requestError, {
+      logContext: "Assign provider request lookup failed.",
+      publicMessage: "Atama işlemi tamamlanamadı.",
+    });
+  }
+
+  if (providerError) {
+    throw handleServiceError(providerError, {
+      logContext: "Assign provider eligibility lookup failed.",
+      publicMessage: "Atama işlemi tamamlanamadı.",
+    });
+  }
+
+  if (!request) {
+    throw new NotFoundError("Service request was not found for assignment.", {
+      publicMessage: "Atanacak talep bulunamadı.",
+    });
+  }
+
+  if (!provider?.is_active || !provider?.is_approved) {
+    throw new ValidationError("Provider is not eligible for request assignment.", {
+      publicMessage: "Seçilen usta bu talep için uygun değil.",
+    });
+  }
+
+  if (request.category_id !== provider.category_id) {
+    throw new ValidationError("Provider category does not match request.", {
+      publicMessage: "Seçilen usta bu hizmet kategorisi için uygun değil.",
+    });
+  }
+
+  const terminalStatuses = new Set<string>([
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.cancelled,
+    SERVICE_REQUEST_STATUSES.tamamlandi,
+    SERVICE_REQUEST_STATUSES.iptal,
+  ]);
+
+  if (terminalStatuses.has(request.status)) {
+    throw new ValidationError("Service request cannot be assigned from current status.", {
+      publicMessage: "Bu durumdaki talebe usta atanamaz.",
+    });
+  }
+
+  const { data, error } = await supabase
     .from("service_requests")
     .update({ 
       assigned_provider_id: providerId,
       status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi 
     })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     throw handleServiceError(error, {
       logContext: "Assign provider to request failed.",
       publicMessage: "Atama işlemi Supabase üzerinde başarısız oldu.",
+    });
+  }
+
+  if (!data) {
+    throw new NotFoundError("Service request assignment update returned no row.", {
+      publicMessage: "Atanacak talep bulunamadı.",
     });
   }
 
@@ -612,10 +686,13 @@ export async function assignProviderToEmergencyRequest(
     });
   }
 
-  const [{ data: request }, { data: provider }] = await Promise.all([
+  const [
+    { data: request, error: requestError },
+    { data: provider, error: providerError },
+  ] = await Promise.all([
     supabase
       .from("service_requests")
-      .select("category_id, district_id")
+      .select("category_id, district_id, status, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)")
       .eq("id", requestId)
       .maybeSingle(),
     supabase
@@ -624,6 +701,20 @@ export async function assignProviderToEmergencyRequest(
       .eq("id", providerId)
       .maybeSingle(),
   ]);
+
+  if (requestError) {
+    throw handleServiceError(requestError, {
+      logContext: "Emergency assignment request lookup failed.",
+      publicMessage: "Acil atama işlemi tamamlanamadı.",
+    });
+  }
+
+  if (providerError) {
+    throw handleServiceError(providerError, {
+      logContext: "Emergency assignment provider lookup failed.",
+      publicMessage: "Acil atama işlemi tamamlanamadı.",
+    });
+  }
 
   if (
     !request ||
@@ -636,21 +727,70 @@ export async function assignProviderToEmergencyRequest(
     });
   }
 
-  const { error } = await supabase
+  if (request.urgency_type !== "emergency") {
+    throw new ValidationError("Request is not an emergency request.", {
+      publicMessage: "Bu talep acil akışta değil.",
+    });
+  }
+
+  const assignableStatuses = [
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+  ];
+  const assignableStatusSet = new Set<string>(assignableStatuses);
+
+  if (!assignableStatusSet.has(request.status)) {
+    throw new ValidationError("Emergency request cannot be assigned from current status.", {
+      publicMessage: "Bu durumdaki acil talebe usta atanamaz.",
+    });
+  }
+
+  if (
+    request.assigned_provider_id === providerId &&
+    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+  ) {
+    return true;
+  }
+
+  const districtRelation = (request as any).districts;
+  const districtName = Array.isArray(districtRelation)
+    ? districtRelation[0]?.name
+    : districtRelation?.name;
+  const updatePayload: ServiceRequestUpdate = {
+    assigned_provider_id: providerId,
+    accepted_provider_id: null,
+    confirmation_code: request.confirmation_code ?? generateJobConfirmationCode(),
+    emergency_status: SERVICE_REQUEST_STATUSES.pending,
+    estimated_arrival_text:
+      request.estimated_arrival_text ??
+      calculateEstimatedArrivalText({
+        district: typeof districtName === "string" ? districtName : null,
+        urgencyType: "emergency",
+      }),
+    status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    urgency_type: "emergency",
+  };
+
+  const { data, error } = await supabase
     .from("service_requests")
-    .update({
-      assigned_provider_id: providerId,
-      accepted_provider_id: null,
-      emergency_status: SERVICE_REQUEST_STATUSES.pending,
-      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-      urgency_type: "emergency",
-    })
-    .eq("id", requestId);
+    .update(updatePayload)
+    .eq("id", requestId)
+    .in("status", assignableStatuses)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     throw handleServiceError(error, {
       logContext: "Assign provider to emergency request failed.",
       publicMessage: "Acil atama işlemi Supabase üzerinde başarısız oldu.",
+    });
+  }
+
+  if (!data) {
+    throw new ValidationError("Emergency request assignment update was not applied.", {
+      publicMessage: "Acil talep bu sırada güncellendi. Lütfen sayfayı yenileyip tekrar dene.",
     });
   }
 
@@ -702,17 +842,23 @@ export async function getProviderAssignedRequests(
     return [];
   }
 
-  const { data: provider } = await supabase
+  const { data: provider, error: providerLookupError } = await supabase
     .from("providers")
     .select("category_id, district_id, is_active, is_approved")
     .eq("id", providerId)
     .maybeSingle();
+
+  if (providerLookupError) {
+    warnServiceRequestError("Provider assigned request provider lookup failed.", providerLookupError);
+    return [];
+  }
+
   const providerCategoryId =
     provider?.is_active && provider?.is_approved ? provider.category_id : null;
   const providerDistrictId =
     provider?.is_active && provider?.is_approved ? provider.district_id : null;
   const canSeeEligibleEmergencyRequests = Boolean(providerCategoryId && providerDistrictId);
-  const { data: eligibleEmergencyRequests } = canSeeEligibleEmergencyRequests
+  const { data: eligibleEmergencyRequests, error: eligibleEmergencyRequestsError } = canSeeEligibleEmergencyRequests
     ? await supabase
         .from("service_requests")
         .select(requestSelect)
@@ -722,7 +868,15 @@ export async function getProviderAssignedRequests(
         .eq("district_id", providerDistrictId as string)
         .is("assigned_provider_id", null)
         .order("created_at", { ascending: false })
-    : { data: [] };
+    : { data: [], error: null };
+
+  if (eligibleEmergencyRequestsError) {
+    warnServiceRequestError(
+      "Eligible emergency provider request read failed.",
+      eligibleEmergencyRequestsError,
+    );
+  }
+
   const requestsById = new Map<string, any>();
 
   [...(assignedRequests ?? []), ...(eligibleEmergencyRequests ?? [])].forEach((request: any) => {

@@ -79,6 +79,11 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     title: "İşlem yapılamadı",
     tone: "error",
   },
+  "service-request-missing-provider": {
+    body: "Atanacak usta seçilmedi. Lütfen listeden uygun bir usta seçin.",
+    title: "Usta seçimi gerekli",
+    tone: "error",
+  },
   "service-request-not-found": {
     body: "İlgili hizmet talebi bulunamadı veya bu kayıt için admin yetkisi yok.",
     title: "Talep bulunamadı",
@@ -300,7 +305,7 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
 
 function UrgencyTypeBadge({ urgencyType }: { urgencyType: string }) {
   if (urgencyType !== "emergency") {
-    return <AdminStatusBadge tone="neutral">Normal akÄ±ÅŸ</AdminStatusBadge>;
+    return <AdminStatusBadge tone="neutral">Normal akış</AdminStatusBadge>;
   }
 
   return <AdminStatusBadge tone="red">Acil Hizmet</AdminStatusBadge>;
@@ -320,23 +325,23 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
           : "Belirtilmedi"}
       </p>
       <p>
-        <span className="font-black">Ã–deme tercihi: </span>
+        <span className="font-black">Ödeme tercihi: </span>
         {getPaymentPreferenceLabel(request.paymentPreference)}
       </p>
       <p>
-        <span className="font-black">DoÄŸrulama kodu: </span>
-        {request.confirmationCode ?? "Usta kabulÃ¼nden sonra"}
+        <span className="font-black">Doğrulama kodu: </span>
+        {request.confirmationCode ?? "Usta kabulünden sonra"}
       </p>
       <p>
-        <span className="font-black">Tahmini varÄ±ÅŸ: </span>
-        {request.estimatedArrivalText ?? "Usta kabulÃ¼nden sonra"}
+        <span className="font-black">Tahmini varış: </span>
+        {request.estimatedArrivalText ?? "Usta kabulünden sonra"}
       </p>
       <p>
         <span className="font-black">Acil durum: </span>
         {request.emergencyStatus ?? request.status}
       </p>
       <p>
-        <span className="font-black">CanlÄ± takip: </span>
+        <span className="font-black">Canlı takip: </span>
         {liveTrackingSoonText}
       </p>
     </div>

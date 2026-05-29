@@ -2,13 +2,24 @@ type LogContext = Record<string, unknown>;
 
 const redactedValue = "[redacted]";
 const sensitiveKeyPattern =
-  /(^key$|password|secret|token|authorization|cookie|api[_-]?key|anon[_-]?key|service[_-]?role|private|env)/i;
+  /(^key$|password|secret|token|authorization|cookie|api[_-]?key|anon[_-]?key|service[_-]?role|private|env|phone|whatsapp|email|e[_-]?mail)/i;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function sanitizeString(value: string) {
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    const [name, domain] = value.split("@");
+    return `${name.slice(0, 2)}...${redactedValue}@${domain}`;
+  }
+
+  const digits = value.replace(/\D/g, "");
+
+  if (digits.length >= 10 && digits.length <= 14) {
+    return `${digits.slice(0, 3)}...${redactedValue}${digits.slice(-2)}`;
+  }
+
   if (value.length > 160) {
     return `${value.slice(0, 24)}...${redactedValue}`;
   }

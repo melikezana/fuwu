@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { appRoutes } from "@/lib/constants/navigation";
+import { logWarn } from "@/lib/logger";
 import { createSafeRedirectUrl } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -22,10 +23,16 @@ export async function GET(request: NextRequest) {
       try {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {
-          console.warn("[Auth Callback] Session exchange failed. Safely redirecting.", error.message);
+          const safeError = error as { code?: string; status?: number };
+          logWarn("Auth callback session exchange failed. Safely redirecting.", {
+            code: safeError.code,
+            status: safeError.status,
+          });
         }
       } catch (error) {
-        console.warn("[Auth Callback] Unexpected error during session exchange. Safely redirecting.", error);
+        logWarn("Auth callback unexpected session exchange failure. Safely redirecting.", {
+          error,
+        });
       }
     }
   }

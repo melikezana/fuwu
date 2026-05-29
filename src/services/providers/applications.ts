@@ -3,7 +3,7 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
-import { handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
+import { DatabaseError, handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
@@ -57,14 +57,11 @@ function createDemoApplicationResult(profileImage?: File | null): ProviderApplic
   };
 }
 
-function warnProviderApplicationFallback(error: unknown, safePayload?: unknown) {
-  if (process.env.NODE_ENV === "development" && safePayload) {
-    console.warn("[Provider Application] Safe payload context:", safePayload);
-  }
-
-  handleServiceError(error, {
-    logContext: "Provider application Supabase insert failed. Falling back to demo mode.",
-    publicMessage: "Başvurun alındı. İnceleme sonrası uygun profiller Fuwu'da yayınlanır.", // Changed to success message per user request (fallback means it's queued or demo mode)
+function createProviderApplicationFailure(error: unknown) {
+  return handleServiceError(error, {
+    logContext: "Provider application Supabase insert failed.",
+    publicMessage:
+      "Başvuru şu anda kaydedilemedi. Lütfen bilgilerini kontrol edip tekrar dene.",
   });
 }
 
@@ -204,9 +201,11 @@ export async function submitProviderApplication(
   const supabase = createProviderApplicationClient();
 
   if (!supabase) {
-    return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(applicationData.profileImage),
-    );
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage:
+        "Başvuru sistemi şu anda kullanılamıyor. Lütfen daha sonra tekrar dene.",
+      statusCode: 503,
+    });
   }
 
   try {
@@ -221,13 +220,21 @@ export async function submitProviderApplication(
     );
 
     // Anti-spam duplicate phone check
-    const { data: existingApplication } = await supabase
+    const { data: existingApplication, error: duplicateCheckError } = await supabase
       .from("provider_applications")
       .select("id")
       .eq("phone", insertPayload.phone)
       .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
       .limit(1)
       .maybeSingle();
+
+    if (duplicateCheckError) {
+      throw handleServiceError(duplicateCheckError, {
+        logContext: "Provider application duplicate check failed.",
+        publicMessage:
+          "Başvuru şu anda kontrol edilemedi. Lütfen biraz sonra tekrar dene.",
+      });
+    }
 
     if (existingApplication?.id) {
       throw new ValidationError("Duplicate provider application detected.", {
@@ -255,10 +262,7 @@ export async function submitProviderApplication(
         }
       }
 
-      warnProviderApplicationFallback(error, insertPayload);
-      return notifyProviderApplicationSubmitResult(
-        createDemoApplicationResult(applicationData.profileImage),
-      );
+      throw createProviderApplicationFailure(error);
     }
 
     return notifyProviderApplicationSubmitResult({
@@ -268,9 +272,6 @@ export async function submitProviderApplication(
       profileImageMessage: profileImageUpload.message,
     });
   } catch (error) {
-    warnProviderApplicationFallback(error);
-    return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(applicationData.profileImage),
-    );
+    throw createProviderApplicationFailure(error);
   }
 }

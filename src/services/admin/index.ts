@@ -21,7 +21,10 @@ import {
   createServiceFailure,
   createServiceSuccess,
 } from "@/services/serviceResponse";
-import { assignProviderToEmergencyRequest } from "@/services/requests";
+import {
+  assignProviderToEmergencyRequest,
+  assignProviderToRequest,
+} from "@/services/requests";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -292,6 +295,7 @@ export type AdminServiceRequestActionCode =
   | "service-request-invalid-status"
   | "service-request-invalid-transition"
   | "service-request-missing-id"
+  | "service-request-missing-provider"
   | "service-request-not-found"
   | "service-request-updated"
   | "supabase-not-configured";
@@ -299,6 +303,14 @@ export type AdminServiceRequestActionCode =
 export type AdminServiceRequestActionResult = {
   code: AdminServiceRequestActionCode;
   ok: boolean;
+};
+
+export type AdminAssignableProvider = {
+  districtId: string;
+  experienceYears: number;
+  id: string;
+  name: string;
+  phone: string;
 };
 
 const adminServiceRequestStatuses: AdminServiceRequestStatus[] =
@@ -1124,6 +1136,81 @@ export async function updateAdminServiceRequestStatus(
   return createServiceRequestActionResult("service-request-updated", true);
 }
 
+export async function getAdminAssignableProvidersForRequest(
+  requestId: string,
+): Promise<AdminReadResult<AdminAssignableProvider>> {
+  const normalizedRequestId = sanitizeText(requestId, 80);
+
+  if (!normalizedRequestId) {
+    return createEmptyReadResult("Talep kimliği alınamadı.");
+  }
+
+  const adminAccess = await getSupabaseForAdminRead();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createEmptyReadResult(
+      adminAccess.access.message,
+      adminAccess.access.isConfigured,
+    );
+  }
+
+  const { data: request, error: requestError } = await supabase
+    .from("service_requests")
+    .select("id, category_id, district_id")
+    .eq("id", normalizedRequestId)
+    .maybeSingle();
+
+  if (requestError) {
+    return createEmptyReadResult(
+      getAdminReadError(requestError, "Talep için atanabilir ustalar okunamadı."),
+    );
+  }
+
+  if (!request) {
+    return createEmptyReadResult("Talep bulunamadı.");
+  }
+
+  const { data: providers, error: providersError } = await supabase
+    .from("providers")
+    .select("id, name, phone, experience_years, district_id")
+    .eq("category_id", request.category_id)
+    .eq("is_active", true)
+    .eq("is_approved", true)
+    .order("rating", { ascending: false });
+
+  if (providersError) {
+    return createEmptyReadResult(
+      getAdminReadError(providersError, "Atanabilir ustalar şu anda okunamadı."),
+    );
+  }
+
+  const sortedProviders = (providers ?? []).sort((firstProvider, secondProvider) => {
+    const firstExact = firstProvider.district_id === request.district_id;
+    const secondExact = secondProvider.district_id === request.district_id;
+
+    if (firstExact && !secondExact) {
+      return -1;
+    }
+
+    if (!firstExact && secondExact) {
+      return 1;
+    }
+
+    return firstProvider.name.localeCompare(secondProvider.name, "tr");
+  });
+
+  return createAdminReadResult(
+    sortedProviders.map((provider) => ({
+      districtId: provider.district_id,
+      experienceYears: Number(provider.experience_years ?? 0),
+      id: provider.id,
+      name: sanitizeText(provider.name, 120),
+      phone: sanitizePhone(provider.phone) || "Belirtilmedi",
+    })),
+  );
+}
+
 export async function assignAdminServiceRequest(
   requestId: string,
   providerId: string,
@@ -1133,6 +1220,10 @@ export async function assignAdminServiceRequest(
 
   if (!normalizedRequestId) {
     return createServiceRequestActionResult("service-request-missing-id", false);
+  }
+
+  if (!normalizedProviderId) {
+    return createServiceRequestActionResult("service-request-missing-provider", false);
   }
 
   const adminAccess = await getSupabaseForAdminWrite();
@@ -1181,17 +1272,9 @@ export async function assignAdminServiceRequest(
     return createServiceRequestActionResult("service-request-updated", true);
   }
 
-  const { data, error } = await supabase
-    .from("service_requests")
-    .update({ 
-      assigned_provider_id: normalizedProviderId,
-      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi 
-    })
-    .eq("id", normalizedRequestId)
-    .select("id")
-    .maybeSingle();
-
-  if (error || !data) {
+  try {
+    await assignProviderToRequest(normalizedRequestId, normalizedProviderId, supabase);
+  } catch (error) {
     warnAdminWriteError("service request provider assignment", error);
     return createServiceRequestActionResult("service-request-action-failed", false);
   }
