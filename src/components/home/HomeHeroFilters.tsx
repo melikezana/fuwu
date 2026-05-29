@@ -116,6 +116,14 @@ function formatPrice(value: number | null | undefined) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value)} TL`;
 }
 
+function formatProviderNotificationCount(value: number | null | undefined) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `${value} usta`;
+  }
+
+  return "Sayım alınamadı";
+}
+
 function buildRequestHref({
   district,
   offerAmount,
@@ -478,13 +486,13 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           <div className="min-w-0">
             <span className="inline-flex items-center gap-2 rounded-md bg-[var(--trust-green-soft)] px-3 py-1.5 text-xs font-bold text-[var(--trust-green)]">
               <CheckCircle2 className="size-4" aria-hidden />
-              Uygun ustalara bildirim gönderildi
+              Acil talep iletildi
             </span>
             <h2 className="mt-4 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
-              Ustan gelsin
+              Acil talebiniz uygun ustalara iletildi.
             </h2>
             <p className="mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-              İlk uygun usta kabul ettiğinde varış bilgisi ve güvenli başlangıç doğrulaması aynı akışta görünür.
+              Henüz usta ataması yapılmadı. İlk uygun usta kabul ettiğinde varış ve güvenli başlangıç durumu aynı akışta görünür.
             </p>
           </div>
           <span className="w-fit rounded-md bg-[#F9FAFB] px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
@@ -492,12 +500,19 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           </span>
         </div>
 
-        <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Tahmini varış", submittedRequest.estimatedArrivalText ?? "Usta kabul edince netleşir"],
+            [
+              "Bilgilendirilen usta",
+              formatProviderNotificationCount(submittedRequest.providerCountNotified),
+            ],
             ["Teklif", formatPrice(submittedRequest.offeredPrice ?? offeredPrice)],
             ["Ödeme", getPaymentPreferenceLabel(submittedRequest.paymentPreference ?? paymentPreference)],
-            ["Başlangıç", "Doğrulama ile güvenli"],
+            [
+              "Doğrulama durumu",
+              submittedRequest.confirmationCode ? "Kod üretildi" : "Usta kabul edince paylaşılacak",
+            ],
           ].map(([label, value]) => (
             <div
               className="rounded-lg bg-[#F9FAFB] p-3 ring-1 ring-[rgba(13,20,36,0.06)]"

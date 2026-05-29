@@ -1,6 +1,7 @@
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
+  isProviderAvailabilityStatus,
   normalizeProviderAvailabilityStatus,
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_VALUES,
@@ -12,6 +13,13 @@ import {
 } from "@/lib/constants/statuses";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/lib/supabase/types";
+import {
+  calculateProviderProfileCompletion,
+  formatProviderResponseTime,
+  formatProviderWorkingHours,
+  getProviderOperationalStatus,
+  providerWorkingHourOptions,
+} from "@/lib/providers/trust";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import {
   notifyProviderApplicationApproved,
@@ -91,13 +99,22 @@ type AdminProviderRecord = Pick<
   ProviderRow,
   | "average_price_max"
   | "average_price_min"
+  | "description"
   | "id"
+  | "identity_verified"
   | "is_active"
   | "is_approved"
+  | "is_verified"
+  | "last_active_at"
   | "name"
   | "phone"
+  | "phone_verified"
+  | "profile_completion_score"
+  | "profile_image_url"
   | "rating"
+  | "response_time_minutes"
   | "whatsapp"
+  | "working_hours"
 > & {
   availability?: string | null;
   districts: MaybeRelation;
@@ -128,6 +145,7 @@ type AdminProviderApplicationApprovalRecord = Pick<
   | "full_name"
   | "id"
   | "phone"
+  | "profile_image_url"
   | "status"
   | "whatsapp"
 >;
@@ -166,7 +184,11 @@ type AdminServiceRequestRecord = Pick<
 };
 
 type AdminProviderPublicationUpdate = Partial<
-  Pick<ProviderRow, "is_active" | "is_approved">
+  Pick<ProviderRow, "is_active" | "is_approved" | "is_verified" | "last_active_at">
+>;
+
+type AdminProviderTrustUpdate = Partial<
+  Pick<ProviderRow, "availability" | "response_time_minutes" | "working_hours">
 >;
 
 type AdminProviderApplicationProviderActionResult =
@@ -177,15 +199,26 @@ type AdminProviderApplicationProviderActionResult =
 export type AdminProvider = {
   averagePriceRange: string;
   availability: ProviderAvailabilityStatus;
+  availabilityStatusLabel: string;
+  availabilityStatusTone: "green" | "neutral" | "orange";
   category: string;
   district: string;
+  identityVerified: boolean;
   id: string;
   isActive: boolean;
   isApproved: boolean;
+  isVerified: boolean;
+  lastActiveAt: string | null;
   name: string;
   phone: string;
+  phoneVerified: boolean;
+  profileCompletionMissingFields: string[];
+  profileCompletionScore: number;
   rating: number;
+  responseTime: string;
+  responseTimeMinutes: number | null;
   whatsapp: string;
+  workingHours: string;
 };
 
 export type AdminProviderApplication = {
@@ -250,7 +283,9 @@ export type AdminProviderStatusAction =
   | "activate"
   | "approve"
   | "deactivate"
-  | "unpublish";
+  | "unpublish"
+  | "unverify"
+  | "verify";
 
 export type AdminProviderStatusActionCode =
   | "admin-not-authorized"
@@ -258,10 +293,14 @@ export type AdminProviderStatusActionCode =
   | "provider-activated"
   | "provider-approved"
   | "provider-deactivated"
+  | "provider-invalid-availability"
   | "provider-invalid-action"
   | "provider-missing-id"
   | "provider-not-found"
+  | "provider-trust-updated"
   | "provider-unpublished"
+  | "provider-unverified"
+  | "provider-verified"
   | "supabase-not-configured";
 
 export type AdminProviderStatusActionResult = {
@@ -329,6 +368,8 @@ const adminProviderStatusActions: AdminProviderStatusAction[] = [
   "approve",
   "deactivate",
   "unpublish",
+  "unverify",
+  "verify",
 ];
 
 function getRelationName(relation: MaybeRelation) {
@@ -457,7 +498,19 @@ function warnAdminWriteError(context: string, error: unknown) {
   });
 }
 
-function isMissingAvailabilityColumn(error: unknown) {
+const optionalAdminProviderColumnNames = [
+  "availability",
+  "identity_verified",
+  "is_verified",
+  "last_active_at",
+  "phone_verified",
+  "profile_completion_score",
+  "profile_image_url",
+  "response_time_minutes",
+  "working_hours",
+];
+
+function isMissingOptionalProviderColumn(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
   }
@@ -468,7 +521,10 @@ function isMissingAvailabilityColumn(error: unknown) {
     .join(" ")
     .toLocaleLowerCase("tr");
 
-  return errorText.includes("availability") && errorText.includes("column");
+  return (
+    errorText.includes("column") &&
+    optionalAdminProviderColumnNames.some((columnName) => errorText.includes(columnName))
+  );
 }
 
 async function insertAuditLog({
@@ -757,7 +813,8 @@ async function createProviderFromApplication(
       name,
       phone,
       whatsapp,
-      rating: 5, // Default rating for new providers
+      profile_image_url: application.profile_image_url,
+      rating: 0,
       average_price_min: null,
       average_price_max: null,
     })
@@ -875,6 +932,7 @@ export async function approveAdminProviderApplication(
         district_id,
         experience_years,
         description,
+        profile_image_url,
         status
       `,
     )
@@ -1329,12 +1387,16 @@ export async function updateAdminProviderStatus(
 
   const updatePayload: AdminProviderPublicationUpdate =
     normalizedAction === "activate"
-      ? { is_active: true }
+      ? { is_active: true, last_active_at: new Date().toISOString() }
       : normalizedAction === "deactivate"
         ? { is_active: false }
         : normalizedAction === "approve"
           ? { is_active: true, is_approved: true }
-          : { is_approved: false };
+          : normalizedAction === "verify"
+            ? { is_verified: true }
+            : normalizedAction === "unverify"
+              ? { is_verified: false }
+              : { is_approved: false };
 
   const { data, error } = await supabase
     .from("providers")
@@ -1360,6 +1422,8 @@ export async function updateAdminProviderStatus(
     approve: "provider-approved",
     deactivate: "provider-deactivated",
     unpublish: "provider-unpublished",
+    unverify: "provider-unverified",
+    verify: "provider-verified",
   };
 
   const result = createProviderStatusActionResult(
@@ -1385,6 +1449,95 @@ export async function updateAdminProviderStatus(
   return result;
 }
 
+function parseAdminResponseTime(value: string) {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const parsedValue = Number(normalizedValue);
+
+  return Number.isInteger(parsedValue) && parsedValue > 0 && parsedValue <= 1440
+    ? parsedValue
+    : undefined;
+}
+
+export async function updateAdminProviderTrust(
+  providerId: string,
+  input: {
+    availability: string;
+    responseTimeMinutes: string;
+    workingHours: string;
+  },
+): Promise<AdminProviderStatusActionResult> {
+  const normalizedProviderId = sanitizeText(providerId, 80);
+  const availability = sanitizeText(input.availability, 40);
+  const workingHours = sanitizeText(input.workingHours, 40);
+  const responseTimeMinutes = parseAdminResponseTime(input.responseTimeMinutes);
+
+  if (!normalizedProviderId) {
+    return createProviderStatusActionResult("provider-missing-id", false);
+  }
+
+  if (!isProviderAvailabilityStatus(availability)) {
+    return createProviderStatusActionResult("provider-invalid-availability", false);
+  }
+
+  if (!providerWorkingHourOptions.includes(workingHours as (typeof providerWorkingHourOptions)[number])) {
+    return createProviderStatusActionResult("provider-invalid-action", false);
+  }
+
+  if (responseTimeMinutes === undefined) {
+    return createProviderStatusActionResult("provider-invalid-action", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createProviderStatusActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  const updatePayload: AdminProviderTrustUpdate = {
+    availability,
+    response_time_minutes: responseTimeMinutes,
+    working_hours: workingHours,
+  };
+
+  const { data, error } = await supabase
+    .from("providers")
+    .update(updatePayload)
+    .eq("id", normalizedProviderId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider trust update", error);
+    return createProviderStatusActionResult("provider-action-failed", false);
+  }
+
+  if (!data) {
+    return createProviderStatusActionResult("provider-not-found", false);
+  }
+
+  await insertAuditLog({
+    action: "provider.trust_updated",
+    actorUserId: adminAccess.access.userId,
+    entityId: normalizedProviderId,
+    entityType: "provider",
+    metadata: updatePayload,
+    supabase,
+  });
+
+  return createProviderStatusActionResult("provider-trust-updated", true);
+}
+
 export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider>> {
   const adminAccess = await getSupabaseForAdminRead();
   const { supabase } = adminAccess;
@@ -1401,10 +1554,19 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
         name,
         phone,
         whatsapp,
+        description,
         average_price_min,
         average_price_max,
         rating,
         availability,
+        working_hours,
+        is_verified,
+        phone_verified,
+        identity_verified,
+        last_active_at,
+        response_time_minutes,
+        profile_completion_score,
+        profile_image_url,
         is_active,
         is_approved,
         service_categories(name),
@@ -1415,6 +1577,7 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
         name,
         phone,
         whatsapp,
+        description,
         average_price_min,
         average_price_max,
         rating,
@@ -1429,7 +1592,7 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
     .select(providerSelectQuery)
     .order("created_at", { ascending: false });
 
-  if (error && isMissingAvailabilityColumn(error)) {
+  if (error && isMissingOptionalProviderColumn(error)) {
     const fallbackResult = await supabase
       .from("providers")
       .select(providerSelectQueryWithoutAvailability)
@@ -1444,22 +1607,62 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
   }
 
   return createAdminReadResult(
-    ((data ?? []) as unknown as AdminProviderRecord[]).map((provider) => ({
-      averagePriceRange: formatAveragePriceRange(
-        provider.average_price_min,
-        provider.average_price_max,
-      ),
-      category: sanitizeText(getRelationName(provider.service_categories), 120),
-      district: sanitizeText(getRelationName(provider.districts), 120),
-      id: provider.id,
-      availability: normalizeProviderAvailabilityStatus(provider.availability),
-      isActive: provider.is_active,
-      isApproved: provider.is_approved,
-      name: sanitizeText(provider.name, 120),
-      phone: sanitizePhone(provider.phone) || "Belirtilmedi",
-      rating: Number(provider.rating ?? 0),
-      whatsapp: sanitizePhone(provider.whatsapp ?? "") || "Belirtilmedi",
-    })),
+    ((data ?? []) as unknown as AdminProviderRecord[]).map((provider) => {
+      const category = sanitizeText(getRelationName(provider.service_categories), 120);
+      const district = sanitizeText(getRelationName(provider.districts), 120);
+      const availability = normalizeProviderAvailabilityStatus(provider.availability);
+      const workingHours = formatProviderWorkingHours(provider.working_hours);
+      const phone = sanitizePhone(provider.phone) || "Belirtilmedi";
+      const profileImageUrl = sanitizeText(provider.profile_image_url ?? "", 500) || null;
+      const responseTimeMinutes =
+        typeof provider.response_time_minutes === "number" &&
+        Number.isFinite(provider.response_time_minutes) &&
+        provider.response_time_minutes > 0
+          ? Math.round(provider.response_time_minutes)
+          : null;
+      const profileCompletion = calculateProviderProfileCompletion({
+        availability,
+        category,
+        description: provider.description,
+        district,
+        phone,
+        profileImageUrl,
+        servicesOffered: category ? [category] : [],
+        workingHours,
+      });
+      const availabilityStatus = getProviderOperationalStatus({
+        availability,
+        workingHours,
+      });
+
+      return {
+        averagePriceRange: formatAveragePriceRange(
+          provider.average_price_min,
+          provider.average_price_max,
+        ),
+        availability,
+        availabilityStatusLabel: availabilityStatus.label,
+        availabilityStatusTone: availabilityStatus.tone,
+        category,
+        district,
+        id: provider.id,
+        identityVerified: Boolean(provider.identity_verified),
+        isActive: provider.is_active,
+        isApproved: provider.is_approved,
+        isVerified: Boolean(provider.is_verified),
+        lastActiveAt: provider.last_active_at ?? null,
+        name: sanitizeText(provider.name, 120),
+        phone,
+        phoneVerified: Boolean(provider.phone_verified),
+        profileCompletionMissingFields: profileCompletion.missingFields,
+        profileCompletionScore: profileCompletion.score,
+        rating: Number(provider.rating ?? 0),
+        responseTime: formatProviderResponseTime(responseTimeMinutes),
+        responseTimeMinutes,
+        whatsapp: sanitizePhone(provider.whatsapp ?? "") || "Belirtilmedi",
+        workingHours,
+      };
+    }),
   );
 }
 

@@ -204,6 +204,41 @@ async function createEmergencyInsert(
   };
 }
 
+async function countEligibleEmergencyProviders(
+  supabase: SupabaseClient<Database>,
+  categoryId: string,
+  districtId: string,
+) {
+  const { count: exactDistrictCount, error: exactDistrictError } = await supabase
+    .from("providers")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", categoryId)
+    .eq("district_id", districtId)
+    .eq("is_active", true)
+    .eq("is_approved", true);
+
+  if (exactDistrictError) {
+    return 0;
+  }
+
+  if (exactDistrictCount && exactDistrictCount > 0) {
+    return exactDistrictCount;
+  }
+
+  const { count: sameCategoryCount, error: sameCategoryError } = await supabase
+    .from("providers")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", categoryId)
+    .eq("is_active", true)
+    .eq("is_approved", true);
+
+  if (sameCategoryError) {
+    return 0;
+  }
+
+  return sameCategoryCount ?? 0;
+}
+
 export async function createEmergencyMatchRequest(
   input: ServiceRequestInput,
 ): Promise<ServiceRequestSubmitResult> {
@@ -281,8 +316,14 @@ export async function createEmergencyMatchRequest(
   }
 
   const requestCode = createRequestCode(data?.id);
+  const eligibleProviderCount = await countEligibleEmergencyProviders(
+    supabase,
+    insertPayload.category_id,
+    insertPayload.district_id,
+  );
 
   await notifyEmergencyRequestDispatched({
+    eligibleProviderCount,
     notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
     requestCode,
     requestId: typeof data?.id === "string" ? data.id : null,
@@ -292,10 +333,11 @@ export async function createEmergencyMatchRequest(
     confirmationCode: insertPayload.confirmation_code ?? null,
     emergencyStatus: insertPayload.emergency_status ?? null,
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
-    notificationMessage: "Uygun ustalara bildirim gönderildi.",
-    offeredPrice: insertPayload.offered_price ?? null,
-    paymentPreference: insertPayload.payment_preference ?? null,
-    requestCode,
+      notificationMessage: "Uygun ustalara bildirim gönderildi.",
+      offeredPrice: insertPayload.offered_price ?? null,
+      paymentPreference: insertPayload.payment_preference ?? null,
+      providerCountNotified: eligibleProviderCount,
+      requestCode,
     requestId: typeof data?.id === "string" ? data.id : null,
     urgencyType: "emergency",
   };

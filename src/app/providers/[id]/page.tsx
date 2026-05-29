@@ -11,12 +11,10 @@ import {
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
+import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
-  getProviderAvailabilityLabel,
-  getProviderAvailabilityTone,
   getProviderDataNotice,
-  getProviderProfileBadge,
   isLiveProvider,
 } from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
@@ -137,8 +135,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         relatedProvider.id !== provider.id && relatedProvider.category === provider.category,
     )
     .slice(0, 2);
-  const availabilityLabel = getProviderAvailabilityLabel(provider.availability);
-  const availabilityTone = getProviderAvailabilityTone(provider.availability);
+  const availabilityLabel = provider.availabilityStatus.label;
+  const availabilityTone = provider.availabilityStatus.tone;
   const availabilityBadgeClassName =
     availabilityTone === "green"
       ? "bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
@@ -200,13 +198,11 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                   >
                     {provider.district}
                   </Link>
-                  <span className="max-w-full rounded-md bg-[var(--surface-soft)] px-3 py-1 text-xs font-black leading-5 text-[var(--muted)]">
-                    {getProviderProfileBadge(provider)}
-                  </span>
                   <span className={`max-w-full rounded-md px-3 py-1 text-xs font-black leading-5 ${availabilityBadgeClassName}`}>
                     {availabilityLabel}
                   </span>
                 </div>
+                <ProviderTrustBadges className="mt-3" badges={provider.trustBadges} />
                 <h1 className="mt-4 text-3xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
                   {provider.name}
                 </h1>
@@ -248,6 +244,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 ["Ortalama fiyat aralığı", provider.averagePrice],
                 ["Uygunluk", availabilityLabel],
                 ["Hızlı dönüş", provider.responseTime],
+                ["Profil", `Profil Tamamlandı %${provider.profileCompletionScore}`],
               ].map(([label, value]) => (
                 <div className="rounded-md bg-[var(--surface-soft)] p-4" key={label}>
                   <p className="text-xs font-black uppercase leading-4 text-[var(--muted)]">
@@ -330,11 +327,16 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 {provider.trustBadges.map((badge) => (
                   <div
                     className="rounded-md border border-[rgba(23,116,95,0.18)] bg-[var(--trust-green-soft)] px-3 py-3 text-sm font-black text-[var(--brand-navy)]"
-                    key={badge}
+                    key={badge.id}
                   >
-                    {badge}
+                    {badge.label}
                   </div>
                 ))}
+                {provider.trustBadges.length === 0 ? (
+                  <div className="rounded-md border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] px-3 py-3 text-sm font-black text-[var(--muted)]">
+                    Doğrulama bilgileri admin onayıyla yayınlanır.
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>
@@ -425,9 +427,11 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               Profil özeti
             </p>
             <p className="mt-2 text-lg font-black leading-7">
-              {provider.completedJobs}+ tamamlanan iş, {provider.averagePrice} ortalama fiyat
-              aralığı ve {availabilityLabel.toLocaleLowerCase("tr")} bilgisiyle doğrudan
-              iletişime hazır.
+              {provider.completedJobs > 0
+                ? `${provider.completedJobs}+ tamamlanan iş, `
+                : ""}
+              {provider.averagePrice} ortalama fiyat aralığı ve{" "}
+              {availabilityLabel.toLocaleLowerCase("tr")} bilgisiyle doğrudan iletişime hazır.
             </p>
             <Link
               className="mt-4 inline-flex cursor-pointer text-sm font-black text-[var(--brand-orange)] transition-colors hover:text-white"

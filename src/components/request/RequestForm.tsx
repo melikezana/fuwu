@@ -180,6 +180,14 @@ function formatPrice(value: number | string | null | undefined) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(price)} TL`;
 }
 
+function formatProviderNotificationCount(value: number | null | undefined) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `${value} usta`;
+  }
+
+  return "Sayım alınamadı";
+}
+
 function formatPreferredDateFromOffset(offsetDays: number | null) {
   if (typeof offsetDays !== "number") {
     return "";
@@ -575,11 +583,11 @@ export function RequestForm({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                    {submittedRequest.urgencyType === "emergency" ? "Çağrı açıldı" : "Talep alındı"}
+                    {submittedRequest.urgencyType === "emergency" ? "Acil talep" : "Talep alındı"}
                   </p>
                   <h3 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
                     {submittedRequest.urgencyType === "emergency"
-                      ? "Uygun ustalara bildirim gönderildi."
+                      ? "Acil talebiniz uygun ustalara iletildi."
                       : "Talebin alındı"}
                   </h3>
                 </div>
@@ -589,7 +597,7 @@ export function RequestForm({
               </div>
               <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
                 {submittedRequest.urgencyType === "emergency"
-                  ? "Usta kabul ettiğinde varış bilgisi, ödeme tercihi ve doğrulama kodu aynı akışta netleşir."
+                  ? "Henüz usta ataması yapılmadı. İlk uygun usta kabul ettiğinde canlı durum bilgisi bu talep üzerinden ilerler."
                   : serviceRequestSuccessMessage}
               </p>
               <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
@@ -617,18 +625,28 @@ export function RequestForm({
                   <>
                     <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
                       <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                        Doğrulama kodu
-                      </dt>
-                      <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
-                        {submittedRequest.confirmationCode ?? "Usta kabul edince paylaşılacak"}
-                      </dd>
-                    </div>
-                    <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
-                      <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
                         Tahmini varış
                       </dt>
                       <dd className="mt-1 text-sm font-bold">
                         {submittedRequest.estimatedArrivalText ?? liveTrackingSoonText}
+                      </dd>
+                    </div>
+                    <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+                      <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                        Bilgilendirilen usta
+                      </dt>
+                      <dd className="mt-1 text-sm font-bold">
+                        {formatProviderNotificationCount(submittedRequest.providerCountNotified)}
+                      </dd>
+                    </div>
+                    <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+                      <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                        Doğrulama durumu
+                      </dt>
+                      <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
+                        {submittedRequest.confirmationCode
+                          ? "Kod üretildi"
+                          : "Usta kabul edince paylaşılacak"}
                       </dd>
                     </div>
                     <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">

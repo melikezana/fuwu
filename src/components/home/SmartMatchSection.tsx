@@ -5,8 +5,10 @@ import {
   Phone,
   Sparkles,
   Star,
+  Clock3,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
@@ -69,6 +71,12 @@ function SmartMatchProviderResult({ provider }: SmartMatchProviderResultProps) {
     provider.averagePrice && !/\b(null|undefined|nan)\b/i.test(provider.averagePrice)
       ? provider.averagePrice
       : "Fiyat bilgisi yakında";
+  const availabilityClassName =
+    provider.availabilityStatus.tone === "green"
+      ? "bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : provider.availabilityStatus.tone === "orange"
+        ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
+        : "bg-[var(--surface-soft)] text-[var(--muted)]";
 
   return (
     <article className="flex min-w-0 flex-col rounded-lg bg-white p-4 shadow-[0_12px_30px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]">
@@ -100,9 +108,22 @@ function SmartMatchProviderResult({ provider }: SmartMatchProviderResultProps) {
         ) : null}
       </div>
 
-      <div className="mt-3 rounded-md bg-[#F7F7F8] px-3 py-2">
-        <p className="text-xs font-semibold uppercase text-[var(--muted)]">Fiyat aralığı</p>
-        <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">{displayPrice}</p>
+      <ProviderTrustBadges className="mt-3" badges={provider.trustBadges} limit={2} />
+
+      <div className="mt-3 grid gap-2">
+        <div className="rounded-md bg-[#F7F7F8] px-3 py-2">
+          <p className="text-xs font-semibold uppercase text-[var(--muted)]">Fiyat aralığı</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">{displayPrice}</p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          <span className={`inline-flex min-h-9 items-center gap-2 rounded-md px-3 text-xs font-bold ${availabilityClassName}`}>
+            <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{provider.availabilityStatus.label}</span>
+          </span>
+          <span className="inline-flex min-h-9 items-center rounded-md bg-[#F7F7F8] px-3 text-xs font-bold text-[var(--brand-navy)]">
+            <span className="truncate">{provider.responseTime}</span>
+          </span>
+        </div>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2">

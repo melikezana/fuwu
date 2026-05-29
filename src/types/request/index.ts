@@ -25,6 +25,7 @@ export type ServiceRequestSubmitResult = {
   notificationMessage?: string | null;
   offeredPrice?: number | null;
   paymentPreference?: ServiceRequestPaymentPreference | null;
+  providerCountNotified?: number | null;
   requestCode: string;
   requestId?: string | null;
   urgencyType?: ServiceRequestUrgencyType | null;

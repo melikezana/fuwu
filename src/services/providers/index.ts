@@ -15,6 +15,13 @@ import {
 } from "@/lib/constants/providers";
 import { handleServiceError } from "@/lib/errors";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
+import {
+  calculateProviderProfileCompletion,
+  formatProviderResponseTime,
+  formatProviderWorkingHours,
+  getProviderOperationalStatus,
+  getProviderTrustBadges,
+} from "@/lib/providers/trust";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import {
@@ -59,6 +66,14 @@ type SupabaseProviderRecord = Pick<
   | "average_price_min"
   | "average_price_max"
   | "rating"
+  | "working_hours"
+  | "is_verified"
+  | "phone_verified"
+  | "identity_verified"
+  | "last_active_at"
+  | "response_time_minutes"
+  | "profile_completion_score"
+  | "profile_image_url"
 > & {
   availability?: string | null;
   category?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
@@ -83,6 +98,20 @@ type ProviderReadResult = {
   source: ProviderDataSource;
 };
 
+export type MarketplaceTrustMetrics = {
+  activeProviders: number;
+  completedRequests: number;
+  districts: number;
+  serviceCategories: number;
+  source: ProviderDataSource;
+};
+
+type MarketplaceTrustMetricFallbacks = {
+  activeProviders: number;
+  districts: number;
+  serviceCategories: number;
+};
+
 const providerSelectQuery = `
   id,
   category_id,
@@ -96,6 +125,14 @@ const providerSelectQuery = `
   average_price_max,
   rating,
   availability,
+  working_hours,
+  is_verified,
+  phone_verified,
+  identity_verified,
+  last_active_at,
+  response_time_minutes,
+  profile_completion_score,
+  profile_image_url,
   category:service_categories(name, slug),
   district:districts(name, slug)
 `;
@@ -115,6 +152,18 @@ const providerSelectQueryWithoutAvailability = `
   category:service_categories(name, slug),
   district:districts(name, slug)
 `;
+
+const optionalProviderColumnNames = [
+  "availability",
+  "identity_verified",
+  "is_verified",
+  "last_active_at",
+  "phone_verified",
+  "profile_completion_score",
+  "profile_image_url",
+  "response_time_minutes",
+  "working_hours",
+];
 
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -193,6 +242,14 @@ function getProviderAvailability(value: string | null | undefined): ProviderAvai
   return normalizeProviderAvailabilityStatus(value);
 }
 
+function normalizeResponseTimeMinutes(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  return Math.round(value);
+}
+
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
   const category = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
   const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
@@ -207,6 +264,21 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     sanitizeText(record.description ?? "", 900) || createFallbackDescription(name, category, district);
   const whatsapp = normalizePhoneForWhatsApp(sanitizePhone(record.whatsapp || "") || phone);
   const experienceYears = Math.max(0, Number(record.experience_years ?? 0));
+  const availability = getProviderAvailability(record.availability);
+  const workingHours = formatProviderWorkingHours(record.working_hours);
+  const servicesOffered = [`${category} hizmeti`];
+  const responseTimeMinutes = normalizeResponseTimeMinutes(record.response_time_minutes);
+  const profileImageUrl = sanitizeText(record.profile_image_url ?? "", 500) || undefined;
+  const profileCompletion = calculateProviderProfileCompletion({
+    availability,
+    category,
+    description,
+    district,
+    phone,
+    profileImageUrl,
+    servicesOffered,
+    workingHours,
+  });
 
   return {
     id: record.id,
@@ -221,27 +293,40 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     averagePriceMax: record.average_price_max,
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
     phone,
+    profileImageUrl,
     whatsapp,
-    availability: getProviderAvailability(record.availability),
+    availability,
+    availabilityStatus: getProviderOperationalStatus({
+      availability,
+      workingHours,
+    }),
     description,
     shortDescription: description,
     serviceAreas: [district],
-    workingHours: "Hafta içi 09:00 - 18:00",
-    servicesOffered: [`${category} hizmeti`],
-    trustBadges: [
-      "Fuwu onaylı profil",
-      "Doğrudan iletişim",
-      "Canlı sağlayıcı kaydı",
-    ],
+    workingHours,
+    servicesOffered,
+    trustBadges: getProviderTrustBadges({
+      identityVerified: record.identity_verified,
+      isVerified: record.is_verified,
+      lastActiveAt: record.last_active_at,
+      phoneVerified: record.phone_verified,
+    }),
     completedJobs: 0,
-    responseTime: "Kısa sürede dönüş",
+    responseTime: formatProviderResponseTime(responseTimeMinutes),
+    responseTimeMinutes,
     reviewCount: 0,
+    isVerified: Boolean(record.is_verified),
+    phoneVerified: Boolean(record.phone_verified),
+    identityVerified: Boolean(record.identity_verified),
+    lastActiveAt: record.last_active_at ?? null,
+    profileCompletionScore: profileCompletion.score,
+    profileCompletionMissingFields: profileCompletion.missingFields,
     featured: index < 6,
     source: "supabase",
   };
 }
 
-function isMissingAvailabilityColumn(error: unknown) {
+function isMissingOptionalProviderColumn(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
   }
@@ -252,7 +337,10 @@ function isMissingAvailabilityColumn(error: unknown) {
     .join(" ")
     .toLocaleLowerCase("tr");
 
-  return errorText.includes("availability") && errorText.includes("column");
+  return (
+    errorText.includes("column") &&
+    optionalProviderColumnNames.some((columnName) => errorText.includes(columnName))
+  );
 }
 
 function isProvider(provider: Provider | null): provider is Provider {
@@ -520,8 +608,11 @@ function matchesProviderSearchQuery(provider: Provider, query: string | undefine
       provider.averagePrice,
       provider.experience,
       provider.availability,
+      provider.availabilityStatus.label,
+      provider.responseTime,
       ...provider.serviceAreas,
       ...provider.servicesOffered,
+      ...provider.trustBadges.map((badge) => badge.label),
     ].join(" "),
   );
 
@@ -814,7 +905,7 @@ async function fetchProvidersFromSupabase(
 
     let { data, error } = await query.order("rating", { ascending: false });
 
-    if (error && isMissingAvailabilityColumn(error)) {
+    if (error && isMissingOptionalProviderColumn(error)) {
       let fallbackQuery = createQuery(providerSelectQueryWithoutAvailability);
 
       if (categoryIds) {
@@ -906,7 +997,7 @@ async function fetchProviderByIdFromSupabase(
       .eq("is_approved", true)
       .maybeSingle();
 
-    if (error && isMissingAvailabilityColumn(error)) {
+    if (error && isMissingOptionalProviderColumn(error)) {
       const fallbackResult = await supabase
         .from("providers")
         .select(providerSelectQueryWithoutAvailability)
@@ -1027,4 +1118,65 @@ export async function getProvidersByCategory(category: string): Promise<Provider
 
 export async function getProvidersByDistrict(district: string): Promise<Provider[]> {
   return getProviders({ district });
+}
+
+export async function getMarketplaceTrustMetrics(
+  fallbacks: MarketplaceTrustMetricFallbacks,
+): Promise<MarketplaceTrustMetrics> {
+  const fallbackMetrics: MarketplaceTrustMetrics = {
+    ...fallbacks,
+    completedRequests: 0,
+    source: "fallback",
+  };
+  const supabase = createProvidersSupabaseClient();
+
+  if (!supabase) {
+    return fallbackMetrics;
+  }
+
+  try {
+    const [
+      activeProvidersResult,
+      serviceCategoriesResult,
+      districtsResult,
+      completedRequestsResult,
+    ] = await Promise.allSettled([
+      supabase
+        .from("providers")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true)
+        .eq("is_approved", true),
+      supabase
+        .from("service_categories")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("districts")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["tamamlandi", "completed"]),
+    ]);
+
+    const readCount = <T extends { count: number | null; error: unknown }>(
+      result: PromiseSettledResult<T>,
+      fallback: number,
+    ) =>
+      result.status === "fulfilled" && !result.value.error
+        ? result.value.count ?? fallback
+        : fallback;
+
+    return {
+      activeProviders: readCount(activeProvidersResult, fallbacks.activeProviders),
+      completedRequests: readCount(completedRequestsResult, 0),
+      districts: readCount(districtsResult, fallbacks.districts),
+      serviceCategories: readCount(serviceCategoriesResult, fallbacks.serviceCategories),
+      source: "supabase",
+    };
+  } catch (error) {
+    warnProviderReadError(error);
+    return fallbackMetrics;
+  }
 }

@@ -88,6 +88,15 @@ create table if not exists public.providers (
   average_price_min numeric(10, 2),
   average_price_max numeric(10, 2),
   rating numeric(2, 1) not null default 0,
+  availability text not null default 'müsait',
+  working_hours text not null default '09:00-18:00',
+  is_verified boolean not null default false,
+  phone_verified boolean not null default false,
+  identity_verified boolean not null default false,
+  last_active_at timestamptz,
+  response_time_minutes integer,
+  profile_completion_score integer,
+  profile_image_url text,
   is_active boolean not null default true,
   is_approved boolean not null default false,
   created_at timestamptz not null default timezone('utc', now()),
@@ -107,6 +116,14 @@ create table if not exists public.providers (
     ),
   constraint providers_rating_check
     check (rating >= 0 and rating <= 5),
+  constraint providers_availability_check
+    check (availability in ('müsait', 'yoğun', 'çevrimdışı')),
+  constraint providers_working_hours_check
+    check (working_hours in ('09:00-18:00', '09:00-22:00', '7/24')),
+  constraint providers_response_time_minutes_check
+    check (response_time_minutes is null or response_time_minutes between 1 and 1440),
+  constraint providers_profile_completion_score_check
+    check (profile_completion_score is null or profile_completion_score between 0 and 100),
   constraint providers_name_not_blank_check
     check (btrim(name) <> ''),
   constraint providers_phone_not_blank_check
@@ -265,6 +282,18 @@ create index if not exists providers_active_approved_idx
 
 create index if not exists providers_rating_idx
   on public.providers (rating desc);
+
+create index if not exists providers_availability_idx
+  on public.providers (availability);
+
+create index if not exists providers_trust_flags_idx
+  on public.providers (is_verified, phone_verified, identity_verified);
+
+create index if not exists providers_last_active_at_idx
+  on public.providers (last_active_at desc);
+
+create index if not exists providers_response_time_minutes_idx
+  on public.providers (response_time_minutes);
 
 create index if not exists provider_applications_status_idx
   on public.provider_applications (status);

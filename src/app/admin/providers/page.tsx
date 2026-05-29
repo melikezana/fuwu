@@ -17,9 +17,12 @@ import {
   getProviderAvailabilityLabel,
   getProviderAvailabilityTone,
 } from "@/lib/constants/providers";
+import { PROVIDER_AVAILABILITY_STATUS_VALUES } from "@/lib/constants/statuses";
+import { providerWorkingHourOptions } from "@/lib/providers/trust";
 import {
   getAdminAccess,
   getAdminProviders,
+  updateAdminProviderTrust,
   updateAdminProviderStatus,
   type AdminProvider,
   type AdminProviderStatusAction,
@@ -72,6 +75,11 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     title: "Usta pasifleştirildi",
     tone: "success",
   },
+  "provider-invalid-availability": {
+    body: "Seçilen uygunluk değeri geçerli değil. Lütfen listeden bir değer seçin.",
+    title: "Uygunluk güncellenemedi",
+    tone: "error",
+  },
   "provider-invalid-action": {
     body: "Seçilen işlem bu usta kaydı için geçerli değil.",
     title: "Geçersiz işlem",
@@ -87,9 +95,24 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     title: "Usta bulunamadı",
     tone: "error",
   },
+  "provider-trust-updated": {
+    body: "Ustanın uygunluk, çalışma saati ve ortalama cevap bilgisi güncellendi.",
+    title: "Güven bilgileri güncellendi",
+    tone: "success",
+  },
   "provider-unpublished": {
     body: "Usta kaydı onaydan çıkarıldı ve public listelerde yayınlanmaz.",
     title: "Usta yayından kaldırıldı",
+    tone: "success",
+  },
+  "provider-unverified": {
+    body: "Fuwu Onaylı rozeti kaldırıldı; diğer doğrulama alanları korunur.",
+    title: "Usta doğrulaması kaldırıldı",
+    tone: "success",
+  },
+  "provider-verified": {
+    body: "Usta Fuwu Onaylı olarak işaretlendi ve public güven rozeti hazırlandı.",
+    title: "Usta doğrulandı",
     tone: "success",
   },
   "supabase-not-configured": {
@@ -107,6 +130,12 @@ function getFormProviderId(formData: FormData) {
 
 function getFormProviderStatusAction(formData: FormData) {
   const value = formData.get("statusAction");
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getFormString(formData: FormData, key: string) {
+  const value = formData.get(key);
 
   return typeof value === "string" ? value.trim() : "";
 }
@@ -133,6 +162,17 @@ async function updateProviderStatusAction(formData: FormData) {
   redirectToProviderActionMessage(result.code);
 }
 
+async function updateProviderTrustAction(formData: FormData) {
+  "use server";
+
+  const result = await updateAdminProviderTrust(getFormProviderId(formData), {
+    availability: getFormString(formData, "availability"),
+    responseTimeMinutes: getFormString(formData, "responseTimeMinutes"),
+    workingHours: getFormString(formData, "workingHours"),
+  });
+  redirectToProviderActionMessage(result.code);
+}
+
 function getSearchParamValue(searchParams: SearchParams, key: string) {
   const value = searchParams[key];
 
@@ -154,6 +194,14 @@ function formatRating(rating: number) {
     maximumFractionDigits: 1,
     minimumFractionDigits: 1,
   }).format(rating);
+}
+
+function getWorkingHoursFormValue(value: string) {
+  return value.replace(/[–—]/g, "-");
+}
+
+function formatWorkingHourOption(value: string) {
+  return value === "7/24" ? value : value.replace("-", "–");
 }
 
 function BooleanStatus({
@@ -248,6 +296,22 @@ function ProviderActions({ provider }: { provider: AdminProvider }) {
         : "Usta zaten yayında değil",
       tone: "reject",
     },
+    {
+      action: "verify",
+      disabled: provider.isVerified,
+      icon: adminActionIcons.approve,
+      label: "Doğrula",
+      title: provider.isVerified ? "Usta zaten Fuwu Onaylı" : "Fuwu Onaylı yap",
+      tone: "approve",
+    },
+    {
+      action: "unverify",
+      disabled: !provider.isVerified,
+      icon: adminActionIcons.reject,
+      label: "Doğrulamayı Kaldır",
+      title: provider.isVerified ? "Fuwu Onaylı rozetini kaldır" : "Usta zaten doğrulanmamış",
+      tone: "reject",
+    },
   ];
 
   return (
@@ -269,6 +333,89 @@ function ProviderActions({ provider }: { provider: AdminProvider }) {
         </form>
       ))}
     </div>
+  );
+}
+
+function ProviderVerificationBadges({ provider }: { provider: AdminProvider }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <BooleanStatus
+        falseLabel="Fuwu Onayı Yok"
+        falseTone="orange"
+        trueLabel="Fuwu Onaylı"
+        value={provider.isVerified}
+      />
+      <BooleanStatus
+        falseLabel="Kimlik Bekliyor"
+        falseTone="neutral"
+        trueLabel="Kimlik Doğrulandı"
+        value={provider.identityVerified}
+      />
+      <BooleanStatus
+        falseLabel="Telefon Bekliyor"
+        falseTone="neutral"
+        trueLabel="Telefon Doğrulandı"
+        value={provider.phoneVerified}
+      />
+    </div>
+  );
+}
+
+function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
+  return (
+    <form action={updateProviderTrustAction} className="grid gap-2 sm:grid-cols-3 lg:grid-cols-[9rem_9rem_8rem_auto]">
+      <input name="providerId" type="hidden" value={provider.id} />
+      <label className="min-w-0">
+        <span className="sr-only">Uygunluk</span>
+        <select
+          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)]"
+          defaultValue={provider.availability}
+          name="availability"
+        >
+          {PROVIDER_AVAILABILITY_STATUS_VALUES.map((availability) => (
+            <option key={availability} value={availability}>
+              {getProviderAvailabilityLabel(availability)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="min-w-0">
+        <span className="sr-only">Çalışma saati</span>
+        <select
+          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)]"
+          defaultValue={getWorkingHoursFormValue(provider.workingHours)}
+          name="workingHours"
+        >
+          {providerWorkingHourOptions.map((workingHours) => (
+            <option key={workingHours} value={workingHours}>
+              {formatWorkingHourOption(workingHours)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="min-w-0">
+        <span className="sr-only">Ortalama cevap dakikası</span>
+        <input
+          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)] placeholder:text-[var(--muted)]"
+          defaultValue={provider.responseTimeMinutes ?? ""}
+          inputMode="numeric"
+          max={1440}
+          min={1}
+          name="responseTimeMinutes"
+          placeholder="Yeni Usta"
+          type="number"
+        />
+      </label>
+      <AdminActionButton
+        className="h-10 min-h-10 w-full px-2 sm:col-span-3 lg:col-span-1"
+        disabled={false}
+        icon={adminActionIcons.status}
+        tone="neutral"
+        type="submit"
+      >
+        Güncelle
+      </AdminActionButton>
+    </form>
   );
 }
 
@@ -306,6 +453,9 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
           <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
             {getProviderAvailabilityLabel(provider.availability)}
           </AdminStatusBadge>
+          <AdminStatusBadge tone={provider.availabilityStatusTone}>
+            {provider.availabilityStatusLabel}
+          </AdminStatusBadge>
           <BooleanStatus
             falseLabel="Pasif"
             trueLabel="Aktif"
@@ -318,9 +468,30 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
             value={provider.isApproved}
           />
         </div>
+        <ProviderVerificationBadges provider={provider} />
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Cevap: </span>
+          {provider.responseTime}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Çalışma: </span>
+          {provider.workingHours}
+        </p>
+        <div className="rounded-md bg-[var(--surface-soft)] p-3">
+          <p className="font-black text-[var(--brand-navy)]">
+            Profil Tamamlandı %{provider.profileCompletionScore}
+          </p>
+          <p className="mt-1 text-xs leading-5">
+            Eksikler:{" "}
+            {provider.profileCompletionMissingFields.length > 0
+              ? provider.profileCompletionMissingFields.join(", ")
+              : "Yok"}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
+        <ProviderTrustForm provider={provider} />
         <ProviderActions provider={provider} />
       </div>
     </AdminMobileCard>
@@ -366,7 +537,7 @@ export default async function AdminProvidersPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1320px] text-left text-sm">
+            <table className="w-full min-w-[1780px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Usta</th>
@@ -376,6 +547,10 @@ export default async function AdminProvidersPage({
                   <th className="px-4 py-3">WhatsApp</th>
                   <th className="px-4 py-3">Puan</th>
                   <th className="px-4 py-3">Uygunluk</th>
+                  <th className="px-4 py-3">Güven</th>
+                  <th className="px-4 py-3">Cevap</th>
+                  <th className="px-4 py-3">Çalışma</th>
+                  <th className="px-4 py-3">Profil</th>
                   <th className="px-4 py-3">Ortalama Fiyat</th>
                   <th className="px-4 py-3">Aktiflik</th>
                   <th className="px-4 py-3">Onay</th>
@@ -404,9 +579,33 @@ export default async function AdminProvidersPage({
                       {formatRating(provider.rating)}
                     </td>
                     <td className="px-4 py-4">
-                      <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
-                        {getProviderAvailabilityLabel(provider.availability)}
-                      </AdminStatusBadge>
+                      <div className="flex flex-col gap-2">
+                        <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
+                          {getProviderAvailabilityLabel(provider.availability)}
+                        </AdminStatusBadge>
+                        <AdminStatusBadge tone={provider.availabilityStatusTone}>
+                          {provider.availabilityStatusLabel}
+                        </AdminStatusBadge>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <ProviderVerificationBadges provider={provider} />
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
+                      {provider.responseTime}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
+                      {provider.workingHours}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      <p className="font-black text-[var(--brand-navy)]">
+                        %{provider.profileCompletionScore}
+                      </p>
+                      <p className="mt-1 max-w-[16rem] text-xs leading-5">
+                        {provider.profileCompletionMissingFields.length > 0
+                          ? provider.profileCompletionMissingFields.join(", ")
+                          : "Eksik yok"}
+                      </p>
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
                       {provider.averagePriceRange}
@@ -427,7 +626,10 @@ export default async function AdminProvidersPage({
                       />
                     </td>
                     <td className="px-4 py-4">
-                      <ProviderActions provider={provider} />
+                      <div className="space-y-3">
+                        <ProviderTrustForm provider={provider} />
+                        <ProviderActions provider={provider} />
+                      </div>
                     </td>
                   </tr>
                 ))}

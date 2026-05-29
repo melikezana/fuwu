@@ -505,6 +505,7 @@ export async function createServiceRequest(
         : null,
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
+    providerCountNotified: eligibleProviderCount ?? null,
     requestCode,
     requestId: typeof record?.id === "string" ? record.id : null,
     urgencyType: insertPayload.urgency_type ?? "standard",

@@ -1,9 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  CheckCircle2,
+  MapPin,
   MessageCircle,
   ShieldCheck,
+  Users,
   WalletCards,
+  Wrench,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -21,7 +25,12 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
-import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
+import {
+  getMarketplaceTrustMetrics,
+  getProviderDirectory,
+  type MarketplaceTrustMetrics,
+  type ProviderFilterOptions,
+} from "@/services/providers";
 import type { Provider } from "@/types/provider";
 
 type SectionHeadingProps = {
@@ -40,25 +49,6 @@ const serviceOrder = [
   "Boya Badana",
   "Nakliye Yardımı",
 ];
-
-const trustItems = [
-  {
-    descriptionKey: "home.trust.item1.description",
-    titleKey: "home.trust.item1.title",
-  },
-  {
-    descriptionKey: "home.trust.item2.description",
-    titleKey: "home.trust.item2.title",
-  },
-  {
-    descriptionKey: "home.trust.item3.description",
-    titleKey: "home.trust.item3.title",
-  },
-  {
-    descriptionKey: "home.trust.item4.description",
-    titleKey: "home.trust.item4.title",
-  },
-] satisfies Array<{ descriptionKey: TranslationKey; titleKey: TranslationKey }>;
 
 const mobileTrustSignals: Array<{
   icon: LucideIcon;
@@ -367,6 +357,72 @@ function ServicesSection() {
   );
 }
 
+function formatStatValue(value: number) {
+  return new Intl.NumberFormat("tr-TR", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function SocialProofSection({ metrics }: { metrics: MarketplaceTrustMetrics }) {
+  const stats: Array<{
+    icon: LucideIcon;
+    label: string;
+    value: number;
+  }> = [
+    {
+      icon: Users,
+      label: "Aktif Usta",
+      value: metrics.activeProviders,
+    },
+    {
+      icon: Wrench,
+      label: "Hizmet Kategorisi",
+      value: metrics.serviceCategories,
+    },
+    {
+      icon: MapPin,
+      label: "İstanbul İlçesi",
+      value: metrics.districts,
+    },
+    {
+      icon: CheckCircle2,
+      label: "Tamamlanan Talep",
+      value: metrics.completedRequests,
+    },
+  ];
+
+  return (
+    <section className="border-b border-[var(--border)] bg-white" id="social-proof">
+      <Container className="py-7 sm:py-9">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+
+            return (
+              <div
+                className="flex min-w-0 items-center gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[#FAFAFA] p-4"
+                key={stat.label}
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+                  <Icon aria-hidden="true" className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-2xl font-bold leading-none text-[var(--brand-navy)]">
+                    {formatStatValue(stat.value)}
+                  </span>
+                  <span className="mt-1 block text-sm font-semibold leading-5 text-[var(--muted)]">
+                    {stat.label}
+                  </span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
 function ProviderPreviewSection({ featuredProviders }: { featuredProviders: Provider[] }) {
   return (
     <section className="bg-[var(--background)]" id="providers-preview">
@@ -503,27 +559,46 @@ function AboutSection() {
 }
 
 function TrustSection() {
+  const trustItems = [
+    {
+      description: "Telefon veya WhatsApp ile araya aracı katmadan doğrudan görüş.",
+      title: "Doğrudan Usta ile İletişim",
+    },
+    {
+      description: "Fuwu ilk temas için gizli komisyon ya da görünmeyen hizmet bedeli eklemez.",
+      title: "Gizli Komisyon Yok",
+    },
+    {
+      description: "Hizmet, ilçe ve bütçe sinyallerine göre uygun profilleri hızlıca karşılaştır.",
+      title: "Hızlı Eşleşme",
+    },
+    {
+      description: "Tüm İstanbul ilçeleri için kategori ve bölge bazlı usta keşfi.",
+      title: "İstanbul Geneli Hizmet",
+    },
+  ];
+
   return (
     <section className="bg-[#F7F7F8]" id="trust">
       <Container className="py-9 sm:py-14 lg:py-16">
         <SectionHeading
-          description={<I18nText i18nKey="home.trust.description" />}
-          eyebrow={<I18nText i18nKey="home.trust.eyebrow" />}
-          title={<I18nText i18nKey="home.trust.title" />}
+          description="Karar vermeden önce profil güven sinyallerini, iletişim seçeneklerini ve hizmet kapsamını tek yerde gör."
+          eyebrow="Güven"
+          title="Neden Fuwu?"
         />
         <MobileCollapsibleSection contentClassName="mt-7">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trustItems.map((item) => (
               <div
                 className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]"
-                key={item.titleKey}
+                key={item.title}
               >
                 <div className="mb-5 h-1.5 w-12 rounded-full bg-[var(--brand-orange)]" />
                 <h3 className="text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                  <I18nText i18nKey={item.titleKey} />
+                  {item.title}
                 </h3>
                 <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                  <I18nText i18nKey={item.descriptionKey} />
+                  {item.description}
                 </p>
               </div>
             ))}
@@ -604,6 +679,11 @@ export async function MarketplaceHome() {
     new Map([...heroProviders, ...previewProviders].map((provider) => [provider.id, provider])).values(),
   );
   const todayActiveCount = todayProviders.length;
+  const trustMetrics = await getMarketplaceTrustMetrics({
+    activeProviders: allProviders.length,
+    districts: filterOptions.districts.length,
+    serviceCategories: filterOptions.categories.length,
+  });
 
   return (
     <div className="bg-[var(--background)]">
@@ -614,6 +694,7 @@ export async function MarketplaceHome() {
         todayActiveCount={todayActiveCount}
         voiceProviders={voiceProviders}
       />
+      <SocialProofSection metrics={trustMetrics} />
       <ServicesSection />
       <ProviderPreviewSection featuredProviders={previewProviders} />
       <HowItWorksSection />

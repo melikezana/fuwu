@@ -1,4 +1,8 @@
 import type { ProviderAvailabilityStatus } from "@/lib/constants/statuses";
+import type {
+  ProviderOperationalStatus,
+  ProviderTrustBadge,
+} from "@/lib/providers/trust";
 
 export type Provider = {
   id: string;
@@ -12,6 +16,7 @@ export type Provider = {
   averagePriceMin?: number | null;
   averagePriceMax?: number | null;
   averagePrice: string;
+  availabilityStatus: ProviderOperationalStatus;
   phone: string;
   profileImageUrl?: string;
   whatsapp: string;
@@ -21,10 +26,17 @@ export type Provider = {
   serviceAreas: string[];
   workingHours: string;
   servicesOffered: string[];
-  trustBadges: string[];
+  trustBadges: ProviderTrustBadge[];
   completedJobs: number;
   responseTime: string;
+  responseTimeMinutes?: number | null;
   reviewCount: number;
+  isVerified?: boolean;
+  phoneVerified?: boolean;
+  identityVerified?: boolean;
+  lastActiveAt?: string | null;
+  profileCompletionScore: number;
+  profileCompletionMissingFields: string[];
   featured?: boolean;
   source?: "supabase" | "mock";
 };
