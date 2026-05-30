@@ -180,7 +180,10 @@ type AdminServiceRequestRecord = Pick<
   districts: MaybeRelation;
   profiles: MaybeProfileRelation;
   service_categories: MaybeRelation;
-  providers: { id: string; name: string } | { id: string; name: string }[] | null;
+  assigned_provider:
+    | { id: string; name: string }
+    | { id: string; name: string }[]
+    | null;
 };
 
 type AdminProviderPublicationUpdate = Partial<
@@ -1758,7 +1761,7 @@ export async function getAdminServiceRequests(): Promise<
         service_categories(name),
         districts(name),
         profiles(full_name, phone),
-        providers(id, name)
+        assigned_provider:providers!service_requests_assigned_provider_id_fkey(id, name)
       `,
     )
     .order("created_at", { ascending: false });
@@ -1808,7 +1811,9 @@ export async function getAdminServiceRequests(): Promise<
       acceptedProviderId: request.accepted_provider_id ?? null,
       acceptedAt: request.accepted_at ?? null,
       assignedProviderId: request.assigned_provider_id ?? null,
-      assignedProviderName: Array.isArray(request.providers) ? request.providers[0]?.name : request.providers?.name ?? null,
+      assignedProviderName: Array.isArray(request.assigned_provider)
+        ? request.assigned_provider[0]?.name
+        : request.assigned_provider?.name ?? null,
     })),
   );
 }

@@ -14,6 +14,21 @@ begin
 end;
 $$;
 
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  insert into public.profiles (id, role)
+  values (new.id, 'customer')
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
@@ -32,6 +47,11 @@ create table if not exists public.profiles (
 
 comment on table public.profiles is
   'Stores public Fuwu user profile details linked to Supabase Auth users.';
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
 
 create table if not exists public.service_categories (
   id uuid primary key default gen_random_uuid(),
@@ -300,6 +320,10 @@ create index if not exists provider_applications_status_idx
 
 create index if not exists provider_applications_phone_idx
   on public.provider_applications (phone);
+
+create unique index if not exists provider_applications_pending_phone_unique_idx
+  on public.provider_applications (phone)
+  where status = 'pending';
 
 create index if not exists provider_applications_category_id_idx
   on public.provider_applications (category_id);

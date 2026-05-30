@@ -148,7 +148,7 @@ export async function getAssignmentMonitoring() {
         service_categories(name),
         districts(name),
         profiles(phone),
-        providers(name)
+        assigned_provider:providers!service_requests_assigned_provider_id_fkey(name)
       `)
       .not("assigned_provider_id", "is", null)
       .order("created_at", { ascending: false })
@@ -160,7 +160,9 @@ export async function getAssignmentMonitoring() {
       id: req.id,
       status: req.status,
       assignedProviderId: req.assigned_provider_id,
-      assignedProviderName: Array.isArray(req.providers) ? req.providers[0]?.name : req.providers?.name ?? "Bilinmiyor",
+      assignedProviderName: Array.isArray(req.assigned_provider)
+        ? req.assigned_provider[0]?.name
+        : req.assigned_provider?.name ?? "Bilinmiyor",
       category: Array.isArray(req.service_categories) ? req.service_categories[0]?.name : req.service_categories?.name ?? "Belirtilmedi",
       district: Array.isArray(req.districts) ? req.districts[0]?.name : req.districts?.name ?? "Belirtilmedi",
       customerPhone: Array.isArray(req.profiles) ? req.profiles[0]?.phone : req.profiles?.phone ?? "Belirtilmedi",

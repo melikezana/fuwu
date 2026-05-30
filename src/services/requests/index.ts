@@ -11,6 +11,7 @@ import {
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { normalizeServiceValue } from "@/lib/constants/services";
+import { logInfo } from "@/lib/logger";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
@@ -20,9 +21,10 @@ import {
   normalizeBudgetTag,
   validateEmergencyPrice,
 } from "@/services/matching";
-import { getPaymentPreferenceLabel } from "@/services/payments";
+import { getPaymentPreferenceLabel, savePaymentPreference } from "@/services/payments";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, getCurrentUser } from "@/services/auth";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 import {
   notifyEmergencyRequestDispatched,
   notifyServiceRequestCreated,
@@ -59,7 +61,7 @@ export const serviceRequestLoginRequiredMessage =
   authAccessMessages.loginRequired;
 
 export const serviceRequestSubmitErrorMessage =
-  "Talebin şu anda gönderilemedi. Lütfen bilgilerini kontrol edip tekrar dene.";
+  "Talep oluşturulamadı. Lütfen tekrar deneyin.";
 
 function createLiveRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
@@ -185,6 +187,10 @@ function createRequestDescription(data: ServiceRequestInput) {
 
   return [
     data.shortDescription.trim(),
+    offeredPriceLabel ? `Teklif tutarı: ${offeredPriceLabel}` : "",
+    paymentPreferenceLabel !== "Belirtilmedi"
+      ? `Ödeme tercihi: ${paymentPreferenceLabel}`
+      : "",
     `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`,
     `Tercih edilen saat aralığı: ${data.preferredTimeRange.trim()}`,
   ]
@@ -209,8 +215,10 @@ async function findLookupId(
     .eq("is_active", true);
 
   if (error) {
-    warnServiceRequestError(`Service request ${table} lookup failed.`, error);
-    return null;
+    throw handleServiceError(error, {
+      logContext: `Service request ${table} lookup failed.`,
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
   }
 
   const requestedValue = normalizeServiceValue(requestedName);
@@ -292,7 +300,7 @@ async function buildServiceRequestInsert(
 
   if (!categoryId) {
     throw new NotFoundError("Service category lookup failed.", {
-      publicMessage: "Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.",
+      publicMessage: "Seçtiğin hizmet kategorisi şu anda bulunamadı.",
     });
   }
 
@@ -325,7 +333,14 @@ async function buildServiceRequestInsert(
   const emergencyAddress = [data.district.trim(), data.approximateLocation?.trim()]
     .filter(Boolean)
     .join(" - ");
-  const offeredPrice = emergencyRequest?.offeredPrice ?? null;
+  const offeredPrice =
+    urgencyType === "emergency"
+      ? emergencyRequest?.offeredPrice ?? null
+      : parseOfferedPrice(data.offerAmount);
+  const paymentPreference =
+    urgencyType === "emergency"
+      ? emergencyRequest?.paymentPreference ?? null
+      : savePaymentPreference(data.paymentPreference);
 
   if (urgencyType === "emergency") {
     if (!emergencyRequest?.query.category) {
@@ -376,8 +391,8 @@ async function buildServiceRequestInsert(
     urgency: urgencyType === "emergency" ? "urgent" : mapUrgencyLevel(data.urgencyLevel),
     urgency_type: urgencyType,
     budget_tag: emergencyRequest?.budgetTag ?? budgetTag ?? null,
-    offered_price: urgencyType === "emergency" ? offeredPrice : null,
-    payment_preference: emergencyRequest?.paymentPreference ?? null,
+    offered_price: offeredPrice,
+    payment_preference: paymentPreference,
     confirmation_code: emergencyRequest?.confirmationCode ?? null,
     estimated_arrival_text: emergencyRequest?.estimatedArrivalText ?? null,
     approximate_location: emergencyRequest?.approximateLocation ?? null,
@@ -428,16 +443,26 @@ export async function createServiceRequest(
     });
   }
 
-  const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
+  await ensureProfileForUser(supabase, user);
 
-  // Anti-spam duplicate request check (same user, category, and district within pending status)
+  const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
+  const activeDuplicateStatuses = [
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+  ];
+
+  // Anti-spam duplicate request check for active requests in the same category and district.
   const { data: existingRequest, error: duplicateCheckError } = await supabase
     .from("service_requests")
     .select("id")
     .eq("user_id", user.id)
     .eq("category_id", insertPayload.category_id)
     .eq("district_id", insertPayload.district_id)
-    .in("status", [SERVICE_REQUEST_STATUSES.yeni, SERVICE_REQUEST_STATUSES.pending])
+    .in("status", activeDuplicateStatuses)
     .limit(1)
     .maybeSingle();
 
@@ -468,6 +493,15 @@ export async function createServiceRequest(
   }
 
   const record = insertedRequest as LookupRecord | null;
+  logInfo("Service request inserted.", {
+    categoryId: insertPayload.category_id,
+    districtId: insertPayload.district_id,
+    hasOfferedPrice: typeof insertPayload.offered_price === "number",
+    hasPaymentPreference: Boolean(insertPayload.payment_preference),
+    status: insertPayload.status,
+    urgencyType: insertPayload.urgency_type ?? "standard",
+  });
+
   const requestCode = createLiveRequestCode(record?.id);
   const eligibleProviderCount =
     insertPayload.urgency_type === "emergency"

@@ -5,6 +5,7 @@ import {
 } from "@/lib/supabase/client";
 import { DatabaseError, handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
+import { logInfo } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import {
@@ -31,6 +32,15 @@ type LookupRecord = {
 type ProviderApplicationInsert =
   Database["public"]["Tables"]["provider_applications"]["Insert"];
 
+type SupabaseErrorRecord = {
+  code?: unknown;
+};
+
+const providerApplicationSubmitErrorMessage =
+  "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
+const duplicateProviderApplicationMessage =
+  "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.";
+
 function createProviderApplicationClient(): SupabaseClient<Database> | null {
   return createSupabaseBrowserClient();
 }
@@ -39,11 +49,21 @@ function createLiveApplicationCode() {
   return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
+function hasSupabaseErrorCode(error: unknown, code: string) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as SupabaseErrorRecord).code === code
+  );
+}
+
 function createProviderApplicationFailure(error: unknown) {
   return handleServiceError(error, {
     logContext: "Provider application Supabase insert failed.",
-    publicMessage:
-      "Başvuru şu anda kaydedilemedi. Lütfen bilgilerini kontrol edip tekrar dene.",
+    publicMessage: hasSupabaseErrorCode(error, "23505")
+      ? duplicateProviderApplicationMessage
+      : providerApplicationSubmitErrorMessage,
   });
 }
 
@@ -92,7 +112,10 @@ async function findLookupId(
     .maybeSingle();
 
   if (error) {
-    return null;
+    throw handleServiceError(error, {
+      logContext: `Provider application ${table} lookup failed.`,
+      publicMessage: providerApplicationSubmitErrorMessage,
+    });
   }
 
   const record = data as LookupRecord | null;
@@ -113,7 +136,7 @@ async function buildProviderApplicationInsert(
 
   if (!categoryId) {
     throw new NotFoundError("Provider application category lookup failed.", {
-      publicMessage: "Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.",
+      publicMessage: "Seçtiğin hizmet kategorisi şu anda bulunamadı.",
     });
   }
 
@@ -184,8 +207,7 @@ export async function submitProviderApplication(
 
   if (!supabase) {
     throw new DatabaseError("Supabase client is not configured.", {
-      publicMessage:
-        "Başvuru sistemi şu anda kullanılamıyor. Lütfen daha sonra tekrar dene.",
+      publicMessage: "Başvuru sistemi şu anda kullanılamıyor. Lütfen tekrar deneyin.",
       statusCode: 503,
     });
   }
@@ -213,14 +235,13 @@ export async function submitProviderApplication(
     if (duplicateCheckError) {
       throw handleServiceError(duplicateCheckError, {
         logContext: "Provider application duplicate check failed.",
-        publicMessage:
-          "Başvuru şu anda kontrol edilemedi. Lütfen biraz sonra tekrar dene.",
+        publicMessage: providerApplicationSubmitErrorMessage,
       });
     }
 
     if (existingApplication?.id) {
       throw new ValidationError("Duplicate provider application detected.", {
-        publicMessage: "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.",
+        publicMessage: duplicateProviderApplicationMessage,
       });
     }
 
@@ -234,6 +255,12 @@ export async function submitProviderApplication(
           .insert(fallbackPayload);
 
         if (!fallbackError) {
+          logInfo("Provider application inserted without profile image.", {
+            categoryId: fallbackPayload.category_id,
+            districtId: fallbackPayload.district_id,
+            status: fallbackPayload.status,
+          });
+
           return notifyProviderApplicationSubmitResult({
             applicationCode: createLiveApplicationCode(),
             mode: "live",
@@ -246,6 +273,13 @@ export async function submitProviderApplication(
 
       throw createProviderApplicationFailure(error);
     }
+
+    logInfo("Provider application inserted.", {
+      categoryId: insertPayload.category_id,
+      districtId: insertPayload.district_id,
+      hasProfileImage: profileImageUpload.status === "uploaded",
+      status: insertPayload.status,
+    });
 
     return notifyProviderApplicationSubmitResult({
       applicationCode: createLiveApplicationCode(),

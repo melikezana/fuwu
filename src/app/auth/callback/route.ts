@@ -3,6 +3,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { logWarn } from "@/lib/logger";
 import { createSafeRedirectUrl } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 
 function getSafeRedirectUrl(request: NextRequest) {
   return createSafeRedirectUrl(
@@ -28,6 +29,21 @@ export async function GET(request: NextRequest) {
             code: safeError.code,
             status: safeError.status,
           });
+        } else {
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
+          if (userError) {
+            const safeError = userError as { code?: string; status?: number };
+            logWarn("Auth callback user lookup failed. Safely redirecting.", {
+              code: safeError.code,
+              status: safeError.status,
+            });
+          } else if (user) {
+            await ensureProfileForUser(supabase, user);
+          }
         }
       } catch (error) {
         logWarn("Auth callback unexpected session exchange failure. Safely redirecting.", {

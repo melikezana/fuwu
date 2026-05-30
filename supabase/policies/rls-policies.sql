@@ -131,6 +131,19 @@ using (public.current_user_is_admin());
 comment on policy profiles_select_admin_all on public.profiles is
   'Admins can read profile contact details needed for service request operations.';
 
+drop policy if exists profiles_insert_own_customer on public.profiles;
+create policy profiles_insert_own_customer
+on public.profiles
+for insert
+to authenticated
+with check (
+  id = auth.uid()
+  and role = 'customer'
+);
+
+comment on policy profiles_insert_own_customer on public.profiles is
+  'Authenticated users can create only their own default customer profile when an auth trigger has not created it yet.';
+
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own
 on public.profiles
@@ -313,6 +326,38 @@ with check (public.current_user_is_admin());
 
 comment on policy service_requests_update_admin_status on public.service_requests is
   'Admins can update service request status from admin tooling.';
+
+drop policy if exists service_requests_update_provider_assigned_status on public.service_requests;
+create policy service_requests_update_provider_assigned_status
+on public.service_requests
+for update
+to authenticated
+using (
+  coalesce(urgency_type, 'standard') = 'standard'
+  and exists (
+    select 1
+    from public.providers
+    where providers.user_id = auth.uid()
+      and providers.is_active = true
+      and providers.is_approved = true
+      and providers.id = service_requests.assigned_provider_id
+  )
+)
+with check (
+  coalesce(urgency_type, 'standard') = 'standard'
+  and status in ('tamamlandi', 'iptal')
+  and exists (
+    select 1
+    from public.providers
+    where providers.user_id = auth.uid()
+      and providers.is_active = true
+      and providers.is_approved = true
+      and providers.id = service_requests.assigned_provider_id
+  )
+);
+
+comment on policy service_requests_update_provider_assigned_status on public.service_requests is
+  'Approved providers can close or cancel standard requests assigned to their provider record.';
 
 drop policy if exists service_requests_select_provider_relevant on public.service_requests;
 create policy service_requests_select_provider_relevant
