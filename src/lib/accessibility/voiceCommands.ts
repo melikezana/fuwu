@@ -7,6 +7,12 @@ export {
 
 export type VoiceCommandIntent =
   | {
+      district: string;
+      spokenText: string;
+      type: "category-district";
+      value: string;
+    }
+  | {
       type: "category";
       value: string;
       spokenText: string;
@@ -14,6 +20,10 @@ export type VoiceCommandIntent =
   | {
       type: "district";
       value: string;
+      spokenText: string;
+    }
+  | {
+      type: "emergency";
       spokenText: string;
     }
   | {
@@ -26,6 +36,10 @@ export type VoiceCommandIntent =
     }
   | {
       type: "read-profiles";
+      spokenText: string;
+    }
+  | {
+      type: "reset";
       spokenText: string;
     }
   | {
@@ -127,6 +141,28 @@ function getCategoryMatchFromOptions(normalizedText: string, categories: string[
   });
 }
 
+function getCategoryMatch(normalizedText: string, categories: string[] = []) {
+  const categoryMatch = categoryAliases.find((category) =>
+    includesAny(normalizedText, category.aliases),
+  );
+
+  if (categoryMatch) {
+    return getAvailableCategoryValue(categoryMatch.values, categories);
+  }
+
+  return getCategoryMatchFromOptions(normalizedText, categories) ?? null;
+}
+
+function getDistrictMatch(normalizedText: string, districts: string[] = []) {
+  const districtOptions = [...new Set([...districts, ...providerDistricts])];
+
+  return (
+    districtOptions.find((district) =>
+      normalizedText.includes(normalizeVoiceText(district)),
+    ) ?? null
+  );
+}
+
 export function interpretVoiceCommand(
   transcript: string,
   options: {
@@ -139,6 +175,21 @@ export function interpretVoiceCommand(
 
   if (!normalizedText) {
     return { type: "unknown", spokenText };
+  }
+
+  if (includesAny(normalizedText, ["sıfırla", "sifirla", "reset"])) {
+    return { type: "reset", spokenText };
+  }
+
+  if (
+    includesAny(normalizedText, [
+      "acil usta çağır",
+      "acil usta cagir",
+      "acil usta",
+      "acil hizmet",
+    ])
+  ) {
+    return { type: "emergency", spokenText };
   }
 
   if (
@@ -160,30 +211,25 @@ export function interpretVoiceCommand(
     return { type: "whatsapp", spokenText };
   }
 
-  const categoryMatch = categoryAliases.find((category) =>
-    includesAny(normalizedText, category.aliases),
-  );
+  const categoryMatch = getCategoryMatch(normalizedText, options.categories);
+  const districtMatch = getDistrictMatch(normalizedText, options.districts);
+
+  if (categoryMatch && districtMatch) {
+    return {
+      district: districtMatch,
+      type: "category-district",
+      value: categoryMatch,
+      spokenText,
+    };
+  }
 
   if (categoryMatch) {
     return {
       type: "category",
-      value: getAvailableCategoryValue(categoryMatch.values, options.categories),
+      value: categoryMatch,
       spokenText,
     };
   }
-
-  const optionCategoryMatch = getCategoryMatchFromOptions(normalizedText, options.categories);
-
-  if (optionCategoryMatch) {
-    return {
-      type: "category",
-      value: optionCategoryMatch,
-      spokenText,
-    };
-  }
-
-  const districts = [...new Set([...(options.districts ?? []), ...providerDistricts])];
-  const districtMatch = districts.find((district) => normalizedText.includes(normalizeVoiceText(district)));
 
   if (districtMatch) {
     return {
@@ -198,13 +244,14 @@ export function interpretVoiceCommand(
 
 export function getKnownVoiceCommandExamples() {
   return [
-    "tesisatçı ara",
-    "elektrikçi ara",
+    "tesisat ara",
+    "elektrik ara",
     "temizlik ara",
-    "halı yıkama ara",
+    "acil usta çağır",
     "Kadıköy ustaları",
-    "ustaları göster",
+    "Sarıyer tesisat",
     "profilleri oku",
+    "sıfırla",
   ];
 }
 

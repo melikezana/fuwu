@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic, RotateCcw, Square, Volume2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getKnownVoiceCommandExamples,
@@ -62,6 +62,12 @@ function createProviderQuery(kind: "category" | "district", value: string) {
   return `${appRoutes.providers}?${params.toString()}`;
 }
 
+function createProviderCombinedQuery(category: string, district: string) {
+  const params = new URLSearchParams({ category, district });
+
+  return `${appRoutes.providers}?${params.toString()}`;
+}
+
 function focusFirstWhatsAppLink() {
   const link = document.querySelector<HTMLAnchorElement>("[data-provider-whatsapp='true']");
 
@@ -91,11 +97,23 @@ export function VoiceCommandButton({
   const router = useRouter();
   const { t } = useI18n();
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const isMountedRef = useRef(true);
   const [isListening, setIsListening] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const defaultStatusMessage = t("voice.examples", {
     examples: getKnownVoiceCommandExamples().join(", "),
   });
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      recognitionRef.current?.abort();
+      recognitionRef.current = null;
+      if (typeof window !== "undefined") {
+        window.speechSynthesis?.cancel();
+      }
+    };
+  }, []);
 
   function runReadout() {
     const result = readProviderSummaries(providers, {
@@ -121,6 +139,18 @@ export function VoiceCommandButton({
       return;
     }
 
+    if (command.type === "category-district") {
+      trackVoiceCommandUsage({ action: "category-district", matched: true });
+      setStatusMessage(
+        t("voice.categoryDistrictOpening", {
+          category: command.value,
+          district: command.district,
+        }),
+      );
+      router.push(createProviderCombinedQuery(command.value, command.district));
+      return;
+    }
+
     if (command.type === "district") {
       trackVoiceCommandUsage({ action: "district", matched: true });
       setStatusMessage(t("voice.districtOpening", { value: command.value }));
@@ -132,6 +162,13 @@ export function VoiceCommandButton({
       trackVoiceCommandUsage({ action: "show-providers", matched: true });
       setStatusMessage(t("voice.providersOpening"));
       router.push(appRoutes.providers);
+      return;
+    }
+
+    if (command.type === "emergency") {
+      trackVoiceCommandUsage({ action: "emergency", matched: true });
+      setStatusMessage(t("voice.emergencyOpening"));
+      router.push(`${appRoutes.request}?budget=acil-hizmet`);
       return;
     }
 
@@ -148,6 +185,16 @@ export function VoiceCommandButton({
 
     if (command.type === "read-profiles") {
       runReadout();
+      return;
+    }
+
+    if (command.type === "reset") {
+      window.speechSynthesis?.cancel();
+      recognitionRef.current?.abort();
+      recognitionRef.current = null;
+      setIsListening(false);
+      setStatusMessage(t("voice.reset"));
+      trackVoiceCommandUsage({ action: "reset", matched: true });
       return;
     }
 
@@ -174,6 +221,11 @@ export function VoiceCommandButton({
   }
 
   async function handleVoiceCommandClick() {
+    if (isListening) {
+      setStatusMessage(t("voice.listeningStatus"));
+      return;
+    }
+
     const SpeechRecognition = getSpeechRecognitionConstructor();
 
     if (!SpeechRecognition) {
@@ -205,11 +257,21 @@ export function VoiceCommandButton({
       executeTranscript(transcript);
     };
     recognition.onerror = (event: { error?: string }) => {
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setStatusMessage(event.error === "not-allowed" ? t("voice.permissionDenied") : t("voice.error"));
       setIsListening(false);
+      recognitionRef.current = null;
     };
     recognition.onend = () => {
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     setIsListening(true);

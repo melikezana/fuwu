@@ -5,6 +5,7 @@ import {
   ProviderStatusBadge,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
@@ -64,7 +65,6 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="cancelled" tone="red" />
       </div>
     );
   }
@@ -100,10 +100,13 @@ export const metadata: Metadata = {
 };
 
 export default async function ProviderDashboardRequestsPage() {
-  const providerAccess = await getProviderDashboardAccess();
+  const [providerAccess, authContext] = await Promise.all([
+    getProviderDashboardAccess(),
+    getServerAuthContext(),
+  ]);
   
-  const assignedRequests = providerAccess.ok 
-    ? await getProviderAssignedRequests(providerAccess.profile.id)
+  const assignedRequests = providerAccess.ok && authContext.supabase
+    ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
     : [];
 
   return (
@@ -159,6 +162,9 @@ export default async function ProviderDashboardRequestsPage() {
                   {request.urgencyType === "emergency" ? (
                     <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
                       Acil Hizmet · {getPaymentPreferenceLabel(request.paymentPreference)}
+                      {request.offeredPrice
+                        ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+                        : ""}
                     </span>
                   ) : null}
                 </div>
@@ -181,7 +187,9 @@ export default async function ProviderDashboardRequestsPage() {
                   {request.urgencyType === "emergency" ? (
                     <>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        Kod: {request.confirmationCode ?? "Kabul sonrası"}
+                        Kod: {request.status === SERVICE_REQUEST_STATUSES.pending
+                          ? "Kabul sonrası"
+                          : request.confirmationCode ?? "Kabul sonrası"}
                       </span>
                       <ProviderEmergencyActions request={request} />
                     </>

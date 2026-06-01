@@ -112,6 +112,14 @@ export type Database = {
           average_price_max: number | null;
           rating: number;
           availability: string;
+          working_hours: string;
+          is_verified: boolean;
+          phone_verified: boolean;
+          identity_verified: boolean;
+          last_active_at: string | null;
+          response_time_minutes: number | null;
+          profile_completion_score: number | null;
+          profile_image_url: string | null;
           is_active: boolean;
           is_approved: boolean;
           created_at: string;
@@ -131,6 +139,14 @@ export type Database = {
           average_price_max?: number | null;
           rating?: number;
           availability?: string;
+          working_hours?: string;
+          is_verified?: boolean;
+          phone_verified?: boolean;
+          identity_verified?: boolean;
+          last_active_at?: string | null;
+          response_time_minutes?: number | null;
+          profile_completion_score?: number | null;
+          profile_image_url?: string | null;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;
@@ -150,6 +166,14 @@ export type Database = {
           average_price_max?: number | null;
           rating?: number;
           availability?: string;
+          working_hours?: string;
+          is_verified?: boolean;
+          phone_verified?: boolean;
+          identity_verified?: boolean;
+          last_active_at?: string | null;
+          response_time_minutes?: number | null;
+          profile_completion_score?: number | null;
+          profile_image_url?: string | null;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;
@@ -250,21 +274,31 @@ export type Database = {
           district_id: string;
           address: string;
           urgency: string;
-          urgency_type?: string | null;
-          budget_tag?: string | null;
-          offered_price?: number | null;
-          payment_preference?: string | null;
-          confirmation_code?: string | null;
-          estimated_arrival_text?: string | null;
-          approximate_location?: string | null;
-          emergency_status?: string | null;
-          accepted_at?: string | null;
+          urgency_type: "standard" | "emergency" | null;
+          budget_tag: string | null;
+          offered_price: number | null;
+          payment_preference: "cash" | "iban" | "online_soon" | null;
+          confirmation_code: string | null;
+          estimated_arrival_text: string | null;
+          approximate_location: string | null;
+          emergency_status:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
+            | null;
           preferred_date: string | null;
           preferred_time: string | null;
           description: string | null;
           status:
+            | "accepted"
+            | "cancelled"
+            | "completed"
             | "yeni"
             | "inceleniyor"
+            | "on_the_way"
+            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
@@ -274,6 +308,8 @@ export type Database = {
             | "completed"
             | "cancelled";
           assigned_provider_id: string | null;
+          accepted_provider_id: string | null;
+          accepted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -284,21 +320,31 @@ export type Database = {
           district_id: string;
           address: string;
           urgency?: string;
-          urgency_type?: string | null;
+          urgency_type?: "standard" | "emergency" | null;
           budget_tag?: string | null;
           offered_price?: number | null;
-          payment_preference?: string | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;
           approximate_location?: string | null;
-          emergency_status?: string | null;
-          accepted_at?: string | null;
+          emergency_status?:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
+            | null;
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "accepted"
+            | "cancelled"
+            | "completed"
             | "yeni"
             | "inceleniyor"
+            | "on_the_way"
+            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
@@ -308,6 +354,8 @@ export type Database = {
             | "completed"
             | "cancelled";
           assigned_provider_id?: string | null;
+          accepted_provider_id?: string | null;
+          accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -318,21 +366,31 @@ export type Database = {
           district_id?: string;
           address?: string;
           urgency?: string;
-          urgency_type?: string | null;
+          urgency_type?: "standard" | "emergency" | null;
           budget_tag?: string | null;
           offered_price?: number | null;
-          payment_preference?: string | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;
           approximate_location?: string | null;
-          emergency_status?: string | null;
-          accepted_at?: string | null;
+          emergency_status?:
+            | "pending"
+            | "accepted"
+            | "on_the_way"
+            | "completed"
+            | "cancelled"
+            | null;
           preferred_date?: string | null;
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "accepted"
+            | "cancelled"
+            | "completed"
             | "yeni"
             | "inceleniyor"
+            | "on_the_way"
+            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
@@ -342,6 +400,8 @@ export type Database = {
             | "completed"
             | "cancelled";
           assigned_provider_id?: string | null;
+          accepted_provider_id?: string | null;
+          accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -370,6 +430,13 @@ export type Database = {
           {
             foreignKeyName: "service_requests_assigned_provider_id_fkey";
             columns: ["assigned_provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_requests_accepted_provider_id_fkey";
+            columns: ["accepted_provider_id"];
             isOneToOne: false;
             referencedRelation: "providers";
             referencedColumns: ["id"];

@@ -7,6 +7,7 @@ import {
 import type { Database } from "@/lib/supabase/types";
 import type { CurrentUserProfile } from "@/types/auth";
 import { authAccessMessages } from "./constants";
+import { ensureProfileForUser } from "./profiles";
 
 type ServerAuthSupabaseClient = SupabaseClient<Database>;
 
@@ -113,7 +114,22 @@ export async function getServerAuthContext(): Promise<ServerAuthContext> {
     };
   }
 
-  const profileResult = await getServerProfile(supabase, userResult.user.id);
+  let profileResult = await getServerProfile(supabase, userResult.user.id);
+
+  if (!profileResult.profile && !profileResult.error) {
+    try {
+      await ensureProfileForUser(supabase, userResult.user);
+      profileResult = await getServerProfile(supabase, userResult.user.id);
+    } catch (error) {
+      return {
+        error: warnServerAuthError("Supabase server profile ensure failed.", error),
+        isConfigured: true,
+        profile: null,
+        supabase,
+        user: userResult.user,
+      };
+    }
+  }
 
   return {
     error: profileResult.error,

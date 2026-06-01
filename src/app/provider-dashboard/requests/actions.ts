@@ -1,6 +1,7 @@
 "use server";
 
 import { updateProviderAssignedRequestStatus } from "@/services/requests";
+import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { revalidatePath } from "next/cache";
 
@@ -18,7 +19,9 @@ export async function providerUpdateRequestStatusAction(formData: FormData) {
 
   const access = await getProviderDashboardAccess();
   if (!access.ok) return;
+  const authContext = await getServerAuthContext();
+  if (!authContext.supabase) return;
 
-  await updateProviderAssignedRequestStatus(requestId, access.profile.id, status);
+  await updateProviderAssignedRequestStatus(requestId, access.profile.id, status, authContext.supabase);
   revalidatePath("/provider-dashboard/requests");
 }

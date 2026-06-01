@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { assignServiceRequestAction } from "./actions";
 import { AdminActionButton, adminActionIcons } from "@/components/admin/AdminUI";
+import type { AdminAssignableProvider } from "@/services/admin";
 
 export function AssignProviderForm({ 
   requestId, 
@@ -10,7 +11,7 @@ export function AssignProviderForm({
   assignedProviderId,
 }: { 
   requestId: string;
-  providers: { id: string; name: string; phone: string; experience_years: number; district_id: string }[];
+  providers: AdminAssignableProvider[];
   assignedProviderId: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -43,7 +44,7 @@ export function AssignProviderForm({
         <option value="" disabled>Usta Seçin...</option>
         {providers.map(p => (
           <option key={p.id} value={p.id}>
-            {p.name} ({p.experience_years} yıl)
+            {p.name} ({p.experienceYears} yıl)
           </option>
         ))}
       </select>

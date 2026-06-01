@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  Clock3,
   MapPin,
   MessageCircle,
   Phone,
   Star,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   getProviderPhoneHref,
@@ -72,6 +74,12 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
   const primaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
 
   const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
+  const availabilityClassName =
+    provider.availabilityStatus.tone === "green"
+      ? "border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : provider.availabilityStatus.tone === "orange"
+        ? "border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
+        : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
 
   return (
     <article
@@ -120,6 +128,18 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
               <span className="truncate">{provider.district}</span>
             </Link>
           ) : null}
+        </div>
+
+        <ProviderTrustBadges badges={provider.trustBadges} limit={3} />
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className={`inline-flex min-h-9 items-center gap-2 rounded-md border px-3 text-xs font-bold ${availabilityClassName}`}>
+            <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{provider.availabilityStatus.label}</span>
+          </div>
+          <div className="inline-flex min-h-9 items-center rounded-md bg-[#FAFAFA] px-3 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.06)]">
+            <span className="truncate">{provider.responseTime}</span>
+          </div>
         </div>
 
         <div className="rounded-md bg-[#FAFAFA] px-3 py-2">

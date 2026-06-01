@@ -2,7 +2,7 @@ import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
-import { savePaymentPreference } from "@/services/payments";
+import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { getProviders } from "@/services/providers";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import type { Provider, ProviderFilters } from "@/types/provider";
@@ -50,17 +50,17 @@ export type InstantMatchInput = MatchInput;
 
 export type EmergencyMatchRequestInput = InstantMatchInput & {
   approximateLocation?: string;
-  confirmationCode: string;
-  offerAmount?: string;
+  confirmationCode?: string | null;
+  offerAmount?: number | string;
   paymentPreference?: string;
 };
 
 export type EmergencyMatchRequest = {
   approximateLocation: string | null;
   budgetTag: "acil-hizmet";
-  confirmationCode: string;
+  confirmationCode: string | null;
   estimatedArrivalText: string | null;
-  offerAmount: string | null;
+  offeredPrice: number | null;
   paymentPreference: ServiceRequestPaymentPreference | null;
   query: InstantMatchQuery;
   urgencyType: Extract<ServiceRequestUrgencyType, "emergency">;
@@ -102,6 +102,250 @@ function parseLocalizedNumber(value: string) {
   const parsedValue = Number(value.replace(/\./g, "").replace(",", "."));
 
   return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function normalizePriceValue(value: number | string | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const trimmedValue = value?.trim() ?? "";
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  const parsedValue = parseLocalizedNumber(trimmedValue.replace(/[^\d.,-]/g, ""));
+
+  return typeof parsedValue === "number" ? parsedValue : null;
+}
+
+export function parseEmergencyPriceValue(value: number | string | null | undefined) {
+  return normalizePriceValue(value);
+}
+
+function roundToNearestTen(value: number) {
+  return Math.max(100, Math.round(value / 10) * 10);
+}
+
+export type EmergencyPriceOption = {
+  label: string;
+  value: number;
+};
+
+export type EmergencyPriceRange = {
+  maximumPrice: number;
+  minimumPrice: number;
+  options: EmergencyPriceOption[];
+  suggestedPrice: number;
+};
+
+export type EmergencyPriceValidationResult = {
+  message: string | null;
+  ok: boolean;
+  price: number | null;
+  range: EmergencyPriceRange;
+};
+
+const defaultEmergencyPriceRange: EmergencyPriceRange = {
+  maximumPrice: 3500,
+  minimumPrice: 500,
+  options: [
+    { label: "500 TL", value: 500 },
+    { label: "1.000 TL", value: 1000 },
+    { label: "2.500 TL", value: 2500 },
+    { label: "3.500 TL+", value: 3500 },
+  ],
+  suggestedPrice: 1000,
+};
+
+const emergencyPriceRanges: Array<{
+  keywords: string[];
+  range: EmergencyPriceRange;
+}> = [
+  {
+    keywords: ["temizlik"],
+    range: {
+      maximumPrice: 1500,
+      minimumPrice: 300,
+      options: [
+        { label: "300 TL", value: 300 },
+        { label: "600 TL", value: 600 },
+        { label: "1.000 TL", value: 1000 },
+        { label: "1.500 TL+", value: 1500 },
+      ],
+      suggestedPrice: 600,
+    },
+  },
+  {
+    keywords: ["tesisat", "su", "gider", "faucet", "pipe"],
+    range: {
+      maximumPrice: 3500,
+      minimumPrice: 500,
+      options: [
+        { label: "500 TL", value: 500 },
+        { label: "1.000 TL", value: 1000 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "3.500 TL+", value: 3500 },
+      ],
+      suggestedPrice: 1000,
+    },
+  },
+  {
+    keywords: ["elektrik", "sigorta", "priz"],
+    range: {
+      maximumPrice: 2500,
+      minimumPrice: 400,
+      options: [
+        { label: "400 TL", value: 400 },
+        { label: "800 TL", value: 800 },
+        { label: "1.500 TL", value: 1500 },
+        { label: "2.500 TL+", value: 2500 },
+      ],
+      suggestedPrice: 800,
+    },
+  },
+  {
+    keywords: ["havuz"],
+    range: {
+      maximumPrice: 15000,
+      minimumPrice: 2000,
+      options: [
+        { label: "2.000 TL", value: 2000 },
+        { label: "5.000 TL", value: 5000 },
+        { label: "10.000 TL", value: 10000 },
+        { label: "15.000 TL+", value: 15000 },
+      ],
+      suggestedPrice: 5000,
+    },
+  },
+  {
+    keywords: ["bahce", "peyzaj", "dis mekan"],
+    range: {
+      maximumPrice: 10000,
+      minimumPrice: 1000,
+      options: [
+        { label: "1.000 TL", value: 1000 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "5.000 TL", value: 5000 },
+        { label: "10.000 TL+", value: 10000 },
+      ],
+      suggestedPrice: 2500,
+    },
+  },
+  {
+    keywords: ["klima", "beyaz esya", "servis"],
+    range: {
+      maximumPrice: 4500,
+      minimumPrice: 600,
+      options: [
+        { label: "600 TL", value: 600 },
+        { label: "1.250 TL", value: 1250 },
+        { label: "2.500 TL", value: 2500 },
+        { label: "4.500 TL+", value: 4500 },
+      ],
+      suggestedPrice: 1250,
+    },
+  },
+  {
+    keywords: ["montaj", "mobilya", "cilingir", "kilit", "hali", "boya", "nakliye", "tasima"],
+    range: defaultEmergencyPriceRange,
+  },
+];
+
+export function getEmergencyPriceRange(service?: string | null): EmergencyPriceRange {
+  const normalizedService = normalizeServiceValue(service ?? "");
+
+  if (!normalizedService) {
+    return defaultEmergencyPriceRange;
+  }
+
+  return (
+    emergencyPriceRanges.find((item) =>
+      item.keywords.some((keyword) => normalizedService.includes(keyword)),
+    )?.range ?? defaultEmergencyPriceRange
+  );
+}
+
+export function getEmergencyPriceOptions(service?: string | null) {
+  return getEmergencyPriceRange(service).options;
+}
+
+function formatEmergencyPriceBoundary(value: number) {
+  return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value)} TL`;
+}
+
+export function validateEmergencyPrice(
+  value: number | string | null | undefined,
+  service?: string | null,
+): EmergencyPriceValidationResult {
+  const normalizedPrice = normalizePriceValue(value);
+  const range = getEmergencyPriceRange(service);
+
+  if (typeof normalizedPrice !== "number") {
+    return {
+      message: "Teklif tutarı gir veya öneri seç.",
+      ok: false,
+      price: null,
+      range,
+    };
+  }
+
+  if (normalizedPrice < range.minimumPrice || normalizedPrice > range.maximumPrice) {
+    return {
+      message: `Teklif ${formatEmergencyPriceBoundary(range.minimumPrice)} - ${formatEmergencyPriceBoundary(range.maximumPrice)} aralığında olmalı.`,
+      ok: false,
+      price: null,
+      range,
+    };
+  }
+
+  return {
+    message: null,
+    ok: true,
+    price: roundToNearestTen(normalizedPrice),
+    range,
+  };
+}
+
+export function clampEmergencyPrice(
+  value: number | string | null | undefined,
+  service?: string | null,
+) {
+  const normalizedPrice = normalizePriceValue(value);
+  const range = getEmergencyPriceRange(service);
+
+  if (typeof normalizedPrice !== "number") {
+    return null;
+  }
+
+  return Math.min(range.maximumPrice, Math.max(range.minimumPrice, roundToNearestTen(normalizedPrice)));
+}
+
+export function calculateSuggestedPrice({
+  district,
+  service,
+}: Pick<MatchInput, "budgetTag" | "district" | "service"> = {}) {
+  const normalizedService = normalizeServiceValue(service ?? "");
+
+  if (!normalizedService) {
+    return 0;
+  }
+
+  const range = getEmergencyPriceRange(service);
+  const districtSignal = normalizeServiceValue(district ?? "");
+  const districtAdjustment = districtSignal ? Math.min(250, Math.round(range.suggestedPrice * 0.05)) : 0;
+
+  return Math.min(range.maximumPrice, roundToNearestTen(range.suggestedPrice + districtAdjustment));
+}
+
+export function adjustOfferedPrice(
+  currentPrice: number | string | null | undefined,
+  delta: -10 | 10 | 50 | number,
+) {
+  const normalizedPrice = normalizePriceValue(currentPrice) ?? 0;
+
+  return roundToNearestTen(normalizedPrice + delta);
 }
 
 function parseProviderPriceRange(value: string | undefined): BudgetPriceRange | null {
@@ -317,10 +561,15 @@ export function createEmergencyMatchRequest(
   return {
     approximateLocation: sanitizeText(input.approximateLocation ?? "", 220) || null,
     budgetTag: "acil-hizmet",
-    confirmationCode: input.confirmationCode,
+    confirmationCode: input.confirmationCode ?? null,
     estimatedArrivalText: calculateEstimatedArrivalText({ urgencyType }),
-    offerAmount: sanitizeText(input.offerAmount ?? "", 80) || null,
-    paymentPreference: savePaymentPreference(input.paymentPreference),
+    offeredPrice: (clampEmergencyPrice(input.offerAmount, input.service) ??
+      calculateSuggestedPrice({
+        budgetTag: "acil-hizmet",
+        district: input.district,
+        service: input.service,
+      })) || null,
+    paymentPreference: saveEmergencyPaymentPreference(input.paymentPreference),
     query,
     urgencyType,
   };
@@ -408,4 +657,29 @@ export async function getMatchedProviders(input: MatchInput, limit = 6) {
   const result = await getInstantMatchedProviders(input, limit);
 
   return result.providers;
+}
+
+export async function getNearbyEligibleProviders(input: MatchInput, limit = 12) {
+  const query = createInstantMatchQuery({
+    ...input,
+    budgetTag: input.budgetTag || "acil-hizmet",
+    timePreference: input.timePreference || "bugun",
+  });
+
+  if (!query.category) {
+    return [];
+  }
+
+  const districtProviders = query.district
+    ? await getProviders({
+        category: query.category,
+        district: query.district,
+      })
+    : [];
+  const sameCategoryProviders = await getProviders({ category: query.category });
+  const providersById = new Map(
+    [...districtProviders, ...sameCategoryProviders].map((provider) => [provider.id, provider]),
+  );
+
+  return rankMatchedProviders(Array.from(providersById.values()), query).slice(0, limit);
 }

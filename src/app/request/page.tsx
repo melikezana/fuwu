@@ -8,7 +8,10 @@ import { RequestForm } from "@/components/request/RequestForm";
 import { appRoutes } from "@/lib/constants/navigation";
 import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { authAccessMessages } from "@/services/auth/constants";
-import { getAuthenticatedServerUserId } from "@/services/auth/server";
+import {
+  getAuthenticatedServerUserId,
+  getCurrentServerUserProfile,
+} from "@/services/auth/server";
 
 export const metadata: Metadata = {
   title: "Talep Oluştur",
@@ -48,7 +51,25 @@ function getSearchParam(value?: string | string[]) {
   return value ?? "";
 }
 
-function LoginRequiredState() {
+function createRequestNextPath(params?: RequestSearchParams) {
+  const nextParams = new URLSearchParams();
+
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    const paramValue = getSearchParam(value);
+
+    if (paramValue.trim()) {
+      nextParams.set(key, paramValue);
+    }
+  });
+
+  const queryString = nextParams.toString();
+
+  return queryString ? `${appRoutes.request}?${queryString}` : appRoutes.request;
+}
+
+function LoginRequiredState({ nextPath }: { nextPath: string }) {
+  const loginHref = `${appRoutes.login}?next=${encodeURIComponent(nextPath)}`;
+
   return (
     <Card className="min-w-0">
       <div className="cursor-default select-none">
@@ -71,7 +92,7 @@ function LoginRequiredState() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button className="w-full sm:w-fit" href={appRoutes.login}>
+        <Button className="w-full sm:w-fit" href={loginHref}>
           Giriş Yap
         </Button>
         <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
@@ -84,7 +105,11 @@ function LoginRequiredState() {
 
 export default async function RequestPage({ searchParams }: RequestPageProps) {
   const params = await searchParams;
-  const authenticatedUserId = await getAuthenticatedServerUserId();
+  const nextPath = createRequestNextPath(params);
+  const [authenticatedUserId, profile] = await Promise.all([
+    getAuthenticatedServerUserId(),
+    getCurrentServerUserProfile(),
+  ]);
   const initialService = getSearchParam(params?.service) || getSearchParam(params?.match_service);
   const initialDistrict =
     getSearchParam(params?.district) || getSearchParam(params?.match_district);
@@ -131,11 +156,13 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             initialNotes={initialNotes}
             initialOfferAmount={initialOfferAmount}
             initialPaymentPreference={initialPaymentPreference}
+            initialProfileFullName={profile?.full_name}
+            initialProfilePhone={profile?.phone}
             initialService={initialService}
             initialTimePreference={initialTimePreference}
           />
         ) : (
-          <LoginRequiredState />
+          <LoginRequiredState nextPath={nextPath} />
         )}
       </Container>
     </section>

@@ -79,6 +79,11 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     title: "İşlem yapılamadı",
     tone: "error",
   },
+  "service-request-missing-provider": {
+    body: "Atanacak usta seçilmedi. Lütfen listeden uygun bir usta seçin.",
+    title: "Usta seçimi gerekli",
+    tone: "error",
+  },
   "service-request-not-found": {
     body: "İlgili hizmet talebi bulunamadı veya bu kayıt için admin yetkisi yok.",
     title: "Talep bulunamadı",
@@ -137,11 +142,6 @@ const emergencyRequestStatusActions: Array<{
     label: SERVICE_REQUEST_STATUS_LABELS.pending,
     status: SERVICE_REQUEST_STATUSES.pending,
     tone: "neutral",
-  },
-  {
-    label: SERVICE_REQUEST_STATUS_LABELS.accepted,
-    status: SERVICE_REQUEST_STATUSES.accepted,
-    tone: "approve",
   },
   {
     label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
@@ -305,7 +305,7 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
 
 function UrgencyTypeBadge({ urgencyType }: { urgencyType: string }) {
   if (urgencyType !== "emergency") {
-    return <AdminStatusBadge tone="neutral">Normal akÄ±ÅŸ</AdminStatusBadge>;
+    return <AdminStatusBadge tone="neutral">Normal akış</AdminStatusBadge>;
   }
 
   return <AdminStatusBadge tone="red">Acil Hizmet</AdminStatusBadge>;
@@ -319,19 +319,29 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
   return (
     <div className="mt-3 grid gap-2 rounded-md border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-3 text-sm font-semibold text-[var(--brand-navy)]">
       <p>
-        <span className="font-black">Ã–deme tercihi: </span>
+        <span className="font-black">Teklif: </span>
+        {request.offeredPrice
+          ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+          : "Belirtilmedi"}
+      </p>
+      <p>
+        <span className="font-black">Ödeme tercihi: </span>
         {getPaymentPreferenceLabel(request.paymentPreference)}
       </p>
       <p>
-        <span className="font-black">DoÄŸrulama kodu: </span>
-        {request.confirmationCode ?? "Usta kabulÃ¼nden sonra"}
+        <span className="font-black">Doğrulama kodu: </span>
+        {request.confirmationCode ?? "Usta kabulünden sonra"}
       </p>
       <p>
-        <span className="font-black">Tahmini varÄ±ÅŸ: </span>
-        {request.estimatedArrivalText ?? "Usta kabulÃ¼nden sonra"}
+        <span className="font-black">Tahmini varış: </span>
+        {request.estimatedArrivalText ?? "Usta kabulünden sonra"}
       </p>
       <p>
-        <span className="font-black">CanlÄ± takip: </span>
+        <span className="font-black">Acil durum: </span>
+        {request.emergencyStatus ?? request.status}
+      </p>
+      <p>
+        <span className="font-black">Canlı takip: </span>
         {liveTrackingSoonText}
       </p>
     </div>
@@ -378,15 +388,24 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
   const nextStatuses = normalizedRequestStatus
     ? getAllowedServiceRequestTransitions(normalizedRequestStatus)
     : [];
+  const emergencyStatusesRequiringProvider = new Set<AdminServiceRequestStatus>([
+    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.completed,
+  ]);
 
   return (
     <div className="flex max-w-full flex-wrap gap-2 lg:max-w-[34rem]">
       {actions.map((action) => {
         const isCurrentStatus = normalizedRequestStatus === action.status;
+        const requiresProviderBeforeTransition =
+          request.urgencyType === "emergency" &&
+          emergencyStatusesRequiringProvider.has(action.status) &&
+          !request.assignedProviderId;
         const isAllowedTransition = normalizedRequestStatus
           ? isServiceRequestTransitionAllowed(normalizedRequestStatus, action.status)
           : true;
-        const isDisabled = isCurrentStatus || !isAllowedTransition;
+        const isDisabled =
+          isCurrentStatus || !isAllowedTransition || requiresProviderBeforeTransition;
         const Icon =
           action.status === SERVICE_REQUEST_STATUSES.tamamlandi ||
           action.status === SERVICE_REQUEST_STATUSES.completed ||
@@ -408,6 +427,8 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
               title={
                 isCurrentStatus
                   ? `Talep zaten ${action.label.toLocaleLowerCase("tr")}`
+                  : requiresProviderBeforeTransition
+                    ? "Acil talebi ilerletmeden önce uygun bir usta ata"
                   : !isAllowedTransition
                     ? nextStatuses.length > 0
                       ? `Sıradaki uygun adımlar: ${nextStatuses
@@ -570,7 +591,11 @@ export default async function AdminServiceRequestsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {request.urgencyType === "emergency"
-                        ? getPaymentPreferenceLabel(request.paymentPreference)
+                        ? `${getPaymentPreferenceLabel(request.paymentPreference)}${
+                            request.offeredPrice
+                              ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+                              : ""
+                          }`
                         : "Belirtilmedi"}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">

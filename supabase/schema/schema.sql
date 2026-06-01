@@ -14,6 +14,21 @@ begin
 end;
 $$;
 
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  insert into public.profiles (id, role)
+  values (new.id, 'customer')
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
@@ -32,6 +47,11 @@ create table if not exists public.profiles (
 
 comment on table public.profiles is
   'Stores public Fuwu user profile details linked to Supabase Auth users.';
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
 
 create table if not exists public.service_categories (
   id uuid primary key default gen_random_uuid(),
@@ -88,6 +108,15 @@ create table if not exists public.providers (
   average_price_min numeric(10, 2),
   average_price_max numeric(10, 2),
   rating numeric(2, 1) not null default 0,
+  availability text not null default 'müsait',
+  working_hours text not null default '09:00-18:00',
+  is_verified boolean not null default false,
+  phone_verified boolean not null default false,
+  identity_verified boolean not null default false,
+  last_active_at timestamptz,
+  response_time_minutes integer,
+  profile_completion_score integer,
+  profile_image_url text,
   is_active boolean not null default true,
   is_approved boolean not null default false,
   created_at timestamptz not null default timezone('utc', now()),
@@ -107,6 +136,14 @@ create table if not exists public.providers (
     ),
   constraint providers_rating_check
     check (rating >= 0 and rating <= 5),
+  constraint providers_availability_check
+    check (availability in ('müsait', 'yoğun', 'çevrimdışı')),
+  constraint providers_working_hours_check
+    check (working_hours in ('09:00-18:00', '09:00-22:00', '7/24')),
+  constraint providers_response_time_minutes_check
+    check (response_time_minutes is null or response_time_minutes between 1 and 1440),
+  constraint providers_profile_completion_score_check
+    check (profile_completion_score is null or profile_completion_score between 0 and 100),
   constraint providers_name_not_blank_check
     check (btrim(name) <> ''),
   constraint providers_phone_not_blank_check
@@ -161,14 +198,18 @@ create table if not exists public.service_requests (
   urgency text not null default 'normal',
   urgency_type text not null default 'standard',
   budget_tag text,
+  offered_price numeric(10, 2),
   payment_preference text,
   confirmation_code text,
   estimated_arrival_text text,
   approximate_location text,
+  emergency_status text,
   preferred_date date,
   preferred_time time,
   description text,
   status text not null default 'yeni',
+  assigned_provider_id uuid references public.providers(id) on delete set null,
+  accepted_provider_id uuid references public.providers(id) on delete set null,
   accepted_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -179,8 +220,15 @@ create table if not exists public.service_requests (
     check (urgency_type in ('standard', 'emergency')),
   constraint service_requests_budget_tag_check
     check (budget_tag is null or budget_tag in ('ekonomik', 'standart', 'premium', 'acil-hizmet')),
+  constraint service_requests_offered_price_check
+    check (offered_price is null or offered_price >= 0),
   constraint service_requests_payment_preference_check
     check (payment_preference is null or payment_preference in ('cash', 'iban', 'online_soon')),
+  constraint service_requests_emergency_status_check
+    check (
+      emergency_status is null
+      or emergency_status in ('pending', 'accepted', 'on_the_way', 'completed', 'cancelled')
+    ),
   constraint service_requests_status_check
     check (
       status in (
@@ -255,11 +303,27 @@ create index if not exists providers_active_approved_idx
 create index if not exists providers_rating_idx
   on public.providers (rating desc);
 
+create index if not exists providers_availability_idx
+  on public.providers (availability);
+
+create index if not exists providers_trust_flags_idx
+  on public.providers (is_verified, phone_verified, identity_verified);
+
+create index if not exists providers_last_active_at_idx
+  on public.providers (last_active_at desc);
+
+create index if not exists providers_response_time_minutes_idx
+  on public.providers (response_time_minutes);
+
 create index if not exists provider_applications_status_idx
   on public.provider_applications (status);
 
 create index if not exists provider_applications_phone_idx
   on public.provider_applications (phone);
+
+create unique index if not exists provider_applications_pending_phone_unique_idx
+  on public.provider_applications (phone)
+  where status = 'pending';
 
 create index if not exists provider_applications_category_id_idx
   on public.provider_applications (category_id);
@@ -291,8 +355,20 @@ create index if not exists service_requests_urgency_type_idx
 create index if not exists service_requests_budget_tag_idx
   on public.service_requests (budget_tag);
 
+create index if not exists service_requests_offered_price_idx
+  on public.service_requests (offered_price);
+
 create index if not exists service_requests_payment_preference_idx
   on public.service_requests (payment_preference);
+
+create index if not exists service_requests_emergency_status_idx
+  on public.service_requests (emergency_status);
+
+create index if not exists service_requests_assigned_provider_id_idx
+  on public.service_requests (assigned_provider_id);
+
+create index if not exists service_requests_accepted_provider_id_idx
+  on public.service_requests (accepted_provider_id);
 
 create index if not exists service_requests_category_district_status_idx
   on public.service_requests (category_id, district_id, status);

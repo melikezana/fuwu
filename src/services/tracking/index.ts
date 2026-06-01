@@ -8,8 +8,48 @@ export type EstimatedArrivalInput = {
 
 export const liveTrackingSoonText = "Canlı takip yakında";
 
+const centralDistricts = [
+  "Ataşehir",
+  "Bakırköy",
+  "Beşiktaş",
+  "Kadıköy",
+  "Kağıthane",
+  "Şişli",
+  "Üsküdar",
+];
+
+const outerDistricts = [
+  "Adalar",
+  "Arnavutköy",
+  "Beykoz",
+  "Beylikdüzü",
+  "Büyükçekmece",
+  "Çatalca",
+  "Pendik",
+  "Silivri",
+  "Şile",
+  "Tuzla",
+];
+
+function normalizeDistrict(value: string | null | undefined) {
+  return value?.trim().toLocaleLowerCase("tr") ?? "";
+}
+
+function getEmergencyEtaWindow(district: string | null | undefined) {
+  const normalizedDistrict = normalizeDistrict(district);
+
+  if (centralDistricts.some((item) => normalizeDistrict(item) === normalizedDistrict)) {
+    return "20-35 dk";
+  }
+
+  if (outerDistricts.some((item) => normalizeDistrict(item) === normalizedDistrict)) {
+    return "35-55 dk";
+  }
+
+  return "25-45 dk";
+}
+
 export function calculateEstimatedArrivalText({
-  acceptedAt,
   district,
   urgencyType,
 }: EstimatedArrivalInput = {}) {
@@ -17,15 +57,12 @@ export function calculateEstimatedArrivalText({
     return null;
   }
 
-  if (!acceptedAt) {
-    return "Usta kabul edince tahmini varış süresi paylaşılacak";
-  }
-
   const normalizedDistrict = district?.trim();
+  const etaWindow = getEmergencyEtaWindow(normalizedDistrict);
 
   if (normalizedDistrict) {
-    return `${normalizedDistrict} için tahmini varış: 25-40 dk`;
+    return `${normalizedDistrict} için tahmini varış: ${etaWindow}`;
   }
 
-  return "Tahmini varış: 25-40 dk";
+  return `Tahmini varış: ${etaWindow}`;
 }

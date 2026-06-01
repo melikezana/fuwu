@@ -3,8 +3,9 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
-import { handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
+import { DatabaseError, handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
+import { logInfo } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import {
@@ -30,41 +31,39 @@ type LookupRecord = {
 
 type ProviderApplicationInsert =
   Database["public"]["Tables"]["provider_applications"]["Insert"];
-const demoApplicationCodePrefix = "DEMO";
+
+type SupabaseErrorRecord = {
+  code?: unknown;
+};
+
+const providerApplicationSubmitErrorMessage =
+  "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
+const duplicateProviderApplicationMessage =
+  "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.";
 
 function createProviderApplicationClient(): SupabaseClient<Database> | null {
   return createSupabaseBrowserClient();
-}
-
-function createDemoApplicationCode() {
-  return `${demoApplicationCodePrefix}-${new Date().getFullYear()}-${Math.floor(
-    1000 + Math.random() * 9000,
-  )}`;
 }
 
 function createLiveApplicationCode() {
   return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-function createDemoApplicationResult(profileImage?: File | null): ProviderApplicationSubmitResult {
-  return {
-    applicationCode: createDemoApplicationCode(),
-    mode: "demo",
-    profileImageStatus: "skipped",
-    profileImageMessage: profileImage
-      ? "Örnek modda profil görseli yüklenmedi."
-      : undefined,
-  };
+function hasSupabaseErrorCode(error: unknown, code: string) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as SupabaseErrorRecord).code === code
+  );
 }
 
-function warnProviderApplicationFallback(error: unknown, safePayload?: unknown) {
-  if (process.env.NODE_ENV === "development" && safePayload) {
-    console.warn("[Provider Application] Safe payload context:", safePayload);
-  }
-
-  handleServiceError(error, {
-    logContext: "Provider application Supabase insert failed. Falling back to demo mode.",
-    publicMessage: "Başvurun alındı. İnceleme sonrası uygun profiller Fuwu'da yayınlanır.", // Changed to success message per user request (fallback means it's queued or demo mode)
+function createProviderApplicationFailure(error: unknown) {
+  return handleServiceError(error, {
+    logContext: "Provider application Supabase insert failed.",
+    publicMessage: hasSupabaseErrorCode(error, "23505")
+      ? duplicateProviderApplicationMessage
+      : providerApplicationSubmitErrorMessage,
   });
 }
 
@@ -113,7 +112,10 @@ async function findLookupId(
     .maybeSingle();
 
   if (error) {
-    return null;
+    throw handleServiceError(error, {
+      logContext: `Provider application ${table} lookup failed.`,
+      publicMessage: providerApplicationSubmitErrorMessage,
+    });
   }
 
   const record = data as LookupRecord | null;
@@ -134,7 +136,7 @@ async function buildProviderApplicationInsert(
 
   if (!categoryId) {
     throw new NotFoundError("Provider application category lookup failed.", {
-      publicMessage: "Seçtiğin hizmet kategorisi şu anda sistem tarafında bulunamadı.",
+      publicMessage: "Seçtiğin hizmet kategorisi şu anda bulunamadı.",
     });
   }
 
@@ -147,9 +149,11 @@ async function buildProviderApplicationInsert(
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
     phone: data.phoneNumber.trim(),
+    whatsapp: data.whatsappNumber.trim(),
     category_id: categoryId,
     district_id: districtId,
     experience_years: parseExperienceYears(data.yearsOfExperience),
+    description: data.shortIntroduction.trim(),
     availability: normalizeOptionalText(data.availability),
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.shortIntroduction.trim(),
@@ -157,10 +161,20 @@ async function buildProviderApplicationInsert(
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 
+  if (profileImageUpload.status === "uploaded") {
+    insertPayload.profile_image_path = profileImageUpload.path;
+    insertPayload.profile_image_url = profileImageUpload.publicUrl;
+  }
+
   return insertPayload;
 }
 
-// Removed removeProfileImageFields as image fields are no longer inserted
+function removeProfileImageFields(insertPayload: ProviderApplicationInsert) {
+  const { profile_image_path, profile_image_url, ...fallbackPayload } = insertPayload;
+  void profile_image_path;
+  void profile_image_url;
+  return fallbackPayload;
+}
 
 export function isProviderApplicationDemoMode() {
   return !isSupabaseConfigured;
@@ -192,9 +206,10 @@ export async function submitProviderApplication(
   const supabase = createProviderApplicationClient();
 
   if (!supabase) {
-    return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(applicationData.profileImage),
-    );
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: "Başvuru sistemi şu anda kullanılamıyor. Lütfen tekrar deneyin.",
+      statusCode: 503,
+    });
   }
 
   try {
@@ -209,7 +224,7 @@ export async function submitProviderApplication(
     );
 
     // Anti-spam duplicate phone check
-    const { data: existingApplication } = await supabase
+    const { data: existingApplication, error: duplicateCheckError } = await supabase
       .from("provider_applications")
       .select("id")
       .eq("phone", insertPayload.phone)
@@ -217,23 +232,54 @@ export async function submitProviderApplication(
       .limit(1)
       .maybeSingle();
 
+    if (duplicateCheckError) {
+      throw handleServiceError(duplicateCheckError, {
+        logContext: "Provider application duplicate check failed.",
+        publicMessage: providerApplicationSubmitErrorMessage,
+      });
+    }
+
     if (existingApplication?.id) {
       throw new ValidationError("Duplicate provider application detected.", {
-        publicMessage: "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.",
+        publicMessage: duplicateProviderApplicationMessage,
       });
     }
 
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
-      warnProviderApplicationFallback(error, insertPayload);
-      throw handleServiceError(error, {
-        logContext: "Provider application Supabase insert failed.",
-        publicMessage: "Başvuru gönderilemedi. Lütfen bilgileri kontrol edip tekrar deneyin.",
-        tableName: "provider_applications",
-        payloadKeys: Object.keys(insertPayload),
-      });
+      if (profileImageUpload.status === "uploaded") {
+        const fallbackPayload = removeProfileImageFields(insertPayload);
+        const { error: fallbackError } = await supabase
+          .from("provider_applications")
+          .insert(fallbackPayload);
+
+        if (!fallbackError) {
+          logInfo("Provider application inserted without profile image.", {
+            categoryId: fallbackPayload.category_id,
+            districtId: fallbackPayload.district_id,
+            status: fallbackPayload.status,
+          });
+
+          return notifyProviderApplicationSubmitResult({
+            applicationCode: createLiveApplicationCode(),
+            mode: "live",
+            profileImageStatus: "skipped",
+            profileImageMessage:
+              "Profil görseli başvuruyla kaydedilemedi; başvurun görselsiz gönderildi.",
+          });
+        }
+      }
+
+      throw createProviderApplicationFailure(error);
     }
+
+    logInfo("Provider application inserted.", {
+      categoryId: insertPayload.category_id,
+      districtId: insertPayload.district_id,
+      hasProfileImage: profileImageUpload.status === "uploaded",
+      status: insertPayload.status,
+    });
 
     return notifyProviderApplicationSubmitResult({
       applicationCode: createLiveApplicationCode(),
@@ -242,13 +288,6 @@ export async function submitProviderApplication(
       profileImageMessage: profileImageUpload.message,
     });
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError) {
-      throw error;
-    }
-    warnProviderApplicationFallback(error);
-    throw handleServiceError(error, {
-      logContext: "Provider application submission unexpectedly failed.",
-      publicMessage: "Başvuru sırasında beklenmeyen bir hata oluştu.",
-    });
+    throw createProviderApplicationFailure(error);
   }
 }

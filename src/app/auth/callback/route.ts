@@ -1,7 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { appRoutes } from "@/lib/constants/navigation";
+import { logWarn } from "@/lib/logger";
 import { createSafeRedirectUrl } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 
 function getSafeRedirectUrl(request: NextRequest) {
   return createSafeRedirectUrl(
@@ -12,57 +14,44 @@ function getSafeRedirectUrl(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  
-  // if "next" is in param, use it as the redirect URL
-  const nextPath = searchParams.get("next");
-  const next = nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : appRoutes.providers;
+  const code = request.nextUrl.searchParams.get("code");
+  const redirectUrl = getSafeRedirectUrl(request);
 
   if (code) {
     const supabase = await createSupabaseServerClient();
 
     if (supabase) {
       try {
-        const { error, data } = await supabase.auth.exchangeCodeForSession(code);
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {
-          console.warn("[Auth Callback] Session exchange failed. Safely redirecting.", error.message);
-          return NextResponse.redirect(`${origin}/login?error=auth-callback-failed`);
-        }
-        
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert(
-              { 
-                id: data.user.id, 
-                full_name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0] || "Kullanıcı",
-                role: "user"
-              }, 
-              { onConflict: "id", ignoreDuplicates: true }
-            );
+          const safeError = error as { code?: string; status?: number };
+          logWarn("Auth callback session exchange failed. Safely redirecting.", {
+            code: safeError.code,
+            status: safeError.status,
+          });
+        } else {
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
 
-          if (profileError) {
-            console.warn("[Auth Callback] Profile creation failed. Redirecting anyway.", profileError.message);
+          if (userError) {
+            const safeError = userError as { code?: string; status?: number };
+            logWarn("Auth callback user lookup failed. Safely redirecting.", {
+              code: safeError.code,
+              status: safeError.status,
+            });
+          } else if (user) {
+            await ensureProfileForUser(supabase, user);
           }
         }
-        
-        const forwardedHost = request.headers.get("x-forwarded-host");
-        const isLocalEnv = process.env.NODE_ENV === "development";
-        
-        if (isLocalEnv) {
-          return NextResponse.redirect(`${origin}${next}`);
-        } else if (forwardedHost) {
-          return NextResponse.redirect(`https://${forwardedHost}${next}`);
-        } else {
-          return NextResponse.redirect(`${origin}${next}`);
-        }
       } catch (error) {
-        console.warn("[Auth Callback] Unexpected error during session exchange. Safely redirecting.", error);
-        return NextResponse.redirect(`${origin}/login?error=auth-callback-failed`);
+        logWarn("Auth callback unexpected session exchange failure. Safely redirecting.", {
+          error,
+        });
       }
     }
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(redirectUrl);
 }

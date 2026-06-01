@@ -1,6 +1,7 @@
 import { logInfo } from "@/lib/logger";
 
 export type NotificationEvent =
+  | "emergency_request_dispatched"
   | "provider_application_submitted"
   | "provider_application_approved"
   | "provider_application_rejected"
@@ -25,6 +26,8 @@ export type ProviderApplicationDecisionNotification = {
 };
 
 export type ServiceRequestCreatedNotification = {
+  eligibleProviderCount?: number;
+  notificationChannels?: Array<"provider_dashboard" | "push" | "sms" | "whatsapp">;
   requestCode?: string;
   requestId?: string | null;
 };
@@ -78,4 +81,13 @@ export async function notifyServiceRequestCreated(
   metadata?: ServiceRequestCreatedNotification,
 ): Promise<NotificationMockResult> {
   return createMockNotificationResult("service_request_created", metadata);
+}
+
+export async function notifyEmergencyRequestDispatched(
+  metadata?: ServiceRequestCreatedNotification,
+): Promise<NotificationMockResult> {
+  return createMockNotificationResult("emergency_request_dispatched", {
+    ...metadata,
+    notificationChannels: metadata?.notificationChannels ?? ["provider_dashboard"],
+  });
 }
