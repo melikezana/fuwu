@@ -104,13 +104,11 @@ type AdminProviderRecord = Pick<
 type AdminProviderApplicationRecord = Pick<
   ProviderApplicationRow,
   | "created_at"
-  | "description"
   | "experience_years"
   | "full_name"
   | "id"
   | "phone"
   | "status"
-  | "whatsapp"
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
@@ -119,14 +117,13 @@ type AdminProviderApplicationRecord = Pick<
 type AdminProviderApplicationApprovalRecord = Pick<
   ProviderApplicationRow,
   | "category_id"
-  | "description"
   | "district_id"
   | "experience_years"
   | "full_name"
   | "id"
+  | "introduction"
   | "phone"
   | "status"
-  | "whatsapp"
 >;
 
 type AdminProviderApplicationRejectionRecord = Pick<
@@ -185,14 +182,12 @@ export type AdminProvider = {
 export type AdminProviderApplication = {
   category: string;
   createdAt: string;
-  description: string;
   district: string;
   experience: string;
   fullName: string;
   id: string;
   phone: string;
   status: string;
-  whatsapp: string;
 };
 
 export type AdminServiceRequest = {
@@ -696,9 +691,9 @@ async function createProviderFromApplication(
   }
 
   const phone = sanitizePhone(application.phone);
-  const whatsapp = sanitizePhone(application.whatsapp ?? "") || phone;
+  const whatsapp = phone;
   const description =
-    sanitizeText(application.description ?? "", 1200) ||
+    sanitizeText(application.introduction ?? "", 1200) ||
     `${sanitizeText(application.full_name, 120)} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
   const name = sanitizeText(application.full_name, 120);
 
@@ -852,11 +847,11 @@ export async function approveAdminProviderApplication(
         id,
         full_name,
         phone,
-        whatsapp,
         category_id,
         district_id,
         experience_years,
-        description,
+        introduction,
+        portfolio_url,
         status
       `,
     )
@@ -1369,9 +1364,7 @@ export async function getAdminProviderApplications(): Promise<
         id,
         full_name,
         phone,
-        whatsapp,
         experience_years,
-        description,
         status,
         created_at,
         service_categories(name),
@@ -1389,14 +1382,12 @@ export async function getAdminProviderApplications(): Promise<
       (application) => ({
         category: sanitizeText(getRelationName(application.service_categories), 120),
         createdAt: application.created_at,
-        description: sanitizeText(application.description, 1200),
         district: sanitizeText(getRelationName(application.districts), 120),
         experience: `${application.experience_years} yıl`,
         fullName: sanitizeText(application.full_name, 120),
         id: application.id,
-        phone: sanitizePhone(application.phone) || "Belirtilmedi",
+        phone: sanitizePhone(application.phone),
         status: application.status,
-        whatsapp: sanitizePhone(application.whatsapp) || "Belirtilmedi",
       }),
     ),
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { LoginOptions } from "@/components/auth/LoginOptions";
 import { Container } from "@/components/ui/Container";
@@ -53,7 +54,9 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <LoginOptions />
+        <Suspense fallback={<div className="h-full min-h-[400px] rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6" />}>
+          <LoginOptions />
+        </Suspense>
       </Container>
     </section>
   );

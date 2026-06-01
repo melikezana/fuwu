@@ -147,11 +147,9 @@ async function buildProviderApplicationInsert(
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
     phone: data.phoneNumber.trim(),
-    whatsapp: data.whatsappNumber.trim(),
     category_id: categoryId,
     district_id: districtId,
     experience_years: parseExperienceYears(data.yearsOfExperience),
-    description: data.shortIntroduction.trim(),
     availability: normalizeOptionalText(data.availability),
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.shortIntroduction.trim(),
@@ -159,20 +157,10 @@ async function buildProviderApplicationInsert(
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 
-  if (profileImageUpload.status === "uploaded") {
-    insertPayload.profile_image_path = profileImageUpload.path;
-    insertPayload.profile_image_url = profileImageUpload.publicUrl;
-  }
-
   return insertPayload;
 }
 
-function removeProfileImageFields(insertPayload: ProviderApplicationInsert) {
-  const { profile_image_path, profile_image_url, ...fallbackPayload } = insertPayload;
-  void profile_image_path;
-  void profile_image_url;
-  return fallbackPayload;
-}
+// Removed removeProfileImageFields as image fields are no longer inserted
 
 export function isProviderApplicationDemoMode() {
   return !isSupabaseConfigured;
@@ -238,27 +226,13 @@ export async function submitProviderApplication(
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
-      if (profileImageUpload.status === "uploaded") {
-        const fallbackPayload = removeProfileImageFields(insertPayload);
-        const { error: fallbackError } = await supabase
-          .from("provider_applications")
-          .insert(fallbackPayload);
-
-        if (!fallbackError) {
-          return notifyProviderApplicationSubmitResult({
-            applicationCode: createLiveApplicationCode(),
-            mode: "live",
-            profileImageStatus: "skipped",
-            profileImageMessage:
-              "Profil görseli başvuruyla kaydedilemedi; başvurun görselsiz gönderildi.",
-          });
-        }
-      }
-
       warnProviderApplicationFallback(error, insertPayload);
-      return notifyProviderApplicationSubmitResult(
-        createDemoApplicationResult(applicationData.profileImage),
-      );
+      throw handleServiceError(error, {
+        logContext: "Provider application Supabase insert failed.",
+        publicMessage: "Başvuru gönderilemedi. Lütfen bilgileri kontrol edip tekrar deneyin.",
+        tableName: "provider_applications",
+        payloadKeys: Object.keys(insertPayload),
+      });
     }
 
     return notifyProviderApplicationSubmitResult({
@@ -268,9 +242,13 @@ export async function submitProviderApplication(
       profileImageMessage: profileImageUpload.message,
     });
   } catch (error) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      throw error;
+    }
     warnProviderApplicationFallback(error);
-    return notifyProviderApplicationSubmitResult(
-      createDemoApplicationResult(applicationData.profileImage),
-    );
+    throw handleServiceError(error, {
+      logContext: "Provider application submission unexpectedly failed.",
+      publicMessage: "Başvuru sırasında beklenmeyen bir hata oluştu.",
+    });
   }
 }

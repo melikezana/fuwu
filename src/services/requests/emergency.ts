@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 import { getProviderDirectory } from "@/services/providers";
+import { handleServiceError } from "@/lib/errors";
 
 /**
  * Generates a simple 4-digit confirmation code.
@@ -105,24 +106,14 @@ export async function createEmergencyMatchRequest(
   const assignedProviderId = availableProviders.length > 0 ? availableProviders[0].id : null;
 
   const requestInsert = {
-    user_id: userId,
+    user_id: userId !== "00000000-0000-0000-0000-000000000000" ? userId : null,
     category_id: categoryId,
     district_id: districtId,
     address: input.fullAddress || "Yaklaşık Konum",
-    urgency: input.urgencyLevel || "acil",
-    urgency_type: input.urgencyType || "emergency",
-    budget_tag: input.budgetTag || "acil",
-    offered_price: input.offeredPrice || null,
-    payment_preference: input.paymentPreference || "nakit",
-    approximate_location: input.approximateLocation || input.district,
-    confirmation_code: confirmationCode,
-    estimated_arrival_text: estimatedArrivalText,
-    description: input.shortDescription || "Acil Hizmet Talebi",
+    urgency: "urgent",
+    description: `[Acil Hizmet] Bütçe: ${input.offeredPrice || "-"} TL, Ödeme: ${input.paymentPreference === "iban" ? "IBAN" : "Nakit"}\nNot: ${input.shortDescription || "Acil talep"}`,
     status: assignedProviderId ? SERVICE_REQUEST_STATUSES.ustayaYonlendirildi : SERVICE_REQUEST_STATUSES.yeni,
-    emergency_status: assignedProviderId ? "accepted" : "pending",
-    assigned_provider_id: assignedProviderId,
-    accepted_at: assignedProviderId ? new Date().toISOString() : null,
-  };
+  } as any; // Cast as any because user_id might be null while TS expects string
 
   const { data, error } = await supabase
     .from("service_requests")
@@ -131,8 +122,12 @@ export async function createEmergencyMatchRequest(
     .single();
 
   if (error) {
-    console.error("Error creating emergency request:", error);
-    throw new Error("Acil talep oluşturulamadı. Lütfen tekrar deneyin.");
+    throw handleServiceError(error, {
+      logContext: "Emergency service request Supabase insert failed.",
+      publicMessage: "Acil talep oluşturulamadı. Lütfen tekrar deneyin.",
+      tableName: "service_requests",
+      payloadKeys: Object.keys(requestInsert),
+    });
   }
 
   return {

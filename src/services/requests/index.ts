@@ -306,6 +306,8 @@ export async function createServiceRequest(
     throw handleServiceError(error, {
       logContext: "Service request Supabase insert failed.",
       publicMessage: serviceRequestSubmitErrorMessage,
+      tableName: "service_requests",
+      payloadKeys: Object.keys(insertPayload),
     });
   }
 

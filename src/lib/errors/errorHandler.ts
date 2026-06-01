@@ -19,6 +19,8 @@ export type HandleServiceErrorOptions = {
   message?: string;
   publicMessage?: string;
   statusCode?: number;
+  tableName?: string;
+  payloadKeys?: string[];
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -68,8 +70,13 @@ export function handleServiceError(
   }
 
   if (isSupabaseLikeError(error)) {
+    const isDev = process.env.NODE_ENV !== "production";
     logError(options.logContext ?? "Supabase service error.", {
       error: getSupabaseLogPayload(error),
+      diagnostics: isDev ? {
+        table: options.tableName,
+        keys: options.payloadKeys,
+      } : undefined,
     });
 
     return new DatabaseError(options.message ?? "Supabase operation failed.", {

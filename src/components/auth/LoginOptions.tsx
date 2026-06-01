@@ -8,8 +8,10 @@ import { getPublicErrorMessage } from "@/lib/errors";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { getSafeRedirectPath } from "@/lib/security";
 import { isSupabaseAuthConfigured } from "@/lib/supabase/client";
-import { validateLoginEmailInput } from "@/lib/validations";
-import { signInWithEmailMagicLink, signInWithGoogle } from "@/services/auth";
+import { useSearchParams } from "next/navigation";
+import { validateLoginEmailInput, validateLoginPhoneInput, validateLoginOtpInput } from "@/lib/validations";
+import { signInWithEmailMagicLink, signInWithGoogle, signInWithPhoneOtp, verifyPhoneOtp } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 type LoginOptionKey = "google" | "email";
 
@@ -102,7 +104,14 @@ export function LoginOptions() {
   const [feedbackText, setFeedbackText] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const feedback = feedbackText ?? t(feedbackKey);
+  const [phone, setPhone] = useState("");
+  const [otpToken, setOtpToken] = useState("");
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
+  const feedback = urlError || (feedbackText ?? t(feedbackKey));
 
   function setTranslatedFeedback(key: TranslationKey) {
     setFeedbackKey(key);
@@ -161,6 +170,73 @@ export function LoginOptions() {
       );
     } finally {
       setIsEmailLoading(false);
+    }
+  }
+
+  async function handlePhoneLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!isSupabaseAuthConfigured) {
+      setTranslatedFeedback("login.status.unavailable");
+      return;
+    }
+
+    if (showOtpInput) {
+      const validationResult = validateLoginOtpInput(otpToken);
+
+      if (!validationResult.ok) {
+        setFeedbackText(validationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu girin.");
+        return;
+      }
+
+      setIsPhoneLoading(true);
+      setFeedbackText("Giriş yapılıyor...");
+
+      try {
+        await verifyPhoneOtp(phone, validationResult.data.otp);
+        setFeedbackText("Giriş başarılı. Yönlendiriliyorsunuz...");
+        router.push(getSafeNextPath());
+      } catch (error) {
+        setFeedbackText(
+          getPublicErrorMessage(
+            error,
+            "Girdiğiniz kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin."
+          ),
+        );
+      } finally {
+        setIsPhoneLoading(false);
+      }
+      return;
+    }
+
+    const validationResult = validateLoginPhoneInput(phone);
+
+    if (!validationResult.ok) {
+      setFeedbackText(validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.");
+      return;
+    }
+
+    setIsPhoneLoading(true);
+    setFeedbackText("Giriş kodu gönderiliyor...");
+
+    try {
+      await signInWithPhoneOtp(validationResult.data.phone);
+      setShowOtpInput(true);
+      setFeedbackText("Giriş kodu SMS ile gönderildi.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : "";
+      if (errorMessage.includes("not configured") || errorMessage.includes("not enabled")) {
+        setFeedbackText("Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam edin.");
+      } else {
+        setFeedbackText(
+          getPublicErrorMessage(
+            error,
+            "Giriş kodu gönderilemedi. Lütfen tekrar deneyin."
+          ),
+        );
+      }
+    } finally {
+      setIsPhoneLoading(false);
     }
   }
 
@@ -236,21 +312,44 @@ export function LoginOptions() {
           </span>
         </form>
 
-        <div
-          className="grid min-h-16 cursor-default select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.1)]"
-          role="note"
-        >
-          <LoginIcon Icon={Phone} />
-          <span className="min-w-0">
-            <span className="block leading-5">{t("login.phone")}</span>
-            <span className="mt-1 block text-xs font-bold leading-5 text-[var(--muted)]">
-              {t("login.phoneUnavailable")}
+        <form className="grid gap-3" noValidate onSubmit={handlePhoneLogin}>
+          <label className="block min-w-0 cursor-default select-none">
+            <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
+              {showOtpInput ? "SMS Onay Kodu" : "Telefon ile giriş kodu gönder"}
             </span>
-          </span>
-          <span className="w-fit rounded-md bg-white px-2.5 py-1 text-[0.68rem] font-bold text-[var(--muted)]">
-            {t("login.statusSoon")}
-          </span>
-        </div>
+            <span className="grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-3 rounded-md bg-white px-4 py-3 shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)] focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2">
+              <LoginIcon Icon={Phone} />
+              <input
+                aria-describedby="login-auth-status"
+                className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
+                disabled={isPhoneLoading}
+                inputMode={showOtpInput ? "numeric" : "tel"}
+                onChange={(event) => showOtpInput ? setOtpToken(event.target.value) : setPhone(event.target.value)}
+                placeholder={showOtpInput ? "6 haneli kod" : "+90 5XX XXX XX XX"}
+                type="text"
+                value={showOtpInput ? otpToken : phone}
+              />
+            </span>
+          </label>
+          <button
+            aria-describedby="login-auth-status"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            disabled={isPhoneLoading}
+            type="submit"
+          >
+            {isPhoneLoading ? (
+              <Loader2 aria-hidden="true" className="size-4 animate-spin" />
+            ) : (
+              <Phone aria-hidden="true" className="size-4" />
+            )}
+            {showOtpInput ? "Giriş Yap" : "Kod Gönder"}
+          </button>
+          {!showOtpInput && (
+            <span className="cursor-default select-none text-xs font-bold leading-5 text-[var(--muted)]">
+              Telefon numarana 6 haneli bir SMS onay kodu göndereceğiz.
+            </span>
+          )}
+        </form>
 
         <Link
           className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"

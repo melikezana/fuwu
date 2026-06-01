@@ -282,18 +282,12 @@ function ApplicationMobileCard({
           <span className="font-black text-[var(--brand-navy)]">Telefon: </span>
           {application.phone}
         </p>
-        <p>
-          <span className="font-black text-[var(--brand-navy)]">WhatsApp: </span>
-          {application.whatsapp}
-        </p>
+
         <p>
           <span className="font-black text-[var(--brand-navy)]">Tarih: </span>
           {formatDate(application.createdAt)}
         </p>
-        <p className="break-words">
-          <span className="font-black text-[var(--brand-navy)]">Açıklama: </span>
-          {application.description}
-        </p>
+
       </div>
 
       <div className="mt-4">
@@ -353,7 +347,6 @@ export default async function AdminProviderApplicationsPage({
                   <th className="px-4 py-3">İlçe</th>
                   <th className="px-4 py-3">Deneyim</th>
                   <th className="px-4 py-3">Telefon</th>
-                  <th className="px-4 py-3">WhatsApp</th>
                   <th className="px-4 py-3">Açıklama</th>
                   <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">Tarih</th>
@@ -378,11 +371,8 @@ export default async function AdminProviderApplicationsPage({
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {application.phone}
                     </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {application.whatsapp}
-                    </td>
                     <td className="max-w-[20rem] px-4 py-4 font-semibold leading-6 text-[var(--muted)]">
-                      {application.description}
+                      -
                     </td>
                     <td className="px-4 py-4">
                       <ApplicationStatusBadge status={application.status} />

@@ -52,7 +52,8 @@ export async function createClient(): Promise<SupabaseClient<Database> | null> {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
           });
-        } catch {
+        } catch (error) {
+          console.warn("[Supabase Server Client] Failed to set cookies:", error);
           // Server Components cannot write cookies. Auth/proxy wiring will handle this later.
         }
       },

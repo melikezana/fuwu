@@ -11,7 +11,6 @@ import { Container } from "@/components/ui/Container";
 import { appRoutes, navigationLinks } from "@/lib/constants/navigation";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { getCurrentProfile } from "@/services/auth";
 import type { CurrentUserProfile } from "@/types/auth";
 
 const navLabelKeys: Record<string, TranslationKey> = {
@@ -75,8 +74,13 @@ export function Navbar() {
         if (userProfile) {
           links.push({
             id: "account",
-            label: t("nav.account"),
+            label: userProfile.full_name || t("nav.account"),
             href: userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard,
+          });
+          links.push({
+            id: "logout",
+            label: "Çıkış Yap",
+            href: "#logout",
           });
         } else {
           links.push({
@@ -96,8 +100,13 @@ export function Navbar() {
     let mounted = true;
     async function loadAuth() {
       try {
-        const profile = await getCurrentProfile();
-        if (mounted) setUserProfile(profile);
+        const response = await fetch("/api/auth/user");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.profile) {
+            if (mounted) setUserProfile(data.profile);
+          }
+        }
       } catch {
         // ignore
       } finally {
@@ -152,7 +161,17 @@ export function Navbar() {
     return activeHref === href || (!href.includes("#") && pathname === href);
   }
 
-  function handleMenuLinkClick(href: string) {
+  async function handleMenuLinkClick(href: string) {
+    if (href === "#logout") {
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch {
+        // ignore
+      }
+      setUserProfile(null);
+      window.location.reload();
+      return;
+    }
     setActiveHref(href);
     setIsMenuOpen(false);
   }
@@ -223,14 +242,31 @@ export function Navbar() {
             </Button>
             {!isAuthLoading && (
               userProfile ? (
-                <Button
-                  className="px-5"
-                  href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard}
-                  onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard)}
-                  variant="secondary"
-                >
-                  {t("nav.account")}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="px-5"
+                    href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard}
+                    onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard)}
+                    variant="secondary"
+                  >
+                    {userProfile.full_name || t("nav.account")}
+                  </Button>
+                  <Button
+                    className="px-5 border border-[var(--brand-navy-soft)] text-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] hover:text-white"
+                    onClick={async () => {
+                      try {
+                        await fetch("/api/auth/logout", { method: "POST" });
+                      } catch {
+                        // ignore
+                      }
+                      setUserProfile(null);
+                      window.location.reload();
+                    }}
+                    variant="secondary"
+                  >
+                    Çıkış Yap
+                  </Button>
+                </div>
               ) : (
                 <Button
                   className="px-5"

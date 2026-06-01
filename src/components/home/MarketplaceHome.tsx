@@ -19,9 +19,6 @@ import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
-import {
-  getProviderAvailabilityLabel,
-} from "@/lib/constants/providers";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { services, type Service } from "@/lib/constants/services";
 import { getProviderDirectory, type ProviderFilterOptions } from "@/services/providers";
