@@ -46,6 +46,22 @@ function getAuthClient() {
   return supabase;
 }
 
+function createFallbackProfileFromUser(user: User): CurrentUserProfile {
+  const fullName =
+    typeof user.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : typeof user.user_metadata?.name === "string"
+        ? user.user_metadata.name
+        : user.email ?? "Hesabım";
+
+  return {
+    id: user.id,
+    full_name: fullName,
+    phone: user.phone ?? null,
+    role: "customer",
+  };
+}
+
 async function getCurrentUserForClient(
   supabase: AuthSupabaseClient,
 ): Promise<User | null> {
@@ -128,6 +144,8 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
     return null;
   }
 
+  const fallbackProfile = createFallbackProfileFromUser(user);
+
   const { data, error } = await supabase
     .from("profiles")
     .select("id, full_name, phone, role")
@@ -135,11 +153,20 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
     .maybeSingle();
 
   if (error) {
-    warnAuthError("Supabase profile role check failed.", error);
-    return null;
+    warnAuthError("Supabase profile role check failed. Falling back to auth user.", error);
+    return fallbackProfile;
   }
 
-  return data as CurrentUserProfile | null;
+  if (!data) {
+    return fallbackProfile;
+  }
+
+  return {
+    id: data.id,
+    full_name: data.full_name ?? fallbackProfile.full_name,
+    phone: data.phone ?? fallbackProfile.phone,
+    role: data.role ?? fallbackProfile.role,
+  } as CurrentUserProfile;
 }
 
 export const getCurrentProfile = getCurrentUserProfile;
