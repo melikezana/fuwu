@@ -4,7 +4,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { getSafeRedirectPath } from "@/lib/security";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
-import { validateLoginEmailInput } from "@/lib/validations";
+import { validateLoginEmailInput, validateLoginPhoneInput, validateLoginOtpInput } from "@/lib/validations";
 import type { CurrentUserProfile } from "@/types/auth";
 import { authAccessMessages } from "./constants";
 
@@ -210,6 +210,62 @@ export async function signInWithGoogle(redirectTo: string) {
     throw handleServiceError(error, {
       logContext: "Supabase Google sign-in failed.",
       publicMessage: "Google girişi şu anda açılamıyor. Lütfen tekrar dene.",
+    });
+  }
+}
+
+export async function signInWithPhoneOtp(phone: string) {
+  const validationResult = validateLoginPhoneInput(phone);
+
+  if (!validationResult.ok) {
+    throw new ValidationError("Login phone validation failed.", {
+      publicMessage: validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.",
+    });
+  }
+
+  const supabase = getAuthClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    phone: validationResult.data.phone,
+    options: {
+      shouldCreateUser: true,
+    },
+  });
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Supabase phone OTP sign-in failed.",
+      publicMessage: "Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam edin.",
+    });
+  }
+}
+
+export async function verifyPhoneOtp(phone: string, token: string) {
+  const phoneValidationResult = validateLoginPhoneInput(phone);
+  const otpValidationResult = validateLoginOtpInput(token);
+
+  if (!phoneValidationResult.ok) {
+    throw new ValidationError("Login phone validation failed.", {
+      publicMessage: phoneValidationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.",
+    });
+  }
+
+  if (!otpValidationResult.ok) {
+    throw new ValidationError("Login OTP validation failed.", {
+      publicMessage: otpValidationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu girin.",
+    });
+  }
+
+  const supabase = getAuthClient();
+  const { error } = await supabase.auth.verifyOtp({
+    phone: phoneValidationResult.data.phone,
+    token: otpValidationResult.data.otp,
+    type: "sms",
+  });
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Supabase phone OTP verification failed.",
+      publicMessage: "Girdiğiniz kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.",
     });
   }
 }
