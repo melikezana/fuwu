@@ -128,8 +128,7 @@ type AdminProviderApplicationRecord = Pick<
   | "phone"
   | "status"
   | "introduction"
-  | "introduction"
->;{
+> & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
 };
@@ -137,15 +136,14 @@ type AdminProviderApplicationRecord = Pick<
 type AdminProviderApplicationApprovalRecord = Pick<
   ProviderApplicationRow,
   | "category_id"
-    | "district_id"
+  | "district_id"
   | "experience_years"
   | "full_name"
   | "id"
   | "phone"
-  
   | "status"
   | "introduction"
-  >;
+>;
 
 type AdminProviderApplicationRejectionRecord = Pick<
   ProviderApplicationRow,
@@ -770,9 +768,9 @@ async function createProviderFromApplication(
   }
 
   const phone = sanitizePhone(application.phone);
-  const whatsapp = sanitizePhone(application.whatsapp ?? "") || phone;
+  const whatsapp = phone;
   const description =
-    sanitizeText(application.description ?? "", 1200) ||
+    sanitizeText(application.introduction ?? "", 1200) ||
     `${sanitizeText(application.full_name, 120)} Fuwu usta baÅŸvurusundan oluÅŸturulan saÄŸlayÄ±cÄ± profili.`;
   const name = sanitizeText(application.full_name, 120);
 
@@ -813,7 +811,7 @@ async function createProviderFromApplication(
       name,
       phone,
       whatsapp,
-      profile_image_url: application.profile_image_url,
+      profile_image_url: null,
       rating: 0,
       average_price_min: null,
       average_price_max: null,
@@ -927,12 +925,10 @@ export async function approveAdminProviderApplication(
         id,
         full_name,
         phone,
-        whatsapp,
         category_id,
         district_id,
         experience_years,
-        description,
-        profile_image_url,
+        introduction,
         status
       `,
     )
@@ -1814,6 +1810,7 @@ export async function getAdminServiceRequests(): Promise<
     })),
   );
 }
+
 
 
 
