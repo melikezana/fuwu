@@ -1,4 +1,4 @@
-import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+﻿import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
   isProviderAvailabilityStatus,
@@ -99,8 +99,7 @@ type AdminProviderRecord = Pick<
   ProviderRow,
   | "average_price_max"
   | "average_price_min"
-  | "description"
-  | "id"
+    | "id"
   | "identity_verified"
   | "is_active"
   | "is_approved"
@@ -110,11 +109,10 @@ type AdminProviderRecord = Pick<
   | "phone"
   | "phone_verified"
   | "profile_completion_score"
-  | "profile_image_url"
+  
   | "rating"
   | "response_time_minutes"
-  | "whatsapp"
-  | "working_hours"
+    | "working_hours"
 > & {
   availability?: string | null;
   districts: MaybeRelation;
@@ -124,14 +122,14 @@ type AdminProviderRecord = Pick<
 type AdminProviderApplicationRecord = Pick<
   ProviderApplicationRow,
   | "created_at"
-  | "description"
   | "experience_years"
   | "full_name"
   | "id"
   | "phone"
   | "status"
-  | "whatsapp"
-> & {
+  | "introduction"
+  | "introduction"
+>;{
   districts: MaybeRelation;
   service_categories: MaybeRelation;
 };
@@ -139,16 +137,15 @@ type AdminProviderApplicationRecord = Pick<
 type AdminProviderApplicationApprovalRecord = Pick<
   ProviderApplicationRow,
   | "category_id"
-  | "description"
-  | "district_id"
+    | "district_id"
   | "experience_years"
   | "full_name"
   | "id"
   | "phone"
-  | "profile_image_url"
+  
   | "status"
-  | "whatsapp"
->;
+  | "introduction"
+  >;
 
 type AdminProviderApplicationRejectionRecord = Pick<
   ProviderApplicationRow,
@@ -158,11 +155,11 @@ type AdminProviderApplicationRejectionRecord = Pick<
 type AdminServiceRequestRecord = Pick<
   ServiceRequestRow,
   | "created_at"
-  | "description"
-  | "id"
+    | "id"
   | "preferred_date"
   | "preferred_time"
   | "status"
+  | "introduction"
   | "urgency"
   | "urgency_type"
   | "budget_tag"
@@ -395,7 +392,7 @@ function formatAveragePriceRange(
   }
 
   if (typeof minimumPrice === "number") {
-    return `${formatPrice(minimumPrice)} TL ve üzeri`;
+    return `${formatPrice(minimumPrice)} TL ve Ã¼zeri`;
   }
 
   if (typeof maximumPrice === "number") {
@@ -413,7 +410,7 @@ function getProfileName(relation: MaybeProfileRelation, userId: string) {
     return profileName;
   }
 
-  return `Müşteri ${userId.slice(0, 8).toLocaleUpperCase("tr")}`;
+  return `MÃ¼ÅŸteri ${userId.slice(0, 8).toLocaleUpperCase("tr")}`;
 }
 
 function getProfilePhone(relation: MaybeProfileRelation) {
@@ -426,7 +423,7 @@ function getRequestContactFromDescription(description: string | null) {
     ?.split("\n")
     .map((line) => line.trim())
     .find((line) =>
-      line.toLocaleLowerCase("tr").startsWith("iletişim:"),
+      line.toLocaleLowerCase("tr").startsWith("iletiÅŸim:"),
     );
 
   if (!contactLine) {
@@ -484,7 +481,7 @@ function getRequestPhone(
 
 function getAdminReadError(
   error: unknown,
-  message = "Supabase verisi şu anda okunamadı.",
+  message = "Supabase verisi ÅŸu anda okunamadÄ±.",
 ) {
   const appError = handleServiceError(error, {
     logContext: "Admin Supabase read failed.",
@@ -497,7 +494,7 @@ function getAdminReadError(
 function warnAdminWriteError(context: string, error: unknown) {
   handleServiceError(error, {
     logContext: `Admin Supabase ${context} failed.`,
-    publicMessage: "Admin işlemi şu anda tamamlanamadı.",
+    publicMessage: "Admin iÅŸlemi ÅŸu anda tamamlanamadÄ±.",
   });
 }
 
@@ -776,7 +773,7 @@ async function createProviderFromApplication(
   const whatsapp = sanitizePhone(application.whatsapp ?? "") || phone;
   const description =
     sanitizeText(application.description ?? "", 1200) ||
-    `${sanitizeText(application.full_name, 120)} Fuwu usta başvurusundan oluşturulan sağlayıcı profili.`;
+    `${sanitizeText(application.full_name, 120)} Fuwu usta baÅŸvurusundan oluÅŸturulan saÄŸlayÄ±cÄ± profili.`;
   const name = sanitizeText(application.full_name, 120);
 
   if (!name || !phone) {
@@ -888,7 +885,7 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
     error: firstError
       ? getAdminReadError(
           firstError,
-          "Dashboard istatistikleri şu anda Supabase'den yüklenemedi.",
+          "Dashboard istatistikleri ÅŸu anda Supabase'den yÃ¼klenemedi.",
         )
       : null,
     isConfigured: true,
@@ -1209,7 +1206,7 @@ export async function getAdminAssignableProvidersForRequest(
   const normalizedRequestId = sanitizeText(requestId, 80);
 
   if (!normalizedRequestId) {
-    return createEmptyReadResult("Talep kimliği alınamadı.");
+    return createEmptyReadResult("Talep kimliÄŸi alÄ±namadÄ±.");
   }
 
   const adminAccess = await getSupabaseForAdminRead();
@@ -1230,12 +1227,12 @@ export async function getAdminAssignableProvidersForRequest(
 
   if (requestError) {
     return createEmptyReadResult(
-      getAdminReadError(requestError, "Talep için atanabilir ustalar okunamadı."),
+      getAdminReadError(requestError, "Talep iÃ§in atanabilir ustalar okunamadÄ±."),
     );
   }
 
   if (!request) {
-    return createEmptyReadResult("Talep bulunamadı.");
+    return createEmptyReadResult("Talep bulunamadÄ±.");
   }
 
   const { data: providers, error: providersError } = await supabase
@@ -1248,7 +1245,7 @@ export async function getAdminAssignableProvidersForRequest(
 
   if (providersError) {
     return createEmptyReadResult(
-      getAdminReadError(providersError, "Atanabilir ustalar şu anda okunamadı."),
+      getAdminReadError(providersError, "Atanabilir ustalar ÅŸu anda okunamadÄ±."),
     );
   }
 
@@ -1711,7 +1708,7 @@ export async function getAdminProviderApplications(): Promise<
         createdAt: application.created_at,
         description: sanitizeText(application.description, 1200),
         district: sanitizeText(getRelationName(application.districts), 120),
-        experience: `${application.experience_years} yıl`,
+        experience: `${application.experience_years} yÄ±l`,
         fullName: sanitizeText(application.full_name, 120),
         id: application.id,
         phone: sanitizePhone(application.phone) || "Belirtilmedi",
@@ -1817,3 +1814,6 @@ export async function getAdminServiceRequests(): Promise<
     })),
   );
 }
+
+
+
