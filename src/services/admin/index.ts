@@ -153,11 +153,11 @@ type AdminProviderApplicationRejectionRecord = Pick<
 type AdminServiceRequestRecord = Pick<
   ServiceRequestRow,
   | "created_at"
-    | "id"
+  | "description"
+  | "id"
   | "preferred_date"
   | "preferred_time"
   | "status"
-  | "introduction"
   | "urgency"
   | "urgency_type"
   | "budget_tag"
@@ -1810,6 +1810,7 @@ export async function getAdminServiceRequests(): Promise<
     })),
   );
 }
+
 
 
 
