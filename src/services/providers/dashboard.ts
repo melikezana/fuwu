@@ -246,7 +246,7 @@ function getApplicationStatusMessage(
     return "Başvurun onaylandı; usta profilin hazırlanıyor. Profil bağlandığında panel otomatik açılır.";
   }
 
-  return "Usta başvurun incelemede. Admin onayı tamamlandığında panel erişimin otomatik açılır.";
+  return "Başvurun incelemede.";
 }
 
 export async function getProviderDashboardAccess(): Promise<ProviderDashboardAccessResult> {
@@ -358,7 +358,7 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
   if (!profile) {
     return {
       isConfigured: true,
-      message: "Bu hesaba bağlı onaylı usta profili bulunmuyor. Usta ağına katılmak için başvuru formunu gönderebilirsin.",
+      message: "Usta ağına katılmak için başvuru yap.",
       ok: false,
       reason: "missing-provider-profile",
       role: authContext.profile?.role ?? null,

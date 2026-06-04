@@ -83,6 +83,11 @@ export type ProviderApplicationInput = {
   portfolioUrl: string;
 };
 
+export type ProviderApplicationOption = {
+  id: string;
+  name: string;
+};
+
 export type ProviderApplicationSubmitMode = "live" | "demo";
 
 export type { ProviderApplicationStatus } from "@/lib/constants/statuses";
@@ -91,3 +96,14 @@ export type ProviderApplicationSubmitResult = {
   applicationCode: string;
   mode: ProviderApplicationSubmitMode;
 };
+
+export type ProviderApplicationSubmitActionResult =
+  | {
+      ok: true;
+      result: ProviderApplicationSubmitResult;
+    }
+  | {
+      debugMessage?: string;
+      message: string;
+      ok: false;
+    };

@@ -240,7 +240,7 @@ export const trTranslations = {
     "Şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir.",
   "providerApplication.section.basic": "Temel Bilgiler",
   "providerApplication.section.basicDescription":
-    "Profilde görünecek temel adı ve isteğe bağlı profil görselini ekle.",
+    "Başvuruda kullanılacak temel ad bilgisini ekle.",
   "providerApplication.section.service": "Hizmet ve Bölge",
   "providerApplication.section.serviceDescription":
     "Ana uzmanlığını ve düzenli hizmet verebileceğin ilçeleri belirt.",
@@ -249,7 +249,7 @@ export const trTranslations = {
     "Çalışma düzenini, deneyimini ve müşteriye nasıl hizmet verdiğini netleştir.",
   "providerApplication.section.contact": "İletişim",
   "providerApplication.section.contactDescription":
-    "Müşterilerin sana ulaşacağı aktif telefon ve WhatsApp bilgilerini paylaş.",
+    "Müşterilerin sana ulaşacağı aktif telefon bilgisini paylaş.",
   "providerApplication.fullName": "Ad soyad",
   "providerApplication.fullNamePlaceholder": "Resmi adını veya iş adını yaz",
   "providerApplication.fullNameHelper": "Müşterilerin göreceği adı kullan.",
@@ -265,7 +265,7 @@ export const trTranslations = {
   "providerApplication.serviceArea": "İlçe / hizmet bölgesi",
   "providerApplication.serviceAreaPlaceholder": "Örn. Kadıköy, Ataşehir, Üsküdar",
   "providerApplication.serviceAreaHelper":
-    "Düzenli hizmet verebileceğin ilçe veya semtleri yaz.",
+    "Düzenli hizmet verebileceğin ilçeyi seç.",
   "providerApplication.years": "Deneyim yılı",
   "providerApplication.yearsPlaceholder": "Örn. 5",
   "providerApplication.yearsHelper": "Yeni ama eğitimli ve hazırsan 0 yazabilirsin.",
@@ -294,7 +294,7 @@ export const trTranslations = {
   "providerApplication.demoSuccessEyebrow": "Örnek onay",
   "providerApplication.successTitle": "Başvurun alındı",
   "providerApplication.successMessage":
-    "Başvurun alındı. Profilin incelendikten sonra Fuwu’da yayınlanacaktır.",
+    "Başvurun alındı. İnceleme sonrası seni bilgilendireceğiz.",
   "providerApplication.errorMessage":
     "Başvuru şu anda gönderilemedi. Lütfen bilgilerini kontrol edip tekrar dene.",
   "providerApplication.dataStatus": "Veri durumu",

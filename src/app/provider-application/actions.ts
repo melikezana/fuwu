@@ -1,0 +1,59 @@
+"use server";
+
+import { AppError, getPublicErrorMessage } from "@/lib/errors";
+import { submitProviderApplication } from "@/services/providers/applications";
+import type {
+  ProviderApplicationInput,
+  ProviderApplicationSubmitActionResult,
+} from "@/types/provider";
+
+const providerApplicationSubmitErrorMessage =
+  "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
+
+function getRecordMessage(value: unknown) {
+  return typeof value === "object" &&
+    value !== null &&
+    "message" in value &&
+    typeof value.message === "string"
+    ? value.message
+    : null;
+}
+
+function getDebugMessage(error: unknown) {
+  if (error instanceof AppError) {
+    const causeMessage = getRecordMessage((error as Error & { cause?: unknown }).cause);
+
+    return causeMessage ? `${error.message}: ${causeMessage}` : error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return getRecordMessage(error) ?? "Unknown provider application submit error.";
+}
+
+export async function submitProviderApplicationAction(
+  input: ProviderApplicationInput,
+): Promise<ProviderApplicationSubmitActionResult> {
+  try {
+    const result = await submitProviderApplication(input);
+
+    return {
+      ok: true,
+      result,
+    };
+  } catch (error) {
+    const debugMessage = getDebugMessage(error);
+
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[Fuwu] Provider application submit action failed.", debugMessage);
+    }
+
+    return {
+      debugMessage,
+      message: getPublicErrorMessage(error, providerApplicationSubmitErrorMessage),
+      ok: false,
+    };
+  }
+}

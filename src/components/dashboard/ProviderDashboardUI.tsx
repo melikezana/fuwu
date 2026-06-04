@@ -164,7 +164,7 @@ export function ProviderDashboardAccessPlaceholder({
 
         <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
           <Button className="w-full sm:w-fit" href={appRoutes.providerApplication}>
-            Usta Olarak Başvur
+            Usta ağına katılmak için başvuru yap
           </Button>
           <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
             Ustaları Gör

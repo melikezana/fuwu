@@ -5,13 +5,18 @@ import { Container } from "@/components/ui/Container";
 import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText } from "@/lib/i18n";
+import { getProviderApplicationFormOptions } from "@/services/providers/applications";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Usta Ağına Katıl",
   description: "Fuwu’da görünür olmak, doğru müşterilerden telefon ve WhatsApp ile talep almak için usta başvurusu yap.",
 };
 
-export default function ProviderApplicationPage() {
+export default async function ProviderApplicationPage() {
+  const formOptions = await getProviderApplicationFormOptions();
+
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(135deg,#ffffff_0%,#FFF7EC_44%,#F7F7F8_100%)]">
       <FuwuWatermark className="-left-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
@@ -51,7 +56,12 @@ export default function ProviderApplicationPage() {
           </div>
         </div>
 
-        <ProviderApplicationForm />
+        <ProviderApplicationForm
+          categories={formOptions.categories}
+          districts={formOptions.districts}
+          isConfigured={formOptions.isConfigured}
+          lookupError={formOptions.error}
+        />
       </Container>
     </section>
   );
