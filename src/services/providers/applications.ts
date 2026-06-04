@@ -8,10 +8,7 @@ import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
-import {
-  uploadProviderProfileImage,
-  type ProviderImageUploadResult,
-} from "@/services/storage";
+import { uploadProviderProfileImage } from "@/services/storage";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
 import type {
   ProviderApplicationInput,
@@ -125,7 +122,6 @@ async function findLookupId(
 async function buildProviderApplicationInsert(
   supabase: SupabaseClient<Database>,
   data: ProviderApplicationInput,
-  profileImageUpload: ProviderImageUploadResult,
 ): Promise<ProviderApplicationInsert> {
   const serviceCategoryName = parseServiceCategoryName(data.serviceCategory);
   const primaryServiceArea = parsePrimaryServiceArea(data.serviceArea);
@@ -149,11 +145,9 @@ async function buildProviderApplicationInsert(
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
     phone: data.phoneNumber.trim(),
-    whatsapp: data.whatsappNumber.trim(),
     category_id: categoryId,
     district_id: districtId,
     experience_years: parseExperienceYears(data.yearsOfExperience),
-    description: data.shortIntroduction.trim(),
     availability: normalizeOptionalText(data.availability),
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.shortIntroduction.trim(),
@@ -161,19 +155,7 @@ async function buildProviderApplicationInsert(
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 
-  if (profileImageUpload.status === "uploaded") {
-    insertPayload.profile_image_path = profileImageUpload.path;
-    insertPayload.profile_image_url = profileImageUpload.publicUrl;
-  }
-
   return insertPayload;
-}
-
-function removeProfileImageFields(insertPayload: ProviderApplicationInsert) {
-  const { profile_image_path, profile_image_url, ...fallbackPayload } = insertPayload;
-  void profile_image_path;
-  void profile_image_url;
-  return fallbackPayload;
 }
 
 export function isProviderApplicationDemoMode() {
@@ -220,7 +202,6 @@ export async function submitProviderApplication(
     const insertPayload = await buildProviderApplicationInsert(
       supabase,
       applicationData,
-      profileImageUpload,
     );
 
     // Anti-spam duplicate phone check
@@ -248,29 +229,6 @@ export async function submitProviderApplication(
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
-      if (profileImageUpload.status === "uploaded") {
-        const fallbackPayload = removeProfileImageFields(insertPayload);
-        const { error: fallbackError } = await supabase
-          .from("provider_applications")
-          .insert(fallbackPayload);
-
-        if (!fallbackError) {
-          logInfo("Provider application inserted without profile image.", {
-            categoryId: fallbackPayload.category_id,
-            districtId: fallbackPayload.district_id,
-            status: fallbackPayload.status,
-          });
-
-          return notifyProviderApplicationSubmitResult({
-            applicationCode: createLiveApplicationCode(),
-            mode: "live",
-            profileImageStatus: "skipped",
-            profileImageMessage:
-              "Profil görseli başvuruyla kaydedilemedi; başvurun görselsiz gönderildi.",
-          });
-        }
-      }
-
       throw createProviderApplicationFailure(error);
     }
 

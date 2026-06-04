@@ -99,7 +99,8 @@ type AdminProviderRecord = Pick<
   ProviderRow,
   | "average_price_max"
   | "average_price_min"
-    | "id"
+  | "description"
+  | "id"
   | "identity_verified"
   | "is_active"
   | "is_approved"
@@ -110,11 +111,10 @@ type AdminProviderRecord = Pick<
   | "phone_verified"
   | "profile_completion_score"
   | "profile_image_url"
-  | "profile_image_url"
-  
   | "rating"
   | "response_time_minutes"
-    | "working_hours"
+  | "whatsapp"
+  | "working_hours"
 > & {
   availability?: string | null;
   districts: MaybeRelation;
@@ -231,7 +231,6 @@ export type AdminProviderApplication = {
   id: string;
   phone: string;
   status: string;
-  whatsapp: string;
 };
 
 export type AdminServiceRequest = {
@@ -1684,9 +1683,8 @@ export async function getAdminProviderApplications(): Promise<
         id,
         full_name,
         phone,
-        whatsapp,
         experience_years,
-        description,
+        introduction,
         status,
         created_at,
         service_categories(name),
@@ -1704,14 +1702,13 @@ export async function getAdminProviderApplications(): Promise<
       (application) => ({
         category: sanitizeText(getRelationName(application.service_categories), 120),
         createdAt: application.created_at,
-        description: sanitizeText(application.description, 1200),
+        description: sanitizeText(application.introduction ?? "", 1200),
         district: sanitizeText(getRelationName(application.districts), 120),
         experience: `${application.experience_years} yÄ±l`,
         fullName: sanitizeText(application.full_name, 120),
         id: application.id,
         phone: sanitizePhone(application.phone) || "Belirtilmedi",
         status: application.status,
-        whatsapp: sanitizePhone(application.whatsapp) || "Belirtilmedi",
       }),
     ),
   );
@@ -1812,10 +1809,3 @@ export async function getAdminServiceRequests(): Promise<
     })),
   );
 }
-
-
-
-
-
-
-
