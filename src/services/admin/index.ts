@@ -189,6 +189,13 @@ type AdminServiceRequestRecord = Pick<
     | null;
 };
 
+type AdminServiceRequestStatusRecord = Pick<
+  ServiceRequestRow,
+  "assigned_provider_id" | "id" | "status" | "urgency_type"
+> & {
+  districts: MaybeRelation;
+};
+
 type AdminProviderPublicationUpdate = Partial<
   Pick<ProviderRow, "is_active" | "is_approved" | "is_verified" | "last_active_at">
 >;
@@ -1170,7 +1177,8 @@ export async function updateAdminServiceRequestStatus(
     return createServiceRequestActionResult("service-request-not-found", false);
   }
 
-  const previousStatusValue = String(existingRequest.status);
+  const currentRequest = existingRequest as AdminServiceRequestStatusRecord;
+  const previousStatusValue = String(currentRequest.status);
   const previousStatus = normalizeServiceRequestStatus(previousStatusValue);
 
   if (
@@ -1183,7 +1191,7 @@ export async function updateAdminServiceRequestStatus(
   const updatePayload: Partial<ServiceRequestRow> = {
     status: normalizedStatus,
   };
-  const isEmergencyRequest = existingRequest.urgency_type === "emergency";
+  const isEmergencyRequest = currentRequest.urgency_type === "emergency";
 
   const emergencyStatusRequiresProvider = new Set<ServiceRequestStatus>([
     SERVICE_REQUEST_STATUSES.accepted,
@@ -1194,7 +1202,7 @@ export async function updateAdminServiceRequestStatus(
   if (
     isEmergencyRequest &&
     emergencyStatusRequiresProvider.has(normalizedStatus) &&
-    !existingRequest.assigned_provider_id
+    !currentRequest.assigned_provider_id
   ) {
     return createServiceRequestActionResult("service-request-invalid-transition", false);
   }
@@ -1206,13 +1214,13 @@ export async function updateAdminServiceRequestStatus(
       : null;
 
   if (isEmergencyRequest && acceptedAt) {
-    const districtRelation = (existingRequest as any).districts;
+    const districtRelation = currentRequest.districts;
     const districtName = Array.isArray(districtRelation)
       ? districtRelation[0]?.name
       : districtRelation?.name;
 
     updatePayload.accepted_at = acceptedAt;
-    updatePayload.accepted_provider_id = existingRequest.assigned_provider_id;
+    updatePayload.accepted_provider_id = currentRequest.assigned_provider_id;
     updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
