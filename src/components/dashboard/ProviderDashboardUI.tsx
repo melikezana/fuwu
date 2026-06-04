@@ -116,7 +116,7 @@ export function ProviderDashboardShell({
                     "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-bold leading-5 transition-colors",
                     isActive
                       ? "bg-[var(--brand-navy)] text-white"
-                      : "bg-[var(--surface-soft)] text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
+                      : "border border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
                   )}
                   href={item.href}
                   key={item.key}

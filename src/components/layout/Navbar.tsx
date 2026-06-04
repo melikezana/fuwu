@@ -38,6 +38,14 @@ function getActiveHref(pathname: string, links: Array<{ href: string }>) {
   return pathname;
 }
 
+function getUserDisplayName(profile: CurrentUserProfile | null, fallback: string) {
+  return profile?.full_name?.trim() || fallback;
+}
+
+function getAvatarInitial(displayName: string) {
+  return displayName.trim().charAt(0).toLocaleUpperCase("tr-TR") || "?";
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const { t } = useI18n();
@@ -53,6 +61,14 @@ export function Navbar() {
         label: t(navLabelKeys[item.id] ?? "nav.services"),
       })),
     [t],
+  );
+  const userDisplayName = useMemo(
+    () => getUserDisplayName(userProfile, t("nav.account")),
+    [t, userProfile],
+  );
+  const userAvatarInitial = useMemo(
+    () => getAvatarInitial(userDisplayName),
+    [userDisplayName],
   );
   const mobileNavigationLinks = useMemo(
     () => {
@@ -74,7 +90,7 @@ export function Navbar() {
         if (userProfile) {
           links.push({
             id: "account",
-            label: userProfile.full_name || t("nav.account"),
+            label: userDisplayName,
             href: userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard,
           });
           links.push({
@@ -93,7 +109,7 @@ export function Navbar() {
 
       return links;
     },
-    [t, translatedHeaderNavigationLinks, isAuthLoading, userProfile],
+    [t, translatedHeaderNavigationLinks, isAuthLoading, userProfile, userDisplayName],
   );
 
   useEffect(() => {
@@ -244,12 +260,15 @@ export function Navbar() {
               userProfile ? (
                 <div className="flex items-center gap-2">
                   <Button
-                    className="px-5"
+                    className="gap-2 px-3.5"
                     href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard}
                     onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard)}
                     variant="secondary"
                   >
-                    {userProfile.full_name || t("nav.account")}
+                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-black text-white">
+                      {userAvatarInitial}
+                    </span>
+                    <span className="max-w-[12rem] truncate">{userDisplayName}</span>
                   </Button>
                   <Button
                     className="px-5 border border-[var(--brand-navy-soft)] text-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] hover:text-white"

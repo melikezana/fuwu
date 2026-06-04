@@ -155,13 +155,12 @@ comment on table public.providers is
 
 create table if not exists public.provider_applications (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete set null,
   full_name text not null,
   phone text not null,
-  whatsapp text not null,
   category_id uuid not null references public.service_categories(id) on delete restrict,
   district_id uuid not null references public.districts(id) on delete restrict,
   experience_years integer not null default 0,
-  description text not null,
   availability text,
   has_equipment boolean not null default false,
   introduction text,
@@ -179,11 +178,7 @@ create table if not exists public.provider_applications (
   constraint provider_applications_full_name_not_blank_check
     check (btrim(full_name) <> ''),
   constraint provider_applications_phone_not_blank_check
-    check (btrim(phone) <> ''),
-  constraint provider_applications_whatsapp_not_blank_check
-    check (btrim(whatsapp) <> ''),
-  constraint provider_applications_description_not_blank_check
-    check (btrim(description) <> '')
+    check (btrim(phone) <> '')
 );
 
 comment on table public.provider_applications is
@@ -320,6 +315,9 @@ create index if not exists provider_applications_status_idx
 
 create index if not exists provider_applications_phone_idx
   on public.provider_applications (phone);
+
+create index if not exists provider_applications_user_id_idx
+  on public.provider_applications (user_id);
 
 create unique index if not exists provider_applications_pending_phone_unique_idx
   on public.provider_applications (phone)

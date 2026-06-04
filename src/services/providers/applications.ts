@@ -38,6 +38,9 @@ const providerApplicationSubmitErrorMessage =
 const duplicateProviderApplicationMessage =
   "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.";
 
+const providerApplicationLoginRequiredMessage =
+  "Usta başvurusu göndermek için Google ile giriş yapmalısın.";
+
 function createProviderApplicationClient(): SupabaseClient<Database> | null {
   return createSupabaseBrowserClient();
 }
@@ -122,6 +125,7 @@ async function findLookupId(
 async function buildProviderApplicationInsert(
   supabase: SupabaseClient<Database>,
   data: ProviderApplicationInput,
+  userId: string,
 ): Promise<ProviderApplicationInsert> {
   const serviceCategoryName = parseServiceCategoryName(data.serviceCategory);
   const primaryServiceArea = parsePrimaryServiceArea(data.serviceArea);
@@ -144,6 +148,7 @@ async function buildProviderApplicationInsert(
 
   const insertPayload: ProviderApplicationInsert = {
     full_name: data.fullName.trim(),
+    user_id: userId,
     phone: data.phoneNumber.trim(),
     category_id: categoryId,
     district_id: districtId,
@@ -160,6 +165,30 @@ async function buildProviderApplicationInsert(
 
 export function isProviderApplicationDemoMode() {
   return !isSupabaseConfigured;
+}
+
+async function getProviderApplicationUserId(supabase: SupabaseClient<Database>) {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Provider application auth user lookup failed.",
+      publicMessage: providerApplicationLoginRequiredMessage,
+      statusCode: 401,
+    });
+  }
+
+  if (!user) {
+    throw new ValidationError("Provider application requires an authenticated user.", {
+      publicMessage: providerApplicationLoginRequiredMessage,
+      statusCode: 401,
+    });
+  }
+
+  return user.id;
 }
 
 async function notifyProviderApplicationSubmitResult(
@@ -195,6 +224,7 @@ export async function submitProviderApplication(
   }
 
   try {
+    const userId = await getProviderApplicationUserId(supabase);
     const profileImageUpload = await uploadProviderProfileImage(
       supabase,
       applicationData.profileImage ?? null,
@@ -202,10 +232,31 @@ export async function submitProviderApplication(
     const insertPayload = await buildProviderApplicationInsert(
       supabase,
       applicationData,
+      userId,
     );
 
-    // Anti-spam duplicate phone check
-    const { data: existingApplication, error: duplicateCheckError } = await supabase
+    const { data: existingUserApplication, error: userDuplicateCheckError } = await supabase
+      .from("provider_applications")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
+      .limit(1)
+      .maybeSingle();
+
+    if (userDuplicateCheckError) {
+      throw handleServiceError(userDuplicateCheckError, {
+        logContext: "Provider application user duplicate check failed.",
+        publicMessage: providerApplicationSubmitErrorMessage,
+      });
+    }
+
+    if (existingUserApplication?.id) {
+      throw new ValidationError("Duplicate provider application detected for user.", {
+        publicMessage: duplicateProviderApplicationMessage,
+      });
+    }
+
+    const { data: existingPhoneApplication, error: phoneDuplicateCheckError } = await supabase
       .from("provider_applications")
       .select("id")
       .eq("phone", insertPayload.phone)
@@ -213,14 +264,14 @@ export async function submitProviderApplication(
       .limit(1)
       .maybeSingle();
 
-    if (duplicateCheckError) {
-      throw handleServiceError(duplicateCheckError, {
-        logContext: "Provider application duplicate check failed.",
+    if (phoneDuplicateCheckError) {
+      throw handleServiceError(phoneDuplicateCheckError, {
+        logContext: "Provider application phone duplicate check failed.",
         publicMessage: providerApplicationSubmitErrorMessage,
       });
     }
 
-    if (existingApplication?.id) {
+    if (existingPhoneApplication?.id) {
       throw new ValidationError("Duplicate provider application detected.", {
         publicMessage: duplicateProviderApplicationMessage,
       });
@@ -237,6 +288,7 @@ export async function submitProviderApplication(
       districtId: insertPayload.district_id,
       hasProfileImage: profileImageUpload.status === "uploaded",
       status: insertPayload.status,
+      userId,
     });
 
     return notifyProviderApplicationSubmitResult({

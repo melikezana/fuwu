@@ -372,7 +372,7 @@ export default async function AdminProviderApplicationsPage({
                       {application.phone}
                     </td>
                     <td className="max-w-[20rem] px-4 py-4 font-semibold leading-6 text-[var(--muted)]">
-                      -
+                      {application.description || "-"}
                     </td>
                     <td className="px-4 py-4">
                       <ApplicationStatusBadge status={application.status} />

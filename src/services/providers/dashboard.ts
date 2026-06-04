@@ -1,11 +1,12 @@
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
+  PROVIDER_APPLICATION_STATUSES,
   isProviderAvailabilityStatus,
   normalizeProviderAvailabilityStatus,
   type ProviderAvailabilityStatus,
 } from "@/lib/constants/statuses";
 import type { Database } from "@/lib/supabase/types";
-import { authAccessMessages, hasProviderRole } from "@/services/auth/constants";
+import { authAccessMessages } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 
@@ -26,6 +27,14 @@ type ProviderDashboardRecord = Pick<
   districts: ProviderRelation | ProviderRelation[] | null;
   service_categories: ProviderRelation | ProviderRelation[] | null;
 };
+
+type ProviderApplicationRow =
+  Database["public"]["Tables"]["provider_applications"]["Row"];
+
+type ProviderDashboardApplicationRecord = Pick<
+  ProviderApplicationRow,
+  "created_at" | "status"
+>;
 
 type ProviderRelation = {
   name: string | null;
@@ -58,7 +67,12 @@ export type ProviderDashboardAccessDenied = {
   isConfigured: boolean;
   message: string;
   ok: false;
-  reason: "missing-session" | "missing-provider-profile" | "not-provider";
+  reason:
+    | "missing-session"
+    | "missing-provider-profile"
+    | "pending-application"
+    | "pending-provider-profile"
+    | "rejected-application";
   role?: string | null;
   userId?: string;
 };
@@ -111,6 +125,8 @@ const providerSelectQueryWithoutAvailability = `
   service_categories(name),
   districts(name)
 `;
+
+const providerApplicationSelectQuery = "status, created_at";
 
 function getRelationName(
   relation: ProviderRelation | ProviderRelation[] | null | undefined,
@@ -219,6 +235,20 @@ function getProviderDashboardReadError(error: unknown) {
   return getPublicErrorMessage(appError, authAccessMessages.accessDenied);
 }
 
+function getApplicationStatusMessage(
+  application: ProviderDashboardApplicationRecord,
+) {
+  if (application.status === PROVIDER_APPLICATION_STATUSES.rejected) {
+    return "Usta başvurun reddedildi. Yeni veya güncellenmiş bilgilerle tekrar başvurabilirsin.";
+  }
+
+  if (application.status === PROVIDER_APPLICATION_STATUSES.approved) {
+    return "Başvurun onaylandı; usta profilin hazırlanıyor. Profil bağlandığında panel otomatik açılır.";
+  }
+
+  return "Usta başvurun incelemede. Admin onayı tamamlandığında panel erişimin otomatik açılır.";
+}
+
 export async function getProviderDashboardAccess(): Promise<ProviderDashboardAccessResult> {
   const authContext = await getServerAuthContext();
 
@@ -231,21 +261,13 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  if (!hasProviderRole(authContext.profile)) {
-    return {
-      isConfigured: true,
-      message: authAccessMessages.accessDenied,
-      ok: false,
-      reason: "not-provider",
-      role: authContext.profile?.role ?? null,
-      userId: authContext.user.id,
-    };
-  }
-
   let { data, error } = await authContext.supabase
     .from("providers")
     .select(providerSelectQuery)
     .eq("user_id", authContext.user.id)
+    .order("is_approved", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error && isMissingAvailabilityColumn(error)) {
@@ -253,6 +275,9 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
       .from("providers")
       .select(providerSelectQueryWithoutAvailability)
       .eq("user_id", authContext.user.id)
+      .order("is_approved", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     data = fallbackResult.data as typeof data;
@@ -274,10 +299,66 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     ? mapProviderDashboardRecord(data as unknown as ProviderDashboardRecord)
     : null;
 
+  if (profile?.isApproved) {
+    return {
+      isConfigured: true,
+      ok: true,
+      profile,
+      role: "provider",
+      userId: authContext.user.id,
+    };
+  }
+
+  if (profile && !profile.isApproved) {
+    return {
+      isConfigured: true,
+      message: "Usta profilin oluşturuldu ve onay bekliyor. Onay tamamlandığında panel erişimin açılır.",
+      ok: false,
+      reason: "pending-provider-profile",
+      role: authContext.profile?.role ?? null,
+      userId: authContext.user.id,
+    };
+  }
+
+  const { data: application, error: applicationError } = await authContext.supabase
+    .from("provider_applications")
+    .select(providerApplicationSelectQuery)
+    .eq("user_id", authContext.user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (applicationError) {
+    return {
+      isConfigured: true,
+      message: getProviderDashboardReadError(applicationError),
+      ok: false,
+      reason: "missing-provider-profile",
+      role: authContext.profile?.role ?? null,
+      userId: authContext.user.id,
+    };
+  }
+
+  const providerApplication = application as ProviderDashboardApplicationRecord | null;
+
+  if (providerApplication) {
+    return {
+      isConfigured: true,
+      message: getApplicationStatusMessage(providerApplication),
+      ok: false,
+      reason:
+        providerApplication.status === PROVIDER_APPLICATION_STATUSES.rejected
+          ? "rejected-application"
+          : "pending-application",
+      role: authContext.profile?.role ?? null,
+      userId: authContext.user.id,
+    };
+  }
+
   if (!profile) {
     return {
       isConfigured: true,
-      message: authAccessMessages.accessDenied,
+      message: "Bu hesaba bağlı onaylı usta profili bulunmuyor. Usta ağına katılmak için başvuru formunu gönderebilirsin.",
       ok: false,
       reason: "missing-provider-profile",
       role: authContext.profile?.role ?? null,
@@ -287,9 +368,10 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
 
   return {
     isConfigured: true,
-    ok: true,
-    profile,
-    role: "provider",
+    message: authAccessMessages.accessDenied,
+    ok: false,
+    reason: "missing-provider-profile",
+    role: authContext.profile?.role ?? null,
     userId: authContext.user.id,
   };
 }
@@ -325,7 +407,7 @@ export async function updateProviderDashboardAvailability(
     return createAvailabilityActionResult("supabase-not-configured", false);
   }
 
-  if (!authContext.user || !hasProviderRole(authContext.profile)) {
+  if (!authContext.user) {
     return createAvailabilityActionResult("provider-not-authorized", false);
   }
 
@@ -333,6 +415,7 @@ export async function updateProviderDashboardAvailability(
     .from("providers")
     .update({ availability: normalizedAvailability })
     .eq("user_id", authContext.user.id)
+    .eq("is_approved", true)
     .select("id")
     .maybeSingle();
 

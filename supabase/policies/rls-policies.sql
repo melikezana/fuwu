@@ -158,6 +158,17 @@ with check (
 comment on policy profiles_update_own on public.profiles is
   'Users can update their own profile details, but cannot self-promote by changing their role.';
 
+drop policy if exists profiles_update_admin_roles on public.profiles;
+create policy profiles_update_admin_roles
+on public.profiles
+for update
+to authenticated
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());
+
+comment on policy profiles_update_admin_roles on public.profiles is
+  'Admins can grant provider access after approving a linked provider application.';
+
 -- Providers
 -- Public provider browsing is allowed because approved, active providers are the
 -- marketplace inventory customers need to discover. Pending, inactive, or
@@ -232,21 +243,34 @@ comment on policy providers_update_admin_approval on public.providers is
   'Admins can later approve, activate, or correct provider records through authenticated admin tooling.';
 
 -- Provider applications
--- Anyone can submit an application, including anonymous visitors, because this is
--- a lead-capture flow. The table has no applicant user_id column today, so
--- applicants receive no read policy; that prevents applicants from seeing other
--- submissions. A future applicant portal should add an ownership column or safe
--- status lookup before exposing applicant reads.
+-- Provider applications are linked to authenticated applicants. Applicants can
+-- create and read only their own application status, while admins can review the
+-- full queue.
 
+drop policy if exists "Anyone can insert provider applications" on public.provider_applications;
 drop policy if exists provider_applications_insert_public_pending on public.provider_applications;
-create policy provider_applications_insert_public_pending
+drop policy if exists provider_applications_insert_authenticated_pending on public.provider_applications;
+create policy provider_applications_insert_authenticated_pending
 on public.provider_applications
 for insert
-to anon, authenticated
-with check (status = 'pending');
+to authenticated
+with check (
+  user_id = auth.uid()
+  and status = 'pending'
+);
 
-comment on policy provider_applications_insert_public_pending on public.provider_applications is
-  'Anyone can submit a new provider application, but public inserts must start as pending.';
+comment on policy provider_applications_insert_authenticated_pending on public.provider_applications is
+  'Authenticated applicants can create only their own pending provider application.';
+
+drop policy if exists provider_applications_select_own on public.provider_applications;
+create policy provider_applications_select_own
+on public.provider_applications
+for select
+to authenticated
+using (user_id = auth.uid());
+
+comment on policy provider_applications_select_own on public.provider_applications is
+  'Applicants can read their own application status for onboarding and dashboard pending states.';
 
 drop policy if exists provider_applications_select_admin_all on public.provider_applications;
 create policy provider_applications_select_admin_all
