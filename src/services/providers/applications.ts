@@ -3,12 +3,11 @@ import {
   createSupabaseBrowserClient,
   isSupabaseConfigured,
 } from "@/lib/supabase/client";
-import { DatabaseError, handleServiceError, NotFoundError, ValidationError } from "@/lib/errors";
+import { DatabaseError, handleServiceError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
-import { uploadProviderProfileImage } from "@/services/storage";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
 import type {
   ProviderApplicationInput,
@@ -19,12 +18,6 @@ export type {
   ProviderApplicationInput,
   ProviderApplicationSubmitResult,
 } from "@/types/provider";
-
-type LookupTable = "service_categories" | "districts";
-
-type LookupRecord = {
-  id?: unknown;
-};
 
 type ProviderApplicationInsert =
   Database["public"]["Tables"]["provider_applications"]["Insert"];
@@ -67,17 +60,8 @@ function createProviderApplicationFailure(error: unknown) {
   });
 }
 
-function parseServiceCategoryName(serviceCategory: string) {
-  const categoryParts = serviceCategory.split(" - ");
-  return categoryParts[categoryParts.length - 1]?.trim() ?? serviceCategory.trim();
-}
-
-function parsePrimaryServiceArea(serviceArea: string) {
-  return serviceArea.split(/[,\n;/]+/)[0]?.trim() ?? serviceArea.trim();
-}
-
-function parseExperienceYears(yearsOfExperience: string) {
-  const parsedValue = Number(yearsOfExperience);
+function parseExperienceYears(experienceYears: string) {
+  const parsedValue = Number(experienceYears);
 
   if (!Number.isFinite(parsedValue) || parsedValue < 0) {
     return 0;
@@ -87,7 +71,7 @@ function parseExperienceYears(yearsOfExperience: string) {
 }
 
 function parseHasEquipment(hasEquipment: string) {
-  return hasEquipment.trim().toLocaleLowerCase("tr") === "evet";
+  return hasEquipment.trim() === "true";
 }
 
 function normalizeOptionalText(value: string) {

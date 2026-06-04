@@ -15,30 +15,27 @@ import { sanitizeText } from "./text";
 
 export type ProviderApplicationField =
   | "availability"
+  | "categoryId"
+  | "districtId"
+  | "experienceYears"
   | "fullName"
   | "hasEquipment"
-  | "phoneNumber"
-  | "profileImage"
-  | "referenceLink"
-  | "serviceArea"
-  | "serviceCategory"
-  | "shortIntroduction"
-  | "whatsappNumber"
-  | "yearsOfExperience";
+  | "introduction"
+  | "phone"
+  | "portfolioUrl";
 
 const requiredProviderFields: Array<{
-  field: Exclude<ProviderApplicationField, "profileImage" | "referenceLink">;
+  field: Exclude<ProviderApplicationField, "portfolioUrl">;
   message: string;
 }> = [
   { field: "fullName", message: "Ad soyad alanı zorunludur." },
-  { field: "phoneNumber", message: "Telefon numarası zorunludur." },
-  { field: "whatsappNumber", message: "WhatsApp numarası zorunludur." },
-  { field: "serviceCategory", message: "Hizmet kategorisi zorunludur." },
-  { field: "serviceArea", message: "Hizmet bölgesi zorunludur." },
-  { field: "yearsOfExperience", message: "Deneyim yılı zorunludur." },
+  { field: "phone", message: "Telefon numarası zorunludur." },
+  { field: "categoryId", message: "Hizmet kategorisi zorunludur." },
+  { field: "districtId", message: "İlçe seçimi zorunludur." },
+  { field: "experienceYears", message: "Deneyim yılı zorunludur." },
   { field: "availability", message: "Uygunluk alanı zorunludur." },
   { field: "hasEquipment", message: "Ekipman durumu zorunludur." },
-  { field: "shortIntroduction", message: "Açıklama alanı zorunludur." },
+  { field: "introduction", message: "Tanıtım alanı zorunludur." },
 ];
 
 export function validateProviderApplicationInput(
@@ -46,16 +43,14 @@ export function validateProviderApplicationInput(
 ): ValidationResult<ProviderApplicationInput, ProviderApplicationField> {
   const sanitizedData: ProviderApplicationInput = {
     availability: sanitizeText(input.availability, 120),
+    categoryId: sanitizeText(input.categoryId, 80),
+    districtId: sanitizeText(input.districtId, 80),
+    experienceYears: sanitizeText(input.experienceYears, 8),
     fullName: sanitizeText(input.fullName, 120),
     hasEquipment: sanitizeText(input.hasEquipment, 40),
-    phoneNumber: sanitizePhone(input.phoneNumber),
-    profileImage: input.profileImage ?? null,
-    referenceLink: normalizeOptionalUrl(input.referenceLink),
-    serviceArea: sanitizeText(input.serviceArea, 220),
-    serviceCategory: sanitizeText(input.serviceCategory, 220),
-    shortIntroduction: sanitizeText(input.shortIntroduction, 1500),
-    whatsappNumber: sanitizePhone(input.whatsappNumber),
-    yearsOfExperience: sanitizeText(input.yearsOfExperience, 8),
+    introduction: sanitizeText(input.introduction, 1500),
+    phone: sanitizePhone(input.phone),
+    portfolioUrl: normalizeOptionalUrl(input.portfolioUrl),
   };
   const issues: Array<ValidationIssue<ProviderApplicationField>> = [];
 
@@ -63,43 +58,47 @@ export function validateProviderApplicationInput(
     addRequiredTextIssue(issues, field, sanitizedData[field], message);
   });
 
-  if (sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
+  if (sanitizedData.phone && !isValidPhone(sanitizedData.phone)) {
     issues.push({
-      field: "phoneNumber",
+      field: "phone",
       message: commonValidationMessages.phoneInvalid,
     });
   }
 
-  if (sanitizedData.whatsappNumber && !isValidPhone(sanitizedData.whatsappNumber)) {
+  if (
+    sanitizedData.hasEquipment &&
+    sanitizedData.hasEquipment !== "true" &&
+    sanitizedData.hasEquipment !== "false"
+  ) {
     issues.push({
-      field: "whatsappNumber",
-      message: "WhatsApp numarası geçerli değil.",
+      field: "hasEquipment",
+      message: "Ekipman durumu için evet veya hayır seç.",
     });
   }
 
-  const yearsOfExperience = Number(sanitizedData.yearsOfExperience);
+  const yearsOfExperience = Number(sanitizedData.experienceYears);
 
   if (
-    sanitizedData.yearsOfExperience &&
+    sanitizedData.experienceYears &&
     (!Number.isFinite(yearsOfExperience) || yearsOfExperience < 0 || yearsOfExperience > 60)
   ) {
     issues.push({
-      field: "yearsOfExperience",
+      field: "experienceYears",
       message: "Deneyim yılı 0 ile 60 arasında olmalı.",
     });
   }
 
-  if (sanitizedData.shortIntroduction && sanitizedData.shortIntroduction.length < 24) {
+  if (sanitizedData.introduction && sanitizedData.introduction.length < 24) {
     issues.push({
-      field: "shortIntroduction",
+      field: "introduction",
       message: commonValidationMessages.descriptionTooShort,
     });
   }
 
-  if (sanitizedData.referenceLink && !isValidHttpUrl(sanitizedData.referenceLink)) {
+  if (sanitizedData.portfolioUrl && !isValidHttpUrl(sanitizedData.portfolioUrl)) {
     issues.push({
-      field: "referenceLink",
-      message: "Lütfen geçerli bir bağlantı gir veya alanı boş bırak.",
+      field: "portfolioUrl",
+      message: "Lütfen geçerli bir portfolyo bağlantısı gir veya alanı boş bırak.",
     });
   }
 

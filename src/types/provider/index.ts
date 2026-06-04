@@ -72,28 +72,22 @@ export type ProviderDirectory = {
 };
 
 export type ProviderApplicationInput = {
-  fullName: string;
-  phoneNumber: string;
-  whatsappNumber: string;
-  serviceCategory: string;
-  serviceArea: string;
-  yearsOfExperience: string;
   availability: string;
+  categoryId: string;
+  districtId: string;
+  experienceYears: string;
+  fullName: string;
   hasEquipment: string;
-  shortIntroduction: string;
-  referenceLink: string;
-  profileImage?: File | null;
+  introduction: string;
+  phone: string;
+  portfolioUrl: string;
 };
 
 export type ProviderApplicationSubmitMode = "live" | "demo";
-
-export type ProviderApplicationProfileImageStatus = "uploaded" | "skipped";
 
 export type { ProviderApplicationStatus } from "@/lib/constants/statuses";
 
 export type ProviderApplicationSubmitResult = {
   applicationCode: string;
   mode: ProviderApplicationSubmitMode;
-  profileImageStatus: ProviderApplicationProfileImageStatus;
-  profileImageMessage?: string;
 };
