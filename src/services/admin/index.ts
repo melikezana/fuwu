@@ -110,6 +110,7 @@ type AdminProviderRecord = Pick<
   | "phone_verified"
   | "profile_completion_score"
   | "profile_image_url"
+  | "profile_image_url"
   
   | "rating"
   | "response_time_minutes"
@@ -1811,6 +1812,7 @@ export async function getAdminServiceRequests(): Promise<
     })),
   );
 }
+
 
 
 
