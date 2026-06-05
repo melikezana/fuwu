@@ -243,7 +243,11 @@ export default async function ProviderDashboardProfilePage({
           </div>
         </section>
       ) : (
-        <ProviderDashboardAccessPlaceholder message={providerAccess.message} />
+        <ProviderDashboardAccessPlaceholder
+          applicationStatus={providerAccess.applicationStatus}
+          message={providerAccess.message}
+          reason={providerAccess.reason}
+        />
       )}
     </ProviderDashboardShell>
   );

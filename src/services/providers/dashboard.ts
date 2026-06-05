@@ -3,6 +3,7 @@ import {
   PROVIDER_APPLICATION_STATUSES,
   isProviderAvailabilityStatus,
   normalizeProviderAvailabilityStatus,
+  type ProviderApplicationStatus,
   type ProviderAvailabilityStatus,
 } from "@/lib/constants/statuses";
 import type { Database } from "@/lib/supabase/types";
@@ -64,6 +65,7 @@ export type ProviderDashboardAccessAllowed = {
 };
 
 export type ProviderDashboardAccessDenied = {
+  applicationStatus?: ProviderApplicationStatus;
   isConfigured: boolean;
   message: string;
   ok: false;
@@ -343,6 +345,7 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
 
   if (providerApplication) {
     return {
+      applicationStatus: providerApplication.status,
       isConfigured: true,
       message: getApplicationStatusMessage(providerApplication),
       ok: false,

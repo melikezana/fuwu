@@ -222,7 +222,11 @@ export default async function ProviderDashboardRequestsPage() {
           </div>
         </section>
       ) : (
-        <ProviderDashboardAccessPlaceholder message={providerAccess.message} />
+        <ProviderDashboardAccessPlaceholder
+          applicationStatus={providerAccess.applicationStatus}
+          message={providerAccess.message}
+          reason={providerAccess.reason}
+        />
       )}
     </ProviderDashboardShell>
   );

@@ -19,6 +19,15 @@ import { cn } from "@/lib/utils";
 
 type ProviderDashboardNavKey = "overview" | "profile" | "requests";
 
+type ProviderDashboardAccessReason =
+  | "missing-session"
+  | "missing-provider-profile"
+  | "pending-application"
+  | "pending-provider-profile"
+  | "rejected-application";
+
+type ProviderDashboardApplicationStatus = "pending" | "approved" | "rejected";
+
 type ProviderDashboardShellProps = {
   active: ProviderDashboardNavKey;
   children: ReactNode;
@@ -38,6 +47,13 @@ type SummaryCardProps = {
 type ProfileFieldProps = {
   label: string;
   value: string;
+};
+
+type ProviderDashboardEmptyStateContent = {
+  eyebrow: string;
+  showApplicationCta: boolean;
+  statusDescription: string;
+  statusLabel: string;
 };
 
 const providerNavItems: Array<{
@@ -63,6 +79,31 @@ const providerNavItems: Array<{
     icon: ClipboardList,
     key: "requests",
     label: "Talepler",
+  },
+];
+
+const providerDashboardOnboardingSubtitle =
+  "Başvurunu tamamladıktan sonra profilin incelenir. Onaylandığında gelen talepleri, profil görünürlüğünü ve müşteri iletişimlerini bu panelden yönetebilirsin.";
+
+const providerDashboardFeatureCards: Array<{
+  description: string;
+  icon: LucideIcon;
+  title: string;
+}> = [
+  {
+    description: "Onaydan sonra profilinin listelerdeki yayın durumunu takip et.",
+    icon: Eye,
+    title: "Profil görünürlüğü",
+  },
+  {
+    description: "Sana yönlendirilen işleri ve talep durumlarını tek ekranda izle.",
+    icon: Inbox,
+    title: "Gelen talepler",
+  },
+  {
+    description: "Telefon, WhatsApp ve müşteri iletişim akışını düzenli tut.",
+    icon: UserRound,
+    title: "Müşteri iletişimi",
   },
 ];
 
@@ -101,7 +142,7 @@ export function ProviderDashboardShell({
 
             <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] px-3 py-2 text-xs font-bold leading-4 text-[var(--trust-green)]">
               <ShieldCheck className="h-4 w-4" aria-hidden />
-              {providerName ? `${providerName} alanı` : "Hazırlık alanı"}
+              {providerName ? `${providerName} alanı` : "Başvuru alanı"}
             </div>
           </div>
 
@@ -113,10 +154,10 @@ export function ProviderDashboardShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-bold leading-5 transition-colors",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-bold leading-5 transition-colors",
                     isActive
-                      ? "bg-[var(--brand-navy)] text-white"
-                      : "border border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
+                      ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.14)]"
+                      : "border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
                   )}
                   href={item.href}
                   key={item.key}
@@ -135,41 +176,145 @@ export function ProviderDashboardShell({
   );
 }
 
+function getProviderDashboardEmptyStateContent(
+  reason: ProviderDashboardAccessReason,
+  applicationStatus?: ProviderDashboardApplicationStatus,
+): ProviderDashboardEmptyStateContent {
+  if (applicationStatus === "approved") {
+    return {
+      eyebrow: "Profil hazırlığı",
+      showApplicationCta: false,
+      statusDescription:
+        "Başvurun onaylandı. Profil bağlantısı tamamlandığında panel erişimi otomatik olarak açılır.",
+      statusLabel: "Başvuru durumu: Profil hazırlanıyor",
+    };
+  }
+
+  if (applicationStatus === "rejected" || reason === "rejected-application") {
+    return {
+      eyebrow: "Başvuru güncellemesi",
+      showApplicationCta: true,
+      statusDescription:
+        "Bilgilerini güncelleyerek usta ağı için yeniden değerlendirme sürecine girebilirsin.",
+      statusLabel: "Başvuru durumu: Güncelleme gerekli",
+    };
+  }
+
+  if (
+    applicationStatus === "pending" ||
+    reason === "pending-application" ||
+    reason === "pending-provider-profile"
+  ) {
+    return {
+      eyebrow: "İnceleme süreci",
+      showApplicationCta: false,
+      statusDescription:
+        "Başvurun operasyon ekibi tarafından inceleniyor. Onaylandığında bu panelden profilini ve taleplerini yönetebilirsin.",
+      statusLabel: "Başvuru durumu: İncelemede",
+    };
+  }
+
+  if (reason === "missing-session") {
+    return {
+      eyebrow: "Hesap doğrulaması",
+      showApplicationCta: true,
+      statusDescription:
+        "Başvuru oluşturmak veya mevcut başvuru durumunu görmek için Fuwu hesabınla devam et.",
+      statusLabel: "Başvuru durumu: Hesap girişi bekleniyor",
+    };
+  }
+
+  return {
+    eyebrow: "Başvuru bekleniyor",
+    showApplicationCta: true,
+    statusDescription:
+      "Usta ağına katılmak için hizmet alanını, çalışma bölgeni ve iletişim bilgilerini paylaşarak başvurunu başlat.",
+    statusLabel: "Başvuru durumu: Henüz başvuru bulunamadı",
+  };
+}
+
 export function ProviderDashboardAccessPlaceholder({
-  message = "Onaylı usta hesabı bağlandığında bu alan açılacak.",
+  applicationStatus,
+  reason = "missing-provider-profile",
 }: {
+  applicationStatus?: ProviderDashboardApplicationStatus;
   message?: string;
+  reason?: ProviderDashboardAccessReason;
 }) {
+  const emptyStateContent = getProviderDashboardEmptyStateContent(
+    reason,
+    applicationStatus,
+  );
+
   return (
-    <section className="rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-6 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-8">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-        <div className="min-w-0 cursor-default select-none">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+    <section className="grid gap-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_22px_70px_rgba(13,20,36,0.08)] sm:p-8">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
-          <h2 className="mt-5 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
-            Usta paneli yakında aktif olacak.
+          <p className="mt-5 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+            {emptyStateContent.eyebrow}
+          </p>
+          <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            Usta hesabın henüz aktif değil
           </h2>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
-            Onaylı usta hesabı bağlandığında profil bilgileri, görünürlük durumu ve gelen talepler
-            bu alandan yönetilecek.
+            {providerDashboardOnboardingSubtitle}
           </p>
-          <p
-            className="mt-4 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]"
-            role="alert"
-          >
-            {message}
-          </p>
-        </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-          <Button className="w-full sm:w-fit" href={appRoutes.providerApplication}>
-            Usta ağına katılmak için başvuru yap
-          </Button>
-          <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
-            Ustaları Gör
-          </Button>
-        </div>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            {emptyStateContent.showApplicationCta ? (
+              <Button className="w-full sm:w-fit" href={appRoutes.providerApplication}>
+                Usta ağına başvur
+              </Button>
+            ) : null}
+            <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
+              Ustaları görüntüle
+            </Button>
+          </div>
+        </article>
+
+        <aside
+          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-6"
+          role="status"
+        >
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+            <ShieldCheck className="h-5 w-5" aria-hidden />
+          </div>
+          <p className="mt-5 text-xs font-bold uppercase text-[var(--muted)]">
+            Durum özeti
+          </p>
+          <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
+            {emptyStateContent.statusLabel}
+          </p>
+          <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+            {emptyStateContent.statusDescription}
+          </p>
+        </aside>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {providerDashboardFeatureCards.map((feature) => {
+          const Icon = feature.icon;
+
+          return (
+            <article
+              className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)]"
+              key={feature.title}
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+                <Icon className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
+                {feature.description}
+              </p>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -241,7 +386,10 @@ export function ProviderStatusBadge({
 
 export function ProviderRequestsEmptyState() {
   return (
-    <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[linear-gradient(180deg,#ffffff_0%,#fffaf3_100%)] p-8 text-center" role="status">
+    <div
+      className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[linear-gradient(180deg,#ffffff_0%,#fffaf3_100%)] p-8 text-center"
+      role="status"
+    >
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
         <Inbox className="h-6 w-6" aria-hidden />
       </div>
