@@ -1,21 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText } from "@/lib/i18n";
+import { isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { getProviderApplicationFormOptions } from "@/services/providers/applications";
+import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Usta Ağına Katıl",
-  description: "Fuwu’da görünür olmak, doğru müşterilerden telefon ve WhatsApp ile talep almak için usta başvurusu yap.",
+  description:
+    "Fuwu'da görünür olmak, doğru müşterilerden telefon ve WhatsApp ile talep almak için usta başvurusu yap.",
 };
 
 export default async function ProviderApplicationPage() {
-  const formOptions = await getProviderApplicationFormOptions();
+  const [formOptions, authenticatedUserId] = await Promise.all([
+    getProviderApplicationFormOptions(),
+    getAuthenticatedServerUserId(),
+  ]);
+
+  const needsLogin = isSupabaseServerConfigured && !authenticatedUserId;
+  const loginHref = `${appRoutes.login}?next=${encodeURIComponent(appRoutes.providerApplication)}`;
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(135deg,#ffffff_0%,#FFF7EC_44%,#F7F7F8_100%)]">
@@ -56,12 +66,33 @@ export default async function ProviderApplicationPage() {
           </div>
         </div>
 
-        <ProviderApplicationForm
-          categories={formOptions.categories}
-          districts={formOptions.districts}
-          isConfigured={formOptions.isConfigured}
-          lookupError={formOptions.error}
-        />
+        {needsLogin ? (
+          <div className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-6 shadow-[0_24px_70px_rgba(13,20,36,0.1)] sm:p-8">
+            <p className="text-sm font-black uppercase tracking-wider text-[var(--brand-orange-dark)]">
+              Giriş gerekli
+            </p>
+            <h2 className="mt-3 text-2xl font-black leading-tight text-[var(--brand-navy)]">
+              Başvurmak için Google ile giriş yap
+            </h2>
+            <p className="mt-4 text-sm font-semibold leading-7 text-[var(--muted)]">
+              Usta ağına başvurmak için bir Fuwu hesabı gerekli. Google ile saniyeler içinde giriş
+              yap ve hemen formu doldur.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button href={loginHref}>Google ile Giriş Yap</Button>
+              <Button href={appRoutes.providers} variant="secondary">
+                Ustaları İncele
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <ProviderApplicationForm
+            categories={formOptions.categories}
+            districts={formOptions.districts}
+            isConfigured={formOptions.isConfigured}
+            lookupError={formOptions.error}
+          />
+        )}
       </Container>
     </section>
   );
