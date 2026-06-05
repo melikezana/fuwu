@@ -322,26 +322,33 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  const { data: application, error: applicationError } = await authContext.supabase
-    .from("provider_applications")
-    .select(providerApplicationSelectQuery)
-    .eq("user_id", authContext.user.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const currentUserPhone = sanitizePhone(
+    authContext.profile?.phone ?? authContext.user.phone ?? "",
+  );
+  let providerApplication: ProviderDashboardApplicationRecord | null = null;
 
-  if (applicationError) {
-    return {
-      isConfigured: true,
-      message: getProviderDashboardReadError(applicationError),
-      ok: false,
-      reason: "missing-provider-profile",
-      role: authContext.profile?.role ?? null,
-      userId: authContext.user.id,
-    };
+  if (currentUserPhone) {
+    const { data: application, error: applicationError } = await authContext.supabase
+      .from("provider_applications")
+      .select(providerApplicationSelectQuery)
+      .eq("phone", currentUserPhone)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (applicationError) {
+      return {
+        isConfigured: true,
+        message: getProviderDashboardReadError(applicationError),
+        ok: false,
+        reason: "missing-provider-profile",
+        role: authContext.profile?.role ?? null,
+        userId: authContext.user.id,
+      };
+    }
+
+    providerApplication = application as ProviderDashboardApplicationRecord | null;
   }
-
-  const providerApplication = application as ProviderDashboardApplicationRecord | null;
 
   if (providerApplication) {
     return {

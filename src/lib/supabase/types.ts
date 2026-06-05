@@ -206,7 +206,6 @@ export type Database = {
       provider_applications: {
         Row: {
           id: string;
-          user_id: string | null;
           full_name: string;
           phone: string;
           category_id: string;
@@ -222,23 +221,21 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          user_id: string;
           full_name: string;
           phone: string;
           category_id: string;
           district_id: string;
-          experience_years?: number;
-          availability?: string | null;
-          has_equipment?: boolean;
-          introduction?: string | null;
-          portfolio_url?: string | null;
+          experience_years: number;
+          availability: string | null;
+          has_equipment: boolean;
+          introduction: string | null;
+          portfolio_url: string | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          user_id?: string | null;
           full_name?: string;
           phone?: string;
           category_id?: string;
@@ -265,13 +262,6 @@ export type Database = {
             columns: ["district_id"];
             isOneToOne: false;
             referencedRelation: "districts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "provider_applications_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];

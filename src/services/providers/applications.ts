@@ -9,7 +9,6 @@ import {
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
-import { getServerAuthContext } from "@/services/auth/server";
 import type {
   ProviderApplicationInput,
   ProviderApplicationOption,
@@ -28,6 +27,8 @@ type ProviderApplicationLookupTable = "service_categories" | "districts";
 
 type SupabaseErrorRecord = {
   code?: unknown;
+  details?: unknown;
+  hint?: unknown;
   message?: unknown;
 };
 
@@ -42,8 +43,6 @@ const providerApplicationSubmitErrorMessage =
   "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
 const duplicateProviderApplicationMessage =
   "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.";
-const providerApplicationLoginRequiredMessage =
-  "Usta başvurusu göndermek için Google ile giriş yapmalısın.";
 const providerApplicationOptionsErrorMessage =
   "Başvuru seçenekleri şu anda yüklenemedi. Lütfen tekrar deneyin.";
 
@@ -58,7 +57,6 @@ const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "introduction",
   "portfolio_url",
   "status",
-  "user_id",
 ];
 
 function createLiveApplicationCode() {
@@ -74,13 +72,26 @@ function hasSupabaseErrorCode(error: unknown, code: string) {
   );
 }
 
-function getSupabaseErrorMessage(error: unknown) {
-  return typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as SupabaseErrorRecord).message === "string"
-    ? (error as SupabaseErrorRecord).message
-    : null;
+function getSupabaseDebugValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function getSupabaseDebugPayload(error: unknown) {
+  const record =
+    typeof error === "object" && error !== null
+      ? (error as SupabaseErrorRecord)
+      : {};
+
+  return {
+    code: getSupabaseDebugValue(record.code),
+    details: getSupabaseDebugValue(record.details),
+    hint: getSupabaseDebugValue(record.hint),
+    message: getSupabaseDebugValue(record.message),
+  };
+}
+
+function logProviderApplicationSupabaseError(context: string, error: unknown) {
+  console.error(`[Fuwu] ${context}`, getSupabaseDebugPayload(error));
 }
 
 function createProviderApplicationFailure(error: unknown) {
@@ -192,7 +203,6 @@ async function assertLookupIdsAreActive(
 
 function buildProviderApplicationInsert(
   data: ProviderApplicationInput,
-  userId: string,
 ): ProviderApplicationInsert {
   return {
     full_name: data.fullName,
@@ -205,7 +215,6 @@ function buildProviderApplicationInsert(
     introduction: data.introduction,
     portfolio_url: normalizeOptionalText(data.portfolioUrl),
     status: PROVIDER_APPLICATION_STATUSES.pending,
-    user_id: userId,
   };
 }
 
@@ -272,25 +281,17 @@ export async function getProviderApplicationFormOptions(): Promise<ProviderAppli
 }
 
 async function getProviderApplicationSupabase() {
-  const authContext = await getServerAuthContext();
+  const supabase = await createSupabaseServerClient();
 
-  if (!authContext.supabase) {
+  if (!supabase) {
     throw new DatabaseError("Supabase client is not configured.", {
       publicMessage: providerApplicationOptionsErrorMessage,
       statusCode: 503,
     });
   }
 
-  if (!authContext.user) {
-    throw new ValidationError("Provider application requires an authenticated user.", {
-      publicMessage: providerApplicationLoginRequiredMessage,
-      statusCode: 401,
-    });
-  }
-
   return {
-    supabase: authContext.supabase,
-    userId: authContext.user.id,
+    supabase,
   };
 }
 
@@ -298,35 +299,21 @@ async function assertNoPendingDuplicate(
   supabase: SupabaseClient<Database>,
   insertPayload: ProviderApplicationInsert,
 ) {
-  const [
-    { data: existingUserApplication, error: userDuplicateCheckError },
-    { data: existingPhoneApplication, error: phoneDuplicateCheckError },
-  ] = await Promise.all([
-    supabase
-      .from("provider_applications")
-      .select("id")
-      .eq("user_id", insertPayload.user_id)
-      .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
-      .limit(1)
-      .maybeSingle(),
-    supabase
+  const { data: existingPhoneApplication, error: phoneDuplicateCheckError } =
+    await supabase
       .from("provider_applications")
       .select("id")
       .eq("phone", insertPayload.phone)
       .eq("status", PROVIDER_APPLICATION_STATUSES.pending)
       .limit(1)
-      .maybeSingle(),
-  ]);
-
-  if (userDuplicateCheckError) {
-    throw handleServiceError(userDuplicateCheckError, {
-      logContext: "Provider application user duplicate check failed.",
-      publicMessage: providerApplicationSubmitErrorMessage,
-      tableName: "provider_applications",
-    });
-  }
+      .maybeSingle();
 
   if (phoneDuplicateCheckError) {
+    logProviderApplicationSupabaseError(
+      "Provider application phone duplicate check failed.",
+      phoneDuplicateCheckError,
+    );
+
     throw handleServiceError(phoneDuplicateCheckError, {
       logContext: "Provider application phone duplicate check failed.",
       publicMessage: providerApplicationSubmitErrorMessage,
@@ -334,7 +321,7 @@ async function assertNoPendingDuplicate(
     });
   }
 
-  if (existingUserApplication?.id || existingPhoneApplication?.id) {
+  if (existingPhoneApplication?.id) {
     throw new ValidationError("Duplicate provider application detected.", {
       publicMessage: duplicateProviderApplicationMessage,
     });
@@ -365,20 +352,22 @@ export async function submitProviderApplication(
 
   try {
     const applicationData = validationResult.data;
-    const { supabase, userId } = await getProviderApplicationSupabase();
+    const { supabase } = await getProviderApplicationSupabase();
 
     await assertLookupIdsAreActive(supabase, applicationData);
 
-    const insertPayload = buildProviderApplicationInsert(applicationData, userId);
+    const insertPayload = buildProviderApplicationInsert(applicationData);
 
     await assertNoPendingDuplicate(supabase, insertPayload);
 
     const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
-      logInfo("Provider application insert returned Supabase error.", {
-        code: hasSupabaseErrorCode(error, String(error.code)) ? error.code : undefined,
-        message: getSupabaseErrorMessage(error),
+      logProviderApplicationSupabaseError(
+        "Provider application insert returned Supabase error.",
+        error,
+      );
+      logInfo("Provider application insert payload keys.", {
         payloadKeys: providerApplicationInsertKeys,
       });
       throw error;
@@ -388,7 +377,6 @@ export async function submitProviderApplication(
       categoryId: insertPayload.category_id,
       districtId: insertPayload.district_id,
       status: insertPayload.status,
-      userId,
     });
 
     return notifyProviderApplicationSubmitResult({

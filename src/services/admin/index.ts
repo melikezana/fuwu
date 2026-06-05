@@ -145,7 +145,6 @@ type AdminProviderApplicationApprovalRecord = Pick<
   | "phone"
   | "status"
   | "introduction"
-  | "user_id"
 >;
 
 type ExistingProviderApprovalRecord = Pick<
@@ -793,18 +792,12 @@ async function grantProviderRoleToApplicant(
 async function approveExistingProviderForApplicant(
   supabase: AdminSupabaseClient,
   provider: ExistingProviderApprovalRecord,
-  userId: string,
 ) {
-  if (provider.user_id && provider.user_id !== userId) {
-    return false;
-  }
-
   const { error } = await supabase
     .from("providers")
     .update({
       is_active: true,
       is_approved: true,
-      user_id: provider.user_id ?? userId,
     })
     .eq("id", provider.id);
 
@@ -813,7 +806,6 @@ async function approveExistingProviderForApplicant(
     return false;
   }
 
-  await grantProviderRoleToApplicant(supabase, userId);
   return true;
 }
 
@@ -822,10 +814,6 @@ async function createProviderFromApplication(
   application: AdminProviderApplicationApprovalRecord,
 ): Promise<AdminProviderApplicationProviderActionResult> {
   if (!application.category_id || !application.district_id) {
-    return createAdminActionResult("provider-create-failed", false);
-  }
-
-  if (!application.user_id) {
     return createAdminActionResult("provider-create-failed", false);
   }
 
@@ -858,7 +846,6 @@ async function createProviderFromApplication(
     const wasLinked = await approveExistingProviderForApplicant(
       supabase,
       existingProvider as ExistingProviderApprovalRecord,
-      application.user_id,
     );
 
     if (!wasLinked) {
@@ -886,7 +873,6 @@ async function createProviderFromApplication(
       rating: 0,
       average_price_min: null,
       average_price_max: null,
-      user_id: application.user_id,
     })
     .select("id")
     .maybeSingle();
@@ -899,8 +885,6 @@ async function createProviderFromApplication(
   if (!createdProvider) {
     return createAdminActionResult("provider-create-failed", false);
   }
-
-  await grantProviderRoleToApplicant(supabase, application.user_id);
 
   return {
     ...createAdminActionResult("application-approved-provider-created", true),
@@ -999,7 +983,6 @@ export async function approveAdminProviderApplication(
         id,
         full_name,
         phone,
-        user_id,
         category_id,
         district_id,
         experience_years,
