@@ -25,19 +25,47 @@ type ServiceRequest = {
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   pending: {
     label: "Beklemede",
-    cls: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
+    cls: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  yeni: {
+    label: "Yeni",
+    cls: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  inceleniyor: {
+    label: "İnceleniyor",
+    cls: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  ustaya_yonlendirildi: {
+    label: "Ustaya Yönlendirildi",
+    cls: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  accepted: {
+    label: "Kabul Edildi",
+    cls: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  on_the_way: {
+    label: "Yolda",
+    cls: "bg-blue-50 text-blue-700 border-blue-200",
   },
   active: {
     label: "Aktif",
-    cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   completed: {
     label: "Tamamlandı",
-    cls: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/30 dark:text-sky-400 dark:border-sky-800",
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  tamamlandi: {
+    label: "Tamamlandı",
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   cancelled: {
     label: "İptal",
-    cls: "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800/40 dark:text-zinc-400 dark:border-zinc-700",
+    cls: "bg-zinc-100 text-zinc-500 border-zinc-200",
+  },
+  iptal: {
+    label: "İptal",
+    cls: "bg-zinc-100 text-zinc-500 border-zinc-200",
   },
 };
 
@@ -53,6 +81,12 @@ export default function AccountPage() {
     const supabase = createClient();
 
     const init = async () => {
+      // Supabase bağlı değilse login'e yönlendir
+      if (!supabase) {
+        router.push("/login?next=/account");
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -88,13 +122,15 @@ export default function AccountPage() {
       setLoading(false);
     };
 
-    init();
+    void init();
   }, [router]);
 
   const handleSignOut = async () => {
     setSigningOut(true);
     const supabase = createClient();
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     router.push("/");
   };
 
@@ -118,8 +154,8 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="w-8 h-8 border-2 border-[var(--color-brand)] border-t-transparent rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center">
+        <span className="size-8 animate-spin rounded-full border-2 border-[var(--brand-orange)] border-t-transparent" />
       </div>
     );
   }
@@ -127,97 +163,97 @@ export default function AccountPage() {
   if (!profile) return null;
 
   return (
-    <main className="min-h-screen py-12 px-4">
-      <div className="max-w-xl mx-auto space-y-6">
+    <main className="min-h-screen px-4 py-12">
+      <div className="mx-auto max-w-xl space-y-6">
 
-        {/* ── Profil kartı ── */}
-        <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-5 flex items-center gap-4">
+        {/* Profil kartı */}
+        <section className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)]">
           {profile.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt={profile.full_name ?? "Profil"}
-              className="w-14 h-14 rounded-full object-cover ring-2 ring-[var(--color-border)] flex-shrink-0"
+              className="size-14 flex-shrink-0 rounded-full object-cover ring-2 ring-[var(--border)]"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-semibold bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)]">
+            <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-lg font-black text-white">
               {initials(profile.full_name, profile.email)}
             </div>
           )}
 
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {profile.full_name && (
-              <p className="font-semibold text-base truncate">{profile.full_name}</p>
+              <p className="truncate font-black text-[var(--brand-navy)]">{profile.full_name}</p>
             )}
-            <p className="text-sm text-[var(--color-muted)] truncate">{profile.email}</p>
+            <p className="truncate text-sm font-semibold text-[var(--muted)]">{profile.email}</p>
             {profile.created_at && (
-              <p className="text-xs text-[var(--color-muted)] mt-0.5">
+              <p className="mt-0.5 text-xs text-[var(--muted)]">
                 Üye: {formatDate(profile.created_at)}
               </p>
             )}
           </div>
 
           <button
-            onClick={handleSignOut}
+            onClick={() => void handleSignOut()}
             disabled={signingOut}
-            className="flex-shrink-0 text-xs font-medium px-4 py-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface)] transition-colors disabled:opacity-50"
+            className="flex-shrink-0 rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] disabled:opacity-50"
           >
             {signingOut ? "Çıkılıyor…" : "Çıkış Yap"}
           </button>
         </section>
 
-        {/* ── Hızlı işlemler ── */}
+        {/* Hızlı işlemler */}
         <section className="grid grid-cols-2 gap-3">
           <Link
             href="/request"
-            className="rounded-2xl border border-[var(--color-border)] p-4 flex items-center gap-3 hover:border-[var(--color-brand)]/50 hover:bg-[var(--color-surface-raised)] transition-all group"
+            className="group flex items-center gap-3 rounded-2xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
           >
-            <span className="w-9 h-9 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] group-hover:border-[var(--color-brand)]/40 group-hover:text-[var(--color-brand)] transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="flex size-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white transition group-hover:border-[rgba(255,138,0,0.4)] group-hover:text-[var(--brand-orange)]">
+              <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
               </svg>
             </span>
             <div>
-              <p className="text-sm font-medium">Yeni Talep</p>
-              <p className="text-xs text-[var(--color-muted)]">Usta talep et</p>
+              <p className="text-sm font-black text-[var(--brand-navy)]">Yeni Talep</p>
+              <p className="text-xs text-[var(--muted)]">Usta talep et</p>
             </div>
           </Link>
 
           <Link
             href="/providers"
-            className="rounded-2xl border border-[var(--color-border)] p-4 flex items-center gap-3 hover:border-[var(--color-brand)]/50 hover:bg-[var(--color-surface-raised)] transition-all group"
+            className="group flex items-center gap-3 rounded-2xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
           >
-            <span className="w-9 h-9 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] group-hover:border-[var(--color-brand)]/40 group-hover:text-[var(--color-brand)] transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="flex size-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white transition group-hover:border-[rgba(255,138,0,0.4)] group-hover:text-[var(--brand-orange)]">
+              <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </span>
             <div>
-              <p className="text-sm font-medium">Usta Bul</p>
-              <p className="text-xs text-[var(--color-muted)]">Profilleri gör</p>
+              <p className="text-sm font-black text-[var(--brand-navy)]">Usta Bul</p>
+              <p className="text-xs text-[var(--muted)]">Profilleri gör</p>
             </div>
           </Link>
         </section>
 
-        {/* ── Taleplerim ── */}
+        {/* Taleplerim */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+            <h2 className="text-xs font-black uppercase tracking-wider text-[var(--muted)]">
               Taleplerim
             </h2>
-            <Link href="/request" className="text-xs font-medium text-[var(--color-brand)] hover:underline">
+            <Link href="/request" className="text-xs font-black text-[var(--brand-orange)] hover:underline">
               + Yeni
             </Link>
           </div>
 
           {requests.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[var(--color-border)] px-6 py-10 text-center space-y-3">
-              <p className="text-sm font-medium">Henüz talep oluşturmadın.</p>
-              <p className="text-xs text-[var(--color-muted)]">
+            <div className="space-y-3 rounded-2xl border border-dashed border-[var(--border)] px-6 py-10 text-center">
+              <p className="text-sm font-black text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
+              <p className="text-xs text-[var(--muted)]">
                 Hizmet ihtiyacını tarif et, uygun ustalarla eşleş.
               </p>
               <Link
                 href="/request"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-orange-500"
               >
                 İlk Talebini Oluştur
               </Link>
@@ -229,18 +265,16 @@ export default function AccountPage() {
                 return (
                   <div
                     key={req.id}
-                    className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-5 py-4 flex items-start justify-between gap-4"
+                    className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-[0_2px_8px_rgba(13,20,36,0.04)]"
                   >
-                    <div className="space-y-0.5 min-w-0">
-                      <p className="text-sm font-semibold truncate">{req.category}</p>
-                      <p className="text-xs text-[var(--color-muted)]">
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="truncate font-black text-[var(--brand-navy)]">{req.category}</p>
+                      <p className="text-xs text-[var(--muted)]">
                         {req.district}{req.budget ? ` · ${req.budget}` : ""}
                       </p>
-                      <p className="text-xs text-[var(--color-muted)]">
-                        {formatDate(req.created_at)}
-                      </p>
+                      <p className="text-xs text-[var(--muted)]">{formatDate(req.created_at)}</p>
                     </div>
-                    <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${s.cls}`}>
+                    <span className={`flex-shrink-0 inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-black ${s.cls}`}>
                       {s.label}
                     </span>
                   </div>
@@ -250,9 +284,9 @@ export default function AccountPage() {
           )}
         </section>
 
-        {/* ── Yasal linkler ── */}
-        <section className="border-t border-[var(--color-border)] pt-5 space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] mb-2">
+        {/* Yasal linkler */}
+        <section className="space-y-1 border-t border-[var(--border)] pt-5">
+          <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">
             Yasal
           </p>
           {[
@@ -264,12 +298,12 @@ export default function AccountPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-[var(--color-surface-raised)] transition-colors group"
+              className="group flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[var(--surface-soft)]"
             >
-              <span className="text-sm text-[var(--color-muted)] group-hover:text-[var(--color-text)] transition-colors">
+              <span className="text-sm text-[var(--muted)] transition group-hover:text-[var(--brand-navy)]">
                 {item.label}
               </span>
-              <svg className="w-4 h-4 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="size-4 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
