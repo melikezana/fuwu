@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
-  ProviderDashboardAccessPlaceholder,
+  getProviderDashboardStatusBadgeView,
+  ProviderDashboardApplicationPlaceholder,
   ProviderDashboardShell,
   ProviderStatusBadge,
   ProviderRequestsEmptyState,
@@ -108,12 +109,20 @@ export default async function ProviderDashboardRequestsPage() {
   const assignedRequests = providerAccess.ok && authContext.supabase
     ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
     : [];
+  const statusBadge = getProviderDashboardStatusBadgeView(
+    providerAccess.ok
+      ? providerAccess.application?.status
+      : providerAccess.applicationStatus,
+    providerAccess.ok,
+  );
 
   return (
     <ProviderDashboardShell
       active="requests"
       description="Usta hesabına bağlanacak gelen talepler için hazırlanan sade takip alanı."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
+      statusLabel={statusBadge.label}
+      statusTone={statusBadge.tone}
       title="Gelen Talepler"
     >
       {providerAccess.ok ? (
@@ -222,7 +231,8 @@ export default async function ProviderDashboardRequestsPage() {
           </div>
         </section>
       ) : (
-        <ProviderDashboardAccessPlaceholder
+        <ProviderDashboardApplicationPlaceholder
+          application={providerAccess.application}
           applicationStatus={providerAccess.applicationStatus}
           message={providerAccess.message}
           reason={providerAccess.reason}

@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
-  ProviderDashboardAccessPlaceholder,
+  getProviderDashboardStatusBadgeView,
+  ProviderDashboardApplicationPlaceholder,
   ProviderDashboardShell,
   ProviderProfileField,
   ProviderStatusBadge,
@@ -144,12 +145,20 @@ export default async function ProviderDashboardProfilePage({
   const providerAccess = await getProviderDashboardAccess();
   const resolvedSearchParams = (await searchParams) ?? {};
   const availabilityFeedback = getAvailabilityFeedback(resolvedSearchParams);
+  const statusBadge = getProviderDashboardStatusBadgeView(
+    providerAccess.ok
+      ? providerAccess.application?.status
+      : providerAccess.applicationStatus,
+    providerAccess.ok,
+  );
 
   return (
     <ProviderDashboardShell
       active="profile"
       description="Yayındaki usta profilinde kullanılan temel bilgileri gözden geçir."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
+      statusLabel={statusBadge.label}
+      statusTone={statusBadge.tone}
       title="Profil Bilgileri"
     >
       {providerAccess.ok ? (
@@ -243,7 +252,8 @@ export default async function ProviderDashboardProfilePage({
           </div>
         </section>
       ) : (
-        <ProviderDashboardAccessPlaceholder
+        <ProviderDashboardApplicationPlaceholder
+          application={providerAccess.application}
           applicationStatus={providerAccess.applicationStatus}
           message={providerAccess.message}
           reason={providerAccess.reason}

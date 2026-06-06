@@ -145,7 +145,9 @@ type AdminProviderApplicationApprovalRecord = Pick<
   | "phone"
   | "status"
   | "introduction"
->;
+> & {
+  user_id?: string | null;
+};
 
 type ExistingProviderApprovalRecord = Pick<
   ProviderRow,
@@ -538,6 +540,20 @@ function isMissingOptionalProviderColumn(error: unknown) {
   );
 }
 
+function isMissingAdminColumn(error: unknown, columnName: string) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; details?: unknown; message?: unknown };
+  const errorText = [record.code, record.details, record.message]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("column") && errorText.includes(columnName);
+}
+
 async function insertAuditLog({
   action,
   actorUserId,
@@ -792,13 +808,20 @@ async function grantProviderRoleToApplicant(
 async function approveExistingProviderForApplicant(
   supabase: AdminSupabaseClient,
   provider: ExistingProviderApprovalRecord,
+  applicantUserId: string | null,
 ) {
+  const updatePayload: Database["public"]["Tables"]["providers"]["Update"] = {
+    is_active: true,
+    is_approved: true,
+  };
+
+  if (!provider.user_id && applicantUserId) {
+    updatePayload.user_id = applicantUserId;
+  }
+
   const { error } = await supabase
     .from("providers")
-    .update({
-      is_active: true,
-      is_approved: true,
-    })
+    .update(updatePayload)
     .eq("id", provider.id);
 
   if (error) {
@@ -807,6 +830,35 @@ async function approveExistingProviderForApplicant(
   }
 
   return true;
+}
+
+async function findApplicantUserIdForApplication(
+  supabase: AdminSupabaseClient,
+  application: Pick<AdminProviderApplicationApprovalRecord, "phone" | "user_id">,
+) {
+  if (application.user_id) {
+    return application.user_id;
+  }
+
+  const phone = sanitizePhone(application.phone);
+
+  if (!phone) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("phone", phone)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    warnAdminWriteError("provider applicant profile lookup", error);
+    return null;
+  }
+
+  return data?.id ?? null;
 }
 
 async function createProviderFromApplication(
@@ -828,6 +880,11 @@ async function createProviderFromApplication(
     return createAdminActionResult("provider-create-failed", false);
   }
 
+  const applicantUserId = await findApplicantUserIdForApplication(
+    supabase,
+    application,
+  );
+
   const { data: existingProvider, error: existingProviderError } = await supabase
     .from("providers")
     .select("id, user_id, is_active, is_approved")
@@ -846,10 +903,15 @@ async function createProviderFromApplication(
     const wasLinked = await approveExistingProviderForApplicant(
       supabase,
       existingProvider as ExistingProviderApprovalRecord,
+      applicantUserId,
     );
 
     if (!wasLinked) {
       return createAdminActionResult("provider-create-failed", false);
+    }
+
+    if (applicantUserId) {
+      await grantProviderRoleToApplicant(supabase, applicantUserId);
     }
 
     return {
@@ -869,6 +931,7 @@ async function createProviderFromApplication(
       is_approved: true,
       name,
       phone,
+      user_id: applicantUserId,
       whatsapp,
       rating: 0,
       average_price_min: null,
@@ -884,6 +947,10 @@ async function createProviderFromApplication(
 
   if (!createdProvider) {
     return createAdminActionResult("provider-create-failed", false);
+  }
+
+  if (applicantUserId) {
+    await grantProviderRoleToApplicant(supabase, applicantUserId);
   }
 
   return {
@@ -955,6 +1022,49 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
   };
 }
 
+async function getProviderApplicationForApproval(
+  supabase: AdminSupabaseClient,
+  applicationId: string,
+) {
+  const applicationSelectWithUserId = `
+        id,
+        user_id,
+        full_name,
+        phone,
+        category_id,
+        district_id,
+        experience_years,
+        introduction,
+        status
+      `;
+  const applicationSelect = `
+        id,
+        full_name,
+        phone,
+        category_id,
+        district_id,
+        experience_years,
+        introduction,
+        status
+      `;
+
+  const result = await supabase
+    .from("provider_applications")
+    .select(applicationSelectWithUserId)
+    .eq("id", applicationId)
+    .maybeSingle();
+
+  if (result.error && isMissingAdminColumn(result.error, "user_id")) {
+    return supabase
+      .from("provider_applications")
+      .select(applicationSelect)
+      .eq("id", applicationId)
+      .maybeSingle();
+  }
+
+  return result;
+}
+
 export async function approveAdminProviderApplication(
   applicationId: string,
 ): Promise<AdminProviderApplicationActionResult> {
@@ -976,22 +1086,10 @@ export async function approveAdminProviderApplication(
     );
   }
 
-  const { data, error } = await supabase
-    .from("provider_applications")
-    .select(
-      `
-        id,
-        full_name,
-        phone,
-        category_id,
-        district_id,
-        experience_years,
-        introduction,
-        status
-      `,
-    )
-    .eq("id", normalizedApplicationId)
-    .maybeSingle();
+  const { data, error } = await getProviderApplicationForApproval(
+    supabase,
+    normalizedApplicationId,
+  );
 
   if (error) {
     warnAdminWriteError("provider application lookup", error);

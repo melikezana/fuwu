@@ -1,6 +1,7 @@
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
+  isProviderApplicationStatus,
   isProviderAvailabilityStatus,
   normalizeProviderAvailabilityStatus,
   type ProviderApplicationStatus,
@@ -34,8 +35,12 @@ type ProviderApplicationRow =
 
 type ProviderDashboardApplicationRecord = Pick<
   ProviderApplicationRow,
-  "created_at" | "status"
->;
+  "created_at" | "experience_years" | "full_name" | "id" | "phone" | "status"
+> & {
+  service_categories: ProviderRelation | ProviderRelation[] | null;
+  districts: ProviderRelation | ProviderRelation[] | null;
+  user_id?: string | null;
+};
 
 type ProviderRelation = {
   name: string | null;
@@ -56,7 +61,19 @@ export type ProviderDashboardProfile = {
   whatsapp: string;
 };
 
+export type ProviderDashboardApplication = {
+  category: string;
+  createdAt: string;
+  district: string;
+  experienceYears: number;
+  fullName: string;
+  id: string;
+  phone: string;
+  status: ProviderApplicationStatus;
+};
+
 export type ProviderDashboardAccessAllowed = {
+  application?: ProviderDashboardApplication;
   isConfigured: true;
   ok: true;
   profile: ProviderDashboardProfile;
@@ -65,6 +82,7 @@ export type ProviderDashboardAccessAllowed = {
 };
 
 export type ProviderDashboardAccessDenied = {
+  application?: ProviderDashboardApplication;
   applicationStatus?: ProviderApplicationStatus;
   isConfigured: boolean;
   message: string;
@@ -128,7 +146,28 @@ const providerSelectQueryWithoutAvailability = `
   districts(name)
 `;
 
-const providerApplicationSelectQuery = "status, created_at";
+const providerApplicationSelectQuery = `
+  id,
+  full_name,
+  phone,
+  experience_years,
+  status,
+  created_at,
+  service_categories(name),
+  districts(name)
+`;
+
+const providerApplicationSelectQueryWithUserId = `
+  id,
+  user_id,
+  full_name,
+  phone,
+  experience_years,
+  status,
+  created_at,
+  service_categories(name),
+  districts(name)
+`;
 
 function getRelationName(
   relation: ProviderRelation | ProviderRelation[] | null | undefined,
@@ -214,18 +253,30 @@ function mapProviderDashboardRecord(
   };
 }
 
-function isMissingAvailabilityColumn(error: unknown) {
+function getSupabaseErrorText(error: unknown) {
   if (!error || typeof error !== "object") {
-    return false;
+    return "";
   }
 
   const record = error as { code?: unknown; details?: unknown; message?: unknown };
-  const errorText = [record.code, record.details, record.message]
+  return [record.code, record.details, record.message]
     .filter((value): value is string => typeof value === "string")
     .join(" ")
     .toLocaleLowerCase("tr");
+}
 
-  return errorText.includes("availability") && errorText.includes("column");
+function isMissingColumn(error: unknown, columnName: string) {
+  const errorText = getSupabaseErrorText(error);
+
+  return errorText.includes("column") && errorText.includes(columnName);
+}
+
+function isMissingAvailabilityColumn(error: unknown) {
+  return isMissingColumn(error, "availability");
+}
+
+function isMissingProviderApplicationUserIdColumn(error: unknown) {
+  return isMissingColumn(error, "user_id");
 }
 
 function getProviderDashboardReadError(error: unknown) {
@@ -238,7 +289,7 @@ function getProviderDashboardReadError(error: unknown) {
 }
 
 function getApplicationStatusMessage(
-  application: ProviderDashboardApplicationRecord,
+  application: Pick<ProviderDashboardApplication, "status">,
 ) {
   if (application.status === PROVIDER_APPLICATION_STATUSES.rejected) {
     return "Usta başvurun reddedildi. Yeni veya güncellenmiş bilgilerle tekrar başvurabilirsin.";
@@ -249,6 +300,154 @@ function getApplicationStatusMessage(
   }
 
   return "Başvurun incelemede.";
+}
+
+function mapProviderDashboardApplicationRecord(
+  record: ProviderDashboardApplicationRecord,
+): ProviderDashboardApplication | null {
+  const status = sanitizeText(record.status, 40);
+
+  if (!isProviderApplicationStatus(status)) {
+    return null;
+  }
+
+  const fullName = sanitizeText(record.full_name, 120);
+  const phone = sanitizePhone(record.phone);
+
+  if (!fullName || !phone) {
+    return null;
+  }
+
+  return {
+    category: sanitizeText(getRelationName(record.service_categories), 120) || "Belirtilmedi",
+    createdAt: record.created_at,
+    district: sanitizeText(getRelationName(record.districts), 120) || "Belirtilmedi",
+    experienceYears: Number(record.experience_years ?? 0),
+    fullName,
+    id: record.id,
+    phone,
+    status,
+  };
+}
+
+async function fetchLatestProviderApplicationByUserId(
+  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
+  userId: string,
+) {
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .select(providerApplicationSelectQueryWithUserId)
+    .filter("user_id", "eq", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    application: data
+      ? mapProviderDashboardApplicationRecord(
+          data as unknown as ProviderDashboardApplicationRecord,
+        )
+      : null,
+    error,
+    isMissingUserIdColumn: Boolean(error && isMissingProviderApplicationUserIdColumn(error)),
+  };
+}
+
+async function fetchLatestProviderApplicationByPhone(
+  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
+  phone: string,
+) {
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .select(providerApplicationSelectQuery)
+    .eq("phone", phone)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    application: data
+      ? mapProviderDashboardApplicationRecord(
+          data as unknown as ProviderDashboardApplicationRecord,
+        )
+      : null,
+    error,
+  };
+}
+
+async function getLatestProviderApplicationForCurrentUser(
+  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
+  userId: string,
+  phones: string[],
+) {
+  const userApplicationResult = await fetchLatestProviderApplicationByUserId(
+    supabase,
+    userId,
+  );
+
+  if (userApplicationResult.error && !userApplicationResult.isMissingUserIdColumn) {
+    return {
+      application: null,
+      error: userApplicationResult.error,
+    };
+  }
+
+  if (userApplicationResult.application) {
+    return {
+      application: userApplicationResult.application,
+      error: null,
+    };
+  }
+
+  for (const phone of phones) {
+    const phoneApplicationResult = await fetchLatestProviderApplicationByPhone(
+      supabase,
+      phone,
+    );
+
+    if (phoneApplicationResult.error) {
+      return {
+        application: null,
+        error: phoneApplicationResult.error,
+      };
+    }
+
+    if (phoneApplicationResult.application) {
+      return {
+        application: phoneApplicationResult.application,
+        error: null,
+      };
+    }
+  }
+
+  return {
+    application: null,
+    error: null,
+  };
+}
+
+function getUniqueContactPhones(...phones: Array<string | null | undefined>) {
+  return Array.from(
+    new Set(
+      phones
+        .map((phone) => sanitizePhone(phone ?? ""))
+        .filter((phone) => Boolean(phone)),
+    ),
+  );
+}
+
+function getApplicationAccessReason(
+  applicationStatus: ProviderApplicationStatus,
+): ProviderDashboardAccessDenied["reason"] {
+  if (applicationStatus === PROVIDER_APPLICATION_STATUSES.rejected) {
+    return "rejected-application";
+  }
+
+  if (applicationStatus === PROVIDER_APPLICATION_STATUSES.approved) {
+    return "pending-provider-profile";
+  }
+
+  return "pending-application";
 }
 
 export async function getProviderDashboardAccess(): Promise<ProviderDashboardAccessResult> {
@@ -300,9 +499,32 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
   const profile = data
     ? mapProviderDashboardRecord(data as unknown as ProviderDashboardRecord)
     : null;
+  const contactPhones = getUniqueContactPhones(
+    authContext.profile?.phone,
+    authContext.user.phone,
+  );
+  const applicationResult = await getLatestProviderApplicationForCurrentUser(
+    authContext.supabase,
+    authContext.user.id,
+    contactPhones,
+  );
+
+  if (applicationResult.error) {
+    return {
+      isConfigured: true,
+      message: getProviderDashboardReadError(applicationResult.error),
+      ok: false,
+      reason: "missing-provider-profile",
+      role: authContext.profile?.role ?? null,
+      userId: authContext.user.id,
+    };
+  }
+
+  const providerApplication = applicationResult.application;
 
   if (profile?.isApproved) {
     return {
+      application: providerApplication ?? undefined,
       isConfigured: true,
       ok: true,
       profile,
@@ -313,6 +535,8 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
 
   if (profile && !profile.isApproved) {
     return {
+      application: providerApplication ?? undefined,
+      applicationStatus: providerApplication?.status ?? PROVIDER_APPLICATION_STATUSES.pending,
       isConfigured: true,
       message: "Usta profilin oluşturuldu ve onay bekliyor. Onay tamamlandığında panel erişimin açılır.",
       ok: false,
@@ -322,44 +546,14 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  const currentUserPhone = sanitizePhone(
-    authContext.profile?.phone ?? authContext.user.phone ?? "",
-  );
-  let providerApplication: ProviderDashboardApplicationRecord | null = null;
-
-  if (currentUserPhone) {
-    const { data: application, error: applicationError } = await authContext.supabase
-      .from("provider_applications")
-      .select(providerApplicationSelectQuery)
-      .eq("phone", currentUserPhone)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (applicationError) {
-      return {
-        isConfigured: true,
-        message: getProviderDashboardReadError(applicationError),
-        ok: false,
-        reason: "missing-provider-profile",
-        role: authContext.profile?.role ?? null,
-        userId: authContext.user.id,
-      };
-    }
-
-    providerApplication = application as ProviderDashboardApplicationRecord | null;
-  }
-
   if (providerApplication) {
     return {
+      application: providerApplication,
       applicationStatus: providerApplication.status,
       isConfigured: true,
       message: getApplicationStatusMessage(providerApplication),
       ok: false,
-      reason:
-        providerApplication.status === PROVIDER_APPLICATION_STATUSES.rejected
-          ? "rejected-application"
-          : "pending-application",
+      reason: getApplicationAccessReason(providerApplication.status),
       role: authContext.profile?.role ?? null,
       userId: authContext.user.id,
     };

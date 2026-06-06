@@ -27,12 +27,25 @@ type ProviderDashboardAccessReason =
   | "rejected-application";
 
 type ProviderDashboardApplicationStatus = "pending" | "approved" | "rejected";
+type ProviderDashboardStatusTone = "green" | "orange" | "red";
+
+type ProviderDashboardApplicationDetails = {
+  category: string;
+  createdAt: string;
+  district: string;
+  experienceYears: number;
+  fullName: string;
+  phone: string;
+  status: ProviderDashboardApplicationStatus;
+};
 
 type ProviderDashboardShellProps = {
   active: ProviderDashboardNavKey;
   children: ReactNode;
   description: string;
   providerName?: string;
+  statusLabel?: string;
+  statusTone?: ProviderDashboardStatusTone;
   title: string;
 };
 
@@ -51,6 +64,7 @@ type ProfileFieldProps = {
 
 type ProviderDashboardEmptyStateContent = {
   eyebrow: string;
+  headline?: string;
   showApplicationCta: boolean;
   statusDescription: string;
   statusLabel: string;
@@ -107,6 +121,78 @@ const providerDashboardFeatureCards: Array<{
   },
 ];
 
+const providerDashboardRequiredCards: Array<{
+  description: string;
+  icon: LucideIcon;
+  title: string;
+}> = [
+  {
+    description: "Başvurunun hangi aşamada olduğunu net şekilde takip et.",
+    icon: ShieldCheck,
+    title: "Başvuru Durumu",
+  },
+  {
+    description: "Ad, telefon, hizmet ve bölge bilgilerini tek yerde gör.",
+    icon: UserRound,
+    title: "Profil Bilgileri",
+  },
+  {
+    description: "Onaydan sonra sana yönlendirilen işleri buradan izle.",
+    icon: Inbox,
+    title: "Gelen Talepler",
+  },
+  {
+    description: "Yayına alındığında profilinin listelerdeki durumunu kontrol et.",
+    icon: Eye,
+    title: "Görünürlük Durumu",
+  },
+];
+
+export function getProviderDashboardStatusBadge(
+  applicationStatus?: ProviderDashboardApplicationStatus,
+  isActiveProvider = false,
+): { label: string; tone: ProviderDashboardStatusTone } {
+  if (isActiveProvider || applicationStatus === "approved") {
+    return { label: "Aktif usta", tone: "green" };
+  }
+
+  if (applicationStatus === "pending") {
+    return { label: "Başvuru alındı", tone: "green" };
+  }
+
+  if (applicationStatus === "rejected") {
+    return { label: "Başvuru reddedildi", tone: "red" };
+  }
+
+  return { label: "Başvuru bekleniyor", tone: "orange" };
+}
+
+export function getProviderDashboardStatusBadgeView(
+  applicationStatus?: ProviderDashboardApplicationStatus,
+  isActiveProvider = false,
+): { label: string; tone: ProviderDashboardStatusTone } {
+  const labels = {
+    active: "Aktif usta",
+    pending: "Ba\u015fvuru al\u0131nd\u0131",
+    rejected: "Ba\u015fvuru reddedildi",
+    waiting: "Ba\u015fvuru bekleniyor",
+  } as const;
+
+  if (isActiveProvider || applicationStatus === "approved") {
+    return { label: labels.active, tone: "green" };
+  }
+
+  if (applicationStatus === "pending") {
+    return { label: labels.pending, tone: "green" };
+  }
+
+  if (applicationStatus === "rejected") {
+    return { label: labels.rejected, tone: "red" };
+  }
+
+  return { label: labels.waiting, tone: "orange" };
+}
+
 export function formatProviderRating(rating: number) {
   return Number.isFinite(rating)
     ? rating.toLocaleString("tr-TR", {
@@ -121,8 +207,18 @@ export function ProviderDashboardShell({
   children,
   description,
   providerName,
+  statusLabel = "Başvuru bekleniyor",
+  statusTone = "orange",
   title,
 }: ProviderDashboardShellProps) {
+  const statusToneClasses: Record<ProviderDashboardStatusTone, string> = {
+    green:
+      "border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]",
+    orange:
+      "border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]",
+    red: "border-red-200 bg-red-50 text-red-700",
+  };
+
   return (
     <div className="min-h-full bg-[var(--surface-soft)]">
       <section className="border-b border-[var(--border)] bg-white">
@@ -140,7 +236,16 @@ export function ProviderDashboardShell({
               </p>
             </div>
 
-            <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] px-3 py-2 text-xs font-bold leading-4 text-[var(--trust-green)]">
+            <div
+              className={cn(
+                "inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold leading-4",
+                statusToneClasses[statusTone],
+              )}
+            >
+              <ShieldCheck className="h-4 w-4" aria-hidden />
+              {providerName ? `${providerName} · ${statusLabel}` : statusLabel}
+            </div>
+            <div className={cn("hidden max-w-full flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold leading-4", statusToneClasses[statusTone])}>
               <ShieldCheck className="h-4 w-4" aria-hidden />
               {providerName ? `${providerName} alanı` : "Başvuru alanı"}
             </div>
@@ -233,17 +338,157 @@ function getProviderDashboardEmptyStateContent(
   };
 }
 
+function getProviderDashboardStatusView(
+  reason: ProviderDashboardAccessReason,
+  applicationStatus?: ProviderDashboardApplicationStatus,
+) {
+  if (applicationStatus === "approved") {
+    return {
+      body:
+        "Başvurun onaylandı. Usta profilin bağlandığında panel erişimin otomatik açılır.",
+      cta: false,
+      eyebrow: "Onay tamamlandı",
+      headline: "Usta profilin hazırlanıyor",
+      label: "Aktif usta",
+    };
+  }
+
+  if (applicationStatus === "rejected" || reason === "rejected-application") {
+    return {
+      body:
+        "Başvurun reddedildi. Bilgilerini güncelleyerek tekrar başvurabilirsin.",
+      cta: true,
+      eyebrow: "Başvuru reddedildi",
+      headline: "Bilgilerini güncelleyerek yeniden gönder",
+      label: "Başvuru reddedildi",
+    };
+  }
+
+  if (
+    applicationStatus === "pending" ||
+    reason === "pending-application" ||
+    reason === "pending-provider-profile"
+  ) {
+    return {
+      body:
+        "Başvurun incelemede. Ekibimiz bilgilerini kontrol ediyor.",
+      cta: false,
+      eyebrow: "Başvuru alındı",
+      headline: "Başvurun güvenli şekilde sırada",
+      label: "Başvuru alındı",
+    };
+  }
+
+  if (reason === "missing-session") {
+    return {
+      body:
+        "Başvuru oluşturmak veya mevcut başvuru durumunu görmek için Fuwu hesabınla devam et.",
+      cta: true,
+      eyebrow: "Hesap doğrulaması",
+      headline: "Usta ağına katılmak için giriş yap",
+      label: "Başvuru bekleniyor",
+    };
+  }
+
+  return {
+    body:
+      "Hizmet alanını, çalışma bölgeni ve iletişim bilgilerini paylaşarak usta ağına başvur.",
+    cta: true,
+    eyebrow: "Başvuru bekleniyor",
+    headline: "Usta ağına katılmaya hazır mısın?",
+    label: "Başvuru bekleniyor",
+  };
+}
+
+function getProviderDashboardStatusViewClean(
+  reason: ProviderDashboardAccessReason,
+  applicationStatus?: ProviderDashboardApplicationStatus,
+) {
+  const labels = {
+    active: "Aktif usta",
+    pending: "Ba\u015fvuru al\u0131nd\u0131",
+    rejected: "Ba\u015fvuru reddedildi",
+    waiting: "Ba\u015fvuru bekleniyor",
+  } as const;
+
+  if (applicationStatus === "approved") {
+    return {
+      body:
+        "Ba\u015fvurun onayland\u0131. Usta profilin ba\u011fland\u0131\u011f\u0131nda panel eri\u015fimin otomatik a\u00e7\u0131l\u0131r.",
+      cta: false,
+      eyebrow: "Onay tamamland\u0131",
+      headline: "Usta profilin haz\u0131rlan\u0131yor",
+      label: labels.active,
+    };
+  }
+
+  if (applicationStatus === "rejected" || reason === "rejected-application") {
+    return {
+      body:
+        "Ba\u015fvurun reddedildi. Bilgilerini g\u00fcncelleyerek tekrar ba\u015fvurabilirsin.",
+      cta: true,
+      eyebrow: labels.rejected,
+      headline: "Bilgilerini g\u00fcncelleyerek yeniden g\u00f6nder",
+      label: labels.rejected,
+    };
+  }
+
+  if (
+    applicationStatus === "pending" ||
+    reason === "pending-application" ||
+    reason === "pending-provider-profile"
+  ) {
+    return {
+      body:
+        "Ba\u015fvurun incelemede. Ekibimiz bilgilerini kontrol ediyor.",
+      cta: false,
+      eyebrow: labels.pending,
+      headline: "Ba\u015fvurun g\u00fcvenli \u015fekilde s\u0131rada",
+      label: labels.pending,
+    };
+  }
+
+  if (reason === "missing-session") {
+    return {
+      body:
+        "Ba\u015fvuru olu\u015fturmak veya mevcut ba\u015fvuru durumunu g\u00f6rmek i\u00e7in Fuwu hesab\u0131nla devam et.",
+      cta: true,
+      eyebrow: "Hesap do\u011frulamas\u0131",
+      headline: "Usta a\u011f\u0131na kat\u0131lmak i\u00e7in giri\u015f yap",
+      label: labels.waiting,
+    };
+  }
+
+  return {
+    body:
+      "Hizmet alan\u0131n\u0131, \u00e7al\u0131\u015fma b\u00f6lgeni ve ileti\u015fim bilgilerini payla\u015farak usta a\u011f\u0131na ba\u015fvur.",
+    cta: true,
+    eyebrow: labels.waiting,
+    headline: "Usta a\u011f\u0131na kat\u0131lmaya haz\u0131r m\u0131s\u0131n?",
+    label: labels.waiting,
+  };
+}
+
+function formatApplicationDate(value: string) {
+  return new Intl.DateTimeFormat("tr-TR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 export function ProviderDashboardAccessPlaceholder({
+  application,
   applicationStatus,
   reason = "missing-provider-profile",
 }: {
+  application?: ProviderDashboardApplicationDetails;
   applicationStatus?: ProviderDashboardApplicationStatus;
   message?: string;
   reason?: ProviderDashboardAccessReason;
 }) {
-  const emptyStateContent = getProviderDashboardEmptyStateContent(
+  const statusView = getProviderDashboardStatusViewClean(
     reason,
-    applicationStatus,
+    application?.status ?? applicationStatus,
   );
 
   return (
@@ -254,22 +499,39 @@ export function ProviderDashboardAccessPlaceholder({
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
           <p className="mt-5 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
-            {emptyStateContent.eyebrow}
+            {statusView.eyebrow}
           </p>
           <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            {statusView.headline}
+          </h2>
+          <h2 className="hidden mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
             Usta hesabın henüz aktif değil
           </h2>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
-            {providerDashboardOnboardingSubtitle}
+            {statusView.body}
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            {emptyStateContent.showApplicationCta ? (
+            {statusView.cta ? (
+              <>
               <Button className="w-full sm:w-fit" href={appRoutes.providerApplication}>
+                {"Usta a\u011f\u0131na ba\u015fvur"}
+              </Button>
+              <Button className="hidden w-full sm:w-fit" href={appRoutes.providerApplication}>
                 Usta ağına başvur
               </Button>
+              <Button className="hidden w-full sm:w-fit" href={appRoutes.providerApplication}>
+                Usta ağına başvur
+              </Button>
+              </>
             ) : null}
             <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
+              {"Ustalar\u0131 g\u00f6r\u00fcnt\u00fcle"}
+            </Button>
+            <Button className="hidden w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
+              Ustaları görüntüle
+            </Button>
+            <Button className="hidden w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
               Ustaları görüntüle
             </Button>
           </div>
@@ -286,16 +548,66 @@ export function ProviderDashboardAccessPlaceholder({
             Durum özeti
           </p>
           <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
-            {emptyStateContent.statusLabel}
+            {statusView.label}
           </p>
           <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-            {emptyStateContent.statusDescription}
+            {statusView.body}
           </p>
+          {application ? (
+            <>
+            <dl className="mt-5 grid gap-3 border-t border-[var(--border)] pt-5">
+              {[
+                ["Ad Soyad", application.fullName],
+                ["Telefon", application.phone],
+                ["Hizmet", application.category],
+                ["\u0130l\u00e7e", application.district],
+                ["Deneyim", `${application.experienceYears} y\u0131l`],
+                ["Durum", statusView.label],
+                ["Ba\u015fvuru Tarihi", formatApplicationDate(application.createdAt)],
+              ].map(([label, value]) => (
+                <div
+                  className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
+                  key={label}
+                >
+                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <dl className="hidden mt-5 gap-3 border-t border-[var(--border)] pt-5">
+              {[
+                ["Ad Soyad", application.fullName],
+                ["Telefon", application.phone],
+                ["Hizmet", application.category],
+                ["İlçe", application.district],
+                ["Deneyim", `${application.experienceYears} yıl`],
+                ["Durum", statusView.label],
+                ["Başvuru Tarihi", formatApplicationDate(application.createdAt)],
+              ].map(([label, value]) => (
+                <div
+                  className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
+                  key={label}
+                >
+                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            </>
+          ) : null}
         </aside>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {providerDashboardFeatureCards.map((feature) => {
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {providerDashboardRequiredCards.map((feature) => {
           const Icon = feature.icon;
 
           return (
@@ -304,6 +616,123 @@ export function ProviderDashboardAccessPlaceholder({
               key={feature.title}
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+                <Icon className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
+                {feature.description}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function ProviderDashboardApplicationPlaceholder({
+  application,
+  applicationStatus,
+  reason = "missing-provider-profile",
+}: {
+  application?: ProviderDashboardApplicationDetails;
+  applicationStatus?: ProviderDashboardApplicationStatus;
+  message?: string;
+  reason?: ProviderDashboardAccessReason;
+}) {
+  const statusView = getProviderDashboardStatusViewClean(
+    reason,
+    application?.status ?? applicationStatus,
+  );
+  const applicationFields = application
+    ? [
+        ["Ad Soyad", application.fullName],
+        ["Telefon", application.phone],
+        ["Hizmet", application.category],
+        ["\u0130l\u00e7e", application.district],
+        ["Deneyim", `${application.experienceYears} y\u0131l`],
+        ["Durum", statusView.label],
+        ["Ba\u015fvuru Tarihi", formatApplicationDate(application.createdAt)],
+      ]
+    : [];
+
+  return (
+    <section className="grid gap-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_22px_70px_rgba(13,20,36,0.08)] sm:p-8">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
+            <BadgeCheck className="h-6 w-6" aria-hidden />
+          </div>
+          <p className="mt-5 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+            {statusView.eyebrow}
+          </p>
+          <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+            {statusView.headline}
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
+            {statusView.body}
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            {statusView.cta ? (
+              <Button className="w-full sm:w-fit" href={appRoutes.providerApplication}>
+                {"Usta a\u011f\u0131na ba\u015fvur"}
+              </Button>
+            ) : null}
+            <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
+              {"Ustalar\u0131 g\u00f6r\u00fcnt\u00fcle"}
+            </Button>
+          </div>
+        </article>
+
+        <aside
+          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-6"
+          role="status"
+        >
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+            <ShieldCheck className="h-5 w-5" aria-hidden />
+          </div>
+          <p className="mt-5 text-xs font-bold uppercase text-[var(--muted)]">
+            Durum Özeti
+          </p>
+          <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
+            {statusView.label}
+          </p>
+          <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+            {statusView.body}
+          </p>
+          {application ? (
+            <dl className="mt-5 grid gap-3 border-t border-[var(--border)] pt-5">
+              {applicationFields.map(([label, value]) => (
+                <div
+                  className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
+                  key={label}
+                >
+                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </aside>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {providerDashboardRequiredCards.map((feature) => {
+          const Icon = feature.icon;
+
+          return (
+            <article
+              className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)]"
+              key={feature.title}
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
               <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
@@ -368,15 +797,21 @@ export function ProviderStatusBadge({
   tone = "green",
 }: {
   children: ReactNode;
-  tone?: "green" | "orange";
+  tone?: ProviderDashboardStatusTone;
 }) {
+  const toneClasses: Record<ProviderDashboardStatusTone, string> = {
+    green:
+      "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]",
+    orange:
+      "border-[rgba(255,138,0,0.25)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]",
+    red: "border-red-200 bg-red-50 text-red-700",
+  };
+
   return (
     <span
       className={cn(
         "inline-flex min-h-8 max-w-full items-center rounded-md border px-2.5 py-1 text-xs font-bold leading-4",
-        tone === "green"
-          ? "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
-          : "border-[rgba(255,138,0,0.25)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]",
+        toneClasses[tone],
       )}
     >
       {children}

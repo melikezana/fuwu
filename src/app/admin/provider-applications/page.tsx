@@ -339,7 +339,51 @@ export default async function AdminProviderApplicationsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1180px] text-left text-sm">
+            <table className="w-full min-w-[980px] text-left text-sm">
+              <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
+                <tr>
+                  <th className="px-4 py-3">Ad Soyad</th>
+                  <th className="px-4 py-3">Telefon</th>
+                  <th className="px-4 py-3">Hizmet</th>
+                  <th className="px-4 py-3">{"\u0130l\u00e7e"}</th>
+                  <th className="px-4 py-3">Deneyim</th>
+                  <th className="px-4 py-3">Durum</th>
+                  <th className="px-4 py-3">{"Ba\u015fvuru Tarihi"}</th>
+                  <th className="px-4 py-3">{"\u0130\u015flem"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {result.rows.map((application) => (
+                  <tr key={application.id} className="bg-white">
+                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
+                      {application.fullName}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {application.phone}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {application.category}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {application.district}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {application.experience}
+                    </td>
+                    <td className="px-4 py-4">
+                      <ApplicationStatusBadge status={application.status} />
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                      {formatDate(application.createdAt)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <ApplicationActions application={application} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <table className="hidden w-full min-w-[1180px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Ad Soyad</th>
