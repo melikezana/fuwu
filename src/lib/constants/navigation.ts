@@ -10,6 +10,7 @@ export const appRoutes = {
   login: "/login",
   waitlist: "/waitlist",
   request: "/request",
+  accountRequests: "/account/requests",
   providerApplication: "/provider-application",
   providerDashboard: "/provider-dashboard",
   providerDashboardProfile: "/provider-dashboard/profile",

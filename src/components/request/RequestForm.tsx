@@ -2,6 +2,8 @@
 
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createEmergencyRequestAction } from "@/app/request/actions";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -27,7 +29,6 @@ import {
   type ServiceRequestPaymentPreference,
 } from "@/services/payments";
 import {
-  createEmergencyRequest,
   createServiceRequest,
   serviceRequestSubmitErrorMessage,
   type ServiceRequestSubmitResult,
@@ -367,6 +368,7 @@ export function RequestForm({
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
+  const router = useRouter();
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({
       initialApproximateLocation,
@@ -507,7 +509,7 @@ export function RequestForm({
 
     try {
       const result = isEmergencyFlow
-        ? await createEmergencyRequest(normalizedRequest, authenticatedUserId)
+        ? await createEmergencyRequestAction(normalizedRequest)
         : await createServiceRequest(normalizedRequest, authenticatedUserId);
       trackRequestCreated({
         category: normalizedRequest.serviceCategory,
@@ -515,6 +517,17 @@ export function RequestForm({
         requestCode: result.requestCode,
         urgencyLevel: normalizedRequest.urgencyLevel,
       });
+      if (isEmergencyFlow) {
+        const params = new URLSearchParams({ created: "1" });
+
+        if (result.requestId) {
+          params.set("requestId", result.requestId);
+        }
+
+        router.push(`${appRoutes.accountRequests}?${params.toString()}`);
+        return;
+      }
+
       setSubmittedRequest(result);
       if (!isEmergencyFlow) {
         setFormState({

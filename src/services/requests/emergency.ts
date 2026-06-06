@@ -16,6 +16,7 @@ import {
   createEmergencyMatchRequest as buildEmergencyMatchRequest,
   validateEmergencyPrice,
 } from "@/services/matching";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
@@ -258,15 +259,17 @@ export async function createEmergencyMatchRequest(
   if (authError) {
     throw handleServiceError(authError, {
       logContext: "Emergency request auth lookup failed.",
-      publicMessage: "Acil talep oluşturmak için giriş yapmalısın.",
+      publicMessage: "Talep olu\u015fturmak i\u00e7in giri\u015f yapmal\u0131s\u0131n.",
     });
   }
 
   if (!user) {
     throw new AuthError("Emergency request requires an authenticated user.", {
-      publicMessage: "Acil talep oluşturmak için giriş yapmalısın.",
+      publicMessage: "Talep olu\u015fturmak i\u00e7in giri\u015f yapmal\u0131s\u0131n.",
     });
   }
+
+  await ensureProfileForUser(supabase, user);
 
   const insertPayload = await createEmergencyInsert(supabase, input, user.id);
 

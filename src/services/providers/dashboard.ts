@@ -169,6 +169,28 @@ const providerApplicationSelectQueryWithUserId = `
   districts(name)
 `;
 
+function getMetadataString(metadata: unknown, keys: readonly string[]) {
+  if (!metadata || typeof metadata !== "object") {
+    return "";
+  }
+
+  const record = metadata as Record<string, unknown>;
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string") {
+      const sanitizedValue = sanitizeText(value, 120);
+
+      if (sanitizedValue) {
+        return sanitizedValue;
+      }
+    }
+  }
+
+  return "";
+}
+
 function getRelationName(
   relation: ProviderRelation | ProviderRelation[] | null | undefined,
 ) {
@@ -375,10 +397,33 @@ async function fetchLatestProviderApplicationByPhone(
   };
 }
 
+async function fetchLatestProviderApplicationByFullName(
+  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
+  fullName: string,
+) {
+  const { data, error } = await supabase
+    .from("provider_applications")
+    .select(providerApplicationSelectQuery)
+    .ilike("full_name", fullName)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return {
+    application: data
+      ? mapProviderDashboardApplicationRecord(
+          data as unknown as ProviderDashboardApplicationRecord,
+        )
+      : null,
+    error,
+  };
+}
+
 async function getLatestProviderApplicationForCurrentUser(
   supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
   userId: string,
   phones: string[],
+  names: string[],
 ) {
   const userApplicationResult = await fetchLatestProviderApplicationByUserId(
     supabase,
@@ -420,6 +465,27 @@ async function getLatestProviderApplicationForCurrentUser(
     }
   }
 
+  for (const name of names) {
+    const nameApplicationResult = await fetchLatestProviderApplicationByFullName(
+      supabase,
+      name,
+    );
+
+    if (nameApplicationResult.error) {
+      return {
+        application: null,
+        error: nameApplicationResult.error,
+      };
+    }
+
+    if (nameApplicationResult.application) {
+      return {
+        application: nameApplicationResult.application,
+        error: null,
+      };
+    }
+  }
+
   return {
     application: null,
     error: null,
@@ -432,6 +498,16 @@ function getUniqueContactPhones(...phones: Array<string | null | undefined>) {
       phones
         .map((phone) => sanitizePhone(phone ?? ""))
         .filter((phone) => Boolean(phone)),
+    ),
+  );
+}
+
+function getUniqueApplicantNames(...names: Array<string | null | undefined>) {
+  return Array.from(
+    new Set(
+      names
+        .map((name) => sanitizeText(name ?? "", 120))
+        .filter((name) => Boolean(name)),
     ),
   );
 }
@@ -502,11 +578,17 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
   const contactPhones = getUniqueContactPhones(
     authContext.profile?.phone,
     authContext.user.phone,
+    getMetadataString(authContext.user.user_metadata, ["phone", "phone_number"]),
+  );
+  const applicantNames = getUniqueApplicantNames(
+    authContext.profile?.full_name,
+    getMetadataString(authContext.user.user_metadata, ["full_name", "name"]),
   );
   const applicationResult = await getLatestProviderApplicationForCurrentUser(
     authContext.supabase,
     authContext.user.id,
     contactPhones,
+    applicantNames,
   );
 
   if (applicationResult.error) {

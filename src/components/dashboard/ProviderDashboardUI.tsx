@@ -123,26 +123,31 @@ const providerDashboardFeatureCards: Array<{
 
 const providerDashboardRequiredCards: Array<{
   description: string;
+  href: string;
   icon: LucideIcon;
   title: string;
 }> = [
   {
     description: "Başvurunun hangi aşamada olduğunu net şekilde takip et.",
+    href: appRoutes.providerDashboard,
     icon: ShieldCheck,
     title: "Başvuru Durumu",
   },
   {
     description: "Ad, telefon, hizmet ve bölge bilgilerini tek yerde gör.",
+    href: appRoutes.providerDashboardProfile,
     icon: UserRound,
     title: "Profil Bilgileri",
   },
   {
     description: "Onaydan sonra sana yönlendirilen işleri buradan izle.",
+    href: appRoutes.providerDashboardRequests,
     icon: Inbox,
     title: "Gelen Talepler",
   },
   {
     description: "Yayına alındığında profilinin listelerdeki durumunu kontrol et.",
+    href: appRoutes.providers,
     icon: Eye,
     title: "Görünürlük Durumu",
   },
@@ -611,20 +616,22 @@ export function ProviderDashboardAccessPlaceholder({
           const Icon = feature.icon;
 
           return (
-            <article
-              className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)]"
+            <Link
+              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={feature.href}
               key={feature.title}
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+              <span className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" aria-hidden />
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
-              <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-4 text-lg font-black leading-tight text-[var(--brand-navy)]">
                 {feature.title}
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
                 {feature.description}
               </p>
-            </article>
+            </Link>
           );
         })}
       </div>
@@ -728,20 +735,22 @@ export function ProviderDashboardApplicationPlaceholder({
           const Icon = feature.icon;
 
           return (
-            <article
-              className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)]"
+            <Link
+              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={feature.href}
               key={feature.title}
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+              <span className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" aria-hidden />
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
-              <h3 className="mt-4 text-lg font-bold leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-4 text-lg font-black leading-tight text-[var(--brand-navy)]">
                 {feature.title}
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
                 {feature.description}
               </p>
-            </article>
+            </Link>
           );
         })}
       </div>
@@ -758,20 +767,23 @@ export function ProviderSummaryCard({
 }: SummaryCardProps) {
   return (
     <Link
-      className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]"
+      className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={href}
     >
+      <span className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" aria-hidden />
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 cursor-default select-none">
-          <p className="text-sm font-bold text-[var(--muted)]">{label}</p>
-          <p className="mt-3 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+          <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            {label}
+          </p>
+          <p className="mt-3 text-2xl font-black leading-tight text-[var(--brand-navy)]">
             {value}
           </p>
           <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
             {description}
           </p>
         </div>
-        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       </div>

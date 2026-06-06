@@ -8,6 +8,7 @@ import {
 } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
 import type {
   ProviderApplicationInput,
@@ -48,6 +49,7 @@ const providerApplicationOptionsErrorMessage =
 
 const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "full_name",
+  "user_id",
   "phone",
   "category_id",
   "district_id",
@@ -92,6 +94,16 @@ function getSupabaseDebugPayload(error: unknown) {
 
 function logProviderApplicationSupabaseError(context: string, error: unknown) {
   console.error(`[Fuwu] ${context}`, getSupabaseDebugPayload(error));
+}
+
+function isMissingColumnError(error: unknown, columnName: string) {
+  const debugPayload = getSupabaseDebugPayload(error);
+  const errorText = Object.values(debugPayload)
+    .filter((value): value is string => Boolean(value))
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("column") && errorText.includes(columnName);
 }
 
 function createProviderApplicationFailure(error: unknown) {
@@ -201,10 +213,35 @@ async function assertLookupIdsAreActive(
   ]);
 }
 
+async function getOptionalProviderApplicationUserId(
+  supabase: SupabaseClient<Database>,
+) {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  try {
+    await ensureProfileForUser(supabase, user);
+    return user.id;
+  } catch (error) {
+    logProviderApplicationSupabaseError(
+      "Provider application profile ensure failed; submitting without user link.",
+      error,
+    );
+    return null;
+  }
+}
+
 function buildProviderApplicationInsert(
   data: ProviderApplicationInput,
+  userId: string | null,
 ): ProviderApplicationInsert {
-  return {
+  const payload: ProviderApplicationInsert = {
     full_name: data.fullName,
     phone: data.phone,
     category_id: data.categoryId,
@@ -216,6 +253,12 @@ function buildProviderApplicationInsert(
     portfolio_url: normalizeOptionalText(data.portfolioUrl),
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
+
+  if (userId) {
+    payload.user_id = userId;
+  }
+
+  return payload;
 }
 
 export function isProviderApplicationDemoMode() {
@@ -356,11 +399,24 @@ export async function submitProviderApplication(
 
     await assertLookupIdsAreActive(supabase, applicationData);
 
-    const insertPayload = buildProviderApplicationInsert(applicationData);
+    const userId = await getOptionalProviderApplicationUserId(supabase);
+    const insertPayload = buildProviderApplicationInsert(applicationData, userId);
 
     await assertNoPendingDuplicate(supabase, insertPayload);
 
-    const { error } = await supabase.from("provider_applications").insert(insertPayload);
+    let { error } = await supabase.from("provider_applications").insert(insertPayload);
+
+    if (error && insertPayload.user_id && isMissingColumnError(error, "user_id")) {
+      logProviderApplicationSupabaseError(
+        "Provider application user_id insert failed; retrying without user link.",
+        error,
+      );
+
+      const fallbackPayload = { ...insertPayload };
+      delete fallbackPayload.user_id;
+
+      error = (await supabase.from("provider_applications").insert(fallbackPayload)).error;
+    }
 
     if (error) {
       logProviderApplicationSupabaseError(

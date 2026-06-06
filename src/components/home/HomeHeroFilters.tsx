@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { createEmergencyRequestAction } from "@/app/request/actions";
 import {
   Check,
   CheckCircle2,
@@ -36,7 +37,7 @@ import {
   getPaymentPreferenceLabel,
   type ServiceRequestPaymentPreference,
 } from "@/services/payments";
-import { createEmergencyRequest, type ServiceRequestSubmitResult } from "@/services/requests";
+import type { ServiceRequestSubmitResult } from "@/services/requests";
 import type { ProviderFilterOptions } from "@/services/providers";
 
 type HomeHeroFiltersProps = {
@@ -408,11 +409,11 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
       const user = await getCurrentUser();
 
       if (!user) {
-        router.push(requestHref);
+        router.push(`${appRoutes.login}?next=${encodeURIComponent(requestHref)}`);
         return;
       }
 
-      const result = await createEmergencyRequest(
+      const result = await createEmergencyRequestAction(
         {
           approximateLocation: district,
           budgetTag: "acil-hizmet",
@@ -430,10 +431,16 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           urgencyLevel: "Acil",
           urgencyType: "emergency",
         },
-        user.id,
       );
 
       setSubmittedRequest(result);
+      const params = new URLSearchParams({ created: "1" });
+
+      if (result.requestId) {
+        params.set("requestId", result.requestId);
+      }
+
+      router.push(`${appRoutes.accountRequests}?${params.toString()}`);
     } catch (error) {
       setSubmitError(
         getPublicErrorMessage(
