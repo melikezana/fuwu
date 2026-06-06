@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, CircleDollarSign, MapPin, ReceiptText, WalletCards } from "lucide-react";
+import { CalendarDays, CircleDollarSign, MapPin, ReceiptText, UserRound, WalletCards } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -35,6 +35,10 @@ type RequestRelation = {
 };
 
 type AccountServiceRequest = {
+  assigned_provider:
+    | { name: string | null }
+    | { name: string | null }[]
+    | null;
   budget_tag: string | null;
   confirmation_code: string | null;
   created_at: string | null;
@@ -53,6 +57,16 @@ function getSearchParam(value?: string | string[]) {
 }
 
 function getRelationName(relation: RequestRelation | RequestRelation[] | null | undefined) {
+  if (Array.isArray(relation)) {
+    return relation[0]?.name?.trim() ?? "";
+  }
+
+  return relation?.name?.trim() ?? "";
+}
+
+function getAssignedProviderName(
+  relation: AccountServiceRequest["assigned_provider"],
+) {
   if (Array.isArray(relation)) {
     return relation[0]?.name?.trim() ?? "";
   }
@@ -105,7 +119,7 @@ async function getUserRequests(userId: string) {
   const { data, error } = await authContext.supabase
     .from("service_requests")
     .select(
-      "id, status, urgency_type, budget_tag, offered_price, payment_preference, confirmation_code, description, created_at, service_categories(name), districts(name)",
+      "id, status, urgency_type, budget_tag, offered_price, payment_preference, confirmation_code, description, created_at, service_categories(name), districts(name), assigned_provider:providers!service_requests_assigned_provider_id_fkey(name)",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
@@ -149,6 +163,7 @@ function RequestCard({
   const category = getRelationName(request.service_categories) || "Hizmet Talebi";
   const district = getRelationName(request.districts) || "İlçe bekleniyor";
   const isEmergency = request.urgency_type === "emergency";
+  const assignedProviderName = getAssignedProviderName(request.assigned_provider);
 
   return (
     <article
@@ -193,6 +208,11 @@ function RequestCard({
           value={getPaymentPreferenceLabel(request.payment_preference)}
         />
         <RequestDetailPill icon={CalendarDays} label="Tarih" value={formatDate(request.created_at)} />
+        <RequestDetailPill
+          icon={UserRound}
+          label="Atanan Usta"
+          value={assignedProviderName || "Henüz atanmadı"}
+        />
       </dl>
 
       {request.confirmation_code ? (

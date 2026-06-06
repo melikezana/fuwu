@@ -314,14 +314,14 @@ function getApplicationStatusMessage(
   application: Pick<ProviderDashboardApplication, "status">,
 ) {
   if (application.status === PROVIDER_APPLICATION_STATUSES.rejected) {
-    return "Usta başvurun reddedildi. Yeni veya güncellenmiş bilgilerle tekrar başvurabilirsin.";
+    return "Başvurunuz reddedildi. Bilgilerinizi güncelleyerek tekrar başvurabilirsiniz.";
   }
 
   if (application.status === PROVIDER_APPLICATION_STATUSES.approved) {
-    return "Başvurun onaylandı; usta profilin hazırlanıyor. Profil bağlandığında panel otomatik açılır.";
+    return "Başvurunuz onaylandı. Usta paneliniz aktif.";
   }
 
-  return "Başvurun incelemede.";
+  return "Başvurunuz değerlendirmede";
 }
 
 function mapProviderDashboardApplicationRecord(

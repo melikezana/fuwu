@@ -8,7 +8,7 @@ type AuthProfileSupabaseClient = SupabaseClient<Database>;
 type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
 
 const profileEnsureErrorMessage =
-  "Giriş bilgileri şu anda hazırlanamadı. Lütfen tekrar deneyin.";
+  "Hesap bilgilerin doğrulanamadı. Lütfen tekrar giriş yap.";
 
 function getMetadataString(metadata: unknown, keys: readonly string[]) {
   if (!metadata || typeof metadata !== "object") {

@@ -25,6 +25,7 @@ import { getPaymentPreferenceLabel, savePaymentPreference } from "@/services/pay
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
+import { getServerAuthContext } from "@/services/auth/server";
 import {
   notifyEmergencyRequestDispatched,
   notifyServiceRequestCreated,
@@ -507,6 +508,141 @@ export async function createServiceRequest(
     insertPayload.urgency_type === "emergency"
       ? await countEligibleEmergencyProviders(
           supabase,
+          insertPayload.category_id,
+          insertPayload.district_id,
+        )
+      : undefined;
+
+  await notifyServiceRequestCreated({
+    eligibleProviderCount,
+    requestCode,
+    requestId: typeof record?.id === "string" ? record.id : null,
+  });
+
+  if (insertPayload.urgency_type === "emergency") {
+    await notifyEmergencyRequestDispatched({
+      eligibleProviderCount,
+      notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
+      requestCode,
+      requestId: typeof record?.id === "string" ? record.id : null,
+    });
+  }
+
+  const submitResult: ServiceRequestSubmitResult = {
+    confirmationCode: insertPayload.confirmation_code ?? null,
+    emergencyStatus: insertPayload.emergency_status ?? null,
+    estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
+    notificationMessage:
+      insertPayload.urgency_type === "emergency"
+        ? eligibleProviderCount && eligibleProviderCount > 0
+          ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
+          : "Uygun ustalara bildirim gönderildi."
+        : null,
+    offeredPrice: insertPayload.offered_price ?? null,
+    paymentPreference: insertPayload.payment_preference ?? null,
+    providerCountNotified: eligibleProviderCount ?? null,
+    requestCode,
+    requestId: typeof record?.id === "string" ? record.id : null,
+    urgencyType: insertPayload.urgency_type ?? "standard",
+  };
+  const response = createServiceSuccess(submitResult);
+
+  return response.data ?? submitResult;
+}
+
+export async function createAuthenticatedServiceRequest(
+  data: ServiceRequestInput,
+): Promise<ServiceRequestSubmitResult> {
+  const validationResult = validateServiceRequestInput(data);
+
+  if (!validationResult.ok) {
+    throw new ValidationError("Service request validation failed.", {
+      publicMessage: validationResult.message,
+    });
+  }
+
+  const requestData = validationResult.data;
+  const authContext = await getServerAuthContext();
+
+  if (!authContext.supabase) {
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+  }
+
+  if (!authContext.user) {
+    throw new AuthError("Service request requires an authenticated user.", {
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
+  }
+
+  await ensureProfileForUser(authContext.supabase, authContext.user);
+
+  const insertPayload = await buildServiceRequestInsert(
+    authContext.supabase,
+    authContext.user.id,
+    requestData,
+  );
+  const activeDuplicateStatuses = [
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.accepted,
+    SERVICE_REQUEST_STATUSES.onTheWay,
+  ];
+
+  const { data: existingRequest, error: duplicateCheckError } = await authContext.supabase
+    .from("service_requests")
+    .select("id")
+    .eq("user_id", authContext.user.id)
+    .eq("category_id", insertPayload.category_id)
+    .eq("district_id", insertPayload.district_id)
+    .in("status", activeDuplicateStatuses)
+    .limit(1)
+    .maybeSingle();
+
+  if (duplicateCheckError) {
+    throw handleServiceError(duplicateCheckError, {
+      logContext: "Service request duplicate check failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+  }
+
+  if (existingRequest?.id) {
+    throw new ValidationError("Duplicate service request detected.", {
+      publicMessage: "Bu alanda halihazırda yeni bir talebiniz bulunuyor.",
+    });
+  }
+
+  const { data: insertedRequest, error } = await authContext.supabase
+    .from("service_requests")
+    .insert(insertPayload)
+    .select("id")
+    .single();
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Service request Supabase insert failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+  }
+
+  const record = insertedRequest as LookupRecord | null;
+  logInfo("Service request inserted.", {
+    categoryId: insertPayload.category_id,
+    districtId: insertPayload.district_id,
+    hasOfferedPrice: typeof insertPayload.offered_price === "number",
+    hasPaymentPreference: Boolean(insertPayload.payment_preference),
+    status: insertPayload.status,
+    urgencyType: insertPayload.urgency_type ?? "standard",
+  });
+
+  const requestCode = createLiveRequestCode(record?.id);
+  const eligibleProviderCount =
+    insertPayload.urgency_type === "emergency"
+      ? await countEligibleEmergencyProviders(
+          authContext.supabase,
           insertPayload.category_id,
           insertPayload.district_id,
         )

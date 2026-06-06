@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { DatabaseError, getPublicErrorMessage, handleServiceError, ValidationError } from "@/lib/errors";
+import { AuthError, DatabaseError, getPublicErrorMessage, handleServiceError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
 import {
@@ -94,16 +94,6 @@ function getSupabaseDebugPayload(error: unknown) {
 
 function logProviderApplicationSupabaseError(context: string, error: unknown) {
   console.error(`[Fuwu] ${context}`, getSupabaseDebugPayload(error));
-}
-
-function isMissingColumnError(error: unknown, columnName: string) {
-  const debugPayload = getSupabaseDebugPayload(error);
-  const errorText = Object.values(debugPayload)
-    .filter((value): value is string => Boolean(value))
-    .join(" ")
-    .toLocaleLowerCase("tr");
-
-  return errorText.includes("column") && errorText.includes(columnName);
 }
 
 function createProviderApplicationFailure(error: unknown) {
@@ -213,7 +203,7 @@ async function assertLookupIdsAreActive(
   ]);
 }
 
-async function getOptionalProviderApplicationUserId(
+async function getRequiredProviderApplicationUserId(
   supabase: SupabaseClient<Database>,
 ) {
   const {
@@ -221,19 +211,27 @@ async function getOptionalProviderApplicationUserId(
     error,
   } = await supabase.auth.getUser();
 
-  if (error || !user) {
-    return null;
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Provider application auth lookup failed.",
+      publicMessage: "Giriş yaparak devam etmelisin.",
+    });
+  }
+
+  if (!user) {
+    throw new AuthError("Provider application requires an authenticated user.", {
+      publicMessage: "Giriş yaparak devam etmelisin.",
+    });
   }
 
   try {
     await ensureProfileForUser(supabase, user);
     return user.id;
   } catch (error) {
-    logProviderApplicationSupabaseError(
-      "Provider application profile ensure failed; submitting without user link.",
-      error,
-    );
-    return null;
+    throw handleServiceError(error, {
+      logContext: "Provider application profile ensure failed.",
+      publicMessage: "Hesap bilgilerin doğrulanamadı. Lütfen tekrar giriş yap.",
+    });
   }
 }
 
@@ -342,6 +340,39 @@ async function assertNoPendingDuplicate(
   supabase: SupabaseClient<Database>,
   insertPayload: ProviderApplicationInsert,
 ) {
+  if (insertPayload.user_id) {
+    const { data: existingUserApplication, error: userDuplicateCheckError } =
+      await supabase
+        .from("provider_applications")
+        .select("id")
+        .eq("user_id", insertPayload.user_id)
+        .in("status", [
+          PROVIDER_APPLICATION_STATUSES.pending,
+          PROVIDER_APPLICATION_STATUSES.approved,
+        ])
+        .limit(1)
+        .maybeSingle();
+
+    if (userDuplicateCheckError) {
+      logProviderApplicationSupabaseError(
+        "Provider application user duplicate check failed.",
+        userDuplicateCheckError,
+      );
+
+      throw handleServiceError(userDuplicateCheckError, {
+        logContext: "Provider application user duplicate check failed.",
+        publicMessage: providerApplicationSubmitErrorMessage,
+        tableName: "provider_applications",
+      });
+    }
+
+    if (existingUserApplication?.id) {
+      throw new ValidationError("Duplicate provider application detected for user.", {
+        publicMessage: duplicateProviderApplicationMessage,
+      });
+    }
+  }
+
   const { data: existingPhoneApplication, error: phoneDuplicateCheckError } =
     await supabase
       .from("provider_applications")
@@ -399,24 +430,12 @@ export async function submitProviderApplication(
 
     await assertLookupIdsAreActive(supabase, applicationData);
 
-    const userId = await getOptionalProviderApplicationUserId(supabase);
+    const userId = await getRequiredProviderApplicationUserId(supabase);
     const insertPayload = buildProviderApplicationInsert(applicationData, userId);
 
     await assertNoPendingDuplicate(supabase, insertPayload);
 
-    let { error } = await supabase.from("provider_applications").insert(insertPayload);
-
-    if (error && insertPayload.user_id && isMissingColumnError(error, "user_id")) {
-      logProviderApplicationSupabaseError(
-        "Provider application user_id insert failed; retrying without user link.",
-        error,
-      );
-
-      const fallbackPayload = { ...insertPayload };
-      delete fallbackPayload.user_id;
-
-      error = (await supabase.from("provider_applications").insert(fallbackPayload)).error;
-    }
+    const { error } = await supabase.from("provider_applications").insert(insertPayload);
 
     if (error) {
       logProviderApplicationSupabaseError(

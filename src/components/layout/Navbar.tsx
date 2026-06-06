@@ -91,7 +91,7 @@ export function Navbar() {
           links.push({
             id: "account",
             label: userDisplayName,
-            href: userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard,
+            href: userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account,
           });
           links.push({
             id: "logout",
@@ -261,8 +261,8 @@ export function Navbar() {
                 <div className="flex items-center gap-2">
                   <Button
                     className="gap-2 px-3.5"
-                    href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard}
-                    onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.providerDashboard)}
+                    href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account}
+                    onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account)}
                     variant="secondary"
                   >
                     <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-black text-white">

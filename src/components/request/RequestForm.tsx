@@ -3,7 +3,10 @@
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createEmergencyRequestAction } from "@/app/request/actions";
+import {
+  createEmergencyRequestAction,
+  createServiceRequestAction,
+} from "@/app/request/actions";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -28,11 +31,7 @@ import {
   ibanAfterProviderAcceptsText,
   type ServiceRequestPaymentPreference,
 } from "@/services/payments";
-import {
-  createServiceRequest,
-  serviceRequestSubmitErrorMessage,
-  type ServiceRequestSubmitResult,
-} from "@/services/requests";
+import type { ServiceRequestSubmitResult } from "@/services/requests";
 import { liveTrackingSoonText } from "@/services/tracking";
 
 type UrgencyLevel = "Esnek" | "Bu hafta" | "Acil";
@@ -159,6 +158,8 @@ const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-r
 const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
 const serviceRequestSuccessMessage =
   "Talebin alındı. Fuwu ekibi uygun ustaları yönlendirecek.";
+const serviceRequestSubmitErrorMessage =
+  "Talep oluşturulamadı. Lütfen tekrar deneyin.";
 
 function parsePriceValue(value: string | number | null | undefined) {
   if (typeof value === "number") {
@@ -510,32 +511,21 @@ export function RequestForm({
     try {
       const result = isEmergencyFlow
         ? await createEmergencyRequestAction(normalizedRequest)
-        : await createServiceRequest(normalizedRequest, authenticatedUserId);
+        : await createServiceRequestAction(normalizedRequest);
       trackRequestCreated({
         category: normalizedRequest.serviceCategory,
         district: normalizedRequest.district,
         requestCode: result.requestCode,
         urgencyLevel: normalizedRequest.urgencyLevel,
       });
-      if (isEmergencyFlow) {
-        const params = new URLSearchParams({ created: "1" });
+      const params = new URLSearchParams({ created: "1" });
 
-        if (result.requestId) {
-          params.set("requestId", result.requestId);
-        }
-
-        router.push(`${appRoutes.accountRequests}?${params.toString()}`);
-        return;
+      if (result.requestId) {
+        params.set("requestId", result.requestId);
       }
 
-      setSubmittedRequest(result);
-      if (!isEmergencyFlow) {
-        setFormState({
-          ...initialFormState,
-          fullName: initialProfileFullName?.trim() ?? "",
-          phoneNumber: initialProfilePhone?.trim() ?? "",
-        });
-      }
+      router.push(`${appRoutes.accountRequests}?${params.toString()}`);
+      return;
     } catch (error) {
       setSubmittedRequest(null);
       setSubmitError(getPublicErrorMessage(error, serviceRequestSubmitErrorMessage));

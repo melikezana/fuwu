@@ -259,13 +259,13 @@ export async function createEmergencyMatchRequest(
   if (authError) {
     throw handleServiceError(authError, {
       logContext: "Emergency request auth lookup failed.",
-      publicMessage: "Talep olu\u015fturmak i\u00e7in giri\u015f yapmal\u0131s\u0131n.",
+      publicMessage: "Giriş yaparak devam etmelisin.",
     });
   }
 
   if (!user) {
     throw new AuthError("Emergency request requires an authenticated user.", {
-      publicMessage: "Talep olu\u015fturmak i\u00e7in giri\u015f yapmal\u0131s\u0131n.",
+      publicMessage: "Giriş yaparak devam etmelisin.",
     });
   }
 

@@ -12,7 +12,7 @@ export const errorCodes = {
 export type AppErrorCode = (typeof errorCodes)[keyof typeof errorCodes];
 
 export const publicErrorMessages = {
-  auth: "Bu işlem için giriş yapmalısın.",
+  auth: "Giriş yaparak devam etmelisin.",
   database: "İşlem sırasında bir sorun oluştu. Lütfen tekrar dene.",
   notFound: "Kayıt bulunamadı.",
   permission: "Bu alana erişim yetkin yok.",

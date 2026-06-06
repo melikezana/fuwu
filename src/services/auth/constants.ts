@@ -12,8 +12,8 @@ export const providerProfileRole = profileRoles.provider;
 export const authAccessMessages = {
   accessDenied: "Bu alana erişim yetkin yok.",
   adminRequired: "Admin paneline erişmek için yetkili hesap gerekir.",
-  loginRequired: "Giriş yapmalısın.",
-  profileUnavailable: "Giriş bilgileri şu anda doğrulanamadı.",
+  loginRequired: "Giriş yaparak devam etmelisin.",
+  profileUnavailable: "Hesap bilgilerin doğrulanamadı. Lütfen tekrar giriş yap.",
 } as const;
 
 export function hasRole(
