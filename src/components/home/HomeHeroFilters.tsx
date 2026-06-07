@@ -26,7 +26,6 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { providerDistricts } from "@/lib/constants/providers";
 import { normalizeServiceValue, services, type Service } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
-import { getCurrentUser } from "@/services/auth";
 import {
   getEmergencyPriceOptions,
   getEmergencyPriceRange,
@@ -406,14 +405,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
     setIsSubmitting(true);
 
     try {
-      const user = await getCurrentUser();
-
-      if (!user) {
-        router.push(`${appRoutes.login}?next=${encodeURIComponent(requestHref)}`);
-        return;
-      }
-
-      const result = await createEmergencyRequestAction(
+      const response = await createEmergencyRequestAction(
         {
           approximateLocation: district,
           budgetTag: "acil-hizmet",
@@ -433,6 +425,12 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         },
       );
 
+      if (!response.ok) {
+        setSubmitError(response.message);
+        return;
+      }
+
+      const result = response.data;
       setSubmittedRequest(result);
       const params = new URLSearchParams({ created: "1" });
 

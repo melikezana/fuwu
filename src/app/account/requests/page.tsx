@@ -9,10 +9,11 @@ import {
   SERVICE_REQUEST_STATUS_LABELS,
   type ServiceRequestStatus,
 } from "@/lib/constants/statuses";
+import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { getBudgetTagLabel } from "@/services/matching/budget";
 import { getPaymentPreferenceLabel } from "@/services/payments";
-import { getServerAuthContext } from "@/services/auth/server";
+import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 
 export const dynamic = "force-dynamic";
 
@@ -109,14 +110,17 @@ function getBudgetLabel(value: string | null) {
   return value ? getBudgetTagLabel(value) || value : "Belirtilmedi";
 }
 
-async function getUserRequests(userId: string) {
-  const authContext = await getServerAuthContext();
+type UserRequestsResult = {
+  errorMessage: string | null;
+  requests: AccountServiceRequest[];
+};
 
-  if (!authContext.supabase) {
-    return [];
-  }
-
-  const { data, error } = await authContext.supabase
+async function getUserRequests(
+  supabase: NonNullable<ServerAuthContext["supabase"]>,
+  userId: string,
+): Promise<UserRequestsResult> {
+  const fallbackMessage = "Talepler şu anda yüklenemedi. Lütfen tekrar dene.";
+  const { data, error } = await supabase
     .from("service_requests")
     .select(
       "id, status, urgency_type, budget_tag, offered_price, payment_preference, confirmation_code, description, created_at, service_categories(name), districts(name), assigned_provider:providers!service_requests_assigned_provider_id_fkey(name)",
@@ -124,11 +128,23 @@ async function getUserRequests(userId: string) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
-    return [];
+  if (error) {
+    const appError = handleServiceError(error, {
+      logContext: "Account service requests read failed.",
+      publicMessage: fallbackMessage,
+      tableName: "service_requests",
+    });
+
+    return {
+      errorMessage: getPublicErrorMessage(appError, fallbackMessage),
+      requests: [],
+    };
   }
 
-  return data as unknown as AccountServiceRequest[];
+  return {
+    errorMessage: null,
+    requests: (data ?? []) as unknown as AccountServiceRequest[],
+  };
 }
 
 function RequestDetailPill({
@@ -234,9 +250,16 @@ export default async function AccountRequestsPage({
     redirect(`${appRoutes.login}?next=${encodeURIComponent(appRoutes.accountRequests)}`);
   }
 
+  if (!authContext.supabase) {
+    redirect(`${appRoutes.login}?next=${encodeURIComponent(appRoutes.accountRequests)}`);
+  }
+
   const created = getSearchParam(params?.created) === "1";
   const highlightedRequestId = getSearchParam(params?.requestId);
-  const requests = await getUserRequests(authContext.user.id);
+  const { errorMessage, requests } = await getUserRequests(
+    authContext.supabase,
+    authContext.user.id,
+  );
 
   return (
     <main className="min-h-screen bg-[var(--surface-soft)]">
@@ -286,6 +309,15 @@ export default async function AccountRequestsPage({
                 </p>
               </div>
             </div>
+          </div>
+        ) : null}
+
+        {errorMessage ? (
+          <div
+            className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700"
+            role="alert"
+          >
+            {errorMessage}
           </div>
         ) : null}
 

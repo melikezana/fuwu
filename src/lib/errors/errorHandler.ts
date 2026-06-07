@@ -9,6 +9,8 @@ import {
 
 type SupabaseLikeError = {
   code?: unknown;
+  details?: unknown;
+  hint?: unknown;
   message?: unknown;
   status?: unknown;
 };
@@ -50,6 +52,8 @@ function getErrorMessage(error: unknown) {
 function getSupabaseLogPayload(error: SupabaseLikeError) {
   return {
     code: typeof error.code === "string" ? error.code : undefined,
+    details: typeof error.details === "string" ? error.details : undefined,
+    hint: typeof error.hint === "string" ? error.hint : undefined,
     message: typeof error.message === "string" ? error.message : undefined,
     status: typeof error.status === "number" ? error.status : undefined,
   };

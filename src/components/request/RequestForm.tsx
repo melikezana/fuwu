@@ -509,9 +509,15 @@ export function RequestForm({
     setIsSubmitting(true);
 
     try {
-      const result = isEmergencyFlow
+      const response = isEmergencyFlow
         ? await createEmergencyRequestAction(normalizedRequest)
         : await createServiceRequestAction(normalizedRequest);
+      if (!response.ok) {
+        setSubmitError(response.message);
+        return;
+      }
+
+      const result = response.data;
       trackRequestCreated({
         category: normalizedRequest.serviceCategory,
         district: normalizedRequest.district,

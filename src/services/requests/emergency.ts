@@ -33,6 +33,9 @@ type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["In
 const emergencyRequestSubmitErrorMessage =
   "Acil talep şu anda oluşturulamadı. Lütfen bilgilerini kontrol edip tekrar dene.";
 
+const emergencyRequestLoginRequiredMessage =
+  "Talep oluşturmak için giriş yapmalısın.";
+
 function createRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
     return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -259,13 +262,13 @@ export async function createEmergencyMatchRequest(
   if (authError) {
     throw handleServiceError(authError, {
       logContext: "Emergency request auth lookup failed.",
-      publicMessage: "Giriş yaparak devam etmelisin.",
+      publicMessage: emergencyRequestLoginRequiredMessage,
     });
   }
 
   if (!user) {
     throw new AuthError("Emergency request requires an authenticated user.", {
-      publicMessage: "Giriş yaparak devam etmelisin.",
+      publicMessage: emergencyRequestLoginRequiredMessage,
     });
   }
 
@@ -288,6 +291,7 @@ export async function createEmergencyMatchRequest(
       .eq("district_id", insertPayload.district_id)
       .eq("urgency_type", "emergency")
       .in("status", duplicateStatuses)
+      .limit(1)
       .maybeSingle();
 
     if (duplicateError) {
@@ -314,7 +318,9 @@ export async function createEmergencyMatchRequest(
   if (error) {
     throw handleServiceError(error, {
       logContext: "Emergency request insert failed.",
+      payloadKeys: Object.keys(insertPayload),
       publicMessage: emergencyRequestSubmitErrorMessage,
+      tableName: "service_requests",
     });
   }
 

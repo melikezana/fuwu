@@ -23,7 +23,7 @@ import {
 } from "@/services/matching";
 import { getPaymentPreferenceLabel, savePaymentPreference } from "@/services/payments";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
-import { authAccessMessages, getCurrentUser } from "@/services/auth";
+import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { getServerAuthContext } from "@/services/auth/server";
 import {
@@ -59,7 +59,7 @@ export type {
 } from "@/types/request";
 
 export const serviceRequestLoginRequiredMessage =
-  authAccessMessages.loginRequired;
+  "Talep oluşturmak için giriş yapmalısın.";
 
 export const serviceRequestSubmitErrorMessage =
   "Talep oluşturulamadı. Lütfen tekrar deneyin.";
@@ -463,6 +463,7 @@ export async function createServiceRequest(
     .eq("user_id", user.id)
     .eq("category_id", insertPayload.category_id)
     .eq("district_id", insertPayload.district_id)
+    .eq("urgency_type", insertPayload.urgency_type ?? "standard")
     .in("status", activeDuplicateStatuses)
     .limit(1)
     .maybeSingle();
@@ -489,7 +490,9 @@ export async function createServiceRequest(
   if (error) {
     throw handleServiceError(error, {
       logContext: "Service request Supabase insert failed.",
+      payloadKeys: Object.keys(insertPayload),
       publicMessage: serviceRequestSubmitErrorMessage,
+      tableName: "service_requests",
     });
   }
 
@@ -598,6 +601,7 @@ export async function createAuthenticatedServiceRequest(
     .eq("user_id", authContext.user.id)
     .eq("category_id", insertPayload.category_id)
     .eq("district_id", insertPayload.district_id)
+    .eq("urgency_type", insertPayload.urgency_type ?? "standard")
     .in("status", activeDuplicateStatuses)
     .limit(1)
     .maybeSingle();
@@ -624,7 +628,9 @@ export async function createAuthenticatedServiceRequest(
   if (error) {
     throw handleServiceError(error, {
       logContext: "Service request Supabase insert failed.",
+      payloadKeys: Object.keys(insertPayload),
       publicMessage: serviceRequestSubmitErrorMessage,
+      tableName: "service_requests",
     });
   }
 
