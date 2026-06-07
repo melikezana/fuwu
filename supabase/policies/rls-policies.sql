@@ -46,7 +46,7 @@ as $$
     from public.profiles
     where profiles.id = profile_id
       and profiles.id = auth.uid()
-      and profiles.role = next_role
+      and profiles.role::text = next_role
   );
 $$;
 
@@ -137,8 +137,9 @@ on public.profiles
 for insert
 to authenticated
 with check (
-  id = auth.uid()
-  and role = 'customer'
+  auth.uid() is not null
+  and id = auth.uid()
+  and role::text = 'customer'
 );
 
 comment on policy profiles_insert_own_customer on public.profiles is
@@ -149,10 +150,14 @@ create policy profiles_update_own
 on public.profiles
 for update
 to authenticated
-using (id = auth.uid())
+using (
+  auth.uid() is not null
+  and id = auth.uid()
+)
 with check (
-  id = auth.uid()
-  and public.profile_role_is_unchanged(id, role)
+  auth.uid() is not null
+  and id = auth.uid()
+  and public.profile_role_is_unchanged(id, role::text)
 );
 
 comment on policy profiles_update_own on public.profiles is
@@ -255,7 +260,8 @@ on public.provider_applications
 for insert
 to authenticated
 with check (
-  user_id = auth.uid()
+  auth.uid() is not null
+  and user_id = auth.uid()
   and status = 'pending'
 );
 

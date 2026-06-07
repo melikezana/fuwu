@@ -205,6 +205,7 @@ async function assertLookupIdsAreActive(
 
 async function getRequiredProviderApplicationUserId(
   supabase: SupabaseClient<Database>,
+  profileDetails: Pick<ProviderApplicationInput, "fullName" | "phone">,
 ) {
   const {
     data: { user },
@@ -225,7 +226,10 @@ async function getRequiredProviderApplicationUserId(
   }
 
   try {
-    await ensureProfileForUser(supabase, user);
+    await ensureProfileForUser(supabase, user, {
+      fullName: profileDetails.fullName,
+      phone: profileDetails.phone,
+    });
     return user.id;
   } catch (error) {
     throw handleServiceError(error, {
@@ -430,7 +434,7 @@ export async function submitProviderApplication(
 
     await assertLookupIdsAreActive(supabase, applicationData);
 
-    const userId = await getRequiredProviderApplicationUserId(supabase);
+    const userId = await getRequiredProviderApplicationUserId(supabase, applicationData);
     const insertPayload = buildProviderApplicationInsert(applicationData, userId);
 
     await assertNoPendingDuplicate(supabase, insertPayload);

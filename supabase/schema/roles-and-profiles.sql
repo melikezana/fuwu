@@ -26,10 +26,43 @@ CREATE POLICY "Admins can view all profiles."
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin' 
   );
 
+CREATE OR REPLACE FUNCTION public.profile_role_is_unchanged(
+  profile_id UUID,
+  next_role TEXT
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE profiles.id = profile_id
+      AND profiles.id = auth.uid()
+      AND profiles.role::text = next_role
+  );
+$$;
+
+CREATE POLICY "Users can insert their own profile."
+  ON public.profiles FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    auth.uid() IS NOT NULL
+    AND auth.uid() = id
+    AND role::text = 'customer'
+  );
+
 -- Allow users to update their own profile
 CREATE POLICY "Users can update their own profile." 
   ON public.profiles FOR UPDATE 
-  USING ( auth.uid() = id );
+  USING ( auth.uid() IS NOT NULL AND auth.uid() = id )
+  WITH CHECK (
+    auth.uid() IS NOT NULL
+    AND auth.uid() = id
+    AND public.profile_role_is_unchanged(id, role::text)
+  );
 
 -- Create a trigger function to automatically create a profile for every new user
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
