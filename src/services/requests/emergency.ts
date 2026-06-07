@@ -10,13 +10,12 @@ import {
 } from "@/lib/errors";
 import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
 import { normalizeServiceValue } from "@/lib/constants/services";
-import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 import {
   createEmergencyMatchRequest as buildEmergencyMatchRequest,
   validateEmergencyPrice,
 } from "@/services/matching";
-import { ensureProfileForUser } from "@/services/auth/profiles";
+import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
@@ -245,8 +244,10 @@ async function countEligibleEmergencyProviders(
 
 export async function createEmergencyMatchRequest(
   input: ServiceRequestInput,
+  serverAuthContext?: ServerAuthContext,
 ): Promise<ServiceRequestSubmitResult> {
-  const supabase = await createClient();
+  const authContext = serverAuthContext ?? await getServerAuthContext();
+  const supabase = authContext.supabase;
 
   if (!supabase) {
     throw new DatabaseError("Supabase client is not configured.", {
@@ -254,27 +255,13 @@ export async function createEmergencyMatchRequest(
     });
   }
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError) {
-    throw handleServiceError(authError, {
-      logContext: "Emergency request auth lookup failed.",
-      publicMessage: emergencyRequestLoginRequiredMessage,
-    });
-  }
-
-  if (!user) {
+  if (!authContext.user) {
     throw new AuthError("Emergency request requires an authenticated user.", {
       publicMessage: emergencyRequestLoginRequiredMessage,
     });
   }
 
-  await ensureProfileForUser(supabase, user);
-
-  const insertPayload = await createEmergencyInsert(supabase, input, user.id);
+  const insertPayload = await createEmergencyInsert(supabase, input, authContext.user.id);
 
   if (insertPayload.category_id && insertPayload.district_id) {
     const duplicateStatuses = [
@@ -286,7 +273,7 @@ export async function createEmergencyMatchRequest(
     const { data: duplicateRequest, error: duplicateError } = await supabase
       .from("service_requests")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("user_id", authContext.user.id)
       .eq("category_id", insertPayload.category_id)
       .eq("district_id", insertPayload.district_id)
       .eq("urgency_type", "emergency")

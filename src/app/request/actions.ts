@@ -6,6 +6,7 @@ import {
   serviceRequestSubmitErrorMessage,
 } from "@/services/requests";
 import { getPublicErrorMessage } from "@/lib/errors";
+import { getServerAuthContext } from "@/services/auth/server";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
 export type ServiceRequestActionResult =
@@ -39,7 +40,9 @@ export async function createServiceRequestAction(
   input: ServiceRequestInput,
 ): Promise<ServiceRequestActionResult> {
   try {
-    return createActionSuccess(await createAuthenticatedServiceRequest(input));
+    const authContext = await getServerAuthContext();
+
+    return createActionSuccess(await createAuthenticatedServiceRequest(input, authContext));
   } catch (error) {
     return createActionFailure(error, serviceRequestSubmitErrorMessage);
   }
@@ -49,7 +52,9 @@ export async function createEmergencyRequestAction(
   input: ServiceRequestInput,
 ): Promise<ServiceRequestActionResult> {
   try {
-    return createActionSuccess(await createEmergencyMatchRequest(input));
+    const authContext = await getServerAuthContext();
+
+    return createActionSuccess(await createEmergencyMatchRequest(input, authContext));
   } catch (error) {
     return createActionFailure(error, emergencyRequestSubmitErrorMessage);
   }

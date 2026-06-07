@@ -114,22 +114,19 @@ export async function getServerAuthContext(): Promise<ServerAuthContext> {
     };
   }
 
-  let profileResult = await getServerProfile(supabase, userResult.user.id);
-
-  if (!profileResult.profile && !profileResult.error) {
-    try {
-      await ensureProfileForUser(supabase, userResult.user);
-      profileResult = await getServerProfile(supabase, userResult.user.id);
-    } catch (error) {
-      return {
-        error: warnServerAuthError("Supabase server profile ensure failed.", error),
-        isConfigured: true,
-        profile: null,
-        supabase,
-        user: userResult.user,
-      };
-    }
+  try {
+    await ensureProfileForUser(supabase, userResult.user);
+  } catch (error) {
+    return {
+      error: warnServerAuthError("Supabase server profile ensure failed.", error),
+      isConfigured: true,
+      profile: null,
+      supabase,
+      user: userResult.user,
+    };
   }
+
+  const profileResult = await getServerProfile(supabase, userResult.user.id);
 
   return {
     error: profileResult.error,

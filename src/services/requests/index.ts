@@ -25,7 +25,7 @@ import { getPaymentPreferenceLabel, savePaymentPreference } from "@/services/pay
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
-import { getServerAuthContext } from "@/services/auth/server";
+import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import {
   notifyEmergencyRequestDispatched,
   notifyServiceRequestCreated,
@@ -555,6 +555,7 @@ export async function createServiceRequest(
 
 export async function createAuthenticatedServiceRequest(
   data: ServiceRequestInput,
+  serverAuthContext?: ServerAuthContext,
 ): Promise<ServiceRequestSubmitResult> {
   const validationResult = validateServiceRequestInput(data);
 
@@ -565,7 +566,7 @@ export async function createAuthenticatedServiceRequest(
   }
 
   const requestData = validationResult.data;
-  const authContext = await getServerAuthContext();
+  const authContext = serverAuthContext ?? await getServerAuthContext();
 
   if (!authContext.supabase) {
     throw new DatabaseError("Supabase client is not configured.", {
@@ -578,8 +579,6 @@ export async function createAuthenticatedServiceRequest(
       publicMessage: serviceRequestLoginRequiredMessage,
     });
   }
-
-  await ensureProfileForUser(authContext.supabase, authContext.user);
 
   const insertPayload = await buildServiceRequestInsert(
     authContext.supabase,
