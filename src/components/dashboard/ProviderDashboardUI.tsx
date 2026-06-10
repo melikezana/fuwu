@@ -158,7 +158,7 @@ export function getProviderDashboardStatusBadge(
   isActiveProvider = false,
 ): { label: string; tone: ProviderDashboardStatusTone } {
   if (isActiveProvider || applicationStatus === "approved") {
-    return { label: "Aktif usta", tone: "green" };
+    return { label: "Usta hesabınız aktif", tone: "green" };
   }
 
   if (applicationStatus === "pending") {
@@ -177,7 +177,7 @@ export function getProviderDashboardStatusBadgeView(
   isActiveProvider = false,
 ): { label: string; tone: ProviderDashboardStatusTone } {
   const labels = {
-    active: "Aktif usta",
+    active: "Usta hesab\u0131n\u0131z aktif",
     pending: "Ba\u015fvuru al\u0131nd\u0131",
     rejected: "Ba\u015fvuru reddedildi",
     waiting: "Ba\u015fvuru bekleniyor",
@@ -410,7 +410,7 @@ function getProviderDashboardStatusViewClean(
   applicationStatus?: ProviderDashboardApplicationStatus,
 ) {
   const labels = {
-    active: "Aktif usta",
+    active: "Usta hesab\u0131n\u0131z aktif",
     pending: "Ba\u015fvuru al\u0131nd\u0131",
     rejected: "Ba\u015fvuru reddedildi",
     waiting: "Ba\u015fvuru bekleniyor",
@@ -418,10 +418,10 @@ function getProviderDashboardStatusViewClean(
 
   if (applicationStatus === "approved") {
     return {
-      body: "Ba\u015fvurunuz onayland\u0131",
+      body: "Usta hesab\u0131n\u0131z aktif",
       cta: false,
       eyebrow: "Onay tamamland\u0131",
-      headline: "Ba\u015fvurunuz onayland\u0131",
+      headline: "Usta hesab\u0131n\u0131z aktif",
       label: labels.active,
     };
   }

@@ -75,7 +75,7 @@ function ProviderDashboardSummary({
       href: appRoutes.providerDashboardProfile,
       icon: providerDashboardIcons.shield,
       label: "Ba\u015fvuru Durumu",
-      value: provider.isApproved ? "Onayl\u0131" : "\u0130ncelemede",
+      value: provider.isApproved ? "Usta hesab\u0131n\u0131z aktif" : "\u0130ncelemede",
     },
     {
       description:
@@ -120,6 +120,36 @@ function ProviderDashboardSummary({
   );
 }
 
+function ProviderDashboardActiveNotice({
+  provider,
+}: {
+  provider: ProviderDashboardProfile;
+}) {
+  if (!provider.isApproved) {
+    return null;
+  }
+
+  return (
+    <section
+      className="rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-5 text-[var(--trust-green)] shadow-[0_14px_40px_rgba(13,20,36,0.05)]"
+      role="status"
+    >
+      <p className="text-xs font-black uppercase">
+        Onay tamamland\u0131
+      </p>
+      <h2 className="mt-2 text-2xl font-black leading-tight">
+        Usta hesab\u0131n\u0131z aktif
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm font-bold leading-6">
+        Profil, Talepler ve Genel Bak\u0131\u015f alanlar\u0131n\u0131 kullanarak usta hesab\u0131n\u0131 y\u00f6netebilirsin.
+        {provider.isActive
+          ? " Profilin onayl\u0131 ve yay\u0131na haz\u0131r."
+          : " Profilin onayl\u0131, ancak yay\u0131n durumu pasif."}
+      </p>
+    </section>
+  );
+}
+
 export default async function ProviderDashboardPage() {
   const providerAccess = await getProviderDashboardAccess();
   const statusBadge = getProviderDashboardStatusBadgeView(
@@ -140,6 +170,7 @@ export default async function ProviderDashboardPage() {
     >
       {providerAccess.ok ? (
         <div className="grid gap-6">
+          <ProviderDashboardActiveNotice provider={providerAccess.profile} />
           <ProviderDashboardSummary provider={providerAccess.profile} />
 
           <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">

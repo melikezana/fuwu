@@ -176,6 +176,63 @@ function ApplicationStatusBadge({ status }: { status: string }) {
   );
 }
 
+function ApplicationStatusSummary({
+  applications,
+}: {
+  applications: AdminProviderApplication[];
+}) {
+  const counts = applications.reduce(
+    (summary, application) => {
+      summary[application.status] = (summary[application.status] ?? 0) + 1;
+      return summary;
+    },
+    {} as Record<string, number>,
+  );
+  const items = [
+    {
+      description: "Admin onay\u0131 bekleyen yeni ba\u015fvurular",
+      label: "Bekleyen ba\u015fvurular",
+      status: "pending",
+    },
+    {
+      description: "Usta hesab\u0131 aktif edilen ba\u015fvurular",
+      label: "Onaylanan ba\u015fvurular",
+      status: "approved",
+    },
+    {
+      description: "De\u011ferlendirme sonucu reddedilen ba\u015fvurular",
+      label: "Reddedilen ba\u015fvurular",
+      status: "rejected",
+    },
+  ];
+
+  return (
+    <section className="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Ba\u015fvuru durum \u00f6zeti">
+      {items.map((item) => (
+        <div
+          className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]"
+          key={item.status}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase text-[var(--muted)]">
+                {item.label}
+              </p>
+              <p className="mt-2 text-3xl font-black leading-none text-[var(--brand-navy)]">
+                {counts[item.status] ?? 0}
+              </p>
+            </div>
+            <ApplicationStatusBadge status={item.status} />
+          </div>
+          <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+            {item.description}
+          </p>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function ApplicationActionNotice({
   feedback,
 }: {
@@ -329,6 +386,8 @@ export default async function AdminProviderApplicationsPage({
         </AdminEmptyState>
       ) : (
         <>
+          <ApplicationStatusSummary applications={result.rows} />
+
           <AdminCardGrid>
             {result.rows.map((application) => (
               <ApplicationMobileCard
@@ -344,11 +403,11 @@ export default async function AdminProviderApplicationsPage({
                 <tr>
                   <th className="px-4 py-3">Ad Soyad</th>
                   <th className="px-4 py-3">Telefon</th>
-                  <th className="px-4 py-3">Hizmet</th>
+                  <th className="px-4 py-3">Hizmet kategorisi</th>
                   <th className="px-4 py-3">{"\u0130l\u00e7e"}</th>
                   <th className="px-4 py-3">Deneyim</th>
                   <th className="px-4 py-3">Durum</th>
-                  <th className="px-4 py-3">{"Ba\u015fvuru Tarihi"}</th>
+                  <th className="px-4 py-3">{"Ba\u015fvuru tarihi"}</th>
                   <th className="px-4 py-3">{"\u0130\u015flem"}</th>
                 </tr>
               </thead>

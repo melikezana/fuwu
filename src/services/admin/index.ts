@@ -154,6 +154,13 @@ type ExistingProviderApprovalRecord = Pick<
   "id" | "is_active" | "is_approved" | "user_id"
 >;
 
+type ApprovedProviderApplicationPayload = {
+  description: string;
+  name: string;
+  phone: string;
+  userId: string | null;
+};
+
 type AdminProviderApplicationRejectionRecord = Pick<
   ProviderApplicationRow,
   "status"
@@ -808,15 +815,25 @@ async function grantProviderRoleToApplicant(
 async function approveExistingProviderForApplicant(
   supabase: AdminSupabaseClient,
   provider: ExistingProviderApprovalRecord,
-  applicantUserId: string | null,
+  application: AdminProviderApplicationApprovalRecord,
+  payload: ApprovedProviderApplicationPayload,
 ) {
   const updatePayload: Database["public"]["Tables"]["providers"]["Update"] = {
+    category_id: application.category_id,
+    description: payload.description,
+    district_id: application.district_id,
+    experience_years: application.experience_years,
     is_active: true,
     is_approved: true,
+    is_verified: true,
+    last_active_at: new Date().toISOString(),
+    name: payload.name,
+    phone: payload.phone,
+    whatsapp: payload.phone,
   };
 
-  if (!provider.user_id && applicantUserId) {
-    updatePayload.user_id = applicantUserId;
+  if (payload.userId) {
+    updatePayload.user_id = payload.userId;
   }
 
   const { error } = await supabase
@@ -830,6 +847,61 @@ async function approveExistingProviderForApplicant(
   }
 
   return true;
+}
+
+async function findExistingProviderForApproval(
+  supabase: AdminSupabaseClient,
+  application: AdminProviderApplicationApprovalRecord,
+  applicantUserId: string | null,
+  phone: string,
+) {
+  if (applicantUserId) {
+    const { data: providerByUser, error: providerByUserError } = await supabase
+      .from("providers")
+      .select("id, user_id, is_active, is_approved")
+      .eq("user_id", applicantUserId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (providerByUserError) {
+      warnAdminWriteError("provider user duplicate lookup", providerByUserError);
+      return {
+        error: providerByUserError,
+        provider: null,
+      };
+    }
+
+    if (providerByUser?.id) {
+      return {
+        error: null,
+        provider: providerByUser as ExistingProviderApprovalRecord,
+      };
+    }
+  }
+
+  const { data: providerByServiceArea, error: providerByServiceAreaError } =
+    await supabase
+      .from("providers")
+      .select("id, user_id, is_active, is_approved")
+      .eq("phone", phone)
+      .eq("category_id", application.category_id)
+      .eq("district_id", application.district_id)
+      .limit(1)
+      .maybeSingle();
+
+  if (providerByServiceAreaError) {
+    warnAdminWriteError("provider duplicate lookup", providerByServiceAreaError);
+    return {
+      error: providerByServiceAreaError,
+      provider: null,
+    };
+  }
+
+  return {
+    error: null,
+    provider: providerByServiceArea as ExistingProviderApprovalRecord | null,
+  };
 }
 
 async function findApplicantUserIdForApplication(
@@ -885,25 +957,30 @@ async function createProviderFromApplication(
     application,
   );
 
-  const { data: existingProvider, error: existingProviderError } = await supabase
-    .from("providers")
-    .select("id, user_id, is_active, is_approved")
-    .eq("phone", phone)
-    .eq("category_id", application.category_id)
-    .eq("district_id", application.district_id)
-    .limit(1)
-    .maybeSingle();
+  const providerPayload: ApprovedProviderApplicationPayload = {
+    description,
+    name,
+    phone,
+    userId: applicantUserId,
+  };
+  const { error: existingProviderError, provider: existingProvider } =
+    await findExistingProviderForApproval(
+      supabase,
+      application,
+      applicantUserId,
+      phone,
+    );
 
   if (existingProviderError) {
-    warnAdminWriteError("provider duplicate lookup", existingProviderError);
     return createAdminActionResult("provider-create-failed", false);
   }
 
   if (existingProvider?.id) {
     const wasLinked = await approveExistingProviderForApplicant(
       supabase,
-      existingProvider as ExistingProviderApprovalRecord,
-      applicantUserId,
+      existingProvider,
+      application,
+      providerPayload,
     );
 
     if (!wasLinked) {
@@ -929,6 +1006,8 @@ async function createProviderFromApplication(
       experience_years: application.experience_years,
       is_active: true,
       is_approved: true,
+      is_verified: true,
+      last_active_at: new Date().toISOString(),
       name,
       phone,
       user_id: applicantUserId,
