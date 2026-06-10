@@ -21,6 +21,7 @@ type SupabaseErrorRecord = {
 export type EnsureProfileDetails = {
   fullName?: string | null;
   phone?: string | null;
+  preserveExistingPhone?: boolean;
 };
 
 const profileEnsureErrorMessage =
@@ -92,13 +93,18 @@ function getProfileDetailsPatch(
   const fullName =
     sanitizeText(details.fullName ?? "", 120) || (!existingFullName ? metadataName : null);
   const phone = details.phone ? sanitizePhone(details.phone) : null;
+  const existingPhone = sanitizePhone(existingProfile.phone ?? "");
   const updatePayload: ProfileUpdate = {};
 
   if (fullName && fullName !== existingFullName) {
     updatePayload.full_name = fullName;
   }
 
-  if (phone && phone !== sanitizePhone(existingProfile.phone ?? "")) {
+  if (
+    phone &&
+    phone !== existingPhone &&
+    (!details.preserveExistingPhone || !existingPhone)
+  ) {
     updatePayload.phone = phone;
   }
 

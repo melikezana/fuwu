@@ -418,22 +418,20 @@ function getProviderDashboardStatusViewClean(
 
   if (applicationStatus === "approved") {
     return {
-      body:
-        "Başvurunuz onaylandı. Usta paneliniz aktif.",
+      body: "Ba\u015fvurunuz onayland\u0131",
       cta: false,
       eyebrow: "Onay tamamland\u0131",
-      headline: "Usta paneliniz aktif",
+      headline: "Ba\u015fvurunuz onayland\u0131",
       label: labels.active,
     };
   }
 
   if (applicationStatus === "rejected" || reason === "rejected-application") {
     return {
-      body:
-        "Başvurunuz reddedildi. Bilgilerinizi güncelleyerek tekrar başvurabilirsiniz.",
+      body: "Ba\u015fvurunuz reddedildi",
       cta: true,
       eyebrow: labels.rejected,
-      headline: "Bilgilerini g\u00fcncelleyerek yeniden g\u00f6nder",
+      headline: "Ba\u015fvurunuz reddedildi",
       label: labels.rejected,
     };
   }
@@ -444,11 +442,10 @@ function getProviderDashboardStatusViewClean(
     reason === "pending-provider-profile"
   ) {
     return {
-      body:
-        "Başvurunuz değerlendirmede",
+      body: "Ba\u015fvurunuz de\u011ferlendirmede",
       cta: false,
       eyebrow: labels.pending,
-      headline: "Başvurunuz değerlendirmede",
+      headline: "Ba\u015fvurunuz de\u011ferlendirmede",
       label: labels.pending,
     };
   }

@@ -241,10 +241,11 @@ async function getRequiredProviderApplicationUserId(
 
 function buildProviderApplicationInsert(
   data: ProviderApplicationInput,
-  userId: string | null,
+  userId: string,
 ): ProviderApplicationInsert {
-  const payload: ProviderApplicationInsert = {
+  return {
     full_name: data.fullName,
+    user_id: userId,
     phone: data.phone,
     category_id: data.categoryId,
     district_id: data.districtId,
@@ -255,12 +256,6 @@ function buildProviderApplicationInsert(
     portfolio_url: normalizeOptionalText(data.portfolioUrl),
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
-
-  if (userId) {
-    payload.user_id = userId;
-  }
-
-  return payload;
 }
 
 export function isProviderApplicationDemoMode() {

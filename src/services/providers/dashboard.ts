@@ -146,17 +146,6 @@ const providerSelectQueryWithoutAvailability = `
   districts(name)
 `;
 
-const providerApplicationSelectQuery = `
-  id,
-  full_name,
-  phone,
-  experience_years,
-  status,
-  created_at,
-  service_categories(name),
-  districts(name)
-`;
-
 const providerApplicationSelectQueryWithUserId = `
   id,
   user_id,
@@ -310,18 +299,19 @@ function getProviderDashboardReadError(error: unknown) {
   return getPublicErrorMessage(appError, authAccessMessages.accessDenied);
 }
 
+const providerDashboardApplicationStatusMessages: Record<
+  ProviderApplicationStatus,
+  string
+> = {
+  [PROVIDER_APPLICATION_STATUSES.pending]: "Ba\u015fvurunuz de\u011ferlendirmede",
+  [PROVIDER_APPLICATION_STATUSES.approved]: "Ba\u015fvurunuz onayland\u0131",
+  [PROVIDER_APPLICATION_STATUSES.rejected]: "Ba\u015fvurunuz reddedildi",
+};
+
 function getApplicationStatusMessage(
   application: Pick<ProviderDashboardApplication, "status">,
 ) {
-  if (application.status === PROVIDER_APPLICATION_STATUSES.rejected) {
-    return "Başvurunuz reddedildi. Bilgilerinizi güncelleyerek tekrar başvurabilirsiniz.";
-  }
-
-  if (application.status === PROVIDER_APPLICATION_STATUSES.approved) {
-    return "Başvurunuz onaylandı. Usta paneliniz aktif.";
-  }
-
-  return "Başvurunuz değerlendirmede";
+  return providerDashboardApplicationStatusMessages[application.status];
 }
 
 function mapProviderDashboardApplicationRecord(
@@ -375,55 +365,72 @@ async function fetchLatestProviderApplicationByUserId(
   };
 }
 
-async function fetchLatestProviderApplicationByPhone(
-  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
-  phone: string,
+function mapProviderDashboardApplicationRecords(
+  records: ProviderDashboardApplicationRecord[],
 ) {
+  return records
+    .map(mapProviderDashboardApplicationRecord)
+    .filter(
+      (application): application is ProviderDashboardApplication =>
+        Boolean(application),
+    );
+}
+
+async function fetchProviderApplicationsByPhones(
+  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
+  phones: string[],
+) {
+  if (phones.length === 0) {
+    return {
+      applications: [],
+      error: null,
+      isMissingUserIdColumn: false,
+      records: [],
+    };
+  }
+
   const { data, error } = await supabase
     .from("provider_applications")
-    .select(providerApplicationSelectQuery)
-    .eq("phone", phone)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .select(providerApplicationSelectQueryWithUserId)
+    .in("phone", phones)
+    .order("created_at", { ascending: false });
+
+  const records = (data ?? []) as unknown as ProviderDashboardApplicationRecord[];
 
   return {
-    application: data
-      ? mapProviderDashboardApplicationRecord(
-          data as unknown as ProviderDashboardApplicationRecord,
-        )
-      : null,
+    applications: mapProviderDashboardApplicationRecords(records),
     error,
+    isMissingUserIdColumn: Boolean(error && isMissingProviderApplicationUserIdColumn(error)),
+    records,
   };
 }
 
-async function fetchLatestProviderApplicationByFullName(
+async function bindProviderApplicationRecordsToUser(
   supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
-  fullName: string,
+  records: ProviderDashboardApplicationRecord[],
 ) {
-  const { data, error } = await supabase
-    .from("provider_applications")
-    .select(providerApplicationSelectQuery)
-    .ilike("full_name", fullName)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const unboundApplicationIds = records
+    .filter((record) => record.user_id === null)
+    .map((record) => record.id);
 
-  return {
-    application: data
-      ? mapProviderDashboardApplicationRecord(
-          data as unknown as ProviderDashboardApplicationRecord,
-        )
-      : null,
-    error,
-  };
+  if (unboundApplicationIds.length === 0) {
+    return null;
+  }
+
+  const { error } = await supabase.rpc(
+    "bind_provider_applications_to_current_user",
+    {
+      application_ids: unboundApplicationIds,
+    },
+  );
+
+  return error;
 }
 
 async function getLatestProviderApplicationForCurrentUser(
   supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
   userId: string,
   phones: string[],
-  names: string[],
 ) {
   const userApplicationResult = await fetchLatestProviderApplicationByUserId(
     supabase,
@@ -444,50 +451,32 @@ async function getLatestProviderApplicationForCurrentUser(
     };
   }
 
-  for (const phone of phones) {
-    const phoneApplicationResult = await fetchLatestProviderApplicationByPhone(
-      supabase,
-      phone,
-    );
+  const phoneApplicationResult = await fetchProviderApplicationsByPhones(
+    supabase,
+    phones,
+  );
 
-    if (phoneApplicationResult.error) {
-      return {
-        application: null,
-        error: phoneApplicationResult.error,
-      };
-    }
-
-    if (phoneApplicationResult.application) {
-      return {
-        application: phoneApplicationResult.application,
-        error: null,
-      };
-    }
+  if (
+    phoneApplicationResult.error &&
+    !phoneApplicationResult.isMissingUserIdColumn
+  ) {
+    return {
+      application: null,
+      error: phoneApplicationResult.error,
+    };
   }
 
-  for (const name of names) {
-    const nameApplicationResult = await fetchLatestProviderApplicationByFullName(
-      supabase,
-      name,
-    );
+  const bindError = await bindProviderApplicationRecordsToUser(
+    supabase,
+    phoneApplicationResult.records,
+  );
 
-    if (nameApplicationResult.error) {
-      return {
-        application: null,
-        error: nameApplicationResult.error,
-      };
-    }
-
-    if (nameApplicationResult.application) {
-      return {
-        application: nameApplicationResult.application,
-        error: null,
-      };
-    }
+  if (bindError) {
+    console.warn("[Fuwu] Provider application user binding failed.", bindError);
   }
 
   return {
-    application: null,
+    application: phoneApplicationResult.applications[0] ?? null,
     error: null,
   };
 }
@@ -498,16 +487,6 @@ function getUniqueContactPhones(...phones: Array<string | null | undefined>) {
       phones
         .map((phone) => sanitizePhone(phone ?? ""))
         .filter((phone) => Boolean(phone)),
-    ),
-  );
-}
-
-function getUniqueApplicantNames(...names: Array<string | null | undefined>) {
-  return Array.from(
-    new Set(
-      names
-        .map((name) => sanitizeText(name ?? "", 120))
-        .filter((name) => Boolean(name)),
     ),
   );
 }
@@ -580,15 +559,10 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     authContext.user.phone,
     getMetadataString(authContext.user.user_metadata, ["phone", "phone_number"]),
   );
-  const applicantNames = getUniqueApplicantNames(
-    authContext.profile?.full_name,
-    getMetadataString(authContext.user.user_metadata, ["full_name", "name"]),
-  );
   const applicationResult = await getLatestProviderApplicationForCurrentUser(
     authContext.supabase,
     authContext.user.id,
     contactPhones,
-    applicantNames,
   );
 
   if (applicationResult.error) {

@@ -21,6 +21,28 @@ export type ServerAuthContext = {
 
 const currentUserProfileSelect = "id, full_name, phone, role";
 
+function getMetadataString(metadata: unknown, keys: readonly string[]) {
+  if (!metadata || typeof metadata !== "object") {
+    return null;
+  }
+
+  const record = metadata as Record<string, unknown>;
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function getAuthUserPhone(user: Pick<User, "phone" | "user_metadata">) {
+  return user.phone ?? getMetadataString(user.user_metadata, ["phone", "phone_number"]);
+}
+
 function warnServerAuthError(context: string, error: unknown) {
   const appError = handleServiceError(error, {
     logContext: context,
@@ -115,7 +137,10 @@ export async function getServerAuthContext(): Promise<ServerAuthContext> {
   }
 
   try {
-    await ensureProfileForUser(supabase, userResult.user);
+    await ensureProfileForUser(supabase, userResult.user, {
+      phone: getAuthUserPhone(userResult.user),
+      preserveExistingPhone: true,
+    });
   } catch (error) {
     return {
       error: warnServerAuthError("Supabase server profile ensure failed.", error),

@@ -208,6 +208,7 @@ async function getProviderApplicationsByPhone(
     .select(
       `
         id,
+        user_id,
         full_name,
         phone,
         experience_years,
@@ -221,6 +222,28 @@ async function getProviderApplicationsByPhone(
     .order("created_at", { ascending: false });
 }
 
+async function bindProviderApplicationRecordsToUser(
+  supabase: AccountSupabaseClient,
+  records: ProviderApplicationRecord[],
+) {
+  const unboundApplicationIds = records
+    .filter((record) => record.user_id === null)
+    .map((record) => record.id);
+
+  if (unboundApplicationIds.length === 0) {
+    return null;
+  }
+
+  const { error } = await supabase.rpc(
+    "bind_provider_applications_to_current_user",
+    {
+      application_ids: unboundApplicationIds,
+    },
+  );
+
+  return error;
+}
+
 async function getUserProviderApplications(
   supabase: AccountSupabaseClient,
   userId: string,
@@ -232,7 +255,26 @@ async function getUserProviderApplications(
     return getProviderApplicationsByPhone(supabase, phones);
   }
 
-  return result;
+  if (result.error || (result.data ?? []).length > 0) {
+    return result;
+  }
+
+  const phoneResult = await getProviderApplicationsByPhone(supabase, phones);
+
+  if (phoneResult.error) {
+    return phoneResult;
+  }
+
+  const bindError = await bindProviderApplicationRecordsToUser(
+    supabase,
+    (phoneResult.data ?? []) as unknown as ProviderApplicationRecord[],
+  );
+
+  if (bindError) {
+    console.warn("[Fuwu] Account provider application user binding failed.", bindError);
+  }
+
+  return phoneResult;
 }
 
 async function getUserServiceRequests(
@@ -268,10 +310,19 @@ function getFallbackPhones(
     metadata && typeof metadata === "object" && "phone" in metadata
       ? (metadata as { phone?: unknown }).phone
       : null;
+  const metadataPhoneNumber =
+    metadata && typeof metadata === "object" && "phone_number" in metadata
+      ? (metadata as { phone_number?: unknown }).phone_number
+      : null;
 
   return Array.from(
     new Set(
-      [profilePhone, authPhone, typeof metadataPhone === "string" ? metadataPhone : null]
+      [
+        profilePhone,
+        authPhone,
+        typeof metadataPhone === "string" ? metadataPhone : null,
+        typeof metadataPhoneNumber === "string" ? metadataPhoneNumber : null,
+      ]
         .map((phone) => sanitizePhone(phone ?? ""))
         .filter(Boolean),
     ),
