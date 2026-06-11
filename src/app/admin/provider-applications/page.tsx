@@ -3,16 +3,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import {
-  AdminActionButton,
   AdminCardGrid,
   AdminEmptyState,
   AdminMobileCard,
   AdminPageShell,
   AdminStatusBadge,
   AdminTableWrap,
-  adminActionIcons,
 } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
+import {
+  isProviderApplicationStatus,
+  type ProviderApplicationStatus,
+} from "@/lib/constants/statuses";
 import {
   approveAdminProviderApplication,
   getAdminAccess,
@@ -20,6 +22,7 @@ import {
   rejectAdminProviderApplication,
   type AdminProviderApplication,
 } from "@/services/admin";
+import { ApplicationActions as ProviderApplicationActions } from "./ApplicationActions";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +59,7 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
   "application-already-approved": {
     body: "Bu başvuru daha önce onaylanmış. Aynı başvurudan ikinci bir usta kaydı oluşturulmadı; ilgili profili Ustalar ekranından yönetin.",
     title: "Başvuru zaten onaylı",
-    tone: "error",
+    tone: "success",
   },
   "application-already-rejected": {
     body: "Bu başvuru daha önce reddedilmiş. Pending listesinde yalnızca yeni başvurular işlem alır.",
@@ -72,6 +75,16 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     body: "Başvuru onaylandı ve başvuru bilgileriyle yeni, aktif ve onaylı bir usta kaydı oluşturuldu.",
     title: "Başvuru onaylandı",
     tone: "success",
+  },
+  "application-invalid-id": {
+    body: "Başvuru kimliği geçerli değil. Sayfayı yenileyip işlemi tekrar deneyin.",
+    title: "Geçersiz başvuru",
+    tone: "error",
+  },
+  "application-invalid-status": {
+    body: "Başvuru durumu geçerli değil. İşlem güvenlik nedeniyle uygulanmadı.",
+    title: "Geçersiz durum",
+    tone: "error",
   },
   "application-missing-id": {
     body: "Başvuru kimliği alınamadı. Sayfayı yenileyip işlemi tekrar deneyin.",
@@ -112,24 +125,42 @@ function revalidateProviderPublicationPaths() {
   revalidatePath("/providers/[id]", "page");
 }
 
-function redirectToActionMessage(code: string): never {
+function getFormStatusFilter(formData: FormData) {
+  const value = formData.get("returnStatus");
+  const status = typeof value === "string" ? value.trim() : "";
+
+  return isProviderApplicationStatus(status) ? status : null;
+}
+
+function redirectToActionMessage(
+  code: string,
+  status?: ProviderApplicationStatus | null,
+): never {
   revalidatePath(adminProviderApplicationsPath);
   revalidateProviderPublicationPaths();
-  redirect(`${adminProviderApplicationsPath}?applicationAction=${encodeURIComponent(code)}`);
+  const params = new URLSearchParams({
+    applicationAction: code,
+  });
+
+  if (status) {
+    params.set("status", status);
+  }
+
+  redirect(`${adminProviderApplicationsPath}?${params.toString()}`);
 }
 
 async function approveProviderApplicationAction(formData: FormData) {
   "use server";
 
   const result = await approveAdminProviderApplication(getFormApplicationId(formData));
-  redirectToActionMessage(result.code);
+  redirectToActionMessage(result.code, getFormStatusFilter(formData));
 }
 
 async function rejectProviderApplicationAction(formData: FormData) {
   "use server";
 
   const result = await rejectAdminProviderApplication(getFormApplicationId(formData));
-  redirectToActionMessage(result.code);
+  redirectToActionMessage(result.code, getFormStatusFilter(formData));
 }
 
 function getSearchParamValue(searchParams: SearchParams, key: string) {
@@ -146,6 +177,12 @@ function getApplicationActionFeedback(searchParams: SearchParams) {
   }
 
   return applicationActionMessages[messageCode] ?? null;
+}
+
+function getApplicationStatusFilter(searchParams: SearchParams) {
+  const status = getSearchParamValue(searchParams, "status")?.trim() ?? "";
+
+  return isProviderApplicationStatus(status) ? status : null;
 }
 
 function formatDate(value: string) {
@@ -264,57 +301,12 @@ function ApplicationActionNotice({
   );
 }
 
-function ApplicationActions({
-  application,
-}: {
-  application: AdminProviderApplication;
-}) {
-  const isPending = application.status === "pending";
-  const isApproved = application.status === "approved";
-  const isRejected = application.status === "rejected";
-
-  return (
-    <div className="flex max-w-full flex-wrap gap-2">
-      <form action={approveProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
-        <input name="applicationId" type="hidden" value={application.id} />
-        <AdminActionButton
-          disabled={!isPending}
-          icon={adminActionIcons.approve}
-          title={isPending ? "Başvuruyu onayla" : "Yalnızca bekleyen başvurular onaylanır"}
-          tone="approve"
-          type="submit"
-        >
-          Onayla
-        </AdminActionButton>
-      </form>
-      <form action={rejectProviderApplicationAction} className="min-w-0 flex-1 sm:flex-none">
-        <input name="applicationId" type="hidden" value={application.id} />
-        <AdminActionButton
-          disabled={!isPending}
-          icon={adminActionIcons.reject}
-          title={
-            isPending
-              ? "Başvuruyu reddet"
-              : isApproved
-              ? "Onaylanmış başvuru bu ekrandan reddedilemez"
-              : isRejected
-                ? "Başvuru zaten reddedildi"
-                : "Yalnızca bekleyen başvurular reddedilir"
-          }
-          tone="reject"
-          type="submit"
-        >
-          Reddet
-        </AdminActionButton>
-      </form>
-    </div>
-  );
-}
-
 function ApplicationMobileCard({
   application,
+  statusFilter,
 }: {
   application: AdminProviderApplication;
+  statusFilter?: ProviderApplicationStatus | null;
 }) {
   return (
     <AdminMobileCard>
@@ -348,7 +340,15 @@ function ApplicationMobileCard({
       </div>
 
       <div className="mt-4">
-        <ApplicationActions application={application} />
+        <ProviderApplicationActions
+          applicationId={application.id}
+          applicationName={application.fullName}
+          approveAction={approveProviderApplicationAction}
+          phone={application.phone}
+          rejectAction={rejectProviderApplicationAction}
+          returnStatus={statusFilter}
+          status={application.status}
+        />
       </div>
     </AdminMobileCard>
   );
@@ -363,10 +363,9 @@ export default async function AdminProviderApplicationsPage({
     return <AdminAccessGate access={adminAccess} />;
   }
 
-  const [result, resolvedSearchParams] = await Promise.all([
-    getAdminProviderApplications(),
-    searchParams ?? Promise.resolve({}),
-  ]);
+  const resolvedSearchParams = await (searchParams ?? Promise.resolve({}));
+  const statusFilter = getApplicationStatusFilter(resolvedSearchParams);
+  const result = await getAdminProviderApplications(statusFilter ?? undefined);
   const actionFeedback = getApplicationActionFeedback(resolvedSearchParams);
 
   return (
@@ -393,6 +392,7 @@ export default async function AdminProviderApplicationsPage({
               <ApplicationMobileCard
                 application={application}
                 key={application.id}
+                statusFilter={statusFilter}
               />
             ))}
           </AdminCardGrid>
@@ -436,7 +436,15 @@ export default async function AdminProviderApplicationsPage({
                       {formatDate(application.createdAt)}
                     </td>
                     <td className="px-4 py-4">
-                      <ApplicationActions application={application} />
+                      <ProviderApplicationActions
+                        applicationId={application.id}
+                        applicationName={application.fullName}
+                        approveAction={approveProviderApplicationAction}
+                        phone={application.phone}
+                        rejectAction={rejectProviderApplicationAction}
+                        returnStatus={statusFilter}
+                        status={application.status}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -484,7 +492,15 @@ export default async function AdminProviderApplicationsPage({
                       {formatDate(application.createdAt)}
                     </td>
                     <td className="px-4 py-4">
-                      <ApplicationActions application={application} />
+                      <ProviderApplicationActions
+                        applicationId={application.id}
+                        applicationName={application.fullName}
+                        approveAction={approveProviderApplicationAction}
+                        phone={application.phone}
+                        rejectAction={rejectProviderApplicationAction}
+                        returnStatus={statusFilter}
+                        status={application.status}
+                      />
                     </td>
                   </tr>
                 ))}

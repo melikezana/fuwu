@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   AlertTriangle,
-  Clock,
   ClipboardList,
   FileText,
   UserCheck,
-  Users,
+  XCircle,
 } from "lucide-react";
 import {
   AdminPageShell,
@@ -62,39 +61,33 @@ function DashboardErrorState({ error }: { error: string }) {
 function DashboardSummaryCards({ summary }: { summary: AdminDashboardSummary }) {
   const cards = [
     {
-      href: "/admin/providers",
-      icon: Users,
-      label: "Toplam Usta",
-      value: summary.totalProviders,
-    },
-    {
-      href: "/admin/providers",
-      icon: UserCheck,
-      label: "Aktif Ustalar",
-      value: summary.activeProviders,
-    },
-    {
-      href: "/admin/provider-applications",
+      href: "/admin/provider-applications?status=pending",
       icon: ClipboardList,
-      label: "Onay Bekleyen Başvurular",
+      label: "Bekleyen Başvurular",
       value: summary.pendingApplications,
+    },
+    {
+      href: "/admin/provider-applications?status=approved",
+      icon: UserCheck,
+      label: "Onaylanan Başvurular",
+      value: summary.approvedApplications,
+    },
+    {
+      href: "/admin/provider-applications?status=rejected",
+      icon: XCircle,
+      label: "Reddedilen Başvurular",
+      value: summary.rejectedApplications,
     },
     {
       href: "/admin/service-requests",
       icon: FileText,
-      label: "Toplam Hizmet Talebi",
+      label: "Talepler",
       value: summary.totalServiceRequests,
-    },
-    {
-      href: "/admin/service-requests",
-      icon: Clock,
-      label: "Yeni Hizmet Talepleri",
-      value: summary.newServiceRequests,
     },
   ];
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => (
         <AdminSummaryCard
           href={card.href}

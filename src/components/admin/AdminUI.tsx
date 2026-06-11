@@ -6,6 +6,7 @@ import {
   Eye,
   FileText,
   LayoutDashboard,
+  MessageCircle,
   Power,
   PowerOff,
   ShieldAlert,
@@ -89,6 +90,7 @@ export const adminActionIcons = {
   detail: Eye,
   passive: PowerOff,
   reject: XCircle,
+  message: MessageCircle,
   status: ClipboardList,
 };
 
@@ -122,7 +124,10 @@ export function AdminPageShell({
             </div>
           </div>
 
-          <nav className="flex flex-wrap gap-2 pb-1" aria-label="Admin menüsü">
+          <nav
+            className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible"
+            aria-label="Admin menüsü"
+          >
             {adminNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
@@ -130,10 +135,10 @@ export function AdminPageShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-bold leading-5 transition-colors",
+                    "inline-flex min-h-11 shrink-0 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-bold leading-5 shadow-[0_10px_24px_rgba(13,20,36,0.04)] transition-colors",
                     isActive
-                      ? "bg-[var(--brand-navy)] text-white"
-                      : "bg-[var(--surface-soft)] text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
+                      ? "border-[rgba(255,138,0,0.52)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)]"
+                      : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--surface-soft)] hover:text-[var(--brand-navy)]",
                   )}
                   href={item.href}
                   key={item.key}
@@ -202,7 +207,7 @@ export function AdminSummaryCard({
 }: AdminSummaryCardProps) {
   return (
     <Link
-      className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]"
+      className="group rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.52)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[0_20px_48px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={href}
     >
       <div className="flex items-start justify-between gap-4">
@@ -212,7 +217,7 @@ export function AdminSummaryCard({
             {value}
           </p>
         </div>
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)]">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)] transition-colors group-hover:bg-white">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       </div>
