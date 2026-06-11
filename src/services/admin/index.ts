@@ -214,7 +214,18 @@ type AdminProviderPublicationUpdate = Partial<
 >;
 
 type AdminProviderTrustUpdate = Partial<
-  Pick<ProviderRow, "availability" | "response_time_minutes" | "working_hours">
+  Pick<
+    ProviderRow,
+    | "average_price_max"
+    | "average_price_min"
+    | "availability"
+    | "identity_verified"
+    | "is_verified"
+    | "name"
+    | "phone_verified"
+    | "response_time_minutes"
+    | "working_hours"
+  >
 >;
 
 type AdminProviderApplicationProviderActionResult =
@@ -223,6 +234,8 @@ type AdminProviderApplicationProviderActionResult =
   };
 
 export type AdminProvider = {
+  averagePriceMax: number | null;
+  averagePriceMin: number | null;
   averagePriceRange: string;
   availability: ProviderAvailabilityStatus;
   availabilityStatusLabel: string;
@@ -322,6 +335,9 @@ export type AdminProviderStatusActionCode =
   | "provider-deactivated"
   | "provider-invalid-availability"
   | "provider-invalid-action"
+  | "provider-invalid-id"
+  | "provider-invalid-name"
+  | "provider-invalid-price"
   | "provider-missing-id"
   | "provider-not-found"
   | "provider-trust-updated"
@@ -526,6 +542,47 @@ function warnAdminWriteError(context: string, error: unknown) {
   handleServiceError(error, {
     logContext: `Admin Supabase ${context} failed.`,
     publicMessage: "Admin iÅŸlemi ÅŸu anda tamamlanamadÄ±.",
+  });
+}
+
+function getSupabaseErrorLogDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return {};
+  }
+
+  const record = error as {
+    code?: unknown;
+    details?: unknown;
+    hint?: unknown;
+    message?: unknown;
+  };
+
+  return {
+    code: typeof record.code === "string" ? record.code : undefined,
+    details: typeof record.details === "string" ? record.details : undefined,
+    hint: typeof record.hint === "string" ? record.hint : undefined,
+    message: typeof record.message === "string" ? record.message : undefined,
+  };
+}
+
+function warnAdminProviderUpdateError(
+  context: string,
+  providerId: string,
+  payload: Record<string, unknown>,
+  error: unknown,
+) {
+  console.error(`[Fuwu] Admin Supabase ${context} failed.`, {
+    providerId,
+    supabaseError: getSupabaseErrorLogDetails(error),
+    table: "providers",
+    payloadKeys: Object.keys(payload),
+  });
+
+  handleServiceError(error, {
+    logContext: `Admin Supabase ${context} failed.`,
+    payloadKeys: Object.keys(payload),
+    publicMessage: "Admin iÅŸlemi ÅŸu anda tamamlanamadÄ±.",
+    tableName: "providers",
   });
 }
 
@@ -1731,6 +1788,10 @@ export async function updateAdminProviderStatus(
     return createProviderStatusActionResult("provider-missing-id", false);
   }
 
+  if (!isUuid(normalizedProviderId)) {
+    return createProviderStatusActionResult("provider-invalid-id", false);
+  }
+
   if (!isAdminProviderStatusAction(normalizedAction)) {
     return createProviderStatusActionResult("provider-invalid-action", false);
   }
@@ -1768,7 +1829,12 @@ export async function updateAdminProviderStatus(
     .maybeSingle();
 
   if (error) {
-    warnAdminWriteError("provider status update", error);
+    warnAdminProviderUpdateError(
+      "provider status update",
+      normalizedProviderId,
+      updatePayload,
+      error,
+    );
     return createProviderStatusActionResult("provider-action-failed", false);
   }
 
@@ -1829,21 +1895,52 @@ function parseAdminResponseTime(value: string) {
     : undefined;
 }
 
+function parseAdminPrice(value: string) {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
+    return undefined;
+  }
+
+  const parsedValue = Number(normalizedValue);
+
+  return Number.isInteger(parsedValue) && parsedValue >= 0 && parsedValue <= 1000000
+    ? parsedValue
+    : undefined;
+}
+
 export async function updateAdminProviderTrust(
   providerId: string,
   input: {
+    averagePriceMax: string;
+    averagePriceMin: string;
     availability: string;
+    identityVerified: boolean;
+    isVerified: boolean;
+    name: string;
+    phoneVerified: boolean;
     responseTimeMinutes: string;
     workingHours: string;
   },
 ): Promise<AdminProviderStatusActionResult> {
   const normalizedProviderId = sanitizeText(providerId, 80);
+  const name = sanitizeText(input.name, 120);
   const availability = sanitizeText(input.availability, 40);
   const workingHours = sanitizeText(input.workingHours, 40);
   const responseTimeMinutes = parseAdminResponseTime(input.responseTimeMinutes);
+  const averagePriceMin = parseAdminPrice(input.averagePriceMin);
+  const averagePriceMax = parseAdminPrice(input.averagePriceMax);
 
   if (!normalizedProviderId) {
     return createProviderStatusActionResult("provider-missing-id", false);
+  }
+
+  if (!isUuid(normalizedProviderId)) {
+    return createProviderStatusActionResult("provider-invalid-id", false);
+  }
+
+  if (!name) {
+    return createProviderStatusActionResult("provider-invalid-name", false);
   }
 
   if (!isProviderAvailabilityStatus(availability)) {
@@ -1856,6 +1953,14 @@ export async function updateAdminProviderTrust(
 
   if (responseTimeMinutes === undefined) {
     return createProviderStatusActionResult("provider-invalid-action", false);
+  }
+
+  if (
+    averagePriceMin === undefined ||
+    averagePriceMax === undefined ||
+    averagePriceMax < averagePriceMin
+  ) {
+    return createProviderStatusActionResult("provider-invalid-price", false);
   }
 
   const adminAccess = await getSupabaseForAdminWrite();
@@ -1871,7 +1976,13 @@ export async function updateAdminProviderTrust(
   }
 
   const updatePayload: AdminProviderTrustUpdate = {
+    average_price_max: averagePriceMax,
+    average_price_min: averagePriceMin,
     availability,
+    identity_verified: input.identityVerified,
+    is_verified: input.isVerified,
+    name,
+    phone_verified: input.phoneVerified,
     response_time_minutes: responseTimeMinutes,
     working_hours: workingHours,
   };
@@ -1884,7 +1995,12 @@ export async function updateAdminProviderTrust(
     .maybeSingle();
 
   if (error) {
-    warnAdminWriteError("provider trust update", error);
+    warnAdminProviderUpdateError(
+      "provider trust update",
+      normalizedProviderId,
+      updatePayload,
+      error,
+    );
     return createProviderStatusActionResult("provider-action-failed", false);
   }
 
@@ -2002,6 +2118,8 @@ export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider
       });
 
       return {
+        averagePriceMax: provider.average_price_max,
+        averagePriceMin: provider.average_price_min,
         averagePriceRange: formatAveragePriceRange(
           provider.average_price_min,
           provider.average_price_max,

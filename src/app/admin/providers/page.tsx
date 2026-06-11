@@ -85,6 +85,21 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     title: "Geçersiz işlem",
     tone: "error",
   },
+  "provider-invalid-id": {
+    body: "Usta kimliği geçerli değil. Sayfayı yenileyip işlemi tekrar deneyin.",
+    title: "Geçersiz usta kaydı",
+    tone: "error",
+  },
+  "provider-invalid-name": {
+    body: "Usta adı boş olamaz. Lütfen geçerli bir ad girip tekrar deneyin.",
+    title: "Usta adı güncellenemedi",
+    tone: "error",
+  },
+  "provider-invalid-price": {
+    body: "Ortalama fiyat alanları sayı olmalı, minimum 0 veya üzeri olmalı ve maksimum fiyat minimumdan küçük olmamalı.",
+    title: "Fiyat güncellenemedi",
+    tone: "error",
+  },
   "provider-missing-id": {
     body: "Usta kimliği alınamadı. Sayfayı yenileyip işlemi tekrar deneyin.",
     title: "İşlem yapılamadı",
@@ -96,8 +111,8 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     tone: "error",
   },
   "provider-trust-updated": {
-    body: "Ustanın uygunluk, çalışma saati ve ortalama cevap bilgisi güncellendi.",
-    title: "Güven bilgileri güncellendi",
+    body: "Ustanın ad, uygunluk, çalışma saati, fiyat ve doğrulama bilgileri güncellendi.",
+    title: "Usta bilgileri güncellendi",
     tone: "success",
   },
   "provider-unpublished": {
@@ -140,6 +155,10 @@ function getFormString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function getFormBoolean(formData: FormData, key: string) {
+  return formData.get(key) === "on";
+}
+
 function revalidateProviderPublicationPaths() {
   revalidatePath("/");
   revalidatePath("/providers");
@@ -166,7 +185,13 @@ async function updateProviderTrustAction(formData: FormData) {
   "use server";
 
   const result = await updateAdminProviderTrust(getFormProviderId(formData), {
+    averagePriceMax: getFormString(formData, "averagePriceMax"),
+    averagePriceMin: getFormString(formData, "averagePriceMin"),
     availability: getFormString(formData, "availability"),
+    identityVerified: getFormBoolean(formData, "identityVerified"),
+    isVerified: getFormBoolean(formData, "isVerified"),
+    name: getFormString(formData, "name"),
+    phoneVerified: getFormBoolean(formData, "phoneVerified"),
     responseTimeMinutes: getFormString(formData, "responseTimeMinutes"),
     workingHours: getFormString(formData, "workingHours"),
   });
@@ -202,6 +227,120 @@ function getWorkingHoursFormValue(value: string) {
 
 function formatWorkingHourOption(value: string) {
   return value === "7/24" ? value : value.replace("-", "–");
+}
+
+function getProviderUpdateFormId(providerId: string, scope: "mobile" | "table") {
+  return `provider-update-${scope}-${providerId}`;
+}
+
+function getPriceInputDefaultValue(value: number | null) {
+  return typeof value === "number" && Number.isFinite(value) ? value : "";
+}
+
+const adminInputClassName =
+  "h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)] placeholder:text-[var(--muted)]";
+
+function ProviderNameInput({
+  formId,
+  provider,
+}: {
+  formId?: string;
+  provider: AdminProvider;
+}) {
+  return (
+    <label className="block min-w-0">
+      <span className="sr-only">Usta adı</span>
+      <input
+        className={adminInputClassName}
+        defaultValue={provider.name}
+        form={formId}
+        maxLength={120}
+        name="name"
+        required
+        type="text"
+      />
+    </label>
+  );
+}
+
+function ProviderPriceInputs({
+  formId,
+  provider,
+}: {
+  formId?: string;
+  provider: AdminProvider;
+}) {
+  return (
+    <div className="flex min-w-[14rem] items-center gap-2">
+      <label className="min-w-0 flex-1">
+        <span className="sr-only">Minimum fiyat</span>
+        <input
+          className={adminInputClassName}
+          defaultValue={getPriceInputDefaultValue(provider.averagePriceMin)}
+          form={formId}
+          inputMode="numeric"
+          min={0}
+          name="averagePriceMin"
+          placeholder="500"
+          required
+          step={1}
+          type="number"
+        />
+      </label>
+      <span className="shrink-0 font-black text-[var(--muted)]">-</span>
+      <label className="min-w-0 flex-1">
+        <span className="sr-only">Maksimum fiyat</span>
+        <input
+          className={adminInputClassName}
+          defaultValue={getPriceInputDefaultValue(provider.averagePriceMax)}
+          form={formId}
+          inputMode="numeric"
+          min={0}
+          name="averagePriceMax"
+          placeholder="2500"
+          required
+          step={1}
+          type="number"
+        />
+      </label>
+      <span className="shrink-0 text-xs font-black text-[var(--muted)]">TL</span>
+    </div>
+  );
+}
+
+function ProviderVerificationControls({ provider }: { provider: AdminProvider }) {
+  const options = [
+    { defaultChecked: provider.isVerified, label: "Fuwu", name: "isVerified" },
+    {
+      defaultChecked: provider.identityVerified,
+      label: "Kimlik",
+      name: "identityVerified",
+    },
+    {
+      defaultChecked: provider.phoneVerified,
+      label: "Telefon",
+      name: "phoneVerified",
+    },
+  ];
+
+  return (
+    <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-[var(--border)] bg-white px-2 py-1">
+      {options.map((option) => (
+        <label
+          className="inline-flex min-h-7 items-center gap-1.5 text-xs font-black text-[var(--brand-navy)]"
+          key={option.name}
+        >
+          <input
+            className="h-4 w-4 rounded border-[var(--border)] accent-[var(--brand-orange-dark)]"
+            defaultChecked={option.defaultChecked}
+            name={option.name}
+            type="checkbox"
+          />
+          {option.label}
+        </label>
+      ))}
+    </div>
+  );
 }
 
 function BooleanStatus({
@@ -361,14 +500,34 @@ function ProviderVerificationBadges({ provider }: { provider: AdminProvider }) {
   );
 }
 
-function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
+function ProviderTrustForm({
+  formId,
+  provider,
+  showNameField = true,
+  showPriceFields = true,
+}: {
+  formId: string;
+  provider: AdminProvider;
+  showNameField?: boolean;
+  showPriceFields?: boolean;
+}) {
   return (
-    <form action={updateProviderTrustAction} className="grid gap-2 sm:grid-cols-3 lg:grid-cols-[9rem_9rem_8rem_auto]">
+    <form
+      action={updateProviderTrustAction}
+      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[9rem_9rem_8rem_14rem_auto]"
+      id={formId}
+    >
       <input name="providerId" type="hidden" value={provider.id} />
+      {showNameField ? <ProviderNameInput provider={provider} /> : null}
+      {showPriceFields ? (
+        <div className="min-w-0 sm:col-span-2 lg:col-span-2">
+          <ProviderPriceInputs provider={provider} />
+        </div>
+      ) : null}
       <label className="min-w-0">
         <span className="sr-only">Uygunluk</span>
         <select
-          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)]"
+          className={adminInputClassName}
           defaultValue={provider.availability}
           name="availability"
         >
@@ -382,7 +541,7 @@ function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
       <label className="min-w-0">
         <span className="sr-only">Çalışma saati</span>
         <select
-          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)]"
+          className={adminInputClassName}
           defaultValue={getWorkingHoursFormValue(provider.workingHours)}
           name="workingHours"
         >
@@ -396,7 +555,7 @@ function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
       <label className="min-w-0">
         <span className="sr-only">Ortalama cevap dakikası</span>
         <input
-          className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-2 text-xs font-bold text-[var(--brand-navy)] placeholder:text-[var(--muted)]"
+          className={adminInputClassName}
           defaultValue={provider.responseTimeMinutes ?? ""}
           inputMode="numeric"
           max={1440}
@@ -406,8 +565,11 @@ function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
           type="number"
         />
       </label>
+      <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+        <ProviderVerificationControls provider={provider} />
+      </div>
       <AdminActionButton
-        className="h-10 min-h-10 w-full px-2 sm:col-span-3 lg:col-span-1"
+        className="h-10 min-h-10 w-full px-2 sm:col-span-2 lg:col-span-1"
         disabled={false}
         icon={adminActionIcons.status}
         tone="neutral"
@@ -420,6 +582,8 @@ function ProviderTrustForm({ provider }: { provider: AdminProvider }) {
 }
 
 function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
+  const updateFormId = getProviderUpdateFormId(provider.id, "mobile");
+
   return (
     <AdminMobileCard>
       <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
@@ -443,12 +607,12 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
           <span className="font-black text-[var(--brand-navy)]">WhatsApp: </span>
           {provider.whatsapp}
         </p>
-        <p>
-          <span className="font-black text-[var(--brand-navy)]">
-            Ortalama fiyat:{" "}
+        <div>
+          <span className="mb-2 block font-black text-[var(--brand-navy)]">
+            Ortalama fiyat
           </span>
-          {provider.averagePriceRange}
-        </p>
+          <ProviderPriceInputs formId={updateFormId} provider={provider} />
+        </div>
         <div className="flex flex-wrap gap-2">
           <AdminStatusBadge tone={getProviderAvailabilityTone(provider.availability)}>
             {getProviderAvailabilityLabel(provider.availability)}
@@ -491,7 +655,11 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
       </div>
 
       <div className="mt-4 space-y-3">
-        <ProviderTrustForm provider={provider} />
+        <ProviderTrustForm
+          formId={updateFormId}
+          provider={provider}
+          showPriceFields={false}
+        />
         <ProviderActions provider={provider} />
       </div>
     </AdminMobileCard>
@@ -537,7 +705,7 @@ export default async function AdminProvidersPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1780px] text-left text-sm">
+            <table className="w-full min-w-[1900px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Usta</th>
@@ -558,10 +726,13 @@ export default async function AdminProvidersPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
-                {result.rows.map((provider) => (
+                {result.rows.map((provider) => {
+                  const updateFormId = getProviderUpdateFormId(provider.id, "table");
+
+                  return (
                   <tr key={provider.id} className="bg-white align-top">
                     <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
-                      {provider.name}
+                      <ProviderNameInput formId={updateFormId} provider={provider} />
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {provider.category}
@@ -608,7 +779,7 @@ export default async function AdminProvidersPage({
                       </p>
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
-                      {provider.averagePriceRange}
+                      <ProviderPriceInputs formId={updateFormId} provider={provider} />
                     </td>
                     <td className="px-4 py-4">
                       <BooleanStatus
@@ -627,12 +798,18 @@ export default async function AdminProvidersPage({
                     </td>
                     <td className="px-4 py-4">
                       <div className="space-y-3">
-                        <ProviderTrustForm provider={provider} />
+                        <ProviderTrustForm
+                          formId={updateFormId}
+                          provider={provider}
+                          showNameField={false}
+                          showPriceFields={false}
+                        />
                         <ProviderActions provider={provider} />
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </AdminTableWrap>
