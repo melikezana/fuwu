@@ -29,6 +29,7 @@ import {
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { AssignProviderSection } from "./AssignProviderSection";
+import { getBudgetTagLabel } from "@/services/matching/budget";
 import { getPaymentPreferenceLabel } from "@/services/payments";
 import { liveTrackingSoonText } from "@/services/tracking";
 
@@ -55,13 +56,13 @@ type RequestActionFeedback = {
 
 const requestActionMessages: Record<string, RequestActionFeedback> = {
   "admin-not-authorized": {
-    body: "Bu işlemi tamamlamak için admin rolüne sahip bir Supabase oturumu gerekiyor.",
+    body: "Bu işlem için admin yetkisi gerekiyor.",
     title: "Admin yetkisi gerekli",
     tone: "error",
   },
   "service-request-action-failed": {
-    body: "Supabase işlemi tamamlanamadı. Admin yetkisini ve bağlantı ayarlarını kontrol edip tekrar deneyin.",
-    title: "Durum güncellenemedi",
+    body: "Usta atanamadı. Lütfen tekrar deneyin.",
+    title: "Usta atanamadı",
     tone: "error",
   },
   "service-request-invalid-status": {
@@ -75,8 +76,8 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     tone: "error",
   },
   "service-request-invalid-provider": {
-    body: "Usta kimliği geçerli bir UUID değil. Listeden tekrar seçim yapın.",
-    title: "Geçersiz usta kimliği",
+    body: "Geçersiz talep veya usta seçimi.",
+    title: "Geçersiz seçim",
     tone: "error",
   },
   "service-request-invalid-transition": {
@@ -95,13 +96,13 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     tone: "error",
   },
   "service-request-not-found": {
-    body: "İlgili hizmet talebi bulunamadı veya bu kayıt için admin yetkisi yok.",
+    body: "Geçersiz talep veya usta seçimi.",
     title: "Talep bulunamadı",
     tone: "error",
   },
   "service-request-updated": {
-    body: "Hizmet talebinin durumu Supabase üzerinde güncellendi.",
-    title: "Durum güncellendi",
+    body: "Hizmet talebi güncellendi.",
+    title: "İşlem tamamlandı",
     tone: "success",
   },
   "supabase-not-configured": {
@@ -247,6 +248,22 @@ function formatPreferredTime(value: string | null) {
   }
 
   return value.slice(0, 5);
+}
+
+function getRequestAddressText(request: AdminServiceRequest) {
+  return request.address || request.approximateLocation || "Belirtilmedi";
+}
+
+function getBudgetOfferText(request: AdminServiceRequest) {
+  const budgetParts = [
+    request.budgetTag ? getBudgetTagLabel(request.budgetTag) || request.budgetTag : null,
+    request.budget,
+    request.offeredPrice
+      ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+      : null,
+  ].filter((part): part is string => Boolean(part));
+
+  return Array.from(new Set(budgetParts)).join(" / ") || "Belirtilmedi";
 }
 
 function getUrgencyView(urgency: string) {
@@ -484,6 +501,10 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
 
       <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--muted)]">
         <p>
+          <span className="font-black text-[var(--brand-navy)]">Talep ID: </span>
+          {request.id}
+        </p>
+        <p>
           <span className="font-black text-[var(--brand-navy)]">Telefon: </span>
           {request.phone}
         </p>
@@ -503,6 +524,26 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
         <p>
           <span className="font-black text-[var(--brand-navy)]">Tercih edilen saat: </span>
           {formatPreferredTime(request.preferredTime)}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Adres: </span>
+          {getRequestAddressText(request)}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Açıklama: </span>
+          {request.description || "Açıklama yok"}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Bütçe / teklif: </span>
+          {getBudgetOfferText(request)}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Ödeme tercihi: </span>
+          {getPaymentPreferenceLabel(request.paymentPreference)}
+        </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Atanan usta: </span>
+          {request.assignedProviderName || "Henüz atanmadı"}
         </p>
         <p>
           <span className="font-black text-[var(--brand-navy)]">Oluşturulma: </span>
@@ -566,73 +607,60 @@ export default async function AdminServiceRequestsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1580px] text-left text-sm">
+            <table className="w-full min-w-[1900px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
+                  <th className="px-4 py-3">Talep ID</th>
                   <th className="px-4 py-3">Müşteri</th>
-                  <th className="px-4 py-3">Telefon</th>
-                  <th className="px-4 py-3">Kategori</th>
+                  <th className="px-4 py-3">Hizmet kategorisi</th>
                   <th className="px-4 py-3">İlçe</th>
-                  <th className="px-4 py-3">Akış</th>
-                  <th className="px-4 py-3">Aciliyet</th>
-                  <th className="px-4 py-3">Ödeme</th>
-                  <th className="px-4 py-3">Kod / ETA</th>
-                  <th className="px-4 py-3">Tercih Tarihi</th>
-                  <th className="px-4 py-3">Tercih Saati</th>
+                  <th className="px-4 py-3">Adres</th>
+                  <th className="px-4 py-3">Açıklama</th>
+                  <th className="px-4 py-3">Bütçe / teklif</th>
+                  <th className="px-4 py-3">Ödeme tercihi</th>
                   <th className="px-4 py-3">Durum</th>
-                  <th className="px-4 py-3">Oluşturulma</th>
-                  <th className="px-4 py-3">Aksiyonlar</th>
+                  <th className="px-4 py-3">Oluşturulma tarihi</th>
+                  <th className="px-4 py-3">Atanan usta</th>
+                  <th className="px-4 py-3">İşlem</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
                 {result.rows.map((request) => (
                   <tr key={request.id} className="bg-white align-top">
-                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
-                      {request.customerName}
+                    <td className="max-w-[12rem] break-all px-4 py-4 font-mono text-xs font-bold text-[var(--muted)]">
+                      {request.id}
                     </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {request.phone}
+                    <td className="px-4 py-4">
+                      <p className="font-black text-[var(--brand-navy)]">
+                        {request.customerName}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
+                        {request.phone}
+                      </p>
                     </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
+                    <td className="max-w-[13rem] px-4 py-4 font-semibold text-[var(--muted)]">
                       {request.category}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {request.district}
                     </td>
-                    <td className="px-4 py-4">
-                      <UrgencyTypeBadge urgencyType={request.urgencyType} />
+                    <td className="max-w-[16rem] px-4 py-4 font-semibold leading-6 text-[var(--muted)]">
+                      {getRequestAddressText(request)}
                     </td>
-                    <td className="px-4 py-4">
-                      <UrgencyBadge urgency={request.urgency} />
-                    </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {request.urgencyType === "emergency"
-                        ? `${getPaymentPreferenceLabel(request.paymentPreference)}${
-                            request.offeredPrice
-                              ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
-                              : ""
-                          }`
-                        : "Belirtilmedi"}
+                    <td className="max-w-[18rem] px-4 py-4 font-semibold leading-6 text-[var(--muted)]">
+                      <p className="line-clamp-4">
+                        {request.description || "Açıklama yok"}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <UrgencyTypeBadge urgencyType={request.urgencyType} />
+                        <UrgencyBadge urgency={request.urgency} />
+                      </div>
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {request.urgencyType === "emergency" ? (
-                        <div className="max-w-[13rem]">
-                          <p className="font-black text-[var(--brand-navy)]">
-                            {request.confirmationCode ?? "Kod bekliyor"}
-                          </p>
-                          <p className="mt-1 text-xs leading-5">
-                            {request.estimatedArrivalText ?? liveTrackingSoonText}
-                          </p>
-                        </div>
-                      ) : (
-                        "Belirtilmedi"
-                      )}
+                      {getBudgetOfferText(request)}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {formatPreferredDate(request.preferredDate)}
-                    </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {formatPreferredTime(request.preferredTime)}
+                      {getPaymentPreferenceLabel(request.paymentPreference)}
                     </td>
                     <td className="px-4 py-4">
                       <RequestStatusBadge status={request.status} />
@@ -641,14 +669,25 @@ export default async function AdminServiceRequestsPage({
                       {formatCreatedAt(request.createdAt)}
                     </td>
                     <td className="px-4 py-4">
-                      <RequestActions request={request} />
-                      <div className="mt-2">
-                        <AssignProviderSection 
-                          requestId={request.id} 
-                          status={request.status} 
+                      <span className="font-black text-[var(--brand-navy)]">
+                        {request.assignedProviderName || "Henüz atanmadı"}
+                      </span>
+                      {request.urgencyType === "emergency" ? (
+                        <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
+                          {request.confirmationCode ?? "Kod bekliyor"} ·{" "}
+                          {request.estimatedArrivalText ?? liveTrackingSoonText}
+                        </p>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="grid gap-2">
+                        <AssignProviderSection
+                          requestId={request.id}
+                          status={request.status}
                           assignedProviderId={request.assignedProviderId}
                           assignedProviderName={request.assignedProviderName}
                         />
+                        <RequestActions request={request} />
                       </div>
                     </td>
                   </tr>

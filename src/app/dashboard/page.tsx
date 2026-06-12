@@ -66,6 +66,7 @@ const PENDING_STATUSES = [
 ];
 const ASSIGNED_STATUSES = [
   SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+  "assigned",
 ];
 const ACCEPTED_STATUSES = [
   SERVICE_REQUEST_STATUSES.accepted,
@@ -85,8 +86,10 @@ type StatusConfig = {
 
 function getStatusConfig(status: string): StatusConfig {
   const label =
-    SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
-    status;
+    (ASSIGNED_STATUSES as string[]).includes(status)
+      ? "Usta atandı, kabul bekleniyor."
+      : SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
+        status;
 
   if ((COMPLETED_STATUSES as string[]).includes(status)) {
     return {
@@ -109,6 +112,16 @@ function getStatusConfig(status: string): StatusConfig {
     };
   }
   if (([SERVICE_REQUEST_STATUSES.accepted, SERVICE_REQUEST_STATUSES.onTheWay] as string[]).includes(status)) {
+    return {
+      label,
+      color: "text-blue-700",
+      bg: "bg-blue-50",
+      ring: "ring-blue-200",
+      dot: "bg-blue-500",
+      Icon: Loader2,
+    };
+  }
+  if ((ASSIGNED_STATUSES as string[]).includes(status)) {
     return {
       label,
       color: "text-blue-700",

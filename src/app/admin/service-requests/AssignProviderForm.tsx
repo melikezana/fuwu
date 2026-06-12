@@ -41,10 +41,10 @@ export function AssignProviderForm({
         defaultValue={assignedProviderId || ""}
         required
       >
-        <option value="" disabled>Usta Seçin...</option>
+        <option value="" disabled>Usta seçin...</option>
         {providers.map(p => (
           <option key={p.id} value={p.id}>
-            {p.name} ({p.experienceYears} yıl)
+            {p.name} · {p.districtName || "Bölge yok"} · {p.experienceYears} yıl · {p.phone}
           </option>
         ))}
       </select>
@@ -54,7 +54,7 @@ export function AssignProviderForm({
         type="submit"
         disabled={isPending}
       >
-        {isPending ? "Atanıyor..." : "Ata"}
+        {isPending ? "Atanıyor..." : "Ustaya Ata"}
       </AdminActionButton>
     </form>
   );

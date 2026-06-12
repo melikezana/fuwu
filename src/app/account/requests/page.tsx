@@ -99,7 +99,15 @@ function formatPrice(value: number | string | null) {
   return `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(numericValue)} TL`;
 }
 
+function isAssignedStatus(status: string) {
+  return status === "ustaya_yonlendirildi" || status === "assigned";
+}
+
 function getStatusLabel(status: string) {
+  if (isAssignedStatus(status)) {
+    return "Usta atandı, kabul bekleniyor.";
+  }
+
   return (
     SERVICE_REQUEST_STATUS_LABELS[status as ServiceRequestStatus] ??
     status

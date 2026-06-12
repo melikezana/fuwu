@@ -15,6 +15,7 @@ import {
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_LABELS,
 } from "@/lib/constants/statuses";
+import { getBudgetTagLabel } from "@/services/matching/budget";
 import { getPaymentPreferenceLabel } from "@/services/payments";
 import { liveTrackingSoonText } from "@/services/tracking";
 
@@ -59,10 +60,12 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
     return null;
   }
 
-  if (
+  const isWaitingForAcceptance =
     request.status === SERVICE_REQUEST_STATUSES.pending ||
-    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
-  ) {
+    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
+    request.status === "assigned";
+
+  if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
@@ -96,10 +99,12 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
     return null;
   }
 
-  if (
+  const isWaitingForAcceptance =
     request.status === SERVICE_REQUEST_STATUSES.pending ||
-    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
-  ) {
+    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
+    request.status === "assigned";
+
+  if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
@@ -129,7 +134,34 @@ function ProviderRequestActions({ request }: { request: ProviderAssignedRequest 
 }
 
 function ProviderRequestStatusText({ status }: { status: string }) {
+  if (status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi || status === "assigned") {
+    return "Usta atandı, kabul bekleniyor.";
+  }
+
   return SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ?? status;
+}
+
+function formatRequestCreatedAt(value: string) {
+  return new Intl.DateTimeFormat("tr-TR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+function getProviderRequestLocation(request: ProviderAssignedRequest) {
+  return request.address || request.approximateLocation || "Konum belirtilmedi";
+}
+
+function getProviderBudgetOfferText(request: ProviderAssignedRequest) {
+  const parts = [
+    request.budgetTag ? getBudgetTagLabel(request.budgetTag) || request.budgetTag : null,
+    request.budget,
+    request.offeredPrice
+      ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+      : null,
+  ].filter((part): part is string => Boolean(part));
+
+  return Array.from(new Set(parts)).join(" / ") || "Belirtilmedi";
 }
 
 export const metadata: Metadata = {
@@ -210,11 +242,27 @@ export default async function ProviderDashboardRequestsPage() {
                   </p>
                   <p>
                     <span className="font-black text-[var(--brand-navy)]">Adres: </span>
-                    {request.address || "Belirtilmedi"}
+                    {getProviderRequestLocation(request)}
                   </p>
                   <p>
                     <span className="font-black text-[var(--brand-navy)]">Detay: </span>
                     {request.description || "Açıklama yok"}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Bütçe / teklif: </span>
+                    {getProviderBudgetOfferText(request)}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Ödeme tercihi: </span>
+                    {getPaymentPreferenceLabel(request.paymentPreference)}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Durum: </span>
+                    <ProviderRequestStatusText status={request.status} />
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Oluşturulma: </span>
+                    {formatRequestCreatedAt(request.createdAt)}
                   </p>
                   <p>
                     <span className="font-black text-[var(--brand-navy)]">Zaman: </span>
@@ -227,15 +275,16 @@ export default async function ProviderDashboardRequestsPage() {
           </div>
 
           <div className="mt-5 hidden overflow-hidden rounded-lg border border-[var(--border)] md:block">
-            <div className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
+            <div className="grid grid-cols-[1.2fr_1fr_0.9fr_1fr_0.8fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
               <span>Hizmet</span>
-              <span>İlçe</span>
-              <span>Zaman</span>
+              <span>Konum</span>
+              <span>Bütçe / Ödeme</span>
+              <span>Tarih</span>
               <span>Durum</span>
             </div>
             {assignedRequests.map((request) => (
               <article
-                className="flex flex-col gap-3 border-t border-[var(--border)] px-4 py-4 md:grid md:grid-cols-[1.1fr_1fr_1fr_0.8fr]"
+                className="flex flex-col gap-3 border-t border-[var(--border)] px-4 py-4 md:grid md:grid-cols-[1.2fr_1fr_0.9fr_1fr_0.8fr]"
                 key={request.id}
               >
                 <div className="flex flex-col">
@@ -254,12 +303,23 @@ export default async function ProviderDashboardRequestsPage() {
                 <div className="flex flex-col justify-center text-sm font-bold text-[var(--brand-navy)]">
                   <span>{request.district}</span>
                   <span className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--muted)]">
-                    {request.address || "Adres belirtilmedi"}
+                    {getProviderRequestLocation(request)}
+                  </span>
+                </div>
+                <div className="flex flex-col justify-center text-sm">
+                  <span className="font-bold text-[var(--brand-navy)]">
+                    {getProviderBudgetOfferText(request)}
+                  </span>
+                  <span className="mt-1 text-xs font-semibold text-[var(--muted)]">
+                    {getPaymentPreferenceLabel(request.paymentPreference)}
                   </span>
                 </div>
                 <div className="flex flex-col justify-center text-sm">
                   <span className="font-bold text-[var(--brand-navy)]">{request.preferredDate || "Tarih esnek"}</span>
                   <span className="text-[var(--muted)]">{request.preferredTime || "Saat esnek"}</span>
+                  <span className="mt-1 text-xs font-semibold text-[var(--muted)]">
+                    Oluşturulma: {formatRequestCreatedAt(request.createdAt)}
+                  </span>
                   {request.urgencyType === "emergency" ? (
                     <span className="mt-1 text-xs font-bold text-[var(--brand-orange-dark)]">
                       {request.estimatedArrivalText ?? liveTrackingSoonText}

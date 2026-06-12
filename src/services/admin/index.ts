@@ -32,10 +32,7 @@ import {
   createServiceFailure,
   createServiceSuccess,
 } from "@/services/serviceResponse";
-import {
-  assignProviderToEmergencyRequest,
-  assignProviderToRequest,
-} from "@/services/requests";
+import { generateConfirmationCode } from "@/services/requests";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -158,6 +155,13 @@ type ExistingProviderApprovalRecord = Pick<
   "id" | "is_active" | "is_approved" | "user_id"
 >;
 
+type AdminAssignableProviderRecord = Pick<
+  ProviderRow,
+  "district_id" | "experience_years" | "id" | "name" | "phone"
+> & {
+  districts: MaybeRelation;
+};
+
 type ApprovedProviderApplicationPayload = {
   availability: ProviderAvailabilityStatus | null;
   description: string;
@@ -173,6 +177,8 @@ type AdminProviderApplicationRejectionRecord = Pick<
 
 type AdminServiceRequestRecord = Pick<
   ServiceRequestRow,
+  | "address"
+  | "budget"
   | "created_at"
   | "description"
   | "id"
@@ -273,9 +279,12 @@ export type AdminProviderApplication = {
 };
 
 export type AdminServiceRequest = {
+  address: string | null;
+  budget: string | null;
   category: string;
   createdAt: string;
   customerName: string;
+  description: string;
   district: string;
   id: string;
   phone: string;
@@ -393,6 +402,7 @@ export type AdminServiceRequestActionResult = {
 
 export type AdminAssignableProvider = {
   districtId: string;
+  districtName: string;
   experienceYears: number;
   id: string;
   name: string;
@@ -585,6 +595,29 @@ function warnAdminProviderUpdateError(
     payloadKeys: Object.keys(payload),
     publicMessage: "Admin iÅŸlemi ÅŸu anda tamamlanamadÄ±.",
     tableName: "providers",
+  });
+}
+
+function warnAdminServiceRequestAssignmentError(
+  context: string,
+  requestId: string,
+  providerId: string,
+  payload: Record<string, unknown>,
+  error: unknown,
+) {
+  console.error(`[Fuwu] Admin Supabase ${context} failed.`, {
+    providerId,
+    requestId,
+    supabaseError: getSupabaseErrorLogDetails(error),
+    table: "service_requests",
+    payloadKeys: Object.keys(payload),
+  });
+
+  handleServiceError(error, {
+    logContext: `Admin Supabase ${context} failed.`,
+    payloadKeys: Object.keys(payload),
+    publicMessage: "Usta atanamadı. Lütfen tekrar deneyin.",
+    tableName: "service_requests",
   });
 }
 
@@ -1575,7 +1608,6 @@ export async function updateAdminServiceRequestStatus(
       : districtRelation?.name;
 
     updatePayload.accepted_at = acceptedAt;
-    updatePayload.accepted_provider_id = currentRequest.assigned_provider_id;
     updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
@@ -1668,7 +1700,7 @@ export async function getAdminAssignableProvidersForRequest(
 
   const { data: providers, error: providersError } = await supabase
     .from("providers")
-    .select("id, name, phone, experience_years, district_id")
+    .select("id, name, phone, experience_years, district_id, districts(name)")
     .eq("category_id", request.category_id)
     .eq("is_active", true)
     .eq("is_approved", true)
@@ -1680,7 +1712,13 @@ export async function getAdminAssignableProvidersForRequest(
     );
   }
 
-  const sortedProviders = (providers ?? []).sort((firstProvider, secondProvider) => {
+  const providerRows = (providers ?? []) as unknown as AdminAssignableProviderRecord[];
+  const exactDistrictProviders = providerRows.filter(
+    (provider) => provider.district_id === request.district_id,
+  );
+  const assignableProviders =
+    exactDistrictProviders.length > 0 ? exactDistrictProviders : providerRows;
+  const sortedProviders = assignableProviders.sort((firstProvider, secondProvider) => {
     const firstExact = firstProvider.district_id === request.district_id;
     const secondExact = secondProvider.district_id === request.district_id;
 
@@ -1698,6 +1736,7 @@ export async function getAdminAssignableProvidersForRequest(
   return createAdminReadResult(
     sortedProviders.map((provider) => ({
       districtId: provider.district_id,
+      districtName: sanitizeText(getRelationName(provider.districts), 120),
       experienceYears: Number(provider.experience_years ?? 0),
       id: provider.id,
       name: sanitizeText(provider.name, 120),
@@ -1741,55 +1780,163 @@ export async function assignAdminServiceRequest(
     );
   }
 
-  const { data: existingRequest, error: lookupError } = await supabase
-    .from("service_requests")
-    .select("id, status, urgency, urgency_type")
-    .eq("id", normalizedRequestId)
-    .maybeSingle();
+  const assignmentStatus = SERVICE_REQUEST_STATUSES.ustayaYonlendirildi;
+  const updatePayload: Partial<ServiceRequestRow> = {
+    assigned_provider_id: normalizedProviderId,
+    status: assignmentStatus,
+    updated_at: new Date().toISOString(),
+  };
+  const [
+    { data: existingRequest, error: requestLookupError },
+    { data: provider, error: providerLookupError },
+  ] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select(
+        "id, category_id, district_id, status, urgency, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
+      )
+      .eq("id", normalizedRequestId)
+      .maybeSingle(),
+    supabase
+      .from("providers")
+      .select("id, category_id, district_id, is_active, is_approved")
+      .eq("id", normalizedProviderId)
+      .maybeSingle(),
+  ]);
 
-  if (lookupError || !existingRequest) {
-    return createServiceRequestActionResult("service-request-not-found", false);
-  }
-
-  if (existingRequest.urgency_type === "emergency" || existingRequest.urgency === "urgent") {
-    try {
-      await assignProviderToEmergencyRequest(normalizedRequestId, normalizedProviderId, supabase);
-    } catch (error) {
-      warnAdminWriteError("emergency service request provider assignment", error);
-      return createServiceRequestActionResult("service-request-action-failed", false);
-    }
-
-    await insertAuditLog({
-      action: "service_request.emergency_assigned",
-      actorUserId: adminAccess.access.userId,
-      entityId: normalizedRequestId,
-      entityType: "service_request",
-      metadata: {
-        providerId: normalizedProviderId,
-        status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-        urgencyType: "emergency",
-      },
-      supabase,
-    });
-
-    return createServiceRequestActionResult("service-request-updated", true);
-  }
-
-  try {
-    await assignProviderToRequest(normalizedRequestId, normalizedProviderId, supabase);
-  } catch (error) {
-    warnAdminWriteError("service request provider assignment", error);
+  if (requestLookupError) {
+    warnAdminServiceRequestAssignmentError(
+      "service request assignment request lookup",
+      normalizedRequestId,
+      normalizedProviderId,
+      updatePayload,
+      requestLookupError,
+    );
     return createServiceRequestActionResult("service-request-action-failed", false);
   }
 
+  if (providerLookupError) {
+    warnAdminServiceRequestAssignmentError(
+      "service request assignment provider lookup",
+      normalizedRequestId,
+      normalizedProviderId,
+      updatePayload,
+      providerLookupError,
+    );
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
+  if (!existingRequest) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  if (!provider || !provider.is_active || !provider.is_approved) {
+    return createServiceRequestActionResult("service-request-invalid-provider", false);
+  }
+
+  if (existingRequest.category_id !== provider.category_id) {
+    return createServiceRequestActionResult("service-request-invalid-provider", false);
+  }
+
+  if (existingRequest.district_id !== provider.district_id) {
+    const { count, error: exactDistrictCountError } = await supabase
+      .from("providers")
+      .select("id", { count: "exact", head: true })
+      .eq("category_id", existingRequest.category_id)
+      .eq("district_id", existingRequest.district_id)
+      .eq("is_active", true)
+      .eq("is_approved", true);
+
+    if (exactDistrictCountError) {
+      warnAdminServiceRequestAssignmentError(
+        "service request assignment exact district check",
+        normalizedRequestId,
+        normalizedProviderId,
+        updatePayload,
+        exactDistrictCountError,
+      );
+      return createServiceRequestActionResult("service-request-action-failed", false);
+    }
+
+    if ((count ?? 0) > 0) {
+      return createServiceRequestActionResult("service-request-invalid-provider", false);
+    }
+  }
+
+  const assignableStatuses = [
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    "assigned",
+  ];
+  const updateGuardStatuses: ServiceRequestRow["status"][] = [
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+  ];
+  const assignableStatusSet = new Set<string>(assignableStatuses);
+
+  if (!assignableStatusSet.has(existingRequest.status)) {
+    return createServiceRequestActionResult("service-request-invalid-transition", false);
+  }
+
+  const isEmergencyRequest =
+    existingRequest.urgency_type === "emergency" || existingRequest.urgency === "urgent";
+
+  if (isEmergencyRequest) {
+    const districtRelation = existingRequest.districts;
+    const districtName = Array.isArray(districtRelation)
+      ? districtRelation[0]?.name
+      : districtRelation?.name;
+
+    updatePayload.confirmation_code =
+      existingRequest.confirmation_code ?? generateConfirmationCode();
+    updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.pending;
+    updatePayload.estimated_arrival_text =
+      existingRequest.estimated_arrival_text ??
+      calculateEstimatedArrivalText({
+        district: typeof districtName === "string" ? districtName : null,
+        urgencyType: "emergency",
+      });
+    updatePayload.urgency_type = "emergency";
+  }
+
+  const { data, error } = await supabase
+    .from("service_requests")
+    .update(updatePayload)
+    .eq("id", normalizedRequestId)
+    .in("status", updateGuardStatuses)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    warnAdminServiceRequestAssignmentError(
+      "service request provider assignment",
+      normalizedRequestId,
+      normalizedProviderId,
+      updatePayload,
+      error,
+    );
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
+  if (!data) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
   await insertAuditLog({
-    action: "service_request.assigned",
+    action: isEmergencyRequest
+      ? "service_request.emergency_assigned"
+      : "service_request.assigned",
     actorUserId: adminAccess.access.userId,
     entityId: normalizedRequestId,
     entityType: "service_request",
     metadata: {
       providerId: normalizedProviderId,
-      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+      status: assignmentStatus,
+      urgencyType: isEmergencyRequest ? "emergency" : "standard",
     },
     supabase,
   });
@@ -2248,8 +2395,10 @@ export async function getAdminServiceRequests(): Promise<
       `
         id,
         user_id,
+        address,
         urgency,
         urgency_type,
+        budget,
         budget_tag,
         offered_price,
         payment_preference,
@@ -2279,12 +2428,15 @@ export async function getAdminServiceRequests(): Promise<
 
   return createAdminReadResult(
     ((data ?? []) as unknown as AdminServiceRequestRecord[]).map((request) => ({
+      address: request.address ? sanitizeText(request.address, 300) : null,
+      budget: request.budget ? sanitizeText(request.budget, 80) : null,
       category: sanitizeText(getRelationName(request.service_categories), 120),
       createdAt: request.created_at,
       customerName: sanitizeText(
         getRequestCustomerName(request.profiles, request.user_id, request.description),
         120,
       ),
+      description: sanitizeText(request.description ?? "", 1200),
       district: sanitizeText(getRelationName(request.districts), 120),
       id: request.id,
       phone: sanitizePhone(getRequestPhone(request.profiles, request.description)) || "Belirtilmedi",

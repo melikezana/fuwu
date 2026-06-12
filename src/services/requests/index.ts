@@ -849,7 +849,8 @@ export async function assignProviderToRequest(
     .from("service_requests")
     .update({ 
       assigned_provider_id: providerId,
-      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi 
+      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", requestId)
     .select("id")
@@ -942,6 +943,13 @@ export async function assignProviderToEmergencyRequest(
     SERVICE_REQUEST_STATUSES.yeni,
     SERVICE_REQUEST_STATUSES.inceleniyor,
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    "assigned",
+  ];
+  const updateGuardStatuses: Array<NonNullable<ServiceRequestUpdate["status"]>> = [
+    SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.yeni,
+    SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
   ];
   const assignableStatusSet = new Set<string>(assignableStatuses);
 
@@ -964,7 +972,6 @@ export async function assignProviderToEmergencyRequest(
     : districtRelation?.name;
   const updatePayload: ServiceRequestUpdate = {
     assigned_provider_id: providerId,
-    accepted_provider_id: null,
     confirmation_code: request.confirmation_code ?? generateJobConfirmationCode(),
     emergency_status: SERVICE_REQUEST_STATUSES.pending,
     estimated_arrival_text:
@@ -974,6 +981,7 @@ export async function assignProviderToEmergencyRequest(
         urgencyType: "emergency",
       }),
     status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    updated_at: new Date().toISOString(),
     urgency_type: "emergency",
   };
 
@@ -981,7 +989,7 @@ export async function assignProviderToEmergencyRequest(
     .from("service_requests")
     .update(updatePayload)
     .eq("id", requestId)
-    .in("status", assignableStatuses)
+    .in("status", updateGuardStatuses)
     .select("id")
     .maybeSingle();
 
@@ -1019,6 +1027,7 @@ export async function getProviderAssignedRequests(
       id,
       urgency,
       urgency_type,
+      budget,
       budget_tag,
       offered_price,
       payment_preference,
@@ -1066,6 +1075,7 @@ export async function getProviderAssignedRequests(
     status: request.status,
     urgency: request.urgency,
     urgencyType: request.urgency_type ?? "standard",
+    budget: request.budget ?? null,
     budgetTag: request.budget_tag ?? null,
     offeredPrice: request.offered_price ?? null,
     paymentPreference: request.payment_preference ?? null,
@@ -1137,9 +1147,12 @@ export async function acceptEmergencyRequest(
     return false;
   }
 
+  const currentRequestStatus = String(currentRequest.status);
+
   if (
-    currentRequest.status !== SERVICE_REQUEST_STATUSES.pending &&
-    currentRequest.status !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+    currentRequestStatus !== SERVICE_REQUEST_STATUSES.pending &&
+    currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
+    currentRequestStatus !== "assigned"
   ) {
     return false;
   }
@@ -1229,6 +1242,7 @@ export async function updateProviderAssignedRequestStatus(
   const updatePayload: ServiceRequestUpdate = {
     status: normalizedStatus,
   };
+  const currentRequestStatus = String(currentRequest.status);
 
   if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
     if (isEmergencyRequest) {
@@ -1236,8 +1250,9 @@ export async function updateProviderAssignedRequestStatus(
     }
 
     if (
-      currentRequest.status !== SERVICE_REQUEST_STATUSES.pending &&
-      currentRequest.status !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+      currentRequestStatus !== SERVICE_REQUEST_STATUSES.pending &&
+      currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
+      currentRequestStatus !== "assigned"
     ) {
       return false;
     }
@@ -1250,8 +1265,9 @@ export async function updateProviderAssignedRequestStatus(
     !isEmergencyRequest &&
     (normalizedStatus === SERVICE_REQUEST_STATUSES.completed ||
       normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled) &&
-    currentRequest.status !== SERVICE_REQUEST_STATUSES.accepted &&
-    currentRequest.status !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+    currentRequestStatus !== SERVICE_REQUEST_STATUSES.accepted &&
+    currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
+    currentRequestStatus !== "assigned"
   ) {
     return false;
   }

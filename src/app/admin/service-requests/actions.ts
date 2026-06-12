@@ -5,18 +5,32 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function assignServiceRequestAction(formData: FormData) {
-  const requestId = formData.get("requestId") as string;
-  const providerId = formData.get("providerId") as string;
+  const requestIdValue = formData.get("requestId");
+  const providerIdValue = formData.get("providerId");
+  const requestId = typeof requestIdValue === "string" ? requestIdValue.trim() : "";
+  const providerId = typeof providerIdValue === "string" ? providerIdValue.trim() : "";
+  let resultCode = "service-request-action-failed";
 
-  if (!requestId) {
-    redirect("/admin/service-requests?requestAction=service-request-missing-id");
+  try {
+    if (!requestId) {
+      resultCode = "service-request-missing-id";
+    } else if (!providerId) {
+      resultCode = "service-request-missing-provider";
+    } else {
+      const result = await assignAdminServiceRequest(requestId, providerId);
+      resultCode = result.code;
+    }
+  } catch (error) {
+    console.error("[Fuwu] Admin service request assignment action failed.", {
+      providerId,
+      requestId,
+      payloadKeys: Array.from(formData.keys()),
+      error,
+    });
   }
 
-  if (!providerId) {
-    redirect("/admin/service-requests?requestAction=service-request-missing-provider");
-  }
-
-  const result = await assignAdminServiceRequest(requestId, providerId);
   revalidatePath("/admin/service-requests");
-  redirect(`/admin/service-requests?requestAction=${encodeURIComponent(result.code)}`);
+  revalidatePath("/provider-dashboard/requests");
+  revalidatePath("/dashboard/requests");
+  redirect(`/admin/service-requests?requestAction=${encodeURIComponent(resultCode)}`);
 }

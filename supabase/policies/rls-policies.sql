@@ -338,21 +338,43 @@ create policy service_requests_select_admin_all
 on public.service_requests
 for select
 to authenticated
-using (public.current_user_is_admin());
+using (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'admin'
+  )
+);
 
 comment on policy service_requests_select_admin_all on public.service_requests is
   'Admins can later read all service requests for matching, support, and operational workflows.';
 
 drop policy if exists service_requests_update_admin_status on public.service_requests;
-create policy service_requests_update_admin_status
+drop policy if exists service_requests_update_admin_assignment on public.service_requests;
+create policy service_requests_update_admin_assignment
 on public.service_requests
 for update
 to authenticated
-using (public.current_user_is_admin())
-with check (public.current_user_is_admin());
+using (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'admin'
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'admin'
+  )
+);
 
-comment on policy service_requests_update_admin_status on public.service_requests is
-  'Admins can update service request status from admin tooling.';
+comment on policy service_requests_update_admin_assignment on public.service_requests is
+  'Admins can update service request assignment and status from server-side admin actions while RLS remains enabled.';
 
 drop policy if exists service_requests_update_provider_assigned_status on public.service_requests;
 create policy service_requests_update_provider_assigned_status
