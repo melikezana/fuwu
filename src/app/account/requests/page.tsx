@@ -105,7 +105,15 @@ function isAssignedStatus(status: string) {
 
 function getStatusLabel(status: string) {
   if (isAssignedStatus(status)) {
-    return "Usta atandı, kabul bekleniyor.";
+    return "Usta atandı. Yanıt bekleniyor.";
+  }
+
+  if (status === "accepted") {
+    return "Usta talebini kabul etti.";
+  }
+
+  if (status === "rejected") {
+    return "Usta talebi reddetti. Yeni eşleşme bekleniyor.";
   }
 
   return (

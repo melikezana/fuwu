@@ -72,6 +72,7 @@ const ACCEPTED_STATUSES = [
   SERVICE_REQUEST_STATUSES.accepted,
   SERVICE_REQUEST_STATUSES.onTheWay,
 ];
+const REJECTED_STATUSES = [SERVICE_REQUEST_STATUSES.rejected];
 const COMPLETED_STATUSES = [SERVICE_REQUEST_STATUSES.completed, SERVICE_REQUEST_STATUSES.tamamlandi];
 const CANCELLED_STATUSES = [SERVICE_REQUEST_STATUSES.cancelled, SERVICE_REQUEST_STATUSES.iptal];
 
@@ -85,11 +86,17 @@ type StatusConfig = {
 };
 
 function getStatusConfig(status: string): StatusConfig {
-  const label =
-    (ASSIGNED_STATUSES as string[]).includes(status)
-      ? "Usta atandı, kabul bekleniyor."
-      : SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
-        status;
+  let label =
+    SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
+    status;
+
+  if (status === SERVICE_REQUEST_STATUSES.accepted) {
+    label = "Usta talebini kabul etti.";
+  }
+
+  if (status === SERVICE_REQUEST_STATUSES.rejected) {
+    label = "Usta talebi reddetti. Yeni eşleşme bekleniyor.";
+  }
 
   if ((COMPLETED_STATUSES as string[]).includes(status)) {
     return {
@@ -102,6 +109,16 @@ function getStatusConfig(status: string): StatusConfig {
     };
   }
   if ((CANCELLED_STATUSES as string[]).includes(status)) {
+    return {
+      label,
+      color: "text-red-600",
+      bg: "bg-red-50",
+      ring: "ring-red-200",
+      dot: "bg-red-400",
+      Icon: XCircle,
+    };
+  }
+  if ((REJECTED_STATUSES as string[]).includes(status)) {
     return {
       label,
       color: "text-red-600",
@@ -174,6 +191,7 @@ export default async function CustomerDashboardPage() {
   const pending = requests.filter((r) => (PENDING_STATUSES as string[]).includes(r.status));
   const assigned = requests.filter((r) => (ASSIGNED_STATUSES as string[]).includes(r.status));
   const accepted = requests.filter((r) => (ACCEPTED_STATUSES as string[]).includes(r.status));
+  const rejected = requests.filter((r) => (REJECTED_STATUSES as string[]).includes(r.status));
   const completed = requests.filter((r) => (COMPLETED_STATUSES as string[]).includes(r.status));
   const cancelled = requests.filter((r) => (CANCELLED_STATUSES as string[]).includes(r.status));
 
@@ -291,6 +309,7 @@ export default async function CustomerDashboardPage() {
               cancelledCount={cancelled.length}
               completedCount={completed.length}
               pendingCount={pending.length}
+              rejectedCount={rejected.length}
             />
             {pending.length > 0 && (
               <RequestSection title="Bekleyen Talepler" count={pending.length} countColor="bg-amber-100 text-amber-700" requests={pending} />
@@ -300,6 +319,9 @@ export default async function CustomerDashboardPage() {
             )}
             {accepted.length > 0 && (
               <RequestSection title="Kabul Edilenler" count={accepted.length} countColor="bg-sky-100 text-sky-700" requests={accepted} />
+            )}
+            {rejected.length > 0 && (
+              <RequestSection title="Reddedilenler" count={rejected.length} countColor="bg-red-100 text-red-600" requests={rejected} />
             )}
             {completed.length > 0 && (
               <RequestSection title="Tamamlananlar" count={completed.length} countColor="bg-emerald-100 text-emerald-700" requests={completed} />
@@ -368,17 +390,20 @@ function RequestsOverview({
   cancelledCount,
   completedCount,
   pendingCount,
+  rejectedCount,
 }: {
   acceptedCount: number;
   assignedCount: number;
   cancelledCount: number;
   completedCount: number;
   pendingCount: number;
+  rejectedCount: number;
 }) {
   const items = [
     { label: "Pending", value: pendingCount, className: "bg-amber-50 text-amber-700 ring-amber-200" },
     { label: "Assigned", value: assignedCount, className: "bg-blue-50 text-blue-700 ring-blue-200" },
     { label: "Accepted", value: acceptedCount, className: "bg-sky-50 text-sky-700 ring-sky-200" },
+    { label: "Rejected", value: rejectedCount, className: "bg-red-50 text-red-600 ring-red-200" },
     { label: "Completed", value: completedCount, className: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
     { label: "Cancelled", value: cancelledCount, className: "bg-red-50 text-red-600 ring-red-200" },
   ];
@@ -398,7 +423,7 @@ function RequestsOverview({
           Tümünü gör
         </Link>
       </div>
-      <div className="grid gap-3 sm:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {items.map((item) => (
           <div
             className={`rounded-xl px-3 py-4 text-center ring-1 ${item.className}`}

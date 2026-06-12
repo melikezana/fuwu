@@ -23,6 +23,101 @@ export const dynamic = "force-dynamic";
 
 type ProviderAssignedRequest = Awaited<ReturnType<typeof getProviderAssignedRequests>>[number];
 
+type ProviderRequestsSearchParams = {
+  requestAction?: string | string[];
+};
+
+type ProviderDashboardRequestsPageProps = {
+  searchParams?: Promise<ProviderRequestsSearchParams>;
+};
+
+const providerRequestActionMessages: Record<
+  string,
+  { body: string; tone: "error" | "success"; title: string }
+> = {
+  "provider-not-authorized": {
+    body: "Usta hesabın aktif ve onaylı değilse talep yanıtlanamaz.",
+    title: "İşlem yapılamadı",
+    tone: "error",
+  },
+  "request-accepted": {
+    body: "Talep kabul edildi ve müşteri bilgilendirildi.",
+    title: "Kabul edildi",
+    tone: "success",
+  },
+  "request-action-failed": {
+    body: "Kabul işlemi başarısız oldu.",
+    title: "İşlem başarısız",
+    tone: "error",
+  },
+  "request-invalid-id": {
+    body: "Talep kimliği geçerli değil.",
+    title: "Geçersiz talep",
+    tone: "error",
+  },
+  "request-invalid-status": {
+    body: "Bu talep şu anda yanıtlanamaz.",
+    title: "Durum uygun değil",
+    tone: "error",
+  },
+  "request-not-assigned": {
+    body: "Bu talep sana atanmadı.",
+    title: "Atama doğrulanamadı",
+    tone: "error",
+  },
+  "request-rejected": {
+    body: "Talep reddedildi ve müşteri bilgilendirildi.",
+    title: "Reddedildi",
+    tone: "success",
+  },
+  "request-updated": {
+    body: "Talep durumu güncellendi.",
+    title: "İşlem tamamlandı",
+    tone: "success",
+  },
+  "supabase-not-configured": {
+    body: "Kabul işlemi başarısız oldu.",
+    title: "Sistem bağlantısı yok",
+    tone: "error",
+  },
+};
+
+function getSearchParamValue(
+  searchParams: ProviderRequestsSearchParams | undefined,
+  key: keyof ProviderRequestsSearchParams,
+) {
+  const value = searchParams?.[key];
+
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function ProviderRequestActionNotice({
+  code,
+}: {
+  code?: string;
+}) {
+  const feedback = code ? providerRequestActionMessages[code] : null;
+
+  if (!feedback) {
+    return null;
+  }
+
+  const className =
+    feedback.tone === "success"
+      ? "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : "border-red-200 bg-red-50 text-red-700";
+
+  return (
+    <div
+      className={`mb-5 rounded-lg border p-4 ${className}`}
+      role={feedback.tone === "success" ? "status" : "alert"}
+    >
+      <p className="text-sm font-black">{feedback.title}</p>
+      <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
+    </div>
+  );
+}
+
 function ProviderRequestActionButton({
   label,
   requestId,
@@ -31,7 +126,7 @@ function ProviderRequestActionButton({
 }: {
   label: string;
   requestId: string;
-  status: "accepted" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal";
+  status: "accepted" | "rejected" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal";
   tone: "green" | "neutral" | "red";
 }) {
   const toneClassName =
@@ -68,7 +163,8 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
   if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
+        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status="accepted" tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="rejected" tone="red" />
       </div>
     );
   }
@@ -107,8 +203,8 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
   if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="cancelled" tone="red" />
+        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status="accepted" tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="rejected" tone="red" />
       </div>
     );
   }
@@ -135,7 +231,7 @@ function ProviderRequestActions({ request }: { request: ProviderAssignedRequest 
 
 function ProviderRequestStatusText({ status }: { status: string }) {
   if (status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi || status === "assigned") {
-    return "Usta atandı, kabul bekleniyor.";
+    return "Usta atandı. Yanıt bekleniyor.";
   }
 
   return SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ?? status;
@@ -169,11 +265,15 @@ export const metadata: Metadata = {
   description: "Fuwu onaylı ustaları için gelen talep görünümü.",
 };
 
-export default async function ProviderDashboardRequestsPage() {
+export default async function ProviderDashboardRequestsPage({
+  searchParams,
+}: ProviderDashboardRequestsPageProps) {
+  const resolvedSearchParams = await searchParams;
   const [providerAccess, authContext] = await Promise.all([
     getProviderDashboardAccess(),
     getServerAuthContext(),
   ]);
+  const actionCode = getSearchParamValue(resolvedSearchParams, "requestAction");
   
   const assignedRequests = providerAccess.ok && authContext.supabase
     ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
@@ -196,6 +296,7 @@ export default async function ProviderDashboardRequestsPage() {
     >
       {providerAccess.ok ? (
         <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+          <ProviderRequestActionNotice code={actionCode} />
           <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="cursor-default select-none">
               <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
@@ -237,6 +338,10 @@ export default async function ProviderDashboardRequestsPage() {
                 </div>
                 <div className="mt-3 grid gap-2 text-sm font-semibold text-[var(--muted)]">
                   <p>
+                    <span className="font-black text-[var(--brand-navy)]">Talep ID: </span>
+                    {request.id}
+                  </p>
+                  <p>
                     <span className="font-black text-[var(--brand-navy)]">İlçe: </span>
                     {request.district}
                   </p>
@@ -274,19 +379,27 @@ export default async function ProviderDashboardRequestsPage() {
             ))}
           </div>
 
-          <div className="mt-5 hidden overflow-hidden rounded-lg border border-[var(--border)] md:block">
-            <div className="grid grid-cols-[1.2fr_1fr_0.9fr_1fr_0.8fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
+          <div className="mt-5 hidden overflow-x-auto rounded-lg border border-[var(--border)] md:block">
+            <div className="grid min-w-[1480px] grid-cols-[11rem_1fr_0.85fr_1.35fr_0.85fr_0.9fr_1fr_1.05fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
+              <span>Talep ID</span>
               <span>Hizmet</span>
-              <span>Konum</span>
+              <span>İlçe</span>
+              <span>Açıklama</span>
               <span>Bütçe / Ödeme</span>
-              <span>Tarih</span>
+              <span>Ödeme yöntemi</span>
+              <span>Oluşturulma tarihi</span>
               <span>Durum</span>
             </div>
             {assignedRequests.map((request) => (
               <article
-                className="flex flex-col gap-3 border-t border-[var(--border)] px-4 py-4 md:grid md:grid-cols-[1.2fr_1fr_0.9fr_1fr_0.8fr]"
+                className="flex min-w-[1480px] flex-col gap-3 border-t border-[var(--border)] px-4 py-4 md:grid md:grid-cols-[11rem_1fr_0.85fr_1.35fr_0.85fr_0.9fr_1fr_1.05fr]"
                 key={request.id}
               >
+                <div className="flex items-center">
+                  <span className="break-all font-mono text-xs font-bold text-[var(--muted)]">
+                    {request.id}
+                  </span>
+                </div>
                 <div className="flex flex-col">
                   <span className="font-black text-[var(--brand-navy)]">{request.category}</span>
                   <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
@@ -306,18 +419,24 @@ export default async function ProviderDashboardRequestsPage() {
                     {getProviderRequestLocation(request)}
                   </span>
                 </div>
+                <div className="flex flex-col justify-center text-sm font-semibold leading-6 text-[var(--muted)]">
+                  <span className="line-clamp-4">{request.description || "Açıklama yok"}</span>
+                </div>
                 <div className="flex flex-col justify-center text-sm">
                   <span className="font-bold text-[var(--brand-navy)]">
                     {getProviderBudgetOfferText(request)}
                   </span>
-                  <span className="mt-1 text-xs font-semibold text-[var(--muted)]">
+                  <span className="hidden">
                     {getPaymentPreferenceLabel(request.paymentPreference)}
                   </span>
                 </div>
+                <div className="flex flex-col justify-center text-sm font-bold text-[var(--brand-navy)]">
+                  {getPaymentPreferenceLabel(request.paymentPreference)}
+                </div>
                 <div className="flex flex-col justify-center text-sm">
-                  <span className="font-bold text-[var(--brand-navy)]">{request.preferredDate || "Tarih esnek"}</span>
-                  <span className="text-[var(--muted)]">{request.preferredTime || "Saat esnek"}</span>
-                  <span className="mt-1 text-xs font-semibold text-[var(--muted)]">
+                  <span className="font-bold text-[var(--brand-navy)]">{formatRequestCreatedAt(request.createdAt)}</span>
+                  <span className="text-xs font-semibold text-[var(--muted)]">{request.preferredDate || "Tarih esnek"} / {request.preferredTime || "Saat esnek"}</span>
+                  <span className="hidden">
                     Oluşturulma: {formatRequestCreatedAt(request.createdAt)}
                   </span>
                   {request.urgencyType === "emergency" ? (

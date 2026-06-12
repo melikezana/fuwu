@@ -296,6 +296,7 @@ export type Database = {
           emergency_status:
             | "pending"
             | "accepted"
+            | "rejected"
             | "on_the_way"
             | "completed"
             | "cancelled"
@@ -305,6 +306,7 @@ export type Database = {
           description: string | null;
           status:
             | "accepted"
+            | "rejected"
             | "cancelled"
             | "completed"
             | "yeni"
@@ -344,6 +346,7 @@ export type Database = {
           emergency_status?:
             | "pending"
             | "accepted"
+            | "rejected"
             | "on_the_way"
             | "completed"
             | "cancelled"
@@ -353,6 +356,7 @@ export type Database = {
           description?: string | null;
           status?:
             | "accepted"
+            | "rejected"
             | "cancelled"
             | "completed"
             | "yeni"
@@ -392,6 +396,7 @@ export type Database = {
           emergency_status?:
             | "pending"
             | "accepted"
+            | "rejected"
             | "on_the_way"
             | "completed"
             | "cancelled"
@@ -401,6 +406,7 @@ export type Database = {
           description?: string | null;
           status?:
             | "accepted"
+            | "rejected"
             | "cancelled"
             | "completed"
             | "yeni"

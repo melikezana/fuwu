@@ -226,7 +226,7 @@ create table if not exists public.service_requests (
   constraint service_requests_emergency_status_check
     check (
       emergency_status is null
-      or emergency_status in ('pending', 'accepted', 'on_the_way', 'completed', 'cancelled')
+      or emergency_status in ('pending', 'accepted', 'rejected', 'on_the_way', 'completed', 'cancelled')
     ),
   constraint service_requests_status_check
     check (
@@ -238,6 +238,7 @@ create table if not exists public.service_requests (
         'iptal',
         'pending',
         'accepted',
+        'rejected',
         'on_the_way',
         'completed',
         'cancelled'

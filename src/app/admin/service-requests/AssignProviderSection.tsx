@@ -16,7 +16,8 @@ export async function AssignProviderSection({
   if (
     status !== SERVICE_REQUEST_STATUSES.yeni &&
     status !== SERVICE_REQUEST_STATUSES.inceleniyor &&
-    status !== SERVICE_REQUEST_STATUSES.pending
+    status !== SERVICE_REQUEST_STATUSES.pending &&
+    status !== SERVICE_REQUEST_STATUSES.rejected
   ) {
     if (assignedProviderId) {
       return (

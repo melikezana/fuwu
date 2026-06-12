@@ -133,6 +133,11 @@ const requestStatusActions: Array<{
     tone: "approve",
   },
   {
+    label: SERVICE_REQUEST_STATUS_LABELS.rejected,
+    status: SERVICE_REQUEST_STATUSES.rejected,
+    tone: "reject",
+  },
+  {
     label: SERVICE_REQUEST_STATUS_LABELS.completed,
     status: SERVICE_REQUEST_STATUSES.completed,
     tone: "approve",
@@ -158,6 +163,11 @@ const emergencyRequestStatusActions: Array<{
     label: SERVICE_REQUEST_STATUS_LABELS.accepted,
     status: SERVICE_REQUEST_STATUSES.accepted,
     tone: "approve",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.rejected,
+    status: SERVICE_REQUEST_STATUSES.rejected,
+    tone: "reject",
   },
   {
     label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
@@ -226,6 +236,18 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value));
 }
 
+function getRequestResponseDateText(request: AdminServiceRequest) {
+  if (request.acceptedAt) {
+    return `Kabul: ${formatCreatedAt(request.acceptedAt)}`;
+  }
+
+  if (request.status === SERVICE_REQUEST_STATUSES.rejected) {
+    return `Red: ${formatCreatedAt(request.updatedAt)}`;
+  }
+
+  return null;
+}
+
 function formatPreferredDate(value: string | null) {
   if (!value) {
     return "Belirtilmedi";
@@ -288,6 +310,7 @@ function getRequestStatusView(status: string) {
   > = {
     [SERVICE_REQUEST_STATUSES.pending]: "orange",
     [SERVICE_REQUEST_STATUSES.accepted]: "green",
+    [SERVICE_REQUEST_STATUSES.rejected]: "red",
     [SERVICE_REQUEST_STATUSES.onTheWay]: "orange",
     [SERVICE_REQUEST_STATUSES.completed]: "green",
     [SERVICE_REQUEST_STATUSES.cancelled]: "red",
@@ -445,7 +468,8 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
           action.status === SERVICE_REQUEST_STATUSES.accepted
             ? adminActionIcons.approve
             : action.status === SERVICE_REQUEST_STATUSES.iptal ||
-                action.status === SERVICE_REQUEST_STATUSES.cancelled
+                action.status === SERVICE_REQUEST_STATUSES.cancelled ||
+                action.status === SERVICE_REQUEST_STATUSES.rejected
               ? adminActionIcons.reject
               : adminActionIcons.status;
 
@@ -548,6 +572,11 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
         <p>
           <span className="font-black text-[var(--brand-navy)]">Oluşturulma: </span>
           {formatCreatedAt(request.createdAt)}
+          {getRequestResponseDateText(request) ? (
+            <span className="mt-1 block">
+              Yanıt tarihi: {getRequestResponseDateText(request)}
+            </span>
+          ) : null}
         </p>
       </div>
 
@@ -667,6 +696,11 @@ export default async function AdminServiceRequestsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {formatCreatedAt(request.createdAt)}
+                      {getRequestResponseDateText(request) ? (
+                        <span className="mt-1 block text-xs">
+                          {getRequestResponseDateText(request)}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="px-4 py-4">
                       <span className="font-black text-[var(--brand-navy)]">

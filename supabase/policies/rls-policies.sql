@@ -394,7 +394,7 @@ using (
 )
 with check (
   coalesce(urgency_type, 'standard') = 'standard'
-  and status in ('accepted', 'completed', 'cancelled', 'tamamlandi', 'iptal')
+  and status in ('accepted', 'rejected', 'completed', 'cancelled', 'tamamlandi', 'iptal')
   and exists (
     select 1
     from public.providers
@@ -456,11 +456,19 @@ with check (
       and providers.is_active = true
       and providers.is_approved = true
       and providers.id = service_requests.assigned_provider_id
-      and providers.id = service_requests.accepted_provider_id
       and providers.category_id = service_requests.category_id
-      and providers.district_id = service_requests.district_id
-      and service_requests.status in ('accepted', 'on_the_way', 'completed', 'cancelled')
-      and service_requests.emergency_status in ('accepted', 'on_the_way', 'completed', 'cancelled')
+      and (
+        (
+          providers.id = service_requests.accepted_provider_id
+          and service_requests.status in ('accepted', 'on_the_way', 'completed', 'cancelled')
+          and service_requests.emergency_status in ('accepted', 'on_the_way', 'completed', 'cancelled')
+        )
+        or (
+          service_requests.status = 'rejected'
+          and service_requests.emergency_status = 'rejected'
+          and service_requests.accepted_provider_id is null
+        )
+      )
   )
 );
 

@@ -37,6 +37,31 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   iptal:                  { label: "İptal",               cls: "bg-zinc-100 text-zinc-500 border-zinc-200" },
 };
 
+function getAccountStatusView(status: string) {
+  if (status === "assigned" || status === "ustaya_yonlendirildi") {
+    return {
+      label: "Usta atandı. Yanıt bekleniyor.",
+      cls: "bg-blue-50 text-blue-700 border-blue-200",
+    };
+  }
+
+  if (status === "accepted") {
+    return {
+      label: "Usta talebini kabul etti.",
+      cls: "bg-blue-50 text-blue-700 border-blue-200",
+    };
+  }
+
+  if (status === "rejected") {
+    return {
+      label: "Usta talebi reddetti. Yeni eşleşme bekleniyor.",
+      cls: "bg-red-50 text-red-600 border-red-200",
+    };
+  }
+
+  return STATUS_MAP[status] ?? STATUS_MAP.yeni;
+}
+
 export default function AccountPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -188,7 +213,7 @@ export default function AccountPage() {
           ) : (
             <div className="space-y-2">
               {requests.map((req) => {
-                const s = STATUS_MAP[req.status] ?? STATUS_MAP.yeni;
+                const s = getAccountStatusView(req.status);
                 const isEmergency = req.urgency_type === "emergency";
                 return (
                   <div key={req.id}

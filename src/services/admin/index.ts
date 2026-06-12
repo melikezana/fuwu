@@ -27,6 +27,7 @@ import { isUuid } from "@/lib/utils";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
+  notifyServiceRequestAssigned,
 } from "@/services/notifications";
 import {
   createServiceFailure,
@@ -187,6 +188,7 @@ type AdminServiceRequestRecord = Pick<
   | "status"
   | "urgency"
   | "urgency_type"
+  | "updated_at"
   | "budget_tag"
   | "offered_price"
   | "payment_preference"
@@ -291,6 +293,7 @@ export type AdminServiceRequest = {
   preferredDate: string | null;
   preferredTime: string | null;
   status: string;
+  updatedAt: string;
   urgency: string;
   urgencyType: string;
   budgetTag: string | null;
@@ -1578,6 +1581,7 @@ export async function updateAdminServiceRequestStatus(
 
   const updatePayload: Partial<ServiceRequestRow> = {
     status: normalizedStatus,
+    updated_at: new Date().toISOString(),
   };
   const isEmergencyRequest = currentRequest.urgency_type === "emergency";
 
@@ -1622,6 +1626,15 @@ export async function updateAdminServiceRequestStatus(
       normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled)
   ) {
     updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
+  }
+
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.rejected) {
+    updatePayload.accepted_at = null;
+    updatePayload.accepted_provider_id = null;
+
+    if (isEmergencyRequest) {
+      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.rejected;
+    }
   }
 
   const updateQuery = supabase
@@ -1782,6 +1795,8 @@ export async function assignAdminServiceRequest(
 
   const assignmentStatus = SERVICE_REQUEST_STATUSES.ustayaYonlendirildi;
   const updatePayload: Partial<ServiceRequestRow> = {
+    accepted_at: null,
+    accepted_provider_id: null,
     assigned_provider_id: normalizedProviderId,
     status: assignmentStatus,
     updated_at: new Date().toISOString(),
@@ -1793,13 +1808,13 @@ export async function assignAdminServiceRequest(
     supabase
       .from("service_requests")
       .select(
-        "id, category_id, district_id, status, urgency, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
+        "id, user_id, category_id, district_id, status, urgency, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
       )
       .eq("id", normalizedRequestId)
       .maybeSingle(),
     supabase
       .from("providers")
-      .select("id, category_id, district_id, is_active, is_approved")
+      .select("id, user_id, category_id, district_id, is_active, is_approved")
       .eq("id", normalizedProviderId)
       .maybeSingle(),
   ]);
@@ -1868,6 +1883,7 @@ export async function assignAdminServiceRequest(
     SERVICE_REQUEST_STATUSES.yeni,
     SERVICE_REQUEST_STATUSES.inceleniyor,
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.rejected,
     "assigned",
   ];
   const updateGuardStatuses: ServiceRequestRow["status"][] = [
@@ -1875,6 +1891,7 @@ export async function assignAdminServiceRequest(
     SERVICE_REQUEST_STATUSES.yeni,
     SERVICE_REQUEST_STATUSES.inceleniyor,
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.rejected,
   ];
   const assignableStatusSet = new Set<string>(assignableStatuses);
 
@@ -1935,10 +1952,21 @@ export async function assignAdminServiceRequest(
     entityType: "service_request",
     metadata: {
       providerId: normalizedProviderId,
+      previousProviderId: existingRequest.assigned_provider_id,
       status: assignmentStatus,
       urgencyType: isEmergencyRequest ? "emergency" : "standard",
     },
     supabase,
+  });
+
+  await notifyServiceRequestAssigned({
+    actorUserId: adminAccess.access.userId,
+    customerUserId: existingRequest.user_id,
+    providerId: normalizedProviderId,
+    providerUserId: provider.user_id ?? null,
+    requestCode: normalizedRequestId.slice(0, 8).toLocaleUpperCase("tr"),
+    requestId: normalizedRequestId,
+    supabaseClient: supabase,
   });
 
   return createServiceRequestActionResult("service-request-updated", true);
@@ -2413,6 +2441,7 @@ export async function getAdminServiceRequests(): Promise<
         accepted_provider_id,
         accepted_at,
         created_at,
+        updated_at,
         assigned_provider_id,
         service_categories(name),
         districts(name),
@@ -2443,6 +2472,7 @@ export async function getAdminServiceRequests(): Promise<
       preferredDate: request.preferred_date,
       preferredTime: request.preferred_time,
       status: sanitizeText(request.status, 40),
+      updatedAt: request.updated_at,
       urgency: sanitizeText(request.urgency, 40),
       urgencyType: sanitizeText(request.urgency_type ?? "standard", 40),
       budgetTag: request.budget_tag ? sanitizeText(request.budget_tag, 40) : null,

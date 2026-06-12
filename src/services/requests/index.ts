@@ -11,9 +11,9 @@ import {
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { normalizeServiceValue } from "@/lib/constants/services";
-import { logInfo } from "@/lib/logger";
+import { logError, logInfo } from "@/lib/logger";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, Json } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
 import {
   createEmergencyMatchRequest,
@@ -29,6 +29,8 @@ import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/se
 import { isUuid } from "@/lib/utils/validation";
 import {
   notifyEmergencyRequestDispatched,
+  notifyServiceRequestAccepted,
+  notifyServiceRequestRejected,
   notifyServiceRequestCreated,
 } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
@@ -50,6 +52,25 @@ type LookupRecord = {
 
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
+type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
+
+export type ProviderAssignedRequestAction = "accept" | "reject";
+
+export type ProviderAssignedRequestActionCode =
+  | "request-accepted"
+  | "request-rejected"
+  | "request-action-failed"
+  | "request-invalid-id"
+  | "request-invalid-status"
+  | "request-not-assigned"
+  | "provider-not-authorized"
+  | "supabase-not-configured";
+
+export type ProviderAssignedRequestActionResult = {
+  code: ProviderAssignedRequestActionCode;
+  message: string;
+  ok: boolean;
+};
 
 export type {
   ServiceRequestPaymentPreference,
@@ -104,6 +125,149 @@ function warnServiceRequestError(message: string, error: unknown) {
     logContext: message,
     publicMessage: serviceRequestSubmitErrorMessage,
   });
+}
+
+const providerAssignedRequestActionMessages: Record<
+  ProviderAssignedRequestActionCode,
+  string
+> = {
+  "provider-not-authorized": "Kabul işlemi başarısız oldu.",
+  "request-accepted": "Talep kabul edildi.",
+  "request-action-failed": "Kabul işlemi başarısız oldu.",
+  "request-invalid-id": "Talep kimliği geçerli değil.",
+  "request-invalid-status": "Bu talep şu anda yanıtlanamaz.",
+  "request-not-assigned": "Bu talep sana atanmadı.",
+  "request-rejected": "Talep reddedildi.",
+  "supabase-not-configured": "Kabul işlemi başarısız oldu.",
+};
+
+function getProviderRequestActionFailureMessage(
+  action: ProviderAssignedRequestAction,
+  code: ProviderAssignedRequestActionCode,
+) {
+  if (code === "request-not-assigned") {
+    return "Bu talep sana atanmadı.";
+  }
+
+  if (action === "reject") {
+    return "Red işlemi başarısız oldu.";
+  }
+
+  return providerAssignedRequestActionMessages[code] || "Kabul işlemi başarısız oldu.";
+}
+
+function createProviderAssignedRequestActionResult(
+  code: ProviderAssignedRequestActionCode,
+  ok: boolean,
+  action: ProviderAssignedRequestAction,
+): ProviderAssignedRequestActionResult {
+  return {
+    code,
+    message: ok
+      ? providerAssignedRequestActionMessages[code]
+      : getProviderRequestActionFailureMessage(action, code),
+    ok,
+  };
+}
+
+function getSupabaseErrorLogDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return {};
+  }
+
+  const record = error as {
+    code?: unknown;
+    details?: unknown;
+    hint?: unknown;
+    message?: unknown;
+  };
+
+  return {
+    code: typeof record.code === "string" ? record.code : undefined,
+    details: typeof record.details === "string" ? record.details : undefined,
+    hint: typeof record.hint === "string" ? record.hint : undefined,
+    message: typeof record.message === "string" ? record.message : undefined,
+  };
+}
+
+function logProviderRequestActionFailure({
+  action,
+  context,
+  error,
+  providerId,
+  requestId,
+}: {
+  action: ProviderAssignedRequestAction;
+  context: string;
+  error: unknown;
+  providerId: string;
+  requestId: string;
+}) {
+  const payload = {
+    action,
+    providerId,
+    requestId,
+    supabaseError: getSupabaseErrorLogDetails(error),
+  };
+
+  console.error(`[Fuwu] Provider request ${context} failed.`, payload);
+  logError(`Provider request ${context} failed.`, payload);
+}
+
+async function insertProviderRequestAuditLog({
+  action,
+  actorUserId,
+  metadata = {},
+  requestId,
+  supabase,
+}: {
+  action: string;
+  actorUserId: string | null;
+  metadata?: Json;
+  requestId: string;
+  supabase: SupabaseClient<Database>;
+}) {
+  try {
+    const { error } = await supabase.from("audit_logs").insert({
+      action,
+      actor_user_id: actorUserId,
+      entity_id: requestId,
+      entity_type: "service_request",
+      metadata,
+    });
+
+    if (error) {
+      logProviderRequestActionFailure({
+        action: action.endsWith("rejected") ? "reject" : "accept",
+        context: "audit log insert",
+        error,
+        providerId:
+          typeof metadata === "object" && metadata && !Array.isArray(metadata)
+            ? String(metadata.providerId ?? "")
+            : "",
+        requestId,
+      });
+    }
+  } catch (error) {
+    logProviderRequestActionFailure({
+      action: action.endsWith("rejected") ? "reject" : "accept",
+      context: "audit log insert",
+      error,
+      providerId:
+        typeof metadata === "object" && metadata && !Array.isArray(metadata)
+          ? String(metadata.providerId ?? "")
+          : "",
+      requestId,
+    });
+  }
+}
+
+function isProviderResponseWaitingStatus(status: string) {
+  return (
+    status === SERVICE_REQUEST_STATUSES.pending ||
+    status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
+    status === "assigned"
+  );
 }
 
 function parseServiceCategoryName(serviceCategory: string) {
@@ -848,6 +1012,8 @@ export async function assignProviderToRequest(
   const { data, error } = await supabase
     .from("service_requests")
     .update({ 
+      accepted_at: null,
+      accepted_provider_id: null,
       assigned_provider_id: providerId,
       status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
       updated_at: new Date().toISOString(),
@@ -943,6 +1109,7 @@ export async function assignProviderToEmergencyRequest(
     SERVICE_REQUEST_STATUSES.yeni,
     SERVICE_REQUEST_STATUSES.inceleniyor,
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.rejected,
     "assigned",
   ];
   const updateGuardStatuses: Array<NonNullable<ServiceRequestUpdate["status"]>> = [
@@ -950,6 +1117,7 @@ export async function assignProviderToEmergencyRequest(
     SERVICE_REQUEST_STATUSES.yeni,
     SERVICE_REQUEST_STATUSES.inceleniyor,
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    SERVICE_REQUEST_STATUSES.rejected,
   ];
   const assignableStatusSet = new Set<string>(assignableStatuses);
 
@@ -971,6 +1139,8 @@ export async function assignProviderToEmergencyRequest(
     ? districtRelation[0]?.name
     : districtRelation?.name;
   const updatePayload: ServiceRequestUpdate = {
+    accepted_at: null,
+    accepted_provider_id: null,
     assigned_provider_id: providerId,
     confirmation_code: request.confirmation_code ?? generateJobConfirmationCode(),
     emergency_status: SERVICE_REQUEST_STATUSES.pending,
@@ -1174,6 +1344,7 @@ export async function acceptEmergencyRequest(
       urgencyType: "emergency",
     }),
     status: SERVICE_REQUEST_STATUSES.accepted,
+    updated_at: acceptedAt,
   };
   let updateQuery = supabase
     .from("service_requests")
@@ -1195,10 +1366,193 @@ export async function acceptEmergencyRequest(
   return true;
 }
 
+export async function respondToProviderAssignedRequest(
+  requestId: string,
+  providerId: string,
+  action: ProviderAssignedRequestAction,
+  supabaseClient?: SupabaseClient<Database>,
+): Promise<ProviderAssignedRequestActionResult> {
+  if (!isUuid(requestId) || !isUuid(providerId)) {
+    return createProviderAssignedRequestActionResult("request-invalid-id", false, action);
+  }
+
+  const supabase = supabaseClient ?? createServiceRequestClient();
+
+  if (!supabase) {
+    return createProviderAssignedRequestActionResult("supabase-not-configured", false, action);
+  }
+
+  try {
+    const [
+      { data: provider, error: providerError },
+      { data: currentRequest, error: currentRequestError },
+    ] = await Promise.all([
+      supabase
+        .from("providers")
+        .select("id, user_id, is_active, is_approved")
+        .eq("id", providerId)
+        .maybeSingle(),
+      supabase
+        .from("service_requests")
+        .select(
+          "id, user_id, status, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
+        )
+        .eq("id", requestId)
+        .eq("assigned_provider_id", providerId)
+        .maybeSingle(),
+    ]);
+
+    if (providerError) {
+      logProviderRequestActionFailure({
+        action,
+        context: "provider eligibility lookup",
+        error: providerError,
+        providerId,
+        requestId,
+      });
+      return createProviderAssignedRequestActionResult("provider-not-authorized", false, action);
+    }
+
+    if (!provider?.is_active || !provider?.is_approved) {
+      return createProviderAssignedRequestActionResult("provider-not-authorized", false, action);
+    }
+
+    if (currentRequestError) {
+      logProviderRequestActionFailure({
+        action,
+        context: "assigned request lookup",
+        error: currentRequestError,
+        providerId,
+        requestId,
+      });
+      return createProviderAssignedRequestActionResult("request-action-failed", false, action);
+    }
+
+    if (!currentRequest) {
+      return createProviderAssignedRequestActionResult("request-not-assigned", false, action);
+    }
+
+    const currentStatus = String(currentRequest.status);
+
+    if (!isProviderResponseWaitingStatus(currentStatus)) {
+      return createProviderAssignedRequestActionResult("request-invalid-status", false, action);
+    }
+
+    const now = new Date().toISOString();
+    const isEmergencyRequest = currentRequest.urgency_type === "emergency";
+    const districtRelation = (currentRequest as any).districts;
+    const districtName = Array.isArray(districtRelation)
+      ? districtRelation[0]?.name
+      : districtRelation?.name;
+    const updatePayload: ServiceRequestUpdate =
+      action === "accept"
+        ? {
+            accepted_at: now,
+            accepted_provider_id: providerId,
+            status: SERVICE_REQUEST_STATUSES.accepted,
+            updated_at: now,
+          }
+        : {
+            accepted_at: null,
+            accepted_provider_id: null,
+            status: SERVICE_REQUEST_STATUSES.rejected,
+            updated_at: now,
+          };
+
+    if (isEmergencyRequest && action === "accept") {
+      updatePayload.confirmation_code =
+        currentRequest.confirmation_code ?? generateJobConfirmationCode();
+      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.accepted;
+      updatePayload.estimated_arrival_text =
+        currentRequest.estimated_arrival_text ??
+        calculateEstimatedArrivalText({
+          acceptedAt: now,
+          district: typeof districtName === "string" ? districtName : null,
+          urgencyType: "emergency",
+        });
+    }
+
+    if (isEmergencyRequest && action === "reject") {
+      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.rejected;
+    }
+
+    const { data: updatedRequest, error: updateError } = await supabase
+      .from("service_requests")
+      .update(updatePayload)
+      .eq("id", requestId)
+      .eq("assigned_provider_id", providerId)
+      .eq("status", currentStatus as ServiceRequestRow["status"])
+      .select("id")
+      .maybeSingle();
+
+    if (updateError) {
+      logProviderRequestActionFailure({
+        action,
+        context: "status update",
+        error: updateError,
+        providerId,
+        requestId,
+      });
+      return createProviderAssignedRequestActionResult("request-action-failed", false, action);
+    }
+
+    if (!updatedRequest) {
+      return createProviderAssignedRequestActionResult("request-not-assigned", false, action);
+    }
+
+    await insertProviderRequestAuditLog({
+      action:
+        action === "accept"
+          ? "service_request.accepted"
+          : "service_request.rejected",
+      actorUserId: provider.user_id ?? null,
+      metadata: {
+        action,
+        providerId,
+        previousStatus: currentStatus,
+        status:
+          action === "accept"
+            ? SERVICE_REQUEST_STATUSES.accepted
+            : SERVICE_REQUEST_STATUSES.rejected,
+      },
+      requestId,
+      supabase,
+    });
+
+    const notificationMetadata = {
+      actorUserId: provider.user_id ?? null,
+      customerUserId: currentRequest.user_id,
+      providerId,
+      providerUserId: provider.user_id ?? null,
+      requestCode: createLiveRequestCode(requestId),
+      requestId,
+      supabaseClient: supabase,
+    };
+
+    if (action === "accept") {
+      await notifyServiceRequestAccepted(notificationMetadata);
+      return createProviderAssignedRequestActionResult("request-accepted", true, action);
+    }
+
+    await notifyServiceRequestRejected(notificationMetadata);
+    return createProviderAssignedRequestActionResult("request-rejected", true, action);
+  } catch (error) {
+    logProviderRequestActionFailure({
+      action,
+      context: "unexpected action",
+      error,
+      providerId,
+      requestId,
+    });
+
+    return createProviderAssignedRequestActionResult("request-action-failed", false, action);
+  }
+}
+
 export async function updateProviderAssignedRequestStatus(
   requestId: string,
   providerId: string,
-  status: "accepted" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal",
+  status: "accepted" | "rejected" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal",
   supabaseClient?: SupabaseClient<Database>,
 ) {
   if (!isUuid(requestId) || !isUuid(providerId)) {
@@ -1215,6 +1569,20 @@ export async function updateProviderAssignedRequestStatus(
 
   if (!normalizedStatus) {
     return false;
+  }
+
+  if (
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.rejected
+  ) {
+    const result = await respondToProviderAssignedRequest(
+      requestId,
+      providerId,
+      normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ? "accept" : "reject",
+      supabase,
+    );
+
+    return result.ok;
   }
 
   const { data: currentRequest, error: currentRequestError } = await supabase
@@ -1235,7 +1603,6 @@ export async function updateProviderAssignedRequestStatus(
     : districtRelation?.name;
   const isEmergencyRequest = currentRequest.urgency_type === "emergency";
   const acceptedAt =
-    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
     normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
       ? new Date().toISOString()
       : null;
@@ -1243,23 +1610,6 @@ export async function updateProviderAssignedRequestStatus(
     status: normalizedStatus,
   };
   const currentRequestStatus = String(currentRequest.status);
-
-  if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
-    if (isEmergencyRequest) {
-      return acceptEmergencyRequest(requestId, providerId, supabase);
-    }
-
-    if (
-      currentRequestStatus !== SERVICE_REQUEST_STATUSES.pending &&
-      currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
-      currentRequestStatus !== "assigned"
-    ) {
-      return false;
-    }
-
-    updatePayload.accepted_at = acceptedAt;
-    updatePayload.accepted_provider_id = providerId;
-  }
 
   if (
     !isEmergencyRequest &&

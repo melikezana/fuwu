@@ -2,6 +2,7 @@ export const SERVICE_REQUEST_STATUSES = {
   accepted: "accepted",
   cancelled: "cancelled",
   completed: "completed",
+  rejected: "rejected",
   yeni: "yeni",
   inceleniyor: "inceleniyor",
   onTheWay: "on_the_way",
@@ -21,25 +22,27 @@ export const SERVICE_REQUEST_STATUS_VALUES = Object.values(
 export const SERVICE_REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string> = {
   [SERVICE_REQUEST_STATUSES.pending]: "Bekliyor",
   [SERVICE_REQUEST_STATUSES.accepted]: "Kabul edildi",
+  [SERVICE_REQUEST_STATUSES.rejected]: "Reddedildi",
   [SERVICE_REQUEST_STATUSES.onTheWay]: "Yolda",
   [SERVICE_REQUEST_STATUSES.completed]: "Tamamlandı",
   [SERVICE_REQUEST_STATUSES.cancelled]: "İptal edildi",
   [SERVICE_REQUEST_STATUSES.yeni]: "Yeni",
   [SERVICE_REQUEST_STATUSES.inceleniyor]: "İnceleniyor",
-  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Ustaya Yönlendirildi",
+  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Usta atandı. Yanıt bekleniyor.",
   [SERVICE_REQUEST_STATUSES.tamamlandi]: "Tamamlandı",
   [SERVICE_REQUEST_STATUSES.iptal]: "İptal",
 };
 
 export const SERVICE_REQUEST_STATUS_DESCRIPTIONS: Record<ServiceRequestStatus, string> = {
-  [SERVICE_REQUEST_STATUSES.pending]: "Acil talep uygun usta ataması bekliyor.",
-  [SERVICE_REQUEST_STATUSES.accepted]: "Usta talebi kabul etti.",
+  [SERVICE_REQUEST_STATUSES.pending]: "Talep uygun usta ataması bekliyor.",
+  [SERVICE_REQUEST_STATUSES.accepted]: "Usta talebini kabul etti.",
+  [SERVICE_REQUEST_STATUSES.rejected]: "Usta talebi reddetti. Yeni eşleşme bekleniyor.",
   [SERVICE_REQUEST_STATUSES.onTheWay]: "Usta konuma doğru yolda.",
   [SERVICE_REQUEST_STATUSES.completed]: "Talep tamamlandı.",
   [SERVICE_REQUEST_STATUSES.cancelled]: "Talep iptal edildi.",
   [SERVICE_REQUEST_STATUSES.yeni]: "Talep yeni alındı ve ilk kontrol bekliyor.",
   [SERVICE_REQUEST_STATUSES.inceleniyor]: "Operasyon ekibi talebi inceliyor.",
-  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Talep uygun ustaya yönlendirildi.",
+  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Usta atandı. Yanıt bekleniyor.",
   [SERVICE_REQUEST_STATUSES.tamamlandi]: "Talep tamamlandı.",
   [SERVICE_REQUEST_STATUSES.iptal]: "Talep iptal edildi.",
 };
@@ -54,10 +57,15 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
     SERVICE_REQUEST_STATUSES.onTheWay,
     SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.cancelled,
+    SERVICE_REQUEST_STATUSES.rejected,
   ],
   [SERVICE_REQUEST_STATUSES.accepted]: [
     SERVICE_REQUEST_STATUSES.onTheWay,
     SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.cancelled,
+  ],
+  [SERVICE_REQUEST_STATUSES.rejected]: [
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.onTheWay]: [
@@ -68,11 +76,13 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
   [SERVICE_REQUEST_STATUSES.cancelled]: [],
   [SERVICE_REQUEST_STATUSES.yeni]: [
     SERVICE_REQUEST_STATUSES.inceleniyor,
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     SERVICE_REQUEST_STATUSES.accepted,
     SERVICE_REQUEST_STATUSES.onTheWay,
     SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.iptal,
     SERVICE_REQUEST_STATUSES.cancelled,
+    SERVICE_REQUEST_STATUSES.rejected,
   ],
   [SERVICE_REQUEST_STATUSES.inceleniyor]: [
     SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
@@ -81,6 +91,7 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
     SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.iptal,
     SERVICE_REQUEST_STATUSES.cancelled,
+    SERVICE_REQUEST_STATUSES.rejected,
   ],
   [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: [
     SERVICE_REQUEST_STATUSES.accepted,
@@ -89,12 +100,14 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
     SERVICE_REQUEST_STATUSES.tamamlandi,
     SERVICE_REQUEST_STATUSES.iptal,
     SERVICE_REQUEST_STATUSES.cancelled,
+    SERVICE_REQUEST_STATUSES.rejected,
   ],
   [SERVICE_REQUEST_STATUSES.tamamlandi]: [],
   [SERVICE_REQUEST_STATUSES.iptal]: [],
 };
 
 export const LEGACY_SERVICE_REQUEST_STATUS_MAP: Record<string, ServiceRequestStatus> = {
+  assigned: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
   cancelled: SERVICE_REQUEST_STATUSES.iptal,
   completed: SERVICE_REQUEST_STATUSES.tamamlandi,
   in_progress: SERVICE_REQUEST_STATUSES.inceleniyor,
