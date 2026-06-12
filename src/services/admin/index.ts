@@ -376,6 +376,8 @@ export type AdminServiceRequestStatus = ServiceRequestStatus;
 export type AdminServiceRequestActionCode =
   | "admin-not-authorized"
   | "service-request-action-failed"
+  | "service-request-invalid-id"
+  | "service-request-invalid-provider"
   | "service-request-invalid-status"
   | "service-request-invalid-transition"
   | "service-request-missing-id"
@@ -1220,7 +1222,9 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
     supabase
       .from("service_requests")
       .select("id", { count: "exact", head: true })
-      .or(`status.eq.${SERVICE_REQUEST_STATUSES.yeni},status.eq.open`),
+      .or(
+        `status.eq.${SERVICE_REQUEST_STATUSES.pending},status.eq.${SERVICE_REQUEST_STATUSES.yeni},status.eq.open`,
+      ),
   ]);
 
   const results = [
@@ -1493,6 +1497,10 @@ export async function updateAdminServiceRequestStatus(
     return createServiceRequestActionResult("service-request-missing-id", false);
   }
 
+  if (!isUuid(normalizedRequestId)) {
+    return createServiceRequestActionResult("service-request-invalid-id", false);
+  }
+
   if (!normalizedStatus || !isAdminServiceRequestStatus(normalizedStatus)) {
     return createServiceRequestActionResult("service-request-invalid-status", false);
   }
@@ -1628,6 +1636,10 @@ export async function getAdminAssignableProvidersForRequest(
     return createEmptyReadResult("Talep kimliÄŸi alÄ±namadÄ±.");
   }
 
+  if (!isUuid(normalizedRequestId)) {
+    return createEmptyReadResult("Talep kimliÄŸi geÃ§erli deÄŸil.");
+  }
+
   const adminAccess = await getSupabaseForAdminRead();
   const { supabase } = adminAccess;
 
@@ -1707,6 +1719,14 @@ export async function assignAdminServiceRequest(
 
   if (!normalizedProviderId) {
     return createServiceRequestActionResult("service-request-missing-provider", false);
+  }
+
+  if (!isUuid(normalizedRequestId)) {
+    return createServiceRequestActionResult("service-request-invalid-id", false);
+  }
+
+  if (!isUuid(normalizedProviderId)) {
+    return createServiceRequestActionResult("service-request-invalid-provider", false);
   }
 
   const adminAccess = await getSupabaseForAdminWrite();

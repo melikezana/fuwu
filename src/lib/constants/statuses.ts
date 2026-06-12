@@ -49,6 +49,7 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
   ServiceRequestStatus[]
 > = {
   [SERVICE_REQUEST_STATUSES.pending]: [
+    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     SERVICE_REQUEST_STATUSES.accepted,
     SERVICE_REQUEST_STATUSES.onTheWay,
     SERVICE_REQUEST_STATUSES.completed,
@@ -98,7 +99,7 @@ export const LEGACY_SERVICE_REQUEST_STATUS_MAP: Record<string, ServiceRequestSta
   completed: SERVICE_REQUEST_STATUSES.tamamlandi,
   in_progress: SERVICE_REQUEST_STATUSES.inceleniyor,
   matched: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-  open: SERVICE_REQUEST_STATUSES.yeni,
+  open: SERVICE_REQUEST_STATUSES.pending,
 };
 
 export function isServiceRequestStatus(

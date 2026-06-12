@@ -285,8 +285,10 @@ export type Database = {
           address: string;
           urgency: string;
           urgency_type: "standard" | "emergency" | null;
+          budget: string | null;
           budget_tag: string | null;
           offered_price: number | null;
+          payment_method: "cash" | "iban" | "online_soon" | null;
           payment_preference: "cash" | "iban" | "online_soon" | null;
           confirmation_code: string | null;
           estimated_arrival_text: string | null;
@@ -331,8 +333,10 @@ export type Database = {
           address: string;
           urgency?: string;
           urgency_type?: "standard" | "emergency" | null;
+          budget?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
+          payment_method?: "cash" | "iban" | "online_soon" | null;
           payment_preference?: "cash" | "iban" | "online_soon" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;
@@ -377,8 +381,10 @@ export type Database = {
           address?: string;
           urgency?: string;
           urgency_type?: "standard" | "emergency" | null;
+          budget?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
+          payment_method?: "cash" | "iban" | "online_soon" | null;
           payment_preference?: "cash" | "iban" | "online_soon" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;

@@ -29,7 +29,14 @@ export async function getAdminOverviewMetrics() {
       pendingApplicationsResult,
     ] = await Promise.all([
       supabase.from("service_requests").select("id", { count: "exact", head: true }),
-      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.yeni),
+      supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .in("status", [
+          SERVICE_REQUEST_STATUSES.pending,
+          SERVICE_REQUEST_STATUSES.yeni,
+          SERVICE_REQUEST_STATUSES.inceleniyor,
+        ]),
       supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.inceleniyor),
       supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.ustayaYonlendirildi),
       supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.tamamlandi),

@@ -3,6 +3,7 @@
 import { updateProviderAssignedRequestStatus } from "@/services/requests";
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
+import { isUuid } from "@/lib/utils/validation";
 import { revalidatePath } from "next/cache";
 
 export async function providerUpdateRequestStatusAction(formData: FormData) {
@@ -15,7 +16,7 @@ export async function providerUpdateRequestStatusAction(formData: FormData) {
     | "tamamlandi"
     | "iptal";
 
-  if (!requestId || !status) return;
+  if (!requestId || !isUuid(requestId) || !status) return;
 
   const access = await getProviderDashboardAccess();
   if (!access.ok) return;

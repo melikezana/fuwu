@@ -192,8 +192,10 @@ create table if not exists public.service_requests (
   address text not null,
   urgency text not null default 'normal',
   urgency_type text not null default 'standard',
+  budget text,
   budget_tag text,
   offered_price numeric(10, 2),
+  payment_method text,
   payment_preference text,
   confirmation_code text,
   estimated_arrival_text text,
@@ -202,7 +204,7 @@ create table if not exists public.service_requests (
   preferred_date date,
   preferred_time time,
   description text,
-  status text not null default 'yeni',
+  status text not null default 'pending',
   assigned_provider_id uuid references public.providers(id) on delete set null,
   accepted_provider_id uuid references public.providers(id) on delete set null,
   accepted_at timestamptz,
@@ -219,6 +221,8 @@ create table if not exists public.service_requests (
     check (offered_price is null or offered_price >= 0),
   constraint service_requests_payment_preference_check
     check (payment_preference is null or payment_preference in ('cash', 'iban', 'online_soon')),
+  constraint service_requests_payment_method_check
+    check (payment_method is null or payment_method in ('cash', 'iban', 'online_soon')),
   constraint service_requests_emergency_status_check
     check (
       emergency_status is null
@@ -353,11 +357,17 @@ create index if not exists service_requests_urgency_type_idx
 create index if not exists service_requests_budget_tag_idx
   on public.service_requests (budget_tag);
 
+create index if not exists service_requests_budget_idx
+  on public.service_requests (budget);
+
 create index if not exists service_requests_offered_price_idx
   on public.service_requests (offered_price);
 
 create index if not exists service_requests_payment_preference_idx
   on public.service_requests (payment_preference);
+
+create index if not exists service_requests_payment_method_idx
+  on public.service_requests (payment_method);
 
 create index if not exists service_requests_emergency_status_idx
   on public.service_requests (emergency_status);

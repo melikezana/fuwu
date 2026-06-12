@@ -311,20 +311,17 @@ for insert
 to authenticated
 with check (
   user_id = auth.uid()
+  and status = 'pending'
+  and assigned_provider_id is null
+  and accepted_provider_id is null
   and (
-    status = 'yeni'
-    or (
-      urgency_type = 'emergency'
-      and status = 'pending'
-      and emergency_status = 'pending'
-      and assigned_provider_id is null
-      and accepted_provider_id is null
-    )
+    coalesce(urgency_type, 'standard') <> 'emergency'
+    or emergency_status = 'pending'
   )
 );
 
 comment on policy service_requests_insert_authenticated_own on public.service_requests is
-  'Authenticated users can create standard requests in yeni or emergency requests in pending state for themselves.';
+  'Authenticated customers can create only their own pending requests.';
 
 drop policy if exists service_requests_select_own on public.service_requests;
 create policy service_requests_select_own
@@ -375,7 +372,7 @@ using (
 )
 with check (
   coalesce(urgency_type, 'standard') = 'standard'
-  and status in ('tamamlandi', 'iptal')
+  and status in ('accepted', 'completed', 'cancelled', 'tamamlandi', 'iptal')
   and exists (
     select 1
     from public.providers
@@ -387,7 +384,7 @@ with check (
 );
 
 comment on policy service_requests_update_provider_assigned_status on public.service_requests is
-  'Approved providers can close or cancel standard requests assigned to their provider record.';
+  'Approved providers can accept, complete, or cancel standard requests assigned to their provider record.';
 
 drop policy if exists service_requests_select_provider_relevant on public.service_requests;
 create policy service_requests_select_provider_relevant
@@ -404,19 +401,12 @@ using (
       and (
         providers.id = service_requests.assigned_provider_id
         or providers.id = service_requests.accepted_provider_id
-        or (
-          service_requests.urgency_type = 'emergency'
-          and service_requests.status = 'pending'
-          and service_requests.assigned_provider_id is null
-          and providers.category_id = service_requests.category_id
-          and providers.district_id = service_requests.district_id
-        )
       )
   )
 );
 
 comment on policy service_requests_select_provider_relevant on public.service_requests is
-  'Approved providers can read assigned requests and nearby open emergency requests matching their category and district.';
+  'Approved providers can read only requests assigned or accepted by their provider record.';
 
 drop policy if exists service_requests_update_provider_emergency_acceptance on public.service_requests;
 create policy service_requests_update_provider_emergency_acceptance
@@ -432,14 +422,7 @@ using (
       and providers.is_active = true
       and providers.is_approved = true
       and providers.category_id = service_requests.category_id
-      and (
-        providers.id = service_requests.assigned_provider_id
-        or (
-          service_requests.status = 'pending'
-          and service_requests.assigned_provider_id is null
-          and providers.district_id = service_requests.district_id
-        )
-      )
+      and providers.id = service_requests.assigned_provider_id
   )
 )
 with check (
@@ -460,7 +443,7 @@ with check (
 );
 
 comment on policy service_requests_update_provider_emergency_acceptance on public.service_requests is
-  'Approved providers can accept and progress only emergency requests that match their profile or are already assigned to them.';
+  'Approved providers can accept and progress only emergency requests assigned to them.';
 
 -- Reviews
 -- Reviews are public marketplace trust content, so anonymous and authenticated

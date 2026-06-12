@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
-import { providerDistricts } from "@/lib/constants/providers";
+import { providerBudgetOptions, providerDistricts } from "@/lib/constants/providers";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ import {
   PAYMENT_PREFERENCES,
   getPaymentPreferenceLabel,
   ibanAfterProviderAcceptsText,
+  normalizePaymentPreference,
   type ServiceRequestPaymentPreference,
 } from "@/services/payments";
 import type { ServiceRequestSubmitResult } from "@/services/requests";
@@ -144,6 +145,32 @@ const emergencyPaymentOptions: Array<{
   },
 ];
 
+const standardBudgetOptions = providerBudgetOptions.filter(
+  (option) => option.value !== "acil-hizmet",
+);
+
+const standardPaymentOptions: Array<{
+  description: string;
+  label: string;
+  value: ServiceRequestPaymentPreference;
+}> = [
+  {
+    description: "Usta geldiğinde nakit ödeme yapmak istiyorum.",
+    label: "Nakit",
+    value: PAYMENT_PREFERENCES.cash,
+  },
+  {
+    description: ibanAfterProviderAcceptsText,
+    label: "IBAN",
+    value: PAYMENT_PREFERENCES.iban,
+  },
+  {
+    description: "Online ödeme açıldığında bilgilendirilmek istiyorum.",
+    label: "Online ödeme",
+    value: PAYMENT_PREFERENCES.onlineSoon,
+  },
+];
+
 const emergencyLocationOptions = ["Ev", "İş yeri", "Site / apartman", "Kapı önü"];
 
 const fieldBaseClassName =
@@ -156,8 +183,7 @@ const labelClassName = "block cursor-default select-none text-sm font-bold text-
 const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 text-[var(--muted)]";
 const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-red-600";
 const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
-const serviceRequestSuccessMessage =
-  "Talebin alındı. Fuwu ekibi uygun ustaları yönlendirecek.";
+const serviceRequestSuccessMessage = "Talebiniz başarıyla oluşturuldu";
 const serviceRequestSubmitErrorMessage =
   "Talep oluşturulamadı. Lütfen tekrar deneyin.";
 
@@ -300,6 +326,12 @@ function createInitialFormState({
         service: serviceCategory,
       })
     : 0;
+  const normalizedPaymentPreference = normalizePaymentPreference(initialPaymentPreference);
+  const canPrefillPaymentPreference = Boolean(
+    normalizedPaymentPreference &&
+    (!isEmergencyFlow ||
+      (EMERGENCY_PAYMENT_PREFERENCES as readonly string[]).includes(normalizedPaymentPreference)),
+  );
 
   return {
     ...initialFormState,
@@ -310,11 +342,7 @@ function createInitialFormState({
     fullName: initialProfileFullName?.trim() ?? "",
     phoneNumber: initialProfilePhone?.trim() ?? "",
     offerAmount: initialOfferAmount.trim() || (suggestedEmergencyPrice ? String(suggestedEmergencyPrice) : ""),
-    paymentPreference: (EMERGENCY_PAYMENT_PREFERENCES as readonly string[]).includes(
-      initialPaymentPreference,
-    )
-      ? initialPaymentPreference
-      : "",
+    paymentPreference: canPrefillPaymentPreference ? normalizedPaymentPreference ?? "" : "",
     preferredDate:
       formatPreferredDateFromOffset(timeIntent.preferredDateOffsetDays) ||
       (isEmergencyFlow ? getTodayDateInput() : ""),
@@ -530,7 +558,7 @@ export function RequestForm({
         params.set("requestId", result.requestId);
       }
 
-      router.push(`${appRoutes.accountRequests}?${params.toString()}`);
+      router.push(`${appRoutes.dashboardRequests}?${params.toString()}`);
       return;
     } catch (error) {
       setSubmittedRequest(null);
@@ -999,6 +1027,84 @@ export function RequestForm({
                   Aciliyet, uygun ustaları önceliklendirmeye yardımcı olur.
                 </p>
                 <FieldError id="urgencyLevel-error" message={errors.urgencyLevel} />
+              </div>
+
+              <div>
+                <span className={labelClassName}>Bütçe</span>
+                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                  {standardBudgetOptions.map((option) => {
+                    const isSelected = formState.budgetTag === option.value;
+
+                    return (
+                      <label
+                        className={cn(
+                          "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                          isSelected
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                          errors.budgetTag && "border-red-500",
+                        )}
+                        key={option.value}
+                      >
+                        <input
+                          checked={isSelected}
+                          className="sr-only"
+                          name="budgetTag"
+                          onChange={(event) => updateField("budgetTag", event.target.value)}
+                          required
+                          type="radio"
+                          value={option.value}
+                        />
+                        <span className="text-sm font-bold text-[var(--brand-navy)]">
+                          {option.label}
+                        </span>
+                        <span className="mt-3 text-xs leading-5 text-[var(--muted)]">
+                          Talebin için tercih ettiğin fiyat aralığı.
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <FieldError id="budgetTag-error" message={errors.budgetTag} />
+              </div>
+
+              <div>
+                <span className={labelClassName}>Ödeme yöntemi</span>
+                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                  {standardPaymentOptions.map((option) => {
+                    const isSelected = formState.paymentPreference === option.value;
+
+                    return (
+                      <label
+                        className={cn(
+                          "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                          isSelected
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                          errors.paymentPreference && "border-red-500",
+                        )}
+                        key={option.value}
+                      >
+                        <input
+                          checked={isSelected}
+                          className="sr-only"
+                          name="paymentPreference"
+                          onChange={(event) => updateField("paymentPreference", event.target.value)}
+                          required
+                          type="radio"
+                          value={option.value}
+                        />
+                        <span className="text-sm font-bold text-[var(--brand-navy)]">
+                          {option.label}
+                        </span>
+                        <span className="mt-3 text-xs leading-5 text-[var(--muted)]">
+                          {option.description}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <FieldError id="paymentPreference-error" message={errors.paymentPreference} />
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">

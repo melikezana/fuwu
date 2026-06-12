@@ -59,15 +59,19 @@ async function getUserRequests(userId: string): Promise<ServiceRequest[]> {
   return data as unknown as ServiceRequest[];
 }
 
-const ACTIVE_STATUSES = [
+const PENDING_STATUSES = [
   SERVICE_REQUEST_STATUSES.pending,
   SERVICE_REQUEST_STATUSES.yeni,
   SERVICE_REQUEST_STATUSES.inceleniyor,
+];
+const ASSIGNED_STATUSES = [
   SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+];
+const ACCEPTED_STATUSES = [
   SERVICE_REQUEST_STATUSES.accepted,
   SERVICE_REQUEST_STATUSES.onTheWay,
 ];
-const DONE_STATUSES = [SERVICE_REQUEST_STATUSES.completed, SERVICE_REQUEST_STATUSES.tamamlandi];
+const COMPLETED_STATUSES = [SERVICE_REQUEST_STATUSES.completed, SERVICE_REQUEST_STATUSES.tamamlandi];
 const CANCELLED_STATUSES = [SERVICE_REQUEST_STATUSES.cancelled, SERVICE_REQUEST_STATUSES.iptal];
 
 type StatusConfig = {
@@ -84,7 +88,7 @@ function getStatusConfig(status: string): StatusConfig {
     SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
     status;
 
-  if ((DONE_STATUSES as string[]).includes(status)) {
+  if ((COMPLETED_STATUSES as string[]).includes(status)) {
     return {
       label,
       color: "text-emerald-700",
@@ -154,8 +158,10 @@ export default async function CustomerDashboardPage() {
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
   const requests = await getUserRequests(user.id);
-  const active = requests.filter((r) => (ACTIVE_STATUSES as string[]).includes(r.status));
-  const done = requests.filter((r) => (DONE_STATUSES as string[]).includes(r.status));
+  const pending = requests.filter((r) => (PENDING_STATUSES as string[]).includes(r.status));
+  const assigned = requests.filter((r) => (ASSIGNED_STATUSES as string[]).includes(r.status));
+  const accepted = requests.filter((r) => (ACCEPTED_STATUSES as string[]).includes(r.status));
+  const completed = requests.filter((r) => (COMPLETED_STATUSES as string[]).includes(r.status));
   const cancelled = requests.filter((r) => (CANCELLED_STATUSES as string[]).includes(r.status));
 
   return (
@@ -217,8 +223,8 @@ export default async function CustomerDashboardPage() {
           {/* Stats row */}
           <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
             {[
-              { label: "Aktif", value: active.length, color: "text-amber-300" },
-              { label: "Tamamlanan", value: done.length, color: "text-emerald-300" },
+              { label: "Bekleyen", value: pending.length, color: "text-amber-300" },
+              { label: "Atanan", value: assigned.length, color: "text-blue-300" },
               { label: "Toplam Talep", value: requests.length, color: "text-white" },
             ].map((s) => (
               <div key={s.label} className="text-center">
@@ -266,11 +272,24 @@ export default async function CustomerDashboardPage() {
           />
         ) : (
           <div className="space-y-6">
-            {active.length > 0 && (
-              <RequestSection title="Aktif Talepler" count={active.length} countColor="bg-amber-100 text-amber-700" requests={active} />
+            <RequestsOverview
+              acceptedCount={accepted.length}
+              assignedCount={assigned.length}
+              cancelledCount={cancelled.length}
+              completedCount={completed.length}
+              pendingCount={pending.length}
+            />
+            {pending.length > 0 && (
+              <RequestSection title="Bekleyen Talepler" count={pending.length} countColor="bg-amber-100 text-amber-700" requests={pending} />
             )}
-            {done.length > 0 && (
-              <RequestSection title="Tamamlananlar" count={done.length} countColor="bg-emerald-100 text-emerald-700" requests={done} />
+            {assigned.length > 0 && (
+              <RequestSection title="Atanan Talepler" count={assigned.length} countColor="bg-blue-100 text-blue-700" requests={assigned} />
+            )}
+            {accepted.length > 0 && (
+              <RequestSection title="Kabul Edilenler" count={accepted.length} countColor="bg-sky-100 text-sky-700" requests={accepted} />
+            )}
+            {completed.length > 0 && (
+              <RequestSection title="Tamamlananlar" count={completed.length} countColor="bg-emerald-100 text-emerald-700" requests={completed} />
             )}
             {cancelled.length > 0 && (
               <RequestSection title="İptal Edilenler" count={cancelled.length} countColor="bg-red-100 text-red-600" requests={cancelled} />
@@ -327,6 +346,59 @@ function EmptyState({
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">{actions}</div>
     </div>
+  );
+}
+
+function RequestsOverview({
+  acceptedCount,
+  assignedCount,
+  cancelledCount,
+  completedCount,
+  pendingCount,
+}: {
+  acceptedCount: number;
+  assignedCount: number;
+  cancelledCount: number;
+  completedCount: number;
+  pendingCount: number;
+}) {
+  const items = [
+    { label: "Pending", value: pendingCount, className: "bg-amber-50 text-amber-700 ring-amber-200" },
+    { label: "Assigned", value: assignedCount, className: "bg-blue-50 text-blue-700 ring-blue-200" },
+    { label: "Accepted", value: acceptedCount, className: "bg-sky-50 text-sky-700 ring-sky-200" },
+    { label: "Completed", value: completedCount, className: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+    { label: "Cancelled", value: cancelledCount, className: "bg-red-50 text-red-600 ring-red-200" },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.05)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide text-[var(--brand-orange-dark)]">
+            Requests
+          </p>
+          <h2 className="mt-1 text-lg font-black text-[var(--brand-navy)]">
+            Talep Durumları
+          </h2>
+        </div>
+        <Link href={appRoutes.dashboardRequests} className="text-xs font-black text-[var(--brand-orange-dark)]">
+          Tümünü gör
+        </Link>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-5">
+        {items.map((item) => (
+          <div
+            className={`rounded-xl px-3 py-4 text-center ring-1 ${item.className}`}
+            key={item.label}
+          >
+            <p className="text-2xl font-black">{item.value}</p>
+            <p className="mt-1 text-[11px] font-black uppercase tracking-wide">
+              {item.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

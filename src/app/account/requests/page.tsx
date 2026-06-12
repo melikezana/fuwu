@@ -303,7 +303,7 @@ export default async function AccountRequestsPage({
             <div className="flex gap-3">
               <ReceiptText className="mt-0.5 size-5 shrink-0" aria-hidden />
               <div>
-                <p className="text-sm font-black">Talebin oluşturuldu.</p>
+                <p className="text-sm font-black">Talebiniz başarıyla oluşturuldu</p>
                 <p className="mt-1 text-sm font-semibold leading-6">
                   Durum, kategori, ilçe, bütçe ve ödeme bilgilerini aşağıda görebilirsin.
                 </p>

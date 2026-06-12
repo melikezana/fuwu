@@ -69,6 +69,16 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     title: "Geçersiz durum",
     tone: "error",
   },
+  "service-request-invalid-id": {
+    body: "Talep kimliği geçerli bir UUID değil. Sayfayı yenileyip tekrar deneyin.",
+    title: "Geçersiz talep kimliği",
+    tone: "error",
+  },
+  "service-request-invalid-provider": {
+    body: "Usta kimliği geçerli bir UUID değil. Listeden tekrar seçim yapın.",
+    title: "Geçersiz usta kimliği",
+    tone: "error",
+  },
   "service-request-invalid-transition": {
     body: "Bu talep mevcut durumundan seçilen duruma doğrudan geçirilemez. Önce operasyon sırasındaki bir sonraki adımı seçin.",
     title: "Durum sırası korunuyor",
@@ -107,13 +117,8 @@ const requestStatusActions: Array<{
   tone: "approve" | "neutral" | "reject";
 }> = [
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.yeni,
-    status: SERVICE_REQUEST_STATUSES.yeni,
-    tone: "neutral",
-  },
-  {
-    label: SERVICE_REQUEST_STATUS_LABELS.inceleniyor,
-    status: SERVICE_REQUEST_STATUSES.inceleniyor,
+    label: SERVICE_REQUEST_STATUS_LABELS.pending,
+    status: SERVICE_REQUEST_STATUSES.pending,
     tone: "neutral",
   },
   {
@@ -122,13 +127,18 @@ const requestStatusActions: Array<{
     tone: "neutral",
   },
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.tamamlandi,
-    status: SERVICE_REQUEST_STATUSES.tamamlandi,
+    label: SERVICE_REQUEST_STATUS_LABELS.accepted,
+    status: SERVICE_REQUEST_STATUSES.accepted,
     tone: "approve",
   },
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.iptal,
-    status: SERVICE_REQUEST_STATUSES.iptal,
+    label: SERVICE_REQUEST_STATUS_LABELS.completed,
+    status: SERVICE_REQUEST_STATUSES.completed,
+    tone: "approve",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.cancelled,
+    status: SERVICE_REQUEST_STATUSES.cancelled,
     tone: "reject",
   },
 ];
@@ -142,6 +152,11 @@ const emergencyRequestStatusActions: Array<{
     label: SERVICE_REQUEST_STATUS_LABELS.pending,
     status: SERVICE_REQUEST_STATUSES.pending,
     tone: "neutral",
+  },
+  {
+    label: SERVICE_REQUEST_STATUS_LABELS.accepted,
+    status: SERVICE_REQUEST_STATUSES.accepted,
+    tone: "approve",
   },
   {
     label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
@@ -389,6 +404,7 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
     ? getAllowedServiceRequestTransitions(normalizedRequestStatus)
     : [];
   const emergencyStatusesRequiringProvider = new Set<AdminServiceRequestStatus>([
+    SERVICE_REQUEST_STATUSES.accepted,
     SERVICE_REQUEST_STATUSES.onTheWay,
     SERVICE_REQUEST_STATUSES.completed,
   ]);

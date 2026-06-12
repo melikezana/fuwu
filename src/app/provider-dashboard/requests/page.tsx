@@ -91,6 +91,43 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
   return null;
 }
 
+function ProviderStandardActions({ request }: { request: ProviderAssignedRequest }) {
+  if (request.urgencyType === "emergency") {
+    return null;
+  }
+
+  if (
+    request.status === SERVICE_REQUEST_STATUSES.pending ||
+    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+  ) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        <ProviderRequestActionButton label="Kabul et" requestId={request.id} status="accepted" tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="cancelled" tone="red" />
+      </div>
+    );
+  }
+
+  if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
+        <ProviderRequestActionButton label="İptal" requestId={request.id} status="cancelled" tone="red" />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function ProviderRequestActions({ request }: { request: ProviderAssignedRequest }) {
+  return request.urgencyType === "emergency" ? (
+    <ProviderEmergencyActions request={request} />
+  ) : (
+    <ProviderStandardActions request={request} />
+  );
+}
+
 function ProviderRequestStatusText({ status }: { status: string }) {
   return SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ?? status;
 }
@@ -149,9 +186,45 @@ export default async function ProviderDashboardRequestsPage() {
             </div>
           </div>
 
-          <p className="mt-5 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-            Gerçek talep yönlendirme ilişkisi aktif edildiğinde bu ekran yalnızca ilgili ustaya yönlendirilen talepleri gösterecek. Şimdilik güvenli hazırlık görünümü korunuyor.
-          </p>
+          <div className="mt-5 grid gap-3 md:hidden">
+            {assignedRequests.map((request) => (
+              <article
+                className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_10px_26px_rgba(13,20,36,0.05)]"
+                key={request.id}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-black text-[var(--brand-navy)]">{request.category}</h3>
+                    <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
+                      {request.customerName} - {request.phone}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
+                    <ProviderRequestStatusText status={request.status} />
+                  </span>
+                </div>
+                <div className="mt-3 grid gap-2 text-sm font-semibold text-[var(--muted)]">
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">İlçe: </span>
+                    {request.district}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Adres: </span>
+                    {request.address || "Belirtilmedi"}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Detay: </span>
+                    {request.description || "Açıklama yok"}
+                  </p>
+                  <p>
+                    <span className="font-black text-[var(--brand-navy)]">Zaman: </span>
+                    {request.preferredDate || "Tarih esnek"} / {request.preferredTime || "Saat esnek"}
+                  </p>
+                </div>
+                <ProviderRequestActions request={request} />
+              </article>
+            ))}
+          </div>
 
           <div className="mt-5 hidden overflow-hidden rounded-lg border border-[var(--border)] md:block">
             <div className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
@@ -168,6 +241,7 @@ export default async function ProviderDashboardRequestsPage() {
                 <div className="flex flex-col">
                   <span className="font-black text-[var(--brand-navy)]">{request.category}</span>
                   <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
+                  <span className="mt-1 line-clamp-2 text-sm text-[var(--muted)]">{request.description || "Açıklama yok"}</span>
                   {request.urgencyType === "emergency" ? (
                     <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
                       Acil Hizmet · {getPaymentPreferenceLabel(request.paymentPreference)}
@@ -177,8 +251,11 @@ export default async function ProviderDashboardRequestsPage() {
                     </span>
                   ) : null}
                 </div>
-                <div className="flex items-center text-sm font-bold text-[var(--brand-navy)]">
+                <div className="flex flex-col justify-center text-sm font-bold text-[var(--brand-navy)]">
                   <span>{request.district}</span>
+                  <span className="mt-1 line-clamp-2 text-xs font-semibold text-[var(--muted)]">
+                    {request.address || "Adres belirtilmedi"}
+                  </span>
                 </div>
                 <div className="flex flex-col justify-center text-sm">
                   <span className="font-bold text-[var(--brand-navy)]">{request.preferredDate || "Tarih esnek"}</span>
@@ -200,27 +277,12 @@ export default async function ProviderDashboardRequestsPage() {
                           ? "Kabul sonrası"
                           : request.confirmationCode ?? "Kabul sonrası"}
                       </span>
-                      <ProviderEmergencyActions request={request} />
+                      <ProviderRequestActions request={request} />
                     </>
                   ) : null}
-                  {request.urgencyType !== "emergency" && request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi && (
-                    <div className="flex gap-2 mt-2">
-                      <form action={providerUpdateRequestStatusAction}>
-                        <input type="hidden" name="requestId" value={request.id} />
-                        <input type="hidden" name="status" value="tamamlandi" />
-                        <button type="submit" className="text-xs font-black px-3 py-1.5 rounded-md border bg-[var(--trust-green-soft)] text-[var(--trust-green)] border-[rgba(23,116,95,0.24)] hover:bg-[rgba(23,116,95,0.15)] transition-colors active:scale-[0.98]">
-                          Tamamla
-                        </button>
-                      </form>
-                      <form action={providerUpdateRequestStatusAction}>
-                        <input type="hidden" name="requestId" value={request.id} />
-                        <input type="hidden" name="status" value="iptal" />
-                        <button type="submit" className="text-xs font-black px-3 py-1.5 rounded-md border bg-red-50 text-red-700 border-red-200 hover:bg-red-100 transition-colors active:scale-[0.98]">
-                          İptal
-                        </button>
-                      </form>
-                    </div>
-                  )}
+                  {request.urgencyType !== "emergency" ? (
+                    <ProviderRequestActions request={request} />
+                  ) : null}
                 </div>
               </article>
             ))}

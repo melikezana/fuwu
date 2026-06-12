@@ -1,5 +1,6 @@
 import type { ServiceRequestInput } from "@/types/request";
-import { isEmergencyPaymentPreference } from "@/services/payments";
+import { isEmergencyPaymentPreference, normalizePaymentPreference } from "@/services/payments";
+import { normalizeBudgetTag } from "@/services/matching/budget";
 import {
   addRequiredTextIssue,
   commonValidationMessages,
@@ -32,6 +33,8 @@ const standardRequiredRequestFields: Array<{
   field: ServiceRequestField;
   message: string;
 }> = [
+  { field: "budgetTag", message: "Bütçe alanı zorunludur." },
+  { field: "paymentPreference", message: "Ödeme yöntemi zorunludur." },
   { field: "serviceCategory", message: "Hizmet kategorisi zorunludur." },
   { field: "district", message: "İlçe alanı zorunludur." },
   { field: "fullAddress", message: "Açık adres alanı zorunludur." },
@@ -91,6 +94,10 @@ export function validateServiceRequestInput(
   const isEmergencyRequest =
     sanitizedData.urgencyType === "emergency" ||
     sanitizedData.budgetTag === "acil-hizmet";
+  const normalizedBudgetTag = normalizeBudgetTag(sanitizedData.budgetTag);
+  const normalizedPaymentPreference = normalizePaymentPreference(
+    sanitizedData.paymentPreference,
+  );
 
   const requiredFields = isEmergencyRequest
     ? emergencyRequiredRequestFields
@@ -124,6 +131,27 @@ export function validateServiceRequestInput(
         message: "Geçerli bir teklif tutarı seç.",
       });
     }
+  }
+
+  if (sanitizedData.budgetTag && !normalizedBudgetTag) {
+    issues.push({
+      field: "budgetTag",
+      message: "Geçerli bir bütçe seç.",
+    });
+  }
+
+  if (!isEmergencyRequest && sanitizedData.budgetTag === "acil-hizmet") {
+    issues.push({
+      field: "budgetTag",
+      message: "Acil hizmet bütçesi için acil akışı kullan.",
+    });
+  }
+
+  if (sanitizedData.paymentPreference && !normalizedPaymentPreference) {
+    issues.push({
+      field: "paymentPreference",
+      message: "Geçerli bir ödeme yöntemi seç.",
+    });
   }
 
   if (!isEmergencyRequest && sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {

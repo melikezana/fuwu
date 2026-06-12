@@ -34,7 +34,10 @@ CREATE POLICY "Authenticated users can insert service requests"
 ON public.service_requests 
 FOR INSERT 
 TO authenticated 
-WITH CHECK (user_id = auth.uid());
+WITH CHECK (
+  user_id = auth.uid()
+  AND status = 'pending'
+);
 
 -- 3. Service Requests Ownership
 CREATE POLICY "Users can read their own service requests" 

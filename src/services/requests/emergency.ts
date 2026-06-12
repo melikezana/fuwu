@@ -16,9 +16,11 @@ import {
   validateEmergencyPrice,
 } from "@/services/matching";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
+import { ensureProfileForUser } from "@/services/auth/profiles";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
+import { validateServiceRequestInput } from "@/lib/validations";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
 type LookupTable = "service_categories" | "districts";
@@ -193,8 +195,10 @@ async function createEmergencyInsert(
     address: input.fullAddress.trim() || emergencyAddress || "Acil hizmet konumu",
     urgency: "urgent",
     urgency_type: "emergency",
+    budget: String(priceValidation.price),
     budget_tag: "acil-hizmet",
     offered_price: priceValidation.price,
+    payment_method: paymentPreference,
     payment_preference: paymentPreference,
     confirmation_code: confirmationCode,
     estimated_arrival_text: emergencyRequest.estimatedArrivalText,
@@ -246,6 +250,19 @@ export async function createEmergencyMatchRequest(
   input: ServiceRequestInput,
   serverAuthContext?: ServerAuthContext,
 ): Promise<ServiceRequestSubmitResult> {
+  const validationResult = validateServiceRequestInput({
+    ...input,
+    budgetTag: "acil-hizmet",
+    urgencyType: "emergency",
+  });
+
+  if (!validationResult.ok) {
+    throw new ValidationError("Emergency request validation failed.", {
+      publicMessage: validationResult.message,
+    });
+  }
+
+  const requestInput = validationResult.data;
   const authContext = serverAuthContext ?? await getServerAuthContext();
   const supabase = authContext.supabase;
 
@@ -261,7 +278,13 @@ export async function createEmergencyMatchRequest(
     });
   }
 
-  const insertPayload = await createEmergencyInsert(supabase, input, authContext.user.id);
+  await ensureProfileForUser(supabase, authContext.user, {
+    fullName: requestInput.fullName,
+    phone: requestInput.phoneNumber,
+    preserveExistingPhone: true,
+  });
+
+  const insertPayload = await createEmergencyInsert(supabase, requestInput, authContext.user.id);
 
   if (insertPayload.category_id && insertPayload.district_id) {
     const duplicateStatuses = [
