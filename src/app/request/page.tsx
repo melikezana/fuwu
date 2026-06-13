@@ -12,6 +12,7 @@ import {
   getAuthenticatedServerUserId,
   getCurrentServerUserProfile,
 } from "@/services/auth/server";
+import { getRequestFormInsights } from "@/services/requests";
 
 export const metadata: Metadata = {
   title: "Talep Oluştur",
@@ -106,9 +107,10 @@ function LoginRequiredState({ nextPath }: { nextPath: string }) {
 export default async function RequestPage({ searchParams }: RequestPageProps) {
   const params = await searchParams;
   const nextPath = createRequestNextPath(params);
-  const [authenticatedUserId, profile] = await Promise.all([
+  const [authenticatedUserId, profile, insights] = await Promise.all([
     getAuthenticatedServerUserId(),
     getCurrentServerUserProfile(),
+    getRequestFormInsights(),
   ]);
   const initialService = getSearchParam(params?.service) || getSearchParam(params?.match_service);
   const initialDistrict =
@@ -160,6 +162,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             initialProfilePhone={profile?.phone}
             initialService={initialService}
             initialTimePreference={initialTimePreference}
+            insights={insights}
           />
         ) : (
           <LoginRequiredState nextPath={nextPath} />

@@ -6,6 +6,7 @@ begin;
 insert into public.service_categories (name, slug, description, is_active)
 values
   ('Tesisat', 'tesisat', 'Su tesisati, kacak, batarya ve gider onarim hizmetleri.', true),
+  ('Çilingir', 'cilingir', 'Kapı, kilit ve oto çilingir hizmetleri.', true),
   ('Elektrik Hizmeti', 'elektrik-hizmeti', 'Elektrik ariza, montaj, priz ve aydinlatma hizmetleri.', true),
   ('Temizlik', 'temizlik', 'Ev, ofis ve tasinma sonrasi temizlik hizmetleri.', true),
   ('Halı Yıkama', 'hali-yikama', 'Evden teslim halı, koltuk ve tekstil yıkama hizmetleri.', true),

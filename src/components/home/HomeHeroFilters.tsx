@@ -66,6 +66,7 @@ type StepShellProps = {
 
 const emergencyServiceIds = [
   "plumbing",
+  "locksmith",
   "electrical",
   "cleaning",
   "pool",
@@ -78,6 +79,7 @@ const emergencyServiceLabels: Record<string, string> = {
   cleaning: "Temizlik",
   electrical: "Elektrik",
   garden: "Bahçe Bakımı",
+  locksmith: "Çilingir",
   plumbing: "Tesisat",
   pool: "Havuz Bakımı",
 };

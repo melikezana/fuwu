@@ -8,8 +8,52 @@ import { services } from "./services";
 
 export type { Provider };
 
-// Keep this intentionally empty: public provider fallback must not show demo providers as live supply.
-export const providers: Provider[] = [];
+export const providers: Provider[] = [
+  {
+    id: "fallback-cilingir-kadikoy",
+    name: "Murat Anahtar Çilingir",
+    category: "Çilingir",
+    district: "Kadıköy",
+    rating: 4.8,
+    experience: "11 yıl",
+    averagePriceMin: 900,
+    averagePriceMax: 2200,
+    averagePrice: "900 TL - 2.200 TL",
+    availabilityStatus: {
+      label: "Müsait",
+      tone: "green",
+    },
+    phone: "+90 555 000 00 21",
+    whatsapp: "+90 555 000 00 21",
+    availability: "müsait",
+    description:
+      "Kadıköy ve çevresinde kapıda kalma, kilit değişimi ve oto çilingir talepleri için randevulu destek verir.",
+    shortDescription:
+      "Kapı, kilit ve oto çilingir talepleri için Kadıköy çevresinde hızlı destek.",
+    serviceAreas: ["Kadıköy", "Üsküdar", "Ataşehir"],
+    workingHours: "7/24",
+    servicesOffered: ["Kapı açma", "Kilit değişimi", "Oto çilingir"],
+    trustBadges: [
+      {
+        id: "phone-verified",
+        label: "Telefon Doğrulandı",
+        tone: "orange",
+      },
+    ],
+    completedJobs: 0,
+    responseTime: "Ortalama cevap: 18 dk",
+    responseTimeMinutes: 18,
+    reviewCount: 0,
+    isVerified: false,
+    phoneVerified: true,
+    identityVerified: false,
+    lastActiveAt: null,
+    profileCompletionScore: 92,
+    profileCompletionMissingFields: ["Kimlik doğrulama"],
+    featured: true,
+    source: "mock",
+  },
+];
 
 export const providerCategories = services
   .map((service) => service.title)

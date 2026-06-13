@@ -92,6 +92,27 @@ export function ServiceIcon({ name, className }: ServiceIconProps) {
     );
   }
 
+  if (name === "key") {
+    return (
+      <svg aria-hidden="true" className={iconClassName} fill="none" viewBox="0 0 24 24">
+        <path
+          d="M14.25 8.75a4.5 4.5 0 1 1-1.72 3.54L4.75 20.07 3.5 18.82l1.8-1.8-.95-.95 1.55-1.55.95.95 1.3-1.3a4.5 4.5 0 0 1 6.1-5.42Z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M15.75 8.25h.01"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.4"
+        />
+      </svg>
+    );
+  }
+
   if (name === "broom") {
     return (
       <svg aria-hidden="true" className={iconClassName} fill="none" viewBox="0 0 24 24">

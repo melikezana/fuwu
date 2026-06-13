@@ -9,6 +9,7 @@ export type ServiceIconName =
   | "furniture-tool"
   | "graduation-cap"
   | "home"
+  | "key"
   | "paint-roller"
   | "pipe"
   | "rug"
@@ -45,7 +46,7 @@ export const services: Service[] = [
     title: "Çilingir",
     description:
       "Kapıda kalma, kilit değiştirme ve oto çilingir ihtiyaçları için hemen usta bul.",
-    iconName: "bolt",
+    iconName: "key",
     startingHint: "Usta Bul",
     href: "/providers?category=cilingir",
   },

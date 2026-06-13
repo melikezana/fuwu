@@ -41,6 +41,7 @@ type SectionHeadingProps = {
 
 const serviceOrder = [
   "Tesisat",
+  "Çilingir",
   "Elektrik",
   "Temizlik",
   "Halı Yıkama",

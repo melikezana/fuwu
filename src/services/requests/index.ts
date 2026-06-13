@@ -17,6 +17,10 @@ import {
 import { normalizeServiceValue } from "@/lib/constants/services";
 import { logError, logInfo } from "@/lib/logger";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  createSupabaseServerClient,
+  isSupabaseServerConfigured,
+} from "@/lib/supabase/server";
 import type { Database, Json } from "@/lib/supabase/types";
 import { validateServiceRequestInput } from "@/lib/validations";
 import {
@@ -42,6 +46,7 @@ import {
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   ServiceRequestInput,
+  RequestFormInsights,
   ServiceRequestSubmitResult,
   ServiceRequestUrgency,
   ServiceRequestUrgencyType,
@@ -55,12 +60,19 @@ type LookupRecord = {
   slug?: unknown;
 };
 
+type RequestFormInsightProviderRecord = {
+  category: MaybeNamedRelation;
+  district: MaybeNamedRelation;
+  response_time_minutes?: number | null;
+};
+
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
 
 type NamedRelation = {
   name: string | null;
+  slug?: string | null;
 };
 
 type MaybeNamedRelation = NamedRelation | NamedRelation[] | null;
@@ -139,6 +151,13 @@ export const serviceRequestSubmitErrorMessage =
 
 const serviceRequestRateLimitMessage =
   "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
+
+const emptyRequestFormInsights: RequestFormInsights = {
+  averageResponseMinutesByCategory: {},
+  providerCountByCategory: {},
+  providerCountByCategoryAndDistrict: {},
+  source: "fallback",
+};
 
 function createLiveRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
@@ -268,6 +287,22 @@ function getRelationName(relation: MaybeNamedRelation, fallback: string) {
   const record = Array.isArray(relation) ? relation[0] : relation;
 
   return record?.name?.trim() || fallback;
+}
+
+function getRelationRecord(relation: MaybeNamedRelation) {
+  return Array.isArray(relation) ? relation[0] : relation;
+}
+
+function getRelationLookupKeys(relation: MaybeNamedRelation) {
+  const record = getRelationRecord(relation);
+
+  return Array.from(
+    new Set(
+      [record?.name, record?.slug]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .map((value) => normalizeServiceValue(value)),
+    ),
+  );
 }
 
 function getProfileRelation(relation: MaybeProfileRelation) {
@@ -523,6 +558,103 @@ async function countEligibleEmergencyProviders(
   return sameCategoryCount ?? 0;
 }
 
+function isMissingResponseTimeColumn(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; details?: unknown; message?: unknown };
+  const errorText = [record.code, record.details, record.message]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return errorText.includes("column") && errorText.includes("response_time_minutes");
+}
+
+export async function getRequestFormInsights(): Promise<RequestFormInsights> {
+  if (!isSupabaseServerConfigured) {
+    return emptyRequestFormInsights;
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return emptyRequestFormInsights;
+  }
+
+  let { data, error } = await supabase
+    .from("providers")
+    .select(
+      "response_time_minutes, category:service_categories(name, slug), district:districts(name, slug)",
+    )
+    .eq("is_active", true)
+    .eq("is_approved", true);
+
+  if (error && isMissingResponseTimeColumn(error)) {
+    const fallbackResult = await supabase
+      .from("providers")
+      .select("category:service_categories(name, slug), district:districts(name, slug)")
+      .eq("is_active", true)
+      .eq("is_approved", true);
+
+    data = fallbackResult.data as typeof data;
+    error = fallbackResult.error;
+  }
+
+  if (error) {
+    handleServiceError(error, {
+      logContext: "Request form insight read failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+    return emptyRequestFormInsights;
+  }
+
+  const providerCountByCategory: RequestFormInsights["providerCountByCategory"] = {};
+  const providerCountByCategoryAndDistrict: RequestFormInsights["providerCountByCategoryAndDistrict"] = {};
+  const responseTimeBuckets: Record<string, { count: number; total: number }> = {};
+
+  ((data ?? []) as unknown as RequestFormInsightProviderRecord[]).forEach((provider) => {
+    const categoryKeys = getRelationLookupKeys(provider.category);
+    const districtKeys = getRelationLookupKeys(provider.district);
+    const responseTime =
+      typeof provider.response_time_minutes === "number" &&
+      Number.isFinite(provider.response_time_minutes) &&
+      provider.response_time_minutes > 0
+        ? Math.round(provider.response_time_minutes)
+        : null;
+
+    categoryKeys.forEach((categoryKey) => {
+      providerCountByCategory[categoryKey] = (providerCountByCategory[categoryKey] ?? 0) + 1;
+
+      if (responseTime) {
+        const bucket = responseTimeBuckets[categoryKey] ?? { count: 0, total: 0 };
+        bucket.count += 1;
+        bucket.total += responseTime;
+        responseTimeBuckets[categoryKey] = bucket;
+      }
+
+      districtKeys.forEach((districtKey) => {
+        const combinedKey = `${categoryKey}|${districtKey}`;
+        providerCountByCategoryAndDistrict[combinedKey] =
+          (providerCountByCategoryAndDistrict[combinedKey] ?? 0) + 1;
+      });
+    });
+  });
+
+  return {
+    averageResponseMinutesByCategory: Object.fromEntries(
+      Object.entries(responseTimeBuckets).map(([categoryKey, bucket]) => [
+        categoryKey,
+        Math.round(bucket.total / bucket.count),
+      ]),
+    ),
+    providerCountByCategory,
+    providerCountByCategoryAndDistrict,
+    source: "supabase",
+  };
+}
+
 async function buildServiceRequestInsert(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -637,7 +769,7 @@ async function buildServiceRequestInsert(
     offered_price: offeredPrice,
     payment_method: paymentPreference,
     payment_preference: paymentPreference,
-    confirmation_code: emergencyRequest?.confirmationCode ?? null,
+    confirmation_code: emergencyRequest?.confirmationCode ?? generateJobConfirmationCode(),
     estimated_arrival_text: emergencyRequest?.estimatedArrivalText ?? null,
     approximate_location: emergencyRequest?.approximateLocation ?? null,
     preferred_date: data.preferredDate.trim() || (urgencyType === "emergency" ? getTodayDateInput() : null),

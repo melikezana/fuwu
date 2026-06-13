@@ -2,16 +2,16 @@
 
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   createEmergencyRequestAction,
   createServiceRequestAction,
 } from "@/app/request/actions";
+import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
 import { providerBudgetOptions, providerDistricts } from "@/lib/constants/providers";
-import { normalizeServiceValue, services } from "@/lib/constants/services";
+import { normalizeServiceValue, services, type Service } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
@@ -34,6 +34,7 @@ import {
 } from "@/services/payments";
 import type { ServiceRequestSubmitResult } from "@/services/requests";
 import { liveTrackingSoonText } from "@/services/tracking";
+import type { RequestFormInsights } from "@/types/request";
 
 type UrgencyLevel = "Esnek" | "Bu hafta" | "Acil";
 
@@ -70,6 +71,7 @@ type RequestFormProps = {
   initialProfilePhone?: string | null;
   initialService?: string;
   initialTimePreference?: string;
+  insights: RequestFormInsights;
 };
 
 type RequestInitialFormProps = Pick<
@@ -186,6 +188,12 @@ const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border
 const serviceRequestSuccessMessage = "Talebiniz başarıyla oluşturuldu";
 const serviceRequestSubmitErrorMessage =
   "Talep oluşturulamadı. Lütfen tekrar deneyin.";
+const emptyRequestFormInsights: RequestFormInsights = {
+  averageResponseMinutesByCategory: {},
+  providerCountByCategory: {},
+  providerCountByCategoryAndDistrict: {},
+  source: "fallback",
+};
 
 function parsePriceValue(value: string | number | null | undefined) {
   if (typeof value === "number") {
@@ -237,6 +245,11 @@ function getTodayDateInput() {
 
 function createEmergencySummary(values: RequestFormState) {
   return `Acil ${values.serviceCategory || "hizmet"} talebi`;
+}
+
+function parseServiceCategoryName(serviceCategory: string) {
+  const categoryParts = serviceCategory.split(" - ");
+  return categoryParts[categoryParts.length - 1]?.trim() ?? serviceCategory.trim();
 }
 
 function normalizeForm(values: RequestFormState): RequestFormState {
@@ -384,7 +397,110 @@ function EmergencyStepLabel({ children, step }: { children: string; step: number
   );
 }
 
+function getServiceValue(service: Service) {
+  return `${service.category} - ${service.title}`;
+}
+
+function getSelectedService(serviceCategory: string) {
+  const normalizedValue = normalizeServiceValue(parseServiceCategoryName(serviceCategory));
+
+  return services.find((service) => {
+    const serviceSlug = service.href.replace("/providers?category=", "");
+
+    return [
+      service.title,
+      serviceSlug,
+      `${service.title} hizmeti`,
+      getServiceValue(service),
+    ]
+      .map(normalizeServiceValue)
+      .includes(normalizedValue);
+  });
+}
+
+function getServiceInsightKeys(serviceCategory: string, selectedService?: Service) {
+  const serviceName = parseServiceCategoryName(serviceCategory);
+  const serviceSlug = selectedService?.href.replace("/providers?category=", "") ?? "";
+
+  return Array.from(
+    new Set(
+      [
+        serviceName,
+        serviceSlug,
+        selectedService?.title,
+        selectedService ? `${selectedService.title} hizmeti` : "",
+      ]
+        .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
+        .map(normalizeServiceValue),
+    ),
+  );
+}
+
+function getFirstInsightNumber(keys: string[], values: Record<string, number>) {
+  for (const key of keys) {
+    const value = values[key];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function getCategoryProviderCount(insights: RequestFormInsights, keys: string[]) {
+  return getFirstInsightNumber(keys, insights.providerCountByCategory);
+}
+
+function getDistrictProviderCount(
+  insights: RequestFormInsights,
+  categoryKeys: string[],
+  district: string,
+) {
+  const districtKey = normalizeServiceValue(district);
+
+  if (!districtKey) {
+    return null;
+  }
+
+  return getFirstInsightNumber(
+    categoryKeys.map((categoryKey) => `${categoryKey}|${districtKey}`),
+    insights.providerCountByCategoryAndDistrict,
+  );
+}
+
+function getAverageResponseMinutes(insights: RequestFormInsights, keys: string[]) {
+  return getFirstInsightNumber(keys, insights.averageResponseMinutesByCategory);
+}
+
+function InsightNote({ children, tone = "neutral" }: { children: string; tone?: "green" | "neutral" | "orange" }) {
+  const className =
+    tone === "green"
+      ? "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+      : tone === "orange"
+        ? "border-[rgba(255,138,0,0.26)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
+        : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
+
+  return (
+    <p className={`rounded-md border px-3 py-2 text-xs font-bold leading-5 ${className}`}>
+      {children}
+    </p>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-w-0 items-center justify-between gap-3 rounded-md bg-white px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
+      <span className="text-xs font-bold uppercase text-[var(--muted)]">{label}</span>
+      <span className="min-w-0 text-right text-sm font-bold text-[var(--brand-navy)]">
+        {value || "Seçim bekleniyor"}
+      </span>
+    </div>
+  );
+}
+
 export function RequestForm({
+  insights = emptyRequestFormInsights,
   initialApproximateLocation,
   initialBudgetTag,
   initialDistrict,
@@ -396,7 +512,6 @@ export function RequestForm({
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
-  const router = useRouter();
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({
       initialApproximateLocation,
@@ -417,6 +532,33 @@ export function RequestForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const isEmergencyFlow = formState.urgencyType === "emergency";
+  const selectedService = getSelectedService(formState.serviceCategory);
+  const serviceInsightKeys = getServiceInsightKeys(formState.serviceCategory, selectedService);
+  const categoryProviderCount = getCategoryProviderCount(insights, serviceInsightKeys);
+  const districtProviderCount = getDistrictProviderCount(
+    insights,
+    serviceInsightKeys,
+    formState.district,
+  );
+  const averageResponseMinutes = getAverageResponseMinutes(insights, serviceInsightKeys);
+  const categoryInsightText = formState.serviceCategory
+    ? categoryProviderCount !== null
+      ? `Bu kategoride ${categoryProviderCount} aktif usta görünüyor.`
+      : insights.source === "supabase"
+        ? "Bu kategori için canlı usta sayısı şu an netleşmedi."
+        : "Canlı usta sayısı Supabase bağlandığında burada görünür."
+    : "Kategori seçildiğinde canlı uygunluk bilgisi burada görünür.";
+  const districtInsightText =
+    formState.serviceCategory && formState.district
+      ? districtProviderCount !== null
+        ? `${formState.district} içinde bu kategori için ${districtProviderCount} aktif usta var.`
+        : categoryProviderCount !== null && categoryProviderCount > 0
+          ? "Bu ilçe için net eşleşme görünmüyor; kategori havuzu yine kontrol edilir."
+          : "Bu seçim için canlı uygun usta sayısı şu an görünmüyor."
+      : "İlçe seçildiğinde bölge bazlı uygunluk gösterilir.";
+  const responseInsightText = averageResponseMinutes
+    ? `Ortalama yanıt süresi: ${averageResponseMinutes} dakika.`
+    : "Yanıt süresi canlı usta verisi geldikçe netleşir.";
   const suggestedEmergencyPrice = useMemo(
     () =>
       isEmergencyFlow
@@ -542,14 +684,7 @@ export function RequestForm({
         requestCode: result.requestCode,
         urgencyLevel: normalizedRequest.urgencyLevel,
       });
-      const params = new URLSearchParams({ created: "1" });
-
-      if (result.requestId) {
-        params.set("requestId", result.requestId);
-      }
-
-      router.push(`${appRoutes.dashboardRequests}?${params.toString()}`);
-      return;
+      setSubmittedRequest(result);
     } catch (error) {
       setSubmittedRequest(null);
       setSubmitError(getPublicErrorMessage(error, serviceRequestSubmitErrorMessage));
@@ -603,13 +738,13 @@ export function RequestForm({
         {submittedRequest ? (
           <div
             aria-live="polite"
-            className="cursor-default select-none overflow-hidden rounded-lg border border-[rgba(255,138,0,0.28)] bg-[#fffdf9] text-[var(--brand-navy)] shadow-[0_18px_50px_rgba(13,20,36,0.08)]"
+            className="cursor-default select-none overflow-hidden rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--brand-navy)] shadow-[0_18px_50px_rgba(13,20,36,0.08)]"
           >
-            <div className="h-1 bg-[var(--brand-orange)]" />
+            <div className="h-1 bg-[var(--trust-green)]" />
             <div className="p-5 sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+                  <p className="text-xs font-bold uppercase tracking-normal text-[var(--trust-green)]">
                     {submittedRequest.urgencyType === "emergency" ? "Acil talep" : "Talep alındı"}
                   </p>
                   <h3 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -619,15 +754,32 @@ export function RequestForm({
                   </h3>
                 </div>
                 <div className="w-fit rounded-md bg-white px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                  {submittedRequest.requestCode}
+                  Talep: {submittedRequest.requestCode}
                 </div>
               </div>
               <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
                 {submittedRequest.urgencyType === "emergency"
-                  ? "Henüz usta ataması yapılmadı. İlk uygun usta kabul ettiğinde canlı durum bilgisi bu talep üzerinden ilerler."
-                  : serviceRequestSuccessMessage}
+                  ? (submittedRequest.notificationMessage ??
+                    "Talebiniz uygun ustalara iletildi. İlk uygun usta kabul ettiğinde canlı durum bilgisi bu talep üzerinden ilerler.")
+                  : `${serviceRequestSuccessMessage}. Talebiniz ustalara iletildi; uygun eşleşme bulunduğunda durum sayfanda güncellenecek.`}
               </p>
               <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
+                <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+                  <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                    Talep kodu
+                  </dt>
+                  <dd className="mt-1 text-sm font-bold">
+                    {submittedRequest.requestCode}
+                  </dd>
+                </div>
+                <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
+                  <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
+                    Doğrulama kodu
+                  </dt>
+                  <dd className="mt-1 text-sm font-bold">
+                    {submittedRequest.confirmationCode ?? "Usta kabul edince paylaşılacak"}
+                  </dd>
+                </div>
                 <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
                   <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
                     Durum
@@ -670,7 +822,7 @@ export function RequestForm({
                       <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
                         Doğrulama durumu
                       </dt>
-                      <dd className="mt-1 text-sm font-bold text-[var(--brand-orange-dark)]">
+                      <dd className="mt-1 text-sm font-bold text-[var(--trust-green)]">
                         {submittedRequest.confirmationCode
                           ? "Kod üretildi"
                           : "Usta kabul edince paylaşılacak"}
@@ -722,38 +874,81 @@ export function RequestForm({
               Adım 1
             </span>
             <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              Hizmet ve konum
+              Hizmet kategorisi
             </span>
           </legend>
 
-          <div>
-            <label className={labelClassName} htmlFor="serviceCategory">
-              Hizmet kategorisi
-            </label>
-            <select
-              aria-describedby={
-                errors.serviceCategory ? "serviceCategory-error" : "serviceCategory-helper"
-              }
-              aria-invalid={Boolean(errors.serviceCategory)}
-              className={getSelectFieldClassName("serviceCategory")}
-              id="serviceCategory"
-              name="serviceCategory"
-              onChange={(event) => updateField("serviceCategory", event.target.value)}
-              required
-              value={formState.serviceCategory}
-            >
-              <option value="">İhtiyacını belirle</option>
-              {services.map((service) => (
-                <option key={service.id} value={`${service.category} - ${service.title}`}>
-                  {service.category} - {service.title}
-                </option>
-              ))}
-            </select>
-            <p className={helperClassName} id="serviceCategory-helper">
-              Doğru usta listesini hazırlamak için en yakın hizmeti seç.
-            </p>
-            <FieldError id="serviceCategory-error" message={errors.serviceCategory} />
+          <div
+            aria-describedby={
+              errors.serviceCategory ? "serviceCategory-error" : "serviceCategory-helper"
+            }
+            aria-invalid={Boolean(errors.serviceCategory)}
+            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            role="radiogroup"
+          >
+            {services.map((service) => {
+              const value = getServiceValue(service);
+              const isSelected = formState.serviceCategory === value;
+
+              return (
+                <label
+                  className={cn(
+                    "flex min-h-32 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-all focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                    isSelected
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                      : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                    errors.serviceCategory && "border-red-500",
+                  )}
+                  key={service.id}
+                >
+                  <input
+                    checked={isSelected}
+                    className="sr-only"
+                    name="serviceCategory"
+                    onChange={(event) => updateField("serviceCategory", event.target.value)}
+                    required
+                    type="radio"
+                    value={value}
+                  />
+                  <span className="inline-flex size-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(13,20,36,0.08)]">
+                    <ServiceIcon className="size-5" name={service.iconName} />
+                  </span>
+                  <span className="mt-3 text-sm font-black text-[var(--brand-navy)]">
+                    {service.title}
+                  </span>
+                  <span className="mt-1 text-xs font-bold text-[var(--brand-orange-dark)]">
+                    {service.category}
+                  </span>
+                  <span className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--muted)]">
+                    {service.description}
+                  </span>
+                </label>
+              );
+            })}
           </div>
+          <p className={helperClassName} id="serviceCategory-helper">
+            En yakın hizmeti seçtiğinde uygunluk bilgisi güncellenir.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <InsightNote tone={categoryProviderCount && categoryProviderCount > 0 ? "green" : "neutral"}>
+              {categoryInsightText}
+            </InsightNote>
+            <InsightNote tone={averageResponseMinutes ? "green" : "neutral"}>
+              {responseInsightText}
+            </InsightNote>
+          </div>
+          <FieldError id="serviceCategory-error" message={errors.serviceCategory} />
+        </fieldset>
+
+        <fieldset className={sectionClassName}>
+          <legend className="cursor-default select-none">
+            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+              Adım 2
+            </span>
+            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
+              Konum ve ilçe
+            </span>
+          </legend>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
@@ -862,15 +1057,18 @@ export function RequestForm({
               </div>
             )}
           </div>
+          <InsightNote tone={districtProviderCount && districtProviderCount > 0 ? "green" : "neutral"}>
+            {districtInsightText}
+          </InsightNote>
         </fieldset>
 
         <fieldset className={sectionClassName}>
           <legend className="cursor-default select-none">
             <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              Adım 2
+              Adım 3
             </span>
             <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              {isEmergencyFlow ? "Fiyat ve ödeme" : "Zamanlama"}
+              {isEmergencyFlow ? "Acil detay ve ödeme" : "Açıklama, aciliyet ve zaman"}
             </span>
           </legend>
 
@@ -970,6 +1168,29 @@ export function RequestForm({
                   })}
                 </div>
                 <FieldError id="paymentPreference-error" message={errors.paymentPreference} />
+              </div>
+
+              <div>
+                <label className={labelClassName} htmlFor="shortDescription">
+                  Açıklama
+                </label>
+                <textarea
+                  aria-describedby={
+                    errors.shortDescription ? "shortDescription-error" : "shortDescription-helper"
+                  }
+                  aria-invalid={Boolean(errors.shortDescription)}
+                  className={`${getFieldClassName("shortDescription")} min-h-28 resize-y leading-6`}
+                  id="shortDescription"
+                  name="shortDescription"
+                  onChange={(event) => updateField("shortDescription", event.target.value)}
+                  placeholder="Kapı, kilit, tesisat veya erişim notunu kısaca yaz."
+                  required
+                  value={formState.shortDescription}
+                />
+                <p className={helperClassName} id="shortDescription-helper">
+                  Net notlar doğru ustanın hızlı karar vermesine yardımcı olur.
+                </p>
+                <FieldError id="shortDescription-error" message={errors.shortDescription} />
               </div>
             </div>
           ) : (
@@ -1152,127 +1373,136 @@ export function RequestForm({
                   <FieldError id="preferredTimeRange-error" message={errors.preferredTimeRange} />
                 </div>
               </div>
+
+              <div>
+                <label className={labelClassName} htmlFor="shortDescription">
+                  Açıklama
+                </label>
+                <textarea
+                  aria-describedby={
+                    errors.shortDescription ? "shortDescription-error" : "shortDescription-helper"
+                  }
+                  aria-invalid={Boolean(errors.shortDescription)}
+                  className={`${getFieldClassName("shortDescription")} min-h-36 resize-y leading-6`}
+                  id="shortDescription"
+                  name="shortDescription"
+                  onChange={(event) => updateField("shortDescription", event.target.value)}
+                  placeholder="İşi, mevcut durumu, erişim notlarını ve özel beklentilerini yaz."
+                  required
+                  value={formState.shortDescription}
+                />
+                <p className={helperClassName} id="shortDescription-helper">
+                  Net notlar daha doğru fiyat aralığı ve hızlı dönüş sağlar.
+                </p>
+                <FieldError id="shortDescription-error" message={errors.shortDescription} />
+              </div>
             </>
           )}
         </fieldset>
 
-        {isEmergencyFlow ? (
-          <fieldset className={sectionClassName}>
-            <legend className="cursor-default select-none">
-              <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                Adım 3
-              </span>
-              <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                Çağrı özeti
-              </span>
-            </legend>
-            <div className="grid gap-3 rounded-lg bg-[#fffdf9] p-4 ring-1 ring-[rgba(13,20,36,0.08)]">
-              {[
-                ["Hizmet", formState.serviceCategory || "Seçim bekleniyor"],
-                ["İlçe", formState.district || "Seçim bekleniyor"],
-                ["Konum", formState.approximateLocation || "İlçe üzerinden"],
-                ["Teklif", formatPrice(formState.offerAmount || suggestedEmergencyPrice)],
-                ["Ödeme", getPaymentPreferenceLabel(formState.paymentPreference)],
-              ].map(([label, value]) => (
-                <div
-                  className="flex min-w-0 items-center justify-between gap-3 rounded-md bg-white px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]"
-                  key={label}
-                >
-                  <span className="text-xs font-bold uppercase text-[var(--muted)]">{label}</span>
-                  <span className="min-w-0 text-right text-sm font-bold text-[var(--brand-navy)]">
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </fieldset>
-        ) : (
-          <fieldset className={sectionClassName}>
-            <legend className="cursor-default select-none">
-              <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                Adım 3
-              </span>
-              <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-                İletişim ve notlar
-              </span>
-            </legend>
-            <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-              Ustanın seni doğru bilgilerle araması için iletişim kişisini ve kısa notu ekle.
-            </p>
+        <fieldset className={sectionClassName}>
+          <legend className="cursor-default select-none">
+            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+              Adım 4
+            </span>
+            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
+              İletişim bilgileri
+            </span>
+          </legend>
+          <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
+            Ustanın seni doğru bilgilerle araması için iletişim kişisini ekle.
+          </p>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className={labelClassName} htmlFor="fullName">
-                  Ad soyad
-                </label>
-                <input
-                  aria-describedby={errors.fullName ? "fullName-error" : "fullName-helper"}
-                  aria-invalid={Boolean(errors.fullName)}
-                  autoComplete="name"
-                  className={getFieldClassName("fullName")}
-                  id="fullName"
-                  name="fullName"
-                  onChange={(event) => updateField("fullName", event.target.value)}
-                  placeholder="Adını ve soyadını yaz"
-                  required
-                  type="text"
-                  value={formState.fullName}
-                />
-                <p className={helperClassName} id="fullName-helper">
-                  Usta seninle bu isimle iletişime geçer.
-                </p>
-                <FieldError id="fullName-error" message={errors.fullName} />
-              </div>
-
-              <div>
-                <label className={labelClassName} htmlFor="phoneNumber">
-                  Telefon numarası
-                </label>
-                <input
-                  aria-describedby={errors.phoneNumber ? "phoneNumber-error" : "phoneNumber-helper"}
-                  aria-invalid={Boolean(errors.phoneNumber)}
-                  autoComplete="tel"
-                  className={getFieldClassName("phoneNumber")}
-                  id="phoneNumber"
-                  inputMode="tel"
-                  name="phoneNumber"
-                  onChange={(event) => updateField("phoneNumber", event.target.value)}
-                  placeholder="+90 5xx xxx xx xx"
-                  required
-                  type="tel"
-                  value={formState.phoneNumber}
-                />
-                <p className={helperClassName} id="phoneNumber-helper">
-                  Hızlı dönüş için aktif bir numara yaz.
-                </p>
-                <FieldError id="phoneNumber-error" message={errors.phoneNumber} />
-              </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className={labelClassName} htmlFor="fullName">
+                Ad soyad
+              </label>
+              <input
+                aria-describedby={errors.fullName ? "fullName-error" : "fullName-helper"}
+                aria-invalid={Boolean(errors.fullName)}
+                autoComplete="name"
+                className={getFieldClassName("fullName")}
+                id="fullName"
+                name="fullName"
+                onChange={(event) => updateField("fullName", event.target.value)}
+                placeholder="Adını ve soyadını yaz"
+                required
+                type="text"
+                value={formState.fullName}
+              />
+              <p className={helperClassName} id="fullName-helper">
+                Usta seninle bu isimle iletişime geçer.
+              </p>
+              <FieldError id="fullName-error" message={errors.fullName} />
             </div>
 
             <div>
-              <label className={labelClassName} htmlFor="shortDescription">
-                Açıklama
+              <label className={labelClassName} htmlFor="phoneNumber">
+                Telefon numarası
               </label>
-              <textarea
-                aria-describedby={
-                  errors.shortDescription ? "shortDescription-error" : "shortDescription-helper"
-                }
-                aria-invalid={Boolean(errors.shortDescription)}
-                className={`${getFieldClassName("shortDescription")} min-h-36 resize-y leading-6`}
-                id="shortDescription"
-                name="shortDescription"
-                onChange={(event) => updateField("shortDescription", event.target.value)}
-                placeholder="İşi, mevcut durumu, erişim notlarını ve özel beklentilerini yaz."
+              <input
+                aria-describedby={errors.phoneNumber ? "phoneNumber-error" : "phoneNumber-helper"}
+                aria-invalid={Boolean(errors.phoneNumber)}
+                autoComplete="tel"
+                className={getFieldClassName("phoneNumber")}
+                id="phoneNumber"
+                inputMode="tel"
+                name="phoneNumber"
+                onChange={(event) => updateField("phoneNumber", event.target.value)}
+                placeholder="+90 5xx xxx xx xx"
                 required
-                value={formState.shortDescription}
+                type="tel"
+                value={formState.phoneNumber}
               />
-              <p className={helperClassName} id="shortDescription-helper">
-                Net notlar daha doğru fiyat aralığı ve hızlı dönüş sağlar.
+              <p className={helperClassName} id="phoneNumber-helper">
+                Hızlı dönüş için aktif bir numara yaz.
               </p>
-              <FieldError id="shortDescription-error" message={errors.shortDescription} />
+              <FieldError id="phoneNumber-error" message={errors.phoneNumber} />
             </div>
-          </fieldset>
-        )}
+          </div>
+        </fieldset>
+
+        <fieldset className={sectionClassName}>
+          <legend className="cursor-default select-none">
+            <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+              Adım 5
+            </span>
+            <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
+              Özet ve gönder
+            </span>
+          </legend>
+          <div className="grid gap-3 rounded-lg bg-[#fffdf9] p-4 ring-1 ring-[rgba(13,20,36,0.08)]">
+            <SummaryRow label="Hizmet" value={formState.serviceCategory} />
+            <SummaryRow label="İlçe" value={formState.district} />
+            <SummaryRow
+              label={isEmergencyFlow ? "Konum" : "Adres"}
+              value={isEmergencyFlow ? formState.approximateLocation || "İlçe üzerinden" : formState.fullAddress}
+            />
+            <SummaryRow
+              label="Aciliyet"
+              value={isEmergencyFlow ? "Acil" : formState.urgencyLevel}
+            />
+            <SummaryRow
+              label={isEmergencyFlow ? "Teklif" : "Bütçe"}
+              value={isEmergencyFlow ? formatPrice(formState.offerAmount || suggestedEmergencyPrice) : getBudgetTagLabel(normalizeBudgetTag(formState.budgetTag)) ?? ""}
+            />
+            <SummaryRow label="Ödeme" value={getPaymentPreferenceLabel(formState.paymentPreference)} />
+            <SummaryRow
+              label="Yanıt sinyali"
+              value={averageResponseMinutes ? `${averageResponseMinutes} dk ortalama` : "Canlı veri bekleniyor"}
+            />
+          </div>
+          {isEmergencyFlow ? (
+            <InsightNote tone="orange">
+              Acil talep ustalara profesyonel bildirim olarak iletilir; ödeme tamamlandı sayılmaz.
+            </InsightNote>
+          ) : (
+            <InsightNote tone="green">
+              Talep gönderildiğinde kodların bu ekranda ve hesabındaki talepler alanında görünür.
+            </InsightNote>
+          )}
+        </fieldset>
 
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">

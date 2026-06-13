@@ -6,7 +6,7 @@ import {
   createAuthenticatedServiceRequest,
   serviceRequestSubmitErrorMessage,
 } from "@/services/requests";
-import { getPublicErrorMessage } from "@/lib/errors";
+import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import { getServerAuthContext } from "@/services/auth/server";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
@@ -31,8 +31,13 @@ function createActionSuccess(data: ServiceRequestSubmitResult): ServiceRequestAc
 }
 
 function createActionFailure(error: unknown, fallbackMessage: string): ServiceRequestActionResult {
+  const appError = handleServiceError(error, {
+    logContext: "Service request action failed.",
+    publicMessage: fallbackMessage,
+  });
+
   return {
-    message: getPublicErrorMessage(error, fallbackMessage),
+    message: getPublicErrorMessage(appError, fallbackMessage),
     ok: false,
   };
 }

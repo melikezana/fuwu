@@ -7,12 +7,19 @@ import {
   ProviderDashboardApplicationPlaceholder,
   providerDashboardIcons,
   ProviderDashboardShell,
+  ProviderStatusBadge,
   ProviderSummaryCard,
 } from "@/components/dashboard/ProviderDashboardUI";
+import {
+  SERVICE_REQUEST_STATUS_LABELS,
+  normalizeServiceRequestStatus,
+} from "@/lib/constants/statuses";
+import { getServerAuthContext } from "@/services/auth/server";
 import {
   getProviderDashboardAccess,
   type ProviderDashboardProfile,
 } from "@/services/providers/dashboard";
+import { getProviderAssignedRequests } from "@/services/requests";
 
 export const dynamic = "force-dynamic";
 
@@ -22,52 +29,12 @@ export const metadata: Metadata = {
 };
 
 function ProviderDashboardSummary({
+  assignedRequestCount,
   provider,
 }: {
+  assignedRequestCount: number;
   provider: ProviderDashboardProfile;
 }) {
-  const cards = [
-    {
-      description: provider.isApproved
-        ? "Profil bilgileri yayın için hazır."
-        : "Profil inceleme süreci devam ediyor.",
-      href: appRoutes.providerDashboardProfile,
-      icon: providerDashboardIcons.shield,
-      label: "Profil Durumu",
-      value: provider.isApproved ? "Onaylı" : "İncelemede",
-    },
-    {
-      description:
-        provider.isActive && provider.isApproved
-          ? "Profilin public usta listesinde görünebilir."
-          : "Profil görünürlüğü şu anda kapalı.",
-      href: appRoutes.providers,
-      icon: providerDashboardIcons.eye,
-      label: "Görünürlük Durumu",
-      value: provider.isActive && provider.isApproved ? "Yayında" : "Kapalı",
-    },
-    {
-      description: "Public kartlarda gösterilen güncel çalışma kapasiten.",
-      href: appRoutes.providerDashboardProfile,
-      icon: providerDashboardIcons.eye,
-      label: "Uygunluk Durumu",
-      value: getProviderAvailabilityLabel(provider.availability),
-    },
-    {
-      description: "Talep eşleşmesi altyapısı hazırlanıyor.",
-      href: appRoutes.providerDashboardRequests,
-      icon: providerDashboardIcons.inbox,
-      label: "Gelen Talepler",
-      value: "0",
-    },
-    {
-      description: "Yayındaki profil ortalaması.",
-      href: appRoutes.providerDashboardProfile,
-      icon: providerDashboardIcons.star,
-      label: "Ortalama Puan",
-      value: formatProviderRating(provider.rating),
-    },
-  ];
   const dashboardCards = [
     {
       description:
@@ -86,11 +53,11 @@ function ProviderDashboardSummary({
       value: provider.name,
     },
     {
-      description: "Sana y\u00f6nlendirilen i\u015fler burada takip edilecek.",
+      description: "Sana yönlendirilen işlerin güncel sayısı.",
       href: appRoutes.providerDashboardRequests,
       icon: providerDashboardIcons.inbox,
       label: "Gelen Talepler",
-      value: "0",
+      value: String(assignedRequestCount),
     },
     {
       description:
@@ -116,6 +83,65 @@ function ProviderDashboardSummary({
           value={card.value}
         />
       ))}
+    </section>
+  );
+}
+
+type ProviderAssignedRequestPreview = Awaited<ReturnType<typeof getProviderAssignedRequests>>[number];
+
+function getRequestStatusLabel(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return normalizedStatus ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus] : status;
+}
+
+function ProviderDashboardRecentRequests({
+  requests,
+}: {
+  requests: ProviderAssignedRequestPreview[];
+}) {
+  return (
+    <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="cursor-default select-none">
+          <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+            Gelen talepler
+          </p>
+          <h2 className="mt-2 text-xl font-black text-[var(--brand-navy)]">
+            Son atanan talepler
+          </h2>
+        </div>
+        <ProviderStatusBadge tone={requests.length > 0 ? "green" : "orange"}>
+          {requests.length} talep
+        </ProviderStatusBadge>
+      </div>
+
+      {requests.length > 0 ? (
+        <div className="mt-5 grid gap-3">
+          {requests.slice(0, 3).map((request) => (
+            <article
+              className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-4"
+              key={request.id}
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-black text-[var(--brand-navy)]">{request.category}</p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
+                    {request.district} · {request.customerName}
+                  </p>
+                </div>
+                <ProviderStatusBadge tone={request.status === "rejected" ? "red" : "green"}>
+                  {getRequestStatusLabel(request.status)}
+                </ProviderStatusBadge>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 rounded-md border border-dashed border-[rgba(255,138,0,0.38)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+          Henüz atanmış talep yok. Yeni talepler atandığında durumları burada görünür.
+        </p>
+      )}
     </section>
   );
 }
@@ -151,7 +177,14 @@ function ProviderDashboardActiveNotice({
 }
 
 export default async function ProviderDashboardPage() {
-  const providerAccess = await getProviderDashboardAccess();
+  const [providerAccess, authContext] = await Promise.all([
+    getProviderDashboardAccess(),
+    getServerAuthContext(),
+  ]);
+  const assignedRequests =
+    providerAccess.ok && authContext.supabase
+      ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
+      : [];
   const statusBadge = getProviderDashboardStatusBadgeView(
     providerAccess.ok
       ? providerAccess.application?.status
@@ -171,7 +204,11 @@ export default async function ProviderDashboardPage() {
       {providerAccess.ok ? (
         <div className="grid gap-6">
           <ProviderDashboardActiveNotice provider={providerAccess.profile} />
-          <ProviderDashboardSummary provider={providerAccess.profile} />
+          <ProviderDashboardSummary
+            assignedRequestCount={assignedRequests.length}
+            provider={providerAccess.profile}
+          />
+          <ProviderDashboardRecentRequests requests={assignedRequests} />
 
           <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

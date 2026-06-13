@@ -52,6 +52,9 @@ const emergencyRequiredRequestFields: Array<{
 }> = [
   { field: "serviceCategory", message: "Hizmet kategorisi zorunludur." },
   { field: "district", message: "İlçe alanı zorunludur." },
+  { field: "fullName", message: "Ad soyad alanı zorunludur." },
+  { field: "phoneNumber", message: "Telefon numarası zorunludur." },
+  { field: "shortDescription", message: "Açıklama alanı zorunludur." },
   { field: "offerAmount", message: "Teklif tutarı zorunludur." },
   { field: "paymentPreference", message: "Ödeme tercihi zorunludur." },
 ];
@@ -107,6 +110,17 @@ export function validateServiceRequestInput(
     addRequiredTextIssue(issues, field, sanitizedData[field] ?? "", message);
   });
 
+  if (
+    sanitizedData.urgencyType &&
+    sanitizedData.urgencyType !== "standard" &&
+    sanitizedData.urgencyType !== "emergency"
+  ) {
+    issues.push({
+      field: "urgencyType",
+      message: "Geçerli bir aciliyet tipi seç.",
+    });
+  }
+
   if (isEmergencyRequest) {
     if (
       sanitizedData.paymentPreference &&
@@ -154,7 +168,7 @@ export function validateServiceRequestInput(
     });
   }
 
-  if (!isEmergencyRequest && sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
+  if (sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
     issues.push({
       field: "phoneNumber",
       message: commonValidationMessages.phoneInvalid,

@@ -31,6 +31,13 @@ export type ServiceRequestSubmitResult = {
   urgencyType?: ServiceRequestUrgencyType | null;
 };
 
+export type RequestFormInsights = {
+  averageResponseMinutesByCategory: Record<string, number>;
+  providerCountByCategory: Record<string, number>;
+  providerCountByCategoryAndDistrict: Record<string, number>;
+  source: "fallback" | "supabase";
+};
+
 export type { ServiceRequestStatus } from "@/lib/constants/statuses";
 
 export type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";

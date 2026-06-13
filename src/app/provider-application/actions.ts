@@ -1,6 +1,6 @@
 "use server";
 
-import { AppError, getPublicErrorMessage } from "@/lib/errors";
+import { AppError, getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import { submitProviderApplication } from "@/services/providers/applications";
 import type {
   ProviderApplicationInput,
@@ -44,7 +44,11 @@ export async function submitProviderApplicationAction(
       result,
     };
   } catch (error) {
-    const debugMessage = getDebugMessage(error);
+    const appError = handleServiceError(error, {
+      logContext: "Provider application submit action failed.",
+      publicMessage: providerApplicationSubmitErrorMessage,
+    });
+    const debugMessage = getDebugMessage(appError);
 
     if (process.env.NODE_ENV !== "production") {
       console.error("[Fuwu] Provider application submit action failed.", debugMessage);
@@ -52,7 +56,7 @@ export async function submitProviderApplicationAction(
 
     return {
       debugMessage,
-      message: getPublicErrorMessage(error, providerApplicationSubmitErrorMessage),
+      message: getPublicErrorMessage(appError, providerApplicationSubmitErrorMessage),
       ok: false,
     };
   }
