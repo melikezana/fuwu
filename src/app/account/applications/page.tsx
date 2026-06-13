@@ -7,7 +7,8 @@ import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
-  type ServiceRequestStatus,
+  PROVIDER_APPLICATION_STATUSES,
+  normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { getBudgetTagLabel } from "@/services/matching/budget";
 import { getPaymentPreferenceLabel } from "@/services/payments";
@@ -46,7 +47,9 @@ function formatPrice(value: number | null) {
 }
 
 function getRequestStatusLabel(status: string) {
-  return SERVICE_REQUEST_STATUS_LABELS[status as ServiceRequestStatus] ?? status;
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return normalizedStatus ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus] : status;
 }
 
 function getBudgetLabel(value: string | null) {
@@ -54,11 +57,11 @@ function getBudgetLabel(value: string | null) {
 }
 
 function getApplicationStatusClassName(status: AccountProviderApplication["status"]) {
-  if (status === "approved") {
+  if (status === PROVIDER_APPLICATION_STATUSES.approved) {
     return "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]";
   }
 
-  if (status === "rejected") {
+  if (status === PROVIDER_APPLICATION_STATUSES.rejected) {
     return "border-red-200 bg-red-50 text-red-700";
   }
 

@@ -1,15 +1,55 @@
-export const SERVICE_REQUEST_STATUSES = {
-  accepted: "accepted",
-  cancelled: "cancelled",
-  completed: "completed",
-  rejected: "rejected",
-  yeni: "yeni",
-  inceleniyor: "inceleniyor",
-  onTheWay: "on_the_way",
+export const PROVIDER_APPLICATION_STATUSES = {
   pending: "pending",
-  ustayaYonlendirildi: "ustaya_yonlendirildi",
-  tamamlandi: "tamamlandi",
-  iptal: "iptal",
+  approved: "approved",
+  rejected: "rejected",
+} as const;
+
+export type ProviderApplicationStatus =
+  (typeof PROVIDER_APPLICATION_STATUSES)[keyof typeof PROVIDER_APPLICATION_STATUSES];
+
+export const PROVIDER_APPLICATION_STATUS_VALUES = Object.values(
+  PROVIDER_APPLICATION_STATUSES,
+) as ProviderApplicationStatus[];
+
+export const PROVIDER_APPLICATION_ALLOWED_TRANSITIONS: Record<
+  ProviderApplicationStatus,
+  ProviderApplicationStatus[]
+> = {
+  [PROVIDER_APPLICATION_STATUSES.pending]: [
+    PROVIDER_APPLICATION_STATUSES.approved,
+    PROVIDER_APPLICATION_STATUSES.rejected,
+  ],
+  [PROVIDER_APPLICATION_STATUSES.approved]: [],
+  [PROVIDER_APPLICATION_STATUSES.rejected]: [],
+};
+
+export function isProviderApplicationStatus(
+  status: string,
+): status is ProviderApplicationStatus {
+  return PROVIDER_APPLICATION_STATUS_VALUES.includes(
+    status as ProviderApplicationStatus,
+  );
+}
+
+export function canTransitionProviderApplication(
+  fromStatus: string,
+  toStatus: string,
+) {
+  if (!isProviderApplicationStatus(fromStatus) || !isProviderApplicationStatus(toStatus)) {
+    return false;
+  }
+
+  return PROVIDER_APPLICATION_ALLOWED_TRANSITIONS[fromStatus].includes(toStatus);
+}
+
+export const SERVICE_REQUEST_STATUSES = {
+  pending: "pending",
+  assigned: "assigned",
+  accepted: "accepted",
+  rejected: "rejected",
+  inProgress: "in_progress",
+  completed: "completed",
+  cancelled: "cancelled",
 } as const;
 
 export type ServiceRequestStatus =
@@ -19,32 +59,84 @@ export const SERVICE_REQUEST_STATUS_VALUES = Object.values(
   SERVICE_REQUEST_STATUSES,
 ) as ServiceRequestStatus[];
 
-export const SERVICE_REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string> = {
+export const EMERGENCY_REQUEST_STATUSES = {
+  pending: "pending",
+  assigned: "assigned",
+  accepted: "accepted",
+  rejected: "rejected",
+  onTheWay: "on_the_way",
+  completed: "completed",
+  cancelled: "cancelled",
+} as const;
+
+export type EmergencyRequestStatus =
+  (typeof EMERGENCY_REQUEST_STATUSES)[keyof typeof EMERGENCY_REQUEST_STATUSES];
+
+export const EMERGENCY_REQUEST_STATUS_VALUES = Object.values(
+  EMERGENCY_REQUEST_STATUSES,
+) as EmergencyRequestStatus[];
+
+export const LEGACY_SERVICE_REQUEST_STATUSES = {
+  yeni: "yeni",
+  inceleniyor: "inceleniyor",
+  ustayaYonlendirildi: "ustaya_yonlendirildi",
+  tamamlandi: "tamamlandi",
+  iptal: "iptal",
+  matched: "matched",
+  open: "open",
+  onTheWay: "on_the_way",
+} as const;
+
+export type LegacyServiceRequestStatus =
+  (typeof LEGACY_SERVICE_REQUEST_STATUSES)[keyof typeof LEGACY_SERVICE_REQUEST_STATUSES];
+
+export type ServiceRequestStoredStatus =
+  | ServiceRequestStatus
+  | LegacyServiceRequestStatus
+  | EmergencyRequestStatus;
+
+export const SERVICE_REQUEST_STATUS_LABELS: Record<
+  ServiceRequestStoredStatus,
+  string
+> = {
   [SERVICE_REQUEST_STATUSES.pending]: "Bekliyor",
+  [SERVICE_REQUEST_STATUSES.assigned]: "Usta atandı. Yanıt bekleniyor.",
   [SERVICE_REQUEST_STATUSES.accepted]: "Kabul edildi",
   [SERVICE_REQUEST_STATUSES.rejected]: "Reddedildi",
-  [SERVICE_REQUEST_STATUSES.onTheWay]: "Yolda",
+  [SERVICE_REQUEST_STATUSES.inProgress]: "İşlemde",
   [SERVICE_REQUEST_STATUSES.completed]: "Tamamlandı",
   [SERVICE_REQUEST_STATUSES.cancelled]: "İptal edildi",
-  [SERVICE_REQUEST_STATUSES.yeni]: "Yeni",
-  [SERVICE_REQUEST_STATUSES.inceleniyor]: "İnceleniyor",
-  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Usta atandı. Yanıt bekleniyor.",
-  [SERVICE_REQUEST_STATUSES.tamamlandi]: "Tamamlandı",
-  [SERVICE_REQUEST_STATUSES.iptal]: "İptal",
+  [EMERGENCY_REQUEST_STATUSES.onTheWay]: "Yolda",
+  [LEGACY_SERVICE_REQUEST_STATUSES.yeni]: "Yeni",
+  [LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor]: "İnceleniyor",
+  [LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]:
+    "Usta atandı. Yanıt bekleniyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi]: "Tamamlandı",
+  [LEGACY_SERVICE_REQUEST_STATUSES.iptal]: "İptal",
+  [LEGACY_SERVICE_REQUEST_STATUSES.matched]: "Usta atandı. Yanıt bekleniyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.open]: "Bekliyor",
 };
 
-export const SERVICE_REQUEST_STATUS_DESCRIPTIONS: Record<ServiceRequestStatus, string> = {
+export const SERVICE_REQUEST_STATUS_DESCRIPTIONS: Record<
+  ServiceRequestStoredStatus,
+  string
+> = {
   [SERVICE_REQUEST_STATUSES.pending]: "Talep uygun usta ataması bekliyor.",
-  [SERVICE_REQUEST_STATUSES.accepted]: "Usta talebini kabul etti.",
+  [SERVICE_REQUEST_STATUSES.assigned]: "Usta atandı. Yanıt bekleniyor.",
+  [SERVICE_REQUEST_STATUSES.accepted]: "Usta talebi kabul etti.",
   [SERVICE_REQUEST_STATUSES.rejected]: "Usta talebi reddetti. Yeni eşleşme bekleniyor.",
-  [SERVICE_REQUEST_STATUSES.onTheWay]: "Usta konuma doğru yolda.",
+  [SERVICE_REQUEST_STATUSES.inProgress]: "Talep aktif olarak işlemde.",
   [SERVICE_REQUEST_STATUSES.completed]: "Talep tamamlandı.",
   [SERVICE_REQUEST_STATUSES.cancelled]: "Talep iptal edildi.",
-  [SERVICE_REQUEST_STATUSES.yeni]: "Talep yeni alındı ve ilk kontrol bekliyor.",
-  [SERVICE_REQUEST_STATUSES.inceleniyor]: "Operasyon ekibi talebi inceliyor.",
-  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "Usta atandı. Yanıt bekleniyor.",
-  [SERVICE_REQUEST_STATUSES.tamamlandi]: "Talep tamamlandı.",
-  [SERVICE_REQUEST_STATUSES.iptal]: "Talep iptal edildi.",
+  [EMERGENCY_REQUEST_STATUSES.onTheWay]: "Usta konuma doğru yolda.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.yeni]: "Talep yeni alındı ve ilk kontrol bekliyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor]: "Operasyon ekibi talebi inceliyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]:
+    "Usta atandı. Yanıt bekleniyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi]: "Talep tamamlandı.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.iptal]: "Talep iptal edildi.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.matched]: "Usta atandı. Yanıt bekleniyor.",
+  [LEGACY_SERVICE_REQUEST_STATUSES.open]: "Talep uygun usta ataması bekliyor.",
 };
 
 export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
@@ -52,67 +144,68 @@ export const SERVICE_REQUEST_ALLOWED_TRANSITIONS: Record<
   ServiceRequestStatus[]
 > = {
   [SERVICE_REQUEST_STATUSES.pending]: [
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
-    SERVICE_REQUEST_STATUSES.completed,
+    SERVICE_REQUEST_STATUSES.assigned,
     SERVICE_REQUEST_STATUSES.cancelled,
+  ],
+  [SERVICE_REQUEST_STATUSES.assigned]: [
+    SERVICE_REQUEST_STATUSES.accepted,
     SERVICE_REQUEST_STATUSES.rejected,
+    SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.accepted]: [
-    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.inProgress,
     SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.cancelled,
   ],
-  [SERVICE_REQUEST_STATUSES.rejected]: [
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.cancelled,
-  ],
-  [SERVICE_REQUEST_STATUSES.onTheWay]: [
+  [SERVICE_REQUEST_STATUSES.rejected]: [SERVICE_REQUEST_STATUSES.assigned],
+  [SERVICE_REQUEST_STATUSES.inProgress]: [
     SERVICE_REQUEST_STATUSES.completed,
     SERVICE_REQUEST_STATUSES.cancelled,
   ],
   [SERVICE_REQUEST_STATUSES.completed]: [],
   [SERVICE_REQUEST_STATUSES.cancelled]: [],
-  [SERVICE_REQUEST_STATUSES.yeni]: [
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
-    SERVICE_REQUEST_STATUSES.completed,
-    SERVICE_REQUEST_STATUSES.iptal,
-    SERVICE_REQUEST_STATUSES.cancelled,
-    SERVICE_REQUEST_STATUSES.rejected,
-  ],
-  [SERVICE_REQUEST_STATUSES.inceleniyor]: [
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
-    SERVICE_REQUEST_STATUSES.completed,
-    SERVICE_REQUEST_STATUSES.iptal,
-    SERVICE_REQUEST_STATUSES.cancelled,
-    SERVICE_REQUEST_STATUSES.rejected,
-  ],
-  [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: [
-    SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
-    SERVICE_REQUEST_STATUSES.completed,
-    SERVICE_REQUEST_STATUSES.tamamlandi,
-    SERVICE_REQUEST_STATUSES.iptal,
-    SERVICE_REQUEST_STATUSES.cancelled,
-    SERVICE_REQUEST_STATUSES.rejected,
-  ],
-  [SERVICE_REQUEST_STATUSES.tamamlandi]: [],
-  [SERVICE_REQUEST_STATUSES.iptal]: [],
 };
 
-export const LEGACY_SERVICE_REQUEST_STATUS_MAP: Record<string, ServiceRequestStatus> = {
-  assigned: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-  cancelled: SERVICE_REQUEST_STATUSES.iptal,
-  completed: SERVICE_REQUEST_STATUSES.tamamlandi,
-  in_progress: SERVICE_REQUEST_STATUSES.inceleniyor,
-  matched: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-  open: SERVICE_REQUEST_STATUSES.pending,
+export const EMERGENCY_REQUEST_ALLOWED_TRANSITIONS: Record<
+  EmergencyRequestStatus,
+  EmergencyRequestStatus[]
+> = {
+  [EMERGENCY_REQUEST_STATUSES.pending]: [
+    EMERGENCY_REQUEST_STATUSES.assigned,
+    EMERGENCY_REQUEST_STATUSES.cancelled,
+  ],
+  [EMERGENCY_REQUEST_STATUSES.assigned]: [
+    EMERGENCY_REQUEST_STATUSES.accepted,
+    EMERGENCY_REQUEST_STATUSES.rejected,
+    EMERGENCY_REQUEST_STATUSES.cancelled,
+  ],
+  [EMERGENCY_REQUEST_STATUSES.accepted]: [
+    EMERGENCY_REQUEST_STATUSES.onTheWay,
+    EMERGENCY_REQUEST_STATUSES.completed,
+    EMERGENCY_REQUEST_STATUSES.cancelled,
+  ],
+  [EMERGENCY_REQUEST_STATUSES.rejected]: [EMERGENCY_REQUEST_STATUSES.assigned],
+  [EMERGENCY_REQUEST_STATUSES.onTheWay]: [
+    EMERGENCY_REQUEST_STATUSES.completed,
+    EMERGENCY_REQUEST_STATUSES.cancelled,
+  ],
+  [EMERGENCY_REQUEST_STATUSES.completed]: [],
+  [EMERGENCY_REQUEST_STATUSES.cancelled]: [],
+};
+
+export const LEGACY_SERVICE_REQUEST_STATUS_MAP: Record<
+  string,
+  ServiceRequestStatus
+> = {
+  [LEGACY_SERVICE_REQUEST_STATUSES.open]: SERVICE_REQUEST_STATUSES.pending,
+  [LEGACY_SERVICE_REQUEST_STATUSES.yeni]: SERVICE_REQUEST_STATUSES.pending,
+  [LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor]: SERVICE_REQUEST_STATUSES.inProgress,
+  [LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]:
+    SERVICE_REQUEST_STATUSES.assigned,
+  [LEGACY_SERVICE_REQUEST_STATUSES.matched]: SERVICE_REQUEST_STATUSES.assigned,
+  [LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi]: SERVICE_REQUEST_STATUSES.completed,
+  [LEGACY_SERVICE_REQUEST_STATUSES.iptal]: SERVICE_REQUEST_STATUSES.cancelled,
+  [LEGACY_SERVICE_REQUEST_STATUSES.onTheWay]: SERVICE_REQUEST_STATUSES.inProgress,
 };
 
 export function isServiceRequestStatus(
@@ -121,10 +214,20 @@ export function isServiceRequestStatus(
   return SERVICE_REQUEST_STATUS_VALUES.includes(status as ServiceRequestStatus);
 }
 
-export function normalizeServiceRequestStatus(
+export function isEmergencyRequestStatus(
   status: string,
+): status is EmergencyRequestStatus {
+  return EMERGENCY_REQUEST_STATUS_VALUES.includes(status as EmergencyRequestStatus);
+}
+
+export function normalizeServiceRequestStatus(
+  status: string | null | undefined,
 ): ServiceRequestStatus | null {
-  const normalizedStatus = status.trim();
+  const normalizedStatus = status?.trim() ?? "";
+
+  if (!normalizedStatus) {
+    return null;
+  }
 
   if (isServiceRequestStatus(normalizedStatus)) {
     return normalizedStatus;
@@ -133,21 +236,73 @@ export function normalizeServiceRequestStatus(
   return LEGACY_SERVICE_REQUEST_STATUS_MAP[normalizedStatus] ?? null;
 }
 
-export function getAllowedServiceRequestTransitions(
-  status: ServiceRequestStatus,
-) {
-  return SERVICE_REQUEST_ALLOWED_TRANSITIONS[status];
+export function normalizeEmergencyRequestStatus(
+  status: string | null | undefined,
+): EmergencyRequestStatus | null {
+  const normalizedStatus = status?.trim() ?? "";
+
+  if (!normalizedStatus) {
+    return null;
+  }
+
+  if (isEmergencyRequestStatus(normalizedStatus)) {
+    return normalizedStatus;
+  }
+
+  const serviceStatus = normalizeServiceRequestStatus(normalizedStatus);
+
+  if (serviceStatus === SERVICE_REQUEST_STATUSES.inProgress) {
+    return EMERGENCY_REQUEST_STATUSES.onTheWay;
+  }
+
+  return isEmergencyRequestStatus(serviceStatus ?? "") ? serviceStatus : null;
 }
 
-export function isServiceRequestTransitionAllowed(
-  fromStatus: ServiceRequestStatus,
-  toStatus: ServiceRequestStatus,
-) {
-  return (
-    fromStatus === toStatus ||
-    SERVICE_REQUEST_ALLOWED_TRANSITIONS[fromStatus].includes(toStatus)
-  );
+export function getAllowedServiceRequestTransitions(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return normalizedStatus
+    ? SERVICE_REQUEST_ALLOWED_TRANSITIONS[normalizedStatus]
+    : [];
 }
+
+export function canTransitionServiceRequest(
+  fromStatus: string | null | undefined,
+  toStatus: string | null | undefined,
+) {
+  const from = normalizeServiceRequestStatus(fromStatus);
+  const to = normalizeServiceRequestStatus(toStatus);
+
+  if (!from || !to) {
+    return false;
+  }
+
+  if (from === to) {
+    return true;
+  }
+
+  return SERVICE_REQUEST_ALLOWED_TRANSITIONS[from].includes(to);
+}
+
+export function canTransitionEmergencyRequest(
+  fromStatus: string | null | undefined,
+  toStatus: string | null | undefined,
+) {
+  const from = normalizeEmergencyRequestStatus(fromStatus);
+  const to = normalizeEmergencyRequestStatus(toStatus);
+
+  if (!from || !to) {
+    return false;
+  }
+
+  if (from === to) {
+    return true;
+  }
+
+  return EMERGENCY_REQUEST_ALLOWED_TRANSITIONS[from].includes(to);
+}
+
+export const isServiceRequestTransitionAllowed = canTransitionServiceRequest;
 
 export const PROVIDER_AVAILABILITY_STATUSES = {
   musait: "müsait",
@@ -189,25 +344,4 @@ export function normalizeProviderAvailabilityStatus(
   }
 
   return PROVIDER_AVAILABILITY_STATUSES.musait;
-}
-
-export const PROVIDER_APPLICATION_STATUSES = {
-  pending: "pending",
-  approved: "approved",
-  rejected: "rejected",
-} as const;
-
-export type ProviderApplicationStatus =
-  (typeof PROVIDER_APPLICATION_STATUSES)[keyof typeof PROVIDER_APPLICATION_STATUSES];
-
-export const PROVIDER_APPLICATION_STATUS_VALUES = Object.values(
-  PROVIDER_APPLICATION_STATUSES,
-) as ProviderApplicationStatus[];
-
-export function isProviderApplicationStatus(
-  status: string,
-): status is ProviderApplicationStatus {
-  return PROVIDER_APPLICATION_STATUS_VALUES.includes(
-    status as ProviderApplicationStatus,
-  );
 }

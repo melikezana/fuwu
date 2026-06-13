@@ -29,7 +29,12 @@ import { MetricCard } from "@/components/admin/MetricCard";
 import { AdminSection } from "@/components/admin/AdminSection";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
-import { SERVICE_REQUEST_STATUS_LABELS } from "@/lib/constants/statuses";
+import {
+  PROVIDER_APPLICATION_STATUSES,
+  SERVICE_REQUEST_STATUS_LABELS,
+  SERVICE_REQUEST_STATUSES,
+  normalizeServiceRequestStatus,
+} from "@/lib/constants/statuses";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +66,7 @@ function DashboardErrorState({ error }: { error: string }) {
 function DashboardSummaryCards({ summary }: { summary: AdminDashboardSummary }) {
   const cards = [
     {
-      href: "/admin/provider-applications?status=pending",
+      href: `/admin/provider-applications?status=${PROVIDER_APPLICATION_STATUSES.pending}`,
       icon: ClipboardList,
       label: "Bekleyen Başvurular",
       value: summary.pendingApplications,
@@ -73,7 +78,7 @@ function DashboardSummaryCards({ summary }: { summary: AdminDashboardSummary }) 
       value: summary.approvedApplications,
     },
     {
-      href: "/admin/provider-applications?status=rejected",
+      href: `/admin/provider-applications?status=${PROVIDER_APPLICATION_STATUSES.rejected}`,
       icon: XCircle,
       label: "Reddedilen Başvurular",
       value: summary.rejectedApplications,
@@ -224,19 +229,33 @@ function AssignmentMonitoringSection({ assignments }: { assignments: any[] }) {
             </tr>
           </thead>
           <tbody>
-            {assignments.map(a => (
-              <tr key={a.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]">
-                <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">{a.customerPhone}</td>
-                <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">
-                  {a.category}<br/>
-                  <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
-                </td>
-                <td className="py-3 px-4 text-sm font-black text-[var(--brand-orange)]">{a.assignedProviderName}</td>
-                <td className="py-3 px-4">
-                  <StatusBadge status={SERVICE_REQUEST_STATUS_LABELS[a.status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || a.status} tone={a.status === 'tamamlandi' ? 'success' : 'info'} />
-                </td>
-              </tr>
-            ))}
+            {assignments.map((a) => {
+              const normalizedStatus = normalizeServiceRequestStatus(a.status);
+              const statusLabel = normalizedStatus
+                ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus]
+                : a.status;
+
+              return (
+                <tr key={a.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]">
+                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">{a.customerPhone}</td>
+                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">
+                    {a.category}<br/>
+                    <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
+                  </td>
+                  <td className="py-3 px-4 text-sm font-black text-[var(--brand-orange)]">{a.assignedProviderName}</td>
+                  <td className="py-3 px-4">
+                    <StatusBadge
+                      status={statusLabel || a.status}
+                      tone={
+                        normalizedStatus === SERVICE_REQUEST_STATUSES.completed
+                          ? "success"
+                          : "info"
+                      }
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

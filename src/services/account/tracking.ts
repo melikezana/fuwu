@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   PROVIDER_APPLICATION_STATUSES,
+  SERVICE_REQUEST_STATUSES,
   isProviderApplicationStatus,
   type ProviderApplicationStatus,
 } from "@/lib/constants/statuses";
@@ -167,7 +168,7 @@ function mapServiceRequestRecord(record: ServiceRequestRecord): AccountServiceRe
     paymentPreference: record.payment_preference
       ? sanitizeText(record.payment_preference, 80)
       : null,
-    status: sanitizeText(record.status, 80) || "pending",
+    status: sanitizeText(record.status, 80) || SERVICE_REQUEST_STATUSES.pending,
     urgencyType: record.urgency_type ? sanitizeText(record.urgency_type, 80) : null,
   };
 }

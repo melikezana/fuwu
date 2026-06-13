@@ -7,7 +7,8 @@ import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
-  type ServiceRequestStatus,
+  SERVICE_REQUEST_STATUSES,
+  normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
@@ -100,26 +101,25 @@ function formatPrice(value: number | string | null) {
 }
 
 function isAssignedStatus(status: string) {
-  return status === "ustaya_yonlendirildi" || status === "assigned";
+  return normalizeServiceRequestStatus(status) === SERVICE_REQUEST_STATUSES.assigned;
 }
 
 function getStatusLabel(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
   if (isAssignedStatus(status)) {
     return "Usta atandı. Yanıt bekleniyor.";
   }
 
-  if (status === "accepted") {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
     return "Usta talebini kabul etti.";
   }
 
-  if (status === "rejected") {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.rejected) {
     return "Usta talebi reddetti. Yeni eşleşme bekleniyor.";
   }
 
-  return (
-    SERVICE_REQUEST_STATUS_LABELS[status as ServiceRequestStatus] ??
-    status
-  );
+  return normalizedStatus ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus] : status;
 }
 
 function getBudgetLabel(value: string | null) {

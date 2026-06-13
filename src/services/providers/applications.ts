@@ -9,6 +9,7 @@ import {
 import type { Database } from "@/lib/supabase/types";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import { ensureProfileForUser } from "@/services/auth/profiles";
+import { writeAuditLog } from "@/services/audit";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
 import type {
   ProviderApplicationInput,
@@ -434,7 +435,11 @@ export async function submitProviderApplication(
 
     await assertNoPendingDuplicate(supabase, insertPayload);
 
-    const { error } = await supabase.from("provider_applications").insert(insertPayload);
+    const { data: insertedApplication, error } = await supabase
+      .from("provider_applications")
+      .insert(insertPayload)
+      .select("id")
+      .single();
 
     if (error) {
       logProviderApplicationSupabaseError(
@@ -452,6 +457,21 @@ export async function submitProviderApplication(
       districtId: insertPayload.district_id,
       status: insertPayload.status,
     });
+
+    await writeAuditLog(
+      {
+        action: "provider_application.submitted",
+        actorUserId: userId,
+        entityId: insertedApplication.id,
+        entityType: "provider_application",
+        metadata: {
+          categoryId: insertPayload.category_id,
+          districtId: insertPayload.district_id,
+          status: insertPayload.status,
+        },
+      },
+      supabase,
+    );
 
     return notifyProviderApplicationSubmitResult({
       applicationCode: createLiveApplicationCode(),

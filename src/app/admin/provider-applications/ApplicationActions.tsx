@@ -5,6 +5,7 @@ import {
   AdminActionButton,
   adminActionIcons,
 } from "@/components/admin/AdminUI";
+import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 
 type ApplicationAction = (formData: FormData) => Promise<void> | void;
 
@@ -56,9 +57,9 @@ export function ApplicationActions({
   returnStatus,
   status,
 }: ApplicationActionsProps) {
-  const isPending = status === "pending";
-  const isApproved = status === "approved";
-  const isRejected = status === "rejected";
+  const isPending = status === PROVIDER_APPLICATION_STATUSES.pending;
+  const isApproved = status === PROVIDER_APPLICATION_STATUSES.approved;
+  const isRejected = status === PROVIDER_APPLICATION_STATUSES.rejected;
   const whatsappHref = getWhatsappHref(phone);
   const messageHref = whatsappHref ?? getFallbackMessageHref();
   const MessageIcon = adminActionIcons.message;

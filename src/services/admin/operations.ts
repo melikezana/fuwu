@@ -1,7 +1,11 @@
 import { getServerAuthContext } from "@/services/auth/server";
 import { hasAdminRole } from "@/services/auth/constants";
 import { handleServiceError } from "@/lib/errors";
-import { SERVICE_REQUEST_STATUSES, PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
+import {
+  LEGACY_SERVICE_REQUEST_STATUSES,
+  PROVIDER_APPLICATION_STATUSES,
+  SERVICE_REQUEST_STATUSES,
+} from "@/lib/constants/statuses";
 
 export async function getAdminOperationsAccess() {
   const authContext = await getServerAuthContext();
@@ -34,13 +38,13 @@ export async function getAdminOverviewMetrics() {
         .select("id", { count: "exact", head: true })
         .in("status", [
           SERVICE_REQUEST_STATUSES.pending,
-          SERVICE_REQUEST_STATUSES.yeni,
-          SERVICE_REQUEST_STATUSES.inceleniyor,
+          LEGACY_SERVICE_REQUEST_STATUSES.yeni,
+          LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor,
         ]),
-      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.inceleniyor),
-      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.ustayaYonlendirildi),
-      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.tamamlandi),
-      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.iptal),
+      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.inProgress),
+      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.assigned),
+      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.completed),
+      supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.cancelled),
       supabase.from("providers").select("id", { count: "exact", head: true }).eq("is_active", true).eq("is_approved", true),
       supabase.from("provider_applications").select("id", { count: "exact", head: true }).eq("status", PROVIDER_APPLICATION_STATUSES.pending),
     ]);

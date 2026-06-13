@@ -2,6 +2,7 @@
 
 import { createEmergencyMatchRequest } from "@/services/requests/emergency";
 import {
+  cancelAuthenticatedServiceRequest,
   createAuthenticatedServiceRequest,
   serviceRequestSubmitErrorMessage,
 } from "@/services/requests";
@@ -57,5 +58,22 @@ export async function createEmergencyRequestAction(
     return createActionSuccess(await createEmergencyMatchRequest(input, authContext));
   } catch (error) {
     return createActionFailure(error, emergencyRequestSubmitErrorMessage);
+  }
+}
+
+export async function cancelServiceRequestAction(
+  requestId: string,
+): Promise<{ message?: string; ok: boolean }> {
+  try {
+    const authContext = await getServerAuthContext();
+
+    await cancelAuthenticatedServiceRequest(requestId, authContext);
+
+    return { ok: true };
+  } catch (error) {
+    return {
+      message: getPublicErrorMessage(error, "İşlem tamamlanamadı. Lütfen tekrar deneyin."),
+      ok: false,
+    };
   }
 }

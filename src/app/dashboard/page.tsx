@@ -18,7 +18,12 @@ import {
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
-import { SERVICE_REQUEST_STATUS_LABELS, SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
+import {
+  LEGACY_SERVICE_REQUEST_STATUSES,
+  SERVICE_REQUEST_STATUS_LABELS,
+  SERVICE_REQUEST_STATUSES,
+  normalizeServiceRequestStatus,
+} from "@/lib/constants/statuses";
 import { getServerAuthContext } from "@/services/auth/server";
 import { createSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase/server";
 
@@ -61,20 +66,27 @@ async function getUserRequests(userId: string): Promise<ServiceRequest[]> {
 
 const PENDING_STATUSES = [
   SERVICE_REQUEST_STATUSES.pending,
-  SERVICE_REQUEST_STATUSES.yeni,
-  SERVICE_REQUEST_STATUSES.inceleniyor,
+  LEGACY_SERVICE_REQUEST_STATUSES.yeni,
 ];
 const ASSIGNED_STATUSES = [
-  SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-  "assigned",
+  SERVICE_REQUEST_STATUSES.assigned,
+  LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
 ];
 const ACCEPTED_STATUSES = [
   SERVICE_REQUEST_STATUSES.accepted,
-  SERVICE_REQUEST_STATUSES.onTheWay,
+  SERVICE_REQUEST_STATUSES.inProgress,
+  LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor,
+  LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
 ];
 const REJECTED_STATUSES = [SERVICE_REQUEST_STATUSES.rejected];
-const COMPLETED_STATUSES = [SERVICE_REQUEST_STATUSES.completed, SERVICE_REQUEST_STATUSES.tamamlandi];
-const CANCELLED_STATUSES = [SERVICE_REQUEST_STATUSES.cancelled, SERVICE_REQUEST_STATUSES.iptal];
+const COMPLETED_STATUSES = [
+  SERVICE_REQUEST_STATUSES.completed,
+  LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi,
+];
+const CANCELLED_STATUSES = [
+  SERVICE_REQUEST_STATUSES.cancelled,
+  LEGACY_SERVICE_REQUEST_STATUSES.iptal,
+];
 
 type StatusConfig = {
   label: string;
@@ -86,15 +98,15 @@ type StatusConfig = {
 };
 
 function getStatusConfig(status: string): StatusConfig {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
   let label =
-    SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ??
-    status;
+    normalizedStatus ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus] : status;
 
-  if (status === SERVICE_REQUEST_STATUSES.accepted) {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
     label = "Usta talebini kabul etti.";
   }
 
-  if (status === SERVICE_REQUEST_STATUSES.rejected) {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.rejected) {
     label = "Usta talebi reddetti. Yeni eşleşme bekleniyor.";
   }
 
@@ -128,7 +140,10 @@ function getStatusConfig(status: string): StatusConfig {
       Icon: XCircle,
     };
   }
-  if (([SERVICE_REQUEST_STATUSES.accepted, SERVICE_REQUEST_STATUSES.onTheWay] as string[]).includes(status)) {
+  if (
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
+  ) {
     return {
       label,
       color: "text-blue-700",

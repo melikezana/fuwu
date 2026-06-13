@@ -41,6 +41,7 @@ export type ServiceRequestPaymentPreference = "cash" | "iban" | "online_soon";
 
 export type ServiceRequestEmergencyStatus =
   | "pending"
+  | "assigned"
   | "accepted"
   | "rejected"
   | "on_the_way"

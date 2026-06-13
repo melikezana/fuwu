@@ -123,8 +123,8 @@ const requestStatusActions: Array<{
     tone: "neutral",
   },
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.ustaya_yonlendirildi,
-    status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    label: SERVICE_REQUEST_STATUS_LABELS[SERVICE_REQUEST_STATUSES.assigned],
+    status: SERVICE_REQUEST_STATUSES.assigned,
     tone: "neutral",
   },
   {
@@ -170,8 +170,8 @@ const emergencyRequestStatusActions: Array<{
     tone: "reject",
   },
   {
-    label: SERVICE_REQUEST_STATUS_LABELS.on_the_way,
-    status: SERVICE_REQUEST_STATUSES.onTheWay,
+    label: SERVICE_REQUEST_STATUS_LABELS[SERVICE_REQUEST_STATUSES.inProgress],
+    status: SERVICE_REQUEST_STATUSES.inProgress,
     tone: "neutral",
   },
   {
@@ -311,14 +311,10 @@ function getRequestStatusView(status: string) {
     [SERVICE_REQUEST_STATUSES.pending]: "orange",
     [SERVICE_REQUEST_STATUSES.accepted]: "green",
     [SERVICE_REQUEST_STATUSES.rejected]: "red",
-    [SERVICE_REQUEST_STATUSES.onTheWay]: "orange",
+    [SERVICE_REQUEST_STATUSES.inProgress]: "orange",
     [SERVICE_REQUEST_STATUSES.completed]: "green",
     [SERVICE_REQUEST_STATUSES.cancelled]: "red",
-    [SERVICE_REQUEST_STATUSES.yeni]: "orange",
-    [SERVICE_REQUEST_STATUSES.inceleniyor]: "orange",
-    [SERVICE_REQUEST_STATUSES.ustayaYonlendirildi]: "neutral",
-    [SERVICE_REQUEST_STATUSES.tamamlandi]: "green",
-    [SERVICE_REQUEST_STATUSES.iptal]: "red",
+    [SERVICE_REQUEST_STATUSES.assigned]: "neutral",
   };
 
   if (normalizedStatus) {
@@ -445,7 +441,7 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
     : [];
   const emergencyStatusesRequiringProvider = new Set<AdminServiceRequestStatus>([
     SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.inProgress,
     SERVICE_REQUEST_STATUSES.completed,
   ]);
 
@@ -463,12 +459,10 @@ function RequestActions({ request }: { request: AdminServiceRequest }) {
         const isDisabled =
           isCurrentStatus || !isAllowedTransition || requiresProviderBeforeTransition;
         const Icon =
-          action.status === SERVICE_REQUEST_STATUSES.tamamlandi ||
           action.status === SERVICE_REQUEST_STATUSES.completed ||
           action.status === SERVICE_REQUEST_STATUSES.accepted
             ? adminActionIcons.approve
-            : action.status === SERVICE_REQUEST_STATUSES.iptal ||
-                action.status === SERVICE_REQUEST_STATUSES.cancelled ||
+            : action.status === SERVICE_REQUEST_STATUSES.cancelled ||
                 action.status === SERVICE_REQUEST_STATUSES.rejected
               ? adminActionIcons.reject
               : adminActionIcons.status;

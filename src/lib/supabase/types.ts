@@ -295,6 +295,7 @@ export type Database = {
           approximate_location: string | null;
           emergency_status:
             | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
             | "on_the_way"
@@ -305,22 +306,21 @@ export type Database = {
           preferred_time: string | null;
           description: string | null;
           status:
+            | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
+            | "in_progress"
             | "cancelled"
             | "completed"
             | "yeni"
             | "inceleniyor"
             | "on_the_way"
-            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
-            | "pending"
-            | "accepted"
-            | "on_the_way"
-            | "completed"
-            | "cancelled";
+            | "matched"
+            | "open";
           assigned_provider_id: string | null;
           accepted_provider_id: string | null;
           accepted_at: string | null;
@@ -345,6 +345,7 @@ export type Database = {
           approximate_location?: string | null;
           emergency_status?:
             | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
             | "on_the_way"
@@ -355,22 +356,21 @@ export type Database = {
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
+            | "in_progress"
             | "cancelled"
             | "completed"
             | "yeni"
             | "inceleniyor"
             | "on_the_way"
-            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
-            | "pending"
-            | "accepted"
-            | "on_the_way"
-            | "completed"
-            | "cancelled";
+            | "matched"
+            | "open";
           assigned_provider_id?: string | null;
           accepted_provider_id?: string | null;
           accepted_at?: string | null;
@@ -395,6 +395,7 @@ export type Database = {
           approximate_location?: string | null;
           emergency_status?:
             | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
             | "on_the_way"
@@ -405,22 +406,21 @@ export type Database = {
           preferred_time?: string | null;
           description?: string | null;
           status?:
+            | "pending"
+            | "assigned"
             | "accepted"
             | "rejected"
+            | "in_progress"
             | "cancelled"
             | "completed"
             | "yeni"
             | "inceleniyor"
             | "on_the_way"
-            | "pending"
             | "ustaya_yonlendirildi"
             | "tamamlandi"
             | "iptal"
-            | "pending"
-            | "accepted"
-            | "on_the_way"
-            | "completed"
-            | "cancelled";
+            | "matched"
+            | "open";
           assigned_provider_id?: string | null;
           accepted_provider_id?: string | null;
           accepted_at?: string | null;

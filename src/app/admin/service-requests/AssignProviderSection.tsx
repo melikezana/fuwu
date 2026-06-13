@@ -1,6 +1,9 @@
 import { getAdminAssignableProvidersForRequest } from "@/services/admin";
 import { AssignProviderForm } from "./AssignProviderForm";
-import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
+import {
+  SERVICE_REQUEST_STATUSES,
+  canTransitionServiceRequest,
+} from "@/lib/constants/statuses";
 
 export async function AssignProviderSection({ 
   requestId, 
@@ -13,12 +16,7 @@ export async function AssignProviderSection({
   assignedProviderId: string | null;
   assignedProviderName: string | null;
 }) {
-  if (
-    status !== SERVICE_REQUEST_STATUSES.yeni &&
-    status !== SERVICE_REQUEST_STATUSES.inceleniyor &&
-    status !== SERVICE_REQUEST_STATUSES.pending &&
-    status !== SERVICE_REQUEST_STATUSES.rejected
-  ) {
+  if (!canTransitionServiceRequest(status, SERVICE_REQUEST_STATUSES.assigned)) {
     if (assignedProviderId) {
       return (
         <div className="text-sm font-semibold text-[var(--brand-navy)] bg-[var(--surface-soft)] px-3 py-2 rounded-md border inline-block">

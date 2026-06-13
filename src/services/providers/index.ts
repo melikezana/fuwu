@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  LEGACY_SERVICE_REQUEST_STATUSES,
   normalizeProviderAvailabilityStatus,
+  SERVICE_REQUEST_STATUSES,
   type ProviderAvailabilityStatus,
 } from "@/lib/constants/statuses";
 import {
@@ -1157,7 +1159,10 @@ export async function getMarketplaceTrustMetrics(
       supabase
         .from("service_requests")
         .select("id", { count: "exact", head: true })
-        .in("status", ["tamamlandi", "completed"]),
+        .in("status", [
+          SERVICE_REQUEST_STATUSES.completed,
+          LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi,
+        ]),
     ]);
 
     const readCount = <T extends { count: number | null; error: unknown }>(

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import {
   getProviderDashboardStatusBadgeView,
   ProviderDashboardApplicationPlaceholder,
@@ -12,8 +12,11 @@ import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
 import { providerUpdateRequestStatusAction } from "./actions";
 import {
+  PROVIDER_AVAILABILITY_STATUSES,
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_LABELS,
+  normalizeServiceRequestStatus,
+  type ServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { getBudgetTagLabel } from "@/services/matching/budget";
 import { getPaymentPreferenceLabel } from "@/services/payments";
@@ -22,6 +25,12 @@ import { liveTrackingSoonText } from "@/services/tracking";
 export const dynamic = "force-dynamic";
 
 type ProviderAssignedRequest = Awaited<ReturnType<typeof getProviderAssignedRequests>>[number];
+
+type ProviderRequestActionStatus =
+  Exclude<
+    ServiceRequestStatus,
+    typeof SERVICE_REQUEST_STATUSES.pending | typeof SERVICE_REQUEST_STATUSES.assigned
+  >;
 
 type ProviderRequestsSearchParams = {
   requestAction?: string | string[];
@@ -126,7 +135,7 @@ function ProviderRequestActionButton({
 }: {
   label: string;
   requestId: string;
-  status: "accepted" | "rejected" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal";
+  status: ProviderRequestActionStatus;
   tone: "green" | "neutral" | "red";
 }) {
   const toneClassName =
@@ -156,15 +165,13 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
   }
 
   const isWaitingForAcceptance =
-    request.status === SERVICE_REQUEST_STATUSES.pending ||
-    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
-    request.status === "assigned";
+    normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned;
 
   if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status="accepted" tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="rejected" tone="red" />
+        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
       </div>
     );
   }
@@ -172,17 +179,17 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
   if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Yola çıktım" requestId={request.id} status="on_the_way" tone="neutral" />
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
+        <ProviderRequestActionButton label="Yola çıktım" requestId={request.id} status={SERVICE_REQUEST_STATUSES.inProgress} tone="neutral" />
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
       </div>
     );
   }
 
-  if (request.status === SERVICE_REQUEST_STATUSES.onTheWay) {
+  if (normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.inProgress) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
-        <ProviderRequestActionButton label="İptal" requestId={request.id} status="cancelled" tone="red" />
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
+        <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
       </div>
     );
   }
@@ -196,15 +203,13 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
   }
 
   const isWaitingForAcceptance =
-    request.status === SERVICE_REQUEST_STATUSES.pending ||
-    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
-    request.status === "assigned";
+    normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned;
 
   if (isWaitingForAcceptance) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status="accepted" tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status="rejected" tone="red" />
+        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
+        <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
       </div>
     );
   }
@@ -212,8 +217,8 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
   if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status="completed" tone="green" />
-        <ProviderRequestActionButton label="İptal" requestId={request.id} status="cancelled" tone="red" />
+        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
+        <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
       </div>
     );
   }
@@ -230,11 +235,15 @@ function ProviderRequestActions({ request }: { request: ProviderAssignedRequest 
 }
 
 function ProviderRequestStatusText({ status }: { status: string }) {
-  if (status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi || status === "assigned") {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.assigned) {
     return "Usta atandı. Yanıt bekleniyor.";
   }
 
-  return SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] ?? status;
+  return normalizedStatus
+    ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus]
+    : status;
 }
 
 function formatRequestCreatedAt(value: string) {
@@ -310,7 +319,7 @@ export default async function ProviderDashboardRequestsPage({
               <ProviderStatusBadge tone={providerAccess.profile.isApproved ? "green" : "orange"}>
                 {providerAccess.profile.isApproved ? "Profil onaylı" : "Profil incelemede"}
               </ProviderStatusBadge>
-              <ProviderStatusBadge tone={providerAccess.profile.availability === "müsait" ? "green" : "orange"}>
+              <ProviderStatusBadge tone={providerAccess.profile.availability === PROVIDER_AVAILABILITY_STATUSES.musait ? "green" : "orange"}>
                 {getProviderAvailabilityLabel(providerAccess.profile.availability)}
               </ProviderStatusBadge>
               <ProviderStatusBadge tone="orange">
@@ -452,7 +461,7 @@ export default async function ProviderDashboardRequestsPage({
                   {request.urgencyType === "emergency" ? (
                     <>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        Kod: {request.status === SERVICE_REQUEST_STATUSES.pending
+                        Kod: {normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.pending
                           ? "Kabul sonrası"
                           : request.confirmationCode ?? "Kabul sonrası"}
                       </span>

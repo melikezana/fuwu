@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  SERVICE_REQUEST_STATUS_LABELS,
+  SERVICE_REQUEST_STATUSES,
+  normalizeServiceRequestStatus,
+} from "@/lib/constants/statuses";
 
 type UserProfile = {
   id: string;
@@ -23,43 +28,49 @@ type ServiceRequest = {
   districts: { name: string } | null;
 };
 
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  pending:                { label: "Beklemede",           cls: "bg-amber-50 text-amber-700 border-amber-200" },
-  yeni:                   { label: "Yeni",                cls: "bg-amber-50 text-amber-700 border-amber-200" },
-  inceleniyor:            { label: "İnceleniyor",         cls: "bg-amber-50 text-amber-700 border-amber-200" },
-  assigned:               { label: "Usta atandı, kabul bekleniyor.", cls: "bg-blue-50 text-blue-700 border-blue-200" },
-  ustaya_yonlendirildi:   { label: "Usta atandı, kabul bekleniyor.", cls: "bg-blue-50 text-blue-700 border-blue-200" },
-  accepted:               { label: "Kabul Edildi",        cls: "bg-blue-50 text-blue-700 border-blue-200" },
-  on_the_way:             { label: "Yolda",               cls: "bg-blue-50 text-blue-700 border-blue-200" },
-  completed:              { label: "Tamamlandı",          cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  tamamlandi:             { label: "Tamamlandı",          cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  cancelled:              { label: "İptal",               cls: "bg-zinc-100 text-zinc-500 border-zinc-200" },
-  iptal:                  { label: "İptal",               cls: "bg-zinc-100 text-zinc-500 border-zinc-200" },
+const STATUS_CLASS_NAMES: Record<string, string> = {
+  [SERVICE_REQUEST_STATUSES.pending]: "bg-amber-50 text-amber-700 border-amber-200",
+  [SERVICE_REQUEST_STATUSES.assigned]: "bg-blue-50 text-blue-700 border-blue-200",
+  [SERVICE_REQUEST_STATUSES.accepted]: "bg-blue-50 text-blue-700 border-blue-200",
+  [SERVICE_REQUEST_STATUSES.rejected]: "bg-red-50 text-red-600 border-red-200",
+  [SERVICE_REQUEST_STATUSES.inProgress]: "bg-blue-50 text-blue-700 border-blue-200",
+  [SERVICE_REQUEST_STATUSES.completed]: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  [SERVICE_REQUEST_STATUSES.cancelled]: "bg-zinc-100 text-zinc-500 border-zinc-200",
 };
 
 function getAccountStatusView(status: string) {
-  if (status === "assigned" || status === "ustaya_yonlendirildi") {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.assigned) {
     return {
       label: "Usta atandı. Yanıt bekleniyor.",
-      cls: "bg-blue-50 text-blue-700 border-blue-200",
+      cls: STATUS_CLASS_NAMES[SERVICE_REQUEST_STATUSES.assigned],
     };
   }
 
-  if (status === "accepted") {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.accepted) {
     return {
       label: "Usta talebini kabul etti.",
-      cls: "bg-blue-50 text-blue-700 border-blue-200",
+      cls: STATUS_CLASS_NAMES[SERVICE_REQUEST_STATUSES.accepted],
     };
   }
 
-  if (status === "rejected") {
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.rejected) {
     return {
       label: "Usta talebi reddetti. Yeni eşleşme bekleniyor.",
-      cls: "bg-red-50 text-red-600 border-red-200",
+      cls: STATUS_CLASS_NAMES[SERVICE_REQUEST_STATUSES.rejected],
     };
   }
 
-  return STATUS_MAP[status] ?? STATUS_MAP.yeni;
+  return normalizedStatus
+    ? {
+        label: SERVICE_REQUEST_STATUS_LABELS[normalizedStatus],
+        cls: STATUS_CLASS_NAMES[normalizedStatus],
+      }
+    : {
+        label: status || SERVICE_REQUEST_STATUS_LABELS[SERVICE_REQUEST_STATUSES.pending],
+        cls: STATUS_CLASS_NAMES[SERVICE_REQUEST_STATUSES.pending],
+      };
 }
 
 export default function AccountPage() {

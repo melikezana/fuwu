@@ -1,12 +1,15 @@
 ﻿import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
+  EMERGENCY_REQUEST_STATUSES,
+  LEGACY_SERVICE_REQUEST_STATUSES,
+  canTransitionProviderApplication,
+  canTransitionServiceRequest,
   isProviderApplicationStatus,
   isProviderAvailabilityStatus,
   normalizeProviderAvailabilityStatus,
   SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_VALUES,
-  isServiceRequestTransitionAllowed,
   normalizeServiceRequestStatus,
   type ProviderAvailabilityStatus,
   type ProviderApplicationStatus,
@@ -37,6 +40,7 @@ import { generateConfirmationCode } from "@/services/requests";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
+import { writeAuditLog } from "@/services/audit";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
@@ -682,17 +686,16 @@ async function insertAuditLog({
   metadata?: Json;
   supabase: AdminSupabaseClient;
 }) {
-  const { error } = await supabase.from("audit_logs").insert({
-    action,
-    actor_user_id: actorUserId,
-    entity_id: entityId,
-    entity_type: entityType,
-    metadata,
-  });
-
-  if (error) {
-    warnAdminWriteError("audit log insert", error);
-  }
+  await writeAuditLog(
+    {
+      action: action as Parameters<typeof writeAuditLog>[0]["action"],
+      actorUserId,
+      entityId,
+      entityType: entityType as Parameters<typeof writeAuditLog>[0]["entityType"],
+      metadata,
+    },
+    supabase,
+  );
 }
 
 function createAdminActionResult(
@@ -879,7 +882,7 @@ async function updatePendingProviderApplicationStatus(
 ) {
   if (
     !isProviderApplicationStatus(status) ||
-    status === PROVIDER_APPLICATION_STATUSES.pending
+    !canTransitionProviderApplication(PROVIDER_APPLICATION_STATUSES.pending, status)
   ) {
     handleServiceError(
       new ValidationError("Invalid provider application status update.", {
@@ -1259,7 +1262,11 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardResult> 
       .from("service_requests")
       .select("id", { count: "exact", head: true })
       .or(
-        `status.eq.${SERVICE_REQUEST_STATUSES.pending},status.eq.${SERVICE_REQUEST_STATUSES.yeni},status.eq.open`,
+        [
+          `status.eq.${SERVICE_REQUEST_STATUSES.pending}`,
+          `status.eq.${LEGACY_SERVICE_REQUEST_STATUSES.yeni}`,
+          "status.eq.open",
+        ].join(","),
       ),
   ]);
 
@@ -1384,7 +1391,12 @@ export async function approveAdminProviderApplication(
       return createAdminActionResult("application-invalid-status", false);
     }
 
-    if (application.status !== PROVIDER_APPLICATION_STATUSES.pending) {
+    if (
+      !canTransitionProviderApplication(
+        application.status,
+        PROVIDER_APPLICATION_STATUSES.approved,
+      )
+    ) {
       return createApplicationStatusConflictResult(application.status);
     }
 
@@ -1428,6 +1440,22 @@ export async function approveAdminProviderApplication(
       },
       supabase,
     });
+
+    if (
+      providerResult.code === "application-approved-provider-created" &&
+      providerResult.providerId
+    ) {
+      await insertAuditLog({
+        action: "provider.created",
+        actorUserId: adminAccess.access.userId,
+        entityId: providerResult.providerId,
+        entityType: "provider",
+        metadata: {
+          applicationId: normalizedApplicationId,
+        },
+        supabase,
+      });
+    }
 
     return providerResult;
   } catch (error) {
@@ -1482,7 +1510,12 @@ export async function rejectAdminProviderApplication(
       return createAdminActionResult("application-invalid-status", false);
     }
 
-    if (application.status !== PROVIDER_APPLICATION_STATUSES.pending) {
+    if (
+      !canTransitionProviderApplication(
+        application.status,
+        PROVIDER_APPLICATION_STATUSES.rejected,
+      )
+    ) {
       return createApplicationStatusConflictResult(application.status);
     }
 
@@ -1574,7 +1607,7 @@ export async function updateAdminServiceRequestStatus(
 
   if (
     previousStatus &&
-    !isServiceRequestTransitionAllowed(previousStatus, normalizedStatus)
+    !canTransitionServiceRequest(previousStatus, normalizedStatus)
   ) {
     return createServiceRequestActionResult("service-request-invalid-transition", false);
   }
@@ -1587,7 +1620,7 @@ export async function updateAdminServiceRequestStatus(
 
   const emergencyStatusRequiresProvider = new Set<ServiceRequestStatus>([
     SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.inProgress,
     SERVICE_REQUEST_STATUSES.completed,
   ]);
 
@@ -1601,7 +1634,7 @@ export async function updateAdminServiceRequestStatus(
 
   const acceptedAt =
     normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
-    normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
       ? new Date().toISOString()
       : null;
 
@@ -1612,7 +1645,10 @@ export async function updateAdminServiceRequestStatus(
       : districtRelation?.name;
 
     updatePayload.accepted_at = acceptedAt;
-    updatePayload.emergency_status = normalizedStatus as ServiceRequestRow["emergency_status"];
+    updatePayload.emergency_status =
+      normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
+        ? EMERGENCY_REQUEST_STATUSES.onTheWay
+        : normalizedStatus as ServiceRequestRow["emergency_status"];
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
       district: typeof districtName === "string" ? districtName : null,
@@ -1633,7 +1669,7 @@ export async function updateAdminServiceRequestStatus(
     updatePayload.accepted_provider_id = null;
 
     if (isEmergencyRequest) {
-      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.rejected;
+      updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.rejected;
     }
   }
 
@@ -1658,7 +1694,18 @@ export async function updateAdminServiceRequestStatus(
   }
 
   await insertAuditLog({
-    action: "service_request.status_changed",
+    action:
+      normalizedStatus === SERVICE_REQUEST_STATUSES.completed
+        ? "service_request.completed"
+        : normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled
+          ? "service_request.cancelled"
+          : normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
+            ? "service_request.in_progress"
+            : normalizedStatus === SERVICE_REQUEST_STATUSES.accepted
+              ? "service_request.accepted"
+              : normalizedStatus === SERVICE_REQUEST_STATUSES.rejected
+                ? "service_request.rejected"
+                : "service_request.assigned",
     actorUserId: adminAccess.access.userId,
     entityId: normalizedRequestId,
     entityType: "service_request",
@@ -1793,7 +1840,7 @@ export async function assignAdminServiceRequest(
     );
   }
 
-  const assignmentStatus = SERVICE_REQUEST_STATUSES.ustayaYonlendirildi;
+  const assignmentStatus = SERVICE_REQUEST_STATUSES.assigned;
   const updatePayload: Partial<ServiceRequestRow> = {
     accepted_at: null,
     accepted_provider_id: null,
@@ -1878,24 +1925,7 @@ export async function assignAdminServiceRequest(
     }
   }
 
-  const assignableStatuses = [
-    SERVICE_REQUEST_STATUSES.pending,
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.rejected,
-    "assigned",
-  ];
-  const updateGuardStatuses: ServiceRequestRow["status"][] = [
-    SERVICE_REQUEST_STATUSES.pending,
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.rejected,
-  ];
-  const assignableStatusSet = new Set<string>(assignableStatuses);
-
-  if (!assignableStatusSet.has(existingRequest.status)) {
+  if (!canTransitionServiceRequest(existingRequest.status, assignmentStatus)) {
     return createServiceRequestActionResult("service-request-invalid-transition", false);
   }
 
@@ -1910,7 +1940,7 @@ export async function assignAdminServiceRequest(
 
     updatePayload.confirmation_code =
       existingRequest.confirmation_code ?? generateConfirmationCode();
-    updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.pending;
+    updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.assigned;
     updatePayload.estimated_arrival_text =
       existingRequest.estimated_arrival_text ??
       calculateEstimatedArrivalText({
@@ -1924,7 +1954,7 @@ export async function assignAdminServiceRequest(
     .from("service_requests")
     .update(updatePayload)
     .eq("id", normalizedRequestId)
-    .in("status", updateGuardStatuses)
+    .eq("status", existingRequest.status)
     .select("id")
     .maybeSingle();
 
@@ -1944,9 +1974,7 @@ export async function assignAdminServiceRequest(
   }
 
   await insertAuditLog({
-    action: isEmergencyRequest
-      ? "service_request.emergency_assigned"
-      : "service_request.assigned",
+    action: "service_request.assigned",
     actorUserId: adminAccess.access.userId,
     entityId: normalizedRequestId,
     entityType: "service_request",
@@ -2059,10 +2087,7 @@ export async function updateAdminProviderStatus(
   }
 
   await insertAuditLog({
-    action:
-      normalizedAction === "approve"
-        ? "provider.approved"
-        : `provider.${normalizedAction}`,
+    action: "provider.status_updated",
     actorUserId: adminAccess.access.userId,
     entityId: normalizedProviderId,
     entityType: "provider",
@@ -2204,7 +2229,7 @@ export async function updateAdminProviderTrust(
   }
 
   await insertAuditLog({
-    action: "provider.trust_updated",
+    action: "provider.price_updated",
     actorUserId: adminAccess.access.userId,
     entityId: normalizedProviderId,
     entityType: "provider",

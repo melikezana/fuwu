@@ -7,8 +7,12 @@ import {
   ValidationError,
 } from "@/lib/errors";
 import {
+  EMERGENCY_REQUEST_STATUSES,
+  LEGACY_SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUSES,
+  canTransitionServiceRequest,
   normalizeServiceRequestStatus,
+  type ServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { normalizeServiceValue } from "@/lib/constants/services";
 import { logError, logInfo } from "@/lib/logger";
@@ -27,6 +31,7 @@ import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
+import { writeAuditLog } from "@/services/audit";
 import {
   notifyEmergencyRequestDispatched,
   notifyServiceRequestAccepted,
@@ -228,26 +233,16 @@ async function insertProviderRequestAuditLog({
   supabase: SupabaseClient<Database>;
 }) {
   try {
-    const { error } = await supabase.from("audit_logs").insert({
-      action,
-      actor_user_id: actorUserId,
-      entity_id: requestId,
-      entity_type: "service_request",
-      metadata,
-    });
-
-    if (error) {
-      logProviderRequestActionFailure({
-        action: action.endsWith("rejected") ? "reject" : "accept",
-        context: "audit log insert",
-        error,
-        providerId:
-          typeof metadata === "object" && metadata && !Array.isArray(metadata)
-            ? String(metadata.providerId ?? "")
-            : "",
-        requestId,
-      });
-    }
+    await writeAuditLog(
+      {
+        action: action as Parameters<typeof writeAuditLog>[0]["action"],
+        actorUserId,
+        entityId: requestId,
+        entityType: "service_request",
+        metadata,
+      },
+      supabase,
+    );
   } catch (error) {
     logProviderRequestActionFailure({
       action: action.endsWith("rejected") ? "reject" : "accept",
@@ -263,11 +258,7 @@ async function insertProviderRequestAuditLog({
 }
 
 function isProviderResponseWaitingStatus(status: string) {
-  return (
-    status === SERVICE_REQUEST_STATUSES.pending ||
-    status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi ||
-    status === "assigned"
-  );
+  return normalizeServiceRequestStatus(status) === SERVICE_REQUEST_STATUSES.assigned;
 }
 
 function parseServiceCategoryName(serviceCategory: string) {
@@ -622,12 +613,14 @@ export async function createServiceRequest(
 
   const insertPayload = await buildServiceRequestInsert(supabase, user.id, requestData);
   const activeDuplicateStatuses = [
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.assigned,
     SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.inProgress,
+    LEGACY_SERVICE_REQUEST_STATUSES.yeni,
+    LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor,
+    LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
   ];
 
   // Anti-spam duplicate request check for active requests in the same category and district.
@@ -671,6 +664,7 @@ export async function createServiceRequest(
   }
 
   const record = insertedRequest as LookupRecord | null;
+  const requestId = typeof record?.id === "string" ? record.id : null;
   logInfo("Service request inserted.", {
     categoryId: insertPayload.category_id,
     districtId: insertPayload.district_id,
@@ -680,7 +674,23 @@ export async function createServiceRequest(
     urgencyType: insertPayload.urgency_type ?? "standard",
   });
 
-  const requestCode = createLiveRequestCode(record?.id);
+  await writeAuditLog(
+    {
+      action: "service_request.created",
+      actorUserId: user.id,
+      entityId: requestId,
+      entityType: "service_request",
+      metadata: {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        status: insertPayload.status,
+        urgencyType: insertPayload.urgency_type ?? "standard",
+      },
+    },
+    supabase,
+  );
+
+  const requestCode = createLiveRequestCode(requestId);
   const eligibleProviderCount =
     insertPayload.urgency_type === "emergency"
       ? await countEligibleEmergencyProviders(
@@ -693,7 +703,7 @@ export async function createServiceRequest(
   await notifyServiceRequestCreated({
     eligibleProviderCount,
     requestCode,
-    requestId: typeof record?.id === "string" ? record.id : null,
+    requestId,
   });
 
   if (insertPayload.urgency_type === "emergency") {
@@ -701,7 +711,7 @@ export async function createServiceRequest(
       eligibleProviderCount,
       notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
       requestCode,
-      requestId: typeof record?.id === "string" ? record.id : null,
+      requestId,
     });
   }
 
@@ -719,7 +729,7 @@ export async function createServiceRequest(
     paymentPreference: insertPayload.payment_preference ?? null,
     providerCountNotified: eligibleProviderCount ?? null,
     requestCode,
-    requestId: typeof record?.id === "string" ? record.id : null,
+    requestId,
     urgencyType: insertPayload.urgency_type ?? "standard",
   };
   const response = createServiceSuccess(submitResult);
@@ -766,12 +776,14 @@ export async function createAuthenticatedServiceRequest(
     requestData,
   );
   const activeDuplicateStatuses = [
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     SERVICE_REQUEST_STATUSES.pending,
+    SERVICE_REQUEST_STATUSES.assigned,
     SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.onTheWay,
+    SERVICE_REQUEST_STATUSES.inProgress,
+    LEGACY_SERVICE_REQUEST_STATUSES.yeni,
+    LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor,
+    LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
   ];
 
   const { data: existingRequest, error: duplicateCheckError } = await authContext.supabase
@@ -814,6 +826,7 @@ export async function createAuthenticatedServiceRequest(
   }
 
   const record = insertedRequest as LookupRecord | null;
+  const requestId = typeof record?.id === "string" ? record.id : null;
   logInfo("Service request inserted.", {
     categoryId: insertPayload.category_id,
     districtId: insertPayload.district_id,
@@ -823,7 +836,23 @@ export async function createAuthenticatedServiceRequest(
     urgencyType: insertPayload.urgency_type ?? "standard",
   });
 
-  const requestCode = createLiveRequestCode(record?.id);
+  await writeAuditLog(
+    {
+      action: "service_request.created",
+      actorUserId: authContext.user.id,
+      entityId: requestId,
+      entityType: "service_request",
+      metadata: {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        status: insertPayload.status,
+        urgencyType: insertPayload.urgency_type ?? "standard",
+      },
+    },
+    authContext.supabase,
+  );
+
+  const requestCode = createLiveRequestCode(requestId);
   const eligibleProviderCount =
     insertPayload.urgency_type === "emergency"
       ? await countEligibleEmergencyProviders(
@@ -836,7 +865,7 @@ export async function createAuthenticatedServiceRequest(
   await notifyServiceRequestCreated({
     eligibleProviderCount,
     requestCode,
-    requestId: typeof record?.id === "string" ? record.id : null,
+    requestId,
   });
 
   if (insertPayload.urgency_type === "emergency") {
@@ -844,7 +873,7 @@ export async function createAuthenticatedServiceRequest(
       eligibleProviderCount,
       notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
       requestCode,
-      requestId: typeof record?.id === "string" ? record.id : null,
+      requestId,
     });
   }
 
@@ -862,7 +891,7 @@ export async function createAuthenticatedServiceRequest(
     paymentPreference: insertPayload.payment_preference ?? null,
     providerCountNotified: eligibleProviderCount ?? null,
     requestCode,
-    requestId: typeof record?.id === "string" ? record.id : null,
+    requestId,
     urgencyType: insertPayload.urgency_type ?? "standard",
   };
   const response = createServiceSuccess(submitResult);
@@ -885,6 +914,109 @@ export async function createEmergencyRequest(
     },
     authenticatedUserId,
   );
+}
+
+export async function cancelAuthenticatedServiceRequest(
+  requestId: string,
+  serverAuthContext?: ServerAuthContext,
+) {
+  const normalizedRequestId = requestId.trim();
+
+  if (!isUuid(normalizedRequestId)) {
+    throw new ValidationError("Invalid service request id for cancellation.", {
+      publicMessage: "Geçersiz işlem.",
+    });
+  }
+
+  const authContext = serverAuthContext ?? await getServerAuthContext();
+
+  if (!authContext.supabase) {
+    throw new DatabaseError("Supabase client is not configured.", {
+      publicMessage: serviceRequestSubmitErrorMessage,
+    });
+  }
+
+  if (!authContext.user) {
+    throw new AuthError("Service request cancellation requires an authenticated user.", {
+      publicMessage: serviceRequestLoginRequiredMessage,
+    });
+  }
+
+  const { data: request, error: lookupError } = await authContext.supabase
+    .from("service_requests")
+    .select("id, user_id, status, urgency_type")
+    .eq("id", normalizedRequestId)
+    .eq("user_id", authContext.user.id)
+    .maybeSingle();
+
+  if (lookupError) {
+    throw handleServiceError(lookupError, {
+      logContext: "Customer service request cancellation lookup failed.",
+      publicMessage: serviceRequestSubmitErrorMessage,
+      tableName: "service_requests",
+    });
+  }
+
+  if (!request) {
+    throw new NotFoundError("Service request was not found for cancellation.", {
+      publicMessage: "Kayıt bulunamadı.",
+    });
+  }
+
+  if (!canTransitionServiceRequest(request.status, SERVICE_REQUEST_STATUSES.cancelled)) {
+    throw new ValidationError("Service request cannot be cancelled from current status.", {
+      publicMessage: "Geçersiz işlem.",
+    });
+  }
+
+  const updatePayload: ServiceRequestUpdate = {
+    status: SERVICE_REQUEST_STATUSES.cancelled,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (request.urgency_type === "emergency") {
+    updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.cancelled;
+  }
+
+  const { data: updatedRequest, error: updateError } = await authContext.supabase
+    .from("service_requests")
+    .update(updatePayload)
+    .eq("id", normalizedRequestId)
+    .eq("user_id", authContext.user.id)
+    .eq("status", request.status)
+    .select("id")
+    .maybeSingle();
+
+  if (updateError) {
+    throw handleServiceError(updateError, {
+      logContext: "Customer service request cancellation update failed.",
+      payloadKeys: Object.keys(updatePayload),
+      publicMessage: serviceRequestSubmitErrorMessage,
+      tableName: "service_requests",
+    });
+  }
+
+  if (!updatedRequest) {
+    throw new NotFoundError("Service request cancellation update returned no row.", {
+      publicMessage: "Kayıt bulunamadı.",
+    });
+  }
+
+  await writeAuditLog(
+    {
+      action: "service_request.cancelled",
+      actorUserId: authContext.user.id,
+      entityId: normalizedRequestId,
+      entityType: "service_request",
+      metadata: {
+        previousStatus: request.status,
+        status: SERVICE_REQUEST_STATUSES.cancelled,
+      },
+    },
+    authContext.supabase,
+  );
+
+  return true;
 }
 
 export async function getMatchedProviders(requestId: string) {
@@ -995,15 +1127,7 @@ export async function assignProviderToRequest(
     });
   }
 
-  const terminalStatuses = new Set<string>([
-    SERVICE_REQUEST_STATUSES.accepted,
-    SERVICE_REQUEST_STATUSES.completed,
-    SERVICE_REQUEST_STATUSES.cancelled,
-    SERVICE_REQUEST_STATUSES.tamamlandi,
-    SERVICE_REQUEST_STATUSES.iptal,
-  ]);
-
-  if (terminalStatuses.has(request.status)) {
+  if (!canTransitionServiceRequest(request.status, SERVICE_REQUEST_STATUSES.assigned)) {
     throw new ValidationError("Service request cannot be assigned from current status.", {
       publicMessage: "Bu durumdaki talebe usta atanamaz.",
     });
@@ -1015,10 +1139,11 @@ export async function assignProviderToRequest(
       accepted_at: null,
       accepted_provider_id: null,
       assigned_provider_id: providerId,
-      status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+      status: SERVICE_REQUEST_STATUSES.assigned,
       updated_at: new Date().toISOString(),
     })
     .eq("id", requestId)
+    .eq("status", request.status)
     .select("id")
     .maybeSingle();
 
@@ -1104,24 +1229,7 @@ export async function assignProviderToEmergencyRequest(
     });
   }
 
-  const assignableStatuses = [
-    SERVICE_REQUEST_STATUSES.pending,
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.rejected,
-    "assigned",
-  ];
-  const updateGuardStatuses: Array<NonNullable<ServiceRequestUpdate["status"]>> = [
-    SERVICE_REQUEST_STATUSES.pending,
-    SERVICE_REQUEST_STATUSES.yeni,
-    SERVICE_REQUEST_STATUSES.inceleniyor,
-    SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
-    SERVICE_REQUEST_STATUSES.rejected,
-  ];
-  const assignableStatusSet = new Set<string>(assignableStatuses);
-
-  if (!assignableStatusSet.has(request.status)) {
+  if (!canTransitionServiceRequest(request.status, SERVICE_REQUEST_STATUSES.assigned)) {
     throw new ValidationError("Emergency request cannot be assigned from current status.", {
       publicMessage: "Bu durumdaki acil talebe usta atanamaz.",
     });
@@ -1129,7 +1237,7 @@ export async function assignProviderToEmergencyRequest(
 
   if (
     request.assigned_provider_id === providerId &&
-    request.status === SERVICE_REQUEST_STATUSES.ustayaYonlendirildi
+    normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned
   ) {
     return true;
   }
@@ -1143,14 +1251,14 @@ export async function assignProviderToEmergencyRequest(
     accepted_provider_id: null,
     assigned_provider_id: providerId,
     confirmation_code: request.confirmation_code ?? generateJobConfirmationCode(),
-    emergency_status: SERVICE_REQUEST_STATUSES.pending,
+    emergency_status: EMERGENCY_REQUEST_STATUSES.assigned,
     estimated_arrival_text:
       request.estimated_arrival_text ??
       calculateEstimatedArrivalText({
         district: typeof districtName === "string" ? districtName : null,
         urgencyType: "emergency",
       }),
-    status: SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+    status: SERVICE_REQUEST_STATUSES.assigned,
     updated_at: new Date().toISOString(),
     urgency_type: "emergency",
   };
@@ -1159,7 +1267,7 @@ export async function assignProviderToEmergencyRequest(
     .from("service_requests")
     .update(updatePayload)
     .eq("id", requestId)
-    .in("status", updateGuardStatuses)
+    .eq("status", request.status)
     .select("id")
     .maybeSingle();
 
@@ -1320,9 +1428,7 @@ export async function acceptEmergencyRequest(
   const currentRequestStatus = String(currentRequest.status);
 
   if (
-    currentRequestStatus !== SERVICE_REQUEST_STATUSES.pending &&
-    currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
-    currentRequestStatus !== "assigned"
+    normalizeServiceRequestStatus(currentRequestStatus) !== SERVICE_REQUEST_STATUSES.assigned
   ) {
     return false;
   }
@@ -1337,7 +1443,7 @@ export async function acceptEmergencyRequest(
     accepted_provider_id: providerId,
     assigned_provider_id: providerId,
     confirmation_code: generateJobConfirmationCode(),
-    emergency_status: SERVICE_REQUEST_STATUSES.accepted,
+    emergency_status: EMERGENCY_REQUEST_STATUSES.accepted,
     estimated_arrival_text: calculateEstimatedArrivalText({
       acceptedAt,
       district: typeof districtName === "string" ? districtName : null,
@@ -1462,7 +1568,7 @@ export async function respondToProviderAssignedRequest(
     if (isEmergencyRequest && action === "accept") {
       updatePayload.confirmation_code =
         currentRequest.confirmation_code ?? generateJobConfirmationCode();
-      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.accepted;
+      updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.accepted;
       updatePayload.estimated_arrival_text =
         currentRequest.estimated_arrival_text ??
         calculateEstimatedArrivalText({
@@ -1473,7 +1579,7 @@ export async function respondToProviderAssignedRequest(
     }
 
     if (isEmergencyRequest && action === "reject") {
-      updatePayload.emergency_status = SERVICE_REQUEST_STATUSES.rejected;
+      updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.rejected;
     }
 
     const { data: updatedRequest, error: updateError } = await supabase
@@ -1552,7 +1658,10 @@ export async function respondToProviderAssignedRequest(
 export async function updateProviderAssignedRequestStatus(
   requestId: string,
   providerId: string,
-  status: "accepted" | "rejected" | "on_the_way" | "completed" | "cancelled" | "tamamlandi" | "iptal",
+  status: Exclude<
+    ServiceRequestStatus,
+    typeof SERVICE_REQUEST_STATUSES.pending | typeof SERVICE_REQUEST_STATUSES.assigned
+  >,
   supabaseClient?: SupabaseClient<Database>,
 ) {
   if (!isUuid(requestId) || !isUuid(providerId)) {
@@ -1585,12 +1694,27 @@ export async function updateProviderAssignedRequestStatus(
     return result.ok;
   }
 
-  const { data: currentRequest, error: currentRequestError } = await supabase
-    .from("service_requests")
-    .select("id, status, urgency_type, districts(name)")
-    .eq("id", requestId)
-    .eq("assigned_provider_id", providerId)
-    .maybeSingle();
+  const [
+    { data: provider, error: providerError },
+    { data: currentRequest, error: currentRequestError },
+  ] = await Promise.all([
+    supabase
+      .from("providers")
+      .select("id, user_id, is_active, is_approved")
+      .eq("id", providerId)
+      .maybeSingle(),
+    supabase
+      .from("service_requests")
+      .select("id, status, urgency_type, districts(name)")
+      .eq("id", requestId)
+      .eq("assigned_provider_id", providerId)
+      .maybeSingle(),
+  ]);
+
+  if (providerError || !provider?.is_active || !provider?.is_approved) {
+    warnServiceRequestError("Provider eligibility lookup failed.", providerError);
+    return false;
+  }
 
   if (currentRequestError || !currentRequest) {
     warnServiceRequestError("Provider assigned request lookup failed.", currentRequestError);
@@ -1603,29 +1727,23 @@ export async function updateProviderAssignedRequestStatus(
     : districtRelation?.name;
   const isEmergencyRequest = currentRequest.urgency_type === "emergency";
   const acceptedAt =
-    normalizedStatus === SERVICE_REQUEST_STATUSES.onTheWay
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
       ? new Date().toISOString()
       : null;
   const updatePayload: ServiceRequestUpdate = {
     status: normalizedStatus,
+    updated_at: new Date().toISOString(),
   };
   const currentRequestStatus = String(currentRequest.status);
 
-  if (
-    !isEmergencyRequest &&
-    (normalizedStatus === SERVICE_REQUEST_STATUSES.completed ||
-      normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled) &&
-    currentRequestStatus !== SERVICE_REQUEST_STATUSES.accepted &&
-    currentRequestStatus !== SERVICE_REQUEST_STATUSES.ustayaYonlendirildi &&
-    currentRequestStatus !== "assigned"
-  ) {
+  if (!canTransitionServiceRequest(currentRequestStatus, normalizedStatus)) {
     return false;
   }
 
   if (isEmergencyRequest && acceptedAt) {
     updatePayload.accepted_at = acceptedAt;
     updatePayload.accepted_provider_id = providerId;
-    updatePayload.emergency_status = normalizedStatus as ServiceRequestUpdate["emergency_status"];
+    updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.onTheWay;
     updatePayload.estimated_arrival_text = calculateEstimatedArrivalText({
       acceptedAt,
       district: typeof districtName === "string" ? districtName : null,
@@ -1641,16 +1759,42 @@ export async function updateProviderAssignedRequestStatus(
     updatePayload.emergency_status = normalizedStatus as ServiceRequestUpdate["emergency_status"];
   }
 
-  const { error } = await supabase
+  const { data: updatedRequest, error } = await supabase
     .from("service_requests")
     .update(updatePayload)
     .eq("id", requestId)
-    .eq("assigned_provider_id", providerId);
+    .eq("assigned_provider_id", providerId)
+    .eq("status", currentRequest.status)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     warnServiceRequestError("Provider request status update failed.", error);
     return false;
   }
+
+  if (!updatedRequest) {
+    return false;
+  }
+
+  const auditAction =
+    normalizedStatus === SERVICE_REQUEST_STATUSES.completed
+      ? "service_request.completed"
+      : normalizedStatus === SERVICE_REQUEST_STATUSES.cancelled
+        ? "service_request.cancelled"
+        : "service_request.in_progress";
+
+  await insertProviderRequestAuditLog({
+    action: auditAction,
+    actorUserId: provider.user_id ?? null,
+    metadata: {
+      providerId,
+      previousStatus: currentRequestStatus,
+      status: normalizedStatus,
+    },
+    requestId,
+    supabase,
+  });
 
   return true;
 }

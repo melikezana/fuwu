@@ -8,7 +8,11 @@ import {
   NotFoundError,
   ValidationError,
 } from "@/lib/errors";
-import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
+import {
+  EMERGENCY_REQUEST_STATUSES,
+  LEGACY_SERVICE_REQUEST_STATUSES,
+  SERVICE_REQUEST_STATUSES,
+} from "@/lib/constants/statuses";
 import { normalizeServiceValue } from "@/lib/constants/services";
 import type { Database } from "@/lib/supabase/types";
 import {
@@ -20,6 +24,7 @@ import { ensureProfileForUser } from "@/services/auth/profiles";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
+import { writeAuditLog } from "@/services/audit";
 import { validateServiceRequestInput } from "@/lib/validations";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
@@ -206,7 +211,7 @@ async function createEmergencyInsert(
     preferred_date: input.preferredDate.trim() || getTodayDateInput(),
     preferred_time: null,
     description: createEmergencyDescription(input, priceValidation.price),
-    emergency_status: SERVICE_REQUEST_STATUSES.pending,
+    emergency_status: EMERGENCY_REQUEST_STATUSES.pending,
     status: SERVICE_REQUEST_STATUSES.pending,
   };
 }
@@ -289,9 +294,13 @@ export async function createEmergencyMatchRequest(
   if (insertPayload.category_id && insertPayload.district_id) {
     const duplicateStatuses = [
       SERVICE_REQUEST_STATUSES.pending,
-      SERVICE_REQUEST_STATUSES.yeni,
-      SERVICE_REQUEST_STATUSES.inceleniyor,
-      SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+      SERVICE_REQUEST_STATUSES.assigned,
+      SERVICE_REQUEST_STATUSES.accepted,
+      SERVICE_REQUEST_STATUSES.inProgress,
+      LEGACY_SERVICE_REQUEST_STATUSES.yeni,
+      LEGACY_SERVICE_REQUEST_STATUSES.inceleniyor,
+      LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
+      LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
     ];
     const { data: duplicateRequest, error: duplicateError } = await supabase
       .from("service_requests")
@@ -335,6 +344,7 @@ export async function createEmergencyMatchRequest(
   }
 
   const requestCode = createRequestCode(data?.id);
+  const requestId = typeof data?.id === "string" ? data.id : null;
   const eligibleProviderCount = await countEligibleEmergencyProviders(
     supabase,
     insertPayload.category_id,
@@ -345,8 +355,24 @@ export async function createEmergencyMatchRequest(
     eligibleProviderCount,
     notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
     requestCode,
-    requestId: typeof data?.id === "string" ? data.id : null,
+    requestId,
   });
+
+  await writeAuditLog(
+    {
+      action: "service_request.created",
+      actorUserId: authContext.user.id,
+      entityId: requestId,
+      entityType: "service_request",
+      metadata: {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        status: insertPayload.status,
+        urgencyType: "emergency",
+      },
+    },
+    supabase,
+  );
 
   const result: ServiceRequestSubmitResult = {
     confirmationCode: insertPayload.confirmation_code ?? null,
@@ -357,7 +383,7 @@ export async function createEmergencyMatchRequest(
       paymentPreference: insertPayload.payment_preference ?? null,
       providerCountNotified: eligibleProviderCount,
       requestCode,
-    requestId: typeof data?.id === "string" ? data.id : null,
+    requestId,
     urgencyType: "emergency",
   };
   const response = createServiceSuccess(result);

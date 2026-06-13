@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "check:backend": "node scripts/check-backend.mjs",
     "start": "next start",
     "lint": "eslint"
   },

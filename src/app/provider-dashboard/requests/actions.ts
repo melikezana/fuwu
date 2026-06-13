@@ -7,19 +7,21 @@ import {
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { isUuid } from "@/lib/utils/validation";
+import {
+  SERVICE_REQUEST_STATUSES,
+  isServiceRequestStatus,
+  type ServiceRequestStatus,
+} from "@/lib/constants/statuses";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 const providerRequestsPath = "/provider-dashboard/requests";
 
 type ProviderRequestStatusInput =
-  | "accepted"
-  | "rejected"
-  | "on_the_way"
-  | "completed"
-  | "cancelled"
-  | "tamamlandi"
-  | "iptal";
+  Exclude<
+    ServiceRequestStatus,
+    typeof SERVICE_REQUEST_STATUSES.pending | typeof SERVICE_REQUEST_STATUSES.assigned
+  >;
 
 function getProviderActionRedirectUrl(code: string) {
   return `${providerRequestsPath}?requestAction=${encodeURIComponent(code)}`;
@@ -36,8 +38,10 @@ export async function providerUpdateRequestStatusAction(formData: FormData) {
   let resultCode = "request-action-failed";
 
   try {
-    if (!requestId || !isUuid(requestId) || !status) {
+    if (!requestId || !isUuid(requestId)) {
       resultCode = "request-invalid-id";
+    } else if (!status || !isServiceRequestStatus(status)) {
+      resultCode = "request-invalid-status";
     } else {
       const access = await getProviderDashboardAccess();
 
@@ -48,11 +52,14 @@ export async function providerUpdateRequestStatusAction(formData: FormData) {
 
         if (!authContext.supabase) {
           resultCode = "supabase-not-configured";
-        } else if (status === "accepted" || status === "rejected") {
+        } else if (
+          status === SERVICE_REQUEST_STATUSES.accepted ||
+          status === SERVICE_REQUEST_STATUSES.rejected
+        ) {
           const result = await respondToProviderAssignedRequest(
             requestId,
             access.profile.id,
-            status === "accepted" ? "accept" : "reject",
+            status === SERVICE_REQUEST_STATUSES.accepted ? "accept" : "reject",
             authContext.supabase,
           );
           resultCode = result.code;

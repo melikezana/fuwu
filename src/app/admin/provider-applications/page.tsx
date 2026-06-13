@@ -12,6 +12,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import {
+  PROVIDER_APPLICATION_STATUSES,
   isProviderApplicationStatus,
   type ProviderApplicationStatus,
 } from "@/lib/constants/statuses";
@@ -197,9 +198,9 @@ function getApplicationStatus(status: string) {
     string,
     { label: string; tone: "green" | "neutral" | "orange" | "red" }
   > = {
-    approved: { label: "Onaylandı", tone: "green" },
-    pending: { label: "Beklemede", tone: "orange" },
-    rejected: { label: "Reddedildi", tone: "red" },
+    [PROVIDER_APPLICATION_STATUSES.approved]: { label: "Onaylandı", tone: "green" },
+    [PROVIDER_APPLICATION_STATUSES.pending]: { label: "Beklemede", tone: "orange" },
+    [PROVIDER_APPLICATION_STATUSES.rejected]: { label: "Reddedildi", tone: "red" },
   };
 
   return statuses[status] ?? { label: status, tone: "neutral" };
@@ -229,17 +230,17 @@ function ApplicationStatusSummary({
     {
       description: "Admin onay\u0131 bekleyen yeni ba\u015fvurular",
       label: "Bekleyen ba\u015fvurular",
-      status: "pending",
+      status: PROVIDER_APPLICATION_STATUSES.pending,
     },
     {
       description: "Usta hesab\u0131 aktif edilen ba\u015fvurular",
       label: "Onaylanan ba\u015fvurular",
-      status: "approved",
+      status: PROVIDER_APPLICATION_STATUSES.approved,
     },
     {
       description: "De\u011ferlendirme sonucu reddedilen ba\u015fvurular",
       label: "Reddedilen ba\u015fvurular",
-      status: "rejected",
+      status: PROVIDER_APPLICATION_STATUSES.rejected,
     },
   ];
 
