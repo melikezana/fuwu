@@ -65,6 +65,36 @@ type NotificationRecordInput = {
   title: string;
 };
 
+type NotificationPayload = {
+  actor_user_id: string | null;
+  body: string;
+  entity_id: string | null;
+  entity_type: "service_request";
+  event: NotificationEvent;
+  is_read: boolean;
+  message: string;
+  metadata: Record<string, Json | undefined>;
+  provider_id: string | null;
+  recipient_user_id: string;
+  request_id: string | null;
+  title: string;
+  type: NotificationEvent;
+  user_id: string;
+};
+
+type NotificationInsertError = {
+  code?: unknown;
+  details?: unknown;
+  hint?: unknown;
+  message?: unknown;
+};
+
+type NotificationInsertClient = {
+  from: (table: "notifications") => {
+    insert: (payload: NotificationPayload) => Promise<{ error: NotificationInsertError | null }>;
+  };
+};
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 function createMockNotificationResult(
@@ -141,7 +171,7 @@ async function createNotificationRecordIfTableExists({
   }
 
   try {
-    const notificationPayload = {
+    const notificationPayload: NotificationPayload = {
       actor_user_id: actorUserId ?? null,
       body,
       entity_id: requestId ?? null,
@@ -161,7 +191,8 @@ async function createNotificationRecordIfTableExists({
       type: event,
       user_id: recipientUserId,
     };
-    const { error } = await (supabaseClient as any)
+    const notificationsClient = supabaseClient as unknown as NotificationInsertClient;
+    const { error } = await notificationsClient
       .from("notifications")
       .insert(notificationPayload);
 

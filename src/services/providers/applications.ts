@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { AuthError, DatabaseError, getPublicErrorMessage, handleServiceError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
-import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import {
   createSupabaseServerClient,
   isSupabaseServerConfigured,
@@ -410,7 +410,7 @@ async function assertProviderApplicationRateLimit(
   supabase: SupabaseClient<Database>,
   userId: string,
 ) {
-  const result = await checkDatabaseRateLimit({
+  const result = await checkRateLimitWithRedis({
     action: "provider_application_submit",
     limit: 3,
     supabase,

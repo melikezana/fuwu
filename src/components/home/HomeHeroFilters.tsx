@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useMemo,
   useState,
   type FormEvent,
@@ -191,7 +190,7 @@ function StepShell({ children, description, icon, stepNumber, title }: StepShell
 
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const router = useRouter();
-  const emergencyServices = useMemo(getEmergencyServices, []);
+  const emergencyServices = useMemo(() => getEmergencyServices(), []);
   const districtOptions = useMemo(() => {
     const districtsByKey = new Map<string, string>();
 
@@ -254,15 +253,12 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
         })
       : appRoutes.request;
 
-  useEffect(() => {
-    setHighlightedDistrictIndex(0);
-  }, [districtSearch, filteredDistrictOptions.length]);
-
   function goToStep(step: EmergencyStep) {
     setSubmitError(null);
 
     if (step === "district") {
       setDistrictSearch("");
+      setHighlightedDistrictIndex(0);
     }
 
     setActiveStep(step);
@@ -272,6 +268,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
     setSelectedServiceId(service.id);
     setDistrict("");
     setDistrictSearch("");
+    setHighlightedDistrictIndex(0);
     setOfferedPrice(null);
     setPriceInputValue("");
     setPaymentPreference("");
@@ -281,6 +278,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
 
   function handleDistrictSearchChange(value: string) {
     setDistrictSearch(value);
+    setHighlightedDistrictIndex(0);
 
     if (district) {
       setDistrict("");
@@ -293,6 +291,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   function handleDistrictSelect(nextDistrict: string) {
     setDistrict(nextDistrict);
     setDistrictSearch(nextDistrict);
+    setHighlightedDistrictIndex(0);
     setOfferedPrice(null);
     setPriceInputValue("");
     setPaymentPreference("");
@@ -328,6 +327,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
     if (event.key === "Escape") {
       event.preventDefault();
       setDistrictSearch("");
+      setHighlightedDistrictIndex(0);
     }
   }
 

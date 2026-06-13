@@ -31,7 +31,7 @@ import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
-import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { writeAuditLog } from "@/services/audit";
 import {
   notifyEmergencyRequestDispatched,
@@ -41,7 +41,6 @@ import {
 } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
-  ServiceRequestPaymentPreference,
   ServiceRequestInput,
   ServiceRequestSubmitResult,
   ServiceRequestUrgency,
@@ -59,6 +58,51 @@ type LookupRecord = {
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
+
+type NamedRelation = {
+  name: string | null;
+};
+
+type MaybeNamedRelation = NamedRelation | NamedRelation[] | null;
+
+type ProfileRelation = {
+  full_name: string | null;
+  phone: string | null;
+};
+
+type MaybeProfileRelation = ProfileRelation | ProfileRelation[] | null;
+
+type ServiceRequestDistrictRelation = {
+  districts: MaybeNamedRelation;
+};
+
+type ProviderAssignedRequestRecord = Pick<
+  ServiceRequestRow,
+  | "accepted_at"
+  | "accepted_provider_id"
+  | "address"
+  | "approximate_location"
+  | "assigned_provider_id"
+  | "budget"
+  | "budget_tag"
+  | "confirmation_code"
+  | "created_at"
+  | "description"
+  | "emergency_status"
+  | "estimated_arrival_text"
+  | "id"
+  | "offered_price"
+  | "payment_preference"
+  | "preferred_date"
+  | "preferred_time"
+  | "status"
+  | "urgency"
+  | "urgency_type"
+> & {
+  districts: MaybeNamedRelation;
+  profiles: MaybeProfileRelation;
+  service_categories: MaybeNamedRelation;
+};
 
 export type ProviderAssignedRequestAction = "accept" | "reject";
 
@@ -78,8 +122,9 @@ export type ProviderAssignedRequestActionResult = {
   ok: boolean;
 };
 
+export type { ServiceRequestPaymentPreference } from "@/types/request";
+
 export type {
-  ServiceRequestPaymentPreference,
   ServiceRequestInput,
   ServiceRequestSubmitResult,
   ServiceRequestUrgency,
@@ -140,7 +185,7 @@ async function assertServiceRequestRateLimit(
   supabase: SupabaseClient<Database>,
   userId: string,
 ) {
-  const result = await checkDatabaseRateLimit({
+  const result = await checkRateLimitWithRedis({
     action: "service_request_create",
     limit: 10,
     supabase,
@@ -217,6 +262,16 @@ function getSupabaseErrorLogDetails(error: unknown) {
     hint: typeof record.hint === "string" ? record.hint : undefined,
     message: typeof record.message === "string" ? record.message : undefined,
   };
+}
+
+function getRelationName(relation: MaybeNamedRelation, fallback: string) {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+
+  return record?.name?.trim() || fallback;
+}
+
+function getProfileRelation(relation: MaybeProfileRelation) {
+  return Array.isArray(relation) ? relation[0] : relation;
 }
 
 function logProviderRequestActionFailure({
@@ -1270,10 +1325,8 @@ export async function assignProviderToEmergencyRequest(
     return true;
   }
 
-  const districtRelation = (request as any).districts;
-  const districtName = Array.isArray(districtRelation)
-    ? districtRelation[0]?.name
-    : districtRelation?.name;
+  const requestWithDistrict = request as typeof request & ServiceRequestDistrictRelation;
+  const districtName = getRelationName(requestWithDistrict.districts, "");
   const updatePayload: ServiceRequestUpdate = {
     accepted_at: null,
     accepted_provider_id: null,
@@ -1365,9 +1418,9 @@ export async function getProviderAssignedRequests(
     return [];
   }
 
-  const requestsById = new Map<string, any>();
+  const requestsById = new Map<string, ProviderAssignedRequestRecord>();
 
-  (assignedRequests ?? []).forEach((request: any) => {
+  ((assignedRequests ?? []) as unknown as ProviderAssignedRequestRecord[]).forEach((request) => {
     requestsById.set(request.id, request);
   });
 
@@ -1376,7 +1429,10 @@ export async function getProviderAssignedRequests(
       (firstRequest, secondRequest) =>
         new Date(secondRequest.created_at).getTime() - new Date(firstRequest.created_at).getTime(),
     )
-    .map((request: any) => ({
+    .map((request) => {
+      const profile = getProfileRelation(request.profiles);
+
+      return {
     id: request.id,
     status: request.status,
     urgency: request.urgency,
@@ -1396,12 +1452,13 @@ export async function getProviderAssignedRequests(
     preferredDate: request.preferred_date,
     preferredTime: request.preferred_time,
     createdAt: request.created_at,
-    category: Array.isArray(request.service_categories) ? request.service_categories[0]?.name : request.service_categories?.name ?? "Belirtilmedi",
-    district: Array.isArray(request.districts) ? request.districts[0]?.name : request.districts?.name ?? "Belirtilmedi",
-    customerName: Array.isArray(request.profiles) ? request.profiles[0]?.full_name : request.profiles?.full_name ?? "Müşteri",
-    phone: Array.isArray(request.profiles) ? request.profiles[0]?.phone : request.profiles?.phone ?? "Belirtilmedi",
+    category: getRelationName(request.service_categories, "Belirtilmedi"),
+    district: getRelationName(request.districts, "Belirtilmedi"),
+    customerName: profile?.full_name?.trim() || "Müşteri",
+    phone: profile?.phone?.trim() || "Belirtilmedi",
     description: request.description ?? "",
-  }));
+      };
+    });
 }
 
 export async function acceptEmergencyRequest(
@@ -1462,10 +1519,9 @@ export async function acceptEmergencyRequest(
   }
 
   const acceptedAt = new Date().toISOString();
-  const districtRelation = (currentRequest as any).districts;
-  const districtName = Array.isArray(districtRelation)
-    ? districtRelation[0]?.name
-    : districtRelation?.name;
+  const currentRequestWithDistrict =
+    currentRequest as typeof currentRequest & ServiceRequestDistrictRelation;
+  const districtName = getRelationName(currentRequestWithDistrict.districts, "");
   const updatePayload: ServiceRequestUpdate = {
     accepted_at: acceptedAt,
     accepted_provider_id: providerId,
@@ -1583,10 +1639,9 @@ export async function respondToProviderAssignedRequest(
 
     const now = new Date().toISOString();
     const isEmergencyRequest = currentRequest.urgency_type === "emergency";
-    const districtRelation = (currentRequest as any).districts;
-    const districtName = Array.isArray(districtRelation)
-      ? districtRelation[0]?.name
-      : districtRelation?.name;
+    const currentRequestWithDistrict =
+      currentRequest as typeof currentRequest & ServiceRequestDistrictRelation;
+    const districtName = getRelationName(currentRequestWithDistrict.districts, "");
     const updatePayload: ServiceRequestUpdate =
       action === "accept"
         ? {
@@ -1767,10 +1822,9 @@ export async function updateProviderAssignedRequestStatus(
     return false;
   }
 
-  const districtRelation = (currentRequest as any).districts;
-  const districtName = Array.isArray(districtRelation)
-    ? districtRelation[0]?.name
-    : districtRelation?.name;
+  const currentRequestWithDistrict =
+    currentRequest as typeof currentRequest & ServiceRequestDistrictRelation;
+  const districtName = getRelationName(currentRequestWithDistrict.districts, "");
   const isEmergencyRequest = currentRequest.urgency_type === "emergency";
   const acceptedAt =
     normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress

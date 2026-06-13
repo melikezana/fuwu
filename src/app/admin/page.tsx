@@ -23,7 +23,12 @@ import {
   getRequestAnalytics,
   getProviderAnalytics,
   getAssignmentMonitoring,
-  getLatestAuditLogs 
+  getLatestAuditLogs,
+  type AdminOverviewMetrics,
+  type AssignmentMonitoringItem,
+  type AuditLogsData,
+  type ProviderAnalyticsData,
+  type RequestAnalyticsData,
 } from "@/services/admin/operations";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { AdminSection } from "@/components/admin/AdminSection";
@@ -106,7 +111,7 @@ function DashboardSummaryCards({ summary }: { summary: AdminDashboardSummary }) 
   );
 }
 
-function OperationalAlerts({ overview }: { overview: any }) {
+function OperationalAlerts({ overview }: { overview: AdminOverviewMetrics }) {
   const alerts = [];
   if (overview.onayBekleyenUsta > 0) alerts.push(`${overview.onayBekleyenUsta} onay bekleyen usta başvurusu var.`);
   if (overview.bekleyenTalep > 0) alerts.push(`${overview.bekleyenTalep} atanmamış/bekleyen talep var.`);
@@ -126,7 +131,7 @@ function OperationalAlerts({ overview }: { overview: any }) {
   );
 }
 
-function OverviewMetrics({ overview }: { overview: any }) {
+function OverviewMetrics({ overview }: { overview: AdminOverviewMetrics }) {
   return (
     <AdminSection title="Operasyonel Özet">
       <div className="flex gap-4 min-w-max pb-2">
@@ -143,14 +148,14 @@ function OverviewMetrics({ overview }: { overview: any }) {
   );
 }
 
-function RequestAnalyticsSection({ analytics }: { analytics: any }) {
+function RequestAnalyticsSection({ analytics }: { analytics: RequestAnalyticsData }) {
   if (!analytics) return null;
   return (
     <AdminSection title="Talep Analitiği">
       <div className="grid md:grid-cols-3 gap-6 min-w-[600px]">
         <div>
           <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Duruma Göre</h4>
-          {Object.entries(analytics.byStatus).map(([status, count]: any) => (
+          {Object.entries(analytics.byStatus).map(([status, count]) => (
             <div key={status} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)]">{SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || status}</span>
               <span className="font-black text-[var(--brand-orange)]">{count}</span>
@@ -159,7 +164,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: any }) {
         </div>
         <div>
           <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
-          {Object.entries(analytics.byCategory).map(([cat, count]: any) => (
+          {Object.entries(analytics.byCategory).map(([cat, count]) => (
             <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
               <span className="font-black text-[var(--brand-orange)]">{count}</span>
@@ -168,7 +173,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: any }) {
         </div>
         <div>
           <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
-          {Object.entries(analytics.byDistrict).map(([dist, count]: any) => (
+          {Object.entries(analytics.byDistrict).map(([dist, count]) => (
             <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
               <span className="font-black text-[var(--brand-orange)]">{count}</span>
@@ -180,7 +185,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: any }) {
   );
 }
 
-function ProviderAnalyticsSection({ analytics }: { analytics: any }) {
+function ProviderAnalyticsSection({ analytics }: { analytics: ProviderAnalyticsData }) {
   if (!analytics) return null;
   return (
     <AdminSection title="Usta Analitiği">
@@ -192,7 +197,7 @@ function ProviderAnalyticsSection({ analytics }: { analytics: any }) {
       <div className="grid md:grid-cols-2 gap-6 min-w-[400px]">
         <div>
           <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
-          {Object.entries(analytics.byCategory).map(([cat, count]: any) => (
+          {Object.entries(analytics.byCategory).map(([cat, count]) => (
             <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
               <span className="font-black text-[var(--brand-orange)]">{count}</span>
@@ -201,7 +206,7 @@ function ProviderAnalyticsSection({ analytics }: { analytics: any }) {
         </div>
         <div>
           <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
-          {Object.entries(analytics.byDistrict).map(([dist, count]: any) => (
+          {Object.entries(analytics.byDistrict).map(([dist, count]) => (
             <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
               <span className="font-black text-[var(--brand-orange)]">{count}</span>
@@ -213,7 +218,7 @@ function ProviderAnalyticsSection({ analytics }: { analytics: any }) {
   );
 }
 
-function AssignmentMonitoringSection({ assignments }: { assignments: any[] }) {
+function AssignmentMonitoringSection({ assignments }: { assignments: AssignmentMonitoringItem[] }) {
   return (
     <AdminSection title="Aktif Atamalar ve Eşleşmeler" description="Ustaya yönlendirilmiş ancak henüz tamamlanmamış veya yakın zamanda atanmış son 50 talep.">
       {assignments.length === 0 ? (
@@ -263,7 +268,7 @@ function AssignmentMonitoringSection({ assignments }: { assignments: any[] }) {
   );
 }
 
-function AuditLogsSection({ logsData }: { logsData: any }) {
+function AuditLogsSection({ logsData }: { logsData: AuditLogsData }) {
   return (
     <AdminSection title="Sistem İşlem Geçmişi (Audit Logs)">
       {logsData.error ? (
@@ -280,7 +285,7 @@ function AuditLogsSection({ logsData }: { logsData: any }) {
             </tr>
           </thead>
           <tbody>
-            {logsData.data.map((l: any) => (
+            {logsData.data.map((l) => (
               <tr key={l.id} className="border-b border-[var(--border)] last:border-0">
                 <td className="py-2 px-4 text-sm text-[var(--muted)]">
                   {new Date(l.created_at).toLocaleString("tr-TR")}

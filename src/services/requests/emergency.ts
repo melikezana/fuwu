@@ -26,7 +26,7 @@ import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import { writeAuditLog } from "@/services/audit";
 import { validateServiceRequestInput } from "@/lib/validations";
-import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
 type LookupTable = "service_categories" | "districts";
@@ -259,7 +259,7 @@ async function assertEmergencyRequestRateLimit(
   supabase: SupabaseClient<Database>,
   userId: string,
 ) {
-  const result = await checkDatabaseRateLimit({
+  const result = await checkRateLimitWithRedis({
     action: "service_request_create",
     limit: 10,
     supabase,

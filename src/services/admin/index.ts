@@ -27,7 +27,7 @@ import {
 } from "@/lib/providers/trust";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import { isUuid } from "@/lib/utils";
-import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
@@ -704,7 +704,7 @@ async function assertAdminActionRateLimit(
   userId: string,
   action: string,
 ) {
-  const result = await checkDatabaseRateLimit({
+  const result = await checkRateLimitWithRedis({
     action: `admin:${action}`,
     limit: 120,
     supabase,

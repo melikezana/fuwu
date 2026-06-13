@@ -3,8 +3,23 @@ export type SecurityHeader = {
   value: string;
 };
 
+const contentSecurityPolicyDirectives = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
+  "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "form-action 'self' https://*.supabase.co https://accounts.google.com",
+  "frame-src 'self' https://*.supabase.co https://accounts.google.com",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+];
+
 export const contentSecurityPolicyHeaderPlaceholder =
-  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none';";
+  contentSecurityPolicyDirectives.join("; ");
 
 export const recommendedSecurityHeaders: SecurityHeader[] = [
   {
@@ -25,10 +40,12 @@ export const recommendedSecurityHeaders: SecurityHeader[] = [
   },
 ];
 
-// Add the CSP placeholder after auditing all third-party scripts, images, fonts, and Supabase domains.
 export const recommendedContentSecurityPolicy: SecurityHeader = {
   key: "Content-Security-Policy",
   value: contentSecurityPolicyHeaderPlaceholder,
 };
 
-export const productionSecurityHeaders = recommendedSecurityHeaders;
+export const productionSecurityHeaders = [
+  ...recommendedSecurityHeaders,
+  recommendedContentSecurityPolicy,
+];

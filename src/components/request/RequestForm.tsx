@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createEmergencyRequestAction,
@@ -385,7 +385,6 @@ function EmergencyStepLabel({ children, step }: { children: string; step: number
 }
 
 export function RequestForm({
-  authenticatedUserId,
   initialApproximateLocation,
   initialBudgetTag,
   initialDistrict,
@@ -448,15 +447,6 @@ export function RequestForm({
       initialTimePreference?.trim(),
   );
 
-  useEffect(() => {
-    if (isEmergencyFlow && suggestedEmergencyPrice > 0 && !formState.offerAmount) {
-      setFormState((currentState) => ({
-        ...currentState,
-        offerAmount: String(suggestedEmergencyPrice),
-      }));
-    }
-  }, [formState.offerAmount, isEmergencyFlow, suggestedEmergencyPrice]);
-
   function updateField(field: keyof RequestFormState, value: string) {
     setFormState((currentState) => {
       const nextState = {
@@ -465,7 +455,7 @@ export function RequestForm({
       };
 
       if (
-        currentState.urgencyType === "emergency" &&
+        nextState.urgencyType === "emergency" &&
         (field === "serviceCategory" || field === "district")
       ) {
         const nextSuggestedPrice = calculateSuggestedPrice({

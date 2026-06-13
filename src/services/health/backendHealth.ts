@@ -11,6 +11,10 @@ export type HealthCheckResult = {
   recommendations: string[];
 };
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function checkBackendHealth(): Promise<HealthCheckResult> {
   const result: HealthCheckResult = {
     status: "unavailable",
@@ -50,8 +54,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       const { error } = await supabase.from("service_categories").select("id").limit(1);
       if (error) throw error;
       result.checks[2].passed = true;
-    } catch (e: any) {
-      result.warnings.push(`Categories read failed: ${e.message}`);
+    } catch (error: unknown) {
+      result.warnings.push(`Categories read failed: ${getErrorMessage(error)}`);
     }
 
     // Check Districts
@@ -59,8 +63,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       const { error } = await supabase.from("districts").select("id").limit(1);
       if (error) throw error;
       result.checks[3].passed = true;
-    } catch (e: any) {
-      result.warnings.push(`Districts read failed: ${e.message}`);
+    } catch (error: unknown) {
+      result.warnings.push(`Districts read failed: ${getErrorMessage(error)}`);
     }
 
     // Check Providers
@@ -73,8 +77,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
         .limit(1);
       if (error) throw error;
       result.checks[4].passed = true;
-    } catch (e: any) {
-      result.warnings.push(`Providers read failed: ${e.message}`);
+    } catch (error: unknown) {
+      result.warnings.push(`Providers read failed: ${getErrorMessage(error)}`);
     }
 
     // Check Provider Applications
@@ -82,8 +86,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       const { error } = await supabase.from("provider_applications").select("id").limit(1);
       if (error) throw error;
       result.checks[5].passed = true;
-    } catch (e: any) {
-      result.warnings.push(`Provider applications access failed: ${e.message}`);
+    } catch (error: unknown) {
+      result.warnings.push(`Provider applications access failed: ${getErrorMessage(error)}`);
     }
 
     // Check Service Requests
@@ -91,8 +95,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       const { error } = await supabase.from("service_requests").select("id").limit(1);
       if (error) throw error;
       result.checks[6].passed = true;
-    } catch (e: any) {
-      result.warnings.push(`Service requests access failed: ${e.message}`);
+    } catch (error: unknown) {
+      result.warnings.push(`Service requests access failed: ${getErrorMessage(error)}`);
     }
 
     const allPassed = result.checks.every(c => c.passed);
@@ -108,8 +112,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
       result.recommendations.push("The backend is completely unresponsive. Check network logs and database connection.");
     }
 
-  } catch (globalError: any) {
-    result.warnings.push(`Critical failure during health check: ${globalError.message}`);
+  } catch (globalError: unknown) {
+    result.warnings.push(`Critical failure during health check: ${getErrorMessage(globalError)}`);
   }
 
   return result;

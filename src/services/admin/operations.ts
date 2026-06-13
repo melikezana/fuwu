@@ -6,6 +6,103 @@ import {
   PROVIDER_APPLICATION_STATUSES,
   SERVICE_REQUEST_STATUSES,
 } from "@/lib/constants/statuses";
+import type { Database } from "@/lib/supabase/types";
+
+type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
+type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
+type AuditLogRow = Database["public"]["Tables"]["audit_logs"]["Row"];
+
+type NamedRelation = {
+  name: string | null;
+};
+
+type MaybeRelation = NamedRelation | NamedRelation[] | null;
+
+type PhoneRelation = {
+  phone: string | null;
+};
+
+type MaybePhoneRelation = PhoneRelation | PhoneRelation[] | null;
+
+type RequestAnalyticsRecord = Pick<ServiceRequestRow, "id" | "status"> & {
+  districts: MaybeRelation;
+  service_categories: MaybeRelation;
+};
+
+type ProviderAnalyticsRecord = Pick<
+  ProviderRow,
+  "id" | "is_active" | "is_approved"
+> & {
+  districts: MaybeRelation;
+  service_categories: MaybeRelation;
+};
+
+type AssignmentMonitoringRecord = Pick<
+  ServiceRequestRow,
+  "assigned_provider_id" | "created_at" | "id" | "status"
+> & {
+  assigned_provider: MaybeRelation;
+  districts: MaybeRelation;
+  profiles: MaybePhoneRelation;
+  service_categories: MaybeRelation;
+};
+
+export type AdminOverviewMetrics = {
+  aktifUsta: number;
+  bekleyenTalep: number;
+  incelenenTalep: number;
+  iptalEdilenTalep: number;
+  onayBekleyenUsta: number;
+  tamamlananTalep: number;
+  toplamTalep: number;
+  ustayaYonlendirildi: number;
+};
+
+export type AnalyticsBreakdown = Record<string, number>;
+
+export type RequestAnalyticsData = {
+  byCategory: AnalyticsBreakdown;
+  byDistrict: AnalyticsBreakdown;
+  byStatus: AnalyticsBreakdown;
+};
+
+export type ProviderAnalyticsData = {
+  active: number;
+  approved: number;
+  byCategory: AnalyticsBreakdown;
+  byDistrict: AnalyticsBreakdown;
+  inactive: number;
+};
+
+export type AssignmentMonitoringItem = {
+  assignedProviderId: string | null;
+  assignedProviderName: string;
+  category: string;
+  createdAt: string;
+  customerPhone: string;
+  district: string;
+  id: string;
+  status: string;
+};
+
+export type AuditLogEntry = AuditLogRow;
+
+export type AuditLogsData = {
+  data: AuditLogEntry[];
+  error: string | null;
+};
+
+function getRelationName(relation: MaybeRelation, fallback = "Belirtilmedi") {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+
+  return record?.name?.trim() || fallback;
+}
+
+function getRelationPhone(relation: MaybePhoneRelation) {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+
+  return record?.phone?.trim() || "Belirtilmedi";
+}
 
 export async function getAdminOperationsAccess() {
   const authContext = await getServerAuthContext();
@@ -15,7 +112,7 @@ export async function getAdminOperationsAccess() {
   return { ok: true, supabase: authContext.supabase };
 }
 
-export async function getAdminOverviewMetrics() {
+export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | null> {
   const { ok, supabase } = await getAdminOperationsAccess();
   if (!ok || !supabase) {
     return null;
@@ -65,7 +162,7 @@ export async function getAdminOverviewMetrics() {
   }
 }
 
-export async function getRequestAnalytics() {
+export async function getRequestAnalytics(): Promise<RequestAnalyticsData | null> {
   const { ok, supabase } = await getAdminOperationsAccess();
   if (!ok || !supabase) return null;
 
@@ -84,12 +181,10 @@ export async function getRequestAnalytics() {
     const byCategory: Record<string, number> = {};
     const byDistrict: Record<string, number> = {};
 
-    for (const req of requests) {
+    for (const req of (requests ?? []) as unknown as RequestAnalyticsRecord[]) {
       const status = req.status || "bilinmiyor";
-      const cat = Array.isArray(req.service_categories) ? req.service_categories[0]?.name : req.service_categories?.name;
-      const category = cat || "Belirtilmedi";
-      const distData = Array.isArray(req.districts) ? req.districts[0]?.name : req.districts?.name;
-      const district = distData || "Belirtilmedi";
+      const category = getRelationName(req.service_categories);
+      const district = getRelationName(req.districts);
 
       byStatus[status] = (byStatus[status] || 0) + 1;
       byCategory[category] = (byCategory[category] || 0) + 1;
@@ -103,7 +198,7 @@ export async function getRequestAnalytics() {
   }
 }
 
-export async function getProviderAnalytics() {
+export async function getProviderAnalytics(): Promise<ProviderAnalyticsData | null> {
   const { ok, supabase } = await getAdminOperationsAccess();
   if (!ok || !supabase) return null;
 
@@ -124,14 +219,12 @@ export async function getProviderAnalytics() {
     const byCategory: Record<string, number> = {};
     const byDistrict: Record<string, number> = {};
 
-    for (const p of providers) {
+    for (const p of (providers ?? []) as unknown as ProviderAnalyticsRecord[]) {
       if (p.is_active) active++; else inactive++;
       if (p.is_approved) approved++;
 
-      const cat = Array.isArray(p.service_categories) ? p.service_categories[0]?.name : p.service_categories?.name;
-      const category = cat || "Belirtilmedi";
-      const distData = Array.isArray(p.districts) ? p.districts[0]?.name : p.districts?.name;
-      const district = distData || "Belirtilmedi";
+      const category = getRelationName(p.service_categories);
+      const district = getRelationName(p.districts);
 
       byCategory[category] = (byCategory[category] || 0) + 1;
       byDistrict[district] = (byDistrict[district] || 0) + 1;
@@ -144,7 +237,7 @@ export async function getProviderAnalytics() {
   }
 }
 
-export async function getAssignmentMonitoring() {
+export async function getAssignmentMonitoring(): Promise<AssignmentMonitoringItem[] | null> {
   const { ok, supabase } = await getAdminOperationsAccess();
   if (!ok || !supabase) return null;
 
@@ -167,16 +260,14 @@ export async function getAssignmentMonitoring() {
 
     if (error || !data) return [];
 
-    return data.map((req: any) => ({
+    return ((data ?? []) as unknown as AssignmentMonitoringRecord[]).map((req) => ({
       id: req.id,
       status: req.status,
       assignedProviderId: req.assigned_provider_id,
-      assignedProviderName: Array.isArray(req.assigned_provider)
-        ? req.assigned_provider[0]?.name
-        : req.assigned_provider?.name ?? "Bilinmiyor",
-      category: Array.isArray(req.service_categories) ? req.service_categories[0]?.name : req.service_categories?.name ?? "Belirtilmedi",
-      district: Array.isArray(req.districts) ? req.districts[0]?.name : req.districts?.name ?? "Belirtilmedi",
-      customerPhone: Array.isArray(req.profiles) ? req.profiles[0]?.phone : req.profiles?.phone ?? "Belirtilmedi",
+      assignedProviderName: getRelationName(req.assigned_provider, "Bilinmiyor"),
+      category: getRelationName(req.service_categories),
+      district: getRelationName(req.districts),
+      customerPhone: getRelationPhone(req.profiles),
       createdAt: req.created_at,
     }));
   } catch (error) {
@@ -185,7 +276,7 @@ export async function getAssignmentMonitoring() {
   }
 }
 
-export async function getLatestAuditLogs() {
+export async function getLatestAuditLogs(): Promise<AuditLogsData> {
   const { ok, supabase } = await getAdminOperationsAccess();
   if (!ok || !supabase) return { data: [], error: null };
 
@@ -201,8 +292,8 @@ export async function getLatestAuditLogs() {
       return { data: [], error: "Audit logs şu an okunamıyor." };
     }
 
-    return { data: data || [], error: null };
-  } catch (error) {
+    return { data: (data ?? []) as unknown as AuditLogEntry[], error: null };
+  } catch {
     return { data: [], error: "Audit logs yapılandırması henüz tamamlanmadı." };
   }
 }

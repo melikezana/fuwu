@@ -47,12 +47,17 @@ type SpeechRecognitionLike = {
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
-function getSpeechRecognitionConstructor() {
+type SpeechRecognitionWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
+
+function getSpeechRecognitionConstructor(): SpeechRecognitionConstructor | null {
   if (typeof window === "undefined") {
     return null;
   }
 
-  const win = window as any;
+  const win = window as SpeechRecognitionWindow;
   return win.SpeechRecognition ?? win.webkitSpeechRecognition ?? null;
 }
 

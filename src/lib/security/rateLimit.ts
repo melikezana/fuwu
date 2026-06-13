@@ -20,7 +20,7 @@ type RateLimitBucket = {
   resetAt: number;
 };
 
-type DatabaseRateLimitOptions = {
+export type DatabaseRateLimitOptions = {
   action: string;
   limit: number;
   now?: number;
