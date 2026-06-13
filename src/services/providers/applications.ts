@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { AuthError, DatabaseError, getPublicErrorMessage, handleServiceError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
+import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
 import {
   createSupabaseServerClient,
   isSupabaseServerConfigured,
@@ -61,6 +62,9 @@ const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "portfolio_url",
   "status",
 ];
+
+const providerApplicationRateLimitMessage =
+  "Bugün çok sayıda başvuru gönderdin. Lütfen daha sonra tekrar dene.";
 
 function createLiveApplicationCode() {
   return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -402,6 +406,26 @@ async function assertNoPendingDuplicate(
   }
 }
 
+async function assertProviderApplicationRateLimit(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+) {
+  const result = await checkDatabaseRateLimit({
+    action: "provider_application_submit",
+    limit: 3,
+    supabase,
+    userId,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+
+  if (!result.allowed) {
+    throw new ValidationError("Provider application submit rate limit exceeded.", {
+      publicMessage: providerApplicationRateLimitMessage,
+      statusCode: 429,
+    });
+  }
+}
+
 async function notifyProviderApplicationSubmitResult(
   result: ProviderApplicationSubmitResult,
 ) {
@@ -433,6 +457,7 @@ export async function submitProviderApplication(
     const userId = await getRequiredProviderApplicationUserId(supabase, applicationData);
     const insertPayload = buildProviderApplicationInsert(applicationData, userId);
 
+    await assertProviderApplicationRateLimit(supabase, userId);
     await assertNoPendingDuplicate(supabase, insertPayload);
 
     const { data: insertedApplication, error } = await supabase

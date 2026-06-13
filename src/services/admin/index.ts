@@ -27,6 +27,7 @@ import {
 } from "@/lib/providers/trust";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import { isUuid } from "@/lib/utils";
+import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
 import {
   notifyProviderApplicationApproved,
   notifyProviderApplicationRejected,
@@ -698,6 +699,36 @@ async function insertAuditLog({
   );
 }
 
+async function assertAdminActionRateLimit(
+  supabase: AdminSupabaseClient,
+  userId: string,
+  action: string,
+) {
+  const result = await checkDatabaseRateLimit({
+    action: `admin:${action}`,
+    limit: 120,
+    supabase,
+    userId,
+    windowMs: 60 * 1000,
+  });
+
+  if (!result.allowed) {
+    await insertAuditLog({
+      action: "security.unauthorized_action",
+      actorUserId: userId,
+      entityId: null,
+      entityType: "security_event",
+      metadata: {
+        reason: "rate_limit_exceeded",
+        scope: action,
+      },
+      supabase,
+    });
+  }
+
+  return result.allowed;
+}
+
 function createAdminActionResult(
   code: AdminProviderApplicationActionCode,
   ok: boolean,
@@ -829,7 +860,23 @@ async function getSupabaseForAdminRead() {
 }
 
 async function getSupabaseForAdminWrite() {
-  return getAdminSupabaseAccess();
+  const adminAccess = await getAdminSupabaseAccess();
+
+  if (!adminAccess.access.ok && adminAccess.access.userId) {
+    await writeAuditLog({
+      action: "security.unauthorized_action",
+      actorUserId: adminAccess.access.userId,
+      entityId: null,
+      entityType: "security_event",
+      metadata: {
+        reason: adminAccess.access.reason,
+        role: adminAccess.access.role ?? null,
+        scope: "admin_write",
+      },
+    });
+  }
+
+  return adminAccess;
 }
 
 function createApplicationStatusConflictResult(status: string) {
@@ -849,6 +896,16 @@ function createApplicationStatusConflictResult(status: string) {
 }
 
 function createInvalidApplicationIdResult(action: string) {
+  void writeAuditLog({
+    action: "security.invalid_id",
+    actorUserId: null,
+    entityId: null,
+    entityType: "security_event",
+    metadata: {
+      action,
+      entityType: "provider_application",
+    },
+  });
   handleServiceError(
     new ValidationError("Invalid provider application UUID.", {
       publicMessage: "Geçersiz başvuru kimliği.",
@@ -863,6 +920,11 @@ function createInvalidApplicationIdResult(action: string) {
 
 function normalizeAdminApplicationId(applicationId: string, action: string) {
   const normalizedApplicationId = sanitizeText(applicationId, 80);
+
+  console.info("[Fuwu] Admin provider application action received id.", {
+    action,
+    applicationId: normalizedApplicationId,
+  });
 
   if (!normalizedApplicationId) {
     return createAdminActionResult("application-missing-id", false);
@@ -1065,32 +1127,9 @@ async function findExistingProviderForApproval(
 }
 
 async function findApplicantUserIdForApplication(
-  supabase: AdminSupabaseClient,
-  application: Pick<AdminProviderApplicationApprovalRecord, "phone" | "user_id">,
+  application: Pick<AdminProviderApplicationApprovalRecord, "user_id">,
 ) {
-  if (application.user_id) {
-    return application.user_id;
-  }
-
-  const phone = sanitizePhone(application.phone);
-
-  if (!phone) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("phone", phone)
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    warnAdminWriteError("provider applicant profile lookup", error);
-    return null;
-  }
-
-  return data?.id ?? null;
+  return application.user_id ?? null;
 }
 
 function getApprovedProviderAvailability(
@@ -1126,7 +1165,6 @@ async function createProviderFromApplication(
   }
 
   const applicantUserId = await findApplicantUserIdForApplication(
-    supabase,
     application,
   );
 
@@ -1371,6 +1409,16 @@ export async function approveAdminProviderApplication(
       );
     }
 
+    if (
+      !(await assertAdminActionRateLimit(
+        supabase,
+        adminAccess.access.userId,
+        "provider_application.approve",
+      ))
+    ) {
+      return createAdminActionResult("application-action-failed", false);
+    }
+
     const { data, error } = await getProviderApplicationForApproval(
       supabase,
       normalizedApplicationId,
@@ -1489,6 +1537,16 @@ export async function rejectAdminProviderApplication(
       );
     }
 
+    if (
+      !(await assertAdminActionRateLimit(
+        supabase,
+        adminAccess.access.userId,
+        "provider_application.reject",
+      ))
+    ) {
+      return createAdminActionResult("application-action-failed", false);
+    }
+
     const { data, error } = await supabase
       .from("provider_applications")
       .select("status")
@@ -1584,6 +1642,16 @@ export async function updateAdminServiceRequestStatus(
         : "supabase-not-configured",
       false,
     );
+  }
+
+  if (
+    !(await assertAdminActionRateLimit(
+      supabase,
+      adminAccess.access.userId,
+      "service_request.status_update",
+    ))
+  ) {
+    return createServiceRequestActionResult("service-request-action-failed", false);
   }
 
   const { data: existingRequest, error: lookupError } = await supabase
@@ -1840,6 +1908,16 @@ export async function assignAdminServiceRequest(
     );
   }
 
+  if (
+    !(await assertAdminActionRateLimit(
+      supabase,
+      adminAccess.access.userId,
+      "service_request.assign",
+    ))
+  ) {
+    return createServiceRequestActionResult("service-request-action-failed", false);
+  }
+
   const assignmentStatus = SERVICE_REQUEST_STATUSES.assigned;
   const updatePayload: Partial<ServiceRequestRow> = {
     accepted_at: null,
@@ -2031,6 +2109,16 @@ export async function updateAdminProviderStatus(
     );
   }
 
+  if (
+    !(await assertAdminActionRateLimit(
+      supabase,
+      adminAccess.access.userId,
+      "provider.status_update",
+    ))
+  ) {
+    return createProviderStatusActionResult("provider-action-failed", false);
+  }
+
   const updatePayload: AdminProviderPublicationUpdate =
     normalizedAction === "activate"
       ? { is_active: true, last_active_at: new Date().toISOString() }
@@ -2193,6 +2281,16 @@ export async function updateAdminProviderTrust(
         : "supabase-not-configured",
       false,
     );
+  }
+
+  if (
+    !(await assertAdminActionRateLimit(
+      supabase,
+      adminAccess.access.userId,
+      "provider.trust_update",
+    ))
+  ) {
+    return createProviderStatusActionResult("provider-action-failed", false);
   }
 
   const updatePayload: AdminProviderTrustUpdate = {

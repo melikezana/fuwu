@@ -28,7 +28,6 @@ type ProviderApplicationRecord = Pick<
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
-  user_id?: string | null;
 };
 
 type ServiceRequestRecord = Pick<
@@ -113,23 +112,6 @@ function getAssignedProviderName(
   return sanitizeText(record?.name ?? "", 120) || null;
 }
 
-function getSupabaseErrorText(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return "";
-  }
-
-  const record = error as { code?: unknown; details?: unknown; message?: unknown };
-  return [record.code, record.details, record.message]
-    .filter((value): value is string => typeof value === "string")
-    .join(" ")
-    .toLocaleLowerCase("tr");
-}
-
-function isMissingColumn(error: unknown, columnName: string) {
-  const errorText = getSupabaseErrorText(error);
-  return errorText.includes("column") && errorText.includes(columnName);
-}
-
 function mapProviderApplicationRecord(
   record: ProviderApplicationRecord,
 ): AccountProviderApplication | null {
@@ -196,86 +178,11 @@ async function getProviderApplicationsByUserId(
     .order("created_at", { ascending: false });
 }
 
-async function getProviderApplicationsByPhone(
-  supabase: AccountSupabaseClient,
-  phones: string[],
-) {
-  if (phones.length === 0) {
-    return { data: [], error: null };
-  }
-
-  return supabase
-    .from("provider_applications")
-    .select(
-      `
-        id,
-        user_id,
-        full_name,
-        phone,
-        experience_years,
-        status,
-        created_at,
-        service_categories(name),
-        districts(name)
-      `,
-    )
-    .in("phone", phones)
-    .order("created_at", { ascending: false });
-}
-
-async function bindProviderApplicationRecordsToUser(
-  supabase: AccountSupabaseClient,
-  records: ProviderApplicationRecord[],
-) {
-  const unboundApplicationIds = records
-    .filter((record) => record.user_id === null)
-    .map((record) => record.id);
-
-  if (unboundApplicationIds.length === 0) {
-    return null;
-  }
-
-  const { error } = await supabase.rpc(
-    "bind_provider_applications_to_current_user",
-    {
-      application_ids: unboundApplicationIds,
-    },
-  );
-
-  return error;
-}
-
 async function getUserProviderApplications(
   supabase: AccountSupabaseClient,
   userId: string,
-  phones: string[],
 ) {
-  const result = await getProviderApplicationsByUserId(supabase, userId);
-
-  if (result.error && isMissingColumn(result.error, "user_id")) {
-    return getProviderApplicationsByPhone(supabase, phones);
-  }
-
-  if (result.error || (result.data ?? []).length > 0) {
-    return result;
-  }
-
-  const phoneResult = await getProviderApplicationsByPhone(supabase, phones);
-
-  if (phoneResult.error) {
-    return phoneResult;
-  }
-
-  const bindError = await bindProviderApplicationRecordsToUser(
-    supabase,
-    (phoneResult.data ?? []) as unknown as ProviderApplicationRecord[],
-  );
-
-  if (bindError) {
-    console.warn("[Fuwu] Account provider application user binding failed.", bindError);
-  }
-
-  return phoneResult;
+  return getProviderApplicationsByUserId(supabase, userId);
 }
 
 async function getUserServiceRequests(
@@ -302,34 +209,6 @@ async function getUserServiceRequests(
     .order("created_at", { ascending: false });
 }
 
-function getFallbackPhones(
-  profilePhone: string | null | undefined,
-  authPhone: string | null | undefined,
-  metadata: unknown,
-) {
-  const metadataPhone =
-    metadata && typeof metadata === "object" && "phone" in metadata
-      ? (metadata as { phone?: unknown }).phone
-      : null;
-  const metadataPhoneNumber =
-    metadata && typeof metadata === "object" && "phone_number" in metadata
-      ? (metadata as { phone_number?: unknown }).phone_number
-      : null;
-
-  return Array.from(
-    new Set(
-      [
-        profilePhone,
-        authPhone,
-        typeof metadataPhone === "string" ? metadataPhone : null,
-        typeof metadataPhoneNumber === "string" ? metadataPhoneNumber : null,
-      ]
-        .map((phone) => sanitizePhone(phone ?? ""))
-        .filter(Boolean),
-    ),
-  );
-}
-
 export async function getAccountTrackingData(): Promise<AccountTrackingData> {
   const authContext = await getServerAuthContext();
 
@@ -343,13 +222,8 @@ export async function getAccountTrackingData(): Promise<AccountTrackingData> {
     };
   }
 
-  const fallbackPhones = getFallbackPhones(
-    authContext.profile?.phone,
-    authContext.user.phone,
-    authContext.user.user_metadata,
-  );
   const [applicationsResult, requestsResult] = await Promise.all([
-    getUserProviderApplications(authContext.supabase, authContext.user.id, fallbackPhones),
+    getUserProviderApplications(authContext.supabase, authContext.user.id),
     getUserServiceRequests(authContext.supabase, authContext.user.id),
   ]);
 

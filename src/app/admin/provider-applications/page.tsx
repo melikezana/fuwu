@@ -78,7 +78,7 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     tone: "success",
   },
   "application-invalid-id": {
-    body: "Başvuru kimliği geçerli değil. Sayfayı yenileyip işlemi tekrar deneyin.",
+    body: "Başvuru kimliği geçerli değil.",
     title: "Geçersiz başvuru",
     tone: "error",
   },
@@ -93,7 +93,7 @@ const applicationActionMessages: Record<string, ApplicationActionFeedback> = {
     tone: "error",
   },
   "application-not-found": {
-    body: "İlgili başvuru bulunamadı veya bu başvuru için admin yetkisi yok.",
+    body: "Başvuru bulunamadı.",
     title: "Başvuru bulunamadı",
     tone: "error",
   },

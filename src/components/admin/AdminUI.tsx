@@ -137,13 +137,19 @@ export function AdminPageShell({
                   className={cn(
                     "inline-flex min-h-11 shrink-0 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-bold leading-5 shadow-[0_10px_24px_rgba(13,20,36,0.04)] transition-colors",
                     isActive
-                      ? "border-[rgba(255,138,0,0.52)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)]"
-                      : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--surface-soft)] hover:text-[var(--brand-navy)]",
+                      ? "border-[rgba(255,138,0,0.58)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)]"
+                      : "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:border-[rgba(255,138,0,0.46)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange-dark)]",
                   )}
                   href={item.href}
                   key={item.key}
                 >
-                  <Icon className="h-4 w-4" aria-hidden />
+                  <Icon
+                    className={cn(
+                      "h-4 w-4",
+                      isActive ? "text-[var(--brand-orange-dark)]" : "text-current",
+                    )}
+                    aria-hidden
+                  />
                   {item.label}
                 </Link>
               );

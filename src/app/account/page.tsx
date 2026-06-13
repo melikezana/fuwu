@@ -73,6 +73,17 @@ function getAccountStatusView(status: string) {
       };
 }
 
+function getAuthMetadataName(metadata: Record<string, unknown> | undefined) {
+  const fullName = metadata?.full_name;
+  const name = metadata?.name;
+
+  return typeof fullName === "string" && fullName.trim()
+    ? fullName.trim()
+    : typeof name === "string" && name.trim()
+      ? name.trim()
+      : undefined;
+}
+
 export default function AccountPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -82,9 +93,18 @@ export default function AccountPage() {
 
   useEffect(() => {
     const supabase = createClient();
+    let isMounted = true;
 
-    const init = async () => {
+    const loadAccount = async () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setLoading(true);
+
       if (!supabase) {
+        setProfile(null);
+        setRequests([]);
         router.push("/login?next=/account");
         return;
       }
@@ -92,14 +112,32 @@ export default function AccountPage() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
+        if (isMounted) {
+          setProfile(null);
+          setRequests([]);
+          setLoading(false);
+        }
         router.push("/login?next=/account");
+        return;
+      }
+
+      const fallbackFullName = getAuthMetadataName(user.user_metadata);
+      const { data: currentProfile } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!isMounted) {
         return;
       }
 
       setProfile({
         id: user.id,
         email: user.email ?? undefined,
-        full_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? undefined,
+        full_name: currentProfile?.id === user.id
+          ? currentProfile.full_name ?? fallbackFullName
+          : fallbackFullName,
         avatar_url: user.user_metadata?.avatar_url ?? undefined,
         created_at: user.created_at,
       });
@@ -111,22 +149,50 @@ export default function AccountPage() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10);
-        setRequests((data as unknown as ServiceRequest[]) ?? []);
+        if (isMounted) {
+          setRequests((data as unknown as ServiceRequest[]) ?? []);
+        }
       } catch {
-        setRequests([]);
+        if (isMounted) {
+          setRequests([]);
+        }
       }
 
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     };
 
-    void init();
+    void loadAccount();
+    const {
+      data: { subscription },
+    } = supabase?.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setProfile(null);
+        setRequests([]);
+        router.push("/login?next=/account");
+        return;
+      }
+
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        void loadAccount();
+      }
+    }) ?? { data: { subscription: null } };
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
   }, [router]);
 
   const handleSignOut = async () => {
     setSigningOut(true);
     const supabase = createClient();
+    setProfile(null);
+    setRequests([]);
     if (supabase) await supabase.auth.signOut();
-    router.push("/");
+    router.replace("/");
+    router.refresh();
   };
 
   const initials = (name?: string, email?: string) => {

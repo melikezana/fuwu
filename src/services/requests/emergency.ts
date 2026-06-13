@@ -26,6 +26,7 @@ import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import { writeAuditLog } from "@/services/audit";
 import { validateServiceRequestInput } from "@/lib/validations";
+import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
 type LookupTable = "service_categories" | "districts";
@@ -41,6 +42,9 @@ const emergencyRequestSubmitErrorMessage =
 
 const emergencyRequestLoginRequiredMessage =
   "Talep oluşturmak için giriş yapmalısın.";
+
+const emergencyRequestRateLimitMessage =
+  "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
 
 function createRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
@@ -251,6 +255,26 @@ async function countEligibleEmergencyProviders(
   return sameCategoryCount ?? 0;
 }
 
+async function assertEmergencyRequestRateLimit(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+) {
+  const result = await checkDatabaseRateLimit({
+    action: "service_request_create",
+    limit: 10,
+    supabase,
+    userId,
+    windowMs: 60 * 60 * 1000,
+  });
+
+  if (!result.allowed) {
+    throw new ValidationError("Emergency request create rate limit exceeded.", {
+      publicMessage: emergencyRequestRateLimitMessage,
+      statusCode: 429,
+    });
+  }
+}
+
 export async function createEmergencyMatchRequest(
   input: ServiceRequestInput,
   serverAuthContext?: ServerAuthContext,
@@ -290,6 +314,8 @@ export async function createEmergencyMatchRequest(
   });
 
   const insertPayload = await createEmergencyInsert(supabase, requestInput, authContext.user.id);
+
+  await assertEmergencyRequestRateLimit(supabase, authContext.user.id);
 
   if (insertPayload.category_id && insertPayload.district_id) {
     const duplicateStatuses = [

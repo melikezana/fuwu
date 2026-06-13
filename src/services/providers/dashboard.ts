@@ -158,28 +158,6 @@ const providerApplicationSelectQueryWithUserId = `
   districts(name)
 `;
 
-function getMetadataString(metadata: unknown, keys: readonly string[]) {
-  if (!metadata || typeof metadata !== "object") {
-    return "";
-  }
-
-  const record = metadata as Record<string, unknown>;
-
-  for (const key of keys) {
-    const value = record[key];
-
-    if (typeof value === "string") {
-      const sanitizedValue = sanitizeText(value, 120);
-
-      if (sanitizedValue) {
-        return sanitizedValue;
-      }
-    }
-  }
-
-  return "";
-}
-
 function getRelationName(
   relation: ProviderRelation | ProviderRelation[] | null | undefined,
 ) {
@@ -286,10 +264,6 @@ function isMissingAvailabilityColumn(error: unknown) {
   return isMissingColumn(error, "availability");
 }
 
-function isMissingProviderApplicationUserIdColumn(error: unknown) {
-  return isMissingColumn(error, "user_id");
-}
-
 function getProviderDashboardReadError(error: unknown) {
   const appError = handleServiceError(error, {
     logContext: "Provider dashboard Supabase read failed.",
@@ -361,83 +335,19 @@ async function fetchLatestProviderApplicationByUserId(
         )
       : null,
     error,
-    isMissingUserIdColumn: Boolean(error && isMissingProviderApplicationUserIdColumn(error)),
   };
-}
-
-function mapProviderDashboardApplicationRecords(
-  records: ProviderDashboardApplicationRecord[],
-) {
-  return records
-    .map(mapProviderDashboardApplicationRecord)
-    .filter(
-      (application): application is ProviderDashboardApplication =>
-        Boolean(application),
-    );
-}
-
-async function fetchProviderApplicationsByPhones(
-  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
-  phones: string[],
-) {
-  if (phones.length === 0) {
-    return {
-      applications: [],
-      error: null,
-      isMissingUserIdColumn: false,
-      records: [],
-    };
-  }
-
-  const { data, error } = await supabase
-    .from("provider_applications")
-    .select(providerApplicationSelectQueryWithUserId)
-    .in("phone", phones)
-    .order("created_at", { ascending: false });
-
-  const records = (data ?? []) as unknown as ProviderDashboardApplicationRecord[];
-
-  return {
-    applications: mapProviderDashboardApplicationRecords(records),
-    error,
-    isMissingUserIdColumn: Boolean(error && isMissingProviderApplicationUserIdColumn(error)),
-    records,
-  };
-}
-
-async function bindProviderApplicationRecordsToUser(
-  supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
-  records: ProviderDashboardApplicationRecord[],
-) {
-  const unboundApplicationIds = records
-    .filter((record) => record.user_id === null)
-    .map((record) => record.id);
-
-  if (unboundApplicationIds.length === 0) {
-    return null;
-  }
-
-  const { error } = await supabase.rpc(
-    "bind_provider_applications_to_current_user",
-    {
-      application_ids: unboundApplicationIds,
-    },
-  );
-
-  return error;
 }
 
 async function getLatestProviderApplicationForCurrentUser(
   supabase: NonNullable<Awaited<ReturnType<typeof getServerAuthContext>>["supabase"]>,
   userId: string,
-  phones: string[],
 ) {
   const userApplicationResult = await fetchLatestProviderApplicationByUserId(
     supabase,
     userId,
   );
 
-  if (userApplicationResult.error && !userApplicationResult.isMissingUserIdColumn) {
+  if (userApplicationResult.error) {
     return {
       application: null,
       error: userApplicationResult.error,
@@ -451,44 +361,10 @@ async function getLatestProviderApplicationForCurrentUser(
     };
   }
 
-  const phoneApplicationResult = await fetchProviderApplicationsByPhones(
-    supabase,
-    phones,
-  );
-
-  if (
-    phoneApplicationResult.error &&
-    !phoneApplicationResult.isMissingUserIdColumn
-  ) {
-    return {
-      application: null,
-      error: phoneApplicationResult.error,
-    };
-  }
-
-  const bindError = await bindProviderApplicationRecordsToUser(
-    supabase,
-    phoneApplicationResult.records,
-  );
-
-  if (bindError) {
-    console.warn("[Fuwu] Provider application user binding failed.", bindError);
-  }
-
   return {
-    application: phoneApplicationResult.applications[0] ?? null,
+    application: null,
     error: null,
   };
-}
-
-function getUniqueContactPhones(...phones: Array<string | null | undefined>) {
-  return Array.from(
-    new Set(
-      phones
-        .map((phone) => sanitizePhone(phone ?? ""))
-        .filter((phone) => Boolean(phone)),
-    ),
-  );
 }
 
 function getApplicationAccessReason(
@@ -554,15 +430,9 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
   const profile = data
     ? mapProviderDashboardRecord(data as unknown as ProviderDashboardRecord)
     : null;
-  const contactPhones = getUniqueContactPhones(
-    authContext.profile?.phone,
-    authContext.user.phone,
-    getMetadataString(authContext.user.user_metadata, ["phone", "phone_number"]),
-  );
   const applicationResult = await getLatestProviderApplicationForCurrentUser(
     authContext.supabase,
     authContext.user.id,
-    contactPhones,
   );
 
   if (applicationResult.error) {

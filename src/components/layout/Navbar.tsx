@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, navigationLinks } from "@/lib/constants/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { CurrentUserProfile } from "@/types/auth";
@@ -114,25 +115,46 @@ export function Navbar() {
 
   useEffect(() => {
     let mounted = true;
+    const supabase = createClient();
+
     async function loadAuth() {
       try {
-        const response = await fetch("/api/auth/user");
+        const response = await fetch("/api/auth/user", { cache: "no-store" });
         if (response.ok) {
           const data = await response.json();
           if (data.authenticated && data.profile) {
             if (mounted) setUserProfile(data.profile);
+          } else if (mounted) {
+            setUserProfile(null);
           }
+        } else if (mounted) {
+          setUserProfile(null);
         }
       } catch {
-        // ignore
+        if (mounted) setUserProfile(null);
       } finally {
         if (mounted) setIsAuthLoading(false);
       }
     }
     loadAuth();
+    const {
+      data: { subscription },
+    } = supabase?.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setUserProfile(null);
+        setIsAuthLoading(false);
+        return;
+      }
+
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        setIsAuthLoading(true);
+        void loadAuth();
+      }
+    }) ?? { data: { subscription: null } };
 
     return () => {
       mounted = false;
+      subscription?.unsubscribe();
     };
   }, []);
 
@@ -181,6 +203,7 @@ export function Navbar() {
     if (href === "#logout") {
       try {
         await fetch("/api/auth/logout", { method: "POST" });
+        await createClient()?.auth.signOut();
       } catch {
         // ignore
       }
@@ -275,6 +298,7 @@ export function Navbar() {
                     onClick={async () => {
                       try {
                         await fetch("/api/auth/logout", { method: "POST" });
+                        await createClient()?.auth.signOut();
                       } catch {
                         // ignore
                       }

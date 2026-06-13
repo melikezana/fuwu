@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAuthUserMetadataName } from "@/services/auth/profiles";
 
+function authJson(body: Record<string, unknown>, init?: ResponseInit) {
+  const response = NextResponse.json(body, init);
+  response.headers.set("Cache-Control", "no-store, max-age=0");
+  return response;
+}
+
 export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return authJson({ authenticated: false }, { status: 401 });
     }
 
     const {
@@ -16,7 +22,7 @@ export async function GET() {
     } = await supabase.auth.getUser();
 
     if (error || !user) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return authJson({ authenticated: false }, { status: 401 });
     }
 
     const { data: profile } = await supabase
@@ -31,7 +37,7 @@ export async function GET() {
       user.email ||
       "Hesabım";
 
-    return NextResponse.json({
+    return authJson({
       authenticated: true,
       user: {
         id: user.id,
@@ -46,6 +52,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error("[Auth API] Session check failed:", err);
-    return NextResponse.json({ authenticated: false }, { status: 500 });
+    return authJson({ authenticated: false }, { status: 500 });
   }
 }

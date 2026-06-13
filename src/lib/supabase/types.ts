@@ -548,6 +548,44 @@ export type Database = {
           },
         ];
       };
+      rate_limits: {
+        Row: {
+          id: string;
+          user_id: string;
+          action: string;
+          count: number;
+          window_start: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          action: string;
+          count?: number;
+          window_start: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          action?: string;
+          count?: number;
+          window_start?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rate_limits_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {

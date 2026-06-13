@@ -13,6 +13,8 @@ export type AuditAction =
   | "provider_application.approved"
   | "provider_application.rejected"
   | "provider_application.submitted"
+  | "security.invalid_id"
+  | "security.unauthorized_action"
   | "service_request.accepted"
   | "service_request.assigned"
   | "service_request.cancelled"
@@ -29,6 +31,7 @@ export type AuditLogEvent = {
     | "admin_action"
     | "provider"
     | "provider_application"
+    | "security_event"
     | "service_request";
   metadata?: Json;
 };

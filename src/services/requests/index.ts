@@ -31,6 +31,7 @@ import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
+import { checkDatabaseRateLimit } from "@/lib/security/rateLimit";
 import { writeAuditLog } from "@/services/audit";
 import {
   notifyEmergencyRequestDispatched,
@@ -91,6 +92,9 @@ export const serviceRequestLoginRequiredMessage =
 export const serviceRequestSubmitErrorMessage =
   "Talep oluşturulamadı. Lütfen tekrar deneyin.";
 
+const serviceRequestRateLimitMessage =
+  "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
+
 function createLiveRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
     return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -130,6 +134,26 @@ function warnServiceRequestError(message: string, error: unknown) {
     logContext: message,
     publicMessage: serviceRequestSubmitErrorMessage,
   });
+}
+
+async function assertServiceRequestRateLimit(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+) {
+  const result = await checkDatabaseRateLimit({
+    action: "service_request_create",
+    limit: 10,
+    supabase,
+    userId,
+    windowMs: 60 * 60 * 1000,
+  });
+
+  if (!result.allowed) {
+    throw new ValidationError("Service request create rate limit exceeded.", {
+      publicMessage: serviceRequestRateLimitMessage,
+      statusCode: 429,
+    });
+  }
 }
 
 const providerAssignedRequestActionMessages: Record<
@@ -623,6 +647,8 @@ export async function createServiceRequest(
     LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
   ];
 
+  await assertServiceRequestRateLimit(supabase, user.id);
+
   // Anti-spam duplicate request check for active requests in the same category and district.
   const { data: existingRequest, error: duplicateCheckError } = await supabase
     .from("service_requests")
@@ -785,6 +811,8 @@ export async function createAuthenticatedServiceRequest(
     LEGACY_SERVICE_REQUEST_STATUSES.ustayaYonlendirildi,
     LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
   ];
+
+  await assertServiceRequestRateLimit(authContext.supabase, authContext.user.id);
 
   const { data: existingRequest, error: duplicateCheckError } = await authContext.supabase
     .from("service_requests")
@@ -1489,6 +1517,15 @@ export async function respondToProviderAssignedRequest(
   }
 
   try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return createProviderAssignedRequestActionResult("provider-not-authorized", false, action);
+    }
+
     const [
       { data: provider, error: providerError },
       { data: currentRequest, error: currentRequestError },
@@ -1519,7 +1556,7 @@ export async function respondToProviderAssignedRequest(
       return createProviderAssignedRequestActionResult("provider-not-authorized", false, action);
     }
 
-    if (!provider?.is_active || !provider?.is_approved) {
+    if (!provider?.is_active || !provider?.is_approved || provider.user_id !== user.id) {
       return createProviderAssignedRequestActionResult("provider-not-authorized", false, action);
     }
 
@@ -1674,6 +1711,15 @@ export async function updateProviderAssignedRequestStatus(
     return false;
   }
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return false;
+  }
+
   const normalizedStatus = normalizeServiceRequestStatus(status);
 
   if (!normalizedStatus) {
@@ -1711,7 +1757,7 @@ export async function updateProviderAssignedRequestStatus(
       .maybeSingle(),
   ]);
 
-  if (providerError || !provider?.is_active || !provider?.is_approved) {
+  if (providerError || !provider?.is_active || !provider?.is_approved || provider.user_id !== user.id) {
     warnServiceRequestError("Provider eligibility lookup failed.", providerError);
     return false;
   }
