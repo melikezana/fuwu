@@ -89,6 +89,14 @@ type NotificationInsertError = {
   message?: unknown;
 };
 
+export type NotificationRecord =
+  Database["public"]["Tables"]["notifications"]["Row"];
+
+export type NotificationListOptions = {
+  limit?: number;
+  unreadOnly?: boolean;
+};
+
 type NotificationInsertClient = {
   from: (table: "notifications") => {
     insert: (payload: NotificationPayload) => Promise<{ error: NotificationInsertError | null }>;
@@ -96,6 +104,36 @@ type NotificationInsertClient = {
 };
 
 const isDevelopment = process.env.NODE_ENV !== "production";
+const DEFAULT_NOTIFICATION_LIMIT = 10;
+const MAX_NOTIFICATION_LIMIT = 50;
+
+function normalizeNotificationLimit(limit?: number) {
+  if (!Number.isFinite(limit)) {
+    return DEFAULT_NOTIFICATION_LIMIT;
+  }
+
+  return Math.min(Math.max(Math.trunc(limit as number), 1), MAX_NOTIFICATION_LIMIT);
+}
+
+function getSupabaseErrorLogDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return {};
+  }
+
+  const record = error as {
+    code?: unknown;
+    details?: unknown;
+    hint?: unknown;
+    message?: unknown;
+  };
+
+  return {
+    code: typeof record.code === "string" ? record.code : undefined,
+    details: typeof record.details === "string" ? record.details : undefined,
+    hint: typeof record.hint === "string" ? record.hint : undefined,
+    message: typeof record.message === "string" ? record.message : undefined,
+  };
+}
 
 function createMockNotificationResult(
   event: NotificationEvent,
@@ -153,6 +191,100 @@ function getLifecycleNotificationMetadata(
     requestCode: metadata.requestCode,
     requestId: metadata.requestId ?? null,
   };
+}
+
+export async function getNotificationsForUser(
+  userId: string,
+  supabase: SupabaseClient<Database>,
+  options: NotificationListOptions = {},
+): Promise<NotificationRecord[]> {
+  const normalizedUserId = userId.trim();
+
+  if (!normalizedUserId) {
+    return [];
+  }
+
+  let query = supabase
+    .from("notifications")
+    .select(
+      "id, user_id, recipient_user_id, actor_user_id, provider_id, request_id, entity_id, entity_type, type, event, title, body, message, metadata, is_read, created_at, updated_at",
+    )
+    .eq("recipient_user_id", normalizedUserId)
+    .order("created_at", { ascending: false })
+    .limit(normalizeNotificationLimit(options.limit));
+
+  if (options.unreadOnly) {
+    query = query.eq("is_read", false);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    logWarn("Notification records read failed.", {
+      recipientUserId: normalizedUserId,
+      supabaseError: getSupabaseErrorLogDetails(error),
+    });
+    return [];
+  }
+
+  return (data ?? []) as NotificationRecord[];
+}
+
+export async function markNotificationAsRead(
+  notificationId: string,
+  userId: string,
+  supabase: SupabaseClient<Database>,
+) {
+  const normalizedNotificationId = notificationId.trim();
+  const normalizedUserId = userId.trim();
+
+  if (!normalizedNotificationId || !normalizedUserId) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ is_read: true })
+    .eq("id", normalizedNotificationId)
+    .eq("recipient_user_id", normalizedUserId);
+
+  if (error) {
+    logWarn("Notification mark-as-read failed.", {
+      notificationId: normalizedNotificationId,
+      recipientUserId: normalizedUserId,
+      supabaseError: getSupabaseErrorLogDetails(error),
+    });
+    return false;
+  }
+
+  return true;
+}
+
+export async function markAllNotificationsAsRead(
+  userId: string,
+  supabase: SupabaseClient<Database>,
+) {
+  const normalizedUserId = userId.trim();
+
+  if (!normalizedUserId) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ is_read: true })
+    .eq("recipient_user_id", normalizedUserId)
+    .eq("is_read", false);
+
+  if (error) {
+    logWarn("Notification mark-all-as-read failed.", {
+      recipientUserId: normalizedUserId,
+      supabaseError: getSupabaseErrorLogDetails(error),
+    });
+    return false;
+  }
+
+  return true;
 }
 
 async function createNotificationRecordIfTableExists({

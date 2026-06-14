@@ -484,12 +484,16 @@ function formatAveragePriceRange(
   return "Belirtilmedi";
 }
 
-function getProfileName(relation: MaybeProfileRelation, userId: string) {
+function getProfileName(relation: MaybeProfileRelation, userId: string | null) {
   const record = Array.isArray(relation) ? relation[0] : relation;
   const profileName = record?.full_name?.trim();
 
   if (profileName) {
     return profileName;
+  }
+
+  if (!userId) {
+    return "Demo musteri";
   }
 
   return `MÃ¼ÅŸteri ${userId.slice(0, 8).toLocaleUpperCase("tr")}`;
@@ -527,7 +531,7 @@ function getRequestContactFromDescription(description: string | null) {
 
 function getRequestCustomerName(
   relation: MaybeProfileRelation,
-  userId: string,
+  userId: string | null,
   description: string | null,
 ) {
   const record = Array.isArray(relation) ? relation[0] : relation;

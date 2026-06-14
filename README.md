@@ -42,6 +42,34 @@ Start the development server:
 npm run dev
 ```
 
+## Yerel Geliştirme Kurulumu
+
+Supabase ile sıfırdan yerel geliştirme için önerilen akış:
+
+```bash
+supabase start
+supabase db reset
+```
+
+Ardından uygulama üzerinden `ADMIN_SEED_EMAIL` ile eşleşen yerel admin kullanıcısını
+oluşturun. Varsayılan geliştirme email'i `admin@fuwu.test` değeridir. Kullanıcı
+Supabase Auth içinde oluştuktan sonra admin rolünü idempotent şekilde vermek için:
+
+```bash
+node scripts/promote-admin.mjs admin@fuwu.test
+```
+
+Son olarak geliştirme sunucusunu başlatın:
+
+```bash
+npm run dev
+```
+
+Seed dosyası local geliştirme için `admin@fuwu.test` email'ini otomatik admin
+rolüne yükselten bir profile trigger'ı da kurar. Production ortamında sabit email
+kontrolü kullanılmamalı; bunun yerine service-role ile çalışan, environment
+değişkenli ve kısıtlı bir allowlist veya manuel operasyon akışı tercih edilmelidir.
+
 Build for production:
 
 ```bash
@@ -66,6 +94,7 @@ npm run lint
 - `npm run build` - Build the app for production.
 - `npm run start` - Start the built production app.
 - `npm run lint` - Run ESLint.
+- `npm run maintenance:cleanup-audit-logs` - Delete non-security audit logs older than 90 days.
 
 ## Environment Variables
 

@@ -3,6 +3,48 @@
 
 begin;
 
+-- Local development only: the seed database treats this fixed email as the
+-- default admin account after normal Supabase Auth signup creates auth.users.
+-- Production must not trust a hard-coded email; use an environment-driven
+-- service-role promotion flow instead.
+create or replace function public.assign_seed_admin_role_to_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  seed_admin_email constant text := 'admin@fuwu.test';
+begin
+  if exists (
+    select 1
+    from auth.users
+    where users.id = new.id
+      and users.email is not null
+      and lower(users.email) = lower(seed_admin_email)
+  ) then
+    new.role := 'admin';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_seed_admin_role_before_insert on public.profiles;
+create trigger profiles_seed_admin_role_before_insert
+before insert on public.profiles
+for each row execute function public.assign_seed_admin_role_to_profile();
+
+update public.profiles as profile
+set
+  role = 'admin',
+  updated_at = timezone('utc', now())
+from auth.users as users
+where users.id = profile.id
+  and users.email is not null
+  and lower(users.email) = lower('admin@fuwu.test')
+  and profile.role is distinct from 'admin';
+
 insert into public.service_categories (name, slug, description, is_active)
 values
   ('Tesisat', 'tesisat', 'Su tesisati, kacak, batarya ve gider onarim hizmetleri.', true),
@@ -240,6 +282,19 @@ with provider_seed (
       950.00,
       3000.00,
       4.9
+    ),
+    (
+      '00000000-0000-4000-8000-000000000013'::uuid,
+      'Acil Cilingir Istanbul',
+      'cilingir',
+      'kadikoy',
+      '+90 555 000 00 13',
+      '+90 555 000 00 13',
+      'Kilit degisimi, kapida kalma ve oto cilingir ihtiyaclari icin randevulu veya acil destek.',
+      9,
+      650.00,
+      1750.00,
+      4.8
     )
 )
 insert into public.providers (
@@ -290,6 +345,130 @@ set
   rating = excluded.rating,
   is_active = excluded.is_active,
   is_approved = excluded.is_approved,
+  updated_at = timezone('utc', now());
+
+with service_request_seed (
+  id,
+  category_slug,
+  district_slug,
+  address,
+  urgency,
+  urgency_type,
+  budget,
+  budget_tag,
+  status,
+  assigned_provider_id,
+  accepted_provider_id,
+  accepted_at,
+  description,
+  created_at
+) as (
+  values
+    (
+      '10000000-0000-4000-8000-000000000001'::uuid,
+      'tesisat',
+      'kadikoy',
+      'Kadikoy demo adresi',
+      'normal',
+      'standard',
+      '1000-2000 TL',
+      'standart',
+      'pending',
+      null::uuid,
+      null::uuid,
+      null::timestamptz,
+      'Demo pending talep: mutfak lavabosunda su kacagi.',
+      timezone('utc', now()) - interval '2 hours'
+    ),
+    (
+      '10000000-0000-4000-8000-000000000002'::uuid,
+      'cilingir',
+      'kadikoy',
+      'Moda demo sokak',
+      'urgent',
+      'standard',
+      '750-1500 TL',
+      'acil-hizmet',
+      'assigned',
+      '00000000-0000-4000-8000-000000000013'::uuid,
+      null::uuid,
+      null::timestamptz,
+      'Demo assigned talep: kapida kalma ve kilit degisimi.',
+      timezone('utc', now()) - interval '1 hour'
+    ),
+    (
+      '10000000-0000-4000-8000-000000000003'::uuid,
+      'elektrik-hizmeti',
+      'sisli',
+      'Sisli demo apartmani',
+      'normal',
+      'standard',
+      '700-1600 TL',
+      'standart',
+      'completed',
+      '00000000-0000-4000-8000-000000000002'::uuid,
+      '00000000-0000-4000-8000-000000000002'::uuid,
+      timezone('utc', now()) - interval '20 minutes',
+      'Demo completed talep: priz ve sigorta kontrolu tamamlandi.',
+      timezone('utc', now()) - interval '1 day'
+    )
+)
+insert into public.service_requests (
+  id,
+  user_id,
+  category_id,
+  district_id,
+  address,
+  urgency,
+  urgency_type,
+  budget,
+  budget_tag,
+  status,
+  assigned_provider_id,
+  accepted_provider_id,
+  accepted_at,
+  description,
+  created_at,
+  updated_at
+)
+select
+  service_request_seed.id,
+  null,
+  service_categories.id,
+  districts.id,
+  service_request_seed.address,
+  service_request_seed.urgency,
+  service_request_seed.urgency_type,
+  service_request_seed.budget,
+  service_request_seed.budget_tag,
+  service_request_seed.status,
+  service_request_seed.assigned_provider_id,
+  service_request_seed.accepted_provider_id,
+  service_request_seed.accepted_at,
+  service_request_seed.description,
+  service_request_seed.created_at,
+  timezone('utc', now())
+from service_request_seed
+join public.service_categories
+  on service_categories.slug = service_request_seed.category_slug
+join public.districts
+  on districts.slug = service_request_seed.district_slug
+on conflict (id) do update
+set
+  user_id = excluded.user_id,
+  category_id = excluded.category_id,
+  district_id = excluded.district_id,
+  address = excluded.address,
+  urgency = excluded.urgency,
+  urgency_type = excluded.urgency_type,
+  budget = excluded.budget,
+  budget_tag = excluded.budget_tag,
+  status = excluded.status,
+  assigned_provider_id = excluded.assigned_provider_id,
+  accepted_provider_id = excluded.accepted_provider_id,
+  accepted_at = excluded.accepted_at,
+  description = excluded.description,
+  created_at = excluded.created_at,
   updated_at = timezone('utc', now());
 
 commit;

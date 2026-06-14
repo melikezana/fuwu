@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, navigationLinks } from "@/lib/constants/navigation";
@@ -282,6 +283,7 @@ export function Navbar() {
             {!isAuthLoading && (
               userProfile ? (
                 <div className="flex items-center gap-2">
+                  <NotificationBell userId={userProfile.id} />
                   <Button
                     className="gap-2 px-3.5"
                     href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account}
@@ -325,6 +327,9 @@ export function Navbar() {
 
           <div className="flex shrink-0 items-center gap-2 xl:hidden">
             <LanguageSwitcher align="right" />
+            {!isAuthLoading && userProfile ? (
+              <NotificationBell panelAlign="right" userId={userProfile.id} />
+            ) : null}
             <button
               aria-controls="mobile-navigation-menu"
               aria-expanded={isMenuOpen}

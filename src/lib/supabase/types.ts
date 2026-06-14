@@ -282,7 +282,7 @@ export type Database = {
       service_requests: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
           category_id: string;
           district_id: string;
           address: string;
@@ -332,7 +332,7 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          user_id?: string | null;
           category_id: string;
           district_id: string;
           address: string;
@@ -382,7 +382,7 @@ export type Database = {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
           category_id?: string;
           district_id?: string;
           address?: string;
@@ -602,6 +602,102 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          recipient_user_id: string;
+          actor_user_id: string | null;
+          provider_id: string | null;
+          request_id: string | null;
+          entity_id: string | null;
+          entity_type: "service_request" | "provider_application" | "provider";
+          type: string;
+          event: string;
+          title: string;
+          body: string;
+          message: string;
+          metadata: Json;
+          is_read: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          recipient_user_id: string;
+          actor_user_id?: string | null;
+          provider_id?: string | null;
+          request_id?: string | null;
+          entity_id?: string | null;
+          entity_type?: "service_request" | "provider_application" | "provider";
+          type: string;
+          event: string;
+          title: string;
+          body: string;
+          message: string;
+          metadata?: Json;
+          is_read?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          recipient_user_id?: string;
+          actor_user_id?: string | null;
+          provider_id?: string | null;
+          request_id?: string | null;
+          entity_id?: string | null;
+          entity_type?: "service_request" | "provider_application" | "provider";
+          type?: string;
+          event?: string;
+          title?: string;
+          body?: string;
+          message?: string;
+          metadata?: Json;
+          is_read?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_recipient_user_id_fkey";
+            columns: ["recipient_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_actor_user_id_fkey";
+            columns: ["actor_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_provider_id_fkey";
+            columns: ["provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: false;
+            referencedRelation: "service_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       rate_limits: {
         Row: {
           id: string;
@@ -644,6 +740,10 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       bind_provider_applications_to_current_user: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      cleanup_old_audit_logs: {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };

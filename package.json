@@ -7,6 +7,7 @@
     "build": "next build",
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
+    "maintenance:cleanup-audit-logs": "node scripts/cleanup-audit-logs.mjs",
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
