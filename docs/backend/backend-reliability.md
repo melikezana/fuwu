@@ -18,11 +18,11 @@ Provider applications use:
 - `approved`
 - `rejected`
 
-TypeScript constants live in [src/lib/constants/statuses.ts](../../src/lib/constants/statuses.ts). Existing legacy request statuses are mapped in code and in [supabase/schema/integrity-constraints.sql](../../supabase/schema/integrity-constraints.sql).
+TypeScript constants live in [src/lib/constants/statuses.ts](../../src/lib/constants/statuses.ts). Existing legacy request statuses are mapped in code and in the canonical backend hardening migration: [20260605002200_backend_hardening_status_audit_rls.sql](../../supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql).
 
 ## Audit Log Design
 
-[supabase/schema/audit-logs.sql](../../supabase/schema/audit-logs.sql) creates `public.audit_logs` with:
+[20260605002200_backend_hardening_status_audit_rls.sql](../../supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql) creates `public.audit_logs` with:
 
 - `id`
 - `actor_user_id`
@@ -36,7 +36,7 @@ Admin server actions append audit records for provider application approval/reje
 
 ## Updated At Triggers
 
-[supabase/schema/updated-at-triggers.sql](../../supabase/schema/updated-at-triggers.sql) defines `public.set_updated_at()` and installs triggers for:
+[20260605000000_initial_schema.sql](../../supabase/migrations/20260605000000_initial_schema.sql) defines `public.set_updated_at()` and installs triggers for:
 
 - `profiles`
 - `providers`
@@ -65,4 +65,4 @@ No service role key is used in frontend or server action code; admin actions rel
 
 ## Schema Integrity
 
-The schema now documents required provider/application/request fields, rating range checks, status checks, and timestamp defaults. For existing databases, [supabase/schema/integrity-constraints.sql](../../supabase/schema/integrity-constraints.sql) adds safe `not valid` checks and maps legacy request statuses without deleting rows.
+The migration chain now documents required provider/application/request fields, rating range checks, status checks, and timestamp defaults. Existing database hardening lives in [20260605002200_backend_hardening_status_audit_rls.sql](../../supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql).

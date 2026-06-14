@@ -22,7 +22,7 @@ This document summarizes the exact flow and backend stabilization mapped out acr
 
 ## RLS Notes
 Row Level Security natively prevents arbitrary API mutations:
-- `supabase/schema/backend-final-hardening.sql` locks `providers` reads to approved statuses.
+- `supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql` locks `providers` reads to approved statuses.
 - `provider_applications` and `service_requests` are locked down to authenticated interactions where necessary.
 
 ## Health Diagnostics

@@ -66,7 +66,7 @@ Last updated: 2026-05-30
 
 ## Required Supabase Settings
 
-- Apply `supabase/schema/schema.sql` or the latest migrations through `supabase/migrations/0007_core_flow_reliability.sql`.
+- Apply the canonical migration chain in `supabase/migrations`, starting with `20260605000000_initial_schema.sql`.
 - Required tables:
   - `profiles`
   - `providers`

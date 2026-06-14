@@ -79,7 +79,7 @@ const checks = [
     ],
   },
   {
-    file: "supabase/migrations/0020_backend_hardening_status_audit_rls.sql",
+    file: "supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql",
     name: "RLS, audit logs, status constraints, and duplicate indexes",
     patterns: [
       "enable row level security",

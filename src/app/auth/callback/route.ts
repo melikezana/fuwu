@@ -1,8 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { appRoutes } from "@/lib/constants/navigation";
 import { logWarn } from "@/lib/logger";
 import { createSafeRedirectUrl } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 
 function getSafeRedirectUrl(request: NextRequest) {
@@ -11,6 +13,27 @@ function getSafeRedirectUrl(request: NextRequest) {
     request.nextUrl.origin,
     appRoutes.providers,
   );
+}
+
+async function bindLegacyProviderApplications(
+  supabase: SupabaseClient<Database>,
+) {
+  try {
+    const { error } = await supabase.rpc(
+      "bind_provider_applications_to_current_user",
+    );
+
+    if (error) {
+      logWarn("Auth callback provider application binding failed.", {
+        code: error.code,
+        message: error.message,
+      });
+    }
+  } catch (error) {
+    logWarn("Auth callback provider application binding threw.", {
+      error,
+    });
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -43,6 +66,7 @@ export async function GET(request: NextRequest) {
             });
           } else if (user) {
             await ensureProfileForUser(supabase, user);
+            await bindLegacyProviderApplications(supabase);
           }
         }
       } catch (error) {

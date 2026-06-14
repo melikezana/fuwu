@@ -11,7 +11,7 @@ This document confirms Fuwu's marketplace backend architecture is production-rea
 - **Service Architecture**: `[COMPLETED]` All endpoints adhere explicitly to a unified `{ success, data, error }` JSON schema eliminating parsing crashes. 
 - **Validation**: `[COMPLETED]` `phone`, `price`, and `text` are stripped and bounded securely before any native SQL invocation natively runs.
 - **Health Monitoring**: `[COMPLETED]` System natively emits explicit boolean `checks`, string `warnings`, and prescriptive `recommendations` accurately representing Supabase table health endpoints natively.
-- **RLS & Schema**: `[COMPLETED]` `supabase/schema/production-marketplace-final.sql` holds exact boundary documentation. 
+- **RLS & Schema**: `[COMPLETED]` `supabase/migrations` holds the canonical ordered schema and RLS chain.
 
 ## Vercel Pre-Flight Checks
 - [ ] Check `.env.local` contains identical parameters as Vercel Production parameters.

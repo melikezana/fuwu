@@ -24,7 +24,7 @@
 - All requests leverage secure server-context hooks `createSupabaseServerClient()`.
 
 ## RLS Requirements & Schemas
-Stored natively in `supabase/schema/backend-core-rls.sql`:
+Stored natively in the canonical migration chain:
 - **Public**: Active Providers, Categories, Districts.
 - **Authenticated**: Insert rights to Requests and Applications.
 - **Admin**: `ALL` override based on cross-referencing `public.profiles`.

@@ -32,8 +32,8 @@ This checklist captures the production RLS expectations for Fuwu Supabase tables
 - No public writes to provider approval fields such as `is_active`, `is_approved`, or application `status`.
 - No frontend service role key usage. Browser code must use only the anon key and RLS.
 
-## Policy Files
+## Policy Source
 
-- Base policies: [supabase/policies/rls-policies.sql](../../supabase/policies/rls-policies.sql)
-- Public lookup read policies: [supabase/policies/public-read-policies.sql](../../supabase/policies/public-read-policies.sql)
-- Audit log table and admin-only policies: [supabase/schema/audit-logs.sql](../../supabase/schema/audit-logs.sql)
+- Base schema and triggers: [20260605000000_initial_schema.sql](../../supabase/migrations/20260605000000_initial_schema.sql)
+- Core RLS, audit logs, status constraints, and admin policies: [20260605002200_backend_hardening_status_audit_rls.sql](../../supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql)
+- Public lookup RLS and notifications: [20260605002600_consolidate_lookup_rls_notifications.sql](../../supabase/migrations/20260605002600_consolidate_lookup_rls_notifications.sql)

@@ -21,6 +21,5 @@ Fuwu keeps route files in `src/app` and moves reusable code into domain folders.
 - `docs/backend` contains Supabase and backend operation notes.
 - `docs/architecture` contains architecture plans and structure notes.
 - `docs/analytics` contains analytics setup.
-- `supabase/schema` contains schema SQL.
-- `supabase/policies` contains RLS and public read policy SQL.
+- `supabase/migrations` contains the canonical ordered Supabase schema and RLS migration chain.
 - `supabase/seed` contains database seed SQL.

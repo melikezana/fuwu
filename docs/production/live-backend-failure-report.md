@@ -25,12 +25,12 @@
 - **Fix**: Dropped `NOT NULL` from `user_id`, corrected ENUM mappings (`urgent`, `acil-hizmet`, `cash`), removed the non-existent column, and allowed public RLS.
 
 ## 2. Fixed Files
-- `supabase/migrations/0003_live_backend_repair.sql` (New Migration)
+- `supabase/migrations/20260605000500_live_backend_repair.sql` (New Migration)
 - `src/services/providers/applications.ts` (Removed Fake Fallback)
 - `src/services/requests/emergency.ts` (Fixed Schema & Enum Violations)
 
 ## 3. Supabase SQL Provided
-Run `supabase/migrations/0003_live_backend_repair.sql` on the live database using the Supabase Dashboard SQL Editor or Supabase CLI. This script:
+Run `supabase/migrations/20260605000500_live_backend_repair.sql` on the live database using the Supabase Dashboard SQL Editor or Supabase CLI. This script:
 - Overwrites strict RLS on `provider_applications` and `service_requests`.
 - Drops the `NOT NULL` constraint on `service_requests.user_id`.
 - Relaxes the `CHECK` constraint on `budget_tag` and `urgency`.

@@ -76,7 +76,7 @@ Users can update their own profile details, but RLS must prevent self-promotion 
 
 ## RLS Alignment
 
-Current code assumes the RLS policy files enforce:
+Current code assumes the canonical Supabase migration chain enforces:
 
 - Public users can read only active, approved providers plus public lookup tables.
 - Authenticated users can create their own service requests.
@@ -88,6 +88,6 @@ Current code assumes the RLS policy files enforce:
 
 Policy references:
 
-- `supabase/policies/rls-policies.sql`
-- `supabase/policies/public-read-policies.sql`
+- `supabase/migrations/20260605002200_backend_hardening_status_audit_rls.sql`
+- `supabase/migrations/20260605002600_consolidate_lookup_rls_notifications.sql`
 - `docs/security/rls-checklist.md`

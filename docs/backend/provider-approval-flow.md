@@ -112,7 +112,7 @@ alter table public.provider_applications
   check (status in ('pending', 'approved', 'rejected'));
 ```
 
-Yeni kurulumlarda `supabase/schema/schema.sql` bu alanları doğrudan oluşturur.
+Yeni kurulumlarda `supabase/migrations/20260605000000_initial_schema.sql` ve takip eden migration zinciri bu alanları doğrudan oluşturur.
 
 ## Admin Boş Durum
 

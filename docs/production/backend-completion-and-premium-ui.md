@@ -38,7 +38,7 @@ All core flows are strictly integrated into Supabase without mocked abstractions
 - Admins can freely approve provider applications, natively porting approved payloads precisely into the `providers` table, making them instantly queryable on the public feed.
 
 ### Supabase / RLS Compatibility
-- Defined strictly in `supabase/schema/rls-backend-repair.sql`.
+- Defined strictly in the canonical `supabase/migrations` chain.
 - **Public**: Can read only active, approved providers.
 - **Authenticated**: Can insert provider applications and service requests.
 - **Admin**: Bypasses restrictions to perform global reads, modifications, and approvals.

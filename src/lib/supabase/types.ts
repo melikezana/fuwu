@@ -207,6 +207,7 @@ export type Database = {
         Row: {
           id: string;
           user_id: string | null;
+          email: string | null;
           full_name: string;
           phone: string;
           category_id: string;
@@ -223,6 +224,7 @@ export type Database = {
         Insert: {
           id?: string;
           user_id?: string | null;
+          email?: string | null;
           full_name: string;
           phone: string;
           category_id: string;
@@ -239,6 +241,7 @@ export type Database = {
         Update: {
           id?: string;
           user_id?: string | null;
+          email?: string | null;
           full_name?: string;
           phone?: string;
           category_id?: string;
@@ -641,9 +644,7 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       bind_provider_applications_to_current_user: {
-        Args: {
-          application_ids: string[];
-        };
+        Args: Record<PropertyKey, never>;
         Returns: number;
       };
     };

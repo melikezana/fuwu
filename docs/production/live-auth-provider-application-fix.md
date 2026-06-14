@@ -37,7 +37,7 @@ To ensure Google OAuth works in production on Supabase:
 5. If it fails, the frontend now properly catches the misconfiguration error and returns a friendly Turkish message: "Google girişi şu anda açılamıyor. Lütfen tekrar dene."
 
 ## 3. RLS Policy Checklist
-If public inserts are still failing despite payload corrections, ensure the live database uses the RLS policies created in the previous task (`0003_live_backend_repair.sql`):
+If public inserts are still failing despite payload corrections, ensure the live database uses the RLS policies from the canonical migration chain, including `20260605000500_live_backend_repair.sql`:
 - `provider_applications` must have a `FOR INSERT WITH CHECK (true)` policy.
 - `service_requests` must have a `FOR INSERT WITH CHECK (true)` policy.
 - `service_requests.user_id` must have the `NOT NULL` constraint dropped (`ALTER TABLE public.service_requests ALTER COLUMN user_id DROP NOT NULL;`).

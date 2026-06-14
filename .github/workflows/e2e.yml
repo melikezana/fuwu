@@ -7,6 +7,34 @@ on:
       - main
 
 jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: supabase/setup-cli@v1
+
+      - run: npm ci
+
+      - run: supabase start
+
+      - name: Export local Supabase env
+        shell: bash
+        run: |
+          supabase status -o env > supabase.env
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
+          echo "SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
+
+      - run: supabase db reset
+
+      - run: npm run check:backend:db
+
   playwright:
     runs-on: ubuntu-latest
     env:

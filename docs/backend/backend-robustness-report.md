@@ -18,7 +18,7 @@ Data mutation operations actively sanitize variables to ensure proper SQL ingest
 - **`text.ts`**: Strips invisible ASCII characters and sanitizes HTML blocks aggressively, ensuring no DOM vulnerabilities escape text inputs.
 
 ## 4. Production Hardening RLS
-A mirrored baseline for RLS schemas has been provided inside `supabase/schema/backend-production-hardening.sql`. These rules strictly delineate public unauthenticated reads (`providers`, `categories`, `districts`) from protected mutations.
+The canonical RLS baseline lives in `supabase/migrations`. These rules strictly delineate public unauthenticated reads (`providers`, `categories`, `districts`) from protected mutations.
 
 ## 5. Manual QA Checklist
 Before marketing launch, verify:

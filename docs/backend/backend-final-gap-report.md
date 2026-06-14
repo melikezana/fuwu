@@ -16,5 +16,5 @@ To preserve stability, ensure these exact parameters are maintained on your dash
 
 ## Test Deploy Checklist
 - [x] Vercel Envs configured accurately (No Service Keys pushed to frontend bundles).
-- [x] RLS verified using `supabase/schema/backend-final-rls-policies.sql`.
+- [x] RLS verified using the canonical migrations in `supabase/migrations`.
 - [x] Backend Response Types strictly emit `{ success, data, error }`.
