@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { BriefcaseBusiness, CalendarDays, CircleDollarSign, MapPin, UserRound } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
-import { appRoutes } from "@/lib/constants/navigation";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
   PROVIDER_APPLICATION_STATUSES,
@@ -174,7 +174,7 @@ export default async function AccountApplicationsPage() {
   const accountData = await getAccountTrackingData();
 
   if (!accountData.userId) {
-    redirect(`${appRoutes.login}?next=${encodeURIComponent(appRoutes.accountApplications)}`);
+    redirect(buildLoginRedirectUrl(appRoutes.accountApplications));
   }
 
   const latestApplication = accountData.applications[0] ?? null;

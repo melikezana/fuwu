@@ -1,32 +1,38 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { redirect } from "next/navigation";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
   SERVICE_REQUEST_STATUSES,
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
+import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Hesabım | Fuwu",
+  description: "Fuwu profilini, hızlı işlemlerini ve son taleplerini takip et.",
+};
 
 type UserProfile = {
-  id: string;
-  email?: string;
-  full_name?: string;
   avatar_url?: string;
   created_at?: string;
+  email?: string;
+  full_name?: string;
+  id: string;
 };
 
 type ServiceRequest = {
-  id: string;
-  status: string;
-  created_at: string;
+  created_at: string | null;
   description: string | null;
-  urgency_type: string | null;
-  service_categories: { name: string } | null;
   districts: { name: string } | null;
+  id: string;
+  service_categories: { name: string } | null;
+  status: string;
+  urgency_type: string | null;
 };
 
 const STATUS_CLASS_NAMES: Record<string, string> = {
@@ -74,165 +80,95 @@ function getAccountStatusView(status: string) {
       };
 }
 
-function getAuthMetadataName(metadata: Record<string, unknown> | undefined) {
-  const fullName = metadata?.full_name;
-  const name = metadata?.name;
+function getMetadataString(metadata: Record<string, unknown> | undefined, key: string) {
+  const value = metadata?.[key];
 
-  return typeof fullName === "string" && fullName.trim()
-    ? fullName.trim()
-    : typeof name === "string" && name.trim()
-      ? name.trim()
-      : undefined;
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-export default function AccountPage() {
-  const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [signingOut, setSigningOut] = useState(false);
+function getAuthMetadataName(metadata: Record<string, unknown> | undefined) {
+  return getMetadataString(metadata, "full_name") ?? getMetadataString(metadata, "name");
+}
 
-  useEffect(() => {
-    const supabase = createClient();
-    let isMounted = true;
+async function getUserRequests(
+  supabase: NonNullable<ServerAuthContext["supabase"]>,
+  userId: string,
+): Promise<ServiceRequest[]> {
+  const { data, error } = await supabase
+    .from("service_requests")
+    .select("id, status, created_at, description, urgency_type, service_categories(name), districts(name)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
 
-    const loadAccount = async () => {
-      if (!isMounted) {
-        return;
-      }
-
-      setLoading(true);
-
-      if (!supabase) {
-        setProfile(null);
-        setRequests([]);
-        router.push("/login?next=/account");
-        return;
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        if (isMounted) {
-          setProfile(null);
-          setRequests([]);
-          setLoading(false);
-        }
-        router.push("/login?next=/account");
-        return;
-      }
-
-      const fallbackFullName = getAuthMetadataName(user.user_metadata);
-      const { data: currentProfile } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!isMounted) {
-        return;
-      }
-
-      setProfile({
-        id: user.id,
-        email: user.email ?? undefined,
-        full_name: currentProfile?.id === user.id
-          ? currentProfile.full_name ?? fallbackFullName
-          : fallbackFullName,
-        avatar_url: user.user_metadata?.avatar_url ?? undefined,
-        created_at: user.created_at,
-      });
-
-      try {
-        const { data } = await supabase
-          .from("service_requests")
-          .select("id, status, created_at, description, urgency_type, service_categories(name), districts(name)")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(10);
-        if (isMounted) {
-          setRequests((data as unknown as ServiceRequest[]) ?? []);
-        }
-      } catch {
-        if (isMounted) {
-          setRequests([]);
-        }
-      }
-
-      if (isMounted) {
-        setLoading(false);
-      }
-    };
-
-    void loadAccount();
-    const {
-      data: { subscription },
-    } = supabase?.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        setProfile(null);
-        setRequests([]);
-        router.push("/login?next=/account");
-        return;
-      }
-
-      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-        void loadAccount();
-      }
-    }) ?? { data: { subscription: null } };
-
-    return () => {
-      isMounted = false;
-      subscription?.unsubscribe();
-    };
-  }, [router]);
-
-  const handleSignOut = async () => {
-    setSigningOut(true);
-    const supabase = createClient();
-    setProfile(null);
-    setRequests([]);
-    if (supabase) await supabase.auth.signOut();
-    router.replace("/");
-    router.refresh();
-  };
-
-  const initials = (name?: string, email?: string) => {
-    if (name) return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-    return email?.[0]?.toUpperCase() ?? "?";
-  };
-
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
-
-  const getCategoryName = (req: ServiceRequest) =>
-    (req.service_categories as { name?: string } | null)?.name ?? "Hizmet Talebi";
-
-  const getDistrictName = (req: ServiceRequest) =>
-    (req.districts as { name?: string } | null)?.name ?? "";
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="size-8 animate-spin rounded-full border-2 border-[var(--brand-orange)] border-t-transparent" />
-      </div>
-    );
+  if (error || !data) {
+    return [];
   }
 
-  if (!profile) return null;
+  return data as unknown as ServiceRequest[];
+}
+
+function initials(name?: string, email?: string) {
+  if (name) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  return email?.[0]?.toUpperCase() ?? "?";
+}
+
+function formatDate(iso?: string | null) {
+  if (!iso) {
+    return "";
+  }
+
+  return new Date(iso).toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function getCategoryName(req: ServiceRequest) {
+  return (req.service_categories as { name?: string } | null)?.name ?? "Hizmet Talebi";
+}
+
+function getDistrictName(req: ServiceRequest) {
+  return (req.districts as { name?: string } | null)?.name ?? "";
+}
+
+export default async function AccountPage() {
+  const authContext = await getServerAuthContext();
+
+  if (!authContext.user || !authContext.supabase) {
+    redirect(buildLoginRedirectUrl(appRoutes.account));
+  }
+
+  const fallbackFullName = getAuthMetadataName(authContext.user.user_metadata);
+  const profile: UserProfile = {
+    id: authContext.user.id,
+    email: authContext.user.email ?? undefined,
+    full_name: authContext.profile?.full_name ?? fallbackFullName,
+    avatar_url: getMetadataString(authContext.user.user_metadata, "avatar_url"),
+    created_at: authContext.user.created_at,
+  };
+  const requests = await getUserRequests(authContext.supabase, authContext.user.id);
 
   return (
     <main className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-xl space-y-6">
-
-        {/* Profil kartı */}
         <section className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)]">
           {profile.avatar_url ? (
             <Image
-              src={profile.avatar_url}
               alt={profile.full_name ? `${profile.full_name} profil fotoğrafı` : "Profil fotoğrafı"}
-              width={56}
-              height={56}
               className="size-14 flex-shrink-0 rounded-full object-cover ring-2 ring-[var(--border)]"
+              height={56}
+              src={profile.avatar_url}
+              width={56}
             />
           ) : (
             <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-lg font-black text-white">
@@ -240,34 +176,56 @@ export default function AccountPage() {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            {profile.full_name && (
+            {profile.full_name ? (
               <p className="truncate font-black text-[var(--brand-navy)]">{profile.full_name}</p>
-            )}
+            ) : null}
             <p className="truncate text-sm font-semibold text-[var(--muted)]">{profile.email}</p>
-            {profile.created_at && (
-              <p className="mt-0.5 text-xs text-[var(--muted)]">Üye: {formatDate(profile.created_at)}</p>
-            )}
+            {profile.created_at ? (
+              <p className="mt-0.5 text-xs text-[var(--muted)]">
+                Üye: {formatDate(profile.created_at)}
+              </p>
+            ) : null}
           </div>
-          <button onClick={() => void handleSignOut()} disabled={signingOut}
-            className="flex-shrink-0 rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] disabled:opacity-50">
-            {signingOut ? "Çıkılıyor…" : "Çıkış Yap"}
-          </button>
+          <form action="/api/auth/logout" method="POST">
+            <button
+              className="flex-shrink-0 rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
+              type="submit"
+            >
+              Çıkış Yap
+            </button>
+          </form>
         </section>
 
-        {/* Hızlı işlemler */}
         <section className="grid grid-cols-2 gap-3">
           {[
-            { href: "/request", label: "Yeni Talep", sub: "Usta talep et",
-              icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /> },
-            { href: "/providers", label: "Usta Bul", sub: "Profilleri gör",
-              icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> },
-            { href: "/account/applications", label: "Başvurularım", sub: "Durumları takip et",
-              icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.6a1 1 0 01.7.3l4.4 4.4a1 1 0 01.3.7V19a2 2 0 01-2 2z" /> },
+            {
+              href: appRoutes.request,
+              label: "Yeni Talep",
+              sub: "Usta talep et",
+              icon: <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />,
+            },
+            {
+              href: appRoutes.providers,
+              label: "Usta Bul",
+              sub: "Profilleri gör",
+              icon: <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />,
+            },
+            {
+              href: appRoutes.accountApplications,
+              label: "Başvurularım",
+              sub: "Durumları takip et",
+              icon: <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.6a1 1 0 01.7.3l4.4 4.4a1 1 0 01.3.7V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />,
+            },
           ].map((item) => (
-            <Link key={item.href} href={item.href}
-              className="group flex items-center gap-3 rounded-2xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]">
+            <Link
+              className="group flex items-center gap-3 rounded-2xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
+              href={item.href}
+              key={item.href}
+            >
               <span className="flex size-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white transition group-hover:border-[rgba(255,138,0,0.4)] group-hover:text-[var(--brand-orange)]">
-                <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{item.icon}</svg>
+                <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {item.icon}
+                </svg>
               </span>
               <div>
                 <p className="text-sm font-black text-[var(--brand-navy)]">{item.label}</p>
@@ -277,44 +235,54 @@ export default function AccountPage() {
           ))}
         </section>
 
-        {/* Taleplerim */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-wider text-[var(--muted)]">Taleplerim</h2>
-            <Link href="/request" className="text-xs font-black text-[var(--brand-orange)] hover:underline">+ Yeni</Link>
+            <h2 className="text-xs font-black uppercase tracking-wider text-[var(--muted)]">
+              Taleplerim
+            </h2>
+            <Link className="text-xs font-black text-[var(--brand-orange)] hover:underline" href={appRoutes.request}>
+              + Yeni
+            </Link>
           </div>
 
           {requests.length === 0 ? (
             <div className="space-y-3 rounded-2xl border border-dashed border-[var(--border)] px-6 py-10 text-center">
               <p className="text-sm font-black text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
               <p className="text-xs text-[var(--muted)]">Hizmet ihtiyacını tarif et, uygun ustalarla eşleş.</p>
-              <Link href="/request"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-orange-500">
+              <Link
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-orange-500"
+                href={appRoutes.request}
+              >
                 İlk Talebini Oluştur
               </Link>
             </div>
           ) : (
             <div className="space-y-2">
               {requests.map((req) => {
-                const s = getAccountStatusView(req.status);
+                const statusView = getAccountStatusView(req.status);
                 const isEmergency = req.urgency_type === "emergency";
+
                 return (
-                  <div key={req.id}
-                    className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-[0_2px_8px_rgba(13,20,36,0.04)]">
+                  <div
+                    className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-[0_2px_8px_rgba(13,20,36,0.04)]"
+                    key={req.id}
+                  >
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2">
                         <p className="truncate font-black text-[var(--brand-navy)]">{getCategoryName(req)}</p>
-                        {isEmergency && (
-                          <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-black text-red-600 ring-1 ring-red-200">Acil</span>
-                        )}
+                        {isEmergency ? (
+                          <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-black text-red-600 ring-1 ring-red-200">
+                            Acil
+                          </span>
+                        ) : null}
                       </div>
-                      {getDistrictName(req) && (
+                      {getDistrictName(req) ? (
                         <p className="text-xs text-[var(--muted)]">{getDistrictName(req)}</p>
-                      )}
+                      ) : null}
                       <p className="text-xs text-[var(--muted)]">{formatDate(req.created_at)}</p>
                     </div>
-                    <span className={`flex-shrink-0 inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-black ${s.cls}`}>
-                      {s.label}
+                    <span className={`inline-flex flex-shrink-0 items-center rounded-full border px-2.5 py-1 text-xs font-black ${statusView.cls}`}>
+                      {statusView.label}
                     </span>
                   </div>
                 );
@@ -323,25 +291,30 @@ export default function AccountPage() {
           )}
         </section>
 
-        {/* Yasal linkler */}
         <section className="space-y-1 border-t border-[var(--border)] pt-5">
-          <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">Yasal</p>
+          <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">
+            Yasal
+          </p>
           {[
-            { href: "/kvkk", label: "KVKK Aydınlatma Metni" },
-            { href: "/gizlilik", label: "Gizlilik Politikası" },
-            { href: "/kullanim-sartlari", label: "Kullanım Şartları" },
-            { href: "/cerez-politikasi", label: "Çerez Politikası" },
+            { href: appRoutes.kvkk, label: "KVKK Aydınlatma Metni" },
+            { href: appRoutes.privacy, label: "Gizlilik Politikası" },
+            { href: appRoutes.terms, label: "Kullanım Şartları" },
+            { href: appRoutes.cookies, label: "Çerez Politikası" },
           ].map((item) => (
-            <Link key={item.href} href={item.href}
-              className="group flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[var(--surface-soft)]">
-              <span className="text-sm text-[var(--muted)] transition group-hover:text-[var(--brand-navy)]">{item.label}</span>
+            <Link
+              className="group flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[var(--surface-soft)]"
+              href={item.href}
+              key={item.href}
+            >
+              <span className="text-sm text-[var(--muted)] transition group-hover:text-[var(--brand-navy)]">
+                {item.label}
+              </span>
               <svg className="size-4 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />
               </svg>
             </Link>
           ))}
         </section>
-
       </div>
     </main>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   AlertTriangle,
   ClipboardList,
@@ -40,6 +41,7 @@ import {
   SERVICE_REQUEST_STATUSES,
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -303,6 +305,10 @@ function AuditLogsSection({ logsData }: { logsData: AuditLogsData }) {
 
 export default async function AdminDashboardPage() {
   const adminAccess = await getAdminAccess();
+
+  if (!adminAccess.ok && adminAccess.reason === "missing-session") {
+    redirect(buildLoginRedirectUrl(appRoutes.adminDashboard));
+  }
 
   if (!adminAccess.ok) {
     return <AdminAccessGate access={adminAccess} />;

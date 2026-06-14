@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CalendarDays, CircleDollarSign, MapPin, ReceiptText, UserRound, WalletCards } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
-import { appRoutes } from "@/lib/constants/navigation";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
   SERVICE_REQUEST_STATUSES,
@@ -263,11 +263,11 @@ export default async function AccountRequestsPage({
   const authContext = await getServerAuthContext();
 
   if (!authContext.user) {
-    redirect(`${appRoutes.login}?next=${encodeURIComponent(appRoutes.accountRequests)}`);
+    redirect(buildLoginRedirectUrl(appRoutes.accountRequests));
   }
 
   if (!authContext.supabase) {
-    redirect(`${appRoutes.login}?next=${encodeURIComponent(appRoutes.accountRequests)}`);
+    redirect(buildLoginRedirectUrl(appRoutes.accountRequests));
   }
 
   const created = getSearchParam(params?.created) === "1";

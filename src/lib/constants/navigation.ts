@@ -32,6 +32,12 @@ export const appRoutes = {
   adminDashboard: "/admin",
 } as const;
 
+export function buildLoginRedirectUrl(nextPath: string) {
+  const normalizedNextPath = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
+
+  return `${appRoutes.login}?next=${encodeURIComponent(normalizedNextPath)}`;
+}
+
 export const ctaLabels = {
   findProvider: "Usta Bul",
   login: "Giriş Yakında",

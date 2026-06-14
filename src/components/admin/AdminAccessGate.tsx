@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Home, LockKeyhole, LogIn, ShieldAlert } from "lucide-react";
-import { appRoutes } from "@/lib/constants/navigation";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { authAccessMessages } from "@/services/auth/constants";
 import type { AdminAccessResult } from "@/types/admin";
 
@@ -17,7 +17,7 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
 
   const isMissingSession = access.reason === "missing-session";
   const primaryHref = isMissingSession
-    ? `${appRoutes.login}?next=/admin`
+    ? buildLoginRedirectUrl(appRoutes.adminDashboard)
     : appRoutes.home;
   const PrimaryIcon = isMissingSession ? LogIn : Home;
 

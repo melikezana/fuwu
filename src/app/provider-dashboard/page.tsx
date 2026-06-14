@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { appRoutes } from "@/lib/constants/navigation";
+import { redirect } from "next/navigation";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import {
   formatProviderRating,
@@ -188,6 +189,11 @@ export default async function ProviderDashboardPage() {
     getProviderDashboardAccess(),
     getServerAuthContext(),
   ]);
+
+  if (!providerAccess.ok && providerAccess.reason === "missing-session") {
+    redirect(buildLoginRedirectUrl(appRoutes.providerDashboard));
+  }
+
   const assignedRequests =
     providerAccess.ok && authContext.supabase
       ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)

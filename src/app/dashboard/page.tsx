@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
-import { appRoutes } from "@/lib/constants/navigation";
+import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
   LEGACY_SERVICE_REQUEST_STATUSES,
   SERVICE_REQUEST_STATUS_LABELS,
@@ -190,7 +190,7 @@ function formatDate(dateStr?: string | null) {
 
 export default async function CustomerDashboardPage() {
   const authContext = await getServerAuthContext();
-  if (!authContext.user) redirect(`${appRoutes.login}?next=/dashboard`);
+  if (!authContext.user) redirect(buildLoginRedirectUrl(appRoutes.dashboard));
 
   const user = authContext.user;
   const profile = authContext.profile;
