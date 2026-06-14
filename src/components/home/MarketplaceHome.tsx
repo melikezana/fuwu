@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  ArrowRight,
   CheckCircle2,
   MapPin,
   MessageCircle,
@@ -64,6 +65,60 @@ const mobileTrustSignals: Array<{
 const orderedServices = serviceOrder
   .map((title) => services.find((service) => service.title === title))
   .filter((service): service is Service => Boolean(service));
+
+const serviceHeaderBadges: Array<{
+  icon: LucideIcon;
+  label: string;
+}> = [
+  { icon: ShieldCheck, label: "Onaylı ustalar" },
+  { icon: MessageCircle, label: "Hızlı iletişim" },
+  { icon: MapPin, label: "İstanbul içi hizmet" },
+];
+
+const homeServiceCardDetails: Record<
+  string,
+  {
+    description: string;
+    trustLine: string;
+  }
+> = {
+  plumbing: {
+    description: "Su kaçağı, gider açma ve musluk değişimi için yakın ustaları karşılaştır.",
+    trustLine: "Acil ve planlı işler için uygun profiller",
+  },
+  locksmith: {
+    description: "Kapıda kalma, kilit değişimi ve oto çilingir için hızlıca destek bul.",
+    trustLine: "Hızlı iletişim kurabileceğin ustalar",
+  },
+  electrical: {
+    description: "Priz, aydınlatma, sigorta ve arıza tespiti için güvenilir ustaları gör.",
+    trustLine: "Onaylı elektrik profilleri listelenir",
+  },
+  cleaning: {
+    description: "Ev, ofis ve taşınma sonrası temizlik için uygun ekipleri karşılaştır.",
+    trustLine: "Bölgen için müsait temizlik ekipleri",
+  },
+  "carpet-cleaning": {
+    description: "Halı yıkama, teslim alma ve leke çıkarma hizmetlerini kolayca incele.",
+    trustLine: "İstanbul içi servis seçenekleri",
+  },
+  "climate-appliance-service": {
+    description: "Klima bakımı, montaj ve beyaz eşya arızaları için servisleri karşılaştır.",
+    trustLine: "Teknik servis profilleri tek ekranda",
+  },
+  "furniture-assembly": {
+    description: "Dolap, yatak, masa ve raf montajı için deneyimli ustalara ulaş.",
+    trustLine: "Montaj işlerinde hızlı randevu akışı",
+  },
+  painting: {
+    description: "Boya badana, rötuş ve yüzey hazırlığı için uygun ustaları seç.",
+    trustLine: "Fiyat ve ilçe bilgisiyle karşılaştır",
+  },
+  "moving-help": {
+    description: "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği al.",
+    trustLine: "Yakındaki taşıma desteğini filtrele",
+  },
+};
 
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   return (
@@ -308,29 +363,43 @@ function HeroSection({
 
 function ServiceCard({ service }: { service: Service }) {
   const titleKey = `services.${service.id}.title` as TranslationKey;
-  const descriptionKey = `services.${service.id}.description` as TranslationKey;
+  const details = homeServiceCardDetails[service.id] ?? {
+    description: service.description,
+    trustLine: "Bölgen için uygun ustaları karşılaştır",
+  };
 
   return (
     <Link
       aria-label={`${service.title} kategorisinde usta bul`}
-      className="group relative flex cursor-pointer flex-col rounded-[1.25rem] bg-white p-4 shadow-[0_4px_20px_rgba(13,20,36,0.03)] ring-1 ring-[#F3F4F6] transition-all hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(13,20,36,0.08)] hover:ring-[rgba(255,138,0,0.2)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+      className="group flex h-full min-h-[254px] cursor-pointer flex-col rounded-lg border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_18px_50px_rgba(13,20,36,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(255,138,0,0.38)] hover:shadow-[0_28px_74px_rgba(13,20,36,0.11)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={service.href}
     >
-      <div className="flex items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFF8EF] text-[var(--brand-orange-dark)] transition-transform group-hover:scale-105">
-          <ServiceIcon className="h-6 w-6" name={service.iconName} />
+      <div className="flex items-start justify-between gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)] transition-all duration-300 group-hover:bg-[var(--brand-orange)] group-hover:text-white group-hover:shadow-[0_14px_28px_rgba(255,138,0,0.22)]">
+          <ServiceIcon className="size-6" name={service.iconName} />
         </span>
-        <div className="min-w-0 flex-1">
-          <span className="block truncate text-base font-bold text-[var(--brand-navy)]">
-            <I18nText i18nKey={titleKey} />
-          </span>
-          <span className="mt-0.5 block truncate text-xs font-medium text-[#6B7280]">
-            <I18nText i18nKey={descriptionKey} />
-          </span>
-        </div>
+        <span className="rounded-md border border-[var(--border)] bg-[#FAFAFA] px-2.5 py-1 text-xs font-bold leading-4 text-[#4B5563] transition-colors group-hover:border-[rgba(255,138,0,0.3)] group-hover:bg-[var(--brand-orange-soft)] group-hover:text-[var(--brand-navy)]">
+          {service.category}
+        </span>
       </div>
-      <div className="mt-4 flex w-full items-center justify-center rounded-lg bg-[var(--brand-orange)] py-2 text-sm font-bold text-white shadow-[0_4px_12px_rgba(255,138,0,0.2)] transition-colors group-hover:bg-[var(--brand-orange-dark)] group-hover:shadow-[0_6px_16px_rgba(255,138,0,0.3)]">
-        Usta Bul
+
+      <h3 className="mt-5 text-xl font-bold leading-tight text-[var(--brand-navy)]">
+        <I18nText i18nKey={titleKey} />
+      </h3>
+      <p className="mt-3 min-h-12 text-sm font-medium leading-6 text-[#4B5563]">
+        {details.description}
+      </p>
+
+      <div className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-md bg-[#FAFAFA] px-3 py-2 text-xs font-bold leading-4 text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.06)]">
+        <CheckCircle2 aria-hidden="true" className="size-4 shrink-0 text-[var(--trust-green)]" />
+        <span>{details.trustLine}</span>
+      </div>
+
+      <div className="mt-auto pt-5">
+        <span className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-2.5 text-sm font-bold leading-5 text-white shadow-[0_14px_30px_rgba(255,138,0,0.24)] transition-all duration-200 group-hover:bg-[var(--brand-orange-dark)] group-hover:shadow-[0_18px_40px_rgba(255,138,0,0.3)]">
+          Usta Bul
+          <ArrowRight aria-hidden="true" className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+        </span>
       </div>
     </Link>
   );
@@ -339,16 +408,37 @@ function ServiceCard({ service }: { service: Service }) {
 function ServicesSection() {
   return (
     <section className="bg-[#FAFAFA]" id="services">
-      <Container className="py-12 sm:py-16">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-[var(--brand-navy)] sm:text-3xl">
-            İhtiyacını Seç
-          </h2>
-          <p className="mt-2 text-sm font-medium text-[#6B7280]">
-            Anında uygun ustaları filtrele
-          </p>
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl cursor-default select-none">
+            <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
+              Hizmet kategorileri
+            </p>
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+              İhtiyacını Seç
+            </h2>
+            <p className="mt-4 text-base font-medium leading-7 text-[#4B5563]">
+              Evindeki ihtiyacı seç, uygun ustaları dakikalar içinde karşılaştır.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {serviceHeaderBadges.map((badge) => {
+              const Icon = badge.icon;
+
+              return (
+                <span
+                  className="inline-flex min-h-9 items-center gap-2 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-xs font-bold leading-4 text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.04)]"
+                  key={badge.label}
+                >
+                  <Icon aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange-dark)]" />
+                  {badge.label}
+                </span>
+              );
+            })}
+          </div>
         </div>
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+
+        <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
           {orderedServices.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
