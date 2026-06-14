@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -226,8 +227,13 @@ export default function AccountPage() {
         {/* Profil kartı */}
         <section className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)]">
           {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.full_name ?? "Profil"}
-              className="size-14 flex-shrink-0 rounded-full object-cover ring-2 ring-[var(--border)]" />
+            <Image
+              src={profile.avatar_url}
+              alt={profile.full_name ? `${profile.full_name} profil fotoğrafı` : "Profil fotoğrafı"}
+              width={56}
+              height={56}
+              className="size-14 flex-shrink-0 rounded-full object-cover ring-2 ring-[var(--border)]"
+            />
           ) : (
             <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-lg font-black text-white">
               {initials(profile.full_name, profile.email)}

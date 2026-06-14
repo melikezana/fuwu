@@ -16,6 +16,7 @@ import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import {
   getAdminAccess,
   getAdminServiceRequests,
+  confirmAdminServiceRequestPayment,
   updateAdminServiceRequestStatus,
   type AdminServiceRequest,
   type AdminServiceRequestStatus,
@@ -30,7 +31,11 @@ import {
 } from "@/lib/constants/statuses";
 import { AssignProviderSection } from "./AssignProviderSection";
 import { getBudgetTagLabel } from "@/services/matching/budget";
-import { getPaymentPreferenceLabel } from "@/services/payments";
+import {
+  PAYMENT_STATUSES,
+  getPaymentPreferenceLabel,
+  getPaymentStatusLabel,
+} from "@/services/payments";
 import { liveTrackingSoonText } from "@/services/tracking";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +63,26 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
   "admin-not-authorized": {
     body: "Bu işlem için admin yetkisi gerekiyor.",
     title: "Admin yetkisi gerekli",
+    tone: "error",
+  },
+  "payment-confirmed": {
+    body: "Ödeme takip kaydı onaylandı.",
+    title: "Ödeme onaylandı",
+    tone: "success",
+  },
+  "payment-confirmation-failed": {
+    body: "Ödeme onayı şu anda tamamlanamadı. Lütfen tekrar deneyin.",
+    title: "Ödeme onaylanamadı",
+    tone: "error",
+  },
+  "payment-invalid-transition": {
+    body: "Ödeme yalnızca tamamlanmış işler için onaylanabilir.",
+    title: "İş tamamlanmadı",
+    tone: "error",
+  },
+  "payment-not-found": {
+    body: "Bu tamamlanan iş için ödeme takip kaydı henüz oluşmamış.",
+    title: "Ödeme kaydı bulunamadı",
     tone: "error",
   },
   "service-request-action-failed": {
@@ -210,6 +235,13 @@ async function updateServiceRequestStatusAction(formData: FormData) {
     getFormRequestId(formData),
     getFormRequestStatus(formData),
   );
+  redirectToRequestActionMessage(result.code);
+}
+
+async function confirmPaymentAction(formData: FormData) {
+  "use server";
+
+  const result = await confirmAdminServiceRequestPayment(getFormRequestId(formData));
   redirectToRequestActionMessage(result.code);
 }
 
@@ -399,6 +431,45 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
   );
 }
 
+function PaymentStatusSummary({ request }: { request: AdminServiceRequest }) {
+  const normalizedStatus = normalizeServiceRequestStatus(request.status);
+  const paymentStatusLabel = getPaymentStatusLabel(request.paymentStatus);
+  const isCompleted = normalizedStatus === SERVICE_REQUEST_STATUSES.completed;
+  const isConfirmed = request.paymentStatus === PAYMENT_STATUSES.confirmed;
+  const amountText =
+    typeof request.paymentAmount === "number"
+      ? `${request.paymentAmount.toLocaleString("tr-TR")} TL`
+      : request.offeredPrice
+        ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
+        : "Belirtilmedi";
+
+  return (
+    <div className="grid gap-2 text-sm font-semibold text-[var(--muted)]">
+      <p>
+        <span className="font-black text-[var(--brand-navy)]">Ödeme durumu: </span>
+        {isCompleted ? paymentStatusLabel : "İş tamamlanınca takip edilir"}
+      </p>
+      <p>
+        <span className="font-black text-[var(--brand-navy)]">Takip tutarı: </span>
+        {amountText}
+      </p>
+      {isCompleted && !isConfirmed ? (
+        <form action={confirmPaymentAction}>
+          <input name="requestId" type="hidden" value={request.id} />
+          <AdminActionButton
+            className="mt-1 w-full sm:w-fit"
+            icon={adminActionIcons.approve}
+            tone="approve"
+            type="submit"
+          >
+            Ödemeyi onayla
+          </AdminActionButton>
+        </form>
+      ) : null}
+    </div>
+  );
+}
+
 function RequestActionNotice({
   feedback,
 }: {
@@ -559,6 +630,7 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
           <span className="font-black text-[var(--brand-navy)]">Ödeme tercihi: </span>
           {getPaymentPreferenceLabel(request.paymentPreference)}
         </p>
+        <PaymentStatusSummary request={request} />
         <p>
           <span className="font-black text-[var(--brand-navy)]">Atanan usta: </span>
           {request.assignedProviderName || "Henüz atanmadı"}
@@ -630,7 +702,7 @@ export default async function AdminServiceRequestsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1900px] text-left text-sm">
+            <table className="w-full min-w-[2050px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Talep ID</th>
@@ -641,6 +713,7 @@ export default async function AdminServiceRequestsPage({
                   <th className="px-4 py-3">Açıklama</th>
                   <th className="px-4 py-3">Bütçe / teklif</th>
                   <th className="px-4 py-3">Ödeme tercihi</th>
+                  <th className="px-4 py-3">Ödeme durumu</th>
                   <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">Oluşturulma tarihi</th>
                   <th className="px-4 py-3">Atanan usta</th>
@@ -684,6 +757,9 @@ export default async function AdminServiceRequestsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {getPaymentPreferenceLabel(request.paymentPreference)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <PaymentStatusSummary request={request} />
                     </td>
                     <td className="px-4 py-4">
                       <RequestStatusBadge status={request.status} />

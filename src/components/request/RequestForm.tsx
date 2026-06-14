@@ -709,7 +709,7 @@ export function RequestForm({
 
   return (
     <Card className="min-w-0">
-      <form className="space-y-6" noValidate onSubmit={handleSubmit}>
+      <form className="space-y-6" data-testid="request-form" noValidate onSubmit={handleSubmit}>
         <div className="cursor-default select-none border-b border-[var(--border)] pb-5">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             {isEmergencyFlow ? "Acil hizmet" : "Talep özeti"}
@@ -739,6 +739,7 @@ export function RequestForm({
           <div
             aria-live="polite"
             className="cursor-default select-none overflow-hidden rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--brand-navy)] shadow-[0_18px_50px_rgba(13,20,36,0.08)]"
+            data-testid="request-success-card"
           >
             <div className="h-1 bg-[var(--trust-green)]" />
             <div className="p-5 sm:p-6">
@@ -754,7 +755,7 @@ export function RequestForm({
                   </h3>
                 </div>
                 <div className="w-fit rounded-md bg-white px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                  Talep: {submittedRequest.requestCode}
+                  Talep: <span data-testid="request-success-code">{submittedRequest.requestCode}</span>
                 </div>
               </div>
               <p className="mt-4 text-sm leading-6 text-[var(--muted)]">

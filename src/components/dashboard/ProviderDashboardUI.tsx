@@ -62,14 +62,6 @@ type ProfileFieldProps = {
   value: string;
 };
 
-type ProviderDashboardEmptyStateContent = {
-  eyebrow: string;
-  headline?: string;
-  showApplicationCta: boolean;
-  statusDescription: string;
-  statusLabel: string;
-};
-
 const providerNavItems: Array<{
   href: string;
   icon: LucideIcon;
@@ -97,6 +89,7 @@ const providerNavItems: Array<{
 ];
 
 const providerDashboardOnboardingSubtitle =
+
   "Başvurunu tamamladıktan sonra profilin incelenir. Onaylandığında gelen talepleri, profil görünürlüğünü ve müşteri iletişimlerini bu panelden yönetebilirsin.";
 
 const providerDashboardFeatureCards: Array<{
@@ -284,125 +277,6 @@ export function ProviderDashboardShell({
       <Container className="max-w-7xl py-6 sm:py-8">{children}</Container>
     </div>
   );
-}
-
-function getProviderDashboardEmptyStateContent(
-  reason: ProviderDashboardAccessReason,
-  applicationStatus?: ProviderDashboardApplicationStatus,
-): ProviderDashboardEmptyStateContent {
-  if (applicationStatus === "approved") {
-    return {
-      eyebrow: "Profil hazırlığı",
-      showApplicationCta: false,
-      statusDescription:
-        "Başvurun onaylandı. Profil bağlantısı tamamlandığında panel erişimi otomatik olarak açılır.",
-      statusLabel: "Başvuru durumu: Profil hazırlanıyor",
-    };
-  }
-
-  if (applicationStatus === "rejected" || reason === "rejected-application") {
-    return {
-      eyebrow: "Başvuru güncellemesi",
-      showApplicationCta: true,
-      statusDescription:
-        "Bilgilerini güncelleyerek usta ağı için yeniden değerlendirme sürecine girebilirsin.",
-      statusLabel: "Başvuru durumu: Güncelleme gerekli",
-    };
-  }
-
-  if (
-    applicationStatus === "pending" ||
-    reason === "pending-application" ||
-    reason === "pending-provider-profile"
-  ) {
-    return {
-      eyebrow: "İnceleme süreci",
-      showApplicationCta: false,
-      statusDescription:
-        "Başvurun operasyon ekibi tarafından inceleniyor. Onaylandığında bu panelden profilini ve taleplerini yönetebilirsin.",
-      statusLabel: "Başvuru durumu: İncelemede",
-    };
-  }
-
-  if (reason === "missing-session") {
-    return {
-      eyebrow: "Hesap doğrulaması",
-      showApplicationCta: true,
-      statusDescription:
-        "Başvuru oluşturmak veya mevcut başvuru durumunu görmek için Fuwu hesabınla devam et.",
-      statusLabel: "Başvuru durumu: Hesap girişi bekleniyor",
-    };
-  }
-
-  return {
-    eyebrow: "Başvuru bekleniyor",
-    showApplicationCta: true,
-    statusDescription:
-      "Usta ağına katılmak için hizmet alanını, çalışma bölgeni ve iletişim bilgilerini paylaşarak başvurunu başlat.",
-    statusLabel: "Başvuru durumu: Henüz başvuru bulunamadı",
-  };
-}
-
-function getProviderDashboardStatusView(
-  reason: ProviderDashboardAccessReason,
-  applicationStatus?: ProviderDashboardApplicationStatus,
-) {
-  if (applicationStatus === "approved") {
-    return {
-      body:
-        "Başvurun onaylandı. Usta profilin bağlandığında panel erişimin otomatik açılır.",
-      cta: false,
-      eyebrow: "Onay tamamlandı",
-      headline: "Usta profilin hazırlanıyor",
-      label: "Aktif usta",
-    };
-  }
-
-  if (applicationStatus === "rejected" || reason === "rejected-application") {
-    return {
-      body:
-        "Başvurun reddedildi. Bilgilerini güncelleyerek tekrar başvurabilirsin.",
-      cta: true,
-      eyebrow: "Başvuru reddedildi",
-      headline: "Bilgilerini güncelleyerek yeniden gönder",
-      label: "Başvuru reddedildi",
-    };
-  }
-
-  if (
-    applicationStatus === "pending" ||
-    reason === "pending-application" ||
-    reason === "pending-provider-profile"
-  ) {
-    return {
-      body:
-        "Başvurun incelemede. Ekibimiz bilgilerini kontrol ediyor.",
-      cta: false,
-      eyebrow: "Başvuru alındı",
-      headline: "Başvurun güvenli şekilde sırada",
-      label: "Başvuru alındı",
-    };
-  }
-
-  if (reason === "missing-session") {
-    return {
-      body:
-        "Başvuru oluşturmak veya mevcut başvuru durumunu görmek için Fuwu hesabınla devam et.",
-      cta: true,
-      eyebrow: "Hesap doğrulaması",
-      headline: "Usta ağına katılmak için giriş yap",
-      label: "Başvuru bekleniyor",
-    };
-  }
-
-  return {
-    body:
-      "Hizmet alanını, çalışma bölgeni ve iletişim bilgilerini paylaşarak usta ağına başvur.",
-    cta: true,
-    eyebrow: "Başvuru bekleniyor",
-    headline: "Usta ağına katılmaya hazır mısın?",
-    label: "Başvuru bekleniyor",
-  };
 }
 
 function getProviderDashboardStatusViewClean(
@@ -678,6 +552,9 @@ export function ProviderDashboardApplicationPlaceholder({
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
             {statusView.body}
           </p>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
+            {providerDashboardOnboardingSubtitle}
+          </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             {statusView.cta ? (
@@ -725,6 +602,29 @@ export function ProviderDashboardApplicationPlaceholder({
             </dl>
           ) : null}
         </aside>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {providerDashboardFeatureCards.map((feature) => {
+          const Icon = feature.icon;
+
+          return (
+            <article
+              className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_10px_30px_rgba(13,20,36,0.05)]"
+              key={feature.title}
+            >
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+                <Icon className="h-4 w-4" aria-hidden />
+              </span>
+              <h3 className="mt-3 text-base font-black leading-tight text-[var(--brand-navy)]">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
+                {feature.description}
+              </p>
+            </article>
+          );
+        })}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

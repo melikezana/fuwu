@@ -29,7 +29,11 @@ import {
   normalizeBudgetTag,
   validateEmergencyPrice,
 } from "@/services/matching";
-import { getPaymentPreferenceLabel, savePaymentPreference } from "@/services/payments";
+import {
+  createPaymentTrackingForCompletedRequest,
+  getPaymentPreferenceLabel,
+  savePaymentPreference,
+} from "@/services/payments";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { getCurrentUser } from "@/services/auth";
 import { ensureProfileForUser } from "@/services/auth/profiles";
@@ -2027,6 +2031,14 @@ export async function updateProviderAssignedRequestStatus(
     requestId,
     supabase,
   });
+
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.completed) {
+    await createPaymentTrackingForCompletedRequest({
+      actorUserId: provider.user_id ?? null,
+      requestId,
+      supabase,
+    });
+  }
 
   return true;
 }

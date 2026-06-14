@@ -7,6 +7,7 @@ type AuditSupabaseClient = SupabaseClient<Database>;
 
 export type AuditAction =
   | "admin.action_failed"
+  | "payment.confirmed"
   | "provider.created"
   | "provider.price_updated"
   | "provider.status_updated"
@@ -29,6 +30,7 @@ export type AuditLogEvent = {
   entityId: string | null;
   entityType:
     | "admin_action"
+    | "payment"
     | "provider"
     | "provider_application"
     | "security_event"

@@ -37,6 +37,12 @@ import {
   createServiceFailure,
   createServiceSuccess,
 } from "@/services/serviceResponse";
+import {
+  confirmTrackedPaymentForRequest,
+  createPaymentTrackingForCompletedRequest,
+  getPaymentRecordsByRequestIds,
+  type PaymentStatus,
+} from "@/services/payments";
 import { generateConfirmationCode } from "@/services/requests";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
@@ -304,6 +310,11 @@ export type AdminServiceRequest = {
   budgetTag: string | null;
   offeredPrice: number | null;
   paymentPreference: string | null;
+  paymentAmount: number | null;
+  paymentConfirmedAt: string | null;
+  paymentId: string | null;
+  paymentMethod: string | null;
+  paymentStatus: PaymentStatus | null;
   confirmationCode: string | null;
   estimatedArrivalText: string | null;
   approximateLocation: string | null;
@@ -392,6 +403,10 @@ export type AdminServiceRequestStatus = ServiceRequestStatus;
 
 export type AdminServiceRequestActionCode =
   | "admin-not-authorized"
+  | "payment-confirmed"
+  | "payment-confirmation-failed"
+  | "payment-invalid-transition"
+  | "payment-not-found"
   | "service-request-action-failed"
   | "service-request-invalid-id"
   | "service-request-invalid-provider"
@@ -1784,7 +1799,105 @@ export async function updateAdminServiceRequestStatus(
     supabase,
   });
 
+  if (normalizedStatus === SERVICE_REQUEST_STATUSES.completed) {
+    await createPaymentTrackingForCompletedRequest({
+      actorUserId: adminAccess.access.userId,
+      requestId: normalizedRequestId,
+      supabase,
+    });
+  }
+
   return createServiceRequestActionResult("service-request-updated", true);
+}
+
+export async function confirmAdminServiceRequestPayment(
+  requestId: string,
+): Promise<AdminServiceRequestActionResult> {
+  const normalizedRequestId = sanitizeText(requestId, 80);
+
+  if (!normalizedRequestId) {
+    return createServiceRequestActionResult("service-request-missing-id", false);
+  }
+
+  if (!isUuid(normalizedRequestId)) {
+    return createServiceRequestActionResult("service-request-invalid-id", false);
+  }
+
+  const adminAccess = await getSupabaseForAdminWrite();
+  const { supabase } = adminAccess;
+
+  if (!supabase) {
+    return createServiceRequestActionResult(
+      adminAccess.access.isConfigured
+        ? "admin-not-authorized"
+        : "supabase-not-configured",
+      false,
+    );
+  }
+
+  if (
+    !(await assertAdminActionRateLimit(
+      supabase,
+      adminAccess.access.userId,
+      "payment.confirm",
+    ))
+  ) {
+    return createServiceRequestActionResult("payment-confirmation-failed", false);
+  }
+
+  const { data: request, error: requestError } = await supabase
+    .from("service_requests")
+    .select("id, status")
+    .eq("id", normalizedRequestId)
+    .maybeSingle();
+
+  if (requestError) {
+    warnAdminWriteError("payment confirmation request lookup", requestError);
+    return createServiceRequestActionResult("payment-confirmation-failed", false);
+  }
+
+  if (!request) {
+    return createServiceRequestActionResult("service-request-not-found", false);
+  }
+
+  if (normalizeServiceRequestStatus(String(request.status)) !== SERVICE_REQUEST_STATUSES.completed) {
+    return createServiceRequestActionResult("payment-invalid-transition", false);
+  }
+
+  const paymentRecordsByRequestId = await getPaymentRecordsByRequestIds(
+    supabase,
+    [normalizedRequestId],
+  );
+  const payment = paymentRecordsByRequestId.get(normalizedRequestId);
+
+  if (!payment) {
+    return createServiceRequestActionResult("payment-not-found", false);
+  }
+
+  const confirmed = await confirmTrackedPaymentForRequest({
+    actorUserId: adminAccess.access.userId,
+    requestId: normalizedRequestId,
+    supabase,
+  });
+
+  if (!confirmed) {
+    return createServiceRequestActionResult("payment-confirmation-failed", false);
+  }
+
+  await insertAuditLog({
+    action: "payment.confirmed",
+    actorUserId: adminAccess.access.userId,
+    entityId: payment.id,
+    entityType: "payment",
+    metadata: {
+      requestId: normalizedRequestId,
+      previousStatus: payment.status,
+      status: "confirmed",
+    },
+    supabase,
+  });
+
+  return createServiceRequestActionResult("payment-confirmed", true);
 }
 
 export async function getAdminAssignableProvidersForRequest(
@@ -2578,8 +2691,17 @@ export async function getAdminServiceRequests(): Promise<
     return createEmptyReadResult(getAdminReadError(error));
   }
 
+  const requestRows = (data ?? []) as unknown as AdminServiceRequestRecord[];
+  const paymentRecordsByRequestId = await getPaymentRecordsByRequestIds(
+    supabase,
+    requestRows.map((request) => request.id),
+  );
+
   return createAdminReadResult(
-    ((data ?? []) as unknown as AdminServiceRequestRecord[]).map((request) => ({
+    requestRows.map((request) => {
+      const payment = paymentRecordsByRequestId.get(request.id);
+
+      return {
       address: request.address ? sanitizeText(request.address, 300) : null,
       budget: request.budget ? sanitizeText(request.budget, 80) : null,
       category: sanitizeText(getRelationName(request.service_categories), 120),
@@ -2608,6 +2730,11 @@ export async function getAdminServiceRequests(): Promise<
       paymentPreference: request.payment_preference
         ? sanitizeText(request.payment_preference, 40)
         : null,
+      paymentAmount: payment?.amount ?? null,
+      paymentConfirmedAt: payment?.confirmedAt ?? null,
+      paymentId: payment?.id ?? null,
+      paymentMethod: payment?.paymentMethod ?? null,
+      paymentStatus: payment?.status ?? null,
       confirmationCode: request.confirmation_code
         ? sanitizeText(request.confirmation_code, 40)
         : null,
@@ -2626,6 +2753,7 @@ export async function getAdminServiceRequests(): Promise<
       assignedProviderName: Array.isArray(request.assigned_provider)
         ? request.assigned_provider[0]?.name
         : request.assigned_provider?.name ?? null,
-    })),
+      };
+    }),
   );
 }

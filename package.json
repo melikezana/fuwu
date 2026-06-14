@@ -7,7 +7,8 @@
     "build": "next build",
     "check:backend": "node scripts/check-backend.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -20,6 +21,7 @@
     "react-dom": "19.2.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "4.2.4",
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",

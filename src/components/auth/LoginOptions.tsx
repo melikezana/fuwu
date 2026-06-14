@@ -241,7 +241,10 @@ export function LoginOptions() {
   }
 
   return (
-    <div className="rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+    <div
+      className="rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+      data-testid="login-options"
+    >
       <p
         aria-live="polite"
         className="mb-4 cursor-default select-none rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]"
@@ -275,7 +278,7 @@ export function LoginOptions() {
           </span>
         </button>
 
-        <form className="grid gap-3" noValidate onSubmit={handleEmailLogin}>
+        <form className="grid gap-3" data-testid="email-login-form" noValidate onSubmit={handleEmailLogin}>
           <label className="block min-w-0 cursor-default select-none">
             <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
               {t(loginOptions[1].labelKey)}
@@ -285,6 +288,7 @@ export function LoginOptions() {
               <input
                 aria-describedby="login-auth-status"
                 className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
+                data-testid="login-email-input"
                 disabled={isEmailLoading}
                 inputMode="email"
                 onChange={(event) => setEmail(event.target.value)}
@@ -312,7 +316,7 @@ export function LoginOptions() {
           </span>
         </form>
 
-        <form className="grid gap-3" noValidate onSubmit={handlePhoneLogin}>
+        <form className="grid gap-3" data-testid="phone-login-form" noValidate onSubmit={handlePhoneLogin}>
           <label className="block min-w-0 cursor-default select-none">
             <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
               {showOtpInput ? "SMS Onay Kodu" : "Telefon ile giriş kodu gönder"}
@@ -322,6 +326,7 @@ export function LoginOptions() {
               <input
                 aria-describedby="login-auth-status"
                 className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
+                data-testid={showOtpInput ? "login-otp-input" : "login-phone-input"}
                 disabled={isPhoneLoading}
                 inputMode={showOtpInput ? "numeric" : "tel"}
                 onChange={(event) => showOtpInput ? setOtpToken(event.target.value) : setPhone(event.target.value)}

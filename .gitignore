@@ -10,6 +10,7 @@ build/
 
 # local env files
 .env*.local
+.env.test
 
 # logs
 *.log
@@ -26,6 +27,8 @@ pnpm-debug.log*
 .task*-*.png
 desktop-home.png
 mobile-home.png
+test-results/
+playwright-report/
 
 # system files
 .DS_Store

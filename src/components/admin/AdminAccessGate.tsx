@@ -22,7 +22,10 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
   const PrimaryIcon = isMissingSession ? LogIn : Home;
 
   return (
-    <div className="min-h-[70vh] bg-[var(--surface-soft)] px-4 py-12 sm:px-6 lg:px-8">
+    <div
+      className="min-h-[70vh] bg-[var(--surface-soft)] px-4 py-12 sm:px-6 lg:px-8"
+      data-testid="admin-access-gate"
+    >
       <section className="mx-auto w-full max-w-xl rounded-lg border border-[var(--border)] bg-white p-6 shadow-[0_22px_70px_rgba(13,20,36,0.1)] sm:p-8">
         <div className="flex items-start gap-4">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">

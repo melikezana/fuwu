@@ -465,6 +465,57 @@ export type Database = {
           },
         ];
       };
+      payments: {
+        Row: {
+          id: string;
+          request_id: string;
+          amount: number | null;
+          payment_method: "cash" | "iban" | "online_soon";
+          status: "pending_confirmation" | "confirmed";
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          request_id: string;
+          amount?: number | null;
+          payment_method?: "cash" | "iban" | "online_soon";
+          status?: "pending_confirmation" | "confirmed";
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          request_id?: string;
+          amount?: number | null;
+          payment_method?: "cash" | "iban" | "online_soon";
+          status?: "pending_confirmation" | "confirmed";
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: true;
+            referencedRelation: "service_requests";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_confirmed_by_fkey";
+            columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       reviews: {
         Row: {
           id: string;

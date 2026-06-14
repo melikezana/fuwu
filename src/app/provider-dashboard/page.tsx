@@ -60,6 +60,13 @@ function ProviderDashboardSummary({
       value: String(assignedRequestCount),
     },
     {
+      description: "Müşteri değerlendirmelerinden oluşan profil puanı.",
+      href: appRoutes.providerDashboardProfile,
+      icon: providerDashboardIcons.star,
+      label: "Profil Puanı",
+      value: `${formatProviderRating(provider.rating)} / 5`,
+    },
+    {
       description:
         provider.isActive && provider.isApproved
           ? "Profilin public usta listesinde g\u00f6r\u00fcn\u00fcr."
@@ -72,7 +79,7 @@ function ProviderDashboardSummary({
   ];
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {dashboardCards.map((card) => (
         <ProviderSummaryCard
           description={card.description}

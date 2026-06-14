@@ -298,7 +298,12 @@ export function ProviderApplicationForm({
 
   return (
     <Card className="min-w-0 overflow-hidden !p-0">
-      <form className="space-y-6 p-4 sm:p-6" noValidate onSubmit={handleSubmit}>
+      <form
+        className="space-y-6 p-4 sm:p-6"
+        data-testid="provider-application-form"
+        noValidate
+        onSubmit={handleSubmit}
+      >
         <div className="cursor-default select-none border-b border-[var(--border)] pb-5">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             {t("providerApplication.formEyebrow")}
@@ -338,6 +343,7 @@ export function ProviderApplicationForm({
           <div
             aria-live="polite"
             className="cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.34)] bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.08)]"
+            data-testid="provider-application-success"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
