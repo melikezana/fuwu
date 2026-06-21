@@ -22,7 +22,11 @@ function loadEnvFile(fileName: string) {
   );
 }
 
-const testEnv = loadEnvFile(".env.test");
+const testEnv = {
+  ...loadEnvFile(".env"),
+  ...loadEnvFile(".env.local"),
+  ...loadEnvFile(".env.test"),
+};
 const port = process.env.PORT ?? "3000";
 
 Object.entries(testEnv).forEach(([key, value]) => {

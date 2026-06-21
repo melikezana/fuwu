@@ -1,6 +1,12 @@
 "use server";
 
-import { AppError, getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+import {
+  AppError,
+  AuthError,
+  errorCodes,
+  getPublicErrorMessage,
+  handleServiceError,
+} from "@/lib/errors";
 import { submitProviderApplication } from "@/services/providers/applications";
 import type {
   ProviderApplicationInput,
@@ -55,7 +61,14 @@ export async function submitProviderApplicationAction(
     }
 
     return {
-      debugMessage,
+      errorCode:
+        appError instanceof AuthError || appError.code === errorCodes.auth
+          ? "auth-required"
+          : appError.statusCode === 429
+            ? "rate-limit"
+            : appError.code === errorCodes.validation
+              ? "validation"
+              : "server",
       message: getPublicErrorMessage(appError, providerApplicationSubmitErrorMessage),
       ok: false,
     };

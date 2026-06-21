@@ -7,6 +7,8 @@
     "build": "next build",
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
+    "check:vercel-env": "node scripts/check-vercel-env.mjs",
+    "cleanup:launch-test-data": "node scripts/cleanup-test-data.mjs --confirm",
     "maintenance:cleanup-audit-logs": "node scripts/cleanup-audit-logs.mjs",
     "preflight": "node scripts/preflight-check.mjs",
     "start": "next start",
@@ -15,7 +17,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:assignment-race": "node scripts/test-admin-assignment-race.mjs",
-    "test:provider-validation": "tsx scripts/test-provider-validation.ts"
+    "test:provider-validation": "tsx scripts/test-provider-validation.ts",
+    "test:provider-matching": "tsx scripts/test-provider-matching.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.59.0",

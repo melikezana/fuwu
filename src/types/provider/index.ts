@@ -107,7 +107,7 @@ export type ProviderApplicationSubmitActionResult =
       result: ProviderApplicationSubmitResult;
     }
   | {
-      debugMessage?: string;
+      errorCode: "auth-required" | "rate-limit" | "server" | "validation";
       message: string;
       ok: false;
     };

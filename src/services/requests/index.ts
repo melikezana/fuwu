@@ -26,6 +26,7 @@ import { validateServiceRequestInput } from "@/lib/validations";
 import {
   createEmergencyMatchRequest,
   isEmergencyBudgetTag,
+  matchAndNotifyEligibleProviders,
   normalizeBudgetTag,
   validateEmergencyPrice,
 } from "@/services/matching";
@@ -42,10 +43,8 @@ import { isUuid } from "@/lib/utils/validation";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { writeAuditLog } from "@/services/audit";
 import {
-  notifyEmergencyRequestDispatched,
   notifyServiceRequestAccepted,
   notifyServiceRequestRejected,
-  notifyServiceRequestCreated,
 } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
@@ -522,46 +521,6 @@ async function findLookupId(
   return typeof matchingRecord?.id === "string" ? matchingRecord.id : null;
 }
 
-async function countEligibleEmergencyProviders(
-  supabase: SupabaseClient<Database>,
-  categoryId: string,
-  districtId: string,
-) {
-  const baseQuery = supabase
-    .from("providers")
-    .select("id", { count: "exact", head: true })
-    .eq("category_id", categoryId)
-    .eq("is_active", true)
-    .eq("is_approved", true);
-  const { count: exactDistrictCount, error: exactDistrictError } = await baseQuery.eq(
-    "district_id",
-    districtId,
-  );
-
-  if (exactDistrictError) {
-    warnServiceRequestError("Eligible emergency provider exact count failed.", exactDistrictError);
-    return 0;
-  }
-
-  if (exactDistrictCount && exactDistrictCount > 0) {
-    return exactDistrictCount;
-  }
-
-  const { count: sameCategoryCount, error: sameCategoryError } = await supabase
-    .from("providers")
-    .select("id", { count: "exact", head: true })
-    .eq("category_id", categoryId)
-    .eq("is_active", true)
-    .eq("is_approved", true);
-
-  if (sameCategoryError) {
-    warnServiceRequestError("Eligible emergency provider fallback count failed.", sameCategoryError);
-    return 0;
-  }
-
-  return sameCategoryCount ?? 0;
-}
-
 function isMissingResponseTimeColumn(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
@@ -908,43 +867,26 @@ export async function createServiceRequest(
   );
 
   const requestCode = createLiveRequestCode(requestId);
-  const eligibleProviderCount =
-    insertPayload.urgency_type === "emergency"
-      ? await countEligibleEmergencyProviders(
-          supabase,
-          insertPayload.category_id,
-          insertPayload.district_id,
-        )
-      : undefined;
-
-  await notifyServiceRequestCreated({
-    eligibleProviderCount,
-    requestCode,
-    requestId,
-  });
-
-  if (insertPayload.urgency_type === "emergency") {
-    await notifyEmergencyRequestDispatched({
-      eligibleProviderCount,
-      notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
-      requestCode,
-      requestId,
-    });
-  }
+  const eligibleProviderCount = requestId
+    ? await matchAndNotifyEligibleProviders(supabase, {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        requestId,
+        urgencyType: insertPayload.urgency_type ?? "standard",
+      })
+    : 0;
 
   const submitResult: ServiceRequestSubmitResult = {
     confirmationCode: insertPayload.confirmation_code ?? null,
     emergencyStatus: insertPayload.emergency_status ?? null,
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
     notificationMessage:
-      insertPayload.urgency_type === "emergency"
-        ? eligibleProviderCount && eligibleProviderCount > 0
-          ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
-          : "Uygun ustalara bildirim gönderildi."
-        : null,
+      eligibleProviderCount > 0
+        ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
+        : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
-    providerCountNotified: eligibleProviderCount ?? null,
+    providerCountNotified: eligibleProviderCount,
     requestCode,
     requestId,
     urgencyType: insertPayload.urgency_type ?? "standard",
@@ -1072,43 +1014,26 @@ export async function createAuthenticatedServiceRequest(
   );
 
   const requestCode = createLiveRequestCode(requestId);
-  const eligibleProviderCount =
-    insertPayload.urgency_type === "emergency"
-      ? await countEligibleEmergencyProviders(
-          authContext.supabase,
-          insertPayload.category_id,
-          insertPayload.district_id,
-        )
-      : undefined;
-
-  await notifyServiceRequestCreated({
-    eligibleProviderCount,
-    requestCode,
-    requestId,
-  });
-
-  if (insertPayload.urgency_type === "emergency") {
-    await notifyEmergencyRequestDispatched({
-      eligibleProviderCount,
-      notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
-      requestCode,
-      requestId,
-    });
-  }
+  const eligibleProviderCount = requestId
+    ? await matchAndNotifyEligibleProviders(authContext.supabase, {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        requestId,
+        urgencyType: insertPayload.urgency_type ?? "standard",
+      })
+    : 0;
 
   const submitResult: ServiceRequestSubmitResult = {
     confirmationCode: insertPayload.confirmation_code ?? null,
     emergencyStatus: insertPayload.emergency_status ?? null,
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
     notificationMessage:
-      insertPayload.urgency_type === "emergency"
-        ? eligibleProviderCount && eligibleProviderCount > 0
-          ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
-          : "Uygun ustalara bildirim gönderildi."
-        : null,
+      eligibleProviderCount > 0
+        ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
+        : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
-    providerCountNotified: eligibleProviderCount ?? null,
+    providerCountNotified: eligibleProviderCount,
     requestCode,
     requestId,
     urgencyType: insertPayload.urgency_type ?? "standard",

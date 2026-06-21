@@ -4,6 +4,7 @@ import type { Database, Json } from "@/lib/supabase/types";
 
 export type NotificationEvent =
   | "emergency_request_dispatched"
+  | "new_service_request_match"
   | "provider_application_submitted"
   | "provider_application_approved"
   | "provider_application_rejected"
@@ -26,8 +27,11 @@ export type ProviderApplicationSubmittedNotification = {
 };
 
 export type ProviderApplicationDecisionNotification = {
+  actorUserId: string;
   applicationId: string;
   providerId?: string;
+  recipientUserId: string;
+  supabaseClient: SupabaseClient<Database>;
 };
 
 export type ServiceRequestCreatedNotification = {
@@ -56,6 +60,8 @@ type NotificationMetadata =
 type NotificationRecordInput = {
   actorUserId?: string | null;
   body: string;
+  entityId?: string | null;
+  entityType?: "service_request" | "provider_application" | "provider";
   event: NotificationEvent;
   metadata?: Record<string, Json | undefined>;
   providerId?: string | null;
@@ -69,7 +75,7 @@ type NotificationPayload = {
   actor_user_id: string | null;
   body: string;
   entity_id: string | null;
-  entity_type: "service_request";
+  entity_type: "service_request" | "provider_application" | "provider";
   event: NotificationEvent;
   is_read: boolean;
   message: string;
@@ -290,6 +296,8 @@ export async function markAllNotificationsAsRead(
 async function createNotificationRecordIfTableExists({
   actorUserId,
   body,
+  entityId,
+  entityType = "service_request",
   event,
   metadata,
   providerId,
@@ -299,15 +307,15 @@ async function createNotificationRecordIfTableExists({
   title,
 }: NotificationRecordInput) {
   if (!supabaseClient || !recipientUserId) {
-    return;
+    return false;
   }
 
   try {
     const notificationPayload: NotificationPayload = {
       actor_user_id: actorUserId ?? null,
       body,
-      entity_id: requestId ?? null,
-      entity_type: "service_request",
+      entity_id: entityId ?? requestId ?? null,
+      entity_type: entityType,
       event,
       is_read: false,
       message: body,
@@ -328,8 +336,12 @@ async function createNotificationRecordIfTableExists({
       .from("notifications")
       .insert(notificationPayload);
 
-    if (!error || isMissingNotificationsTable(error)) {
-      return;
+    if (!error) {
+      return true;
+    }
+
+    if (isMissingNotificationsTable(error)) {
+      return false;
     }
 
     logWarn("Notification record insert failed.", {
@@ -344,6 +356,7 @@ async function createNotificationRecordIfTableExists({
         message: typeof error.message === "string" ? error.message : undefined,
       },
     });
+    return false;
   } catch (error) {
     logWarn("Notification record insert threw.", {
       event,
@@ -352,7 +365,47 @@ async function createNotificationRecordIfTableExists({
       recipientUserId,
       error,
     });
+    return false;
   }
+}
+
+export type NewServiceRequestMatchNotification = {
+  actorUserId: string;
+  categoryId: string;
+  districtId: string;
+  providerId: string;
+  providerUserId: string;
+  requestId: string;
+  supabaseClient: SupabaseClient<Database>;
+  urgencyType: "standard" | "emergency";
+};
+
+export async function notifyNewServiceRequestMatch(
+  metadata: NewServiceRequestMatchNotification,
+) {
+  const isEmergency = metadata.urgencyType === "emergency";
+
+  return createNotificationRecordIfTableExists({
+    actorUserId: metadata.actorUserId,
+    body: isEmergency
+      ? "Bölgenizde acil bir müşteri talebi oluşturuldu. Talep ayrıntılarını inceleyin."
+      : "Kategori ve hizmet bölgenizle eşleşen yeni bir müşteri talebi var.",
+    event: "new_service_request_match",
+    metadata: {
+      actorUserId: metadata.actorUserId,
+      categoryId: metadata.categoryId,
+      districtId: metadata.districtId,
+      providerId: metadata.providerId,
+      providerUserId: metadata.providerUserId,
+      requestId: metadata.requestId,
+      urgencyType: metadata.urgencyType,
+    },
+    providerId: metadata.providerId,
+    recipientUserId: metadata.providerUserId,
+    requestId: metadata.requestId,
+    supabaseClient: metadata.supabaseClient,
+    title: isEmergency ? "Yeni acil hizmet talebi" : "Yeni hizmet talebi",
+  });
 }
 
 export async function notifyProviderApplicationSubmitted(
@@ -363,14 +416,42 @@ export async function notifyProviderApplicationSubmitted(
 
 export async function notifyProviderApplicationApproved(
   metadata: ProviderApplicationDecisionNotification,
-): Promise<NotificationMockResult> {
-  return createMockNotificationResult("provider_application_approved", metadata);
+) {
+  return createNotificationRecordIfTableExists({
+    actorUserId: metadata.actorUserId,
+    body: "Usta başvurunuz onaylandı. Usta paneliniz artık kullanıma hazır.",
+    entityId: metadata.applicationId,
+    entityType: "provider_application",
+    event: "provider_application_approved",
+    metadata: {
+      applicationId: metadata.applicationId,
+      providerId: metadata.providerId ?? null,
+    },
+    providerId: metadata.providerId,
+    recipientUserId: metadata.recipientUserId,
+    supabaseClient: metadata.supabaseClient,
+    title: "Usta başvurunuz onaylandı",
+  });
 }
 
 export async function notifyProviderApplicationRejected(
   metadata: ProviderApplicationDecisionNotification,
-): Promise<NotificationMockResult> {
-  return createMockNotificationResult("provider_application_rejected", metadata);
+) {
+  return createNotificationRecordIfTableExists({
+    actorUserId: metadata.actorUserId,
+    body: "Usta başvurunuz şu aşamada onaylanmadı. Başvuru durumunuzu hesabınızdan inceleyebilirsiniz.",
+    entityId: metadata.applicationId,
+    entityType: "provider_application",
+    event: "provider_application_rejected",
+    metadata: {
+      applicationId: metadata.applicationId,
+      providerId: metadata.providerId ?? null,
+    },
+    providerId: metadata.providerId,
+    recipientUserId: metadata.recipientUserId,
+    supabaseClient: metadata.supabaseClient,
+    title: "Usta başvurusu güncellendi",
+  });
 }
 
 export async function notifyServiceRequestCreated(

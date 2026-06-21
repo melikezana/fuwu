@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Check, CheckCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -43,6 +44,7 @@ export function NotificationBell({
   panelAlign = "right",
   userId,
 }: NotificationBellProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
@@ -98,22 +100,29 @@ export function NotificationBell({
   }, [isOpen]);
 
   async function handleNotificationRead(notification: NotificationRecord) {
-    if (!supabase || notification.is_read) {
-      return;
+    const shouldOpenProviderRequests =
+      notification.type === "new_service_request_match" ||
+      notification.event === "new_service_request_match";
+
+    if (supabase && !notification.is_read) {
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((currentNotification) =>
+          currentNotification.id === notification.id
+            ? { ...currentNotification, is_read: true }
+            : currentNotification,
+        ),
+      );
+
+      const ok = await markNotificationAsRead(notification.id, userId, supabase);
+
+      if (!ok) {
+        void loadNotifications();
+      }
     }
 
-    setNotifications((currentNotifications) =>
-      currentNotifications.map((currentNotification) =>
-        currentNotification.id === notification.id
-          ? { ...currentNotification, is_read: true }
-          : currentNotification,
-      ),
-    );
-
-    const ok = await markNotificationAsRead(notification.id, userId, supabase);
-
-    if (!ok) {
-      void loadNotifications();
+    if (shouldOpenProviderRequests) {
+      setIsOpen(false);
+      router.push("/provider-dashboard/requests");
     }
   }
 

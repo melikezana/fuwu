@@ -14,7 +14,7 @@ export function StatusBadge({
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${tones[tone]}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${tones[tone]}`}>
       {status}
     </span>
   );

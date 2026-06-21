@@ -1,8 +1,9 @@
 "use client";
 
 import type { FormEvent, ReactNode } from "react";
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { submitProviderApplicationAction } from "@/app/provider-application/actions";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -37,6 +38,7 @@ type SubmittedApplication = ProviderApplicationSubmitResult;
 type ProviderApplicationSectionId = "basic" | "service" | "experience" | "contact";
 
 type ProviderApplicationFormProps = {
+  authenticatedUserId?: string | null;
   categories: ProviderApplicationOption[];
   districts: ProviderApplicationOption[];
   isConfigured: boolean;
@@ -58,6 +60,73 @@ const initialFormState: ProviderApplicationFormState = {
   verificationDocumentPath: "",
   verificationDocumentUrl: "",
 };
+
+const pendingProviderApplicationStorageKey = "fuwu:pending-provider-application";
+
+type StoredProviderApplication = {
+  form: Pick<
+    ProviderApplicationFormState,
+    | "availability"
+    | "categoryId"
+    | "districtId"
+    | "experienceYears"
+    | "fullName"
+    | "hasEquipment"
+    | "introduction"
+    | "phone"
+    | "portfolioUrl"
+  >;
+  hadFiles: boolean;
+};
+
+function createStoredProviderApplication(
+  form: ProviderApplicationFormState,
+  hadFiles: boolean,
+): StoredProviderApplication {
+  return {
+    form: {
+      availability: form.availability,
+      categoryId: form.categoryId,
+      districtId: form.districtId,
+      experienceYears: form.experienceYears,
+      fullName: form.fullName,
+      hasEquipment: form.hasEquipment,
+      introduction: form.introduction,
+      phone: form.phone,
+      portfolioUrl: form.portfolioUrl,
+    },
+    hadFiles,
+  };
+}
+
+function parseStoredProviderApplication(value: string): StoredProviderApplication | null {
+  try {
+    const storedValue = JSON.parse(value) as StoredProviderApplication;
+
+    if (!storedValue || typeof storedValue !== "object" || !storedValue.form) {
+      return null;
+    }
+
+    const formEntries = Object.values(storedValue.form);
+
+    if (!formEntries.every((entry) => typeof entry === "string")) {
+      return null;
+    }
+
+    const restoredApplication = {
+      form: storedValue.form,
+      hadFiles: storedValue.hadFiles === true,
+    };
+    const validationResult = validateProviderApplicationInput({
+      ...initialFormState,
+      ...restoredApplication.form,
+    });
+
+    return validationResult.ok ? restoredApplication : null;
+  } catch {
+    return null;
+  }
+}
 
 const availabilityOptions: Array<{
   descriptionKey: TranslationKey;
@@ -104,11 +173,17 @@ const fieldBaseClassName =
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
 const selectFieldClassName = `${fieldBaseClassName} h-12 cursor-pointer select-none py-0 pr-10`;
 
-const labelClassName = "block cursor-default select-none text-sm font-bold text-[var(--brand-navy)]";
+const labelClassName = "block cursor-default select-none text-sm font-semibold text-[var(--brand-navy)]";
 const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 text-[var(--muted)]";
-const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-red-600";
+const errorClassName = "mt-2 cursor-default select-none text-sm font-medium text-red-600";
 const sectionClassName =
-  "rounded-lg border border-[var(--border)] bg-[#FAFAFB] p-4 sm:p-5";
+  "rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 sm:p-5";
+const sectionSteps: Record<ProviderApplicationSectionId, string> = {
+  basic: "01",
+  service: "02",
+  experience: "03",
+  contact: "04",
+};
 
 function normalizeReferenceLink(value: string) {
   const trimmedValue = value.trim();
@@ -151,7 +226,7 @@ function logSubmitFailure(result: ProviderApplicationSubmitActionResult) {
 
   console.error(
     "[Fuwu] Provider application submission failed.",
-    result.debugMessage ?? result.message,
+    result.message,
   );
 }
 
@@ -189,23 +264,37 @@ function FormSection({
       <legend className="sr-only">{title}</legend>
       <button
         aria-expanded={isOpen}
-        className="flex min-h-12 w-full cursor-pointer select-none items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
+        className="flex min-h-12 w-full cursor-pointer select-none items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-left text-sm font-semibold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.12)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:hidden"
         onClick={() => setActiveSection(id)}
         type="button"
       >
-        <span>{title}</span>
+        <span className="flex items-center gap-2">
+          <span className="text-xs font-medium text-[var(--brand-orange-dark)]">
+            {sectionSteps[id]}
+          </span>
+          {title}
+        </span>
         <ChevronDown
           aria-hidden="true"
           className={cn("size-4 transition-transform", isOpen ? "rotate-180" : "")}
         />
       </button>
       <div className="hidden cursor-default select-none md:block">
-        <h3 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">{title}</h3>
-        <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{description}</p>
+        <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
+          Adım {sectionSteps[id]}
+        </p>
+        <h3 className="mt-1 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
+          {title}
+        </h3>
+        <p className="mt-3 flex items-start gap-2 rounded-md border border-[rgba(23,116,95,0.18)] bg-[var(--trust-green-soft)] px-3 py-2.5 text-sm leading-6 text-[var(--trust-green)]">
+          <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <span>{description}</span>
+        </p>
       </div>
       {isOpen ? (
-        <p className="mt-3 cursor-default select-none text-sm leading-6 text-[var(--muted)] md:hidden">
-          {description}
+        <p className="mt-3 flex cursor-default select-none items-start gap-2 rounded-md border border-[rgba(23,116,95,0.18)] bg-[var(--trust-green-soft)] px-3 py-2.5 text-sm leading-6 text-[var(--trust-green)] md:hidden">
+          <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <span>{description}</span>
         </p>
       ) : null}
       <div className={cn("mt-5 gap-5", isOpen ? "grid" : "hidden md:grid")}>{children}</div>
@@ -214,16 +303,19 @@ function FormSection({
 }
 
 export function ProviderApplicationForm({
+  authenticatedUserId,
   categories,
   districts,
   isConfigured,
   lookupError = null,
 }: ProviderApplicationFormProps) {
+  const router = useRouter();
   const { t } = useI18n();
   const [formState, setFormState] = useState<ProviderApplicationFormState>(initialFormState);
   const [activeSection, setActiveSection] = useState<ProviderApplicationSectionId>("basic");
   const [errors, setErrors] = useState<ProviderFormErrors>({});
   const [formError, setFormError] = useState("");
+  const [restoreMessage, setRestoreMessage] = useState("");
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [verificationDocumentFile, setVerificationDocumentFile] =
     useState<File | null>(null);
@@ -232,6 +324,41 @@ export function ProviderApplicationForm({
     null,
   );
   const lookupsReady = isConfigured && categories.length > 0 && districts.length > 0;
+
+  useEffect(() => {
+    if (!authenticatedUserId) {
+      return;
+    }
+
+    const storedValue = window.sessionStorage.getItem(
+      pendingProviderApplicationStorageKey,
+    );
+
+    if (!storedValue) {
+      return;
+    }
+
+    const restoredApplication = parseStoredProviderApplication(storedValue);
+    window.sessionStorage.removeItem(pendingProviderApplicationStorageKey);
+
+    if (!restoredApplication) {
+      return;
+    }
+
+    const restoreTimeoutId = window.setTimeout(() => {
+      setFormState({
+        ...initialFormState,
+        ...restoredApplication.form,
+      });
+      setRestoreMessage(
+        restoredApplication.hadFiles
+          ? "Bilgileriniz korundu. Lütfen belge/fotoğrafı tekrar seçin."
+          : "Bilgileriniz korundu, devam edebilirsiniz.",
+      );
+    }, 0);
+
+    return () => window.clearTimeout(restoreTimeoutId);
+  }, [authenticatedUserId]);
 
   function updateField(field: ProviderField, value: string) {
     setFormState((currentState) => ({
@@ -276,6 +403,20 @@ export function ProviderApplicationForm({
     if (profileImageError || verificationDocumentError) {
       setFormError(profileImageError ?? verificationDocumentError ?? "");
       setSubmittedApplication(null);
+      return;
+    }
+
+    if (!authenticatedUserId) {
+      window.sessionStorage.setItem(
+        pendingProviderApplicationStorageKey,
+        JSON.stringify(
+          createStoredProviderApplication(
+            normalizedApplication,
+            Boolean(profileImageFile || verificationDocumentFile),
+          ),
+        ),
+      );
+      router.push("/login?next=/provider-application&restore=1");
       return;
     }
 
@@ -333,6 +474,21 @@ export function ProviderApplicationForm({
       if (!submitResult.ok) {
         logSubmitFailure(submitResult);
         setSubmittedApplication(null);
+
+        if (submitResult.errorCode === "auth-required") {
+          window.sessionStorage.setItem(
+            pendingProviderApplicationStorageKey,
+            JSON.stringify(
+              createStoredProviderApplication(
+                normalizedApplication,
+                Boolean(profileImageFile || verificationDocumentFile),
+              ),
+            ),
+          );
+          router.push("/login?next=/provider-application&restore=1");
+          return;
+        }
+
         setFormError(submitResult.message);
         return;
       }
@@ -400,7 +556,7 @@ export function ProviderApplicationForm({
 
         {lookupError ? (
           <p
-            className="cursor-default select-none rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-700"
+            className="cursor-default select-none rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700"
             role="alert"
           >
             {lookupError}
@@ -409,10 +565,19 @@ export function ProviderApplicationForm({
 
         {formError ? (
           <p
-            className="cursor-default select-none rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-700"
+            className="cursor-default select-none rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700"
             role="alert"
           >
             {formError}
+          </p>
+        ) : null}
+
+        {restoreMessage ? (
+          <p
+            className="cursor-default select-none rounded-md border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] px-4 py-3 text-sm font-medium leading-6 text-[var(--trust-green)]"
+            role="status"
+          >
+            {restoreMessage}
           </p>
         ) : null}
 
@@ -677,7 +842,7 @@ export function ProviderApplicationForm({
                       type="radio"
                       value={option.value}
                     />
-                    <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
+                    <span className="select-none text-sm font-semibold text-[var(--brand-navy)]">
                       {t(option.labelKey)}
                     </span>
                     <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">
@@ -723,7 +888,7 @@ export function ProviderApplicationForm({
                       type="radio"
                       value={option.value}
                     />
-                    <span className="select-none text-sm font-bold text-[var(--brand-navy)]">
+                    <span className="select-none text-sm font-semibold text-[var(--brand-navy)]">
                       {t(option.labelKey)}
                     </span>
                     <span className="mt-3 select-none text-xs leading-5 text-[var(--muted)]">

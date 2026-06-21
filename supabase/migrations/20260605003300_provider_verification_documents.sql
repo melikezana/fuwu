@@ -20,6 +20,13 @@ values (
 )
 on conflict (id) do nothing;
 
+update storage.buckets
+set
+  public = false,
+  file_size_limit = 5242880,
+  allowed_mime_types = array['application/pdf', 'image/jpeg', 'image/png']
+where id = 'provider-verification-documents';
+
 drop policy if exists provider_verification_documents_select_owner_or_admin on storage.objects;
 create policy provider_verification_documents_select_owner_or_admin
 on storage.objects

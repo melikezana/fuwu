@@ -55,7 +55,11 @@ function checkEnvironment() {
   ];
 
   if ((process.env.PREFLIGHT_ENV ?? process.env.VERCEL_ENV) === "production") {
-    required.push("NEXT_PUBLIC_SITE_URL");
+    required.push(
+      "NEXT_PUBLIC_SITE_URL",
+      "UPSTASH_REDIS_REST_URL",
+      "UPSTASH_REDIS_REST_TOKEN",
+    );
   }
 
   const missing = required.filter((name) => !hasEnv(name));

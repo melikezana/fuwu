@@ -223,7 +223,7 @@ export function ProviderDashboardShell({
         <Container className="max-w-7xl py-8 sm:py-10">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
-              <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+              <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 Fuwu Usta Paneli
               </p>
               <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
@@ -236,16 +236,12 @@ export function ProviderDashboardShell({
 
             <div
               className={cn(
-                "inline-flex max-w-full flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold leading-4",
+                "inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium leading-4",
                 statusToneClasses[statusTone],
               )}
             >
               <ShieldCheck className="h-4 w-4" aria-hidden />
               {providerName ? `${providerName} · ${statusLabel}` : statusLabel}
-            </div>
-            <div className={cn("hidden max-w-full flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold leading-4", statusToneClasses[statusTone])}>
-              <ShieldCheck className="h-4 w-4" aria-hidden />
-              {providerName ? `${providerName} alanı` : "Başvuru alanı"}
             </div>
           </div>
 
@@ -257,7 +253,7 @@ export function ProviderDashboardShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-bold leading-5 transition-colors",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold leading-5 transition-colors",
                     isActive
                       ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-action)]"
                       : "border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
@@ -370,11 +366,11 @@ export function ProviderDashboardAccessPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
+        <article className="rounded-lg border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
-          <p className="mt-5 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+          <p className="mt-5 text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
             {statusView.eyebrow}
           </p>
           <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
@@ -414,13 +410,13 @@ export function ProviderDashboardAccessPlaceholder({
         </article>
 
         <aside
-          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
+          className="rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
             <ShieldCheck className="h-5 w-5" aria-hidden />
           </div>
-          <p className="mt-5 text-xs font-bold uppercase text-[var(--muted)]">
+          <p className="mt-5 text-xs font-medium uppercase text-[var(--muted)]">
             Durum özeti
           </p>
           <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
@@ -445,10 +441,10 @@ export function ProviderDashboardAccessPlaceholder({
                   className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
                   key={label}
                 >
-                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                  <dt className="text-[0.68rem] font-medium uppercase leading-4 text-[var(--muted)]">
                     {label}
                   </dt>
-                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                  <dd className="mt-1 break-words text-sm font-semibold leading-5 text-[var(--brand-navy)]">
                     {value}
                   </dd>
                 </div>
@@ -468,10 +464,10 @@ export function ProviderDashboardAccessPlaceholder({
                   className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
                   key={label}
                 >
-                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                  <dt className="text-[0.68rem] font-medium uppercase leading-4 text-[var(--muted)]">
                     {label}
                   </dt>
-                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                  <dd className="mt-1 break-words text-sm font-semibold leading-5 text-[var(--brand-navy)]">
                     {value}
                   </dd>
                 </div>
@@ -539,11 +535,11 @@ export function ProviderDashboardApplicationPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
+        <article className="rounded-lg border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
-          <p className="mt-5 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+          <p className="mt-5 text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
             {statusView.eyebrow}
           </p>
           <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
@@ -569,13 +565,13 @@ export function ProviderDashboardApplicationPlaceholder({
         </article>
 
         <aside
-          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
+          className="rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
             <ShieldCheck className="h-5 w-5" aria-hidden />
           </div>
-          <p className="mt-5 text-xs font-bold uppercase text-[var(--muted)]">
+          <p className="mt-5 text-xs font-medium uppercase text-[var(--muted)]">
             Durum Özeti
           </p>
           <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
@@ -591,10 +587,10 @@ export function ProviderDashboardApplicationPlaceholder({
                   className="rounded-md bg-[var(--surface-soft)] px-3 py-2"
                   key={label}
                 >
-                  <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+                  <dt className="text-[0.68rem] font-medium uppercase leading-4 text-[var(--muted)]">
                     {label}
                   </dt>
-                  <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+                  <dd className="mt-1 break-words text-sm font-semibold leading-5 text-[var(--brand-navy)]">
                     {value}
                   </dd>
                 </div>
@@ -691,10 +687,10 @@ export function ProviderSummaryCard({
 export function ProviderProfileField({ label, value }: ProfileFieldProps) {
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
-      <p className="cursor-default select-none text-xs font-bold uppercase text-[var(--muted)]">
+      <p className="cursor-default select-none text-xs font-medium uppercase text-[var(--muted)]">
         {label}
       </p>
-      <p className="mt-2 cursor-default select-none break-words text-base font-bold leading-6 text-[var(--brand-navy)]">
+      <p className="mt-2 cursor-default select-none break-words text-base font-semibold leading-6 text-[var(--brand-navy)]">
         {value}
       </p>
     </div>
@@ -719,7 +715,7 @@ export function ProviderStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-8 max-w-full items-center rounded-md border px-2.5 py-1 text-xs font-bold leading-4",
+        "inline-flex min-h-8 max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-medium leading-4",
         toneClasses[tone],
       )}
     >

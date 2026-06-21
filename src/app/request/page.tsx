@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { RequestForm } from "@/components/request/RequestForm";
 import { appRoutes } from "@/lib/constants/navigation";
-import { isSupabaseServerConfigured } from "@/lib/supabase/server";
-import { authAccessMessages } from "@/services/auth/constants";
 import {
   getAuthenticatedServerUserId,
   getCurrentServerUserProfile,
@@ -52,61 +48,8 @@ function getSearchParam(value?: string | string[]) {
   return value ?? "";
 }
 
-function createRequestNextPath(params?: RequestSearchParams) {
-  const nextParams = new URLSearchParams();
-
-  Object.entries(params ?? {}).forEach(([key, value]) => {
-    const paramValue = getSearchParam(value);
-
-    if (paramValue.trim()) {
-      nextParams.set(key, paramValue);
-    }
-  });
-
-  const queryString = nextParams.toString();
-
-  return queryString ? `${appRoutes.request}?${queryString}` : appRoutes.request;
-}
-
-function LoginRequiredState({ nextPath }: { nextPath: string }) {
-  const loginHref = `${appRoutes.login}?next=${encodeURIComponent(nextPath)}`;
-
-  return (
-    <Card className="min-w-0">
-      <div className="cursor-default select-none">
-        <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-          Giriş gerekli
-        </p>
-        <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
-          {authAccessMessages.loginRequired}
-        </h2>
-        <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
-          Usta profillerini giriş yapmadan inceleyebilirsin. Ancak hizmet talebi oluşturmak için
-          hesabınla devam etmen gerekir.
-        </p>
-        {!isSupabaseServerConfigured ? (
-          <p className="mt-4 rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-            Giriş ve veri bağlantısı henüz aktif olmadığı için bu ekranda gerçek talep kaydı
-            alınmaz.
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button className="w-full sm:w-fit" href={loginHref}>
-          Giriş Yap
-        </Button>
-        <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
-          Usta Bul
-        </Button>
-      </div>
-    </Card>
-  );
-}
-
 export default async function RequestPage({ searchParams }: RequestPageProps) {
   const params = await searchParams;
-  const nextPath = createRequestNextPath(params);
   const [authenticatedUserId, profile, insights] = await Promise.all([
     getAuthenticatedServerUserId(),
     getCurrentServerUserProfile(),
@@ -149,24 +92,20 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
           </p>
         </div>
 
-        {authenticatedUserId ? (
-          <RequestForm
-            authenticatedUserId={authenticatedUserId}
-            initialApproximateLocation={initialApproximateLocation}
-            initialBudgetTag={initialBudgetTag}
-            initialDistrict={initialDistrict}
-            initialNotes={initialNotes}
-            initialOfferAmount={initialOfferAmount}
-            initialPaymentPreference={initialPaymentPreference}
-            initialProfileFullName={profile?.full_name}
-            initialProfilePhone={profile?.phone}
-            initialService={initialService}
-            initialTimePreference={initialTimePreference}
-            insights={insights}
-          />
-        ) : (
-          <LoginRequiredState nextPath={nextPath} />
-        )}
+        <RequestForm
+          authenticatedUserId={authenticatedUserId}
+          initialApproximateLocation={initialApproximateLocation}
+          initialBudgetTag={initialBudgetTag}
+          initialDistrict={initialDistrict}
+          initialNotes={initialNotes}
+          initialOfferAmount={initialOfferAmount}
+          initialPaymentPreference={initialPaymentPreference}
+          initialProfileFullName={profile?.full_name}
+          initialProfilePhone={profile?.phone}
+          initialService={initialService}
+          initialTimePreference={initialTimePreference}
+          insights={insights}
+        />
       </Container>
     </section>
   );

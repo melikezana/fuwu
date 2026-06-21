@@ -26,11 +26,11 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
   secondary:
-    "bg-white text-[var(--brand-navy)] shadow-[inset_0_0_0_2px_rgba(255,138,0,0.56),0_12px_28px_rgba(13,20,36,0.08)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] hover:shadow-[inset_0_0_0_2px_rgba(255,138,0,0.88),0_18px_38px_rgba(255,138,0,0.18)]",
+    "bg-white text-[var(--brand-navy)] shadow-[var(--shadow-card)] ring-2 ring-[rgba(255,138,0,0.56)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-elevated)] hover:ring-[rgba(255,138,0,0.88)]",
   ghost:
     "text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
   light:
-    "bg-white text-[var(--brand-navy)] shadow-[0_14px_32px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.88)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)]",
+    "bg-white text-[var(--brand-navy)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-elevated)]",
   premium:
     "bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] ring-1 ring-[rgba(255,138,0,0.42)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
 };

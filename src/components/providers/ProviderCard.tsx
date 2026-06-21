@@ -83,7 +83,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
             {typeof provider.rating === "number" &&
             Number.isFinite(provider.rating) &&
             provider.rating > 0 ? (
-              <div className="flex shrink-0 items-center gap-1 rounded-md border border-yellow-100 bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-700">
+              <div className="flex shrink-0 items-center gap-1 rounded-full border border-yellow-100 bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700">
                 <Star className="size-3.5 fill-current" />
                 {provider.rating.toFixed(1)}
               </div>
@@ -96,7 +96,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
         <div className="flex min-w-0 flex-wrap gap-2">
           {provider.category ? (
             <Link
-              className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+              className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
               href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
             >
               <ServiceIcon
@@ -108,7 +108,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           ) : null}
           {provider.district ? (
             <Link
-              className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+              className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
               href={createProviderFilterHref(currentSearchParams, "district", provider.district)}
             >
               <MapPin className="size-3 shrink-0" />

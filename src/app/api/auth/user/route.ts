@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAuthUserMetadataName } from "@/services/auth/profiles";
 
@@ -8,7 +9,26 @@ function authJson(body: Record<string, unknown>, init?: ResponseInit) {
   return response;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const rateLimit = await checkApiRateLimit(request, {
+    action: "api.auth.user",
+    limit: 60,
+    windowMs: 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return authJson(
+      {
+        authenticated: false,
+        message: "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.",
+      },
+      {
+        headers: getApiRateLimitHeaders(rateLimit),
+        status: 429,
+      },
+    );
+  }
+
   try {
     const supabase = await createSupabaseServerClient();
 

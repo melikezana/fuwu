@@ -239,18 +239,18 @@ export const trTranslations = {
     "Supabase bağlantısı yokken başvuru kaydedilemez; lütfen bağlantı aktifken tekrar dene.",
   "providerApplication.liveMode":
     "Şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir.",
-  "providerApplication.section.basic": "Temel Bilgiler",
+  "providerApplication.section.basic": "Kişisel Bilgiler",
   "providerApplication.section.basicDescription":
-    "Başvuruda kullanılacak temel ad bilgisini ekle.",
-  "providerApplication.section.service": "Hizmet ve Bölge",
+    "Bilgileriniz yalnızca başvurunuzu doğrulamak ve hesabınızla eşleştirmek için kullanılır.",
+  "providerApplication.section.service": "Hizmet Bilgileri",
   "providerApplication.section.serviceDescription":
-    "Ana uzmanlığını ve düzenli hizmet verebileceğin ilçeleri belirt.",
-  "providerApplication.section.experience": "Deneyim",
+    "Uzmanlık ve hizmet bölgesi bilgileri yalnızca doğru müşterilerle eşleşmeniz için kullanılır.",
+  "providerApplication.section.experience": "Deneyim ve Çalışma",
   "providerApplication.section.experienceDescription":
-    "Çalışma düzenini, deneyimini ve müşteriye nasıl hizmet verdiğini netleştir.",
-  "providerApplication.section.contact": "İletişim",
+    "Deneyiminizi açıkça paylaşmanız profil incelemesini hızlandırır ve müşteriye güven verir.",
+  "providerApplication.section.contact": "Belgeler ve İletişim",
   "providerApplication.section.contactDescription":
-    "Müşterilerin sana ulaşacağı aktif telefon bilgisini paylaş.",
+    "Telefonunuz müşteri iletişimi için, özel belgeleriniz ise yalnızca doğrulama amacıyla kullanılır.",
   "providerApplication.fullName": "Ad soyad",
   "providerApplication.fullNamePlaceholder": "Resmi adını veya iş adını yaz",
   "providerApplication.fullNameHelper": "Müşterilerin göreceği adı kullan.",

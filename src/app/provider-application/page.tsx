@@ -47,7 +47,7 @@ function ProviderApplicationStatusCard({
 
   return (
     <Card className="min-w-0">
-      <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+      <p className="text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Usta başvurusu
       </p>
       <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -71,10 +71,10 @@ function ProviderApplicationStatusCard({
           ["Deneyim", `${application.experienceYears} yıl`],
         ].map(([label, value]) => (
           <div className="rounded-md bg-[var(--surface-soft)] px-3 py-2" key={label}>
-            <dt className="text-[0.68rem] font-bold uppercase leading-4 text-[var(--muted)]">
+            <dt className="text-[0.68rem] font-medium uppercase leading-4 text-[var(--muted)]">
               {label}
             </dt>
-            <dd className="mt-1 break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+            <dd className="mt-1 break-words text-sm font-semibold leading-5 text-[var(--brand-navy)]">
               {value}
             </dd>
           </div>
@@ -99,7 +99,7 @@ function ProviderApplicationLoginRequiredCard() {
 
   return (
     <Card className="min-w-0">
-      <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+      <p className="text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Giriş gerekli
       </p>
       <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -123,7 +123,7 @@ function ProviderApplicationLoginRequiredCard() {
 function ActiveProviderCard() {
   return (
     <Card className="min-w-0">
-      <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+      <p className="text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Usta hesabı aktif
       </p>
       <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
@@ -154,7 +154,7 @@ function RejectedApplicationNotice({
   }
 
   return (
-    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold leading-6 text-red-700">
+    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-medium leading-6 text-red-700">
       {providerApplicationStatusMessages.rejected}
     </div>
   );
@@ -199,7 +199,7 @@ export default async function ProviderApplicationPage() {
             <p className="mt-2 text-base font-semibold leading-7 text-[var(--brand-navy)]">
               <I18nText i18nKey="providerApplication.trustDescription" />
             </p>
-            <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 text-sm font-bold leading-6 text-[var(--muted)]">
+            <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 text-sm font-medium leading-6 text-[var(--muted)]">
               <p>
                 <I18nText i18nKey="providerApplication.reassurance" />
               </p>
@@ -211,7 +211,16 @@ export default async function ProviderApplicationPage() {
         </div>
 
         {!providerAccess.ok && providerAccess.reason === "missing-session" ? (
-          <ProviderApplicationLoginRequiredCard />
+          <div className="grid gap-5">
+            <ProviderApplicationLoginRequiredCard />
+            <ProviderApplicationForm
+              authenticatedUserId={null}
+              categories={formOptions.categories}
+              districts={formOptions.districts}
+              isConfigured={formOptions.isConfigured}
+              lookupError={formOptions.error}
+            />
+          </div>
         ) : shouldShowExistingApplication && application ? (
           <ProviderApplicationStatusCard
             application={application}
@@ -226,6 +235,7 @@ export default async function ProviderApplicationPage() {
               <p className="sr-only">{noProviderApplicationMessage}</p>
             ) : null}
             <ProviderApplicationForm
+              authenticatedUserId={providerAccess.userId ?? null}
               categories={formOptions.categories}
               districts={formOptions.districts}
               isConfigured={formOptions.isConfigured}

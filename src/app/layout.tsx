@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { Suspense } from "react";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { HelpButton } from "@/components/layout/HelpButton";
@@ -9,9 +9,35 @@ import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
 import "@/styles/globals.css";
 
-const inter = Inter({
+const inter = localFont({
   display: "swap",
-  subsets: ["latin", "latin-ext"],
+  src: [
+    {
+      path: "../fonts/Inter-Regular.woff2",
+      style: "normal",
+      weight: "400",
+    },
+    {
+      path: "../fonts/Inter-Medium.woff2",
+      style: "normal",
+      weight: "500",
+    },
+    {
+      path: "../fonts/Inter-SemiBold.woff2",
+      style: "normal",
+      weight: "600",
+    },
+    {
+      path: "../fonts/Inter-Bold.woff2",
+      style: "normal",
+      weight: "700",
+    },
+    {
+      path: "../fonts/Inter-ExtraBold.woff2",
+      style: "normal",
+      weight: "800",
+    },
+  ],
   variable: "--font-inter",
 });
 

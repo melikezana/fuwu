@@ -8,10 +8,10 @@ export function MetricCard({
   subtext?: string;
 }) {
   return (
-    <div className="flex flex-col bg-white border border-[var(--border)] rounded-lg p-4 shadow-[var(--shadow-subtle)] min-w-[140px] flex-1">
-      <span className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">{label}</span>
-      <span className="text-2xl font-bold text-[var(--brand-navy)] mt-2">{value}</span>
-      {subtext && <span className="text-xs font-semibold text-[var(--muted)] mt-1">{subtext}</span>}
+    <div className="flex min-w-[140px] flex-1 flex-col rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-subtle)]">
+      <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">{label}</span>
+      <span className="mt-2 text-2xl font-semibold text-[var(--brand-navy)]">{value}</span>
+      {subtext && <span className="mt-1 text-xs font-medium text-[var(--muted)]">{subtext}</span>}
     </div>
   );
 }

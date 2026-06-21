@@ -11,7 +11,7 @@ function getSafeRedirectUrl(request: NextRequest) {
   return createSafeRedirectUrl(
     request.nextUrl.searchParams.get("next"),
     request.nextUrl.origin,
-    appRoutes.providers,
+    appRoutes.account,
   );
 }
 

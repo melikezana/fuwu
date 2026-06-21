@@ -23,6 +23,25 @@ const expectedFunctions = [
   "bind_provider_applications_to_current_user",
 ];
 
+const expectedCategorySlugs = [
+  "tesisat",
+  "cilingir",
+  "elektrik-hizmeti",
+  "temizlik",
+  "hali-yikama",
+  "klima-beyaz-esya",
+  "mobilya-montaj",
+  "boya-badana",
+  "nakliye-yardimi",
+  "bahce-bakimi",
+  "havuz-bakimi",
+];
+
+const expectedStorageBuckets = [
+  "provider-images",
+  "provider-verification-documents",
+];
+
 const results = [];
 
 function loadEnvFile(fileName) {
@@ -112,17 +131,39 @@ async function main() {
     );
   }
 
-  const { data: locksmithCategory, error: categoryError } = await supabase
+  const { data: categories, error: categoryError } = await supabase
     .from("service_categories")
-    .select("id")
-    .eq("slug", "cilingir")
-    .maybeSingle();
+    .select("id, slug")
+    .in("slug", expectedCategorySlugs);
+  const categorySlugs = new Set((categories ?? []).map((category) => category.slug));
+  const missingCategories = expectedCategorySlugs.filter(
+    (slug) => !categorySlugs.has(slug),
+  );
 
   recordCheck(
-    'service_categories contains slug "cilingir"',
-    !categoryError && Boolean(locksmithCategory?.id),
-    categoryError ? categoryError.message : locksmithCategory?.id ?? "missing",
+    "service_categories contains production catalog",
+    !categoryError && missingCategories.length === 0,
+    categoryError
+      ? categoryError.message
+      : missingCategories.length > 0
+        ? `missing: ${missingCategories.join(", ")}`
+        : `${categorySlugs.size} expected categories found`,
   );
+
+  const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+  const bucketIds = new Set((buckets ?? []).map((bucket) => bucket.id));
+
+  for (const bucketId of expectedStorageBuckets) {
+    recordCheck(
+      `storage bucket exists: ${bucketId}`,
+      !bucketsError && bucketIds.has(bucketId),
+      bucketsError
+        ? bucketsError.message
+        : bucketIds.has(bucketId)
+          ? "bucket reachable"
+          : "missing",
+    );
+  }
 
   const { data: catalog, error: catalogError } = await supabase.rpc(
     "backend_health_catalog",

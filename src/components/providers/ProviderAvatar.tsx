@@ -25,7 +25,7 @@ export function ProviderAvatar({
   return (
     <div
       className={cn(
-        "relative isolate inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[linear-gradient(145deg,#fffaf3_0%,var(--brand-orange-soft)_55%,#ffe4bd_100%)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)]",
+        "relative isolate inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[linear-gradient(145deg,#fffaf3_0%,var(--brand-orange-soft)_55%,#ffe4bd_100%)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)]",
         sizeClassName,
         className,
       )}

@@ -1,7 +1,8 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   createEmergencyRequestAction,
   createServiceRequestAction,
@@ -64,7 +65,7 @@ type RequestFormErrors = Partial<Record<RequestField, string>>;
 type SubmittedRequest = ServiceRequestSubmitResult;
 
 type RequestFormProps = {
-  authenticatedUserId: string;
+  authenticatedUserId?: string | null;
   initialApproximateLocation?: string;
   initialBudgetTag?: string;
   initialDistrict?: string;
@@ -185,9 +186,9 @@ const fieldBaseClassName =
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
 const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer select-none pr-10`;
 
-const labelClassName = "block cursor-default select-none text-sm font-bold text-[var(--brand-navy)]";
+const labelClassName = "block cursor-default select-none text-sm font-semibold text-[var(--brand-navy)]";
 const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 text-[var(--muted)]";
-const errorClassName = "mt-2 cursor-default select-none text-sm font-bold text-red-600";
+const errorClassName = "mt-2 cursor-default select-none text-sm font-medium text-red-600";
 const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
 const serviceRequestSuccessMessage = "Talebiniz başarıyla oluşturuldu";
 const serviceRequestSubmitErrorMessage =
@@ -198,6 +199,34 @@ const emptyRequestFormInsights: RequestFormInsights = {
   providerCountByCategoryAndDistrict: {},
   source: "fallback",
 };
+
+const pendingRequestFormStorageKey = "fuwu:pending-request-form";
+
+function parseStoredRequestForm(value: string): RequestFormState | null {
+  try {
+    const storedValue = JSON.parse(value) as Partial<Record<RequestField, unknown>>;
+    const restoredState = { ...initialFormState };
+
+    for (const field of Object.keys(initialFormState) as RequestField[]) {
+      if (typeof storedValue[field] === "string") {
+        restoredState[field] = storedValue[field] as never;
+      }
+    }
+
+    if (
+      restoredState.urgencyType !== "standard" &&
+      restoredState.urgencyType !== "emergency"
+    ) {
+      restoredState.urgencyType = "standard";
+    }
+
+    const validationResult = validateServiceRequestInput(restoredState);
+
+    return validationResult.ok ? restoredState : null;
+  } catch {
+    return null;
+  }
+}
 
 function parsePriceValue(value: string | number | null | undefined) {
   if (typeof value === "number") {
@@ -392,7 +421,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 function EmergencyStepLabel({ children, step }: { children: string; step: number }) {
   return (
-    <span className="inline-flex items-center gap-2 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+    <span className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
       <span className="flex size-6 items-center justify-center rounded-md bg-[var(--brand-orange)] text-white">
         {step}
       </span>
@@ -486,7 +515,7 @@ function InsightNote({ children, tone = "neutral" }: { children: string; tone?: 
         : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
 
   return (
-    <p className={`rounded-md border px-3 py-2 text-xs font-bold leading-5 ${className}`}>
+    <p className={`rounded-full border px-3 py-2 text-xs font-medium leading-5 ${className}`}>
       {children}
     </p>
   );
@@ -495,8 +524,8 @@ function InsightNote({ children, tone = "neutral" }: { children: string; tone?: 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-center justify-between gap-3 rounded-md bg-white px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
-      <span className="text-xs font-bold uppercase text-[var(--muted)]">{label}</span>
-      <span className="min-w-0 text-right text-sm font-bold text-[var(--brand-navy)]">
+      <span className="text-xs font-medium uppercase text-[var(--muted)]">{label}</span>
+      <span className="min-w-0 text-right text-sm font-semibold text-[var(--brand-navy)]">
         {value || "Seçim bekleniyor"}
       </span>
     </div>
@@ -504,6 +533,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 }
 
 export function RequestForm({
+  authenticatedUserId,
   insights = emptyRequestFormInsights,
   initialApproximateLocation,
   initialBudgetTag,
@@ -516,6 +546,7 @@ export function RequestForm({
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
+  const router = useRouter();
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({
       initialApproximateLocation,
@@ -533,6 +564,7 @@ export function RequestForm({
   const [errors, setErrors] = useState<RequestFormErrors>({});
   const [submittedRequest, setSubmittedRequest] = useState<SubmittedRequest | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const isEmergencyFlow = formState.urgencyType === "emergency";
@@ -592,6 +624,32 @@ export function RequestForm({
       initialService?.trim() ||
       initialTimePreference?.trim(),
   );
+
+  useEffect(() => {
+    if (!authenticatedUserId) {
+      return;
+    }
+
+    const storedValue = window.sessionStorage.getItem(pendingRequestFormStorageKey);
+
+    if (!storedValue) {
+      return;
+    }
+
+    const restoredState = parseStoredRequestForm(storedValue);
+    window.sessionStorage.removeItem(pendingRequestFormStorageKey);
+
+    if (!restoredState) {
+      return;
+    }
+
+    const restoreTimeoutId = window.setTimeout(() => {
+      setFormState(restoredState);
+      setRestoreMessage("Bilgileriniz korundu, devam edebilirsiniz.");
+    }, 0);
+
+    return () => window.clearTimeout(restoreTimeoutId);
+  }, [authenticatedUserId]);
 
   function updateField(field: keyof RequestFormState, value: string) {
     setFormState((currentState) => {
@@ -677,6 +735,15 @@ export function RequestForm({
         ? await createEmergencyRequestAction(normalizedRequest)
         : await createServiceRequestAction(normalizedRequest);
       if (!response.ok) {
+        if (response.errorCode === "auth-required") {
+          window.sessionStorage.setItem(
+            pendingRequestFormStorageKey,
+            JSON.stringify(normalizedRequest),
+          );
+          router.push("/login?next=/request&restore=1");
+          return;
+        }
+
         setSubmitError(response.message);
         return;
       }
@@ -754,7 +821,9 @@ export function RequestForm({
                   </p>
                   <h3 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
                     {submittedRequest.urgencyType === "emergency"
-                      ? "Acil talebiniz uygun ustalara iletildi."
+                      ? submittedRequest.providerCountNotified
+                        ? "Acil talebiniz uygun ustalara iletildi."
+                        : "Acil talebiniz incelemeye alındı."
                       : "Talebin alındı"}
                   </h3>
                 </div>
@@ -763,10 +832,8 @@ export function RequestForm({
                 </div>
               </div>
               <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
-                {submittedRequest.urgencyType === "emergency"
-                  ? (submittedRequest.notificationMessage ??
-                    "Talebiniz uygun ustalara iletildi. İlk uygun usta kabul ettiğinde canlı durum bilgisi bu talep üzerinden ilerler.")
-                  : `${serviceRequestSuccessMessage}. Talebiniz ustalara iletildi; uygun eşleşme bulunduğunda durum sayfanda güncellenecek.`}
+                {submittedRequest.notificationMessage ??
+                  `${serviceRequestSuccessMessage}. Talebiniz admin tarafından değerlendirilecek.`}
               </p>
               <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
                 <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
@@ -866,10 +933,19 @@ export function RequestForm({
 
         {submitError ? (
           <p
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold leading-6 text-red-700"
+            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700"
             role="alert"
           >
             {submitError}
+          </p>
+        ) : null}
+
+        {restoreMessage ? (
+          <p
+            className="rounded-md border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] px-4 py-3 text-sm font-medium leading-6 text-[var(--trust-green)]"
+            role="status"
+          >
+            {restoreMessage}
           </p>
         ) : null}
 

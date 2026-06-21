@@ -58,7 +58,7 @@ function LoginIcon({ Icon }: { Icon: LoginOption["Icon"] | typeof Phone }) {
 function getSafeNextPath() {
   const nextPath = new URLSearchParams(window.location.search).get("next");
 
-  return getSafeRedirectPath(nextPath, appRoutes.providers);
+  return getSafeRedirectPath(nextPath, appRoutes.account);
 }
 
 function getAuthRedirectUrl() {

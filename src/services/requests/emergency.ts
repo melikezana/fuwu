@@ -17,12 +17,12 @@ import { normalizeServiceValue } from "@/lib/constants/services";
 import type { Database } from "@/lib/supabase/types";
 import {
   createEmergencyMatchRequest as buildEmergencyMatchRequest,
+  matchAndNotifyEligibleProviders,
   validateEmergencyPrice,
 } from "@/services/matching";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
-import { notifyEmergencyRequestDispatched } from "@/services/notifications";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import { writeAuditLog } from "@/services/audit";
 import { validateServiceRequestInput } from "@/lib/validations";
@@ -220,41 +220,6 @@ async function createEmergencyInsert(
   };
 }
 
-async function countEligibleEmergencyProviders(
-  supabase: SupabaseClient<Database>,
-  categoryId: string,
-  districtId: string,
-) {
-  const { count: exactDistrictCount, error: exactDistrictError } = await supabase
-    .from("providers")
-    .select("id", { count: "exact", head: true })
-    .eq("category_id", categoryId)
-    .eq("district_id", districtId)
-    .eq("is_active", true)
-    .eq("is_approved", true);
-
-  if (exactDistrictError) {
-    return 0;
-  }
-
-  if (exactDistrictCount && exactDistrictCount > 0) {
-    return exactDistrictCount;
-  }
-
-  const { count: sameCategoryCount, error: sameCategoryError } = await supabase
-    .from("providers")
-    .select("id", { count: "exact", head: true })
-    .eq("category_id", categoryId)
-    .eq("is_active", true)
-    .eq("is_approved", true);
-
-  if (sameCategoryError) {
-    return 0;
-  }
-
-  return sameCategoryCount ?? 0;
-}
-
 async function assertEmergencyRequestRateLimit(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -371,18 +336,14 @@ export async function createEmergencyMatchRequest(
 
   const requestCode = createRequestCode(data?.id);
   const requestId = typeof data?.id === "string" ? data.id : null;
-  const eligibleProviderCount = await countEligibleEmergencyProviders(
-    supabase,
-    insertPayload.category_id,
-    insertPayload.district_id,
-  );
-
-  await notifyEmergencyRequestDispatched({
-    eligibleProviderCount,
-    notificationChannels: ["provider_dashboard", "push", "sms", "whatsapp"],
-    requestCode,
-    requestId,
-  });
+  const eligibleProviderCount = requestId
+    ? await matchAndNotifyEligibleProviders(supabase, {
+        categoryId: insertPayload.category_id,
+        districtId: insertPayload.district_id,
+        requestId,
+        urgencyType: "emergency",
+      })
+    : 0;
 
   await writeAuditLog(
     {
@@ -404,7 +365,10 @@ export async function createEmergencyMatchRequest(
     confirmationCode: insertPayload.confirmation_code ?? null,
     emergencyStatus: insertPayload.emergency_status ?? null,
     estimatedArrivalText: insertPayload.estimated_arrival_text ?? null,
-      notificationMessage: "Uygun ustalara bildirim gönderildi.",
+      notificationMessage:
+        eligibleProviderCount > 0
+          ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
+          : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
       offeredPrice: insertPayload.offered_price ?? null,
       paymentPreference: insertPayload.payment_preference ?? null,
       providerCountNotified: eligibleProviderCount,

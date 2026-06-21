@@ -86,3 +86,8 @@ Komut kritik env envanterini, SMS/Upstash/Sentry tutarlılığını, lint, produ
 build, statik backend kontrolü ve service-role ile veritabanı sağlık kontrolünü
 çalıştırır. Yerel ve bilinçli bir UI-only kontrolde DB adımı
 `PREFLIGHT_SKIP_DB=true` ile atlanabilir; CI/CD production kapısında atlanmamalıdır.
+# Font build güvenilirliği
+
+Inter fontu `src/fonts/` altında resmî Inter 4.1 WOFF2 dosyalarıyla
+self-hosted edilir. `src/app/layout.tsx` içinde `next/font/local` kullanıldığı
+için production build sırasında Google Fonts ağına erişim gerekmez.

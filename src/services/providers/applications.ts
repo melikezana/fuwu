@@ -418,6 +418,35 @@ async function assertNoPendingDuplicate(
   }
 }
 
+async function assertUserIsNotApprovedProvider(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+) {
+  const { data, error } = await supabase
+    .from("providers")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .eq("is_approved", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Approved provider duplicate application check failed.",
+      publicMessage: providerApplicationSubmitErrorMessage,
+      tableName: "providers",
+    });
+  }
+
+  if (data?.id) {
+    throw new ValidationError("Approved provider attempted another application.", {
+      publicMessage:
+        "Onaylı usta hesabınız zaten aktif. Yeni başvuru yerine usta panelini kullanabilirsiniz.",
+    });
+  }
+}
+
 async function assertProviderApplicationRateLimit(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -470,6 +499,7 @@ export async function submitProviderApplication(
     const insertPayload = buildProviderApplicationInsert(applicationData, userId);
 
     await assertProviderApplicationRateLimit(supabase, userId);
+    await assertUserIsNotApprovedProvider(supabase, userId);
     await assertNoPendingDuplicate(supabase, insertPayload);
 
     const { data: insertedApplication, error } = await supabase

@@ -66,13 +66,18 @@ export async function fillStandardLocksmithRequest(page: Page) {
   const suffix = uniqueE2EValue("request");
 
   await page.goto("/request");
+  await page.waitForLoadState("domcontentloaded");
   await expect(page.getByTestId("request-form")).toBeVisible();
+  await expect(
+    page.getByTestId("request-form").locator('button[type="submit"]'),
+  ).toBeEnabled();
   await checkFirstInputByValue(page, 'input[name="serviceCategory"]', "çilingir");
-  await page.locator('select[name="district"]').selectOption({ index: 1 });
+  await page.locator('input[name="district"]').fill("Kadıköy");
   await page.locator('input[name="fullAddress"]').fill(`E2E adres ${suffix}`);
+  await page.locator('input[name="urgencyLevel"][value="Bu hafta"]').check({ force: true });
   await page.locator('input[name="budgetTag"]').first().check({ force: true });
   await page.locator('input[name="paymentPreference"][value="cash"]').check({ force: true });
-  await page.locator('input[name="preferredDate"]').fill("2026-06-20");
+  await page.locator('input[name="preferredDate"]').fill("2026-07-01");
   await page.locator('select[name="preferredTimeRange"]').selectOption({ index: 1 });
   await page.locator('textarea[name="shortDescription"]').fill(`E2E çilingir talebi ${suffix}`);
   await page.locator('input[name="fullName"]').fill("E2E Müşteri");

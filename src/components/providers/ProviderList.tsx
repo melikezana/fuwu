@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { appRoutes } from "@/lib/constants/navigation";
 import { useI18n } from "@/lib/i18n";
 import type { Provider } from "@/types/provider";
 import { ProviderCard } from "./ProviderCard";
@@ -11,6 +13,7 @@ type ProviderListProps = {
 };
 
 export function ProviderList({
+  hasActiveFilters = false,
   providers,
   totalCount,
 }: ProviderListProps) {
@@ -54,10 +57,15 @@ export function ProviderList({
               : t("providers.empty.noMatchesTitle")}
           </p>
           <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-            {hasNoPublicProviders
-              ? t("providers.empty.noPublicDescription")
-              : t("providers.empty.noMatchesDescription")}
+            {hasActiveFilters
+              ? "Bu kategori ve bölgede henüz uygun usta yok. Talep oluşturduğunda uygun ustalar bilgilendirilecek."
+              : hasNoPublicProviders
+                ? t("providers.empty.noPublicDescription")
+                : t("providers.empty.noMatchesDescription")}
           </p>
+          <Button className="mt-5 w-full sm:w-fit" href={appRoutes.request}>
+            Talep Oluştur
+          </Button>
         </div>
       )}
     </section>

@@ -6,7 +6,12 @@ import {
   createAuthenticatedServiceRequest,
   serviceRequestSubmitErrorMessage,
 } from "@/services/requests";
-import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+import {
+  AuthError,
+  errorCodes,
+  getPublicErrorMessage,
+  handleServiceError,
+} from "@/lib/errors";
 import { getServerAuthContext } from "@/services/auth/server";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
 
@@ -16,9 +21,16 @@ export type ServiceRequestActionResult =
       ok: true;
     }
   | {
+      errorCode: ServiceRequestActionErrorCode;
       message: string;
       ok: false;
     };
+
+export type ServiceRequestActionErrorCode =
+  | "auth-required"
+  | "rate-limit"
+  | "server"
+  | "validation";
 
 const emergencyRequestSubmitErrorMessage =
   "Acil çağrı şu anda başlatılamadı. Seçimlerin korunarak devam edebilirsin.";
@@ -36,7 +48,17 @@ function createActionFailure(error: unknown, fallbackMessage: string): ServiceRe
     publicMessage: fallbackMessage,
   });
 
+  const errorCode: ServiceRequestActionErrorCode =
+    appError instanceof AuthError || appError.code === errorCodes.auth
+      ? "auth-required"
+      : appError.statusCode === 429
+        ? "rate-limit"
+        : appError.code === errorCodes.validation
+          ? "validation"
+          : "server";
+
   return {
+    errorCode,
     message: getPublicErrorMessage(appError, fallbackMessage),
     ok: false,
   };

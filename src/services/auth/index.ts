@@ -83,7 +83,7 @@ function sanitizeAuthRedirectUrl(redirectTo: string) {
     const redirectUrl = new URL(redirectTo);
     const safeNextPath = getSafeRedirectPath(
       redirectUrl.searchParams.get("next"),
-      appRoutes.providers,
+      appRoutes.account,
     );
 
     redirectUrl.searchParams.set("next", safeNextPath);

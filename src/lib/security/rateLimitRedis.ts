@@ -1,10 +1,18 @@
 import { Ratelimit, type Duration } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import {
+  checkRateLimit,
   checkDatabaseRateLimit,
   type DatabaseRateLimitOptions,
   type RateLimitResult,
 } from "@/lib/security/rateLimit";
+
+export type IdentifierRateLimitOptions = {
+  action: string;
+  identifier: string;
+  limit: number;
+  windowMs: number;
+};
 
 type RedisClient = InstanceType<typeof Redis>;
 
@@ -134,5 +142,56 @@ export async function checkRateLimitWithRedis(
     });
 
     return fallbackToDatabaseRateLimit(options);
+  }
+}
+
+export async function checkIdentifierRateLimitWithRedis({
+  action,
+  identifier,
+  limit,
+  windowMs,
+}: IdentifierRateLimitOptions): Promise<RateLimitResult> {
+  const safeAction = getSafeRedisKey(action, "unknown");
+  const safeIdentifier = getSafeRedisKey(identifier, "anonymous");
+  const fallback = () =>
+    checkRateLimit({
+      key: `${safeAction}:${safeIdentifier}`,
+      limit,
+      windowMs,
+    });
+  const redis = getRedisClient();
+
+  if (!redis) {
+    return fallback();
+  }
+
+  try {
+    const rateLimiter = getRateLimiter(limit, windowMs, redis);
+    const result = await rateLimiter.limit(`${safeAction}:${safeIdentifier}`);
+
+    void result.pending.catch((error) => {
+      console.error("[Fuwu] API rate limit pending task failed.", {
+        action: safeAction,
+        error,
+      });
+    });
+
+    if (result.reason === "timeout") {
+      return fallback();
+    }
+
+    return {
+      allowed: result.success,
+      limit: result.limit,
+      remaining: Math.max(0, result.remaining),
+      resetAt: result.reset,
+    };
+  } catch (error) {
+    console.error("[Fuwu] API rate limit check failed; using local fallback.", {
+      action: safeAction,
+      error,
+    });
+
+    return fallback();
   }
 }

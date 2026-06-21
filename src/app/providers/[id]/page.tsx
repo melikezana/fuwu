@@ -211,7 +211,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                     limit={1}
                   />
                   <span
-                    className={`inline-flex min-h-8 items-center rounded-md px-3 py-1.5 text-xs font-medium ${availabilityBadgeClassName}`}
+                    className={`inline-flex min-h-8 items-center rounded-full px-3 py-1.5 text-xs font-medium ${availabilityBadgeClassName}`}
                   >
                     {availabilityLabel}
                   </span>
@@ -221,13 +221,13 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 </h1>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <TextLink
-                    className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+                    className="rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
                     href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
                   >
                     {provider.category}
                   </TextLink>
                   <TextLink
-                    className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+                    className="rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
                     href={`${appRoutes.providers}?district=${encodeURIComponent(provider.district)}`}
                   >
                     {provider.district}
@@ -249,7 +249,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                       <Icon aria-hidden="true" className="size-5" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-xl font-semibold leading-none text-[var(--brand-navy)]">
+                      <span className="block text-2xl font-bold leading-none text-[var(--brand-navy)]">
                         {stat.value}
                       </span>
                       <span className="mt-1 block text-xs font-medium text-[var(--muted)]">

@@ -1,7 +1,12 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
+import { logWarn } from "@/lib/logger";
+import type { Database } from "@/lib/supabase/types";
+import { isUuid } from "@/lib/utils";
+import { notifyNewServiceRequestMatch } from "@/services/notifications";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { getProviders } from "@/services/providers";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
@@ -682,4 +687,111 @@ export async function getNearbyEligibleProviders(input: MatchInput, limit = 12) 
   );
 
   return rankMatchedProviders(Array.from(providersById.values()), query).slice(0, limit);
+}
+
+type EligibleProviderNotificationRecord = Pick<
+  Database["public"]["Tables"]["providers"]["Row"],
+  "district_id" | "id" | "user_id"
+>;
+
+export type MatchAndNotifyEligibleProvidersInput = {
+  categoryId: string;
+  districtId: string;
+  requestId: string;
+  urgencyType: ServiceRequestUrgencyType;
+};
+
+/**
+ * Finds the real, persisted provider audience for a request and creates one
+ * dashboard notification per successfully reached provider account.
+ *
+ * The current schema stores one service district on providers.district_id.
+ * If multi-district service areas are added later, this query should be
+ * extended to include that persisted relation instead of falling back to
+ * providers in unrelated districts.
+ */
+export async function matchAndNotifyEligibleProviders(
+  supabase: SupabaseClient<Database>,
+  {
+    categoryId,
+    districtId,
+    requestId,
+    urgencyType,
+  }: MatchAndNotifyEligibleProvidersInput,
+) {
+  const normalizedCategoryId = categoryId.trim();
+  const normalizedDistrictId = districtId.trim();
+  const normalizedRequestId = requestId.trim();
+
+  if (
+    !isUuid(normalizedCategoryId) ||
+    !isUuid(normalizedDistrictId) ||
+    !isUuid(normalizedRequestId) ||
+    (urgencyType !== "standard" && urgencyType !== "emergency")
+  ) {
+    logWarn("Provider match notification input validation failed.", {
+      requestId: normalizedRequestId,
+    });
+    return 0;
+  }
+
+  const [
+    {
+      data: { user },
+      error: authError,
+    },
+    { data, error },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("providers")
+      .select("id, user_id, district_id")
+      .eq("category_id", normalizedCategoryId)
+      .eq("district_id", normalizedDistrictId)
+      .eq("is_active", true)
+      .eq("is_approved", true),
+  ]);
+
+  if (authError || !user) {
+    logWarn("Provider match notification actor lookup failed.", {
+      requestId: normalizedRequestId,
+    });
+    return 0;
+  }
+
+  if (error) {
+    logWarn("Eligible provider match query failed.", {
+      categoryId: normalizedCategoryId,
+      districtId: normalizedDistrictId,
+      requestId: normalizedRequestId,
+      supabaseError: {
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        message: error.message,
+      },
+    });
+    return 0;
+  }
+
+  const providers = ((data ?? []) as EligibleProviderNotificationRecord[]).filter(
+    (provider): provider is EligibleProviderNotificationRecord & { user_id: string } =>
+      Boolean(provider.user_id),
+  );
+  const notificationResults = await Promise.all(
+    providers.map((provider) =>
+      notifyNewServiceRequestMatch({
+        actorUserId: user.id,
+        categoryId: normalizedCategoryId,
+        districtId: normalizedDistrictId,
+        providerId: provider.id,
+        providerUserId: provider.user_id,
+        requestId: normalizedRequestId,
+        supabaseClient: supabase,
+        urgencyType,
+      }),
+    ),
+  );
+
+  return notificationResults.filter(Boolean).length;
 }

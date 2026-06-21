@@ -40,7 +40,7 @@ export function ProviderTrustBadges({
         return (
           <span
             className={cn(
-              "inline-flex max-w-full items-center gap-1.5 rounded-md border font-medium leading-4",
+              "inline-flex max-w-full items-center gap-1.5 rounded-full border font-medium leading-4",
               featured
                 ? "min-h-8 px-3 py-1.5 text-xs shadow-[var(--shadow-subtle)]"
                 : "min-h-7 px-2 py-1 text-[0.72rem]",

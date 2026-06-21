@@ -223,7 +223,7 @@ export function getProviderTrustBadges({
   if (isVerified) {
     badges.push({
       id: "fuwu-approved",
-      label: "Fuwu Onaylı",
+      label: "Doğrulanmış Usta",
       tone: "green",
     });
   }

@@ -190,7 +190,9 @@ type ApprovedProviderApplicationPayload = {
 type AdminProviderApplicationRejectionRecord = Pick<
   ProviderApplicationRow,
   "status"
->;
+> & {
+  user_id?: string | null;
+};
 
 type AdminServiceRequestRecord = Pick<
   ServiceRequestRow,
@@ -1502,10 +1504,15 @@ export async function approveAdminProviderApplication(
     }
 
     try {
-      await notifyProviderApplicationApproved({
-        applicationId: normalizedApplicationId,
-        providerId: providerResult.providerId,
-      });
+      if (application.user_id) {
+        await notifyProviderApplicationApproved({
+          actorUserId: adminAccess.access.userId,
+          applicationId: normalizedApplicationId,
+          providerId: providerResult.providerId,
+          recipientUserId: application.user_id,
+          supabaseClient: supabase,
+        });
+      }
     } catch (error) {
       warnAdminWriteError("provider application approval notification", error);
     }
@@ -1582,7 +1589,7 @@ export async function rejectAdminProviderApplication(
 
     const { data, error } = await supabase
       .from("provider_applications")
-      .select("status")
+      .select("status, user_id")
       .eq("id", normalizedApplicationId)
       .maybeSingle();
 
@@ -1621,9 +1628,14 @@ export async function rejectAdminProviderApplication(
     }
 
     try {
-      await notifyProviderApplicationRejected({
-        applicationId: normalizedApplicationId,
-      });
+      if (application.user_id) {
+        await notifyProviderApplicationRejected({
+          actorUserId: adminAccess.access.userId,
+          applicationId: normalizedApplicationId,
+          recipientUserId: application.user_id,
+          supabaseClient: supabase,
+        });
+      }
     } catch (error) {
       warnAdminWriteError("provider application rejection notification", error);
     }
