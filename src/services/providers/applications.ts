@@ -60,6 +60,10 @@ const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "has_equipment",
   "introduction",
   "portfolio_url",
+  "profile_image_path",
+  "profile_image_url",
+  "verification_document_path",
+  "verification_document_url",
   "status",
 ];
 
@@ -259,6 +263,14 @@ function buildProviderApplicationInsert(
     has_equipment: parseHasEquipment(data.hasEquipment),
     introduction: data.introduction,
     portfolio_url: normalizeOptionalText(data.portfolioUrl),
+    profile_image_path: normalizeOptionalText(data.profileImagePath ?? ""),
+    profile_image_url: normalizeOptionalText(data.profileImageUrl ?? ""),
+    verification_document_path: normalizeOptionalText(
+      data.verificationDocumentPath ?? "",
+    ),
+    verification_document_url: normalizeOptionalText(
+      data.verificationDocumentUrl ?? "",
+    ),
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 }

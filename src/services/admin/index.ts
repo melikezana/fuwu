@@ -48,6 +48,7 @@ import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
 import { writeAuditLog } from "@/services/audit";
+import { PROVIDER_VERIFICATION_DOCUMENTS_BUCKET } from "@/services/storage";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
@@ -140,8 +141,10 @@ type AdminProviderApplicationRecord = Pick<
   | "full_name"
   | "id"
   | "phone"
+  | "profile_image_url"
   | "status"
   | "introduction"
+  | "verification_document_path"
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
@@ -156,6 +159,7 @@ type AdminProviderApplicationApprovalRecord = Pick<
   | "full_name"
   | "id"
   | "phone"
+  | "profile_image_url"
   | "status"
   | "introduction"
 > & {
@@ -179,6 +183,7 @@ type ApprovedProviderApplicationPayload = {
   description: string;
   name: string;
   phone: string;
+  profileImageUrl: string | null;
   userId: string | null;
 };
 
@@ -289,6 +294,7 @@ export type AdminProviderApplication = {
   id: string;
   phone: string;
   status: string;
+  verificationDocumentUrl: string | null;
 };
 
 export type AdminServiceRequest = {
@@ -408,6 +414,7 @@ export type AdminServiceRequestActionCode =
   | "payment-invalid-transition"
   | "payment-not-found"
   | "service-request-action-failed"
+  | "service-request-already-assigned"
   | "service-request-invalid-id"
   | "service-request-invalid-provider"
   | "service-request-invalid-status"
@@ -424,6 +431,7 @@ export type AdminServiceRequestActionResult = {
 };
 
 export type AdminAssignableProvider = {
+  activeAssignedRequestCount: number;
   districtId: string;
   districtName: string;
   experienceYears: number;
@@ -1066,6 +1074,7 @@ async function approveExistingProviderForApplicant(
     last_active_at: new Date().toISOString(),
     name: payload.name,
     phone: payload.phone,
+    profile_image_url: payload.profileImageUrl,
     whatsapp: payload.phone,
   };
 
@@ -1192,6 +1201,8 @@ async function createProviderFromApplication(
     description,
     name,
     phone,
+    profileImageUrl:
+      sanitizeText(application.profile_image_url ?? "", 500) || null,
     userId: applicantUserId,
   };
   const { error: existingProviderError, provider: existingProvider } =
@@ -1241,6 +1252,7 @@ async function createProviderFromApplication(
     last_active_at: new Date().toISOString(),
     name,
     phone,
+    profile_image_url: providerPayload.profileImageUrl,
     rating: 0,
     user_id: applicantUserId,
     whatsapp,
@@ -1372,6 +1384,7 @@ async function getProviderApplicationForApproval(
         experience_years,
         availability,
         introduction,
+        profile_image_url,
         status
       `;
   const applicationSelect = `
@@ -1383,6 +1396,7 @@ async function getProviderApplicationForApproval(
         experience_years,
         availability,
         introduction,
+        profile_image_url,
         status
       `;
 
@@ -1977,9 +1991,46 @@ export async function getAdminAssignableProvidersForRequest(
 
     return firstProvider.name.localeCompare(secondProvider.name, "tr");
   });
+  const providerIds = sortedProviders.map((provider) => provider.id);
+  const activeRequestCounts = new Map<string, number>();
+
+  if (providerIds.length > 0) {
+    const { data: activeRequests, error: activeRequestsError } = await supabase
+      .from("service_requests")
+      .select("assigned_provider_id, status")
+      .in("assigned_provider_id", providerIds)
+      .in("status", [
+        SERVICE_REQUEST_STATUSES.assigned,
+        SERVICE_REQUEST_STATUSES.accepted,
+        SERVICE_REQUEST_STATUSES.inProgress,
+        LEGACY_SERVICE_REQUEST_STATUSES.matched,
+        LEGACY_SERVICE_REQUEST_STATUSES.onTheWay,
+      ]);
+
+    if (activeRequestsError) {
+      return createEmptyReadResult(
+        getAdminReadError(
+          activeRequestsError,
+          "Ustaların aktif iş yükü şu anda okunamadı.",
+        ),
+      );
+    }
+
+    for (const activeRequest of activeRequests ?? []) {
+      if (!activeRequest.assigned_provider_id) {
+        continue;
+      }
+
+      activeRequestCounts.set(
+        activeRequest.assigned_provider_id,
+        (activeRequestCounts.get(activeRequest.assigned_provider_id) ?? 0) + 1,
+      );
+    }
+  }
 
   return createAdminReadResult(
     sortedProviders.map((provider) => ({
+      activeAssignedRequestCount: activeRequestCounts.get(provider.id) ?? 0,
       districtId: provider.district_id,
       districtName: sanitizeText(getRelationName(provider.districts), 120),
       experienceYears: Number(provider.experience_years ?? 0),
@@ -2050,7 +2101,7 @@ export async function assignAdminServiceRequest(
     supabase
       .from("service_requests")
       .select(
-        "id, user_id, category_id, district_id, status, urgency, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
+        "id, user_id, category_id, district_id, status, urgency, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, updated_at, districts(name)",
       )
       .eq("id", normalizedRequestId)
       .maybeSingle(),
@@ -2145,11 +2196,21 @@ export async function assignAdminServiceRequest(
     updatePayload.urgency_type = "emergency";
   }
 
-  const { data, error } = await supabase
+  let assignmentUpdateQuery = supabase
     .from("service_requests")
     .update(updatePayload)
     .eq("id", normalizedRequestId)
     .eq("status", existingRequest.status)
+    .eq("updated_at", existingRequest.updated_at);
+
+  assignmentUpdateQuery = existingRequest.assigned_provider_id
+    ? assignmentUpdateQuery.eq(
+        "assigned_provider_id",
+        existingRequest.assigned_provider_id,
+      )
+    : assignmentUpdateQuery.is("assigned_provider_id", null);
+
+  const { data, error } = await assignmentUpdateQuery
     .select("id")
     .maybeSingle();
 
@@ -2165,7 +2226,7 @@ export async function assignAdminServiceRequest(
   }
 
   if (!data) {
-    return createServiceRequestActionResult("service-request-not-found", false);
+    return createServiceRequestActionResult("service-request-already-assigned", false);
   }
 
   await insertAuditLog({
@@ -2174,8 +2235,9 @@ export async function assignAdminServiceRequest(
     entityId: normalizedRequestId,
     entityType: "service_request",
     metadata: {
-      providerId: normalizedProviderId,
+      newProviderId: normalizedProviderId,
       previousProviderId: existingRequest.assigned_provider_id,
+      previousStatus: existingRequest.status,
       status: assignmentStatus,
       urgencyType: isEmergencyRequest ? "emergency" : "standard",
     },
@@ -2609,6 +2671,7 @@ export async function getAdminProviderApplications(
         phone,
         experience_years,
         introduction,
+        verification_document_path,
         status,
         created_at,
         service_categories(name),
@@ -2627,21 +2690,48 @@ export async function getAdminProviderApplications(
     return createEmptyReadResult(getAdminReadError(error));
   }
 
-  return createAdminReadResult(
+  const applications = await Promise.all(
     ((data ?? []) as unknown as AdminProviderApplicationRecord[]).map(
-      (application) => ({
-        category: sanitizeText(getRelationName(application.service_categories), 120),
-        createdAt: application.created_at,
-        description: sanitizeText(application.introduction ?? "", 1200),
-        district: sanitizeText(getRelationName(application.districts), 120),
-        experience: `${application.experience_years} yıl`,
-        fullName: sanitizeText(application.full_name, 120),
-        id: application.id,
-        phone: sanitizePhone(application.phone) || "Belirtilmedi",
-        status: application.status,
-      }),
+      async (application) => {
+        let verificationDocumentUrl: string | null = null;
+
+        if (application.verification_document_path) {
+          const { data: signedUrlData, error: signedUrlError } =
+            await supabase.storage
+              .from(PROVIDER_VERIFICATION_DOCUMENTS_BUCKET)
+              .createSignedUrl(application.verification_document_path, 5 * 60);
+
+          if (signedUrlError) {
+            handleServiceError(signedUrlError, {
+              logContext:
+                "Admin provider verification document signed URL creation failed.",
+              publicMessage: "Başvuru belgesi şu anda görüntülenemiyor.",
+            });
+          } else {
+            verificationDocumentUrl = signedUrlData.signedUrl;
+          }
+        }
+
+        return {
+          category: sanitizeText(
+            getRelationName(application.service_categories),
+            120,
+          ),
+          createdAt: application.created_at,
+          description: sanitizeText(application.introduction ?? "", 1200),
+          district: sanitizeText(getRelationName(application.districts), 120),
+          experience: `${application.experience_years} yıl`,
+          fullName: sanitizeText(application.full_name, 120),
+          id: application.id,
+          phone: sanitizePhone(application.phone) || "Belirtilmedi",
+          status: application.status,
+          verificationDocumentUrl,
+        };
+      },
     ),
   );
+
+  return createAdminReadResult(applications);
 }
 
 export async function getAdminServiceRequests(): Promise<

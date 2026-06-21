@@ -107,6 +107,22 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=replace-with-supabase-anon-key
 
 Do not commit real `.env.local` values or private credentials.
 
+## Production'a Deploy
+
+Önerilen yayın sırası:
+
+1. CI/CD ortamında `npm run preflight` çalıştır; env, lint, build ve backend DB
+   sağlık kontrollerinin tamamının geçtiğini doğrula.
+2. Migration'ları önce staging üzerinde test ettikten sonra production projesinde
+   `supabase db push` ile uygula.
+3. Vercel production deploy'unu başlat. Supabase, Upstash, Sentry ve gerekiyorsa
+   Netgsm secret'larının doğru environment scope'unda bulunduğunu kontrol et.
+4. Deploy sonrasında login, usta başvurusu, belge upload/görüntüleme, hizmet talebi,
+   admin ataması ve Storage public/private erişimleri için smoke test çalıştır.
+
+Ayrıntılı backup, rollback ve env envanteri için
+[`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) dosyasına bakın.
+
 ## Current MVP Status
 
 - Landing page is implemented.

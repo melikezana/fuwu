@@ -22,10 +22,21 @@ export type ProviderApplicationField =
   | "hasEquipment"
   | "introduction"
   | "phone"
-  | "portfolioUrl";
+  | "portfolioUrl"
+  | "profileImagePath"
+  | "profileImageUrl"
+  | "verificationDocumentPath"
+  | "verificationDocumentUrl";
 
 const requiredProviderFields: Array<{
-  field: Exclude<ProviderApplicationField, "portfolioUrl">;
+  field: Exclude<
+    ProviderApplicationField,
+    | "portfolioUrl"
+    | "profileImagePath"
+    | "profileImageUrl"
+    | "verificationDocumentPath"
+    | "verificationDocumentUrl"
+  >;
   message: string;
 }> = [
   { field: "fullName", message: "Ad soyad alanı zorunludur." },
@@ -51,6 +62,15 @@ export function validateProviderApplicationInput(
     introduction: sanitizeText(input.introduction, 1500),
     phone: sanitizePhone(input.phone),
     portfolioUrl: normalizeOptionalUrl(input.portfolioUrl),
+    profileImagePath: sanitizeText(input.profileImagePath ?? "", 500),
+    profileImageUrl: normalizeOptionalUrl(input.profileImageUrl ?? ""),
+    verificationDocumentPath: sanitizeText(
+      input.verificationDocumentPath ?? "",
+      500,
+    ),
+    verificationDocumentUrl: normalizeOptionalUrl(
+      input.verificationDocumentUrl ?? "",
+    ),
   };
   const issues: Array<ValidationIssue<ProviderApplicationField>> = [];
 
@@ -99,6 +119,26 @@ export function validateProviderApplicationInput(
     issues.push({
       field: "portfolioUrl",
       message: "Lütfen geçerli bir portfolyo bağlantısı gir veya alanı boş bırak.",
+    });
+  }
+
+  if (
+    sanitizedData.profileImageUrl &&
+    !isValidHttpUrl(sanitizedData.profileImageUrl)
+  ) {
+    issues.push({
+      field: "profileImageUrl",
+      message: "Profil görseli bağlantısı geçerli değil.",
+    });
+  }
+
+  if (
+    sanitizedData.verificationDocumentUrl &&
+    !isValidHttpUrl(sanitizedData.verificationDocumentUrl)
+  ) {
+    issues.push({
+      field: "verificationDocumentUrl",
+      message: "Belge bağlantısı geçerli değil.",
     });
   }
 

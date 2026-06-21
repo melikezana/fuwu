@@ -90,6 +90,11 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     title: "Usta atanamadı",
     tone: "error",
   },
+  "service-request-already-assigned": {
+    body: "Talep başka bir admin işlemiyle eşzamanlı olarak güncellendi. Güncel atamayı kontrol edip gerekirse yeniden deneyin.",
+    title: "Talep zaten atandı",
+    tone: "error",
+  },
   "service-request-invalid-status": {
     body: "Seçilen durum bu hizmet talebi için geçerli değil.",
     title: "Geçersiz durum",

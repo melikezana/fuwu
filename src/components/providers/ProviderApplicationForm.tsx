@@ -8,9 +8,18 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { validateProviderApplicationInput } from "@/lib/validations";
 import { trackProviderApplicationSubmitted } from "@/services/analytics";
+import {
+  PROVIDER_IMAGE_ACCEPT,
+  PROVIDER_VERIFICATION_DOCUMENT_ACCEPT,
+  uploadProviderProfileImage,
+  uploadProviderVerificationDocument,
+  validateProviderImageFile,
+  validateProviderVerificationDocumentFile,
+} from "@/services/storage";
 import type {
   ProviderApplicationInput,
   ProviderApplicationOption,
@@ -44,6 +53,10 @@ const initialFormState: ProviderApplicationFormState = {
   introduction: "",
   phone: "",
   portfolioUrl: "",
+  profileImagePath: "",
+  profileImageUrl: "",
+  verificationDocumentPath: "",
+  verificationDocumentUrl: "",
 };
 
 const availabilityOptions: Array<{
@@ -118,6 +131,10 @@ function normalizeForm(values: ProviderApplicationFormState): ProviderApplicatio
     introduction: values.introduction.trim(),
     phone: values.phone.trim(),
     portfolioUrl: normalizeReferenceLink(values.portfolioUrl),
+    profileImagePath: values.profileImagePath?.trim(),
+    profileImageUrl: values.profileImageUrl?.trim(),
+    verificationDocumentPath: values.verificationDocumentPath?.trim(),
+    verificationDocumentUrl: values.verificationDocumentUrl?.trim(),
   };
 }
 
@@ -207,6 +224,9 @@ export function ProviderApplicationForm({
   const [activeSection, setActiveSection] = useState<ProviderApplicationSectionId>("basic");
   const [errors, setErrors] = useState<ProviderFormErrors>({});
   const [formError, setFormError] = useState("");
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [verificationDocumentFile, setVerificationDocumentFile] =
+    useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedApplication, setSubmittedApplication] = useState<SubmittedApplication | null>(
     null,
@@ -234,8 +254,12 @@ export function ProviderApplicationForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    const formElement = event.currentTarget;
     const normalizedApplication = normalizeForm(formState);
     const validationErrors = validateForm(normalizedApplication);
+    const profileImageError = validateProviderImageFile(profileImageFile);
+    const verificationDocumentError =
+      validateProviderVerificationDocumentFile(verificationDocumentFile);
 
     if (!lookupsReady) {
       setFormError(lookupError ?? t("providerApplication.errorMessage"));
@@ -249,12 +273,62 @@ export function ProviderApplicationForm({
       return;
     }
 
+    if (profileImageError || verificationDocumentError) {
+      setFormError(profileImageError ?? verificationDocumentError ?? "");
+      setSubmittedApplication(null);
+      return;
+    }
+
     setErrors({});
     setFormError("");
     setIsSubmitting(true);
 
     try {
-      const submitResult = await submitProviderApplicationAction(normalizedApplication);
+      const supabase = createSupabaseBrowserClient();
+
+      if ((profileImageFile || verificationDocumentFile) && !supabase) {
+        setFormError("Dosya yükleme sistemi şu anda kullanılamıyor.");
+        return;
+      }
+
+      const [profileImageResult, verificationDocumentResult] = supabase
+        ? await Promise.all([
+            uploadProviderProfileImage(supabase, profileImageFile),
+            uploadProviderVerificationDocument(supabase, verificationDocumentFile),
+          ])
+        : [
+            { path: null, publicUrl: null, status: "skipped" as const },
+            { path: null, status: "skipped" as const },
+          ];
+
+      if (profileImageFile && profileImageResult.status !== "uploaded") {
+        setFormError(
+          profileImageResult.message ?? "Profil görseli yüklenemedi. Lütfen tekrar dene.",
+        );
+        return;
+      }
+
+      if (
+        verificationDocumentFile &&
+        verificationDocumentResult.status !== "uploaded"
+      ) {
+        setFormError(
+          verificationDocumentResult.message ??
+            "Kimlik/yeterlilik belgesi yüklenemedi. Lütfen tekrar dene.",
+        );
+        return;
+      }
+
+      const submitResult = await submitProviderApplicationAction({
+        ...normalizedApplication,
+        profileImagePath: profileImageResult.path ?? "",
+        profileImageUrl:
+          profileImageResult.status === "uploaded"
+            ? profileImageResult.publicUrl ?? ""
+            : "",
+        verificationDocumentPath: verificationDocumentResult.path ?? "",
+        verificationDocumentUrl: "",
+      });
 
       if (!submitResult.ok) {
         logSubmitFailure(submitResult);
@@ -270,6 +344,9 @@ export function ProviderApplicationForm({
       });
       setSubmittedApplication(submitResult.result);
       setFormState(initialFormState);
+      setProfileImageFile(null);
+      setVerificationDocumentFile(null);
+      formElement.reset();
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.error("[Fuwu] Provider application submission crashed.", error);
@@ -717,6 +794,53 @@ export function ProviderApplicationForm({
               {t("providerApplication.phoneHelper")}
             </p>
             <FieldError id="providerPhone-error" message={errors.phone} />
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div>
+              <label className={labelClassName} htmlFor="providerProfileImage">
+                Profil Fotoğrafı{" "}
+                <span className="font-normal text-[var(--muted)]">(opsiyonel)</span>
+              </label>
+              <input
+                accept={PROVIDER_IMAGE_ACCEPT}
+                className={`${fieldBaseClassName} cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-[var(--brand-orange-soft)] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[var(--brand-navy)]`}
+                id="providerProfileImage"
+                name="profileImage"
+                onChange={(event) => {
+                  setProfileImageFile(event.target.files?.[0] ?? null);
+                  setFormError("");
+                }}
+                type="file"
+              />
+              <p className={helperClassName}>
+                JPG, PNG veya WebP. En fazla 3 MB.
+              </p>
+            </div>
+
+            <div>
+              <label
+                className={labelClassName}
+                htmlFor="providerVerificationDocument"
+              >
+                Kimlik/Yeterlilik Belgesi{" "}
+                <span className="font-normal text-[var(--muted)]">(opsiyonel)</span>
+              </label>
+              <input
+                accept={PROVIDER_VERIFICATION_DOCUMENT_ACCEPT}
+                className={`${fieldBaseClassName} cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-[var(--brand-orange-soft)] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[var(--brand-navy)]`}
+                id="providerVerificationDocument"
+                name="verificationDocument"
+                onChange={(event) => {
+                  setVerificationDocumentFile(event.target.files?.[0] ?? null);
+                  setFormError("");
+                }}
+                type="file"
+              />
+              <p className={helperClassName}>
+                PDF, JPG veya PNG. En fazla 5 MB; yalnızca sen ve adminler görebilir.
+              </p>
+            </div>
           </div>
         </FormSection>
 

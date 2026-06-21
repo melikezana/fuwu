@@ -8,18 +8,23 @@
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
     "maintenance:cleanup-audit-logs": "node scripts/cleanup-audit-logs.mjs",
+    "preflight": "node scripts/preflight-check.mjs",
     "start": "next start",
+    "test:sms": "tsx scripts/test-sms-provider.ts",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:assignment-race": "node scripts/test-admin-assignment-race.mjs",
+    "test:provider-validation": "tsx scripts/test-provider-validation.ts"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.59.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.3",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "lucide-react": "^1.14.0",
-    "next": "16.2.4",
+    "next": "16.2.9",
     "react": "19.2.5",
     "react-dom": "19.2.5"
   },
@@ -32,6 +37,7 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "4.2.4",
+    "tsx": "^4.22.4",
     "typescript": "6.0.3"
   }
 }

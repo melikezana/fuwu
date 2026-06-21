@@ -81,6 +81,10 @@ export type ProviderApplicationInput = {
   introduction: string;
   phone: string;
   portfolioUrl: string;
+  profileImagePath?: string;
+  profileImageUrl?: string;
+  verificationDocumentPath?: string;
+  verificationDocumentUrl?: string;
 };
 
 export type ProviderApplicationOption = {

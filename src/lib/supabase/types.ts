@@ -217,6 +217,10 @@ export type Database = {
           has_equipment: boolean;
           introduction: string | null;
           portfolio_url: string | null;
+          profile_image_path: string | null;
+          profile_image_url: string | null;
+          verification_document_path: string | null;
+          verification_document_url: string | null;
           status: "pending" | "approved" | "rejected";
           created_at: string;
           updated_at: string;
@@ -234,6 +238,10 @@ export type Database = {
           has_equipment: boolean;
           introduction: string | null;
           portfolio_url: string | null;
+          profile_image_path?: string | null;
+          profile_image_url?: string | null;
+          verification_document_path?: string | null;
+          verification_document_url?: string | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
@@ -251,6 +259,10 @@ export type Database = {
           has_equipment?: boolean;
           introduction?: string | null;
           portfolio_url?: string | null;
+          profile_image_path?: string | null;
+          profile_image_url?: string | null;
+          verification_document_path?: string | null;
+          verification_document_url?: string | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;

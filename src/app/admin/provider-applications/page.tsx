@@ -214,6 +214,23 @@ function ApplicationStatusBadge({ status }: { status: string }) {
   );
 }
 
+function VerificationDocumentLink({ url }: { url: string | null }) {
+  if (!url) {
+    return <span className="text-sm font-semibold text-[var(--muted)]">Belge yok</span>;
+  }
+
+  return (
+    <a
+      className="text-sm font-black text-[var(--brand-orange-dark)] underline decoration-2 underline-offset-4 hover:text-[var(--brand-navy)]"
+      href={url}
+      rel="noreferrer"
+      target="_blank"
+    >
+      Belgeyi Görüntüle
+    </a>
+  );
+}
+
 function ApplicationStatusSummary({
   applications,
 }: {
@@ -337,6 +354,10 @@ function ApplicationMobileCard({
           <span className="font-black text-[var(--brand-navy)]">Tarih: </span>
           {formatDate(application.createdAt)}
         </p>
+        <p>
+          <span className="font-black text-[var(--brand-navy)]">Belge: </span>
+          <VerificationDocumentLink url={application.verificationDocumentUrl} />
+        </p>
 
       </div>
 
@@ -409,6 +430,7 @@ export default async function AdminProviderApplicationsPage({
                   <th className="px-4 py-3">Deneyim</th>
                   <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">{"Ba\u015fvuru tarihi"}</th>
+                  <th className="px-4 py-3">Belge</th>
                   <th className="px-4 py-3">{"\u0130\u015flem"}</th>
                 </tr>
               </thead>
@@ -437,6 +459,11 @@ export default async function AdminProviderApplicationsPage({
                       {formatDate(application.createdAt)}
                     </td>
                     <td className="px-4 py-4">
+                      <VerificationDocumentLink
+                        url={application.verificationDocumentUrl}
+                      />
+                    </td>
+                    <td className="px-4 py-4">
                       <ProviderApplicationActions
                         applicationId={application.id}
                         applicationName={application.fullName}
@@ -462,6 +489,7 @@ export default async function AdminProviderApplicationsPage({
                   <th className="px-4 py-3">Açıklama</th>
                   <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">Tarih</th>
+                  <th className="px-4 py-3">Belge</th>
                   <th className="px-4 py-3">Aksiyonlar</th>
                 </tr>
               </thead>
@@ -491,6 +519,11 @@ export default async function AdminProviderApplicationsPage({
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {formatDate(application.createdAt)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <VerificationDocumentLink
+                        url={application.verificationDocumentUrl}
+                      />
                     </td>
                     <td className="px-4 py-4">
                       <ProviderApplicationActions

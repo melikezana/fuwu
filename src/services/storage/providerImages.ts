@@ -58,14 +58,14 @@ function getContentType(file: File, extension: ProviderImageExtension) {
   return "image/jpeg";
 }
 
-function createProviderImagePath(file: File) {
+function createProviderImagePath(userId: string, file: File) {
   const extension = getFileExtension(file.name) ?? "jpg";
   const randomId =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  return `provider-applications/${new Date().getFullYear()}/${randomId}.${extension}`;
+  return `${userId}/provider-applications/${new Date().getFullYear()}/${randomId}.${extension}`;
 }
 
 export function validateProviderImageFile(file: File | null) {
@@ -113,7 +113,21 @@ export async function uploadProviderProfileImage(
   }
 
   try {
-    const path = createProviderImagePath(file);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        status: "skipped",
+        path: null,
+        publicUrl: null,
+        message: "Profil görseli yüklemek için giriş yapmalısın.",
+      };
+    }
+
+    const path = createProviderImagePath(user.id, file);
     const extension = getFileExtension(file.name) ?? "jpg";
     const { data, error } = await supabase.storage
       .from(PROVIDER_IMAGES_BUCKET)

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { logError, logWarn } from "@/lib/logger";
 import { AppError } from "./AppError";
 import {
@@ -59,6 +60,23 @@ function getSupabaseLogPayload(error: SupabaseLikeError) {
   };
 }
 
+function captureCriticalError(error: unknown, appError: AppError) {
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
+    return;
+  }
+
+  if (!(appError instanceof DatabaseError) && appError.statusCode < 500) {
+    return;
+  }
+
+  Sentry.captureException(error instanceof Error ? error : appError, {
+    tags: {
+      appErrorCode: appError.code,
+      appErrorName: appError.name,
+    },
+  });
+}
+
 export function handleServiceError(
   error: unknown,
   options: HandleServiceErrorOptions = {},
@@ -70,6 +88,7 @@ export function handleServiceError(
       code: error.code,
       statusCode: error.statusCode,
     });
+    captureCriticalError(error, error);
     return error;
   }
 
@@ -83,24 +102,33 @@ export function handleServiceError(
       } : undefined,
     });
 
-    return new DatabaseError(options.message ?? "Supabase operation failed.", {
+    const databaseError = new DatabaseError(
+      options.message ?? "Supabase operation failed.",
+      {
       cause: error,
       code: options.code ?? errorCodes.database,
       publicMessage,
       statusCode: options.statusCode ?? 500,
-    });
+      },
+    );
+
+    captureCriticalError(error, databaseError);
+    return databaseError;
   }
 
   logError(options.logContext ?? "Unexpected service error.", {
     error: getErrorMessage(error),
   });
 
-  return new AppError(options.message ?? "Unexpected service error.", {
+  const appError = new AppError(options.message ?? "Unexpected service error.", {
     cause: error,
     code: options.code ?? errorCodes.service,
     publicMessage,
     statusCode: options.statusCode ?? 500,
   });
+
+  captureCriticalError(error, appError);
+  return appError;
 }
 
 export function getPublicErrorMessage(
