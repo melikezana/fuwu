@@ -54,7 +54,7 @@ export function HowItWorksSection() {
               key={step.id}
             >
               <div className="flex items-start justify-between gap-4">
-                <span className="rounded-md bg-[var(--brand-orange)] px-3 py-2 text-xs font-bold uppercase text-[var(--brand-navy)] shadow-[0_14px_32px_rgba(255,138,0,0.2)]">
+                <span className="rounded-md bg-[var(--brand-orange)] px-3 py-2 text-xs font-bold uppercase text-[var(--brand-navy)] shadow-[var(--shadow-action)]">
                   {step.stage}
                 </span>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--background)] text-sm font-bold text-[var(--muted)]">
@@ -69,7 +69,7 @@ export function HowItWorksSection() {
           ))}
         </div>
 
-        <div className="mt-8 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_18px_60px_rgba(13,20,36,0.07)] sm:p-6">
+        <div className="mt-8 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6">
           <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
             {workSteps.map((step, index) => (
               <div className="contents" key={step.id}>

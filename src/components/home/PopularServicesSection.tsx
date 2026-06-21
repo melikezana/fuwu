@@ -52,7 +52,7 @@ export function PopularServicesSection() {
               href={`${appRoutes.request}?service=${encodeURIComponent(service.title)}`}
               key={service.id}
             >
-              <Card className="flex h-full min-w-0 flex-col overflow-hidden !p-0 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[rgba(255,138,0,0.42)] group-hover:shadow-[0_26px_80px_rgba(13,20,36,0.13)]">
+              <Card className="flex h-full min-w-0 flex-col overflow-hidden !p-0 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[rgba(255,138,0,0.42)] group-hover:shadow-[var(--shadow-elevated)]">
                 <div className="flex items-start justify-between gap-4 border-b border-[var(--border)] bg-[var(--background)] p-5">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-colors duration-300 group-hover:bg-[var(--brand-orange)] group-hover:text-[var(--brand-navy)]">
                     <ServiceIcon name={service.iconName} />

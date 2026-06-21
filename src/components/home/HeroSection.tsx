@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { TextLink } from "@/components/ui/TextLink";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
 import { services, type ServiceIconName } from "@/lib/constants/services";
@@ -70,7 +71,7 @@ const heroRequests: HeroRequest[] = [
 
 function HeroSearch() {
   return (
-    <div className="mt-8 max-w-full rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[0_24px_70px_rgba(13,20,36,0.09)] sm:p-4">
+    <div className="mt-8 max-w-full rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[var(--shadow-elevated)] sm:p-4">
       <form
         action={appRoutes.request}
         className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(9rem,auto)]"
@@ -80,7 +81,7 @@ function HeroSearch() {
             Hizmet
           </span>
           <span className="mt-2 flex items-center gap-2 text-[var(--brand-navy)]">
-            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
+            <span className="shrink-0 rounded-md bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
               Talep
             </span>
             <input
@@ -97,7 +98,7 @@ function HeroSearch() {
             Konum
           </span>
           <span className="mt-2 flex items-center gap-2 text-[var(--brand-navy)]">
-            <span className="shrink-0 rounded-sm bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
+            <span className="shrink-0 rounded-md bg-white px-2 py-1 text-[0.65rem] font-bold uppercase leading-none text-[var(--brand-orange-dark)] ring-1 ring-[var(--border)]">
               Bölge
             </span>
             <input
@@ -132,7 +133,7 @@ function HeroSearch() {
 
 function HeroVisual() {
   return (
-    <div className="relative w-full overflow-hidden rounded-lg border border-[rgba(255,138,0,0.22)] bg-white p-4 shadow-[0_34px_90px_rgba(13,20,36,0.16)] sm:p-5">
+    <div className="relative w-full overflow-hidden rounded-lg border border-[rgba(255,138,0,0.22)] bg-white p-4 shadow-[var(--shadow-premium)] sm:p-5">
       <div className="relative flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
         <div className="min-w-0">
           <p className="text-sm font-bold text-[var(--brand-orange-dark)]">Fuwu pazaryeri</p>
@@ -222,7 +223,7 @@ export function HeroSection() {
           <div className="mt-5 flex flex-wrap gap-2">
             {heroCategoryPills.map((item) => (
               <span
-                className="cursor-default select-none rounded-md border border-[rgba(255,138,0,0.26)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(13,20,36,0.04)]"
+                className="cursor-default select-none rounded-md border border-[rgba(255,138,0,0.26)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]"
                 key={item}
               >
                 {item}
@@ -244,12 +245,12 @@ export function HeroSection() {
           </div>
           <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
             Daha özel bir ihtiyacın mı var?{" "}
-            <Link
-              className="font-bold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)]"
+            <TextLink
+              className="font-semibold"
               href={appRoutes.request}
             >
               {ctaLabels.request}
-            </Link>
+            </TextLink>
             .
           </p>
 

@@ -15,7 +15,7 @@ export default function AdminServiceRequestsLoading() {
         <div className="grid gap-4 lg:hidden">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
-              className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]"
+              className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]"
               key={index}
             >
               <div className="flex items-start justify-between gap-4">
@@ -35,7 +35,7 @@ export default function AdminServiceRequestsLoading() {
           ))}
         </div>
 
-        <div className="hidden overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[0_14px_40px_rgba(13,20,36,0.05)] lg:block">
+        <div className="hidden overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[var(--shadow-card)] lg:block">
           <div className="grid grid-cols-7 gap-4 bg-[var(--surface-soft)] px-4 py-3">
             {Array.from({ length: 7 }).map((_, index) => (
               <SkeletonBlock className="h-4" key={index} />

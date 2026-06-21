@@ -419,7 +419,7 @@ export function ProviderApplicationForm({
         {submittedApplication ? (
           <div
             aria-live="polite"
-            className="cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.34)] bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.08)]"
+            className="cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.34)] bg-white p-5 shadow-[var(--shadow-elevated)]"
             data-testid="provider-application-success"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -658,7 +658,7 @@ export function ProviderApplicationForm({
                     className={cn(
                       "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
-                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                       errors.availability && "border-red-500",
                     )}
@@ -704,7 +704,7 @@ export function ProviderApplicationForm({
                     className={cn(
                       "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
-                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                       errors.hasEquipment && "border-red-500",
                     )}

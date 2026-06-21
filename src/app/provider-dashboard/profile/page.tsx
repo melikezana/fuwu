@@ -131,7 +131,7 @@ function AvailabilityActionNotice({
       <div className="flex gap-3">
         <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
         <div>
-          <p className="text-sm font-black">{feedback.title}</p>
+          <p className="text-sm font-semibold">{feedback.title}</p>
           <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
         </div>
       </div>
@@ -162,13 +162,13 @@ export default async function ProviderDashboardProfilePage({
       title="Profil Bilgileri"
     >
       {providerAccess.ok ? (
-        <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+        <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
           <div className="flex flex-col gap-4 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 cursor-default select-none">
-              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+              <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
                 Usta profili
               </p>
-              <h2 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+              <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
                 {providerAccess.profile.name}
               </h2>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -191,10 +191,10 @@ export default async function ProviderDashboardProfilePage({
 
           <div className="mt-5 grid gap-4 rounded-lg border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="min-w-0 cursor-default select-none">
-              <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+              <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 Uygunluk yönetimi
               </p>
-              <h3 className="mt-2 text-xl font-black text-[var(--brand-navy)]">
+              <h3 className="mt-2 text-xl font-semibold text-[var(--brand-navy)]">
                 Public kartlarda kapasiten net görünsün.
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -206,7 +206,7 @@ export default async function ProviderDashboardProfilePage({
                 Uygunluk durumu
               </label>
               <select
-                className="h-12 min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-black text-[var(--brand-navy)] outline-none focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+                className="h-12 min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
                 defaultValue={providerAccess.profile.availability}
                 id="providerAvailability"
                 name="availability"
@@ -218,7 +218,7 @@ export default async function ProviderDashboardProfilePage({
                 ))}
               </select>
               <button
-                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 text-sm font-black text-white transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 type="submit"
               >
                 Güncelle
@@ -243,7 +243,7 @@ export default async function ProviderDashboardProfilePage({
           </div>
 
           <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
-            <p className="cursor-default select-none text-xs font-black uppercase text-[var(--muted)]">
+            <p className="cursor-default select-none text-xs font-medium uppercase text-[var(--muted)]">
               Açıklama
             </p>
             <p className="mt-2 cursor-default select-none text-sm font-semibold leading-7 text-[var(--brand-navy)]">

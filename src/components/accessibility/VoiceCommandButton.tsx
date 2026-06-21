@@ -295,7 +295,7 @@ export function VoiceCommandButton({
     <div className="mt-4 grid gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[var(--surface-soft)] p-3 sm:grid-cols-[auto_auto_auto_auto_minmax(0,1fr)] sm:items-center">
       <button
         aria-label={t("voice.aria.start")}
-        className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
+        className={`inline-flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 ${
           isListening
             ? "bg-[var(--brand-orange)]"
             : "bg-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] active:bg-[var(--brand-orange)]"

@@ -30,12 +30,12 @@ export default function AdminDashboardLoading() {
 
           return (
             <div
-              className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)]"
+              className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]"
               key={card.label}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black text-[var(--muted)]">
+                  <p className="text-sm font-semibold text-[var(--muted)]">
                     {card.label}
                   </p>
                   <div className="mt-3 h-9 w-20 animate-pulse rounded-md bg-[var(--surface-soft)]" />
@@ -49,10 +49,10 @@ export default function AdminDashboardLoading() {
         })}
       </section>
 
-      <section className="mt-6 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)]">
+      <section className="mt-6 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-xl font-black text-[var(--brand-navy)]">
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">
               Hızlı Geçiş
             </h2>
             <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -67,7 +67,7 @@ export default function AdminDashboardLoading() {
 
             return (
               <Link
-                className="flex min-h-20 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-black text-[var(--brand-navy)]"
+                className="flex min-h-20 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]"
                 href={item.href}
                 key={item.key}
               >

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import type { FormEvent, ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { TextLink } from "@/components/ui/TextLink";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   providerBudgetOptions,
@@ -87,7 +87,7 @@ function BudgetPreferenceTags({ selectedBudget }: { selectedBudget?: string }) {
             type="radio"
             value={option.value}
           />
-          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center whitespace-nowrap rounded px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_8px_18px_rgba(255,138,0,0.2)] sm:text-sm">
+          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center whitespace-nowrap rounded-md px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[var(--shadow-action)] sm:text-sm">
             {option.label}
           </span>
         </label>
@@ -139,7 +139,7 @@ export function ProviderFilters({
       aria-label={t("filters.title")}
       action={appRoutes.providers}
       className={cn(
-        "max-w-full cursor-default overflow-hidden rounded-lg bg-white shadow-[0_18px_48px_rgba(13,20,36,0.08)] ring-1 ring-[rgba(13,20,36,0.08)]",
+        "max-w-full cursor-default overflow-hidden rounded-lg bg-white shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)]",
         compact ? "p-3 sm:p-4" : "p-4 sm:p-5",
       )}
       onSubmit={handleFilterSubmit}
@@ -196,12 +196,12 @@ export function ProviderFilters({
       </div>
 
       {hasActiveFilters ? (
-        <Link
-          className="mt-3 inline-flex min-h-10 cursor-pointer select-none items-center rounded-md px-2 text-sm font-semibold text-[var(--brand-orange-dark)] transition-colors hover:text-[var(--brand-navy)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        <TextLink
+          className="mt-3 inline-flex min-h-10 items-center px-2 text-sm font-semibold no-underline"
           href={appRoutes.providers}
         >
           {t("cta.clearFilters")}
-        </Link>
+        </TextLink>
       ) : null}
     </form>
   );

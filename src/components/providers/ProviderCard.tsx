@@ -2,27 +2,15 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Clock3,
-  MapPin,
-  MessageCircle,
-  Phone,
-  Star,
-} from "lucide-react";
+import { Clock3, Coins, MapPin, MessageCircle, Phone, Star } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
+import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { appRoutes } from "@/lib/constants/navigation";
-import {
-  getProviderPhoneHref,
-  getProviderWhatsAppHref,
-} from "@/lib/constants/providers";
 import { getServiceIconNameForCategory } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import {
-  trackPhoneClick,
-  trackWhatsappClick,
-} from "@/services/analytics";
 import type { Provider } from "@/types/provider";
 
 type ProviderCardProps = {
@@ -46,11 +34,7 @@ function createProviderFilterHref(
 function getDisplayPriceRange(value: string | undefined) {
   const normalizedValue = value?.trim() ?? "";
 
-  if (!normalizedValue) {
-    return "Fiyat bilgisi yakında";
-  }
-
-  if (/\b(null|undefined|nan)\b/i.test(normalizedValue)) {
+  if (!normalizedValue || /\b(null|undefined|nan)\b/i.test(normalizedValue)) {
     return "Fiyat bilgisi yakında";
   }
 
@@ -63,17 +47,8 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
   const currentSearchParams = new URLSearchParams(searchParams.toString());
   const profileHref = `${appRoutes.providers}/${provider.id}`;
   const priceRange = getDisplayPriceRange(provider.averagePrice);
-  
-  const analyticsPayload = {
-    category: provider.category,
-    district: provider.district,
-    providerId: provider.id,
-    source: provider.source,
-  };
-
-  const primaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
-
-  const secondaryActionClassName = "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1";
+  const hasWhatsApp = Boolean(provider.whatsapp?.trim());
+  const hasPhone = Boolean(provider.phone?.trim());
   const availabilityClassName =
     provider.availabilityStatus.tone === "green"
       ? "border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
@@ -85,31 +60,43 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
     <article
       aria-labelledby={`provider-${provider.id}-title`}
       className={cn(
-        "flex h-full min-w-0 flex-col rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md sm:p-5",
+        "flex h-full min-w-0 flex-col rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.28)] hover:shadow-[var(--shadow-elevated)] sm:p-5",
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <Link
-          className="block min-w-0 truncate text-lg font-semibold text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange)]"
-          href={profileHref}
-          id={`provider-${provider.id}-title`}
-        >
-          {provider.name || "İsimsiz Usta"}
-        </Link>
-        {typeof provider.rating === "number" && !isNaN(provider.rating) && provider.rating > 0 ? (
-          <div className="flex shrink-0 items-center gap-1 rounded-md border border-yellow-100 bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-700">
-            <Star className="size-3.5 fill-current" />
-            {provider.rating.toFixed(1)}
+      <div className="flex min-w-0 items-start gap-3">
+        <ProviderAvatar provider={provider} variant="card" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <Link
+                className="block min-w-0 truncate text-lg font-semibold text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange)]"
+                href={profileHref}
+                id={`provider-${provider.id}-title`}
+              >
+                {provider.name || "İsimsiz Usta"}
+              </Link>
+              <p className="mt-1 truncate text-xs font-medium text-[var(--muted)]">
+                {provider.category}
+              </p>
+            </div>
+            {typeof provider.rating === "number" &&
+            Number.isFinite(provider.rating) &&
+            provider.rating > 0 ? (
+              <div className="flex shrink-0 items-center gap-1 rounded-md border border-yellow-100 bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-700">
+                <Star className="size-3.5 fill-current" />
+                {provider.rating.toFixed(1)}
+              </div>
+            ) : null}
           </div>
-        ) : null}
+        </div>
       </div>
 
       <div className="mt-3 grid gap-2 text-sm">
         <div className="flex min-w-0 flex-wrap gap-2">
           {provider.category ? (
             <Link
-              className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-md bg-[var(--surface-soft)] px-2.5 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+              className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
               href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
             >
               <ServiceIcon
@@ -121,7 +108,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           ) : null}
           {provider.district ? (
             <Link
-              className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2.5 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
+              className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
               href={createProviderFilterHref(currentSearchParams, "district", provider.district)}
             >
               <MapPin className="size-3 shrink-0" />
@@ -132,50 +119,76 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
 
         <ProviderTrustBadges badges={provider.trustBadges} limit={3} />
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          <div className={`inline-flex min-h-9 items-center gap-2 rounded-md border px-3 text-xs font-bold ${availabilityClassName}`}>
-            <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
-            <span className="truncate">{provider.availabilityStatus.label}</span>
+        <div className="grid grid-cols-2 divide-x divide-[var(--border)] rounded-lg border border-[var(--border)] bg-[#FAFAFA]">
+          <div className="flex min-w-0 items-center gap-2 px-3 py-2.5">
+            <span
+              className={`flex size-8 shrink-0 items-center justify-center rounded-md border ${availabilityClassName}`}
+            >
+              <Clock3 className="size-3.5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold text-[var(--brand-navy)]">
+                {provider.availabilityStatus.label}
+              </span>
+              <span className="mt-0.5 block text-[0.68rem] font-medium text-[var(--muted)]">
+                Müsaitlik
+              </span>
+            </span>
           </div>
-          <div className="inline-flex min-h-9 items-center rounded-md bg-[#FAFAFA] px-3 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.06)]">
-            <span className="truncate">{provider.responseTime}</span>
+          <div className="flex min-w-0 items-center gap-2 px-3 py-2.5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+              <Coins className="size-3.5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold text-[var(--brand-navy)]">
+                {priceRange}
+              </span>
+              <span className="mt-0.5 block text-[0.68rem] font-medium text-[var(--muted)]">
+                {t("providerCard.priceRange")}
+              </span>
+            </span>
           </div>
         </div>
 
-        <div className="rounded-md bg-[#FAFAFA] px-3 py-2">
-          <span className="block text-xs font-semibold uppercase text-[var(--muted)]">
-            {t("providerCard.priceRange")}
-          </span>
-          <span className="mt-0.5 block text-sm font-semibold text-[var(--brand-navy)]">
-            {priceRange}
-          </span>
-        </div>
+        <p className="text-xs font-medium text-[var(--muted)]">{provider.responseTime}</p>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2" id={actionsId}>
-        {provider.whatsapp ? (
-          <a
-            className={primaryActionClassName}
-            href={getProviderWhatsAppHref(provider)}
-            onClick={() => trackWhatsappClick(analyticsPayload)}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <MessageCircle className="size-4 shrink-0" />
-            <span>WhatsApp</span>
-          </a>
-        ) : null}
-        {provider.phone ? (
-          <a
-            className={secondaryActionClassName}
-            href={getProviderPhoneHref(provider)}
-            onClick={() => trackPhoneClick(analyticsPayload)}
-          >
-            <Phone className="size-4 shrink-0" />
-            <span>Telefon</span>
-          </a>
-        ) : null}
-      </div>
+      {hasWhatsApp || hasPhone ? (
+        <div
+          className={cn(
+            "mt-auto grid gap-2 pt-4",
+            hasWhatsApp && hasPhone ? "grid-cols-2" : "grid-cols-1",
+          )}
+          id={actionsId}
+        >
+          {hasWhatsApp ? (
+            <ProviderContactLink
+              className="w-full gap-2 px-3"
+              kind="whatsapp"
+              provider={provider}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <MessageCircle className="size-4 shrink-0" />
+              <span>WhatsApp</span>
+            </ProviderContactLink>
+          ) : null}
+          {hasPhone ? (
+            <ProviderContactLink
+              className="w-full gap-2 px-3"
+              kind="phone"
+              provider={provider}
+            >
+              <Phone className="size-4 shrink-0" />
+              <span>Telefon</span>
+            </ProviderContactLink>
+          ) : null}
+        </div>
+      ) : (
+        <p className="mt-auto pt-4 text-sm font-medium text-[var(--muted)]">
+          İletişim bilgisi yakında eklenecek.
+        </p>
+      )}
     </article>
   );
 }

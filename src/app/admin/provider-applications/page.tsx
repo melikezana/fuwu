@@ -221,7 +221,7 @@ function VerificationDocumentLink({ url }: { url: string | null }) {
 
   return (
     <a
-      className="text-sm font-black text-[var(--brand-orange-dark)] underline decoration-2 underline-offset-4 hover:text-[var(--brand-navy)]"
+      className="text-sm font-semibold text-[var(--brand-orange-dark)] underline decoration-2 underline-offset-4 hover:text-[var(--brand-navy)]"
       href={url}
       rel="noreferrer"
       target="_blank"
@@ -265,15 +265,15 @@ function ApplicationStatusSummary({
     <section className="mb-6 grid gap-3 sm:grid-cols-3" aria-label="Ba\u015fvuru durum \u00f6zeti">
       {items.map((item) => (
         <div
-          className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]"
+          className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]"
           key={item.status}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase text-[var(--muted)]">
+              <p className="text-xs font-medium uppercase text-[var(--muted)]">
                 {item.label}
               </p>
-              <p className="mt-2 text-3xl font-black leading-none text-[var(--brand-navy)]">
+              <p className="mt-2 text-3xl font-semibold leading-none text-[var(--brand-navy)]">
                 {counts[item.status] ?? 0}
               </p>
             </div>
@@ -305,13 +305,13 @@ function ApplicationActionNotice({
 
   return (
     <div
-      className={`mb-6 rounded-lg border p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)] ${toneClasses}`}
+      className={`mb-6 rounded-lg border p-4 shadow-[var(--shadow-card)] ${toneClasses}`}
       role={feedback.tone === "success" ? "status" : "alert"}
     >
       <div className="flex gap-3">
         <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
         <div>
-          <p className="text-sm font-black">{feedback.title}</p>
+          <p className="text-sm font-semibold">{feedback.title}</p>
           <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
         </div>
       </div>
@@ -330,7 +330,7 @@ function ApplicationMobileCard({
     <AdminMobileCard>
       <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
         <div className="min-w-0">
-          <h2 className="text-base font-black text-[var(--brand-navy)]">
+          <h2 className="text-base font-bold text-[var(--brand-navy)]">
             {application.fullName}
           </h2>
           <p className="mt-1 text-sm font-bold text-[var(--muted)]">
@@ -342,20 +342,20 @@ function ApplicationMobileCard({
 
       <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--muted)]">
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Deneyim: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Deneyim: </span>
           {application.experience}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Telefon: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Telefon: </span>
           {application.phone}
         </p>
 
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Tarih: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Tarih: </span>
           {formatDate(application.createdAt)}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Belge: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Belge: </span>
           <VerificationDocumentLink url={application.verificationDocumentUrl} />
         </p>
 
@@ -421,7 +421,7 @@ export default async function AdminProviderApplicationsPage({
 
           <AdminTableWrap>
             <table className="w-full min-w-[980px] text-left text-sm">
-              <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
+              <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Ad Soyad</th>
                   <th className="px-4 py-3">Telefon</th>
@@ -437,7 +437,7 @@ export default async function AdminProviderApplicationsPage({
               <tbody className="divide-y divide-[var(--border)]">
                 {result.rows.map((application) => (
                   <tr key={application.id} className="bg-white">
-                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
+                    <td className="px-4 py-4 font-semibold text-[var(--brand-navy)]">
                       {application.fullName}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
@@ -479,7 +479,7 @@ export default async function AdminProviderApplicationsPage({
               </tbody>
             </table>
             <table className="hidden w-full min-w-[1180px] text-left text-sm">
-              <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
+              <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Ad Soyad</th>
                   <th className="px-4 py-3">Kategori</th>
@@ -496,7 +496,7 @@ export default async function AdminProviderApplicationsPage({
               <tbody className="divide-y divide-[var(--border)]">
                 {result.rows.map((application) => (
                   <tr key={application.id} className="bg-white">
-                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
+                    <td className="px-4 py-4 font-semibold text-[var(--brand-navy)]">
                       {application.fullName}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">

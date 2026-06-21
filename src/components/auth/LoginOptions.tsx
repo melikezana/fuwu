@@ -242,7 +242,7 @@ export function LoginOptions() {
 
   return (
     <div
-      className="rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+      className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
       data-testid="login-options"
     >
       <p
@@ -300,7 +300,7 @@ export function LoginOptions() {
           </label>
           <button
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
             disabled={isEmailLoading}
             type="submit"
           >
@@ -338,7 +338,7 @@ export function LoginOptions() {
           </label>
           <button
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(13,20,36,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#172033] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
             disabled={isPhoneLoading}
             type="submit"
           >
@@ -357,7 +357,7 @@ export function LoginOptions() {
         </form>
 
         <Link
-          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(255,138,0,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-action)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
           href={appRoutes.providers}
         >
           {t("login.continueWithoutLogin")}

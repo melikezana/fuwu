@@ -18,7 +18,7 @@ export default function ProviderProfileLoading() {
       </section>
       <Container className="grid gap-6 py-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,370px)] lg:items-start lg:py-12">
         <div className="space-y-6">
-          <section className="rounded-lg bg-white p-5 shadow-[0_24px_74px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-7">
+          <section className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-7">
             <div className="flex gap-5">
               <SkeletonBlock className="h-20 w-20 shrink-0" />
               <div className="flex-1">
@@ -36,7 +36,7 @@ export default function ProviderProfileLoading() {
           <SkeletonBlock className="h-48" />
           <SkeletonBlock className="h-56" />
         </div>
-        <aside className="rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.1)]">
+        <aside className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.1)]">
           <SkeletonBlock className="h-10 w-32" />
           <SkeletonBlock className="mt-6 h-7 w-48" />
           <SkeletonBlock className="mt-4 h-12" />

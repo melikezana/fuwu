@@ -6,7 +6,7 @@ export function ComingSoonCTA() {
   return (
     <section className="bg-[var(--background)]" id="start">
       <Container className="py-14 sm:py-16">
-        <div className="rounded-lg border border-[rgba(255,138,0,0.28)] bg-white px-6 py-8 shadow-[0_24px_70px_rgba(13,20,36,0.08)] sm:px-8 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-10 lg:px-10">
+        <div className="rounded-lg border border-[rgba(255,138,0,0.28)] bg-white px-6 py-8 shadow-[var(--shadow-elevated)] sm:px-8 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-10 lg:px-10">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
               Hazır olduğunuzda

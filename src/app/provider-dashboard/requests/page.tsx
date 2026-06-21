@@ -121,7 +121,7 @@ function ProviderRequestActionNotice({
       className={`mb-5 rounded-lg border p-4 ${className}`}
       role={feedback.tone === "success" ? "status" : "alert"}
     >
-      <p className="text-sm font-black">{feedback.title}</p>
+      <p className="text-sm font-semibold">{feedback.title}</p>
       <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
     </div>
   );
@@ -151,7 +151,7 @@ function ProviderRequestActionButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className={`rounded-md border px-3 py-1.5 text-xs font-black transition-colors active:scale-[0.98] ${toneClassName}`}
+        className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] ${toneClassName}`}
       >
         {label}
       </button>
@@ -304,14 +304,14 @@ export default async function ProviderDashboardRequestsPage({
       title="Gelen Talepler"
     >
       {providerAccess.ok ? (
-        <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+        <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
           <ProviderRequestActionNotice code={actionCode} />
           <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div className="cursor-default select-none">
-              <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+              <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
                 Talep listesi
               </p>
-              <h2 className="mt-2 text-2xl font-black text-[var(--brand-navy)]">
+              <h2 className="mt-2 text-2xl font-bold text-[var(--brand-navy)]">
                 Yeni müşteri talepleri
               </h2>
             </div>
@@ -331,55 +331,55 @@ export default async function ProviderDashboardRequestsPage({
           <div className="mt-5 grid gap-3 md:hidden">
             {assignedRequests.map((request) => (
               <article
-                className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_10px_26px_rgba(13,20,36,0.05)]"
+                className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-subtle)]"
                 key={request.id}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h3 className="font-black text-[var(--brand-navy)]">{request.category}</h3>
+                    <h3 className="font-semibold text-[var(--brand-navy)]">{request.category}</h3>
                     <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
                       {request.customerName} - {request.phone}
                     </p>
                   </div>
-                  <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
+                  <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-orange-dark)]">
                     <ProviderRequestStatusText status={request.status} />
                   </span>
                 </div>
                 <div className="mt-3 grid gap-2 text-sm font-semibold text-[var(--muted)]">
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Talep ID: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Talep ID: </span>
                     {request.id}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">İlçe: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">İlçe: </span>
                     {request.district}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Adres: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Adres: </span>
                     {getProviderRequestLocation(request)}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Detay: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Detay: </span>
                     {request.description || "Açıklama yok"}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Bütçe / teklif: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Bütçe / teklif: </span>
                     {getProviderBudgetOfferText(request)}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Ödeme tercihi: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Ödeme tercihi: </span>
                     {getPaymentPreferenceLabel(request.paymentPreference)}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Durum: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Durum: </span>
                     <ProviderRequestStatusText status={request.status} />
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Oluşturulma: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Oluşturulma: </span>
                     {formatRequestCreatedAt(request.createdAt)}
                   </p>
                   <p>
-                    <span className="font-black text-[var(--brand-navy)]">Zaman: </span>
+                    <span className="font-semibold text-[var(--brand-navy)]">Zaman: </span>
                     {request.preferredDate || "Tarih esnek"} / {request.preferredTime || "Saat esnek"}
                   </p>
                 </div>
@@ -389,7 +389,7 @@ export default async function ProviderDashboardRequestsPage({
           </div>
 
           <div className="mt-5 hidden overflow-x-auto rounded-lg border border-[var(--border)] md:block">
-            <div className="grid min-w-[1480px] grid-cols-[11rem_1fr_0.85fr_1.35fr_0.85fr_0.9fr_1fr_1.05fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-black uppercase text-[var(--muted)]">
+            <div className="grid min-w-[1480px] grid-cols-[11rem_1fr_0.85fr_1.35fr_0.85fr_0.9fr_1fr_1.05fr] bg-[var(--surface-soft)] px-4 py-3 text-xs font-medium uppercase text-[var(--muted)]">
               <span>Talep ID</span>
               <span>Hizmet</span>
               <span>İlçe</span>
@@ -410,11 +410,11 @@ export default async function ProviderDashboardRequestsPage({
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-black text-[var(--brand-navy)]">{request.category}</span>
+                  <span className="font-semibold text-[var(--brand-navy)]">{request.category}</span>
                   <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
                   <span className="mt-1 line-clamp-2 text-sm text-[var(--muted)]">{request.description || "Açıklama yok"}</span>
                   {request.urgencyType === "emergency" ? (
-                    <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-black text-[var(--brand-orange-dark)]">
+                    <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-orange-dark)]">
                       Acil Hizmet · {getPaymentPreferenceLabel(request.paymentPreference)}
                       {request.offeredPrice
                         ? ` · ${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`

@@ -50,7 +50,7 @@ function ProviderApplicationStatusCard({
       <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Usta başvurusu
       </p>
-      <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
         {providerApplicationStatusMessages[application.status]}
       </h2>
       <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
@@ -58,7 +58,7 @@ function ProviderApplicationStatusCard({
         görmeye devam edersin.
       </p>
       <span
-        className={`mt-5 inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-black ${statusToneClassName}`}
+        className={`mt-5 inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-medium ${statusToneClassName}`}
       >
         {providerApplicationStatusLabels[application.status]}
       </span>
@@ -102,7 +102,7 @@ function ProviderApplicationLoginRequiredCard() {
       <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Giriş gerekli
       </p>
-      <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
         {authAccessMessages.loginRequired}
       </h2>
       <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
@@ -126,7 +126,7 @@ function ActiveProviderCard() {
       <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
         Usta hesabı aktif
       </p>
-      <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
         {providerApplicationStatusMessages.approved}
       </h2>
       <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
@@ -178,12 +178,12 @@ export default async function ProviderApplicationPage() {
         <div className="min-w-0 cursor-default select-none lg:max-w-[520px]">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
-          <p className="mt-7 text-sm font-black uppercase tracking-normal text-[var(--brand-orange-dark)]">
+          <p className="mt-7 text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
             <I18nText i18nKey="providerApplication.eyebrow" />
           </p>
           <h1 className="mt-4 max-w-[640px] text-3xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl lg:text-[2.5rem]">
@@ -192,8 +192,8 @@ export default async function ProviderApplicationPage() {
           <p className="mt-5 max-w-[680px] text-base font-medium leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
             <I18nText i18nKey="providerApplication.subtitle" />
           </p>
-          <div className="mt-6 cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-5 shadow-[0_18px_48px_rgba(13,20,36,0.07)]">
-            <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+          <div className="mt-6 cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-5 shadow-[var(--shadow-elevated)]">
+            <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
               <I18nText i18nKey="providerApplication.trustTitle" />
             </p>
             <p className="mt-2 text-base font-semibold leading-7 text-[var(--brand-navy)]">

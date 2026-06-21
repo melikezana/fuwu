@@ -82,7 +82,7 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
   }
 
   return (
-    <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+    <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">

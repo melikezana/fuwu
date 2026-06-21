@@ -140,7 +140,9 @@ export function getProviderInitials(provider: Provider) {
 }
 
 export function getProviderPhoneHref(provider: Provider) {
-  return `tel:${provider.phone.replace(/[^\d+]/g, "")}`;
+  const phoneNumber = provider.phone.trim().replace(/[^\d+]/g, "");
+
+  return phoneNumber ? `tel:${phoneNumber}` : "";
 }
 
 export function getProviderAvailabilityLabel(availability: ProviderAvailabilityStatus) {
@@ -161,6 +163,11 @@ export function getProviderAvailabilityTone(availability: ProviderAvailabilitySt
 
 export function getProviderWhatsAppHref(provider: Provider) {
   const whatsappNumber = provider.whatsapp.replace(/\D/g, "");
+
+  if (!whatsappNumber) {
+    return "";
+  }
+
   const message = encodeURIComponent(
     `Merhaba, Fuwu üzerinden ulaşıyorum. ${provider.district} için ${provider.category} hizmeti almak istiyorum.`,
   );

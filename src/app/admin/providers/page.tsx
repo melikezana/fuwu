@@ -287,7 +287,7 @@ function ProviderPriceInputs({
           type="number"
         />
       </label>
-      <span className="shrink-0 font-black text-[var(--muted)]">-</span>
+      <span className="shrink-0 font-semibold text-[var(--muted)]">-</span>
       <label className="min-w-0 flex-1">
         <span className="sr-only">Maksimum fiyat</span>
         <input
@@ -303,7 +303,7 @@ function ProviderPriceInputs({
           type="number"
         />
       </label>
-      <span className="shrink-0 text-xs font-black text-[var(--muted)]">TL</span>
+      <span className="shrink-0 text-xs font-semibold text-[var(--muted)]">TL</span>
     </div>
   );
 }
@@ -327,11 +327,11 @@ function ProviderVerificationControls({ provider }: { provider: AdminProvider })
     <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-[var(--border)] bg-white px-2 py-1">
       {options.map((option) => (
         <label
-          className="inline-flex min-h-7 items-center gap-1.5 text-xs font-black text-[var(--brand-navy)]"
+          className="inline-flex min-h-7 items-center gap-1.5 text-xs font-semibold text-[var(--brand-navy)]"
           key={option.name}
         >
           <input
-            className="h-4 w-4 rounded border-[var(--border)] accent-[var(--brand-orange-dark)]"
+            className="h-4 w-4 rounded-md border-[var(--border)] accent-[var(--brand-orange-dark)]"
             defaultChecked={option.defaultChecked}
             name={option.name}
             type="checkbox"
@@ -378,13 +378,13 @@ function ProviderActionNotice({
 
   return (
     <div
-      className={`mb-6 rounded-lg border p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)] ${toneClasses}`}
+      className={`mb-6 rounded-lg border p-4 shadow-[var(--shadow-card)] ${toneClasses}`}
       role={feedback.tone === "success" ? "status" : "alert"}
     >
       <div className="flex gap-3">
         <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
         <div>
-          <p className="text-sm font-black">{feedback.title}</p>
+          <p className="text-sm font-semibold">{feedback.title}</p>
           <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
         </div>
       </div>
@@ -588,7 +588,7 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
     <AdminMobileCard>
       <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
         <div className="min-w-0">
-          <h2 className="text-base font-black text-[var(--brand-navy)]">
+          <h2 className="text-base font-bold text-[var(--brand-navy)]">
             {provider.name}
           </h2>
           <p className="mt-1 text-sm font-bold text-[var(--muted)]">
@@ -600,15 +600,15 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
 
       <div className="mt-4 grid gap-3 text-sm font-semibold text-[var(--muted)]">
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Telefon: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Telefon: </span>
           {provider.phone}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">WhatsApp: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">WhatsApp: </span>
           {provider.whatsapp}
         </p>
         <div>
-          <span className="mb-2 block font-black text-[var(--brand-navy)]">
+          <span className="mb-2 block font-semibold text-[var(--brand-navy)]">
             Ortalama fiyat
           </span>
           <ProviderPriceInputs formId={updateFormId} provider={provider} />
@@ -634,15 +634,15 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
         </div>
         <ProviderVerificationBadges provider={provider} />
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Cevap: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Cevap: </span>
           {provider.responseTime}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Çalışma: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Çalışma: </span>
           {provider.workingHours}
         </p>
         <div className="rounded-md bg-[var(--surface-soft)] p-3">
-          <p className="font-black text-[var(--brand-navy)]">
+          <p className="font-semibold text-[var(--brand-navy)]">
             Profil Tamamlandı %{provider.profileCompletionScore}
           </p>
           <p className="mt-1 text-xs leading-5">
@@ -706,7 +706,7 @@ export default async function AdminProvidersPage({
 
           <AdminTableWrap>
             <table className="w-full min-w-[1900px] text-left text-sm">
-              <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
+              <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Usta</th>
                   <th className="px-4 py-3">Kategori</th>
@@ -731,7 +731,7 @@ export default async function AdminProvidersPage({
 
                   return (
                   <tr key={provider.id} className="bg-white align-top">
-                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
+                    <td className="px-4 py-4 font-semibold text-[var(--brand-navy)]">
                       <ProviderNameInput formId={updateFormId} provider={provider} />
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
@@ -746,7 +746,7 @@ export default async function AdminProvidersPage({
                     <td className="whitespace-nowrap px-4 py-4 font-semibold text-[var(--muted)]">
                       {provider.whatsapp}
                     </td>
-                    <td className="px-4 py-4 font-black text-[var(--brand-navy)]">
+                    <td className="px-4 py-4 font-semibold text-[var(--brand-navy)]">
                       {formatRating(provider.rating)}
                     </td>
                     <td className="px-4 py-4">
@@ -769,7 +769,7 @@ export default async function AdminProvidersPage({
                       {provider.workingHours}
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      <p className="font-black text-[var(--brand-navy)]">
+                      <p className="font-semibold text-[var(--brand-navy)]">
                         %{provider.profileCompletionScore}
                       </p>
                       <p className="mt-1 max-w-[16rem] text-xs leading-5">

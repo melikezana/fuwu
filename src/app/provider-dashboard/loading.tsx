@@ -15,7 +15,7 @@ export default function ProviderDashboardLoading() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
-              className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)]"
+              className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]"
               key={index}
             >
               <div className="flex items-start justify-between gap-4">
@@ -30,7 +30,7 @@ export default function ProviderDashboardLoading() {
           ))}
         </div>
 
-        <div className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+        <div className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
           <SkeletonBlock className="h-6 w-56" />
           <SkeletonBlock className="mt-4 h-5 max-w-xl" />
           <div className="mt-6 grid gap-4 md:grid-cols-2">

@@ -5,6 +5,7 @@ import type { ProviderTrustBadge } from "@/lib/providers/trust";
 type ProviderTrustBadgesProps = {
   badges: ProviderTrustBadge[];
   className?: string;
+  featured?: boolean;
   limit?: number;
 };
 
@@ -18,6 +19,7 @@ const badgeIcons: Record<ProviderTrustBadge["id"], typeof ShieldCheck> = {
 export function ProviderTrustBadges({
   badges,
   className,
+  featured = false,
   limit,
 }: ProviderTrustBadgesProps) {
   const visibleBadges = typeof limit === "number" ? badges.slice(0, limit) : badges;
@@ -38,7 +40,10 @@ export function ProviderTrustBadges({
         return (
           <span
             className={cn(
-              "inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-[0.72rem] font-bold leading-4",
+              "inline-flex max-w-full items-center gap-1.5 rounded-md border font-medium leading-4",
+              featured
+                ? "min-h-8 px-3 py-1.5 text-xs shadow-[var(--shadow-subtle)]"
+                : "min-h-7 px-2 py-1 text-[0.72rem]",
               toneClassName,
             )}
             key={badge.id}

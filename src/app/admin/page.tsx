@@ -53,13 +53,13 @@ export const metadata: Metadata = {
 function DashboardErrorState({ error }: { error: string }) {
   return (
     <section
-      className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 shadow-[0_14px_40px_rgba(13,20,36,0.05)]"
+      className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 shadow-[var(--shadow-card)]"
       role="alert"
     >
       <div className="flex gap-3">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
         <div>
-          <h2 className="text-base font-black">İstatistikler yüklenemedi</h2>
+          <h2 className="text-base font-bold">İstatistikler yüklenemedi</h2>
           <p className="mt-1 text-sm font-semibold leading-6">
             {error} Supabase bağlantısını ve admin okuma yetkilerini kontrol
             edin.
@@ -123,7 +123,7 @@ function OperationalAlerts({ overview }: { overview: AdminOverviewMetrics }) {
 
   return (
     <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-semibold">
-      <h3 className="flex items-center gap-2 mb-2 text-base font-black">
+      <h3 className="flex items-center gap-2 mb-2 text-base font-semibold">
         <AlertTriangle className="h-5 w-5" /> Operasyonel Uyarılar
       </h3>
       <ul className="list-disc pl-5 space-y-1">
@@ -160,7 +160,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: RequestAnalyticsDat
           {Object.entries(analytics.byStatus).map(([status, count]) => (
             <div key={status} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)]">{SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || status}</span>
-              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
             </div>
           ))}
         </div>
@@ -169,7 +169,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: RequestAnalyticsDat
           {Object.entries(analytics.byCategory).map(([cat, count]) => (
             <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
-              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
             </div>
           ))}
         </div>
@@ -178,7 +178,7 @@ function RequestAnalyticsSection({ analytics }: { analytics: RequestAnalyticsDat
           {Object.entries(analytics.byDistrict).map(([dist, count]) => (
             <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
-              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
             </div>
           ))}
         </div>
@@ -202,7 +202,7 @@ function ProviderAnalyticsSection({ analytics }: { analytics: ProviderAnalyticsD
           {Object.entries(analytics.byCategory).map(([cat, count]) => (
             <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
-              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
             </div>
           ))}
         </div>
@@ -211,7 +211,7 @@ function ProviderAnalyticsSection({ analytics }: { analytics: ProviderAnalyticsD
           {Object.entries(analytics.byDistrict).map(([dist, count]) => (
             <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
               <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
-              <span className="font-black text-[var(--brand-orange)]">{count}</span>
+              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
             </div>
           ))}
         </div>
@@ -249,7 +249,7 @@ function AssignmentMonitoringSection({ assignments }: { assignments: AssignmentM
                     {a.category}<br/>
                     <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
                   </td>
-                  <td className="py-3 px-4 text-sm font-black text-[var(--brand-orange)]">{a.assignedProviderName}</td>
+                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-orange)]">{a.assignedProviderName}</td>
                   <td className="py-3 px-4">
                     <StatusBadge
                       status={statusLabel || a.status}
@@ -337,10 +337,10 @@ export default async function AdminDashboardPage() {
         <DashboardSummaryCards summary={summary} />
       )}
 
-      <section className="mt-6 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)]">
+      <section className="mt-6 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-xl font-black text-[var(--brand-navy)]">
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">
               Hızlı Geçiş
             </h2>
             <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -355,7 +355,7 @@ export default async function AdminDashboardPage() {
 
             return (
               <Link
-                className="flex min-h-20 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-black text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]"
+                className="flex min-h-20 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]"
                 href={item.href}
                 key={item.key}
               >

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { HelpButton } from "@/components/layout/HelpButton";
@@ -7,6 +8,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
 import "@/styles/globals.css";
+
+const inter = Inter({
+  display: "swap",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   ...createPageMetadata({
@@ -35,7 +42,9 @@ export default function RootLayout({
 }>) {
   return (
     <html data-scroll-behavior="smooth" dir="ltr" lang="tr" suppressHydrationWarning>
-      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
+      <body
+        className={`${inter.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
+      >
         <LocaleProvider>
           <Suspense fallback={null}>
             <PageViewTracker />

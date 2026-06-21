@@ -65,7 +65,7 @@ export function FAQSection() {
           </div>
 
           <MobileCollapsibleSection contentClassName="mt-5 md:mt-0">
-            <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[0_24px_70px_rgba(13,20,36,0.08)]">
+            <div className="min-w-0 overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[var(--shadow-elevated)]">
               {faqItems.map((item, index) => {
                 const isOpen = openItemId === item.id;
                 const contentId = `${item.id}-answer`;

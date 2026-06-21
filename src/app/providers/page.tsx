@@ -202,7 +202,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           <div className="min-w-0 cursor-default select-none lg:max-w-3xl">
             <Link
               aria-label="Fuwu ana sayfasına git"
-              className="inline-flex cursor-pointer rounded-md bg-white px-3 py-2 shadow-[0_10px_28px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="inline-flex cursor-pointer rounded-md bg-white px-3 py-2 shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={appRoutes.home}
             >
               <FuwuLogo size="sm" />

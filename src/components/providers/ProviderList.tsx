@@ -44,7 +44,7 @@ export function ProviderList({
           ))}
         </div>
       ) : (
-        <div className="mt-6 cursor-default rounded-lg bg-white p-6 text-center shadow-[0_14px_38px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)]">
+        <div className="mt-6 cursor-default rounded-lg bg-white p-6 text-center shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
           <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-base font-semibold text-[var(--brand-orange-dark)]">
             0
           </div>

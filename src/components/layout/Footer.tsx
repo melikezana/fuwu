@@ -32,7 +32,7 @@ const footerLinkClass =
   "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center gap-2 rounded-md px-1 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] active:text-[var(--brand-orange)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0 sm:px-0";
 
 const contactActionClass =
-  "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[0_12px_30px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
+  "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
 
 function FooterAnchor({ item, className }: { className?: string; item: FooterLink }) {
   const isExternal = item.external || item.href.startsWith("http");
@@ -42,7 +42,7 @@ function FooterAnchor({ item, className }: { className?: string; item: FooterLin
   const content = (
     <>
       {Icon ? (
-        <span className="pointer-events-none inline-flex size-8 shrink-0 select-none items-center justify-center rounded bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+        <span className="pointer-events-none inline-flex size-8 shrink-0 select-none items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
           <Icon aria-hidden="true" className="size-4" />
         </span>
       ) : null}
@@ -211,7 +211,7 @@ export function Footer() {
           <FooterColumn className="sm:col-span-2 lg:col-span-4" title={t("footer.contact")}>
             <address className="grid gap-4 not-italic">
               <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--muted)]">
-                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
                   <MapPin aria-hidden="true" className="size-4" />
                 </span>
                 <span>{t("footer.location")}</span>
@@ -225,7 +225,7 @@ export function Footer() {
           </FooterColumn>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/70 bg-white/55 px-4 py-4 text-sm font-semibold text-[var(--muted)] shadow-[0_12px_34px_rgba(13,20,36,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/70 bg-white/55 px-4 py-4 text-sm font-semibold text-[var(--muted)] shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none">{t("footer.copyright")}</p>
           <p className="cursor-default select-none">{t("footer.tagline")}</p>
         </div>

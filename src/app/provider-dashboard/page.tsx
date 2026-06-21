@@ -109,13 +109,13 @@ function ProviderDashboardRecentRequests({
   requests: ProviderAssignedRequestPreview[];
 }) {
   return (
-    <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+    <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="cursor-default select-none">
-          <p className="text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+          <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
             Gelen talepler
           </p>
-          <h2 className="mt-2 text-xl font-black text-[var(--brand-navy)]">
+          <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]">
             Son atanan talepler
           </h2>
         </div>
@@ -133,7 +133,7 @@ function ProviderDashboardRecentRequests({
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="font-black text-[var(--brand-navy)]">{request.category}</p>
+                  <p className="font-semibold text-[var(--brand-navy)]">{request.category}</p>
                   <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
                     {request.district} · {request.customerName}
                   </p>
@@ -165,13 +165,13 @@ function ProviderDashboardActiveNotice({
 
   return (
     <section
-      className="rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-5 text-[var(--trust-green)] shadow-[0_14px_40px_rgba(13,20,36,0.05)]"
+      className="rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-5 text-[var(--trust-green)] shadow-[var(--shadow-card)]"
       role="status"
     >
-      <p className="text-xs font-black uppercase">
+      <p className="text-xs font-medium uppercase">
         Onay tamamland\u0131
       </p>
-      <h2 className="mt-2 text-2xl font-black leading-tight">
+      <h2 className="mt-2 text-2xl font-bold leading-tight">
         Usta hesab\u0131n\u0131z aktif
       </h2>
       <p className="mt-2 max-w-2xl text-sm font-bold leading-6">
@@ -223,10 +223,10 @@ export default async function ProviderDashboardPage() {
           />
           <ProviderDashboardRecentRequests requests={assignedRequests} />
 
-          <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.05)] sm:p-6">
+          <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="cursor-default select-none">
-                <h2 className="text-xl font-black text-[var(--brand-navy)]">
+                <h2 className="text-xl font-bold text-[var(--brand-navy)]">
                   Profil yönetimi yakında
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">

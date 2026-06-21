@@ -407,29 +407,29 @@ function EmergencyRequestMeta({ request }: { request: AdminServiceRequest }) {
   return (
     <div className="mt-3 grid gap-2 rounded-md border border-[rgba(255,138,0,0.22)] bg-[var(--brand-orange-soft)] p-3 text-sm font-semibold text-[var(--brand-navy)]">
       <p>
-        <span className="font-black">Teklif: </span>
+        <span className="font-semibold">Teklif: </span>
         {request.offeredPrice
           ? `${Number(request.offeredPrice).toLocaleString("tr-TR")} TL`
           : "Belirtilmedi"}
       </p>
       <p>
-        <span className="font-black">Ödeme tercihi: </span>
+        <span className="font-semibold">Ödeme tercihi: </span>
         {getPaymentPreferenceLabel(request.paymentPreference)}
       </p>
       <p>
-        <span className="font-black">Doğrulama kodu: </span>
+        <span className="font-semibold">Doğrulama kodu: </span>
         {request.confirmationCode ?? "Usta kabulünden sonra"}
       </p>
       <p>
-        <span className="font-black">Tahmini varış: </span>
+        <span className="font-semibold">Tahmini varış: </span>
         {request.estimatedArrivalText ?? "Usta kabulünden sonra"}
       </p>
       <p>
-        <span className="font-black">Acil durum: </span>
+        <span className="font-semibold">Acil durum: </span>
         {request.emergencyStatus ?? request.status}
       </p>
       <p>
-        <span className="font-black">Canlı takip: </span>
+        <span className="font-semibold">Canlı takip: </span>
         {liveTrackingSoonText}
       </p>
     </div>
@@ -451,11 +451,11 @@ function PaymentStatusSummary({ request }: { request: AdminServiceRequest }) {
   return (
     <div className="grid gap-2 text-sm font-semibold text-[var(--muted)]">
       <p>
-        <span className="font-black text-[var(--brand-navy)]">Ödeme durumu: </span>
+        <span className="font-semibold text-[var(--brand-navy)]">Ödeme durumu: </span>
         {isCompleted ? paymentStatusLabel : "İş tamamlanınca takip edilir"}
       </p>
       <p>
-        <span className="font-black text-[var(--brand-navy)]">Takip tutarı: </span>
+        <span className="font-semibold text-[var(--brand-navy)]">Takip tutarı: </span>
         {amountText}
       </p>
       {isCompleted && !isConfirmed ? (
@@ -492,13 +492,13 @@ function RequestActionNotice({
 
   return (
     <div
-      className={`mb-6 rounded-lg border p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)] ${toneClasses}`}
+      className={`mb-6 rounded-lg border p-4 shadow-[var(--shadow-card)] ${toneClasses}`}
       role={feedback.tone === "success" ? "status" : "alert"}
     >
       <div className="flex gap-3">
         <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
         <div>
-          <p className="text-sm font-black">{feedback.title}</p>
+          <p className="text-sm font-semibold">{feedback.title}</p>
           <p className="mt-1 text-sm font-semibold leading-6">{feedback.body}</p>
         </div>
       </div>
@@ -583,7 +583,7 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
     <AdminMobileCard>
       <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-start min-[420px]:justify-between">
         <div className="min-w-0">
-          <h2 className="text-base font-black text-[var(--brand-navy)]">
+          <h2 className="text-base font-bold text-[var(--brand-navy)]">
             {request.customerName}
           </h2>
           <p className="mt-1 text-sm font-bold text-[var(--muted)]">
@@ -595,11 +595,11 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
 
       <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--muted)]">
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Talep ID: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Talep ID: </span>
           {request.id}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Telefon: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Telefon: </span>
           {request.phone}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -612,36 +612,36 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
           ) : null}
         </div>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Tercih edilen tarih: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Tercih edilen tarih: </span>
           {formatPreferredDate(request.preferredDate)}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Tercih edilen saat: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Tercih edilen saat: </span>
           {formatPreferredTime(request.preferredTime)}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Adres: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Adres: </span>
           {getRequestAddressText(request)}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Açıklama: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Açıklama: </span>
           {request.description || "Açıklama yok"}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Bütçe / teklif: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Bütçe / teklif: </span>
           {getBudgetOfferText(request)}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Ödeme tercihi: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Ödeme tercihi: </span>
           {getPaymentPreferenceLabel(request.paymentPreference)}
         </p>
         <PaymentStatusSummary request={request} />
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Atanan usta: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Atanan usta: </span>
           {request.assignedProviderName || "Henüz atanmadı"}
         </p>
         <p>
-          <span className="font-black text-[var(--brand-navy)]">Oluşturulma: </span>
+          <span className="font-semibold text-[var(--brand-navy)]">Oluşturulma: </span>
           {formatCreatedAt(request.createdAt)}
           {getRequestResponseDateText(request) ? (
             <span className="mt-1 block">
@@ -708,7 +708,7 @@ export default async function AdminServiceRequestsPage({
 
           <AdminTableWrap>
             <table className="w-full min-w-[2050px] text-left text-sm">
-              <thead className="bg-[var(--surface-soft)] text-xs font-black uppercase text-[var(--muted)]">
+              <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Talep ID</th>
                   <th className="px-4 py-3">Müşteri</th>
@@ -732,7 +732,7 @@ export default async function AdminServiceRequestsPage({
                       {request.id}
                     </td>
                     <td className="px-4 py-4">
-                      <p className="font-black text-[var(--brand-navy)]">
+                      <p className="font-semibold text-[var(--brand-navy)]">
                         {request.customerName}
                       </p>
                       <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
@@ -778,7 +778,7 @@ export default async function AdminServiceRequestsPage({
                       ) : null}
                     </td>
                     <td className="px-4 py-4">
-                      <span className="font-black text-[var(--brand-navy)]">
+                      <span className="font-semibold text-[var(--brand-navy)]">
                         {request.assignedProviderName || "Henüz atanmadı"}
                       </span>
                       {request.urgencyType === "emergency" ? (

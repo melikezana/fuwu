@@ -2,6 +2,7 @@
 
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { useEffect } from "react";
+import { Button, type ButtonVariant } from "@/components/ui/Button";
 import {
   getProviderPhoneHref,
   getProviderWhatsAppHref,
@@ -34,16 +35,22 @@ export function ProviderContactLink({
   children,
   kind,
   provider,
+  variant,
   ...linkProps
 }: {
   children: ReactNode;
   kind: "phone" | "whatsapp";
   provider: Provider;
+  variant?: ButtonVariant;
 } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick">) {
   const href = kind === "whatsapp" ? getProviderWhatsAppHref(provider) : getProviderPhoneHref(provider);
 
+  if (!href) {
+    return null;
+  }
+
   return (
-    <a
+    <Button
       href={href}
       onClick={() => {
         if (kind === "whatsapp") {
@@ -53,9 +60,10 @@ export function ProviderContactLink({
 
         trackPhoneClick(getProviderAnalyticsPayload(provider));
       }}
+      variant={variant ?? (kind === "whatsapp" ? "premium" : "secondary")}
       {...linkProps}
     >
       {children}
-    </a>
+    </Button>
   );
 }

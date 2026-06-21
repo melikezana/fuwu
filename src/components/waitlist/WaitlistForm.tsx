@@ -183,7 +183,7 @@ export function WaitlistForm() {
         {submittedEntry ? (
           <div
             aria-live="polite"
-            className="select-none overflow-hidden rounded-lg border border-[var(--brand-orange)] bg-[var(--brand-navy)] text-white shadow-[0_22px_60px_rgba(13,20,36,0.26)]"
+            className="select-none overflow-hidden rounded-lg border border-[var(--brand-orange)] bg-[var(--brand-navy)] text-white shadow-[var(--shadow-elevated)]"
           >
             <div className="h-1 bg-[var(--brand-orange)]" />
             <div className="p-5 sm:p-6">
@@ -375,7 +375,7 @@ export function WaitlistForm() {
                     className={cn(
                       "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors",
                       isSelected
-                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                         : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                       errors.userType && "border-red-500",
                     )}

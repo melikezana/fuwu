@@ -27,15 +27,15 @@ export default function LoginPage() {
         <div className="min-w-0 cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
-          <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+          <p className="mt-7 text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
             <I18nText i18nKey="login.eyebrow" />
           </p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight text-[var(--brand-navy)] sm:text-5xl">
             <I18nText i18nKey="login.title" />
           </h1>
           <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
@@ -44,7 +44,7 @@ export default function LoginPage() {
           <div className="mt-7 flex flex-wrap gap-2">
             {badges.map((badge) => (
               <Link
-                className="rounded-md bg-white px-3 py-2 text-sm font-black text-[var(--brand-navy)] shadow-[0_10px_26px_rgba(13,20,36,0.04)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)]"
                 href={appRoutes.providers}
                 key={badge}
               >
@@ -54,7 +54,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Suspense fallback={<div className="h-full min-h-[400px] rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.1)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6" />}>
+        <Suspense fallback={<div className="h-full min-h-[400px] rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6" />}>
           <LoginOptions />
         </Suspense>
       </Container>

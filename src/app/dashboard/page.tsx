@@ -16,7 +16,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { TextLink } from "@/components/ui/TextLink";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
   LEGACY_SERVICE_REQUEST_STATUSES,
@@ -237,33 +239,33 @@ export default async function CustomerDashboardPage() {
 
       <Container className="py-8 sm:py-10">
         {/* Hero Card */}
-        <div className="relative mb-6 overflow-hidden rounded-2xl bg-[var(--brand-navy)] px-6 py-7 shadow-[0_20px_60px_rgba(13,20,36,0.18)] sm:px-8">
+        <div className="relative mb-6 overflow-hidden rounded-xl bg-[var(--brand-navy)] px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8">
           {/* decorative circles */}
           <div className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-white/5" />
           <div className="pointer-events-none absolute -bottom-10 right-24 size-40 rounded-full bg-[var(--brand-orange)]/10" />
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
-              <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)] text-2xl font-black text-white shadow-[0_8px_24px_rgba(255,138,0,0.4)]">
+              <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)] text-2xl font-medium text-white shadow-[var(--shadow-action)]">
                 {avatarLetter}
               </span>
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-widest text-white/50">
                   Hesabım
                 </p>
-                <h1 className="mt-1 break-words text-2xl font-black text-white">
+                <h1 className="mt-1 break-words text-2xl font-bold text-white">
                   Merhaba, {firstName} 👋
                 </h1>
                 <p className="mt-0.5 break-all text-sm font-semibold text-white/60">{user.email}</p>
               </div>
             </div>
-            <Link
+            <Button
               href={appRoutes.request}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--brand-orange)] px-5 py-3 text-sm font-black text-white shadow-[0_8px_24px_rgba(255,138,0,0.35)] transition hover:-translate-y-0.5 hover:bg-orange-500"
+              className="shrink-0 gap-2"
             >
               <Plus className="size-4" />
               Yeni Talep Oluştur
-            </Link>
+            </Button>
           </div>
 
           {/* Stats row */}
@@ -274,7 +276,7 @@ export default async function CustomerDashboardPage() {
               { label: "Toplam Talep", value: requests.length, color: "text-white" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+                <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-white/40">
                   {s.label}
                 </p>
@@ -291,12 +293,12 @@ export default async function CustomerDashboardPage() {
             description="Supabase bağlantısı aktif olduğunda talep geçmişin burada görünecek. Şimdilik talep oluşturabilir veya ustaları inceleyebilirsin."
             actions={
               <>
-                <Link href={appRoutes.request} className={primaryBtn}>
+                <Button href={appRoutes.request}>
                   Talep Oluştur
-                </Link>
-                <Link href={appRoutes.providers} className={secondaryBtn}>
+                </Button>
+                <Button href={appRoutes.providers} variant="secondary">
                   Ustaları İncele
-                </Link>
+                </Button>
               </>
             }
           />
@@ -307,12 +309,12 @@ export default async function CustomerDashboardPage() {
             description="İlk talebini oluştur, uygun ustayla eşleş. Tüm talepleriniz burada takip edilir."
             actions={
               <>
-                <Link href={appRoutes.request} className={primaryBtn}>
+                <Button href={appRoutes.request}>
                   İlk Talebimi Oluştur
-                </Link>
-                <Link href={appRoutes.providers} className={secondaryBtn}>
+                </Button>
+                <Button href={appRoutes.providers} variant="secondary">
                   Ustaları Gözat
-                </Link>
+                </Button>
               </>
             }
           />
@@ -369,11 +371,6 @@ export default async function CustomerDashboardPage() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const primaryBtn =
-  "inline-flex items-center justify-center rounded-xl bg-[var(--brand-orange)] px-5 py-3 text-sm font-black text-white shadow-[0_8px_24px_rgba(255,138,0,0.28)] transition hover:-translate-y-0.5 hover:bg-orange-500";
-const secondaryBtn =
-  "inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-black text-[var(--brand-navy)] transition hover:bg-[var(--surface-soft)]";
-
 function EmptyState({
   icon,
   title,
@@ -386,11 +383,11 @@ function EmptyState({
   actions: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-white px-6 py-12 text-center shadow-[0_8px_32px_rgba(13,20,36,0.05)]">
+    <div className="rounded-xl border border-[var(--border)] bg-white px-6 py-12 text-center shadow-[var(--shadow-subtle)]">
       <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[var(--brand-orange-soft)]">
         {icon}
       </div>
-      <h2 className="text-lg font-black text-[var(--brand-navy)]">{title}</h2>
+      <h2 className="text-lg font-bold text-[var(--brand-navy)]">{title}</h2>
       <p className="mx-auto mt-2 max-w-sm text-sm font-semibold leading-6 text-[var(--muted)]">
         {description}
       </p>
@@ -424,19 +421,19 @@ function RequestsOverview({
   ];
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.05)]">
+    <section className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)]">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide text-[var(--brand-orange-dark)]">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--brand-orange-dark)]">
             Requests
           </p>
-          <h2 className="mt-1 text-lg font-black text-[var(--brand-navy)]">
+          <h2 className="mt-1 text-lg font-bold text-[var(--brand-navy)]">
             Talep Durumları
           </h2>
         </div>
-        <Link href={appRoutes.dashboardRequests} className="text-xs font-black text-[var(--brand-orange-dark)]">
+        <TextLink href={appRoutes.dashboardRequests} className="text-xs font-semibold">
           Tümünü gör
-        </Link>
+        </TextLink>
       </div>
       <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {items.map((item) => (
@@ -444,8 +441,8 @@ function RequestsOverview({
             className={`rounded-xl px-3 py-4 text-center ring-1 ${item.className}`}
             key={item.label}
           >
-            <p className="text-2xl font-black">{item.value}</p>
-            <p className="mt-1 text-[11px] font-black uppercase tracking-wide">
+            <p className="text-2xl font-semibold">{item.value}</p>
+            <p className="mt-1 text-[11px] font-medium uppercase tracking-wide">
               {item.label}
             </p>
           </div>
@@ -469,10 +466,10 @@ function RequestSection({
   return (
     <section>
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-sm font-black uppercase tracking-wide text-[var(--brand-navy)]">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--brand-navy)]">
           {title}
         </h2>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-black ${countColor}`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${countColor}`}>
           {count}
         </span>
       </div>
@@ -495,7 +492,7 @@ function RequestCard({ request }: { request: ServiceRequest }) {
   const isEmergency = request.urgency_type === "emergency";
 
   return (
-    <div className="group flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[0_4px_16px_rgba(13,20,36,0.04)] transition hover:shadow-[0_8px_28px_rgba(13,20,36,0.08)] sm:flex-row sm:items-start sm:justify-between">
+    <div className="group flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] transition hover:shadow-[var(--shadow-subtle)] sm:flex-row sm:items-start sm:justify-between">
       {/* Left */}
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)]">
@@ -503,9 +500,9 @@ function RequestCard({ request }: { request: ServiceRequest }) {
         </span>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-black text-[var(--brand-navy)]">{category}</p>
+            <p className="font-semibold text-[var(--brand-navy)]">{category}</p>
             {isEmergency && (
-              <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-black uppercase text-red-600 ring-1 ring-red-200">
+              <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-medium uppercase text-red-600 ring-1 ring-red-200">
                 Acil
               </span>
             )}
@@ -529,7 +526,7 @@ function RequestCard({ request }: { request: ServiceRequest }) {
               </span>
             )}
             {request.confirmation_code && (
-              <span className="rounded-md bg-[var(--surface-soft)] px-1.5 py-0.5 font-black text-[var(--brand-navy)]">
+              <span className="rounded-md bg-[var(--surface-soft)] px-1.5 py-0.5 font-semibold text-[var(--brand-navy)]">
                 #{request.confirmation_code}
               </span>
             )}
@@ -539,7 +536,7 @@ function RequestCard({ request }: { request: ServiceRequest }) {
 
       {/* Right — status badge */}
       <span
-        className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-xs font-black ring-1 ${cfg.bg} ${cfg.color} ${cfg.ring}`}
+        className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${cfg.bg} ${cfg.color} ${cfg.ring}`}
       >
         <StatusIcon className="size-3.5" />
         {cfg.label}
@@ -562,13 +559,13 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-white p-4 transition hover:border-[rgba(255,138,0,0.4)] hover:shadow-[0_8px_24px_rgba(13,20,36,0.07)]"
+      className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-white p-4 transition hover:border-[rgba(255,138,0,0.4)] hover:shadow-[var(--shadow-subtle)]"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
         <Icon className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="font-black text-[var(--brand-navy)]">{label}</p>
+        <p className="font-semibold text-[var(--brand-navy)]">{label}</p>
         <p className="mt-0.5 text-xs font-semibold text-[var(--muted)]">{desc}</p>
       </div>
       <ChevronRight className="ml-auto size-4 shrink-0 text-[var(--muted)] transition group-hover:translate-x-0.5" />

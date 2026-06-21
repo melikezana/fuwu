@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarDays, CircleDollarSign, MapPin, ReceiptText, UserRound, WalletCards } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
@@ -174,7 +175,7 @@ function RequestDetailPill({
 }) {
   return (
     <div className="rounded-md bg-[#F9FAFB] px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
-      <dt className="flex items-center gap-1.5 text-[0.68rem] font-black uppercase text-[var(--muted)]">
+      <dt className="flex items-center gap-1.5 text-[0.68rem] font-medium uppercase text-[var(--muted)]">
         <Icon className="size-3.5" aria-hidden />
         {label}
       </dt>
@@ -200,7 +201,7 @@ function RequestCard({
   return (
     <article
       className={cn(
-        "rounded-lg border bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.45)] hover:shadow-[0_20px_46px_rgba(13,20,36,0.09)]",
+        "rounded-lg border bg-white p-5 shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.45)] hover:shadow-[var(--shadow-elevated)]",
         isHighlighted
           ? "border-[rgba(255,138,0,0.65)] ring-2 ring-[rgba(255,138,0,0.18)]"
           : "border-[var(--border)]",
@@ -209,11 +210,11 @@ function RequestCard({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-black leading-tight text-[var(--brand-navy)]">
+            <h2 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
               {category}
             </h2>
             {isEmergency ? (
-              <span className="rounded-md bg-red-50 px-2 py-1 text-[0.68rem] font-black uppercase text-red-600 ring-1 ring-red-200">
+              <span className="rounded-md bg-red-50 px-2 py-1 text-[0.68rem] font-medium uppercase text-red-600 ring-1 ring-red-200">
                 Acil
               </span>
             ) : null}
@@ -222,7 +223,7 @@ function RequestCard({
             {request.description || "Talep açıklaması kaydedildi."}
           </p>
         </div>
-        <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-1.5 text-xs font-black text-[var(--brand-orange-dark)]">
+        <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-orange-dark)]">
           {getStatusLabel(request.status)}
         </span>
       </div>
@@ -248,7 +249,7 @@ function RequestCard({
       </dl>
 
       {request.confirmation_code ? (
-        <p className="mt-4 inline-flex rounded-md bg-white px-3 py-2 text-xs font-black text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
+        <p className="mt-4 inline-flex rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
           Kod: {request.confirmation_code}
         </p>
       ) : null}
@@ -284,29 +285,29 @@ export default async function AccountRequestsPage({
           <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
-          <Link
-            className="rounded-md border border-[rgba(255,138,0,0.42)] bg-white px-4 py-2 text-sm font-black text-[var(--brand-navy)] transition hover:bg-[var(--brand-orange-soft)]"
+          <Button
             href={appRoutes.request}
+            variant="secondary"
           >
             Yeni Talep
-          </Link>
+          </Button>
         </Container>
       </header>
 
       <Container className="max-w-5xl py-8 sm:py-10">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
               Hesabım
             </p>
-            <h1 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
               Taleplerim
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
               Oluşturduğun standart ve acil hizmet taleplerini buradan takip edebilirsin.
             </p>
           </div>
-          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-black text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
             {requests.length} talep
           </span>
         </div>
@@ -319,7 +320,7 @@ export default async function AccountRequestsPage({
             <div className="flex gap-3">
               <ReceiptText className="mt-0.5 size-5 shrink-0" aria-hidden />
               <div>
-                <p className="text-sm font-black">Talebiniz başarıyla oluşturuldu</p>
+                <p className="text-sm font-semibold">Talebiniz başarıyla oluşturuldu</p>
                 <p className="mt-1 text-sm font-semibold leading-6">
                   Durum, kategori, ilçe, bütçe ve ödeme bilgilerini aşağıda görebilirsin.
                 </p>
@@ -349,18 +350,18 @@ export default async function AccountRequestsPage({
           </div>
         ) : (
           <section className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-12 text-center">
-            <h2 className="text-xl font-black text-[var(--brand-navy)]">
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">
               Henüz talep oluşturmadın.
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[var(--muted)]">
               İlk hizmet talebini oluşturduğunda detayları burada görünür.
             </p>
-            <Link
-              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(255,138,0,0.24)] transition hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)]"
+            <Button
+              className="mt-5"
               href={appRoutes.request}
             >
               Talep Oluştur
-            </Link>
+            </Button>
           </section>
         )}
       </Container>

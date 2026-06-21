@@ -217,7 +217,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[rgba(13,20,36,0.08)] bg-white/[0.97] shadow-[0_10px_30px_rgba(13,20,36,0.045)] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-[rgba(13,20,36,0.08)] bg-white/[0.97] shadow-[var(--shadow-subtle)] backdrop-blur-xl">
       <Container className="max-w-[1440px] py-3 xl:py-0">
         <nav
           className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 xl:h-[72px]"
@@ -297,7 +297,7 @@ export function Navbar() {
                     title={userDisplayName}
                     variant="secondary"
                   >
-                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-black text-white">
+                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-medium text-white">
                       {userAvatarInitial}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-left">{userDisplayName}</span>
@@ -341,7 +341,7 @@ export function Navbar() {
               aria-controls="mobile-navigation-menu"
               aria-expanded={isMenuOpen}
               aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] text-white shadow-[0_12px_28px_rgba(13,20,36,0.16)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] text-white shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
               type="button"
             >
@@ -355,7 +355,7 @@ export function Navbar() {
 
           {isMenuOpen ? (
             <div
-              className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 max-h-[min(48vh,18rem)] overflow-y-auto rounded-lg border border-[rgba(13,20,36,0.08)] bg-white py-2 shadow-[0_22px_60px_rgba(13,20,36,0.16)] xl:hidden"
+              className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 max-h-[min(48vh,18rem)] overflow-y-auto rounded-lg border border-[rgba(13,20,36,0.08)] bg-white py-2 shadow-[var(--shadow-elevated)] xl:hidden"
               id="mobile-navigation-menu"
             >
               <div className="grid gap-1 px-2">

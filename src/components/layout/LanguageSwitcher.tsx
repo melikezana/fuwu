@@ -81,7 +81,7 @@ export function LanguageSwitcher({ align = "left" }: LanguageSwitcherProps) {
         <div
           aria-label={t("language.options")}
           className={cn(
-            "absolute top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[0_18px_44px_rgba(13,20,36,0.14)]",
+            "absolute top-full z-50 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-white py-1 shadow-[var(--shadow-elevated)]",
             align === "right" ? "right-0" : "left-0",
           )}
           id={menuId}

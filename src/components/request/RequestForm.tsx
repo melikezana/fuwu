@@ -742,7 +742,7 @@ export function RequestForm({
         {submittedRequest ? (
           <div
             aria-live="polite"
-            className="cursor-default select-none overflow-hidden rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--brand-navy)] shadow-[0_18px_50px_rgba(13,20,36,0.08)]"
+            className="cursor-default select-none overflow-hidden rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-elevated)]"
             data-testid="request-success-card"
           >
             <div className="h-1 bg-[var(--trust-green)]" />
@@ -900,8 +900,8 @@ export function RequestForm({
                   className={cn(
                     "flex h-full min-h-40 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-all focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                     isSelected
-                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)] ring-2 ring-[rgba(255,138,0,0.16)]"
-                      : "border-[var(--border)] hover:-translate-y-0.5 hover:border-[var(--brand-orange)] hover:shadow-[0_14px_32px_rgba(13,20,36,0.08)]",
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)] ring-2 ring-[rgba(255,138,0,0.16)]"
+                      : "border-[var(--border)] hover:-translate-y-0.5 hover:border-[var(--brand-orange)] hover:shadow-[var(--shadow-card)]",
                     errors.serviceCategory && "border-red-500",
                   )}
                   key={service.id}
@@ -918,7 +918,7 @@ export function RequestForm({
                   <span className="inline-flex size-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(13,20,36,0.08)]">
                     <ServiceIcon className="size-5" name={service.iconName} />
                   </span>
-                  <span className="mt-3 text-sm font-black text-[var(--brand-navy)]">
+                  <span className="mt-3 text-sm font-semibold text-[var(--brand-navy)]">
                     {service.title}
                   </span>
                   <span className="mt-1 text-xs font-bold text-[var(--brand-orange-dark)]">
@@ -1079,7 +1079,7 @@ export function RequestForm({
 
           {isEmergencyFlow ? (
             <div className="space-y-5">
-              <div className="rounded-lg border border-[rgba(255,138,0,0.22)] bg-[#fffdf9] p-4 shadow-[0_12px_34px_rgba(13,20,36,0.05)]">
+              <div className="rounded-lg border border-[rgba(255,138,0,0.22)] bg-[#fffdf9] p-4 shadow-[var(--shadow-card)]">
                 <EmergencyStepLabel step={3}>Sistem fiyat önerir</EmergencyStepLabel>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-md bg-white p-4 ring-1 ring-[rgba(13,20,36,0.08)]">
@@ -1120,7 +1120,7 @@ export function RequestForm({
                           className={cn(
                             "min-h-11 rounded-md border px-3 text-sm font-bold transition-all",
                             isSelected
-                              ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.14)]"
+                              ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-action)]"
                               : "border-[rgba(13,20,36,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
                           )}
                           key={option.value}
@@ -1147,7 +1147,7 @@ export function RequestForm({
                         className={cn(
                           "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                           isSelected
-                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                             : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                           errors.paymentPreference && "border-red-500",
                         )}
@@ -1211,7 +1211,7 @@ export function RequestForm({
                         className={cn(
                           "flex min-h-28 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                           isSelected
-                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                             : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                           errors.urgencyLevel && "border-red-500",
                         )}
@@ -1256,7 +1256,7 @@ export function RequestForm({
                         className={cn(
                           "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                           isSelected
-                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                             : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                           errors.budgetTag && "border-red-500",
                         )}
@@ -1295,7 +1295,7 @@ export function RequestForm({
                         className={cn(
                           "flex min-h-24 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                           isSelected
-                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
+                            ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
                             : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                           errors.paymentPreference && "border-red-500",
                         )}

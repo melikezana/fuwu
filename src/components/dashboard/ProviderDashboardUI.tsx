@@ -259,7 +259,7 @@ export function ProviderDashboardShell({
                   className={cn(
                     "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-bold leading-5 transition-colors",
                     isActive
-                      ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[0_10px_24px_rgba(255,138,0,0.14)]"
+                      ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-action)]"
                       : "border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
                   )}
                   href={item.href}
@@ -370,7 +370,7 @@ export function ProviderDashboardAccessPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_22px_70px_rgba(13,20,36,0.08)] sm:p-8">
+        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
@@ -414,7 +414,7 @@ export function ProviderDashboardAccessPlaceholder({
         </article>
 
         <aside
-          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-6"
+          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
@@ -488,7 +488,7 @@ export function ProviderDashboardAccessPlaceholder({
 
           return (
             <Link
-              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={feature.href}
               key={feature.title}
             >
@@ -496,7 +496,7 @@ export function ProviderDashboardAccessPlaceholder({
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
-              <h3 className="mt-4 text-lg font-black leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-4 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
                 {feature.title}
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -539,7 +539,7 @@ export function ProviderDashboardApplicationPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[0_22px_70px_rgba(13,20,36,0.08)] sm:p-8">
+        <article className="rounded-xl border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
@@ -569,7 +569,7 @@ export function ProviderDashboardApplicationPlaceholder({
         </article>
 
         <aside
-          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_18px_54px_rgba(13,20,36,0.07)] sm:p-6"
+          className="rounded-xl border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
@@ -610,13 +610,13 @@ export function ProviderDashboardApplicationPlaceholder({
 
           return (
             <article
-              className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[0_10px_30px_rgba(13,20,36,0.05)]"
+              className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-subtle)]"
               key={feature.title}
             >
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
-              <h3 className="mt-3 text-base font-black leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-3 text-base font-semibold leading-tight text-[var(--brand-navy)]">
                 {feature.title}
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -633,7 +633,7 @@ export function ProviderDashboardApplicationPlaceholder({
 
           return (
             <Link
-              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_42px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={feature.href}
               key={feature.title}
             >
@@ -641,7 +641,7 @@ export function ProviderDashboardApplicationPlaceholder({
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                 <Icon className="h-5 w-5" aria-hidden />
               </span>
-              <h3 className="mt-4 text-lg font-black leading-tight text-[var(--brand-navy)]">
+              <h3 className="mt-4 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
                 {feature.title}
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -664,16 +664,16 @@ export function ProviderSummaryCard({
 }: SummaryCardProps) {
   return (
     <Link
-      className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[0_14px_40px_rgba(13,20,36,0.06)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[0_22px_54px_rgba(13,20,36,0.1)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={href}
     >
       <span className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" aria-hidden />
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 cursor-default select-none">
-          <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+          <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
             {label}
           </p>
-          <p className="mt-3 text-2xl font-black leading-tight text-[var(--brand-navy)]">
+          <p className="mt-3 text-2xl font-semibold leading-tight text-[var(--brand-navy)]">
             {value}
           </p>
           <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">

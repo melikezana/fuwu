@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BriefcaseBusiness, CalendarDays, CircleDollarSign, MapPin, UserRound } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import {
@@ -79,7 +80,7 @@ function DetailPill({
 }) {
   return (
     <div className="rounded-md bg-[#F9FAFB] px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
-      <dt className="flex items-center gap-1.5 text-[0.68rem] font-black uppercase text-[var(--muted)]">
+      <dt className="flex items-center gap-1.5 text-[0.68rem] font-medium uppercase text-[var(--muted)]">
         <Icon className="size-3.5" aria-hidden />
         {label}
       </dt>
@@ -96,10 +97,10 @@ function ProviderApplicationCard({
   application: AccountProviderApplication;
 }) {
   return (
-    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)]">
+    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-lg font-black leading-tight text-[var(--brand-navy)]">
+          <h2 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
             {application.fullName}
           </h2>
           <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
@@ -107,7 +108,7 @@ function ProviderApplicationCard({
           </p>
         </div>
         <span
-          className={`inline-flex w-fit shrink-0 items-center rounded-full border px-3 py-1.5 text-xs font-black ${getApplicationStatusClassName(application.status)}`}
+          className={`inline-flex w-fit shrink-0 items-center rounded-full border px-3 py-1.5 text-xs font-medium ${getApplicationStatusClassName(application.status)}`}
         >
           {providerApplicationStatusLabels[application.status]}
         </span>
@@ -128,15 +129,15 @@ function ServiceRequestCard({ request }: { request: AccountServiceRequest }) {
   const isEmergency = request.urgencyType === "emergency";
 
   return (
-    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[0_14px_38px_rgba(13,20,36,0.06)]">
+    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-black leading-tight text-[var(--brand-navy)]">
+            <h2 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
               {request.category}
             </h2>
             {isEmergency ? (
-              <span className="rounded-md bg-red-50 px-2 py-1 text-[0.68rem] font-black uppercase text-red-600 ring-1 ring-red-200">
+              <span className="rounded-md bg-red-50 px-2 py-1 text-[0.68rem] font-medium uppercase text-red-600 ring-1 ring-red-200">
                 Acil
               </span>
             ) : null}
@@ -147,7 +148,7 @@ function ServiceRequestCard({ request }: { request: AccountServiceRequest }) {
               : "Henüz usta atanmadı."}
           </p>
         </div>
-        <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-1.5 text-xs font-black text-[var(--brand-orange-dark)]">
+        <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-[rgba(255,138,0,0.28)] bg-[var(--brand-orange-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-orange-dark)]">
           {getRequestStatusLabel(request.status)}
         </span>
       </div>
@@ -187,18 +188,18 @@ export default async function AccountApplicationsPage() {
             <FuwuLogo size="sm" />
           </Link>
           <div className="flex gap-2">
-            <Link
-              className="rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm font-black text-[var(--brand-navy)] transition hover:bg-[var(--brand-orange-soft)]"
+            <Button
               href={appRoutes.accountRequests}
+              variant="secondary"
             >
               Taleplerim
-            </Link>
-            <Link
-              className="rounded-md border border-[rgba(255,138,0,0.42)] bg-white px-4 py-2 text-sm font-black text-[var(--brand-navy)] transition hover:bg-[var(--brand-orange-soft)]"
+            </Button>
+            <Button
               href={appRoutes.request}
+              variant="secondary"
             >
               Yeni Talep
-            </Link>
+            </Button>
           </div>
         </Container>
       </header>
@@ -206,17 +207,17 @@ export default async function AccountApplicationsPage() {
       <Container className="max-w-5xl py-8 sm:py-10">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase text-[var(--brand-orange-dark)]">
+            <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
               Hesabım
             </p>
-            <h1 className="mt-2 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
               Başvurularım
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
               Usta başvurularını ve hizmet taleplerini hesabına bağlı olarak takip edebilirsin.
             </p>
           </div>
-          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-black text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
             {accountData.applications.length} başvuru · {accountData.requests.length} talep
           </span>
         </div>
@@ -229,12 +230,12 @@ export default async function AccountApplicationsPage() {
 
         <section className="grid gap-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-black text-[var(--brand-navy)]">
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">
               Usta başvurularım
             </h2>
             {latestApplication ? (
               <span
-                className={`w-fit rounded-full border px-3 py-1.5 text-xs font-black ${getApplicationStatusClassName(latestApplication.status)}`}
+                className={`w-fit rounded-full border px-3 py-1.5 text-xs font-medium ${getApplicationStatusClassName(latestApplication.status)}`}
               >
                 {providerApplicationStatusMessages[latestApplication.status]}
               </span>
@@ -247,30 +248,31 @@ export default async function AccountApplicationsPage() {
             ))
           ) : (
             <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-10 text-center">
-              <h3 className="text-lg font-black text-[var(--brand-navy)]">
+              <h3 className="text-lg font-semibold text-[var(--brand-navy)]">
                 {noProviderApplicationMessage}
               </h3>
-              <Link
-                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(255,138,0,0.24)] transition hover:bg-[var(--brand-orange-dark)]"
+              <Button
+                className="mt-5"
                 href={appRoutes.providerApplication}
               >
                 Usta ağına başvur
-              </Link>
+              </Button>
             </div>
           )}
         </section>
 
         <section className="mt-8 grid gap-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-black text-[var(--brand-navy)]">
+            <h2 className="text-xl font-bold text-[var(--brand-navy)]">
               Hizmet taleplerim
             </h2>
-            <Link
-              className="w-fit rounded-md border border-[rgba(255,138,0,0.42)] bg-white px-4 py-2 text-sm font-black text-[var(--brand-navy)] transition hover:bg-[var(--brand-orange-soft)]"
+            <Button
+              className="w-fit"
               href={appRoutes.request}
+              variant="secondary"
             >
               Yeni Talep
-            </Link>
+            </Button>
           </div>
 
           {accountData.requests.length > 0 ? (
@@ -279,7 +281,7 @@ export default async function AccountApplicationsPage() {
             ))
           ) : (
             <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-10 text-center">
-              <h3 className="text-lg font-black text-[var(--brand-navy)]">
+              <h3 className="text-lg font-semibold text-[var(--brand-navy)]">
                 Henüz hizmet talebin yok.
               </h3>
               <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[var(--muted)]">

@@ -77,7 +77,7 @@ function LoginRequiredState({ nextPath }: { nextPath: string }) {
         <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
           Giriş gerekli
         </p>
-        <h2 className="mt-3 text-3xl font-black leading-tight text-[var(--brand-navy)]">
+        <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
           {authAccessMessages.loginRequired}
         </h2>
         <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
@@ -132,15 +132,15 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
         <div className="min-w-0 cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[0_24px_70px_rgba(13,20,36,0.18)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[var(--shadow-elevated)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo inverted size="lg" />
           </Link>
-          <p className="mt-7 text-sm font-black uppercase tracking-normal text-[var(--brand-orange-dark)]">
+          <p className="mt-7 text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Talep oluştur
           </p>
-          <h1 className="mt-4 max-w-xl text-4xl font-black leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
+          <h1 className="mt-4 max-w-xl text-4xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
             Talep oluşturmak için hesabınla devam et.
           </h1>
           <p className="mt-5 max-w-xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">

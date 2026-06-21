@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { TextLink } from "@/components/ui/TextLink";
 import {
   SERVICE_REQUEST_STATUS_LABELS,
   SERVICE_REQUEST_STATUSES,
@@ -161,7 +163,7 @@ export default async function AccountPage() {
   return (
     <main className="min-h-screen px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-2xl space-y-6">
-        <section className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)] sm:flex-row sm:items-center">
+        <section className="flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] sm:flex-row sm:items-center">
           {profile.avatar_url ? (
             <Image
               alt={profile.full_name ? `${profile.full_name} profil fotoğrafı` : "Profil fotoğrafı"}
@@ -171,13 +173,13 @@ export default async function AccountPage() {
               width={56}
             />
           ) : (
-            <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-lg font-black text-white">
+            <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-lg font-medium text-white">
               {initials(profile.full_name, profile.email)}
             </div>
           )}
           <div className="min-w-0 flex-1">
             {profile.full_name ? (
-              <p className="truncate font-black text-[var(--brand-navy)]">{profile.full_name}</p>
+              <p className="truncate font-semibold text-[var(--brand-navy)]">{profile.full_name}</p>
             ) : null}
             <p className="truncate text-sm font-semibold text-[var(--muted)]">{profile.email}</p>
             {profile.created_at ? (
@@ -218,7 +220,7 @@ export default async function AccountPage() {
             },
           ].map((item) => (
             <Link
-              className="group flex items-center gap-3 rounded-2xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
+              className="group flex items-center gap-3 rounded-xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
               href={item.href}
               key={item.href}
             >
@@ -228,7 +230,7 @@ export default async function AccountPage() {
                 </svg>
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-black text-[var(--brand-navy)]">{item.label}</p>
+                <p className="text-sm font-semibold text-[var(--brand-navy)]">{item.label}</p>
                 <p className="truncate text-xs text-[var(--muted)]">{item.sub}</p>
               </div>
             </Link>
@@ -237,24 +239,23 @@ export default async function AccountPage() {
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-wider text-[var(--muted)]">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
               Taleplerim
             </h2>
-            <Link className="text-xs font-black text-[var(--brand-orange)] hover:underline" href={appRoutes.request}>
+            <TextLink className="text-xs font-semibold" href={appRoutes.request}>
               + Yeni
-            </Link>
+            </TextLink>
           </div>
 
           {requests.length === 0 ? (
-            <div className="space-y-3 rounded-2xl border border-dashed border-[var(--border)] px-6 py-10 text-center">
-              <p className="text-sm font-black text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
+            <div className="space-y-3 rounded-xl border border-dashed border-[var(--border)] px-6 py-10 text-center">
+              <p className="text-sm font-semibold text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
               <p className="text-xs text-[var(--muted)]">Hizmet ihtiyacını tarif et, uygun ustalarla eşleş.</p>
-              <Link
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand-orange)] px-5 py-2.5 text-sm font-black text-white transition hover:bg-orange-500"
+              <Button
                 href={appRoutes.request}
               >
                 İlk Talebini Oluştur
-              </Link>
+              </Button>
             </div>
           ) : (
             <div className="space-y-2">
@@ -264,14 +265,14 @@ export default async function AccountPage() {
 
                 return (
                   <div
-                    className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border)] bg-white px-5 py-4 shadow-[0_2px_8px_rgba(13,20,36,0.04)]"
+                    className="flex items-start justify-between gap-4 rounded-xl border border-[var(--border)] bg-white px-5 py-4 shadow-[var(--shadow-subtle)]"
                     key={req.id}
                   >
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <p className="truncate font-black text-[var(--brand-navy)]">{getCategoryName(req)}</p>
+                        <p className="truncate font-semibold text-[var(--brand-navy)]">{getCategoryName(req)}</p>
                         {isEmergency ? (
-                          <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-black text-red-600 ring-1 ring-red-200">
+                          <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600 ring-1 ring-red-200">
                             Acil
                           </span>
                         ) : null}
@@ -281,7 +282,7 @@ export default async function AccountPage() {
                       ) : null}
                       <p className="text-xs text-[var(--muted)]">{formatDate(req.created_at)}</p>
                     </div>
-                    <span className={`inline-flex flex-shrink-0 items-center rounded-full border px-2.5 py-1 text-xs font-black ${statusView.cls}`}>
+                    <span className={`inline-flex flex-shrink-0 items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusView.cls}`}>
                       {statusView.label}
                     </span>
                   </div>
@@ -292,7 +293,7 @@ export default async function AccountPage() {
         </section>
 
         <section className="space-y-1 border-t border-[var(--border)] pt-5">
-          <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[var(--muted)]">
             Yasal
           </p>
           {[

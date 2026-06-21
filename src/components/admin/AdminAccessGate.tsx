@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { Home, LockKeyhole, LogIn, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { authAccessMessages } from "@/services/auth/constants";
 import type { AdminAccessResult } from "@/types/admin";
@@ -26,7 +26,7 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
       className="min-h-[70vh] bg-[var(--surface-soft)] px-4 py-12 sm:px-6 lg:px-8"
       data-testid="admin-access-gate"
     >
-      <section className="mx-auto w-full max-w-xl rounded-lg border border-[var(--border)] bg-white p-6 shadow-[0_22px_70px_rgba(13,20,36,0.1)] sm:p-8">
+      <section className="mx-auto w-full max-w-xl rounded-lg border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-elevated)] sm:p-8">
         <div className="flex items-start gap-4">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
             <ShieldAlert className="h-6 w-6" aria-hidden />
@@ -55,19 +55,20 @@ export function AdminAccessGate({ access, children }: AdminAccessGateProps) {
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Link
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-navy-soft)]"
+          <Button
+            className="min-h-12 gap-2 bg-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)]"
             href={primaryHref}
           >
             <PrimaryIcon className="h-4 w-4" aria-hidden />
             {isMissingSession ? "Giriş yap" : "Ana sayfaya dön"}
-          </Link>
-          <Link
-            className="inline-flex min-h-12 items-center justify-center rounded-md border border-[var(--border)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)]"
+          </Button>
+          <Button
+            className="min-h-12"
             href={appRoutes.providers}
+            variant="secondary"
           >
             Ustaları incele
-          </Link>
+          </Button>
         </div>
       </section>
     </div>

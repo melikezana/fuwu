@@ -24,7 +24,7 @@ export function ServiceGrid() {
           </Button>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-white p-3 shadow-[0_16px_46px_rgba(13,20,36,0.05)]">
+        <div className="mt-6 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-white p-3 shadow-[var(--shadow-card)]">
           <span className="px-2 text-sm font-bold text-[var(--muted)]">İlçeni belirle:</span>
           {nearbyAreas.map((area) => (
             <Link
@@ -45,7 +45,7 @@ export function ServiceGrid() {
               href={service.href}
               key={service.id}
             >
-              <Card className="flex h-full min-w-0 flex-col overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[rgba(255,138,0,0.42)] group-hover:shadow-[0_26px_80px_rgba(13,20,36,0.13)]">
+              <Card className="flex h-full min-w-0 flex-col overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[rgba(255,138,0,0.42)] group-hover:shadow-[var(--shadow-elevated)]">
                 <div className="flex items-start justify-between gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.24)] transition-all duration-300 group-hover:bg-[var(--brand-orange)] group-hover:text-[var(--brand-navy)] group-hover:ring-[rgba(255,138,0,0.38)]">
                     <ServiceIcon name={service.iconName} />

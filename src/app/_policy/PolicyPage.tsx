@@ -33,15 +33,15 @@ export function PolicyPage({
         <div className="cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[0_18px_54px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
-          <p className="mt-7 text-sm font-black uppercase text-[var(--brand-orange-dark)]">
+          <p className="mt-7 text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
             <I18nText i18nKey="policy.eyebrow" />
           </p>
-          <h1 className="mt-3 text-4xl font-black leading-tight text-[var(--brand-navy)] sm:text-5xl">
+          <h1 className="mt-3 text-4xl font-bold leading-tight text-[var(--brand-navy)] sm:text-5xl">
             {titleKey ? <I18nText i18nKey={titleKey} /> : title}
           </h1>
           <p className="mt-5 text-base font-semibold leading-8 text-[var(--muted)] sm:text-lg">
@@ -58,10 +58,10 @@ export function PolicyPage({
         <div className="mt-8 grid gap-5">
           {sections.map((section) => (
             <section
-              className="cursor-default select-none rounded-lg bg-white p-5 shadow-[0_18px_56px_rgba(13,20,36,0.07)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+              className="cursor-default select-none rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
               key={section.title}
             >
-              <h2 className="text-2xl font-black leading-tight text-[var(--brand-navy)]">
+              <h2 className="text-2xl font-bold leading-tight text-[var(--brand-navy)]">
                 {section.title}
               </h2>
               <div className="mt-4 grid gap-3 text-sm font-semibold leading-7 text-[var(--muted)] sm:text-base sm:leading-8">

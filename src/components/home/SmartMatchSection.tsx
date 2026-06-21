@@ -8,17 +8,13 @@ import {
   Clock3,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { appRoutes } from "@/lib/constants/navigation";
-import {
-  getProviderPhoneHref,
-  getProviderWhatsAppHref,
-  providerBudgetOptions,
-  providerDistricts,
-} from "@/lib/constants/providers";
+import { providerBudgetOptions, providerDistricts } from "@/lib/constants/providers";
 import { getServiceIconNameForCategory, normalizeServiceValue } from "@/lib/constants/services";
 import {
   calculateSuggestedPrice,
@@ -40,10 +36,10 @@ type SmartMatchProviderResultProps = {
 };
 
 const optionCardClassName =
-  "flex min-h-16 w-full min-w-0 select-none flex-col items-center justify-center gap-1.5 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-2.5 py-2.5 text-center text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)] transition-all hover:border-[rgba(255,138,0,0.38)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_10px_24px_rgba(255,138,0,0.2)] sm:text-sm sm:leading-5";
+  "flex min-h-16 w-full min-w-0 select-none flex-col items-center justify-center gap-1.5 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-2.5 py-2.5 text-center text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:border-[rgba(255,138,0,0.38)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[var(--shadow-action)] sm:text-sm sm:leading-5";
 
 const compactOptionClassName =
-  "flex min-h-11 w-full min-w-0 select-none items-center justify-center rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-[var(--brand-navy)] shadow-[0_8px_20px_rgba(13,20,36,0.04)] transition-all hover:border-[rgba(255,138,0,0.38)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[0_10px_24px_rgba(255,138,0,0.2)]";
+  "flex min-h-11 w-full min-w-0 select-none items-center justify-center rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:border-[rgba(255,138,0,0.38)] hover:bg-[var(--brand-orange-soft)] peer-checked:border-[var(--brand-orange)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[var(--shadow-action)]";
 
 const visibleBudgetOptions = providerBudgetOptions;
 
@@ -79,7 +75,7 @@ function SmartMatchProviderResult({ provider }: SmartMatchProviderResultProps) {
         : "bg-[var(--surface-soft)] text-[var(--muted)]";
 
   return (
-    <article className="flex min-w-0 flex-col rounded-lg bg-white p-4 shadow-[0_12px_30px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(13,20,36,0.08)]">
+    <article className="flex min-w-0 flex-col rounded-lg bg-white p-4 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
       <div className="flex min-w-0 items-start gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
           <ServiceIcon className="size-5" name={iconName} />
@@ -126,28 +122,36 @@ function SmartMatchProviderResult({ provider }: SmartMatchProviderResultProps) {
         </div>
       </div>
 
+      {provider.whatsapp || provider.phone ? (
       <div className="mt-3 grid grid-cols-2 gap-2">
         {provider.whatsapp ? (
-          <a
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#25D366]/10 px-3 text-sm font-semibold text-[#1DA851] transition-colors hover:bg-[#25D366]/20"
-            href={getProviderWhatsAppHref(provider)}
+          <ProviderContactLink
+            className="min-h-10 gap-2 px-3"
+            kind="whatsapp"
+            provider={provider}
             rel="noopener noreferrer"
             target="_blank"
           >
             <MessageCircle className="size-4" />
             WhatsApp
-          </a>
+          </ProviderContactLink>
         ) : null}
         {provider.phone ? (
-          <a
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[var(--surface-soft)] px-3 text-sm font-semibold text-[var(--brand-navy)] transition-colors hover:bg-[#E5E7EB]"
-            href={getProviderPhoneHref(provider)}
+          <ProviderContactLink
+            className="min-h-10 gap-2 px-3"
+            kind="phone"
+            provider={provider}
           >
             <Phone className="size-4" />
             Telefon
-          </a>
+          </ProviderContactLink>
         ) : null}
       </div>
+      ) : (
+        <p className="mt-3 text-sm font-medium text-[var(--muted)]">
+          İletişim bilgisi yakında eklenecek.
+        </p>
+      )}
     </article>
   );
 }
@@ -204,7 +208,7 @@ export function SmartMatchSection({
 
         <form
           action={`${appRoutes.home}#instant-match`}
-          className="min-w-0 rounded-lg bg-[#F7F7F8] p-4 shadow-[0_16px_42px_rgba(13,20,36,0.06)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
+          className="min-w-0 rounded-lg bg-[#F7F7F8] p-4 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5"
           method="get"
         >
           <input name="instant_match" type="hidden" value="1" />
@@ -292,7 +296,7 @@ export function SmartMatchSection({
         </form>
 
         {isActive && matchQuery.isComplete && isEmergencyMatch ? (
-          <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
+          <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[var(--shadow-card)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="cursor-default select-none">
                 <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
@@ -341,7 +345,7 @@ export function SmartMatchSection({
         ) : null}
 
         {isActive && matchQuery.isComplete && !isEmergencyMatch ? (
-          <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[0_14px_38px_rgba(13,20,36,0.05)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
+          <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 shadow-[var(--shadow-card)] ring-1 ring-[rgba(255,138,0,0.18)] sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="cursor-default select-none">
                 <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">

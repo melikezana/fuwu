@@ -18,7 +18,7 @@ export default function RequestLoading() {
         <div
           aria-busy="true"
           aria-label="Talep formu yükleniyor"
-          className="rounded-lg bg-white p-5 shadow-[0_24px_70px_rgba(13,20,36,0.09)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+          className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
         >
           <SkeletonBlock className="h-5 w-32" />
           <SkeletonBlock className="mt-3 h-8 w-64 max-w-full" />
