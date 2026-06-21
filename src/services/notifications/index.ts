@@ -106,6 +106,17 @@ export type NotificationListOptions = {
 type NotificationInsertClient = {
   from: (table: "notifications") => {
     insert: (payload: NotificationPayload) => Promise<{ error: NotificationInsertError | null }>;
+    upsert: (
+      payload: NotificationPayload[],
+      options: {
+        count: "exact";
+        ignoreDuplicates: true;
+        onConflict: string;
+      },
+    ) => Promise<{
+      count: number | null;
+      error: NotificationInsertError | null;
+    }>;
   };
 };
 
@@ -373,8 +384,10 @@ export type NewServiceRequestMatchNotification = {
   actorUserId: string;
   categoryId: string;
   districtId: string;
-  providerId: string;
-  providerUserId: string;
+  providers: Array<{
+    providerId: string;
+    providerUserId: string;
+  }>;
   requestId: string;
   supabaseClient: SupabaseClient<Database>;
   urgencyType: "standard" | "emergency";
@@ -383,29 +396,101 @@ export type NewServiceRequestMatchNotification = {
 export async function notifyNewServiceRequestMatch(
   metadata: NewServiceRequestMatchNotification,
 ) {
+  const startedAt = Date.now();
   const isEmergency = metadata.urgencyType === "emergency";
+  const body = isEmergency
+    ? "Bölgenizde acil bir müşteri talebi oluşturuldu. Talep ayrıntılarını inceleyin."
+    : "Kategori ve hizmet bölgenizle eşleşen yeni bir müşteri talebi var.";
+  const title = isEmergency ? "Yeni acil hizmet talebi" : "Yeni hizmet talebi";
+  const uniqueProviders = Array.from(
+    new Map(
+      metadata.providers
+        .filter(
+          (provider) =>
+            provider.providerId.trim() && provider.providerUserId.trim(),
+        )
+        .map((provider) => [provider.providerUserId, provider]),
+    ).values(),
+  );
 
-  return createNotificationRecordIfTableExists({
-    actorUserId: metadata.actorUserId,
-    body: isEmergency
-      ? "Bölgenizde acil bir müşteri talebi oluşturuldu. Talep ayrıntılarını inceleyin."
-      : "Kategori ve hizmet bölgenizle eşleşen yeni bir müşteri talebi var.",
-    event: "new_service_request_match",
-    metadata: {
-      actorUserId: metadata.actorUserId,
-      categoryId: metadata.categoryId,
-      districtId: metadata.districtId,
-      providerId: metadata.providerId,
-      providerUserId: metadata.providerUserId,
+  if (uniqueProviders.length === 0) {
+    logInfo("Provider match notification batch skipped.", {
+      durationMs: Date.now() - startedAt,
       requestId: metadata.requestId,
-      urgencyType: metadata.urgencyType,
-    },
-    providerId: metadata.providerId,
-    recipientUserId: metadata.providerUserId,
-    requestId: metadata.requestId,
-    supabaseClient: metadata.supabaseClient,
-    title: isEmergency ? "Yeni acil hizmet talebi" : "Yeni hizmet talebi",
-  });
+      targetedProviderCount: 0,
+    });
+    return 0;
+  }
+
+  const notificationPayloads: NotificationPayload[] = uniqueProviders.map(
+    ({ providerId, providerUserId }) => ({
+      actor_user_id: metadata.actorUserId,
+      body,
+      entity_id: metadata.requestId,
+      entity_type: "service_request",
+      event: "new_service_request_match",
+      is_read: false,
+      message: body,
+      metadata: {
+        actorUserId: metadata.actorUserId,
+        categoryId: metadata.categoryId,
+        districtId: metadata.districtId,
+        providerId,
+        providerUserId,
+        requestId: metadata.requestId,
+        urgencyType: metadata.urgencyType,
+      },
+      provider_id: providerId,
+      recipient_user_id: providerUserId,
+      request_id: metadata.requestId,
+      title,
+      type: "new_service_request_match",
+      user_id: providerUserId,
+    }),
+  );
+
+  try {
+    const notificationsClient =
+      metadata.supabaseClient as unknown as NotificationInsertClient;
+    const { count, error } = await notificationsClient
+      .from("notifications")
+      .upsert(notificationPayloads, {
+        count: "exact",
+        ignoreDuplicates: true,
+        onConflict: "recipient_user_id,request_id,event",
+      });
+
+    if (error) {
+      if (!isMissingNotificationsTable(error)) {
+        logWarn("Provider match notification batch insert failed.", {
+          durationMs: Date.now() - startedAt,
+          requestId: metadata.requestId,
+          supabaseError: getSupabaseErrorLogDetails(error),
+          targetedProviderCount: uniqueProviders.length,
+        });
+      }
+
+      return 0;
+    }
+
+    const insertedCount = count ?? uniqueProviders.length;
+    logInfo("Provider match notification batch completed.", {
+      durationMs: Date.now() - startedAt,
+      insertedNotificationCount: insertedCount,
+      requestId: metadata.requestId,
+      targetedProviderCount: uniqueProviders.length,
+    });
+
+    return insertedCount;
+  } catch (error) {
+    logWarn("Provider match notification batch insert threw.", {
+      durationMs: Date.now() - startedAt,
+      error,
+      requestId: metadata.requestId,
+      targetedProviderCount: uniqueProviders.length,
+    });
+    return 0;
+  }
 }
 
 export async function notifyProviderApplicationSubmitted(

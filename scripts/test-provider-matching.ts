@@ -1,7 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import {
+  createClient,
+  type RealtimeChannel,
+  type SupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
 import { matchAndNotifyEligibleProviders } from "@/services/matching";
+import { getProviderAssignedRequests } from "@/services/requests";
 import type { Database } from "@/lib/supabase/types";
 
 const root = process.cwd();
@@ -82,7 +88,11 @@ async function main() {
   const customerClient = createClient<Database>(supabaseUrl, anonKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+  const providerClient = createClient<Database>(supabaseUrl, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
   const createdUserIds: string[] = [];
+  let notificationChannel: RealtimeChannel | null = null;
 
   try {
     const [customer, matchingProviderOne, matchingProviderTwo, otherProvider] =
@@ -111,38 +121,49 @@ async function main() {
       throw new Error("Required local category/district seed records are missing.");
     }
 
-    const { error: providerError } = await admin.from("providers").insert([
-      {
-        category_id: locksmith.id,
-        district_id: kadikoy.id,
-        is_active: true,
-        is_approved: true,
-        name: "Launch Test Çilingir 1",
-        phone: "+90 555 900 00 01",
-        user_id: matchingProviderOne.id,
-      },
-      {
-        category_id: locksmith.id,
-        district_id: kadikoy.id,
-        is_active: true,
-        is_approved: true,
-        name: "Launch Test Çilingir 2",
-        phone: "+90 555 900 00 02",
-        user_id: matchingProviderTwo.id,
-      },
-      {
-        category_id: plumbing.id,
-        district_id: uskudar.id,
-        is_active: true,
-        is_approved: true,
-        name: "Launch Test Tesisat",
-        phone: "+90 555 900 00 03",
-        user_id: otherProvider.id,
-      },
-    ]);
+    const { data: insertedProviders, error: providerError } = await admin
+      .from("providers")
+      .insert([
+        {
+          category_id: locksmith.id,
+          district_id: kadikoy.id,
+          is_active: true,
+          is_approved: true,
+          name: "Launch Test Çilingir 1",
+          phone: "+90 555 900 00 01",
+          user_id: matchingProviderOne.id,
+        },
+        {
+          category_id: locksmith.id,
+          district_id: kadikoy.id,
+          is_active: true,
+          is_approved: true,
+          name: "Launch Test Çilingir 2",
+          phone: "+90 555 900 00 02",
+          user_id: matchingProviderTwo.id,
+        },
+        {
+          category_id: plumbing.id,
+          district_id: uskudar.id,
+          is_active: true,
+          is_approved: true,
+          name: "Launch Test Tesisat",
+          phone: "+90 555 900 00 03",
+          user_id: otherProvider.id,
+        },
+      ])
+      .select("id, user_id");
 
     if (providerError) {
       throw providerError;
+    }
+
+    const matchingProviderOneRecord = insertedProviders?.find(
+      (provider) => provider.user_id === matchingProviderOne.id,
+    );
+
+    if (!matchingProviderOneRecord) {
+      throw new Error("Matching provider record was not created.");
     }
 
     const customerEmail = customer.email;
@@ -158,6 +179,22 @@ async function main() {
 
     if (signInError) {
       throw signInError;
+    }
+
+    const providerEmail = matchingProviderOne.email;
+
+    if (!providerEmail) {
+      throw new Error("Provider test email is missing.");
+    }
+
+    const { error: providerSignInError } =
+      await providerClient.auth.signInWithPassword({
+        email: providerEmail,
+        password,
+      });
+
+    if (providerSignInError) {
+      throw providerSignInError;
     }
 
     const { data: request, error: requestError } = await customerClient
@@ -179,12 +216,74 @@ async function main() {
       throw requestError ?? new Error("Test service request was not created.");
     }
 
+    let resolveRealtimeEvent: ((notificationId: string) => void) | null = null;
+    let realtimeEventTimeout: ReturnType<typeof setTimeout> | null = null;
+    const realtimeEvent = new Promise<string>((resolve, reject) => {
+      resolveRealtimeEvent = resolve;
+      realtimeEventTimeout = setTimeout(
+        () => reject(new Error("Timed out waiting for notification Realtime INSERT.")),
+        10_000,
+      );
+    });
+    const realtimeSubscribed = new Promise<void>((resolve, reject) => {
+      notificationChannel = providerClient
+        .channel(`provider-matching-test-${runId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            filter: `recipient_user_id=eq.${matchingProviderOne.id}`,
+            schema: "public",
+            table: "notifications",
+          },
+          (payload) => {
+            const notification = payload.new as {
+              id?: unknown;
+              request_id?: unknown;
+              type?: unknown;
+            };
+
+            if (
+              notification.request_id === request.id &&
+              notification.type === "new_service_request_match" &&
+              typeof notification.id === "string"
+            ) {
+              if (realtimeEventTimeout) {
+                clearTimeout(realtimeEventTimeout);
+                realtimeEventTimeout = null;
+              }
+              resolveRealtimeEvent?.(notification.id);
+            }
+          },
+        )
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            resolve();
+          } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            reject(new Error(`Realtime subscription failed with status ${status}.`));
+          }
+        });
+    });
+
+    await realtimeSubscribed;
+
     const notifiedCount = await matchAndNotifyEligibleProviders(customerClient, {
       categoryId: locksmith.id,
       districtId: kadikoy.id,
       requestId: request.id,
       urgencyType: "standard",
     });
+    const realtimeNotificationId = await realtimeEvent;
+    const retryNotifiedCount = await matchAndNotifyEligibleProviders(customerClient, {
+      categoryId: locksmith.id,
+      districtId: kadikoy.id,
+      requestId: request.id,
+      urgencyType: "standard",
+    });
+    const providerRequestList = await getProviderAssignedRequests(
+      matchingProviderOneRecord.id,
+      providerClient,
+    );
     const { data: notifications, error: notificationError } = await admin
       .from("notifications")
       .select("id, provider_id, recipient_user_id, request_id, type")
@@ -195,9 +294,13 @@ async function main() {
       throw notificationError;
     }
 
-    if (notifiedCount !== 2 || notifications?.length !== 2) {
+    if (
+      notifiedCount !== 2 ||
+      retryNotifiedCount !== 0 ||
+      notifications?.length !== 2
+    ) {
       throw new Error(
-        `Expected 2 provider notifications, got function=${notifiedCount}, rows=${notifications?.length ?? 0}.`,
+        `Expected first=2, retry=0 and rows=2; got first=${notifiedCount}, retry=${retryNotifiedCount}, rows=${notifications?.length ?? 0}.`,
       );
     }
 
@@ -213,10 +316,22 @@ async function main() {
       throw new Error("Notification recipients do not match category + district eligibility.");
     }
 
+    if (!notifications.some((notification) => notification.id === realtimeNotificationId)) {
+      throw new Error("Realtime notification does not match the persisted notification row.");
+    }
+
+    if (!providerRequestList.some((providerRequest) => providerRequest.id === request.id)) {
+      throw new Error("Realtime-matched request did not appear in the provider request list.");
+    }
+
     console.log(
-      `PASS: 2 eligible locksmith providers received 2 notifications; the other category/district provider received 0.`,
+      "PASS: batch insert reached 2 eligible providers, retry inserted 0 duplicates, Realtime delivered the INSERT, and the matched request appeared in the provider list query.",
     );
   } finally {
+    if (notificationChannel) {
+      await providerClient.removeChannel(notificationChannel);
+    }
+
     if (createdUserIds.length > 0) {
       await admin.from("providers").delete().in("user_id", createdUserIds);
       await admin.from("provider_applications").delete().in("user_id", createdUserIds);

@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Check, CheckCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -19,6 +19,7 @@ type NotificationBellProps = {
 };
 
 const POLLING_INTERVAL_MS = 30_000;
+const REALTIME_CONNECTION_TIMEOUT_MS = 10_000;
 
 function formatNotificationDate(value: string) {
   const date = new Date(value);
@@ -45,6 +46,7 @@ export function NotificationBell({
   userId,
 }: NotificationBellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
@@ -70,18 +72,115 @@ export function NotificationBell({
     const initialLoadId = window.setTimeout(() => {
       void loadNotifications();
     }, 0);
+    let pollingIntervalId: number | null = null;
+    let realtimeTimeoutId: number | null = null;
 
-    // Realtime can replace this later; polling keeps the notification center
-    // simple and reliable while Supabase Realtime channels are not configured.
-    const intervalId = window.setInterval(() => {
-      void loadNotifications();
-    }, POLLING_INTERVAL_MS);
+    function stopPolling() {
+      if (pollingIntervalId !== null) {
+        window.clearInterval(pollingIntervalId);
+        pollingIntervalId = null;
+      }
+    }
+
+    function startPolling() {
+      if (pollingIntervalId !== null) {
+        return;
+      }
+
+      pollingIntervalId = window.setInterval(() => {
+        void loadNotifications();
+      }, POLLING_INTERVAL_MS);
+    }
+
+    if (!supabase || !userId) {
+      startPolling();
+
+      return () => {
+        window.clearTimeout(initialLoadId);
+        stopPolling();
+      };
+    }
+
+    const channel = supabase
+      .channel(`notifications-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          filter: `recipient_user_id=eq.${userId}`,
+          schema: "public",
+          table: "notifications",
+        },
+        (payload) => {
+          const notification = payload.new as NotificationRecord;
+
+          if (notification.recipient_user_id !== userId) {
+            return;
+          }
+
+          setNotifications((currentNotifications) =>
+            [notification, ...currentNotifications]
+              .filter(
+                (currentNotification, index, allNotifications) =>
+                  allNotifications.findIndex(
+                    (candidate) => candidate.id === currentNotification.id,
+                  ) === index,
+              )
+              .sort(
+                (firstNotification, secondNotification) =>
+                  new Date(secondNotification.created_at).getTime() -
+                  new Date(firstNotification.created_at).getTime(),
+              )
+              .slice(0, 10),
+          );
+          setHasLoaded(true);
+
+          const isNewProviderMatch =
+            notification.type === "new_service_request_match" ||
+            notification.event === "new_service_request_match";
+
+          if (
+            isNewProviderMatch &&
+            pathname?.startsWith("/provider-dashboard/requests")
+          ) {
+            router.refresh();
+          }
+        },
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          stopPolling();
+
+          if (realtimeTimeoutId !== null) {
+            window.clearTimeout(realtimeTimeoutId);
+            realtimeTimeoutId = null;
+          }
+
+          return;
+        }
+
+        if (
+          status === "CHANNEL_ERROR" ||
+          status === "TIMED_OUT" ||
+          status === "CLOSED"
+        ) {
+          startPolling();
+        }
+      });
+
+    realtimeTimeoutId = window.setTimeout(() => {
+      startPolling();
+    }, REALTIME_CONNECTION_TIMEOUT_MS);
 
     return () => {
       window.clearTimeout(initialLoadId);
-      window.clearInterval(intervalId);
+      if (realtimeTimeoutId !== null) {
+        window.clearTimeout(realtimeTimeoutId);
+      }
+      stopPolling();
+      void supabase.removeChannel(channel);
     };
-  }, [loadNotifications]);
+  }, [loadNotifications, pathname, router, supabase, userId]);
 
   useEffect(() => {
     if (!isOpen) {

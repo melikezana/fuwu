@@ -42,6 +42,29 @@ const expectedStorageBuckets = [
   "provider-verification-documents",
 ];
 
+const expectedForeignKeys = {
+  notificationsRecipientUser: {
+    deleteRule: "CASCADE",
+    label: "notifications.recipient_user_id -> profiles.id",
+  },
+  paymentsServiceRequest: {
+    deleteRule: "CASCADE",
+    label: "payments.request_id -> service_requests.id",
+  },
+  serviceRequestsAssignedProvider: {
+    deleteRule: "SET NULL",
+    label: "service_requests.assigned_provider_id -> providers.id",
+  },
+  serviceRequestsCategory: {
+    deleteRule: "RESTRICT",
+    label: "service_requests.category_id -> service_categories.id",
+  },
+  serviceRequestsDistrict: {
+    deleteRule: "RESTRICT",
+    label: "service_requests.district_id -> districts.id",
+  },
+};
+
 const results = [];
 
 function loadEnvFile(fileName) {
@@ -178,6 +201,7 @@ async function main() {
   if (!catalogError && catalog) {
     const tableCatalog = getCatalogMap(catalog, "tables");
     const functionCatalog = getCatalogMap(catalog, "functions");
+    const foreignKeyCatalog = getCatalogMap(catalog, "foreignKeys");
 
     for (const table of expectedTables) {
       const tableStatus = tableCatalog[table];
@@ -214,12 +238,45 @@ async function main() {
       );
     }
 
+    for (const [foreignKeyName, expectation] of Object.entries(expectedForeignKeys)) {
+      const foreignKeyStatus = foreignKeyCatalog[foreignKeyName];
+      const passed =
+        foreignKeyStatus?.exists === true &&
+        foreignKeyStatus?.deleteActionMatches === true;
+
+      recordCheck(
+        `foreign key: ${expectation.label}`,
+        passed,
+        passed
+          ? `ON DELETE ${expectation.deleteRule}`
+          : foreignKeyStatus?.exists === true
+            ? `unexpected ON DELETE ${foreignKeyStatus.deleteRule || "UNKNOWN"}`
+            : "foreign key missing",
+      );
+    }
+
     recordCheck(
-      "payments.request_id references service_requests.id",
-      catalog.paymentsServiceRequestsForeignKey === true,
-      catalog.paymentsServiceRequestsForeignKey === true
-        ? "foreign key present"
-        : "foreign key missing",
+      "providers match composite index",
+      catalog.providerMatchIndex?.exists === true,
+      catalog.providerMatchIndex?.exists === true
+        ? catalog.providerMatchIndex.name
+        : "category_id, district_id, is_active, is_approved prefix missing",
+    );
+
+    recordCheck(
+      "notifications enabled in supabase_realtime publication",
+      catalog.notificationsRealtimePublication === true,
+      catalog.notificationsRealtimePublication === true
+        ? "public.notifications is published"
+        : "public.notifications is not published",
+    );
+
+    recordCheck(
+      "service_requests status CHECK constraint",
+      catalog.serviceRequestStatusConstraint === true,
+      catalog.serviceRequestStatusConstraint === true
+        ? "canonical status constraint present"
+        : "constraint missing",
     );
   }
 

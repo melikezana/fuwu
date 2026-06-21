@@ -3,7 +3,7 @@ import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import { instantMatchServiceOptions } from "@/lib/constants/instantMatch";
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { sanitizeText } from "@/lib/validations";
-import { logWarn } from "@/lib/logger";
+import { logInfo, logWarn } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils";
 import { notifyNewServiceRequestMatch } from "@/services/notifications";
@@ -691,8 +691,17 @@ export async function getNearbyEligibleProviders(input: MatchInput, limit = 12) 
 
 type EligibleProviderNotificationRecord = Pick<
   Database["public"]["Tables"]["providers"]["Row"],
-  "district_id" | "id" | "user_id"
+  | "district_id"
+  | "id"
+  | "identity_verified"
+  | "is_verified"
+  | "phone_verified"
+  | "profile_completion_score"
+  | "rating"
+  | "user_id"
 >;
+
+const MAX_PROVIDER_MATCH_NOTIFICATIONS = 50;
 
 export type MatchAndNotifyEligibleProvidersInput = {
   categoryId: string;
@@ -719,6 +728,7 @@ export async function matchAndNotifyEligibleProviders(
     urgencyType,
   }: MatchAndNotifyEligibleProvidersInput,
 ) {
+  const startedAt = Date.now();
   const normalizedCategoryId = categoryId.trim();
   const normalizedDistrictId = districtId.trim();
   const normalizedRequestId = requestId.trim();
@@ -730,6 +740,7 @@ export async function matchAndNotifyEligibleProviders(
     (urgencyType !== "standard" && urgencyType !== "emergency")
   ) {
     logWarn("Provider match notification input validation failed.", {
+      durationMs: Date.now() - startedAt,
       requestId: normalizedRequestId,
     });
     return 0;
@@ -745,15 +756,29 @@ export async function matchAndNotifyEligibleProviders(
     supabase.auth.getUser(),
     supabase
       .from("providers")
-      .select("id, user_id, district_id")
+      .select(
+        "id, user_id, district_id, is_verified, identity_verified, phone_verified, profile_completion_score, rating",
+      )
       .eq("category_id", normalizedCategoryId)
       .eq("district_id", normalizedDistrictId)
       .eq("is_active", true)
-      .eq("is_approved", true),
+      .eq("is_approved", true)
+      .not("user_id", "is", null)
+      .order("is_verified", { ascending: false })
+      .order("identity_verified", { ascending: false })
+      .order("phone_verified", { ascending: false })
+      .order("profile_completion_score", {
+        ascending: false,
+        nullsFirst: false,
+      })
+      .order("rating", { ascending: false })
+      .order("id", { ascending: true })
+      .limit(MAX_PROVIDER_MATCH_NOTIFICATIONS),
   ]);
 
   if (authError || !user) {
     logWarn("Provider match notification actor lookup failed.", {
+      durationMs: Date.now() - startedAt,
       requestId: normalizedRequestId,
     });
     return 0;
@@ -763,6 +788,7 @@ export async function matchAndNotifyEligibleProviders(
     logWarn("Eligible provider match query failed.", {
       categoryId: normalizedCategoryId,
       districtId: normalizedDistrictId,
+      durationMs: Date.now() - startedAt,
       requestId: normalizedRequestId,
       supabaseError: {
         code: error.code,
@@ -778,20 +804,26 @@ export async function matchAndNotifyEligibleProviders(
     (provider): provider is EligibleProviderNotificationRecord & { user_id: string } =>
       Boolean(provider.user_id),
   );
-  const notificationResults = await Promise.all(
-    providers.map((provider) =>
-      notifyNewServiceRequestMatch({
-        actorUserId: user.id,
-        categoryId: normalizedCategoryId,
-        districtId: normalizedDistrictId,
-        providerId: provider.id,
-        providerUserId: provider.user_id,
-        requestId: normalizedRequestId,
-        supabaseClient: supabase,
-        urgencyType,
-      }),
-    ),
-  );
+  const insertedNotificationCount = await notifyNewServiceRequestMatch({
+    actorUserId: user.id,
+    categoryId: normalizedCategoryId,
+    districtId: normalizedDistrictId,
+    providers: providers.map((provider) => ({
+      providerId: provider.id,
+      providerUserId: provider.user_id,
+    })),
+    requestId: normalizedRequestId,
+    supabaseClient: supabase,
+    urgencyType,
+  });
 
-  return notificationResults.filter(Boolean).length;
+  logInfo("Provider matching and notification fan-out completed.", {
+    durationMs: Date.now() - startedAt,
+    eligibleProviderCount: providers.length,
+    insertedNotificationCount,
+    providerLimit: MAX_PROVIDER_MATCH_NOTIFICATIONS,
+    requestId: normalizedRequestId,
+  });
+
+  return insertedNotificationCount;
 }

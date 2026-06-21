@@ -72,6 +72,10 @@ type RequestFormInsightProviderRecord = {
 type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
+type ProviderMatchNotificationRecord = Pick<
+  Database["public"]["Tables"]["notifications"]["Row"],
+  "request_id"
+>;
 
 type NamedRelation = {
   name: string | null;
@@ -1468,20 +1472,75 @@ export async function getProviderAssignedRequests(
       districts(name),
       profiles(full_name, phone)
     `;
-  const { data: assignedRequests, error } = await supabase
-    .from("service_requests")
-    .select(requestSelect)
-    .eq("assigned_provider_id", providerId)
-    .order("created_at", { ascending: false });
+  const [
+    { data: assignedRequests, error },
+    { data: matchNotifications, error: matchNotificationError },
+  ] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select(requestSelect)
+      .eq("assigned_provider_id", providerId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("notifications")
+      .select("request_id")
+      .eq("provider_id", providerId)
+      .eq("event", "new_service_request_match")
+      .not("request_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
 
   if (error) {
     warnServiceRequestError("Provider assigned requests read failed.", error);
     return [];
   }
 
-  const requestsById = new Map<string, ProviderAssignedRequestRecord>();
+  if (matchNotificationError) {
+    warnServiceRequestError(
+      "Provider matched request notification lookup failed.",
+      matchNotificationError,
+    );
+  }
 
-  ((assignedRequests ?? []) as unknown as ProviderAssignedRequestRecord[]).forEach((request) => {
+  const matchedRequestIds = Array.from(
+    new Set(
+      ((matchNotifications ?? []) as ProviderMatchNotificationRecord[])
+        .map((notification) => notification.request_id)
+        .filter((requestId): requestId is string => Boolean(requestId)),
+    ),
+  );
+  let matchedRequests: typeof assignedRequests = [];
+
+  if (matchedRequestIds.length > 0) {
+    const matchedRequestResult = await supabase
+      .from("service_requests")
+      .select(requestSelect)
+      .in("id", matchedRequestIds)
+      .is("assigned_provider_id", null)
+      .in("status", [
+        SERVICE_REQUEST_STATUSES.pending,
+        SERVICE_REQUEST_STATUSES.assigned,
+      ])
+      .order("created_at", { ascending: false });
+
+    if (matchedRequestResult.error) {
+      warnServiceRequestError(
+        "Provider matched requests read failed.",
+        matchedRequestResult.error,
+      );
+    } else {
+      matchedRequests = matchedRequestResult.data;
+    }
+  }
+
+  const requestsById = new Map<string, ProviderAssignedRequestRecord>();
+  const visibleRequests = [
+    ...(assignedRequests ?? []),
+    ...(matchedRequests ?? []),
+  ] as unknown as ProviderAssignedRequestRecord[];
+
+  visibleRequests.forEach((request) => {
     requestsById.set(request.id, request);
   });
 
