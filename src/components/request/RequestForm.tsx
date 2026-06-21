@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { appRoutes } from "@/lib/constants/navigation";
 import { providerBudgetOptions, providerDistricts } from "@/lib/constants/providers";
-import { normalizeServiceValue, services, type Service } from "@/lib/constants/services";
+import {
+  normalizeServiceValue,
+  serviceCategories,
+  type Service,
+} from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
@@ -299,7 +303,7 @@ function createInitialFormState({
 }: RequestInitialFormProps): RequestFormState {
   const trimmedInitialService = initialService.trim();
   const normalizedInitialService = normalizeServiceValue(trimmedInitialService);
-  const matchedService = services.find((service) =>
+  const matchedService = serviceCategories.find((service) =>
     [
       service.title,
       `${service.category} - ${service.title}`,
@@ -404,7 +408,7 @@ function getServiceValue(service: Service) {
 function getSelectedService(serviceCategory: string) {
   const normalizedValue = normalizeServiceValue(parseServiceCategoryName(serviceCategory));
 
-  return services.find((service) => {
+  return serviceCategories.find((service) => {
     const serviceSlug = service.href.replace("/providers?category=", "");
 
     return [
@@ -884,20 +888,20 @@ export function RequestForm({
               errors.serviceCategory ? "serviceCategory-error" : "serviceCategory-helper"
             }
             aria-invalid={Boolean(errors.serviceCategory)}
-            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3"
             role="radiogroup"
           >
-            {services.map((service) => {
+            {serviceCategories.map((service) => {
               const value = getServiceValue(service);
               const isSelected = formState.serviceCategory === value;
 
               return (
                 <label
                   className={cn(
-                    "flex min-h-32 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-all focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                    "flex h-full min-h-40 cursor-pointer flex-col justify-between rounded-md border bg-white p-4 transition-all focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                     isSelected
-                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)]"
-                      : "border-[var(--border)] hover:border-[var(--brand-orange)]",
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_28px_rgba(255,138,0,0.14)] ring-2 ring-[rgba(255,138,0,0.16)]"
+                      : "border-[var(--border)] hover:-translate-y-0.5 hover:border-[var(--brand-orange)] hover:shadow-[0_14px_32px_rgba(13,20,36,0.08)]",
                     errors.serviceCategory && "border-red-500",
                   )}
                   key={service.id}

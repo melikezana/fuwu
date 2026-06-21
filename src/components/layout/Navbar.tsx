@@ -218,9 +218,9 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[rgba(13,20,36,0.08)] bg-white/[0.97] shadow-[0_10px_30px_rgba(13,20,36,0.045)] backdrop-blur-xl">
-      <Container className="py-3 xl:py-0">
+      <Container className="max-w-[1440px] py-3 xl:py-0">
         <nav
-          className="relative flex items-center justify-between gap-3 xl:h-[72px]"
+          className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 xl:h-[72px]"
           ref={navRef}
         >
           <Link
@@ -232,12 +232,12 @@ export function Navbar() {
             <FuwuLogo size="sm" />
           </Link>
 
-          <div className="hidden min-w-0 items-center gap-0.5 xl:flex">
+          <div className="hidden min-w-0 items-center justify-center gap-0.5 xl:flex">
             {translatedHeaderNavigationLinks.map((item) => (
               <Link
                 aria-current={isActiveLink(item.href) ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full px-2.5 text-center text-sm font-semibold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:text-white",
+                  "inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-full px-2.5 text-center text-sm font-semibold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:text-white",
                   isActiveLink(item.href)
                     ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
                     : "text-[var(--muted)]",
@@ -251,12 +251,12 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 xl:flex">
+          <div className="hidden min-w-0 shrink-0 items-center gap-2 xl:flex">
             <LanguageSwitcher />
             <Button
               aria-current={isActiveLink(appRoutes.providerApplication) ? "page" : undefined}
               className={cn(
-                "px-4",
+                "h-10 min-h-10 whitespace-nowrap px-3.5",
                 isActiveLink(appRoutes.providerApplication)
                   ? "ring-2 ring-[var(--brand-orange)] ring-offset-2"
                   : undefined,
@@ -270,7 +270,7 @@ export function Navbar() {
             <Button
               aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
               className={cn(
-                "px-5",
+                "h-10 min-h-10 whitespace-nowrap px-4",
                 isActiveLink(appRoutes.providers)
                   ? "ring-2 ring-[var(--brand-orange)] ring-offset-2"
                   : undefined,
@@ -280,23 +280,30 @@ export function Navbar() {
             >
               {t("cta.findProvider")}
             </Button>
-            {!isAuthLoading && (
-              userProfile ? (
-                <div className="flex items-center gap-2">
-                  <NotificationBell userId={userProfile.id} />
+            <div className="flex min-w-[18.5rem] items-center justify-end gap-2">
+              {isAuthLoading ? (
+                <div
+                  aria-hidden="true"
+                  className="h-10 w-full rounded-md bg-[var(--surface-soft)] opacity-70"
+                />
+              ) : userProfile ? (
+                <>
+                  <NotificationBell className="shrink-0" userId={userProfile.id} />
                   <Button
-                    className="gap-2 px-3.5"
+                    aria-label={`${userDisplayName} profiline git`}
+                    className="h-10 min-h-10 w-[9.5rem] min-w-0 shrink-0 justify-start gap-2 px-3"
                     href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account}
                     onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account)}
+                    title={userDisplayName}
                     variant="secondary"
                   >
                     <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-black text-white">
                       {userAvatarInitial}
                     </span>
-                    <span className="max-w-[12rem] truncate">{userDisplayName}</span>
+                    <span className="min-w-0 flex-1 truncate text-left">{userDisplayName}</span>
                   </Button>
                   <Button
-                    className="px-5 border border-[var(--brand-navy-soft)] text-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] hover:text-white"
+                    className="h-10 min-h-10 shrink-0 whitespace-nowrap border border-[var(--brand-navy-soft)] px-3.5 text-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] hover:text-white"
                     onClick={async () => {
                       try {
                         await fetch("/api/auth/logout", { method: "POST" });
@@ -311,18 +318,18 @@ export function Navbar() {
                   >
                     Çıkış Yap
                   </Button>
-                </div>
+                </>
               ) : (
                 <Button
-                  className="px-5"
+                  className="h-10 min-h-10 w-[6.75rem] whitespace-nowrap px-4"
                   href={appRoutes.login}
                   onClick={() => setActiveHref(appRoutes.login)}
                   variant="secondary"
                 >
                   {t("nav.login")}
                 </Button>
-              )
-            )}
+              )}
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2 xl:hidden">
@@ -368,7 +375,7 @@ export function Navbar() {
                       key={item.id}
                       onClick={() => handleMenuLinkClick(item.href)}
                     >
-                      <span>{item.label}</span>
+                      <span className="min-w-0 truncate">{item.label}</span>
                       {isActive ? (
                         <span className="h-2 w-2 rounded-full bg-[var(--brand-orange)]" />
                       ) : null}

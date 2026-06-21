@@ -1,4 +1,7 @@
-import type { ServiceIconName } from "@/lib/constants/services";
+import {
+  serviceCategories,
+  type ServiceIconName,
+} from "@/lib/constants/services";
 
 export type InstantMatchServiceOption = {
   iconName: ServiceIconName;
@@ -15,23 +18,13 @@ export type InstantMatchTimeOption = {
   value: InstantMatchTimeValue;
 };
 
-export const instantMatchServiceOptions = [
-  { label: "Tesisat", value: "Tesisat", matchCategory: "Tesisat", iconName: "faucet" },
-  { label: "Elektrik", value: "Elektrik", matchCategory: "Elektrik", iconName: "bolt" },
-  { label: "Temizlik", value: "Temizlik", matchCategory: "Temizlik", iconName: "broom" },
-  { label: "Boya", value: "Boya", matchCategory: "Boya Badana", iconName: "paint-roller" },
-  { label: "Montaj", value: "Montaj", matchCategory: "Mobilya Montaj", iconName: "furniture-tool" },
-  { label: "Halı Yıkama", value: "Halı Yıkama", matchCategory: "Halı Yıkama", iconName: "rug" },
-  { label: "Bahçe Bakımı", value: "Bahçe Bakımı", matchCategory: "Bahçe Bakımı", iconName: "leaf" },
-  { label: "Havuz Bakımı", value: "Havuz Bakımı", matchCategory: "Havuz Bakımı", iconName: "droplets" },
-  {
-    label: "Klima / Beyaz Eşya",
-    value: "Klima / Beyaz Eşya",
-    matchCategory: "Klima & Beyaz Eşya",
-    iconName: "air-conditioner",
-  },
-  { label: "Diğer", value: "Diğer", matchCategory: "Diğer", iconName: "wrench" },
-] as const satisfies readonly InstantMatchServiceOption[];
+export const instantMatchServiceOptions: readonly InstantMatchServiceOption[] =
+  serviceCategories.map((service) => ({
+    iconName: service.iconName,
+    label: service.title,
+    matchCategory: service.title,
+    value: service.title,
+  }));
 
 export const instantMatchTimeOptions = [
   {

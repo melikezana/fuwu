@@ -1,15 +1,6 @@
-export const CATEGORIES = [
-  "Tesisat",
-  "Elektrik",
-  "Temizlik",
-  "Halı Yıkama",
-  "Klima & Beyaz Eşya",
-  "Mobilya Montaj",
-  "Boya & Badana",
-  "Nakliye Yardımı",
-  "Bahçe Bakımı",
-  "Havuz Bakımı"
-];
+import { serviceCategories } from "@/lib/constants/services";
+
+export const CATEGORIES = serviceCategories.map((service) => service.title);
 
 export const DISTRICTS = [
   "Kadıköy",

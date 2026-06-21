@@ -29,7 +29,7 @@ export type Service = {
   href: string;
 };
 
-export const services: Service[] = [
+export const serviceCategories: readonly Service[] = [
   {
     id: "plumbing",
     category: "Onarım",
@@ -49,24 +49,6 @@ export const services: Service[] = [
     iconName: "key",
     startingHint: "Usta Bul",
     href: "/providers?category=cilingir",
-  },
-  {
-    id: "garden",
-    category: "Dış Mekan",
-    title: "Bahçe Bakımı",
-    description: "Bahçe düzenleme, bakım ve temizlik",
-    iconName: "leaf",
-    startingHint: "Usta Bul",
-    href: "/providers?category=bahce-bakimi",
-  },
-  {
-    id: "pool",
-    category: "Dış Mekan",
-    title: "Havuz Bakımı",
-    description: "Havuz temizlik, bakım ve kontrol",
-    iconName: "droplets",
-    startingHint: "Usta Bul",
-    href: "/providers?category=havuz-bakimi",
   },
   {
     id: "electrical",
@@ -139,6 +121,8 @@ export const services: Service[] = [
     href: "/providers?category=nakliye-yardimi",
   },
 ];
+
+export const services = serviceCategories;
 
 export function normalizeServiceValue(value: string) {
   return value

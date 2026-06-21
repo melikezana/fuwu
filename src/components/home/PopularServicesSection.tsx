@@ -5,74 +5,29 @@ import { Container } from "@/components/ui/Container";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
-import type { ServiceIconName } from "@/lib/constants/services";
+import { serviceCategories } from "@/lib/constants/services";
 
-type PopularService = {
-  id: string;
-  title: string;
-  category: string;
-  description: string;
+type PopularServiceMeta = {
   badge: string;
   detail: string;
-  iconName: ServiceIconName;
 };
 
-const popularServices: PopularService[] = [
-  {
-    id: "cleaning",
-    title: "Temizlik",
-    category: "Ev Bakımı",
-    description: "Ev, ofis ve taşınma sonrası temizlik için uygun ustaları karşılaştır.",
-    badge: "En çok talep edilen",
-    detail: "Dakikalar içinde talep",
-    iconName: "sparkles",
-  },
-  {
-    id: "plumbing",
-    title: "Tesisat",
-    category: "Onarım",
-    description: "Kaçak, musluk, gider ve günlük tesisat ihtiyaçları için net açıklama.",
-    badge: "Ev onarımı",
-    detail: "Hızlı inceleme",
-    iconName: "pipe",
-  },
-  {
-    id: "climate-appliance-service",
-    title: "Klima & Beyaz Eşya",
-    category: "Teknik Servis",
-    description: "Klima bakımı, montajı ve beyaz eşya arızaları için uygun teknik servis talebi.",
-    badge: "Sezonluk ihtiyaç",
-    detail: "Ziyaret planla",
-    iconName: "air-conditioner",
-  },
-  {
-    id: "furniture-assembly",
-    title: "Mobilya Montajı",
-    category: "Montaj",
-    description: "Yatak, masa, raf, dolap ve demonte mobilyalar için kurulum desteği.",
-    badge: "Taşınmaya uygun",
-    detail: "Detayları paylaş",
-    iconName: "box",
-  },
-  {
-    id: "garden-care",
-    title: "Bahçe Bakımı",
-    category: "Açık Alan",
-    description: "Bahçe düzenleme, bakım ve temizlik.",
-    badge: "Yeni",
-    detail: "Teklif iste",
-    iconName: "leaf",
-  },
-  {
-    id: "pool-maintenance",
-    title: "Havuz Bakımı",
-    category: "Açık Alan",
-    description: "Havuz temizlik, bakım ve kontrol.",
-    badge: "Yeni",
-    detail: "Teklif iste",
-    iconName: "droplets",
-  },
-];
+const popularServiceMeta: Record<string, PopularServiceMeta> = {
+  plumbing: { badge: "Ev onarımı", detail: "Hızlı inceleme" },
+  locksmith: { badge: "Acil destek", detail: "Hızlı iletişim" },
+  electrical: { badge: "Ev onarımı", detail: "Ustaları karşılaştır" },
+  cleaning: { badge: "En çok talep edilen", detail: "Dakikalar içinde talep" },
+  "carpet-cleaning": { badge: "Ev bakımı", detail: "Servisleri karşılaştır" },
+  "climate-appliance-service": { badge: "Sezonluk ihtiyaç", detail: "Ziyaret planla" },
+};
+
+const popularServices = serviceCategories.slice(0, 6).map((service) => ({
+  ...service,
+  ...(popularServiceMeta[service.id] ?? {
+    badge: "Onaylı kategori",
+    detail: "Ustaları karşılaştır",
+  }),
+}));
 
 export function PopularServicesSection() {
   return (

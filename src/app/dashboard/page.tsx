@@ -218,8 +218,8 @@ export default async function CustomerDashboardPage() {
           <Link href={appRoutes.home}>
             <FuwuLogo size="sm" />
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm font-bold text-[var(--muted)] sm:block">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="hidden max-w-64 truncate text-sm font-bold text-[var(--muted)] sm:block">
               {user.email}
             </span>
             <form action="/api/auth/logout" method="POST">
@@ -243,18 +243,18 @@ export default async function CustomerDashboardPage() {
           <div className="pointer-events-none absolute -bottom-10 right-24 size-40 rounded-full bg-[var(--brand-orange)]/10" />
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-4">
               <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)] text-2xl font-black text-white shadow-[0_8px_24px_rgba(255,138,0,0.4)]">
                 {avatarLetter}
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-widest text-white/50">
                   Hesabım
                 </p>
-                <h1 className="mt-1 text-2xl font-black text-white">
+                <h1 className="mt-1 break-words text-2xl font-black text-white">
                   Merhaba, {firstName} 👋
                 </h1>
-                <p className="mt-0.5 text-sm font-semibold text-white/60">{user.email}</p>
+                <p className="mt-0.5 break-all text-sm font-semibold text-white/60">{user.email}</p>
               </div>
             </div>
             <Link

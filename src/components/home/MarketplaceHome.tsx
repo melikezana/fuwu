@@ -25,7 +25,7 @@ import { ProviderCard } from "@/components/providers/ProviderCard";
 import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
-import { services, type Service } from "@/lib/constants/services";
+import { serviceCategories, type Service } from "@/lib/constants/services";
 import {
   getMarketplaceTrustMetrics,
   getProviderDirectory,
@@ -40,18 +40,6 @@ type SectionHeadingProps = {
   description?: ReactNode;
 };
 
-const serviceOrder = [
-  "Tesisat",
-  "Çilingir",
-  "Elektrik",
-  "Temizlik",
-  "Halı Yıkama",
-  "Klima & Beyaz Eşya",
-  "Mobilya Montaj",
-  "Boya Badana",
-  "Nakliye Yardımı",
-];
-
 const mobileTrustSignals: Array<{
   icon: LucideIcon;
   labelKey: TranslationKey;
@@ -61,10 +49,6 @@ const mobileTrustSignals: Array<{
   { icon: WalletCards, labelKey: "home.trust.signal.price" },
   { icon: Zap, labelKey: "home.trust.signal.fast" },
 ];
-
-const orderedServices = serviceOrder
-  .map((title) => services.find((service) => service.title === title))
-  .filter((service): service is Service => Boolean(service));
 
 const serviceHeaderBadges: Array<{
   icon: LucideIcon;
@@ -296,7 +280,7 @@ function HeroSection({
     {
       labelKey: "home.hero.stats.categoryCount",
       href: appRoutes.services,
-      values: { count: services.length },
+      values: { count: serviceCategories.length },
     },
     {
       labelKey: "home.hero.stats.districtCount",
@@ -438,8 +422,8 @@ function ServicesSection() {
           </div>
         </div>
 
-        <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-          {orderedServices.map((service) => (
+        <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:gap-5">
+          {serviceCategories.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
         </div>
@@ -770,11 +754,15 @@ export async function MarketplaceHome() {
     new Map([...heroProviders, ...previewProviders].map((provider) => [provider.id, provider])).values(),
   );
   const todayActiveCount = todayProviders.length;
-  const trustMetrics = await getMarketplaceTrustMetrics({
+  const marketplaceTrustMetrics = await getMarketplaceTrustMetrics({
     activeProviders: allProviders.length,
     districts: filterOptions.districts.length,
-    serviceCategories: filterOptions.categories.length,
+    serviceCategories: serviceCategories.length,
   });
+  const trustMetrics = {
+    ...marketplaceTrustMetrics,
+    serviceCategories: serviceCategories.length,
+  };
 
   return (
     <div className="bg-[var(--background)]">

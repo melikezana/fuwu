@@ -23,7 +23,11 @@ import { Button } from "@/components/ui/Button";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { appRoutes } from "@/lib/constants/navigation";
 import { providerDistricts } from "@/lib/constants/providers";
-import { normalizeServiceValue, services, type Service } from "@/lib/constants/services";
+import {
+  normalizeServiceValue,
+  serviceCategories,
+  type Service,
+} from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import {
   getEmergencyPriceOptions,
@@ -64,26 +68,6 @@ type StepShellProps = {
   title: string;
 };
 
-const emergencyServiceIds = [
-  "plumbing",
-  "locksmith",
-  "electrical",
-  "cleaning",
-  "pool",
-  "garden",
-  "climate-appliance-service",
-] as const;
-
-const emergencyServiceLabels: Record<string, string> = {
-  "climate-appliance-service": "Klima & Beyaz Eşya",
-  cleaning: "Temizlik",
-  electrical: "Elektrik",
-  garden: "Bahçe Bakımı",
-  locksmith: "Çilingir",
-  plumbing: "Tesisat",
-  pool: "Havuz Bakımı",
-};
-
 const paymentOptions: PaymentOption[] = [
   {
     description: "Usta geldiğinde öde",
@@ -96,18 +80,6 @@ const paymentOptions: PaymentOption[] = [
     value: PAYMENT_PREFERENCES.iban,
   },
 ];
-
-function getEmergencyServices() {
-  const selectedServices = emergencyServiceIds
-    .map((id) => services.find((service) => service.id === id))
-    .filter((service): service is Service => Boolean(service));
-
-  return selectedServices.length ? selectedServices : services.slice(0, 6);
-}
-
-function getEmergencyServiceLabel(service: Service) {
-  return emergencyServiceLabels[service.id] ?? service.title;
-}
 
 function formatPrice(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -192,7 +164,7 @@ function StepShell({ children, description, icon, stepNumber, title }: StepShell
 
 export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const router = useRouter();
-  const emergencyServices = useMemo(() => getEmergencyServices(), []);
+  const emergencyServices = serviceCategories;
   const districtOptions = useMemo(() => {
     const districtsByKey = new Map<string, string>();
 
@@ -211,7 +183,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
   const [activeStep, setActiveStep] = useState<EmergencyStep>("service");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const selectedService = emergencyServices.find((service) => service.id === selectedServiceId);
-  const selectedServiceLabel = selectedService ? getEmergencyServiceLabel(selectedService) : "";
+  const selectedServiceLabel = selectedService?.title ?? "";
   const [district, setDistrict] = useState("");
   const [districtSearch, setDistrictSearch] = useState("");
   const [highlightedDistrictIndex, setHighlightedDistrictIndex] = useState(0);
@@ -576,16 +548,16 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
             stepNumber={1}
             title="Hizmet seç"
           >
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:grid-cols-3">
               {emergencyServices.map((service) => {
-                const serviceLabel = getEmergencyServiceLabel(service);
+                const serviceLabel = service.title;
                 const isSelected = service.id === selectedServiceId;
 
                 return (
                   <button
                     aria-pressed={isSelected}
                     className={cn(
-                      "group flex min-h-20 min-w-0 flex-col items-start justify-between rounded-lg border bg-white p-3 text-left transition-all sm:min-h-24",
+                      "group flex h-full min-h-24 min-w-0 flex-col items-start justify-between rounded-lg border bg-white p-3 text-left transition-all",
                       isSelected
                         ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[0_12px_30px_rgba(255,138,0,0.16)]"
                         : "border-[rgba(13,20,36,0.08)] hover:border-[rgba(255,138,0,0.5)] hover:bg-[#fffaf3]",

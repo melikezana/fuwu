@@ -159,9 +159,9 @@ export default async function AccountPage() {
   const requests = await getUserRequests(authContext.supabase, authContext.user.id);
 
   return (
-    <main className="min-h-screen px-4 py-12">
-      <div className="mx-auto max-w-xl space-y-6">
-        <section className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)]">
+    <main className="min-h-screen px-4 py-8 sm:py-12">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <section className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_32px_rgba(13,20,36,0.06)] sm:flex-row sm:items-center">
           {profile.avatar_url ? (
             <Image
               alt={profile.full_name ? `${profile.full_name} profil fotoğrafı` : "Profil fotoğrafı"}
@@ -186,9 +186,9 @@ export default async function AccountPage() {
               </p>
             ) : null}
           </div>
-          <form action="/api/auth/logout" method="POST">
+          <form action="/api/auth/logout" className="w-full sm:w-auto" method="POST">
             <button
-              className="flex-shrink-0 rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
+              className="inline-flex min-h-11 w-full flex-shrink-0 items-center justify-center rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] sm:w-auto"
               type="submit"
             >
               Çıkış Yap
@@ -196,7 +196,7 @@ export default async function AccountPage() {
           </form>
         </section>
 
-        <section className="grid grid-cols-2 gap-3">
+        <section className="grid gap-3 sm:grid-cols-2">
           {[
             {
               href: appRoutes.request,
@@ -227,9 +227,9 @@ export default async function AccountPage() {
                   {item.icon}
                 </svg>
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-black text-[var(--brand-navy)]">{item.label}</p>
-                <p className="text-xs text-[var(--muted)]">{item.sub}</p>
+                <p className="truncate text-xs text-[var(--muted)]">{item.sub}</p>
               </div>
             </Link>
           ))}

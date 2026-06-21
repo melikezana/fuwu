@@ -45,10 +45,11 @@ export const trTranslations = {
   "availability.today": "Bugün uygun",
   "availability.tomorrow": "Yarın uygun",
   "availability.weekend": "Hafta sonu uygun",
-  "home.hero.title": "İhtiyacını seç, bütçeni belirle, uygun ustayla hemen eşleş.",
+  "home.hero.title": "Onaylı ustalar, güvenle eşleş.",
   "home.hero.subtitle":
-    "Uzun form doldurmadan hizmetini, ilçeni, bütçeni ve zamanını seç. Fuwu onaylı uygun ustaları direkt iletişim seçenekleriyle gösterir.",
-  "home.hero.mobileSummary": "Hizmet seç. Bütçe belirle. Hemen eşleş.",
+    "İhtiyacını paylaş, uygun ustaları karşılaştır ve doğrudan iletişime geç.",
+  "home.hero.mobileSummary":
+    "İhtiyacını paylaş, uygun ustaları karşılaştır ve doğrudan iletişime geç.",
   "home.hero.stats.available": "Müsait ustalar",
   "home.hero.stats.activeToday": "{count} müsait",
   "home.hero.stats.categoryCount": "{count} kategori",
@@ -80,9 +81,9 @@ export const trTranslations = {
   "home.how.step3.description":
     "Karar verdiğinde ustayı telefonla ara veya WhatsApp üzerinden hemen yaz.",
   "home.about.eyebrow": "Hakkımızda",
-  "home.about.title": "Fuwu ile doğru ustaya daha net ulaş.",
+  "home.about.title": "Güvenilir ustalar, anında karşında.",
   "home.about.description":
-    "Fuwu, ev hizmetlerinde doğru ustaya hızlı ve şeffaf şekilde ulaşman için geliştirilen bir hizmet pazaryeridir.",
+    "Fuwu, ev hizmetlerinde güvenilir ustaları hızlı ve şeffaf şekilde bulmanı sağlayan yeni nesil hizmet platformudur.",
   "home.trust.eyebrow": "Fuwu Güvencesi",
   "home.trust.title": "Karar vermeyi kolaylaştıran güven sinyalleri",
   "home.trust.description":
