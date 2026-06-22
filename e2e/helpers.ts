@@ -178,6 +178,7 @@ export async function loginWithEmailMagicLink(
 
   await page.goto(callbackUrl, { waitUntil: "domcontentloaded" });
   await expectAuthenticated(page);
+  await page.goto(nextPath, { waitUntil: "domcontentloaded" });
 
   return email;
 }
