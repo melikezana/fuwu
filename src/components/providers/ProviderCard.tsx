@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Clock3, Coins, MapPin, MessageCircle, Phone, Star } from "lucide-react";
+import {
+  Clock3,
+  Coins,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Star,
+  Timer,
+  UserRoundSearch,
+} from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
@@ -42,7 +51,11 @@ function getDisplayPriceRange(value: string | undefined) {
   return normalizedValue;
 }
 
-export function ProviderCard({ provider, actionsId, className }: ProviderCardProps) {
+export function ProviderCard({
+  provider,
+  actionsId,
+  className,
+}: ProviderCardProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const currentSearchParams = new URLSearchParams(searchParams.toString());
@@ -99,7 +112,11 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           {provider.category ? (
             <Link
               className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
-              href={createProviderFilterHref(currentSearchParams, "category", provider.category)}
+              href={createProviderFilterHref(
+                currentSearchParams,
+                "category",
+                provider.category,
+              )}
             >
               <ServiceIcon
                 className="size-3.5 shrink-0 text-[var(--brand-orange)]"
@@ -111,7 +128,11 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
           {provider.district ? (
             <Link
               className="inline-flex min-h-8 min-w-0 items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-2.5 text-xs font-medium text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
-              href={createProviderFilterHref(currentSearchParams, "district", provider.district)}
+              href={createProviderFilterHref(
+                currentSearchParams,
+                "district",
+                provider.district,
+              )}
             >
               <MapPin className="size-3 shrink-0" />
               <span className="truncate">{provider.district}</span>
@@ -121,8 +142,8 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
 
         <ProviderTrustBadges badges={provider.trustBadges} limit={3} />
 
-        <div className="grid grid-cols-2 divide-x divide-[var(--border)] rounded-lg border border-[var(--border)] bg-[#FAFAFA]">
-          <div className="flex min-w-0 items-center gap-2 px-3 py-2.5">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
+          <div className="flex min-w-0 items-center gap-2 bg-[#FAFAFA] px-3 py-2.5">
             <span
               className={`flex size-8 shrink-0 items-center justify-center rounded-md border ${availabilityClassName}`}
             >
@@ -137,7 +158,7 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
               </span>
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-2 px-3 py-2.5">
+          <div className="flex min-w-0 items-center gap-2 bg-[#FAFAFA] px-3 py-2.5">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
               <Coins className="size-3.5" aria-hidden="true" />
             </span>
@@ -150,47 +171,57 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
               </span>
             </span>
           </div>
+          <div className="col-span-2 flex min-w-0 items-center gap-2 bg-[#FAFAFA] px-3 py-2.5 sm:col-span-1">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-[var(--brand-navy)] ring-1 ring-[var(--border)]">
+              <Timer className="size-3.5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-semibold text-[var(--brand-navy)]">
+                {provider.responseTime.replace(/^Ortalama cevap:\s*/i, "")}
+              </span>
+              <span className="mt-0.5 block text-[0.68rem] font-medium text-[var(--muted)]">
+                Yanıt süresi
+              </span>
+            </span>
+          </div>
         </div>
-
-        <p className="text-xs font-medium text-[var(--muted)]">{provider.responseTime}</p>
       </div>
 
-      {hasWhatsApp || hasPhone ? (
-        <div
-          className={cn(
-            "mt-auto grid gap-2 pt-4",
-            hasWhatsApp && hasPhone ? "grid-cols-2" : "grid-cols-1",
-          )}
-          id={actionsId}
+      <div
+        className="mt-auto flex flex-col gap-2 pt-4 sm:flex-row"
+        id={actionsId}
+      >
+        {hasWhatsApp ? (
+          <ProviderContactLink
+            className="w-full gap-2 px-3 sm:flex-1"
+            kind="whatsapp"
+            provider={provider}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <MessageCircle className="size-4 shrink-0" />
+            <span>WhatsApp</span>
+          </ProviderContactLink>
+        ) : null}
+        {hasPhone ? (
+          <ProviderContactLink
+            className="w-full gap-2 px-3 sm:flex-1"
+            kind="phone"
+            provider={provider}
+          >
+            <Phone className="size-4 shrink-0" />
+            <span>Telefon</span>
+          </ProviderContactLink>
+        ) : null}
+        <Button
+          className="w-full gap-2 px-3 sm:flex-1"
+          href={profileHref}
+          variant={hasWhatsApp || hasPhone ? "secondary" : "primary"}
         >
-          {hasWhatsApp ? (
-            <ProviderContactLink
-              className="w-full gap-2 px-3"
-              kind="whatsapp"
-              provider={provider}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <MessageCircle className="size-4 shrink-0" />
-              <span>WhatsApp</span>
-            </ProviderContactLink>
-          ) : null}
-          {hasPhone ? (
-            <ProviderContactLink
-              className="w-full gap-2 px-3"
-              kind="phone"
-              provider={provider}
-            >
-              <Phone className="size-4 shrink-0" />
-              <span>Telefon</span>
-            </ProviderContactLink>
-          ) : null}
-        </div>
-      ) : (
-        <p className="mt-auto pt-4 text-sm font-medium text-[var(--muted)]">
-          İletişim bilgisi yakında eklenecek.
-        </p>
-      )}
+          <UserRoundSearch className="size-4 shrink-0" />
+          <span>Profili Gör</span>
+        </Button>
+      </div>
     </article>
   );
 }

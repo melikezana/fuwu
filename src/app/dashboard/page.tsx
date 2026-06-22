@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { TextLink } from "@/components/ui/TextLink";
@@ -28,6 +29,11 @@ import {
 } from "@/lib/constants/statuses";
 import { getServerAuthContext } from "@/services/auth/server";
 import { createSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase/server";
+import {
+  getPaymentRecordsByRequestIds,
+  PAYMENT_STATUSES,
+  type PaymentTrackingRecord,
+} from "@/services/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +43,7 @@ export const metadata: Metadata = {
 };
 
 type ServiceRequest = {
+  assigned_provider_id: string | null;
   id: string;
   status: string;
   urgency_type: string | null;
@@ -46,6 +53,8 @@ type ServiceRequest = {
   created_at: string | null;
   service_categories: { name: string } | null;
   districts: { name: string } | null;
+  hasReview: boolean;
+  payment: PaymentTrackingRecord | null;
 };
 
 async function getUserRequests(userId: string): Promise<ServiceRequest[]> {
@@ -56,14 +65,50 @@ async function getUserRequests(userId: string): Promise<ServiceRequest[]> {
   const { data, error } = await supabase
     .from("service_requests")
     .select(
-      "id, status, urgency_type, budget_tag, confirmation_code, description, created_at, service_categories(name), districts(name)",
+      "id, assigned_provider_id, status, urgency_type, budget_tag, confirmation_code, description, created_at, service_categories(name), districts(name)",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(30);
 
   if (error || !data) return [];
-  return data as unknown as ServiceRequest[];
+
+  const requests = data as unknown as Omit<
+    ServiceRequest,
+    "hasReview" | "payment"
+  >[];
+  const paymentRecords = await getPaymentRecordsByRequestIds(
+    supabase,
+    requests.map((request) => request.id),
+  );
+  const providerIds = Array.from(
+    new Set(
+      requests
+        .map((request) => request.assigned_provider_id)
+        .filter((providerId): providerId is string => Boolean(providerId)),
+    ),
+  );
+  const reviewedProviderIds = new Set<string>();
+
+  if (providerIds.length > 0) {
+    const { data: reviews } = await supabase
+      .from("reviews")
+      .select("provider_id")
+      .eq("user_id", userId)
+      .in("provider_id", providerIds);
+
+    for (const review of reviews ?? []) {
+      reviewedProviderIds.add(review.provider_id);
+    }
+  }
+
+  return requests.map((request) => ({
+    ...request,
+    hasReview: request.assigned_provider_id
+      ? reviewedProviderIds.has(request.assigned_provider_id)
+      : false,
+    payment: paymentRecords.get(request.id) ?? null,
+  }));
 }
 
 const PENDING_STATUSES = [
@@ -490,9 +535,17 @@ function RequestCard({ request }: { request: ServiceRequest }) {
   const district = (request.districts as { name?: string } | null)?.name ?? null;
   const date = formatDate(request.created_at);
   const isEmergency = request.urgency_type === "emergency";
+  const isCompleted =
+    normalizeServiceRequestStatus(request.status) ===
+    SERVICE_REQUEST_STATUSES.completed;
+  const paymentConfirmed =
+    request.payment?.status === PAYMENT_STATUSES.confirmed;
+  const paymentPending =
+    request.payment?.status === PAYMENT_STATUSES.pendingConfirmation;
+  const allFollowUpsComplete = request.hasReview && paymentConfirmed;
 
   return (
-    <div className="group flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] transition hover:shadow-[var(--shadow-subtle)] sm:flex-row sm:items-start sm:justify-between">
+    <div className="group flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] transition hover:shadow-[var(--shadow-subtle)] sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
       {/* Left */}
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)]">
@@ -541,6 +594,36 @@ function RequestCard({ request }: { request: ServiceRequest }) {
         <StatusIcon className="size-3.5" />
         {cfg.label}
       </span>
+
+      {isCompleted ? (
+        <div className="w-full border-t border-[var(--border)] pt-4 sm:basis-full">
+          {allFollowUpsComplete ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--trust-green-soft)] px-3 py-2 text-sm font-bold text-[var(--trust-green)]">
+              <CheckCircle2 className="size-4" aria-hidden="true" />
+              ✓ İş tamamlandı
+            </span>
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {!request.hasReview && request.assigned_provider_id ? (
+                <Button
+                  className="w-full sm:w-fit"
+                  href={`/providers/${request.assigned_provider_id}#reviews`}
+                  variant="secondary"
+                >
+                  Ustayı değerlendir
+                </Button>
+              ) : null}
+              {paymentPending && request.payment ? (
+                <PaymentConfirmationButton
+                  paymentMethod={request.payment.paymentMethod}
+                  requestId={request.id}
+                  status={request.payment.status}
+                />
+              ) : null}
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

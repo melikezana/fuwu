@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 type LogContext = Record<string, unknown>;
 
 const redactedValue = "[redacted]";
@@ -76,6 +78,35 @@ function canLogToConsole() {
   return process.env.NODE_ENV !== "production";
 }
 
+function captureWarning(message: string, context?: LogContext) {
+  try {
+    Sentry.captureMessage(message, {
+      extra: createLogPayload(context) as LogContext | undefined,
+      level: "warning",
+    });
+  } catch {
+    // Monitoring must never break the application logger.
+  }
+}
+
+function captureError(error: unknown, context?: LogContext) {
+  try {
+    const extra = createLogPayload(context) as LogContext | undefined;
+
+    if (error instanceof Error) {
+      Sentry.captureException(error, { extra });
+      return;
+    }
+
+    Sentry.captureMessage(String(error), {
+      extra,
+      level: "error",
+    });
+  } catch {
+    // Monitoring must never break the application logger.
+  }
+}
+
 export function logInfo(message: string, context?: LogContext) {
   if (!canLogToConsole()) {
     // TODO: Send sanitized breadcrumbs to Sentry when production monitoring is enabled.
@@ -86,19 +117,18 @@ export function logInfo(message: string, context?: LogContext) {
 }
 
 export function logWarn(message: string, context?: LogContext) {
-  if (!canLogToConsole()) {
-    // TODO: Send sanitized warning events to Sentry when production monitoring is enabled.
-    return;
-  }
+  captureWarning(message, context);
 
-  console.warn(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+  if (canLogToConsole()) {
+    console.warn(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+  }
 }
 
-export function logError(message: string, context?: LogContext) {
-  if (!canLogToConsole()) {
-    // TODO: Send sanitized error events to Sentry when production monitoring is enabled.
-    return;
-  }
+export function logError(error: unknown, context?: LogContext) {
+  captureError(error, context);
 
-  console.error(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+  if (canLogToConsole()) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+  }
 }

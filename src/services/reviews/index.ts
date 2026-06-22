@@ -1,8 +1,18 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { handleServiceError } from "@/lib/errors";
+import {
+  AppError,
+  AuthError,
+  handleServiceError,
+  ValidationError,
+} from "@/lib/errors";
 import { getSupabaseClientConfig } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
-import { sanitizeText } from "@/lib/validations";
+import {
+  sanitizeText,
+  validateReviewInput,
+  type ReviewInput,
+} from "@/lib/validations";
+import { isUuid } from "@/lib/utils/validation";
 
 export type ProviderReview = {
   id: string;
@@ -29,6 +39,16 @@ type SupabaseReviewRow = Pick<
   Database["public"]["Tables"]["reviews"]["Row"],
   "comment" | "created_at" | "id" | "provider_id" | "rating"
 >;
+
+type ReviewSupabaseClient = SupabaseClient<Database>;
+
+export type SubmitProviderReviewInput = ReviewInput & {
+  providerId: string;
+};
+
+export type SubmitProviderReviewResult = {
+  id: string;
+};
 
 const fallbackReviewTemplates = [
   {
@@ -67,12 +87,6 @@ function createReviewsSupabaseClient(): SupabaseClient<Database> | null {
       persistSession: false,
     },
   });
-}
-
-function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value,
-  );
 }
 
 function normalizeRating(value: number | null | undefined) {
@@ -182,4 +196,102 @@ export async function getProviderReviews(providerId: string): Promise<ProviderRe
   }
 
   return getFallbackProviderReviews(providerId);
+}
+
+export async function submitProviderReview(
+  input: SubmitProviderReviewInput,
+  supabase: ReviewSupabaseClient,
+): Promise<SubmitProviderReviewResult> {
+  if (!isUuid(input.providerId)) {
+    throw new ValidationError("Review provider id is invalid.", {
+      publicMessage: "Usta bilgisi geçerli değil.",
+    });
+  }
+
+  const validation = validateReviewInput(input);
+
+  if (!validation.ok) {
+    throw new ValidationError("Review input validation failed.", {
+      publicMessage: validation.message,
+    });
+  }
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new AuthError("Review submission requires authentication.", {
+      cause: authError,
+      publicMessage: "Yorum yazmak için giriş yapmalısın.",
+    });
+  }
+
+  const { data: eligibleRequest, error: eligibilityError } = await supabase
+    .from("service_requests")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("assigned_provider_id", input.providerId)
+    .eq("status", "completed")
+    .limit(1)
+    .maybeSingle();
+
+  if (eligibilityError) {
+    throw handleServiceError(eligibilityError, {
+      logContext: "Review eligibility lookup failed.",
+      publicMessage: "Yorum uygunluğu şu anda kontrol edilemedi.",
+      tableName: "service_requests",
+    });
+  }
+
+  if (!eligibleRequest) {
+    throw new AppError("review-not-eligible", {
+      code: "review-not-eligible",
+      publicMessage:
+        "Bu ustaya yorum yazabilmek için tamamlanmış bir hizmet talebin olmalı.",
+      statusCode: 403,
+    });
+  }
+
+  const { data: reviewId, error } = await supabase.rpc("submit_provider_review", {
+    p_comment: validation.data.comment,
+    p_provider_id: input.providerId,
+    p_rating: validation.data.rating,
+  });
+
+  if (error) {
+    const normalizedMessage = error.message.toLocaleLowerCase("en");
+
+    if (
+      error.code === "23505" ||
+      normalizedMessage.includes("review-already-submitted")
+    ) {
+      throw new ValidationError("Review already submitted.", {
+        cause: error,
+        publicMessage: "Bu usta için daha önce yorum yazdın.",
+      });
+    }
+
+    if (
+      error.code === "42501" ||
+      normalizedMessage.includes("review-not-eligible")
+    ) {
+      throw new AppError("review-not-eligible", {
+        cause: error,
+        code: "review-not-eligible",
+        publicMessage:
+          "Bu ustaya yorum yazabilmek için tamamlanmış bir hizmet talebin olmalı.",
+        statusCode: 403,
+      });
+    }
+
+    throw handleServiceError(error, {
+      logContext: "Provider review submission failed.",
+      publicMessage: "Yorumun gönderilemedi. Lütfen tekrar dene.",
+      tableName: "reviews",
+    });
+  }
+
+  return { id: reviewId };
 }

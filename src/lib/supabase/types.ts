@@ -120,6 +120,7 @@ export type Database = {
           response_time_minutes: number | null;
           profile_completion_score: number | null;
           profile_image_url: string | null;
+          review_count: number;
           is_active: boolean;
           is_approved: boolean;
           created_at: string;
@@ -147,6 +148,7 @@ export type Database = {
           response_time_minutes?: number | null;
           profile_completion_score?: number | null;
           profile_image_url?: string | null;
+          review_count?: number;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;
@@ -174,6 +176,7 @@ export type Database = {
           response_time_minutes?: number | null;
           profile_completion_score?: number | null;
           profile_image_url?: string | null;
+          review_count?: number;
           is_active?: boolean;
           is_approved?: boolean;
           created_at?: string;
@@ -764,6 +767,14 @@ export type Database = {
           p_request_id: string;
         };
         Returns: number;
+      };
+      submit_provider_review: {
+        Args: {
+          p_comment: string;
+          p_provider_id: string;
+          p_rating: number;
+        };
+        Returns: string;
       };
     };
     Enums: Record<string, never>;

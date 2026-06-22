@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils/validation";
+import { AppError, AuthError, handleServiceError, ValidationError } from "@/lib/errors";
+import { writeAuditLog } from "@/services/audit";
 import type { ServiceRequestPaymentPreference } from "@/types/request";
 
 export type { ServiceRequestPaymentPreference } from "@/types/request";
@@ -333,4 +335,120 @@ export async function confirmTrackedPaymentForRequest({
   }
 
   return Boolean(data?.id);
+}
+
+export async function confirmPaymentByCustomer(
+  requestId: string,
+  supabase: PaymentSupabaseClient,
+): Promise<PaymentTrackingRecord> {
+  if (!isUuid(requestId)) {
+    throw new ValidationError("Payment confirmation request id is invalid.", {
+      publicMessage: "Talep bilgisi geçerli değil.",
+    });
+  }
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new AuthError("Payment confirmation requires authentication.", {
+      cause: authError,
+      publicMessage: "Ödemeyi onaylamak için giriş yapmalısın.",
+    });
+  }
+
+  const { data: request, error: requestError } = await supabase
+    .from("service_requests")
+    .select("id, status")
+    .eq("id", requestId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (requestError) {
+    throw handleServiceError(requestError, {
+      logContext: "Customer payment request ownership lookup failed.",
+      publicMessage: "Ödeme talebi şu anda kontrol edilemedi.",
+      tableName: "service_requests",
+    });
+  }
+
+  if (!request) {
+    throw new AppError("payment-request-not-owned", {
+      code: "payment-request-not-owned",
+      publicMessage: "Bu talep için ödeme onayı verme yetkin yok.",
+      statusCode: 403,
+    });
+  }
+
+  if (request.status !== "completed") {
+    throw new AppError("payment-request-not-completed", {
+      code: "payment-request-not-completed",
+      publicMessage: "Ödeme yalnızca tamamlanmış işler için onaylanabilir.",
+      statusCode: 409,
+    });
+  }
+
+  const now = new Date().toISOString();
+  const { data: updatedPayment, error: updateError } = await supabase
+    .from("payments")
+    .update({
+      confirmed_at: now,
+      confirmed_by: user.id,
+      status: PAYMENT_STATUSES.confirmed,
+      updated_at: now,
+    })
+    .eq("request_id", requestId)
+    .eq("status", PAYMENT_STATUSES.pendingConfirmation)
+    .select("id, request_id, amount, payment_method, status, confirmed_at")
+    .maybeSingle();
+
+  if (updateError) {
+    throw handleServiceError(updateError, {
+      logContext: "Customer payment confirmation update failed.",
+      publicMessage: "Ödeme onayı kaydedilemedi. Lütfen tekrar dene.",
+      tableName: "payments",
+    });
+  }
+
+  if (!updatedPayment) {
+    const existingPayment = await getExistingPaymentForRequest(supabase, requestId);
+
+    if (existingPayment?.status === PAYMENT_STATUSES.confirmed) {
+      return existingPayment;
+    }
+
+    throw new AppError("payment-not-pending", {
+      code: "payment-not-pending",
+      publicMessage: "Onay bekleyen bir ödeme kaydı bulunamadı.",
+      statusCode: 409,
+    });
+  }
+
+  const payment = mapPaymentRecord(updatedPayment as PaymentRow);
+  const auditWritten = await writeAuditLog(
+    {
+      action: "payment.confirmed_by_customer",
+      actorUserId: user.id,
+      entityId: payment.id,
+      entityType: "payment",
+      metadata: {
+        paymentMethod: payment.paymentMethod,
+        requestId,
+      },
+    },
+    supabase,
+  );
+
+  if (!auditWritten) {
+    throw new AppError("payment-audit-failed", {
+      code: "payment-audit-failed",
+      publicMessage:
+        "Ödeme onaylandı ancak işlem kaydı doğrulanamadı. Destek ekibiyle iletişime geç.",
+      statusCode: 500,
+    });
+  }
+
+  return payment;
 }

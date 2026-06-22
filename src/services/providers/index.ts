@@ -76,6 +76,7 @@ type SupabaseProviderRecord = Pick<
   | "response_time_minutes"
   | "profile_completion_score"
   | "profile_image_url"
+  | "review_count"
 > & {
   availability?: string | null;
   category?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
@@ -126,6 +127,7 @@ const providerSelectQuery = `
   average_price_min,
   average_price_max,
   rating,
+  review_count,
   availability,
   working_hours,
   is_verified,
@@ -163,6 +165,7 @@ const optionalProviderColumnNames = [
   "phone_verified",
   "profile_completion_score",
   "profile_image_url",
+  "review_count",
   "response_time_minutes",
   "working_hours",
 ];
@@ -316,7 +319,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     completedJobs: 0,
     responseTime: formatProviderResponseTime(responseTimeMinutes),
     responseTimeMinutes,
-    reviewCount: 0,
+    reviewCount: Math.max(0, Number(record.review_count ?? 0)),
     isVerified: Boolean(record.is_verified),
     phoneVerified: Boolean(record.phone_verified),
     identityVerified: Boolean(record.identity_verified),

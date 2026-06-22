@@ -7,6 +7,7 @@
     "build": "next build",
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
+    "check:sentry-logger": "node scripts/check-sentry-logger.mjs",
     "check:vercel-env": "node scripts/check-vercel-env.mjs",
     "cleanup:launch-test-data": "node scripts/cleanup-test-data.mjs --confirm",
     "cleanup:smoke-test-data": "node scripts/cleanup-test-data.mjs --confirm --pattern=+smoketest",
@@ -18,8 +19,10 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:assignment-race": "node scripts/test-admin-assignment-race.mjs",
+    "test:customer-payment": "tsx scripts/test-customer-payment-confirmation.ts",
     "test:provider-validation": "tsx scripts/test-provider-validation.ts",
-    "test:provider-matching": "tsx scripts/test-provider-matching.ts"
+    "test:provider-matching": "tsx scripts/test-provider-matching.ts",
+    "test:review-submission": "tsx scripts/test-review-submission.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.59.0",

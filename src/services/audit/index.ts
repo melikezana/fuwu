@@ -8,6 +8,7 @@ type AuditSupabaseClient = SupabaseClient<Database>;
 export type AuditAction =
   | "admin.action_failed"
   | "payment.confirmed"
+  | "payment.confirmed_by_customer"
   | "provider.created"
   | "provider.price_updated"
   | "provider.status_updated"

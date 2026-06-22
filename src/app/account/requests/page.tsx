@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarDays, CircleDollarSign, MapPin, ReceiptText, UserRound, WalletCards } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
@@ -14,7 +15,12 @@ import {
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { getBudgetTagLabel } from "@/services/matching/budget";
-import { getPaymentPreferenceLabel } from "@/services/payments";
+import {
+  getPaymentPreferenceLabel,
+  getPaymentRecordsByRequestIds,
+  PAYMENT_STATUSES,
+  type PaymentTrackingRecord,
+} from "@/services/payments";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +56,7 @@ type AccountServiceRequest = {
   id: string;
   offered_price: number | string | null;
   payment_preference: string | null;
+  payment: PaymentTrackingRecord | null;
   service_categories: RequestRelation | RequestRelation[] | null;
   status: string;
   urgency_type: string | null;
@@ -158,9 +165,21 @@ async function getUserRequests(
     };
   }
 
+  const requests = (data ?? []) as unknown as Omit<
+    AccountServiceRequest,
+    "payment"
+  >[];
+  const paymentRecords = await getPaymentRecordsByRequestIds(
+    supabase,
+    requests.map((request) => request.id),
+  );
+
   return {
     errorMessage: null,
-    requests: (data ?? []) as unknown as AccountServiceRequest[],
+    requests: requests.map((request) => ({
+      ...request,
+      payment: paymentRecords.get(request.id) ?? null,
+    })),
   };
 }
 
@@ -197,6 +216,9 @@ function RequestCard({
   const district = getRelationName(request.districts) || "İlçe bekleniyor";
   const isEmergency = request.urgency_type === "emergency";
   const assignedProviderName = getAssignedProviderName(request.assigned_provider);
+  const isCompleted =
+    normalizeServiceRequestStatus(request.status) ===
+    SERVICE_REQUEST_STATUSES.completed;
 
   return (
     <article
@@ -252,6 +274,21 @@ function RequestCard({
         <p className="mt-4 inline-flex rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
           Kod: {request.confirmation_code}
         </p>
+      ) : null}
+
+      {isCompleted && request.payment ? (
+        <div className="mt-5 border-t border-[var(--border)] pt-5">
+          <p className="mb-3 text-xs font-bold uppercase text-[var(--muted)]">
+            {request.payment.status === PAYMENT_STATUSES.confirmed
+              ? "Ödeme kaydı tamamlandı"
+              : `${getPaymentPreferenceLabel(request.payment.paymentMethod)} ödeme onayı bekliyor`}
+          </p>
+          <PaymentConfirmationButton
+            paymentMethod={request.payment.paymentMethod}
+            requestId={request.id}
+            status={request.payment.status}
+          />
+        </div>
       ) : null}
     </article>
   );

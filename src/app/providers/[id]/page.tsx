@@ -31,6 +31,7 @@ import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderReviews } from "@/services/reviews";
+import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
 export const dynamic = "force-dynamic";
 
@@ -134,9 +135,10 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     return <ProviderNotFoundState />;
   }
 
-  const [providers, reviewData] = await Promise.all([
+  const [providers, reviewData, authenticatedUserId] = await Promise.all([
     getProvidersByCategory(provider.category),
     getProviderReviews(provider.id),
+    getAuthenticatedServerUserId(),
   ]);
   const relatedProviders = providers
     .filter(
@@ -312,6 +314,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           </section>
 
           <ProviderReviews
+            isAuthenticated={Boolean(authenticatedUserId)}
+            providerId={provider.id}
             reviews={reviewData.reviews}
             source={reviewData.source}
             summary={reviewData.summary}

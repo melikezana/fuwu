@@ -1,9 +1,7 @@
-"use client";
-
-import { MessageSquareText, PenLine, Star } from "lucide-react";
-import { useState } from "react";
+import { MessageSquareText, Star } from "lucide-react";
+import { ReviewForm } from "@/components/providers/ReviewForm";
 import { Button } from "@/components/ui/Button";
-import { getSession } from "@/services/auth";
+import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import type {
   ProviderReview,
   ProviderReviewSource,
@@ -11,6 +9,8 @@ import type {
 } from "@/services/reviews";
 
 type ProviderReviewsProps = {
+  isAuthenticated: boolean;
+  providerId: string;
   reviews: ProviderReview[];
   source: ProviderReviewSource;
   summary: ProviderReviewSummary;
@@ -41,7 +41,10 @@ function RatingStars({ rating }: { rating: number }) {
   const filledStars = Math.round(rating);
 
   return (
-    <span className="inline-flex items-center gap-1" aria-label={`${formatRating(rating)} puan`}>
+    <span
+      aria-label={`${formatRating(rating)} puan`}
+      className="inline-flex items-center gap-1"
+    >
       {Array.from({ length: 5 }, (_, index) => (
         <Star
           aria-hidden="true"
@@ -57,32 +60,18 @@ function RatingStars({ rating }: { rating: number }) {
   );
 }
 
-export function ProviderReviews({ reviews, source, summary }: ProviderReviewsProps) {
-  const [notice, setNotice] = useState<string | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(false);
-
-  async function handleWriteReviewClick() {
-    setIsCheckingSession(true);
-    setNotice(null);
-
-    try {
-      const session = await getSession();
-
-      if (!session) {
-        setNotice("Yorum yazmak için giriş yapmalısın.");
-        return;
-      }
-
-      setNotice("Yorum yazma alanı yakında açılacak.");
-    } catch {
-      setNotice("Yorum yazmak için giriş yapmalısın.");
-    } finally {
-      setIsCheckingSession(false);
-    }
-  }
-
+export function ProviderReviews({
+  isAuthenticated,
+  providerId,
+  reviews,
+  source,
+  summary,
+}: ProviderReviewsProps) {
   return (
-    <section className="cursor-default select-none rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6">
+    <section
+      className="scroll-mt-24 rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+      id="reviews"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
@@ -92,24 +81,21 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
             Müşteri değerlendirmeleri
           </h2>
         </div>
-        <Button
-          className="w-full sm:w-fit"
-          disabled={isCheckingSession}
-          onClick={handleWriteReviewClick}
-          type="button"
-        >
-          <PenLine aria-hidden="true" className="mr-2 size-4 shrink-0" />
-          {isCheckingSession ? "Kontrol ediliyor" : "Yorum yaz"}
-        </Button>
+        {!isAuthenticated ? (
+          <Button
+            className="w-full sm:w-fit"
+            href={buildLoginRedirectUrl(`/providers/${providerId}#reviews`)}
+            variant="secondary"
+          >
+            Yorum yazmak için giriş yap
+          </Button>
+        ) : null}
       </div>
 
-      {notice ? (
-        <p
-          className="mt-4 rounded-md bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]"
-          role="status"
-        >
-          {notice}
-        </p>
+      {isAuthenticated ? (
+        <div className="mt-5">
+          <ReviewForm providerId={providerId} />
+        </div>
       ) : null}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
@@ -145,7 +131,10 @@ export function ProviderReviews({ reviews, source, summary }: ProviderReviewsPro
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--brand-navy)] text-white">
-                      <MessageSquareText aria-hidden="true" className="size-4" />
+                      <MessageSquareText
+                        aria-hidden="true"
+                        className="size-4"
+                      />
                     </span>
                     <div>
                       <p className="text-sm font-bold text-[var(--brand-navy)]">
