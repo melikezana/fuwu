@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+fuwu/
 
 # next.js
 .next/
