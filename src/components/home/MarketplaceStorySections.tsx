@@ -31,7 +31,7 @@ export function MarketplaceHowItWorksSection() {
 
   return (
     <section className="border-y border-[var(--border)] bg-[#FAFAFA]" id="how-it-works">
-      <Container className="py-12 sm:py-16">
+      <Container className="max-w-7xl py-14 sm:py-16">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-[var(--brand-navy)] sm:text-3xl">
             Fuwu ile Hızlı Eşleş
@@ -77,7 +77,7 @@ export function MarketplaceHowItWorksSection() {
 export function MarketplaceAboutSection() {
   return (
     <section className="border-y border-[var(--border)] bg-white" id="about">
-      <Container className="py-9 sm:py-14 lg:py-16">
+      <Container className="max-w-7xl py-12 sm:py-14 lg:py-16">
         <div className="grid gap-5 lg:grid-cols-[0.45fr_1fr] lg:items-start">
           <div className="cursor-default select-none">
             <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
@@ -120,7 +120,7 @@ export function MarketplaceTrustSection() {
 
   return (
     <section className="bg-[#F7F7F8]" id="trust">
-      <Container className="py-9 sm:py-14 lg:py-16">
+      <Container className="max-w-7xl py-12 sm:py-14 lg:py-16">
         <SectionHeading
           description="Karar vermeden önce profil güven sinyallerini, iletişim seçeneklerini ve hizmet kapsamını tek yerde gör."
           eyebrow="Güven"
@@ -152,7 +152,7 @@ export function MarketplaceTrustSection() {
 export function MarketplaceFinalCTASection() {
   return (
     <section className="border-t border-[var(--border)] bg-white">
-      <Container className="py-9 sm:py-14 lg:py-16">
+      <Container className="max-w-7xl py-12 sm:py-14 lg:py-16">
         <div className="cursor-default select-none">
           <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
             <I18nText i18nKey="home.final.eyebrow" />

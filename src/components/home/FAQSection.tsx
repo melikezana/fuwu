@@ -51,7 +51,7 @@ export function FAQSection() {
 
   return (
     <section className="border-y border-[var(--border)] bg-[var(--background)]" id="faq">
-      <Container className="py-8 sm:py-10 lg:py-12">
+      <Container className="max-w-7xl py-10 sm:py-12 lg:py-14">
         <div className="grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-8">
           <div className="min-w-0">
             <SectionIntro

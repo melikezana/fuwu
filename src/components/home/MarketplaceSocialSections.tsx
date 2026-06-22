@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
+  ArrowUpRight,
   CheckCircle2,
   MapPin,
   Users,
@@ -48,26 +50,31 @@ function formatStatValue(value: number) {
 
 export function MarketplaceSocialProofSection({ metrics }: { metrics: MarketplaceTrustMetrics }) {
   const stats: Array<{
+    href: string;
     icon: LucideIcon;
     label: string;
     value: number;
   }> = [
     {
+      href: appRoutes.providers,
       icon: Users,
       label: "Aktif Usta",
       value: metrics.activeProviders,
     },
     {
+      href: appRoutes.services,
       icon: Wrench,
       label: "Hizmet Kategorisi",
       value: metrics.serviceCategories,
     },
     {
+      href: appRoutes.providers,
       icon: MapPin,
       label: "İstanbul İlçesi",
       value: metrics.districts,
     },
     {
+      href: "/account/requests",
       icon: CheckCircle2,
       label: "Tamamlanan Talep",
       value: metrics.completedRequests,
@@ -76,20 +83,22 @@ export function MarketplaceSocialProofSection({ metrics }: { metrics: Marketplac
 
   return (
     <section className="border-b border-[var(--border)] bg-white" id="social-proof">
-      <Container className="py-7 sm:py-9">
+      <Container className="max-w-7xl py-8 sm:py-10">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
 
             return (
-              <div
-                className="flex min-w-0 items-center gap-3 rounded-lg border border-[rgba(13,20,36,0.08)] bg-[#FAFAFA] p-4"
+              <Link
+                aria-label={`${stat.label} detaylarını görüntüle`}
+                className="group flex min-w-0 items-center gap-3 rounded-xl border border-[rgba(13,20,36,0.08)] bg-[#FAFAFA] p-4 shadow-[var(--shadow-subtle)] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(255,138,0,0.34)] hover:bg-white hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                href={stat.href}
                 key={stat.label}
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.15)] transition-colors group-hover:bg-[var(--brand-orange)] group-hover:text-white">
                   <Icon aria-hidden="true" className="size-5" />
                 </span>
-                <span className="min-w-0">
+                <span className="min-w-0 flex-1">
                   <span className="block text-2xl font-bold leading-none text-[var(--brand-navy)]">
                     {formatStatValue(stat.value)}
                   </span>
@@ -97,7 +106,13 @@ export function MarketplaceSocialProofSection({ metrics }: { metrics: Marketplac
                     {stat.label}
                   </span>
                 </span>
-              </div>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-orange-dark)] transition-all group-hover:border-[var(--brand-orange)] group-hover:bg-[var(--brand-orange-soft)]">
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </span>
+              </Link>
             );
           })}
         </div>
@@ -107,9 +122,16 @@ export function MarketplaceSocialProofSection({ metrics }: { metrics: Marketplac
 }
 
 export function MarketplaceProviderPreviewSection({ featuredProviders }: { featuredProviders: Provider[] }) {
+  const providerGridClassName =
+    featuredProviders.length === 1
+      ? "mx-auto max-w-2xl"
+      : featuredProviders.length === 2
+        ? "mx-auto max-w-5xl md:grid-cols-2"
+        : "md:grid-cols-2 xl:grid-cols-3";
+
   return (
     <section className="bg-[var(--background)]" id="providers-preview">
-      <Container className="py-12 sm:py-14 lg:py-16">
+      <Container className="max-w-7xl py-14 sm:py-16 lg:py-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             description={<I18nText i18nKey="home.providers.description" />}
@@ -124,7 +146,7 @@ export function MarketplaceProviderPreviewSection({ featuredProviders }: { featu
           </TextLink>
         </div>
         {featuredProviders.length > 0 ? (
-          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className={`mt-8 grid auto-rows-fr gap-5 ${providerGridClassName}`}>
             {featuredProviders.map((provider, index) => (
               <ProviderCard
                 actionsId={index === 0 ? "provider-contact-actions" : undefined}

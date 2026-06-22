@@ -113,7 +113,7 @@ function ServiceCard({ service }: { service: Service }) {
 export function MarketplaceServicesSection() {
   return (
     <section className="bg-[#FAFAFA]" id="services">
-      <Container className="py-12 sm:py-16 lg:py-20">
+      <Container className="max-w-7xl py-14 sm:py-16 lg:py-20">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl cursor-default select-none">
             <p className="text-sm font-bold uppercase text-[var(--brand-orange-dark)]">
@@ -143,7 +143,7 @@ export function MarketplaceServicesSection() {
           </div>
         </div>
 
-        <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:gap-5">
+        <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {serviceCategories.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}

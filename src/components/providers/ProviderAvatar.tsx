@@ -19,7 +19,7 @@ export function ProviderAvatar({
   variant = "card",
 }: ProviderAvatarProps) {
   const isProfileVariant = variant === "profile";
-  const sizeClassName = isProfileVariant ? "h-24 w-24 sm:h-28 sm:w-28" : "size-14";
+  const sizeClassName = isProfileVariant ? "h-24 w-24 sm:h-28 sm:w-28" : "size-16";
   const iconClassName = isProfileVariant ? "size-9" : "size-6";
 
   return (
@@ -42,7 +42,7 @@ export function ProviderAvatar({
           alt={`${provider.name} profil görseli`}
           className="object-cover"
           fill
-          sizes={isProfileVariant ? "(min-width: 640px) 112px, 96px" : "56px"}
+          sizes={isProfileVariant ? "(min-width: 640px) 112px, 96px" : "64px"}
           src={provider.profileImageUrl}
         />
       ) : isProfileVariant ? (
