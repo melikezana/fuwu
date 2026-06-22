@@ -7,12 +7,17 @@ import type { Provider } from "@/types/provider";
 import { ProviderCard } from "./ProviderCard";
 
 type ProviderListProps = {
+  categoryDistrictEmptyState?: {
+    requestHref: string;
+    title: string;
+  };
   hasActiveFilters?: boolean;
   providers: Provider[];
   totalCount: number;
 };
 
 export function ProviderList({
+  categoryDistrictEmptyState,
   hasActiveFilters = false,
   providers,
   totalCount,
@@ -45,6 +50,27 @@ export function ProviderList({
           {providers.map((provider) => (
             <ProviderCard key={provider.id} provider={provider} />
           ))}
+        </div>
+      ) : categoryDistrictEmptyState ? (
+        <div
+          className="mt-6 rounded-lg border border-[rgba(255,138,0,0.28)] bg-[var(--surface)] p-6 text-center shadow-[var(--shadow-card)]"
+          data-testid="provider-category-district-empty-state"
+        >
+          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-base font-semibold text-[var(--brand-orange-dark)]">
+            0
+          </div>
+          <p className="text-lg font-semibold text-[var(--brand-navy)]">
+            {categoryDistrictEmptyState.title}
+          </p>
+          <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
+            Talebini bırak, bölgeye uygun usta bulunduğunda süreç hemen başlasın.
+          </p>
+          <Button
+            className="mt-5 w-full sm:w-fit"
+            href={categoryDistrictEmptyState.requestHref}
+          >
+            Talep Oluştur
+          </Button>
         </div>
       ) : (
         <div className="mt-6 cursor-default rounded-lg bg-white p-6 text-center shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">

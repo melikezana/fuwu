@@ -9,6 +9,7 @@ import {
   providerCategories,
   providerDistricts,
 } from "@/lib/constants/providers";
+import { normalizeServiceValue } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { trackFilterUsed } from "@/services/analytics";
@@ -103,6 +104,12 @@ export function ProviderFilters({
   districts = providerDistricts,
 }: ProviderFiltersProps) {
   const { t } = useI18n();
+  const selectedCategory =
+    categories.find(
+      (category) =>
+        normalizeServiceValue(category) ===
+        normalizeServiceValue(values?.category ?? ""),
+    ) ?? values?.category ?? "";
   const hasActiveFilters = Boolean(
     values?.category ||
       values?.district ||
@@ -159,7 +166,7 @@ export function ProviderFilters({
         <FilterField label={t("filters.service")}>
           <select
             className={selectedSelectClassName(Boolean(values?.category))}
-            defaultValue={values?.category ?? ""}
+            defaultValue={selectedCategory}
             name="category"
           >
             <option value="">{t("filters.allCategories")}</option>

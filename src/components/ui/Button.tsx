@@ -2,7 +2,13 @@ import Link from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "light" | "premium";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "light"
+  | "premium"
+  | "plain";
 
 type BaseButtonProps = {
   children: ReactNode;
@@ -33,6 +39,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-white text-[var(--brand-navy)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-elevated)]",
   premium:
     "bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] ring-1 ring-[rgba(255,138,0,0.42)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
+  plain: "",
 };
 
 export function Button({
@@ -42,7 +49,9 @@ export function Button({
   ...props
 }: ButtonProps) {
   const buttonClassName = cn(
-    "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center justify-center rounded-md px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-all duration-200 active:scale-[0.98] active:translate-y-px focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
+    variant === "plain"
+      ? ""
+      : "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center justify-center rounded-md px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-all duration-200 active:scale-[0.98] active:translate-y-px focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
     variantClasses[variant],
     className,
   );

@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { expectAuthenticated, loginWithPhoneOtp, skipUnlessLocalSupabase } from "./helpers";
+import { expectAuthenticated, loginWithEmailMagicLink, skipUnlessLocalSupabase } from "./helpers";
 
 test.describe("auth flow", () => {
-  test("phone OTP login creates a session", async ({ page }) => {
+  test("email magic-link login creates a session", async ({ page }) => {
     skipUnlessLocalSupabase();
 
-    await loginWithPhoneOtp(page);
+    await loginWithEmailMagicLink(page);
     await expectAuthenticated(page);
     await expect(page.getByTestId("login-options")).toBeHidden({ timeout: 15_000 });
   });

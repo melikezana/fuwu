@@ -7,6 +7,7 @@ import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
+import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getServiceIconNameForCategory } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
@@ -69,13 +70,14 @@ export function ProviderCard({ provider, actionsId, className }: ProviderCardPro
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <Link
+              <Button
                 className="block min-w-0 truncate text-lg font-semibold text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange)]"
                 href={profileHref}
                 id={`provider-${provider.id}-title`}
+                variant="plain"
               >
                 {provider.name || "İsimsiz Usta"}
-              </Link>
+              </Button>
               <p className="mt-1 truncate text-xs font-medium text-[var(--muted)]">
                 {provider.category}
               </p>

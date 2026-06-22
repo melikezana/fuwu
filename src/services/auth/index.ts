@@ -33,6 +33,17 @@ function warnAuthError(message: string, error: unknown) {
   });
 }
 
+function isMissingAuthSession(error: unknown) {
+  const candidate = error as { code?: string; message?: string; name?: string } | null;
+
+  return Boolean(
+    candidate &&
+      (candidate.name === "AuthSessionMissingError" ||
+        candidate.code === "session_not_found" ||
+        candidate.message?.toLocaleLowerCase("en").includes("auth session missing")),
+  );
+}
+
 function getAuthClient() {
   const supabase = createSupabaseBrowserClient();
 
@@ -71,6 +82,10 @@ async function getCurrentUserForClient(
   } = await supabase.auth.getUser();
 
   if (error) {
+    if (isMissingAuthSession(error)) {
+      return null;
+    }
+
     warnAuthError("Supabase current user check failed.", error);
     return null;
   }

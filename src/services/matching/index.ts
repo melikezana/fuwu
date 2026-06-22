@@ -6,7 +6,6 @@ import { sanitizeText } from "@/lib/validations";
 import { logInfo, logWarn } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils";
-import { notifyNewServiceRequestMatch } from "@/services/notifications";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { getProviders } from "@/services/providers";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
@@ -689,20 +688,6 @@ export async function getNearbyEligibleProviders(input: MatchInput, limit = 12) 
   return rankMatchedProviders(Array.from(providersById.values()), query).slice(0, limit);
 }
 
-type EligibleProviderNotificationRecord = Pick<
-  Database["public"]["Tables"]["providers"]["Row"],
-  | "district_id"
-  | "id"
-  | "identity_verified"
-  | "is_verified"
-  | "phone_verified"
-  | "profile_completion_score"
-  | "rating"
-  | "user_id"
->;
-
-const MAX_PROVIDER_MATCH_NOTIFICATIONS = 50;
-
 export type MatchAndNotifyEligibleProvidersInput = {
   categoryId: string;
   districtId: string;
@@ -746,46 +731,15 @@ export async function matchAndNotifyEligibleProviders(
     return 0;
   }
 
-  const [
+  const { data, error } = await supabase.rpc(
+    "notify_eligible_providers_for_request",
     {
-      data: { user },
-      error: authError,
+      p_request_id: normalizedRequestId,
     },
-    { data, error },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("providers")
-      .select(
-        "id, user_id, district_id, is_verified, identity_verified, phone_verified, profile_completion_score, rating",
-      )
-      .eq("category_id", normalizedCategoryId)
-      .eq("district_id", normalizedDistrictId)
-      .eq("is_active", true)
-      .eq("is_approved", true)
-      .not("user_id", "is", null)
-      .order("is_verified", { ascending: false })
-      .order("identity_verified", { ascending: false })
-      .order("phone_verified", { ascending: false })
-      .order("profile_completion_score", {
-        ascending: false,
-        nullsFirst: false,
-      })
-      .order("rating", { ascending: false })
-      .order("id", { ascending: true })
-      .limit(MAX_PROVIDER_MATCH_NOTIFICATIONS),
-  ]);
-
-  if (authError || !user) {
-    logWarn("Provider match notification actor lookup failed.", {
-      durationMs: Date.now() - startedAt,
-      requestId: normalizedRequestId,
-    });
-    return 0;
-  }
+  );
 
   if (error) {
-    logWarn("Eligible provider match query failed.", {
+    logWarn("Provider match notification RPC failed.", {
       categoryId: normalizedCategoryId,
       districtId: normalizedDistrictId,
       durationMs: Date.now() - startedAt,
@@ -800,28 +754,12 @@ export async function matchAndNotifyEligibleProviders(
     return 0;
   }
 
-  const providers = ((data ?? []) as EligibleProviderNotificationRecord[]).filter(
-    (provider): provider is EligibleProviderNotificationRecord & { user_id: string } =>
-      Boolean(provider.user_id),
-  );
-  const insertedNotificationCount = await notifyNewServiceRequestMatch({
-    actorUserId: user.id,
-    categoryId: normalizedCategoryId,
-    districtId: normalizedDistrictId,
-    providers: providers.map((provider) => ({
-      providerId: provider.id,
-      providerUserId: provider.user_id,
-    })),
-    requestId: normalizedRequestId,
-    supabaseClient: supabase,
-    urgencyType,
-  });
+  const insertedNotificationCount =
+    typeof data === "number" && Number.isFinite(data) ? data : 0;
 
   logInfo("Provider matching and notification fan-out completed.", {
     durationMs: Date.now() - startedAt,
-    eligibleProviderCount: providers.length,
     insertedNotificationCount,
-    providerLimit: MAX_PROVIDER_MATCH_NOTIFICATIONS,
     requestId: normalizedRequestId,
   });
 

@@ -3,15 +3,26 @@ export type SecurityHeader = {
   value: string;
 };
 
+const localSupabaseHttpSources =
+  process.env.NODE_ENV === "production"
+    ? ""
+    : " http://127.0.0.1:54321 http://localhost:54321";
+const localSupabaseConnectSources =
+  process.env.NODE_ENV === "production"
+    ? ""
+    : `${localSupabaseHttpSources} ws://127.0.0.1:54321 ws://localhost:54321`;
+const developmentEvalSource =
+  process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+
 const contentSecurityPolicyDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${developmentEvalSource}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${localSupabaseHttpSources}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${localSupabaseConnectSources}`,
   "form-action 'self' https://*.supabase.co https://accounts.google.com",
   "frame-src 'self' https://*.supabase.co https://accounts.google.com",
   "frame-ancestors 'none'",

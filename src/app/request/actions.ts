@@ -11,6 +11,7 @@ import {
   errorCodes,
   getPublicErrorMessage,
   handleServiceError,
+  ValidationError,
 } from "@/lib/errors";
 import { getServerAuthContext } from "@/services/auth/server";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
@@ -43,10 +44,13 @@ function createActionSuccess(data: ServiceRequestSubmitResult): ServiceRequestAc
 }
 
 function createActionFailure(error: unknown, fallbackMessage: string): ServiceRequestActionResult {
-  const appError = handleServiceError(error, {
-    logContext: "Service request action failed.",
-    publicMessage: fallbackMessage,
-  });
+  const appError =
+    error instanceof AuthError || error instanceof ValidationError
+      ? error
+      : handleServiceError(error, {
+          logContext: "Service request action failed.",
+          publicMessage: fallbackMessage,
+        });
 
   const errorCode: ServiceRequestActionErrorCode =
     appError instanceof AuthError || appError.code === errorCodes.auth

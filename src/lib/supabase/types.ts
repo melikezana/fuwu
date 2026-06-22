@@ -759,6 +759,12 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      notify_eligible_providers_for_request: {
+        Args: {
+          p_request_id: string;
+        };
+        Returns: number;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

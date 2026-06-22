@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   checkFirstInputByValue,
   fillStandardLocksmithRequest,
-  loginWithPhoneOtp,
+  loginWithEmailMagicLink,
   skipUnlessLocalSupabase,
   uniqueE2EValue,
 } from "./helpers";
@@ -93,7 +93,7 @@ test.describe("auth-required form restoration", () => {
         }),
       );
     });
-    await loginWithPhoneOtp(page);
+    await loginWithEmailMagicLink(page);
     await page.goto("/request");
 
     await expect(page.getByText("Bilgileriniz korundu, devam edebilirsiniz.")).toBeVisible();

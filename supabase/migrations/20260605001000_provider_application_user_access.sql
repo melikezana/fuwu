@@ -7,6 +7,24 @@ alter table public.provider_applications
 create index if not exists provider_applications_user_id_idx
   on public.provider_applications (user_id);
 
+-- Admin policies below predate the comprehensive hardening migration that
+-- redefines this helper. Define it here as well so a clean migration chain
+-- never references a function that does not exist yet.
+create or replace function public.current_user_is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, auth
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'admin'
+  );
+$$;
+
 drop policy if exists "Anyone can insert provider applications" on public.provider_applications;
 drop policy if exists "Admins have full access to applications" on public.provider_applications;
 drop policy if exists provider_applications_insert_public_pending on public.provider_applications;

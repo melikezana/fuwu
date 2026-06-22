@@ -1,4 +1,4 @@
-name: E2E
+name: Launch verification
 
 on:
   pull_request:
@@ -7,8 +7,10 @@ on:
       - main
 
 jobs:
-  backend-check:
+  local-supabase-e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,43 +23,39 @@ jobs:
 
       - run: npm ci
 
-      - run: supabase start
+      - name: Start and reset local Supabase
+        run: |
+          supabase start
+          supabase db reset
+          supabase stop
+          supabase start
 
-      - name: Export local Supabase env
+      - name: Export local Supabase environment
         shell: bash
         run: |
-          supabase status -o env > supabase.env
-          echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
-          echo "SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' supabase.env | cut -d= -f2-)" >> "$GITHUB_ENV"
-
-      - run: supabase db reset
+          eval "$(supabase status -o env)"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "E2E_ALLOW_REMOTE_SUPABASE_TESTS=false" >> "$GITHUB_ENV"
+          echo "E2E_MAILPIT_URL=http://127.0.0.1:54324" >> "$GITHUB_ENV"
 
       - run: npm run check:backend:db
-
-  playwright:
-    runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
-      E2E_CUSTOMER_PHONE: ${{ secrets.E2E_CUSTOMER_PHONE }}
-      E2E_CUSTOMER_OTP: ${{ secrets.E2E_CUSTOMER_OTP }}
-      E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
-      E2E_ALLOW_REMOTE_SUPABASE_TESTS: "true"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - run: npx playwright install --with-deps chromium
 
       - run: npm run lint
 
       - run: npm run build
 
+      - run: npx playwright install --with-deps chromium
+
       - run: npm run test:e2e
+
+      - name: Upload Playwright evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
