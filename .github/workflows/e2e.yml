@@ -6,39 +6,62 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   local-supabase-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2
+        with:
+          version: 2.107.0
+          github-token: ${{ github.token }}
 
       - run: npm ci
 
-      - name: Start and reset local Supabase
-        run: |
-          supabase start
-          supabase db reset
-          supabase stop
-          supabase start
-
-      - name: Export local Supabase environment
+      - name: Start Supabase, reset database, and export environment
         shell: bash
         run: |
-          eval "$(supabase status -o env)"
-          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
-          echo "E2E_ALLOW_REMOTE_SUPABASE_TESTS=false" >> "$GITHUB_ENV"
-          echo "E2E_MAILPIT_URL=http://127.0.0.1:54324" >> "$GITHUB_ENV"
+          set -euo pipefail
+
+          supabase start -o env > .env.local.tmp
+          supabase db reset
+
+          set -a
+          source .env.local.tmp
+          set +a
+
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_SUPABASE_URL=$API_URL
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY
+          SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY
+          E2E_ALLOW_REMOTE_SUPABASE_TESTS=false
+          E2E_MAILPIT_URL=http://127.0.0.1:54324
+          UPSTASH_REDIS_REST_URL=
+          UPSTASH_REDIS_REST_TOKEN=
+          EOF
+
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "E2E_ALLOW_REMOTE_SUPABASE_TESTS=false"
+            echo "E2E_MAILPIT_URL=http://127.0.0.1:54324"
+          } >> "$GITHUB_ENV"
+
+          rm .env.local.tmp
 
       - run: npm run check:backend:db
 
@@ -48,14 +71,54 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - run: npm run test:e2e
+      - name: Run 15 Playwright launch tests
+        shell: bash
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+          PLAYWRIGHT_SKIP_WEBSERVER: "true"
+        run: |
+          set -euo pipefail
+
+          npm run dev -- --hostname 127.0.0.1 --port 3000 > .next-ci.log 2>&1 &
+          dev_server_pid=$!
+
+          cleanup() {
+            kill "$dev_server_pid" 2>/dev/null || true
+            wait "$dev_server_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          for attempt in {1..60}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/ > /dev/null; then
+              break
+            fi
+
+            if ! kill -0 "$dev_server_pid" 2>/dev/null; then
+              cat .next-ci.log
+              exit 1
+            fi
+
+            if [[ "$attempt" == "60" ]]; then
+              cat .next-ci.log
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          npx playwright test --reporter=github
 
       - name: Upload Playwright evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
+            .next-ci.log
             playwright-report/
             test-results/
           if-no-files-found: ignore
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup

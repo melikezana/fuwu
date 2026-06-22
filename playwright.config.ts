@@ -28,6 +28,10 @@ const testEnv = {
   ...loadEnvFile(".env.test"),
 };
 const port = process.env.PORT ?? "3000";
+const baseURL =
+  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
+const shouldStartWebServer =
+  process.env.PLAYWRIGHT_SKIP_WEBSERVER !== "true";
 
 Object.entries(testEnv).forEach(([key, value]) => {
   process.env[key] ??= value;
@@ -48,22 +52,24 @@ export default defineConfig({
   timeout: 60_000,
   workers: 1,
   use: {
-    baseURL: `http://localhost:${port}`,
+    baseURL,
     trace: "on-first-retry",
   },
-  webServer: {
-    command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
-    env: {
-      ...testEnv,
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
-      NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
-      NODE_ENV: "test",
-      PORT: port,
-    },
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    url: `http://127.0.0.1:${port}`,
-  },
+  webServer: shouldStartWebServer
+    ? {
+        command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
+        env: {
+          ...testEnv,
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
+          NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
+          NODE_ENV: "test",
+          PORT: port,
+        },
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+        url: `http://127.0.0.1:${port}`,
+      }
+    : undefined,
   projects: [
     {
       name: "chromium",

@@ -3,7 +3,12 @@ import { join } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 const root = process.cwd();
-const safeEmailFragment = "+launchtest@";
+const defaultEmailPattern = "+launchtest@";
+const safeEmailPatterns = new Map([
+  ["+launchtest@", "+launchtest@"],
+  ["+smoketest", "smoketest+"],
+  ["smoketest+", "smoketest+"],
+]);
 
 function loadEnvFile(fileName) {
   const path = join(root, fileName);
@@ -34,7 +39,27 @@ function getRequiredEnv(name) {
   return value;
 }
 
-async function listLaunchTestUsers(supabase) {
+function getSafeEmailPattern() {
+  const patternArgument = process.argv.find((argument) =>
+    argument.startsWith("--pattern="),
+  );
+  const requestedPattern = (
+    patternArgument?.slice("--pattern=".length) || defaultEmailPattern
+  ).toLocaleLowerCase("en-US");
+  const normalizedPattern = safeEmailPatterns.get(requestedPattern);
+
+  if (!normalizedPattern) {
+    throw new Error(
+      `Unsafe cleanup pattern "${requestedPattern}". Allowed patterns: ${[
+        ...safeEmailPatterns.keys(),
+      ].join(", ")}.`,
+    );
+  }
+
+  return normalizedPattern;
+}
+
+async function listLaunchTestUsers(supabase, safeEmailPattern) {
   const users = [];
   let page = 1;
 
@@ -50,7 +75,7 @@ async function listLaunchTestUsers(supabase) {
 
     users.push(
       ...data.users.filter((user) =>
-        user.email?.toLocaleLowerCase("en-US").includes(safeEmailFragment),
+        user.email?.toLocaleLowerCase("en-US").includes(safeEmailPattern),
       ),
     );
 
@@ -67,10 +92,11 @@ async function listLaunchTestUsers(supabase) {
 async function main() {
   loadEnvFile(".env.local");
   loadEnvFile(".env");
+  const safeEmailPattern = getSafeEmailPattern();
 
   if (!process.argv.includes("--confirm")) {
     throw new Error(
-      "Refusing cleanup without --confirm. Only emails containing +launchtest@ are eligible.",
+      `Refusing cleanup without --confirm. Only emails containing ${safeEmailPattern} are eligible.`,
     );
   }
 
@@ -85,11 +111,11 @@ async function main() {
       persistSession: false,
     },
   });
-  const users = await listLaunchTestUsers(supabase);
+  const users = await listLaunchTestUsers(supabase, safeEmailPattern);
   const userIds = users.map((user) => user.id);
 
   if (userIds.length === 0) {
-    console.log("No +launchtest@ users found; nothing was deleted.");
+    console.log(`No ${safeEmailPattern} users found; nothing was deleted.`);
     return;
   }
 
@@ -157,7 +183,9 @@ async function main() {
     }
   }
 
-  console.log(`Deleted ${users.length} launch-test user(s) and scoped related records.`);
+  console.log(
+    `Deleted ${users.length} test user(s) matching ${safeEmailPattern} and scoped related records.`,
+  );
 }
 
 main().catch((error) => {
