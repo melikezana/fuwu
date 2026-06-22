@@ -36,8 +36,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          supabase start -o env > .env.local.tmp
+          supabase start
           supabase db reset
+          supabase status -o env > .env.local.tmp
 
           set -a
           source .env.local.tmp
