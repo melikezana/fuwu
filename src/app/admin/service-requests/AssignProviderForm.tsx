@@ -1,9 +1,25 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { assignServiceRequestAction } from "./actions";
 import { AdminActionButton, adminActionIcons } from "@/components/admin/AdminUI";
 import type { AdminAssignableProvider } from "@/services/admin";
+
+function AssignProviderSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <AdminActionButton
+      icon={adminActionIcons.approve}
+      tone="approve"
+      type="submit"
+      disabled={pending}
+    >
+      {pending ? "Atanıyor..." : "Ustaya Ata"}
+    </AdminActionButton>
+  );
+}
 
 export function AssignProviderForm({ 
   requestId, 
@@ -14,7 +30,6 @@ export function AssignProviderForm({
   providers: AdminAssignableProvider[];
   assignedProviderId: string | null;
 }) {
-  const [isPending, startTransition] = useTransition();
   const [selectedProviderId, setSelectedProviderId] = useState(
     assignedProviderId || "",
   );
@@ -31,17 +46,9 @@ export function AssignProviderForm({
     );
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    startTransition(() => {
-      assignServiceRequestAction(formData);
-    });
-  };
-
   return (
     <form
-      onSubmit={handleSubmit}
+      action={assignServiceRequestAction}
       className="flex w-full max-w-md flex-wrap items-center gap-2"
     >
       <input type="hidden" name="requestId" value={requestId} />
@@ -60,14 +67,7 @@ export function AssignProviderForm({
           </option>
         ))}
       </select>
-      <AdminActionButton
-        icon={adminActionIcons.approve}
-        tone="approve"
-        type="submit"
-        disabled={isPending}
-      >
-        {isPending ? "Atanıyor..." : "Ustaya Ata"}
-      </AdminActionButton>
+      <AssignProviderSubmitButton />
       {selectedProvider &&
       selectedProvider.activeAssignedRequestCount >= workloadWarningThreshold ? (
         <p className="basis-full rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-800">

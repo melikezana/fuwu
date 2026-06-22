@@ -176,8 +176,7 @@ export async function loginWithEmailMagicLink(
   expect([302, 303]).toContain(verificationResponse.status());
   expect(callbackUrl).toContain("/auth/callback");
 
-  await page.goto(callbackUrl);
-  await page.waitForLoadState("networkidle");
+  await page.goto(callbackUrl, { waitUntil: "domcontentloaded" });
   await expectAuthenticated(page);
 
   return email;
