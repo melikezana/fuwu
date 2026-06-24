@@ -91,8 +91,9 @@ function sanitizePayload(payload: AnalyticsPayload) {
 }
 
 function canTrackWithGoogleAnalytics() {
+  if (typeof window === "undefined") return false;
+  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return false;
   return (
-    typeof window !== "undefined" &&
     analyticsConfig.enabled &&
     Boolean(analyticsConfig.gaMeasurementId) &&
     typeof window.gtag === "function"
@@ -100,6 +101,9 @@ function canTrackWithGoogleAnalytics() {
 }
 
 function trackOperationalEvent(eventName: AnalyticsEventName, payload: AnalyticsPayload = {}) {
+  if (typeof window === "undefined") return;
+  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return;
+
   const safePayload = sanitizePayload(payload);
 
   if (canTrackWithGoogleAnalytics()) {
@@ -118,6 +122,9 @@ function trackOperationalEvent(eventName: AnalyticsEventName, payload: Analytics
 }
 
 export function trackPageView(payload: PageViewPayload) {
+  if (typeof window === "undefined") return;
+  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return;
+
   trackOperationalEvent(analyticsEvents.pageView, {
     path: payload.path,
     title: payload.title,

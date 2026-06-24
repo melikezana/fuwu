@@ -24,7 +24,7 @@ export const trTranslations = {
   "filters.description":
     "Hizmetini ve ilçeni seç; bütçe tercihi, puan ve uygunluğa göre profilleri daralt.",
   "filters.search": "Arama",
-  "filters.service": "Hizmet",
+  "filters.service": "Kategori",
   "filters.district": "İlçe",
   "filters.minimumPrice": "Minimum Fiyat",
   "filters.maximumPrice": "Maksimum Fiyat",

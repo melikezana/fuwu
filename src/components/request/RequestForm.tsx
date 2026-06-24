@@ -1214,7 +1214,7 @@ export function RequestForm({
 
               <div>
                 <EmergencyStepLabel step={5}>Ödeme tercihi seç</EmergencyStepLabel>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid grid-cols-2 gap-3">
                   {emergencyPaymentOptions.map((option) => {
                     const isSelected = formState.paymentPreference === option.value;
 
@@ -1278,7 +1278,7 @@ export function RequestForm({
             <>
               <div>
                 <span className={labelClassName}>Aciliyet</span>
-                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {urgencyOptions.map((option) => {
                     const isSelected = formState.urgencyLevel === option.value;
 
@@ -1323,7 +1323,7 @@ export function RequestForm({
 
               <div>
                 <span className={labelClassName}>Bütçe</span>
-                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {standardBudgetOptions.map((option) => {
                     const isSelected = formState.budgetTag === option.value;
 
@@ -1362,7 +1362,7 @@ export function RequestForm({
 
               <div>
                 <span className={labelClassName}>Ödeme yöntemi</span>
-                <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {standardPaymentOptions.map((option) => {
                     const isSelected = formState.paymentPreference === option.value;
 

@@ -814,7 +814,7 @@ export function ProviderApplicationForm({
 
           <div>
             <span className={labelClassName}>{t("providerApplication.availability")}</span>
-            <div className="mt-2 grid gap-3 lg:grid-cols-3">
+            <div className="mt-2 grid grid-cols-2 gap-3 lg:grid-cols-3">
               {availabilityOptions.map((option) => {
                 const isSelected = formState.availability === option.value;
 

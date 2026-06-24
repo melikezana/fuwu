@@ -152,7 +152,7 @@ export function ProviderCard({
 
         <ProviderTrustBadges badges={provider.trustBadges} limit={3} />
 
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3">
           <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[#FAFAFA] p-3.5">
             <span
               className={`flex size-10 shrink-0 items-center justify-center rounded-lg border ${availabilityClassName}`}
@@ -163,7 +163,7 @@ export function ProviderCard({
               <span className="block text-[0.68rem] font-bold uppercase tracking-[0.08em] text-[var(--muted)]">
                 Müsaitlik
               </span>
-              <span className="mt-1 block break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+              <span className="mt-1 block truncate text-xs sm:text-sm font-bold leading-5 text-[var(--brand-navy)]" title={provider.availabilityStatus.label}>
                 {provider.availabilityStatus.label}
               </span>
             </span>
@@ -176,12 +176,12 @@ export function ProviderCard({
               <span className="block text-[0.68rem] font-bold uppercase tracking-[0.08em] text-[var(--muted)]">
                 Yanıt süresi
               </span>
-              <span className="mt-1 block break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+              <span className="mt-1 block truncate text-xs sm:text-sm font-bold leading-5 text-[var(--brand-navy)]" title={provider.responseTime.replace(/^Ortalama cevap:\s*/i, "")}>
                 {provider.responseTime.replace(/^Ortalama cevap:\s*/i, "")}
               </span>
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[rgba(255,138,0,0.2)] bg-[var(--brand-orange-soft)] p-3.5 sm:col-span-2">
+          <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[rgba(255,138,0,0.2)] bg-[var(--brand-orange-soft)] p-3.5 col-span-2 sm:col-span-1">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand-orange-dark)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(255,138,0,0.16)]">
               <Coins className="size-4" aria-hidden="true" />
             </span>
@@ -189,7 +189,7 @@ export function ProviderCard({
               <span className="block text-[0.68rem] font-bold uppercase tracking-[0.08em] text-[var(--brand-orange-dark)]">
                 {t("providerCard.priceRange")}
               </span>
-              <span className="mt-1 block break-words text-sm font-bold leading-5 text-[var(--brand-navy)]">
+              <span className="mt-1 block truncate text-xs sm:text-sm font-bold leading-5 text-[var(--brand-navy)]" title={priceRange}>
                 {priceRange}
               </span>
             </span>

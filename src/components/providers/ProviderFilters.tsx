@@ -46,9 +46,9 @@ function FilterField({ children, label }: { children: ReactNode; label: string }
   );
 }
 
-function FilterGroup({ children, label }: { children: ReactNode; label: string }) {
+function FilterGroup({ children, label, className }: { children: ReactNode; label: string; className?: string }) {
   return (
-    <div className="block min-w-0 cursor-default">
+    <div className={cn("block min-w-0 cursor-default", className)}>
       <span className="block cursor-default select-none text-xs font-semibold uppercase leading-4 text-[var(--muted)]">
         {label}
       </span>
@@ -152,7 +152,7 @@ export function ProviderFilters({
       onSubmit={handleFilterSubmit}
     >
       {!compact ? (
-        <div className="mb-4 cursor-default select-none">
+        <div className="hidden lg:block mb-4 cursor-default select-none">
           <p className="text-lg font-semibold leading-tight text-[var(--brand-navy)]">
             Hızlı usta bul
           </p>
@@ -162,7 +162,7 @@ export function ProviderFilters({
         </div>
       ) : null}
 
-      <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(12rem,1fr)_minmax(11rem,0.9fr)_minmax(18rem,1.2fr)_minmax(8rem,auto)] lg:items-end">
+      <div className="grid min-w-0 gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-[minmax(12rem,1fr)_minmax(11rem,0.9fr)_minmax(18rem,1.2fr)_minmax(8rem,auto)] lg:items-end">
         <FilterField label={t("filters.service")}>
           <select
             className={selectedSelectClassName(Boolean(values?.category))}
@@ -193,11 +193,11 @@ export function ProviderFilters({
           </select>
         </FilterField>
 
-        <FilterGroup label="Bütçe">
+        <FilterGroup className="col-span-2 lg:col-span-1" label="Bütçe">
           <BudgetPreferenceTags selectedBudget={values?.budget} />
         </FilterGroup>
 
-        <Button className="h-12 min-h-12 w-full rounded-md px-6" type="submit">
+        <Button className="col-span-2 lg:col-span-1 h-12 min-h-12 w-full rounded-md px-6" type="submit">
           {t("cta.findProvider")}
         </Button>
       </div>

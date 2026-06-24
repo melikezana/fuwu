@@ -74,7 +74,7 @@ function HeroSearch() {
     <div className="mt-8 max-w-full rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[var(--shadow-elevated)] sm:p-4">
       <form
         action={appRoutes.request}
-        className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(9rem,auto)]"
+        className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(9rem,auto)]"
       >
         <label className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-4 py-3 focus-within:border-[var(--brand-orange)] focus-within:bg-white">
           <span className="block text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
@@ -93,7 +93,7 @@ function HeroSearch() {
           </span>
         </label>
 
-        <label className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-4 py-3 focus-within:border-[var(--brand-orange)] focus-within:bg-white">
+        <label className="hidden sm:block min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-4 py-3 focus-within:border-[var(--brand-orange)] focus-within:bg-white">
           <span className="block text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
             Konum
           </span>
@@ -110,7 +110,7 @@ function HeroSearch() {
           </span>
         </label>
 
-        <Button className="min-h-[58px] w-full whitespace-nowrap px-6" type="submit">
+        <Button className="min-h-[52px] sm:min-h-[58px] w-full whitespace-nowrap px-6" type="submit">
           {ctaLabels.request}
         </Button>
       </form>

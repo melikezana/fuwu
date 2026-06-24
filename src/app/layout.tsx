@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
+import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import "@/styles/globals.css";
 
 const inter = localFont({
@@ -81,6 +82,9 @@ export default function RootLayout({
             <Footer />
             <HelpButton />
           </div>
+          <Suspense fallback={null}>
+            <CookieConsentBanner />
+          </Suspense>
         </LocaleProvider>
       </body>
     </html>
