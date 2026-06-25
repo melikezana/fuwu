@@ -150,6 +150,35 @@ create table if not exists public.providers (
     check (btrim(phone) <> '')
 );
 
+-- Safely add missing columns to public.providers if they do not exist
+alter table public.providers
+  add column if not exists availability text not null default 'müsait',
+  add column if not exists working_hours text not null default '09:00-18:00',
+  add column if not exists is_verified boolean not null default false,
+  add column if not exists phone_verified boolean not null default false,
+  add column if not exists identity_verified boolean not null default false,
+  add column if not exists last_active_at timestamptz,
+  add column if not exists response_time_minutes integer,
+  add column if not exists profile_completion_score integer,
+  add column if not exists profile_image_url text;
+
+-- Re-apply check constraints on availability, working_hours, response_time, and profile_completion if they are missing
+alter table public.providers drop constraint if exists providers_availability_check;
+alter table public.providers add constraint providers_availability_check
+  check (availability in ('müsait', 'yoğun', 'çevrimdışı'));
+
+alter table public.providers drop constraint if exists providers_working_hours_check;
+alter table public.providers add constraint providers_working_hours_check
+  check (working_hours in ('09:00-18:00', '09:00-22:00', '7/24'));
+
+alter table public.providers drop constraint if exists providers_response_time_minutes_check;
+alter table public.providers add constraint providers_response_time_minutes_check
+  check (response_time_minutes is null or response_time_minutes between 1 and 1440);
+
+alter table public.providers drop constraint if exists providers_profile_completion_score_check;
+alter table public.providers add constraint providers_profile_completion_score_check
+  check (profile_completion_score is null or profile_completion_score between 0 and 100);
+
 comment on table public.providers is
   'Stores approved and pending Fuwu service provider profiles shown to customers.';
 
@@ -248,6 +277,74 @@ create table if not exists public.service_requests (
     check (btrim(address) <> '')
 );
 
+-- Safely add missing columns to public.service_requests if they do not exist
+alter table public.service_requests
+  add column if not exists urgency_type text not null default 'standard',
+  add column if not exists budget text,
+  add column if not exists budget_tag text,
+  add column if not exists offered_price numeric(10, 2),
+  add column if not exists payment_method text,
+  add column if not exists payment_preference text,
+  add column if not exists confirmation_code text,
+  add column if not exists estimated_arrival_text text,
+  add column if not exists approximate_location text,
+  add column if not exists emergency_status text,
+  add column if not exists preferred_date date,
+  add column if not exists preferred_time time,
+  add column if not exists assigned_provider_id uuid references public.providers(id) on delete set null,
+  add column if not exists accepted_provider_id uuid references public.providers(id) on delete set null,
+  add column if not exists accepted_at timestamptz;
+
+-- Re-apply check constraints on service_requests if they are missing
+alter table public.service_requests drop constraint if exists service_requests_urgency_check;
+alter table public.service_requests add constraint service_requests_urgency_check
+  check (urgency in ('low', 'normal', 'high', 'urgent'));
+
+alter table public.service_requests drop constraint if exists service_requests_urgency_type_check;
+alter table public.service_requests add constraint service_requests_urgency_type_check
+  check (urgency_type in ('standard', 'emergency'));
+
+alter table public.service_requests drop constraint if exists service_requests_budget_tag_check;
+alter table public.service_requests add constraint service_requests_budget_tag_check
+  check (budget_tag is null or budget_tag in ('ekonomik', 'standart', 'premium', 'acil-hizmet'));
+
+alter table public.service_requests drop constraint if exists service_requests_offered_price_check;
+alter table public.service_requests add constraint service_requests_offered_price_check
+  check (offered_price is null or offered_price >= 0);
+
+alter table public.service_requests drop constraint if exists service_requests_payment_preference_check;
+alter table public.service_requests add constraint service_requests_payment_preference_check
+  check (payment_preference is null or payment_preference in ('cash', 'iban', 'online_soon'));
+
+alter table public.service_requests drop constraint if exists service_requests_payment_method_check;
+alter table public.service_requests add constraint service_requests_payment_method_check
+  check (payment_method is null or payment_method in ('cash', 'iban', 'online_soon'));
+
+alter table public.service_requests drop constraint if exists service_requests_emergency_status_check;
+alter table public.service_requests add constraint service_requests_emergency_status_check
+  check (
+    emergency_status is null
+    or emergency_status in ('pending', 'accepted', 'rejected', 'on_the_way', 'completed', 'cancelled')
+  );
+
+alter table public.service_requests drop constraint if exists service_requests_status_check;
+alter table public.service_requests add constraint service_requests_status_check
+  check (
+    status in (
+      'yeni',
+      'inceleniyor',
+      'ustaya_yonlendirildi',
+      'tamamlandi',
+      'iptal',
+      'pending',
+      'accepted',
+      'rejected',
+      'on_the_way',
+      'completed',
+      'cancelled'
+    )
+  );
+
 comment on table public.service_requests is
   'Stores customer service requests submitted through Fuwu.';
 
@@ -323,6 +420,18 @@ create index if not exists provider_applications_phone_idx
 
 create index if not exists provider_applications_user_id_idx
   on public.provider_applications (user_id);
+
+-- Safely resolve duplicate pending provider applications before creating the unique index
+update public.provider_applications
+set status = 'rejected',
+    updated_at = timezone('utc', now())
+where status = 'pending'
+  and id not in (
+    select distinct on (phone) id
+    from public.provider_applications
+    where status = 'pending'
+    order by phone, created_at desc, id desc
+  );
 
 create unique index if not exists provider_applications_pending_phone_unique_idx
   on public.provider_applications (phone)

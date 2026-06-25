@@ -155,7 +155,7 @@ export default async function AccountPage() {
     id: authContext.user.id,
     email: authContext.user.email ?? undefined,
     full_name: authContext.profile?.full_name ?? fallbackFullName,
-    avatar_url: getMetadataString(authContext.user.user_metadata, "avatar_url"),
+    avatar_url: authContext.profile?.avatar_url ?? undefined,
     created_at: authContext.user.created_at,
   };
   const requests = await getUserRequests(authContext.supabase, authContext.user.id);

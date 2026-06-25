@@ -65,11 +65,19 @@ function createFallbackProfileFromUser(user: User): CurrentUserProfile {
         ? user.user_metadata.name
         : user.email ?? "Hesabım";
 
+  const avatarUrl =
+    typeof user.user_metadata?.avatar_url === "string"
+      ? user.user_metadata.avatar_url
+      : typeof user.user_metadata?.picture === "string"
+        ? user.user_metadata.picture
+        : null;
+
   return {
     id: user.id,
     full_name: fullName,
     phone: user.phone ?? null,
     role: "customer",
+    avatar_url: avatarUrl,
   };
 }
 

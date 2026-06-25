@@ -19,7 +19,7 @@ export type ServerAuthContext = {
   user: User | null;
 };
 
-const currentUserProfileSelect = "id, full_name, phone, role";
+const currentUserProfileSelect = "id, full_name, phone, role, avatar_url";
 
 function getMetadataString(metadata: unknown, keys: readonly string[]) {
   if (!metadata || typeof metadata !== "object") {

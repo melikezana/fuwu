@@ -34,6 +34,18 @@ with check (
 comment on policy profiles_insert_own_customer on public.profiles is
   'Authenticated users can create only their own default customer profile when an auth trigger has not created it yet.';
 
+-- Safely resolve duplicate pending provider applications before creating the unique index
+update public.provider_applications
+set status = 'rejected',
+    updated_at = timezone('utc', now())
+where status = 'pending'
+  and id not in (
+    select distinct on (phone) id
+    from public.provider_applications
+    where status = 'pending'
+    order by phone, created_at desc, id desc
+  );
+
 create unique index if not exists provider_applications_pending_phone_unique_idx
   on public.provider_applications (phone)
   where status = 'pending';

@@ -170,6 +170,18 @@ create unique index if not exists provider_applications_pending_user_unique_idx
   on public.provider_applications (user_id)
   where user_id is not null and status = 'pending';
 
+-- Safely resolve duplicate pending provider applications before creating the unique index
+update public.provider_applications
+set status = 'rejected',
+    updated_at = timezone('utc', now())
+where status = 'pending'
+  and id not in (
+    select distinct on (phone) id
+    from public.provider_applications
+    where status = 'pending'
+    order by phone, created_at desc, id desc
+  );
+
 create unique index if not exists provider_applications_pending_phone_unique_idx
   on public.provider_applications (phone)
   where phone is not null and btrim(phone) <> '' and status = 'pending';
@@ -195,8 +207,10 @@ create index if not exists audit_logs_actor_idx
 drop policy if exists profiles_select_own on public.profiles;
 drop policy if exists profiles_select_admin_all on public.profiles;
 drop policy if exists profiles_insert_own_customer on public.profiles;
+drop policy if exists profiles_insert_own on public.profiles;
 drop policy if exists profiles_update_own on public.profiles;
 drop policy if exists profiles_update_admin_roles on public.profiles;
+drop policy if exists profiles_update_admin_all on public.profiles;
 
 create policy profiles_select_own
 on public.profiles

@@ -28,6 +28,7 @@ $$;
 drop policy if exists "Anyone can insert provider applications" on public.provider_applications;
 drop policy if exists "Admins have full access to applications" on public.provider_applications;
 drop policy if exists provider_applications_insert_public_pending on public.provider_applications;
+drop policy if exists provider_applications_insert_authenticated_pending on public.provider_applications;
 drop policy if exists provider_applications_select_own on public.provider_applications;
 drop policy if exists provider_applications_select_admin_all on public.provider_applications;
 drop policy if exists provider_applications_update_admin_status on public.provider_applications;

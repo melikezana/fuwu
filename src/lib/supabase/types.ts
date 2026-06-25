@@ -18,6 +18,7 @@ export type Database = {
           role: string;
           created_at: string;
           updated_at: string;
+          avatar_url: string | null;
         };
         Insert: {
           id: string;
@@ -26,6 +27,7 @@ export type Database = {
           role?: string;
           created_at?: string;
           updated_at?: string;
+          avatar_url?: string | null;
         };
         Update: {
           id?: string;
@@ -34,6 +36,7 @@ export type Database = {
           role?: string;
           created_at?: string;
           updated_at?: string;
+          avatar_url?: string | null;
         };
         Relationships: [];
       };

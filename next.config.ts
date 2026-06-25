@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
         hostname: "**.supabase.co",
         protocol: "https",
       },
+      {
+        hostname: "lh3.googleusercontent.com",
+        protocol: "https",
+      },
       ...localSupabaseImagePatterns,
     ],
   },

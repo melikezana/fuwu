@@ -9,7 +9,7 @@ type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 type ProfileRecord = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "full_name" | "id" | "phone"
+  "full_name" | "id" | "phone" | "avatar_url"
 >;
 type SupabaseErrorRecord = {
   code?: unknown;
@@ -27,7 +27,7 @@ export type EnsureProfileDetails = {
 const profileEnsureErrorMessage =
   "Hesap bilgilerin doğrulanamadı. Lütfen tekrar giriş yap.";
 
-function getMetadataString(metadata: unknown, keys: readonly string[]) {
+function getMetadataString(metadata: unknown, keys: readonly string[], maxLength = 120) {
   if (!metadata || typeof metadata !== "object") {
     return null;
   }
@@ -38,7 +38,7 @@ function getMetadataString(metadata: unknown, keys: readonly string[]) {
     const value = record[key];
 
     if (typeof value === "string") {
-      const sanitizedValue = sanitizeText(value, 120);
+      const sanitizedValue = sanitizeText(value, maxLength);
 
       if (sanitizedValue) {
         return sanitizedValue;
@@ -88,6 +88,7 @@ function getProfileDetailsPatch(
   existingProfile: ProfileRecord,
   details: EnsureProfileDetails,
   metadataName: string | null,
+  metadataAvatar: string | null,
 ) {
   const existingFullName = sanitizeText(existingProfile.full_name ?? "", 120);
   const fullName =
@@ -108,6 +109,11 @@ function getProfileDetailsPatch(
     updatePayload.phone = phone;
   }
 
+  const existingAvatar = existingProfile.avatar_url?.trim();
+  if (!existingAvatar && metadataAvatar) {
+    updatePayload.avatar_url = metadataAvatar;
+  }
+
   return updatePayload;
 }
 
@@ -121,8 +127,9 @@ async function updateOwnProfile(
   existingProfile: ProfileRecord,
   details: EnsureProfileDetails,
   metadataName: string | null,
+  metadataAvatar: string | null,
 ) {
-  const updatePayload = getProfileDetailsPatch(existingProfile, details, metadataName);
+  const updatePayload = getProfileDetailsPatch(existingProfile, details, metadataName, metadataAvatar);
 
   if (!hasProfileUpdate(updatePayload)) {
     return;
@@ -154,9 +161,10 @@ export async function ensureProfileForUser(
   details: EnsureProfileDetails = {},
 ) {
   const metadataName = getAuthUserMetadataName(user);
+  const metadataAvatar = getMetadataString(user.user_metadata, ["avatar_url", "picture"], 500);
   const { data: existingProfile, error: lookupError } = await supabase
     .from("profiles")
-    .select("id, full_name, phone")
+    .select("id, full_name, phone, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -170,7 +178,7 @@ export async function ensureProfileForUser(
   }
 
   if (existingProfile?.id) {
-    await updateOwnProfile(supabase, user.id, existingProfile, details, metadataName);
+    await updateOwnProfile(supabase, user.id, existingProfile, details, metadataName, metadataAvatar);
     return;
   }
 
@@ -181,6 +189,7 @@ export async function ensureProfileForUser(
     id: user.id,
     phone,
     role: "customer",
+    avatar_url: metadataAvatar,
   };
 
   const { error } = await supabase.from("profiles").insert(profile);
@@ -191,7 +200,7 @@ export async function ensureProfileForUser(
     if (hasSupabaseErrorCode(error, "23505")) {
       const { data: racedProfile, error: racedLookupError } = await supabase
         .from("profiles")
-        .select("id, full_name, phone")
+        .select("id, full_name, phone, avatar_url")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -208,7 +217,7 @@ export async function ensureProfileForUser(
       }
 
       if (racedProfile?.id) {
-        await updateOwnProfile(supabase, user.id, racedProfile, details, metadataName);
+        await updateOwnProfile(supabase, user.id, racedProfile, details, metadataName, metadataAvatar);
         return;
       }
     }
@@ -217,7 +226,7 @@ export async function ensureProfileForUser(
       logContext: "Auth profile creation failed.",
       publicMessage: profileEnsureErrorMessage,
       tableName: "profiles",
-      payloadKeys: ["id", "full_name", "phone", "role"],
+      payloadKeys: ["id", "full_name", "phone", "role", "avatar_url"],
     });
   }
 

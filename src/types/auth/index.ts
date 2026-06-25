@@ -6,5 +6,5 @@ export type ProfileRole = ProfileRow["role"];
 
 export type CurrentUserProfile = Pick<
   ProfileRow,
-  "full_name" | "id" | "phone" | "role"
+  "full_name" | "id" | "phone" | "role" | "avatar_url"
 >;
