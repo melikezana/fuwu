@@ -2,12 +2,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   BadgeCheck,
+  Bell,
+  Calendar,
   ClipboardList,
   Eye,
   Inbox,
   LayoutDashboard,
   ShieldCheck,
   Star,
+  TrendingUp,
   UserRound,
   WalletCards,
   type LucideIcon,
@@ -17,7 +20,14 @@ import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
 
-type ProviderDashboardNavKey = "overview" | "profile" | "requests";
+type ProviderDashboardNavKey =
+  | "overview"
+  | "profile"
+  | "requests"
+  | "earnings"
+  | "reviews"
+  | "notifications"
+  | "calendar";
 
 type ProviderDashboardAccessReason =
   | "missing-session"
@@ -85,6 +95,30 @@ const providerNavItems: Array<{
     icon: ClipboardList,
     key: "requests",
     label: "Talepler",
+  },
+  {
+    href: appRoutes.providerDashboardEarnings,
+    icon: TrendingUp,
+    key: "earnings",
+    label: "Kazançlar",
+  },
+  {
+    href: appRoutes.providerDashboardReviews,
+    icon: Star,
+    key: "reviews",
+    label: "Değerlendirmeler",
+  },
+  {
+    href: appRoutes.providerDashboardNotifications,
+    icon: Bell,
+    key: "notifications",
+    label: "Bildirimler",
+  },
+  {
+    href: appRoutes.providerDashboardCalendar,
+    icon: Calendar,
+    key: "calendar",
+    label: "Takvim",
   },
 ];
 

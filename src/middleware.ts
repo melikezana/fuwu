@@ -4,15 +4,12 @@ import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import type { Database } from "@/lib/supabase/types";
 
 function createRequestResponse(request: NextRequest) {
-  return NextResponse.next({
-    request,
-  });
+  return NextResponse.next({ request });
 }
 
 function createLoginRedirect(request: NextRequest) {
   const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
   const redirectUrl = new URL(buildLoginRedirectUrl(nextPath), request.url);
-
   return NextResponse.redirect(redirectUrl);
 }
 
@@ -28,24 +25,16 @@ export async function middleware(request: NextRequest) {
 
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
+      getAll() { return request.cookies.getAll(); },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
+        cookiesToSet.forEach(({ name, value }) => { request.cookies.set(name, value); });
         response = createRequestResponse(request);
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
+        cookiesToSet.forEach(({ name, value, options }) => { response.cookies.set(name, value, options); });
       },
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return createLoginRedirect(request);

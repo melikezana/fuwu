@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import {
+  TrendingUp,
+  Star,
+  Bell,
+  Calendar,
+} from "lucide-react";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import {
@@ -21,6 +28,7 @@ import {
   type ProviderDashboardProfile,
 } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
+import { getProviderStats } from "@/services/providers/stats";
 
 export const dynamic = "force-dynamic";
 
@@ -32,22 +40,25 @@ export const metadata: Metadata = {
 function ProviderDashboardSummary({
   assignedRequestCount,
   provider,
+  completedCount,
+  averageRating,
 }: {
   assignedRequestCount: number;
   provider: ProviderDashboardProfile;
+  completedCount: number;
+  averageRating: number;
 }) {
   const dashboardCards = [
     {
       description:
-        "Usta ba\u015fvurun onayland\u0131 ve panel eri\u015fimin aktif.",
+        "Usta başvurun onaylandı ve panel erişimin aktif.",
       href: appRoutes.providerDashboardProfile,
       icon: providerDashboardIcons.shield,
-      label: "Ba\u015fvuru Durumu",
-      value: provider.isApproved ? "Usta hesab\u0131n\u0131z aktif" : "\u0130ncelemede",
+      label: "Başvuru Durumu",
+      value: provider.isApproved ? "Usta hesabınız aktif" : "İncelemede",
     },
     {
-      description:
-        `Profil, telefon ve hizmet bilgilerin ${getProviderAvailabilityLabel(provider.availability)} olarak g\u00f6r\u00fcn\u00fcyor.`,
+      description: `Profil, telefon ve hizmet bilgilerin ${getProviderAvailabilityLabel(provider.availability)} olarak görünüyor.`,
       href: appRoutes.providerDashboardProfile,
       icon: providerDashboardIcons.user,
       label: "Profil Bilgileri",
@@ -61,21 +72,18 @@ function ProviderDashboardSummary({
       value: String(assignedRequestCount),
     },
     {
-      description: "Müşteri değerlendirmelerinden oluşan profil puanı.",
-      href: appRoutes.providerDashboardProfile,
-      icon: providerDashboardIcons.star,
-      label: "Profil Puanı",
-      value: `${formatProviderRating(provider.rating)} / 5`,
+      description: "Tamamlanan toplam iş sayısı.",
+      href: appRoutes.providerDashboardEarnings,
+      icon: providerDashboardIcons.wallet,
+      label: "Tamamlanan İş",
+      value: String(completedCount),
     },
     {
-      description:
-        provider.isActive && provider.isApproved
-          ? "Profilin public usta listesinde g\u00f6r\u00fcn\u00fcr."
-          : "Profil g\u00f6r\u00fcn\u00fcrl\u00fc\u011f\u00fc \u015fu anda kapal\u0131.",
-      href: appRoutes.providers,
-      icon: providerDashboardIcons.eye,
-      label: "G\u00f6r\u00fcn\u00fcrl\u00fck Durumu",
-      value: provider.isActive && provider.isApproved ? "Yay\u0131nda" : "Kapal\u0131",
+      description: "Müşteri değerlendirmelerinden oluşan profil puanı.",
+      href: appRoutes.providerDashboardReviews,
+      icon: providerDashboardIcons.star,
+      label: "Profil Puanı",
+      value: `${formatProviderRating(averageRating)} / 5`,
     },
   ];
 
@@ -119,9 +127,17 @@ function ProviderDashboardRecentRequests({
             Son atanan talepler
           </h2>
         </div>
-        <ProviderStatusBadge tone={requests.length > 0 ? "green" : "orange"}>
-          {requests.length} talep
-        </ProviderStatusBadge>
+        <div className="flex items-center gap-2">
+          <ProviderStatusBadge tone={requests.length > 0 ? "green" : "orange"}>
+            {requests.length} talep
+          </ProviderStatusBadge>
+          <Link
+            href={appRoutes.providerDashboardRequests}
+            className="text-xs font-semibold text-[var(--brand-orange-dark)] underline underline-offset-2 hover:text-[var(--brand-navy)]"
+          >
+            Tümünü gör →
+          </Link>
+        </div>
       </div>
 
       {requests.length > 0 ? (
@@ -169,20 +185,49 @@ function ProviderDashboardActiveNotice({
       role="status"
     >
       <p className="text-xs font-medium uppercase">
-        Onay tamamland\u0131
+        Onay tamamlandı
       </p>
       <h2 className="mt-2 text-2xl font-bold leading-tight">
-        Usta hesab\u0131n\u0131z aktif
+        Usta hesabınız aktif
       </h2>
       <p className="mt-2 max-w-2xl text-sm font-bold leading-6">
-        Profil, Talepler ve Genel Bak\u0131\u015f alanlar\u0131n\u0131 kullanarak usta hesab\u0131n\u0131 y\u00f6netebilirsin.
+        Profil, Talepler, Kazançlar, Değerlendirmeler, Bildirimler ve Takvim
+        alanlarını kullanarak usta hesabını yönetebilirsin.
         {provider.isActive
-          ? " Profilin onayl\u0131 ve yay\u0131na haz\u0131r."
-          : " Profilin onayl\u0131, ancak yay\u0131n durumu pasif."}
+          ? " Profilin onaylı ve yayına hazır."
+          : " Profilin onaylı, ancak yayın durumu pasif."}
       </p>
     </section>
   );
 }
+
+// Hızlı erişim kartları
+const quickAccessCards = [
+  {
+    href: appRoutes.providerDashboardEarnings,
+    icon: TrendingUp,
+    title: "Kazançlar",
+    description: "Aylık gelir ve tamamlanan iş istatistikleri.",
+  },
+  {
+    href: appRoutes.providerDashboardReviews,
+    icon: Star,
+    title: "Değerlendirmeler",
+    description: "Müşteri yorumları ve puan geçmişi.",
+  },
+  {
+    href: appRoutes.providerDashboardNotifications,
+    icon: Bell,
+    title: "Bildirimler",
+    description: "Yeni eşleşme ve sistem bildirimleri.",
+  },
+  {
+    href: appRoutes.providerDashboardCalendar,
+    icon: Calendar,
+    title: "Takvim",
+    description: "Planlanmış işlerin tarih ve saat görünümü.",
+  },
+];
 
 export default async function ProviderDashboardPage() {
   const [providerAccess, authContext] = await Promise.all([
@@ -194,10 +239,13 @@ export default async function ProviderDashboardPage() {
     redirect(buildLoginRedirectUrl(appRoutes.providerDashboard));
   }
 
-  const assignedRequests =
-    providerAccess.ok && authContext.supabase
-      ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
-      : [];
+  const [assignedRequests, stats] = providerAccess.ok && authContext.supabase
+    ? await Promise.all([
+        getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase),
+        getProviderStats(providerAccess.profile.id, authContext.supabase),
+      ])
+    : [[], null];
+
   const statusBadge = getProviderDashboardStatusBadgeView(
     providerAccess.ok
       ? providerAccess.application?.status
@@ -220,20 +268,46 @@ export default async function ProviderDashboardPage() {
           <ProviderDashboardSummary
             assignedRequestCount={assignedRequests.length}
             provider={providerAccess.profile}
+            completedCount={stats?.completedRequests ?? 0}
+            averageRating={stats?.averageRating ?? providerAccess.profile.rating}
           />
           <ProviderDashboardRecentRequests requests={assignedRequests} />
 
-          <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="cursor-default select-none">
-                <h2 className="text-xl font-bold text-[var(--brand-navy)]">
-                  Profil yönetimi yakında
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
-                  Fiyat aralığı, açıklama ve iletişim bilgileri için düzenleme akışı sonraki
-                  sürümde bu panele eklenecek.
-                </p>
-              </div>
+          {/* Hızlı erişim kartları */}
+          <section>
+            <div className="mb-4 cursor-default select-none">
+              <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
+                Hızlı erişim
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]">
+                Diğer panel bölümleri
+              </h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {quickAccessCards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link
+                    key={card.href}
+                    href={card.href}
+                    className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                  >
+                    <span
+                      className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]"
+                      aria-hidden
+                    />
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <h3 className="mt-4 text-lg font-semibold leading-tight text-[var(--brand-navy)]">
+                      {card.title}
+                    </h3>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
+                      {card.description}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         </div>
