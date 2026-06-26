@@ -1,23 +1,12 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { Star, MessageSquare } from "lucide-react";
-import {
-  ProviderDashboardShell,
-  ProviderDashboardApplicationPlaceholder,
-  ProviderStatusBadge,
-  getProviderDashboardStatusBadgeView,
-} from "@/components/dashboard/ProviderDashboardUI";
-import { getProviderDashboardAccess, type ProviderDashboardAccessDenied } from "@/services/providers/dashboard";
-import { buildLoginRedirectUrl, appRoutes } from "@/lib/constants/navigation";
-import { getProviderReviews } from "@/services/reviews";
+import { ProviderDashboardShell, ProviderStatusBadge } from "@/components/dashboard/ProviderDashboardUI";
+import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getServerAuthContext } from "@/services/auth/server";
+import { getProviderReviews } from "@/services/reviews";
 
 export const dynamic = "force-dynamic";
-
-export const metadata: Metadata = {
-  title: "Değerlendirmeler | Usta Paneli",
-  description: "Müşteri değerlendirmeleri ve puan geçmişi.",
-};
+export const metadata: Metadata = { title: "Değerlendirmeler | Usta Paneli" };
 
 const MOCK_REVIEWS = [
   { id: "1", rating: 5, comment: "Çok hızlı geldi, işi temiz ve titiz yaptı. Kesinlikle tavsiye ederim.", createdAt: "2026-06-20T10:30:00Z" },
@@ -33,10 +22,8 @@ const MOCK_REVIEWS = [
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star key={star}
-          className={`h-4 w-4 ${star <= rating ? "fill-[var(--brand-orange)] text-[var(--brand-orange)]" : "fill-none text-[var(--border-strong)]"}`}
-          aria-hidden />
+      {[1,2,3,4,5].map((star) => (
+        <Star key={star} className={`h-4 w-4 ${star <= rating ? "fill-[var(--brand-orange)] text-[var(--brand-orange)]" : "fill-none text-[var(--border-strong)]"}`} aria-hidden />
       ))}
     </div>
   );
@@ -66,108 +53,80 @@ export default async function ProviderReviewsPage() {
     getServerAuthContext(),
   ]);
 
-  if (!providerAccess.ok && (providerAccess as ProviderDashboardAccessDenied).reason === "missing-session") {
-    redirect(buildLoginRedirectUrl(appRoutes.providerDashboard));
-  }
-
-  const reviewsResult = providerAccess.ok && authContext.supabase
+  const liveResult = providerAccess.ok && authContext.supabase
     ? await getProviderReviews(providerAccess.profile.id)
     : null;
 
-  const isDemo = !reviewsResult;
-  const reviews = reviewsResult?.reviews ?? MOCK_REVIEWS;
-  const summary = reviewsResult?.summary ?? { averageRating: 4.7, reviewCount: 23 };
-
-  const starCounts = [5, 4, 3, 2, 1].map((star) => ({
-    star,
-    count: reviews.filter((r) => Math.round(r.rating) === star).length,
-  }));
-
-  const statusBadge = getProviderDashboardStatusBadgeView(
-    providerAccess.ok ? providerAccess.application?.status : (providerAccess as ProviderDashboardAccessDenied).applicationStatus,
-    providerAccess.ok,
-  );
+  const reviews = liveResult?.reviews ?? MOCK_REVIEWS;
+  const summary = liveResult?.summary ?? { averageRating: 4.7, reviewCount: 23 };
+  const providerName = providerAccess.ok ? providerAccess.profile.name : "Demo Usta";
+  const starCounts = [5,4,3,2,1].map((star) => ({ star, count: reviews.filter((r) => Math.round(r.rating) === star).length }));
 
   return (
     <ProviderDashboardShell
       active="reviews"
       description="Müşteri değerlendirmelerini incele ve puan geçmişini takip et."
-      providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
-      statusLabel={statusBadge.label}
-      statusTone={statusBadge.tone}
+      providerName={providerName}
+      statusLabel={providerAccess.ok ? "Usta hesabınız aktif" : "Demo modu"}
+      statusTone={providerAccess.ok ? "green" : "orange"}
       title="Değerlendirmeler"
     >
-      {providerAccess.ok ? (
-        <div className="grid gap-6">
-          {isDemo && (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700">
-              📊 Demo veriler gösteriliyor. Supabase bağlandığında gerçek veriler görünür.
-            </div>
-          )}
-          <div className="grid gap-4 lg:grid-cols-[22rem_1fr]">
-            <section className="rounded-lg border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-card)]">
-              <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Puan özeti</p>
-              <div className="mt-4 flex items-end gap-4">
-                <span className="text-5xl font-bold text-[var(--brand-navy)]">{summary.averageRating.toFixed(1)}</span>
-                <div className="pb-1">
-                  <StarRating rating={Math.round(summary.averageRating)} />
-                  <p className="mt-1 text-sm font-semibold text-[var(--muted)]">{summary.reviewCount} değerlendirme</p>
-                </div>
+      <div className="grid gap-6">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700">
+          📊 {liveResult ? "Gerçek veriler gösteriliyor." : "Demo veriler gösteriliyor. Usta hesabı ile giriş yapıldığında gerçek veriler görünür."}
+        </div>
+        <div className="grid gap-4 lg:grid-cols-[22rem_1fr]">
+          <section className="rounded-lg border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-card)]">
+            <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Puan özeti</p>
+            <div className="mt-4 flex items-end gap-4">
+              <span className="text-5xl font-bold text-[var(--brand-navy)]">{summary.averageRating.toFixed(1)}</span>
+              <div className="pb-1">
+                <StarRating rating={Math.round(summary.averageRating)} />
+                <p className="mt-1 text-sm font-semibold text-[var(--muted)]">{summary.reviewCount} değerlendirme</p>
               </div>
-              <div className="mt-6 grid gap-2">
-                {starCounts.map(({ star, count }) => (
-                  <RatingBar key={star} count={count} star={star} total={reviews.length} />
+            </div>
+            <div className="mt-6 grid gap-2">
+              {starCounts.map(({ star, count }) => <RatingBar key={star} count={count} star={star} total={reviews.length} />)}
+            </div>
+            <div className="mt-6 rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-4 text-center">
+              <p className="text-xs font-medium uppercase text-[var(--trust-green)]">Başarı rozeti</p>
+              <p className="mt-2 text-2xl font-bold text-[var(--brand-navy)]">⭐ Üst Usta</p>
+              <p className="mt-1 text-sm font-semibold text-[var(--muted)]">4.5+ puan ortalaması</p>
+            </div>
+          </section>
+          <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+              <div className="cursor-default select-none">
+                <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Müşteri yorumları</p>
+                <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]">Son değerlendirmeler</h2>
+              </div>
+              <ProviderStatusBadge tone="green">{reviews.length} yorum</ProviderStatusBadge>
+            </div>
+            {reviews.length > 0 ? (
+              <div className="mt-4 grid gap-3 max-h-[500px] overflow-y-auto pr-1">
+                {reviews.map((review) => (
+                  <article key={review.id} className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <StarRating rating={review.rating} />
+                      <span className="text-xs font-semibold text-[var(--muted)]">{formatReviewDate(review.createdAt)}</span>
+                    </div>
+                    {review.comment && <p className="mt-3 text-sm font-semibold leading-6 text-[var(--brand-navy)]">&quot;{review.comment}&quot;</p>}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-[var(--brand-orange-soft)] flex items-center justify-center text-xs font-bold text-[var(--brand-orange-dark)]">M</div>
+                      <span className="text-xs font-semibold text-[var(--muted)]">Doğrulanmış Müşteri</span>
+                    </div>
+                  </article>
                 ))}
               </div>
-              <div className="mt-6 rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-4 text-center">
-                <p className="text-xs font-medium uppercase text-[var(--trust-green)]">Başarı rozeti</p>
-                <p className="mt-2 text-2xl font-bold text-[var(--brand-navy)]">⭐ Üst Usta</p>
-                <p className="mt-1 text-sm font-semibold text-[var(--muted)]">4.5+ puan ortalaması</p>
+            ) : (
+              <div className="mt-5 rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[var(--brand-orange-soft)] p-6 text-center" role="status">
+                <MessageSquare className="mx-auto h-8 w-8 text-[var(--brand-orange-dark)]" aria-hidden />
+                <p className="mt-3 text-sm font-semibold text-[var(--brand-navy)]">Henüz değerlendirme yok.</p>
               </div>
-            </section>
-            <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
-              <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
-                <div className="cursor-default select-none">
-                  <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Müşteri yorumları</p>
-                  <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]">Son değerlendirmeler</h2>
-                </div>
-                <ProviderStatusBadge tone="green">{reviews.length} yorum</ProviderStatusBadge>
-              </div>
-              {reviews.length > 0 ? (
-                <div className="mt-4 grid gap-3 max-h-[500px] overflow-y-auto pr-1">
-                  {reviews.map((review) => (
-                    <article key={review.id} className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <StarRating rating={review.rating} />
-                        <span className="text-xs font-semibold text-[var(--muted)]">{formatReviewDate(review.createdAt)}</span>
-                      </div>
-                      {review.comment && (
-                        <p className="mt-3 text-sm font-semibold leading-6 text-[var(--brand-navy)]">&quot;{review.comment}&quot;</p>
-                      )}
-                      <div className="mt-2 flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-[var(--brand-orange-soft)] flex items-center justify-center text-xs font-bold text-[var(--brand-orange-dark)]">M</div>
-                        <span className="text-xs font-semibold text-[var(--muted)]">Doğrulanmış Müşteri</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-5 rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-[var(--brand-orange-soft)] p-6 text-center" role="status">
-                  <MessageSquare className="mx-auto h-8 w-8 text-[var(--brand-orange-dark)]" aria-hidden />
-                  <p className="mt-3 text-sm font-semibold text-[var(--brand-navy)]">Henüz değerlendirme yok.</p>
-                </div>
-              )}
-            </section>
-          </div>
+            )}
+          </section>
         </div>
-      ) : (
-        <ProviderDashboardApplicationPlaceholder
-          application={(providerAccess as ProviderDashboardAccessDenied).application}
-          applicationStatus={(providerAccess as ProviderDashboardAccessDenied).applicationStatus}
-          message={(providerAccess as ProviderDashboardAccessDenied).message}
-          reason={(providerAccess as ProviderDashboardAccessDenied).reason}
-        />
-      )}
+      </div>
     </ProviderDashboardShell>
   );
 }
