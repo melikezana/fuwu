@@ -20,7 +20,20 @@ export const metadata: Metadata = {
   description: "Kabul edilen taleplerin tarih ve saat planlaması.",
 };
 
-const MOCK_JOBS = [
+type MockJob = {
+  id: string;
+  category: string;
+  customerName: string;
+  phone: string;
+  district: string;
+  address: string;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  status: "accepted" | "in_progress" | "assigned";
+  urgencyType: "standard" | "emergency";
+};
+
+const MOCK_JOBS: MockJob[] = [
   { id: "1", category: "Elektrik Tesisatı", customerName: "Mehmet Kaya", phone: "0532 xxx xx xx", district: "Kadıköy", address: "Moda Cad. No:12", preferredDate: "2026-06-28", preferredTime: "10:00", status: "accepted", urgencyType: "standard" },
   { id: "2", category: "Su Tesisatı", customerName: "Ayşe Demir", phone: "0541 xxx xx xx", district: "Üsküdar", address: "Çamlıca Sk. No:5", preferredDate: "2026-06-28", preferredTime: "14:00", status: "in_progress", urgencyType: "emergency" },
   { id: "3", category: "Kombi Bakımı", customerName: "Ali Çelik", phone: "0555 xxx xx xx", district: "Beşiktaş", address: "Etiler Mah. No:8", preferredDate: "2026-06-29", preferredTime: "09:30", status: "accepted", urgencyType: "standard" },
