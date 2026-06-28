@@ -18,6 +18,10 @@ const contentSecurityPolicyDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
+  // SECURITY: 'unsafe-inline' Next.js inline scripts için
+  // gerekli. Nonce-based CSP'ye geçiş gelecek milestone'da
+  // planlanmalı. Referans: https://nextjs.org/docs/app/building-
+  // your-application/configuring/content-security-policy
   `script-src 'self' 'unsafe-inline'${developmentEvalSource}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
@@ -34,6 +38,10 @@ export const contentSecurityPolicyHeaderPlaceholder =
 
 export const recommendedSecurityHeaders: SecurityHeader[] = [
   {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  {
     key: "X-Frame-Options",
     value: "DENY",
   },
@@ -47,7 +55,7 @@ export const recommendedSecurityHeaders: SecurityHeader[] = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   },
 ];
 

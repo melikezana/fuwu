@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   ShieldCheck,
   Star,
-  TrendingUp,
   UserRound,
   WalletCards,
   type LucideIcon,
@@ -98,7 +97,7 @@ const providerNavItems: Array<{
   },
   {
     href: appRoutes.providerDashboardEarnings,
-    icon: TrendingUp,
+    icon: WalletCards,
     key: "earnings",
     label: "Kazançlar",
   },
@@ -777,6 +776,28 @@ export function ProviderRequestsEmptyState() {
         Profilini kontrol et
       </Button>
     </div>
+  );
+}
+
+export function ProviderDashboardRestrictedAreaEmptyState() {
+  return (
+    <section
+      className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 text-center shadow-[var(--shadow-card)] sm:p-8"
+      role="status"
+    >
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+        <BadgeCheck className="h-6 w-6" aria-hidden />
+      </div>
+      <h2 className="mt-5 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
+        Bu alan usta hesaplarına özeldir
+      </h2>
+      <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-[var(--muted)]">
+        Usta olarak kayıt olmak için başvuru yapabilirsin.
+      </p>
+      <Button className="mt-6 w-full sm:w-fit" href={appRoutes.providerApplication}>
+        Usta Başvurusu Yap
+      </Button>
+    </section>
   );
 }
 

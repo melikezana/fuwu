@@ -221,6 +221,10 @@ function formatRating(rating: number) {
   }).format(rating);
 }
 
+function formatShortId(value: string) {
+  return value.slice(0, 8);
+}
+
 function getWorkingHoursFormValue(value: string) {
   return value.replace(/[–—]/g, "-");
 }
@@ -685,6 +689,7 @@ export default async function AdminProvidersPage({
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="providers"
+      breadcrumbLabel="Ustalar"
       description="Supabase üzerindeki tüm usta kayıtlarını, iletişim bilgilerini ve yayın durumlarını takip et."
       error={result.error}
       isConfigured={result.isConfigured}
@@ -705,7 +710,7 @@ export default async function AdminProvidersPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[1900px] text-left text-sm">
+            <table className="w-full min-w-[1100px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Usta</th>
@@ -720,8 +725,7 @@ export default async function AdminProvidersPage({
                   <th className="px-4 py-3">Çalışma</th>
                   <th className="px-4 py-3">Profil</th>
                   <th className="px-4 py-3">Ortalama Fiyat</th>
-                  <th className="px-4 py-3">Aktiflik</th>
-                  <th className="px-4 py-3">Onay</th>
+                  <th className="px-4 py-3">Yayın durumu</th>
                   <th className="px-4 py-3">Aksiyonlar</th>
                 </tr>
               </thead>
@@ -733,6 +737,12 @@ export default async function AdminProvidersPage({
                   <tr key={provider.id} className="bg-white align-top">
                     <td className="px-4 py-4 font-semibold text-[var(--brand-navy)]">
                       <ProviderNameInput formId={updateFormId} provider={provider} />
+                      <p
+                        className="mt-2 font-mono text-[0.68rem] font-bold text-[var(--muted)]"
+                        title={provider.id}
+                      >
+                        ID {formatShortId(provider.id)}
+                      </p>
                     </td>
                     <td className="px-4 py-4 font-semibold text-[var(--muted)]">
                       {provider.category}
@@ -782,19 +792,19 @@ export default async function AdminProvidersPage({
                       <ProviderPriceInputs formId={updateFormId} provider={provider} />
                     </td>
                     <td className="px-4 py-4">
-                      <BooleanStatus
-                        falseLabel="Pasif"
-                        trueLabel="Aktif"
-                        value={provider.isActive}
-                      />
-                    </td>
-                    <td className="px-4 py-4">
-                      <BooleanStatus
-                        falseLabel="Onay Bekliyor"
-                        falseTone="orange"
-                        trueLabel="Onaylı"
-                        value={provider.isApproved}
-                      />
+                      <div className="flex flex-col gap-2">
+                        <BooleanStatus
+                          falseLabel="Pasif"
+                          trueLabel="Aktif"
+                          value={provider.isActive}
+                        />
+                        <BooleanStatus
+                          falseLabel="Onay Bekliyor"
+                          falseTone="orange"
+                          trueLabel="Onaylı"
+                          value={provider.isApproved}
+                        />
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="space-y-3">

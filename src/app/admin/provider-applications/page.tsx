@@ -394,6 +394,7 @@ export default async function AdminProviderApplicationsPage({
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="applications"
+      breadcrumbLabel="Başvurular"
       description="Usta adaylarının başvuru bilgilerini ve değerlendirme durumlarını takip et."
       error={result.error}
       isConfigured={result.isConfigured}

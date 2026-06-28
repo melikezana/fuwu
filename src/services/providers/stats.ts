@@ -68,6 +68,10 @@ export async function getProviderStats(
         .eq("provider_id", providerId),
     ]);
 
+    if (requestsResult.error || reviewsResult.error) {
+      return emptyStats;
+    }
+
     const requests = (requestsResult.data ?? []) as StatsRequestRow[];
     const reviews = (reviewsResult.data ?? []) as StatsReviewRow[];
     const monthStart = getThisMonthStart();

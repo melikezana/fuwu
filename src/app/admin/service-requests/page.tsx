@@ -273,6 +273,10 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value));
 }
 
+function formatShortId(value: string) {
+  return value.slice(0, 8);
+}
+
 function getRequestResponseDateText(request: AdminServiceRequest) {
   if (request.acceptedAt) {
     return `Kabul: ${formatCreatedAt(request.acceptedAt)}`;
@@ -687,6 +691,7 @@ export default async function AdminServiceRequestsPage({
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="requests"
+      breadcrumbLabel="Hizmet Talepleri"
       description="Müşteri hizmet taleplerini, iletişim bilgilerini, zaman tercihlerini ve operasyon durumlarını takip et."
       error={result.error}
       isConfigured={result.isConfigured}
@@ -707,10 +712,9 @@ export default async function AdminServiceRequestsPage({
           </AdminCardGrid>
 
           <AdminTableWrap>
-            <table className="w-full min-w-[2050px] text-left text-sm">
+            <table className="w-full min-w-[1200px] text-left text-sm">
               <thead className="bg-[var(--surface-soft)] text-xs font-medium uppercase text-[var(--muted)]">
                 <tr>
-                  <th className="px-4 py-3">Talep ID</th>
                   <th className="px-4 py-3">Müşteri</th>
                   <th className="px-4 py-3">Hizmet kategorisi</th>
                   <th className="px-4 py-3">İlçe</th>
@@ -719,8 +723,7 @@ export default async function AdminServiceRequestsPage({
                   <th className="px-4 py-3">Bütçe / teklif</th>
                   <th className="px-4 py-3">Ödeme tercihi</th>
                   <th className="px-4 py-3">Ödeme durumu</th>
-                  <th className="px-4 py-3">Durum</th>
-                  <th className="px-4 py-3">Oluşturulma tarihi</th>
+                  <th className="px-4 py-3">Durum / tarih</th>
                   <th className="px-4 py-3">Atanan usta</th>
                   <th className="px-4 py-3">İşlem</th>
                 </tr>
@@ -728,15 +731,18 @@ export default async function AdminServiceRequestsPage({
               <tbody className="divide-y divide-[var(--border)]">
                 {result.rows.map((request) => (
                   <tr key={request.id} className="bg-white align-top">
-                    <td className="max-w-[12rem] break-all px-4 py-4 font-mono text-xs font-bold text-[var(--muted)]">
-                      {request.id}
-                    </td>
                     <td className="px-4 py-4">
                       <p className="font-semibold text-[var(--brand-navy)]">
                         {request.customerName}
                       </p>
                       <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
                         {request.phone}
+                      </p>
+                      <p
+                        className="mt-1 font-mono text-[0.68rem] font-bold text-[var(--muted)]"
+                        title={request.id}
+                      >
+                        ID {formatShortId(request.id)}
                       </p>
                     </td>
                     <td className="max-w-[13rem] px-4 py-4 font-semibold text-[var(--muted)]">
@@ -767,15 +773,17 @@ export default async function AdminServiceRequestsPage({
                       <PaymentStatusSummary request={request} />
                     </td>
                     <td className="px-4 py-4">
-                      <RequestStatusBadge status={request.status} />
-                    </td>
-                    <td className="px-4 py-4 font-semibold text-[var(--muted)]">
-                      {formatCreatedAt(request.createdAt)}
-                      {getRequestResponseDateText(request) ? (
-                        <span className="mt-1 block text-xs">
-                          {getRequestResponseDateText(request)}
-                        </span>
-                      ) : null}
+                      <div className="grid gap-2">
+                        <RequestStatusBadge status={request.status} />
+                        <p className="text-xs font-semibold leading-5 text-[var(--muted)]">
+                          Oluşturuldu: {formatCreatedAt(request.createdAt)}
+                        </p>
+                        {getRequestResponseDateText(request) ? (
+                          <p className="text-xs font-semibold leading-5 text-[var(--muted)]">
+                            {getRequestResponseDateText(request)}
+                          </p>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <span className="font-semibold text-[var(--brand-navy)]">

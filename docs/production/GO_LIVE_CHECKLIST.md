@@ -1,15 +1,29 @@
 # FUWU Production Go-Live Kontrol Listesi
 
-Tarih: 22 Haziran 2026
+Tarih: 28 Haziran 2026
 
 ## Nihai karar
 
-**❌ NO-GO — production Supabase migration drift'i, zorunlu Upstash
-değişkenleri ve production smoke testi tamamlanana kadar bekle.**
+**❌ NO-GO — açık P0 maddeleri tamamlanana kadar yayına çıkma.**
 
-Uygulama kodu, yerel backend sağlık kontrolleri, 15 Playwright testi, GitHub
-Actions ve Vercel deployment yeşildir. Yayın kapısı yalnızca yetkili production
-altyapı kontrolleri nedeniyle kapalıdır.
+Tamamlanan P0 kontroller:
+
+- ✅ Production Supabase migration history local ile eşitlendi.
+- ✅ `20260628000100_add_missing_service_categories.sql` production'a uygulandı.
+- ✅ Production aktif kategori sayısı **11**; `cilingir`, `bahce-bakimi` ve
+  `havuz-bakimi` dahil.
+- ✅ `profiles.avatar_url` kolonu production'da mevcut.
+- ✅ `reviews` RLS politikaları production'da mevcut.
+- ✅ `backend_health_catalog()` production DB'de CLI login role ile metadata döndürdü.
+
+Açık P0 maddeleri:
+
+- ❌ `SUPABASE_SERVICE_ROLE_KEY` bu ortamda yok; `scripts/check-backend-db.mjs`
+  production service-role ile PASS çalıştırılamadı.
+- ❌ `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` production ortamında
+  zorunlu değişken olarak hâlâ tamamlanmalı.
+- ❌ Production smoke testi service-role erişimiyle tamamlanmalı ve scoped test
+  verisi temizlenmeli.
 
 ## 1. Domain, DNS, SSL ve deployment
 
@@ -46,13 +60,13 @@ Public production kontrolü:
 |---|---:|---|
 | Project host | ✅ | `bjhyisomjadirdchruix.supabase.co` |
 | Public kategori sorgusu | ✅ | REST erişilebilir |
-| Production aktif kategori sayısı | ❌ | **8** |
-| Beklenen aktif kategori sayısı | ✅ | Local migration + seed sonrası **11** |
-| Eksik kategoriler | ❌ | `cilingir`, `bahce-bakimi`, `havuz-bakimi` |
+| Production aktif kategori sayısı | ✅ | **11** |
+| Beklenen aktif kategori sayısı | ✅ | Production katalogda **11** aktif slug |
+| Eksik kategoriler | ✅ | Eksik yok; `cilingir`, `bahce-bakimi`, `havuz-bakimi` mevcut |
 
 Yerel migration zinciri:
 
-- ✅ 37 migration sıfırdan başarıyla uygulandı.
+- ✅ 41 migration zinciri korunuyor; son production migration `20260628000100_add_missing_service_categories.sql`.
 - ✅ `backend_health_catalog()` çağrıldı.
 - ✅ Tablolar, RLS politikaları, foreign key kuralları, storage bucket'ları,
   realtime publication, indeksler ve status constraint kontrolleri PASS.
@@ -60,17 +74,17 @@ Yerel migration zinciri:
 
 Production yetkili kontroller:
 
-- ❌ Supabase dashboard oturumu tamamlanmadı.
-- ❌ `SUPABASE_ACCESS_TOKEN` mevcut değil.
-- ❌ Production DB password mevcut değil.
-- ❌ Production `SUPABASE_SERVICE_ROLE_KEY` mevcut değil.
-- ❌ `supabase migration list` production ile karşılaştırılamadı.
-- ❌ `supabase db push --dry-run` çalıştırılamadı.
-- ❌ `supabase db push` uygulanmadı.
-- ❌ Production `backend_health_catalog()` service-role ile doğrulanmadı.
+- ✅ `supabase link --project-ref bjhyisomjadirdchruix` tamamlandı.
+- ✅ `supabase migration list` local/remote karşılaştırması yapıldı.
+- ✅ `supabase db push --dry-run` yalnızca
+  `20260628000100_add_missing_service_categories.sql` migration'ını gösterdi;
+  `DROP TABLE` / `DROP COLUMN` yok.
+- ✅ `supabase db push` uygulandı; production katalog 11 kategoriye çıktı.
+- ✅ Production `backend_health_catalog()` CLI login role ile metadata döndürdü.
+- ❌ Production `SUPABASE_SERVICE_ROLE_KEY` bu ortamda yok; zorunlu
+  `scripts/check-backend-db.mjs` service-role çalıştırması tamamlanamadı.
 
-Veri kaybı riski değerlendirmesi yalnızca production dry-run çıktısı
-görüldükten sonra yapılacaktır. Dry-run olmadan otomatik push yapılmamıştır.
+Veri kaybı riski dry-run çıktısında DROP içermediği için güvenli görüldü.
 
 ## 4. GitHub Actions launch verification
 
@@ -104,7 +118,7 @@ Action formuna geçirildi.
 | Adım | Sonuç | Kanıt / engel |
 |---|---:|---|
 | Customer smoke hesabı | ❌ | Production service-role erişimi bekleniyor |
-| Çilingir talebi oluşturma | ❌ | Production katalogda Çilingir eksik |
+| Çilingir talebi oluşturma | ❌ | Production service-role erişimiyle smoke akışı bekleniyor |
 | `service_requests` kaydı | ❌ | Yetkili DB doğrulaması yapılamadı |
 | Provider smoke hesabı | ❌ | Production service-role erişimi bekleniyor |
 | Provider başvurusu | ❌ | Yetkili akış başlatılmadı |
@@ -118,15 +132,10 @@ Gerçek kullanıcı verisine dokunulmamıştır. Cleanup script'i yalnızca izin
 
 GO kararı için aşağıdakilerin tamamı zorunludur:
 
-1. Supabase dashboard/CLI yetkili erişimini tamamla.
-2. Production migration history'yi local 37 migration ile karşılaştır.
-3. `supabase db push --dry-run` çıktısında beklenmedik DROP/veri kaybı
-   olmadığını doğrula.
-4. Güvenliyse production migration'larını uygula.
-5. Production aktif kategori sayısını 11 olarak doğrula.
-6. Production service-role ile backend health kontrolünü PASS et.
-7. Upstash Redis oluştur ve iki zorunlu Vercel değişkenini ekle.
-8. Production smoke testini tamamla ve scoped test verisini temizle.
+1. Production `SUPABASE_SERVICE_ROLE_KEY` ile `scripts/check-backend-db.mjs`
+   kontrolünü PASS çalıştır.
+2. Upstash Redis oluştur ve iki zorunlu Vercel değişkenini ekle.
+3. Production smoke testini tamamla ve scoped test verisini temizle.
 
-**❌ NO-GO — production Supabase migration drift'i, zorunlu Upstash
-değişkenleri ve production smoke testi tamamlanana kadar bekle.**
+**❌ NO-GO — service-role backend health, zorunlu Upstash değişkenleri ve
+production smoke testi tamamlanana kadar bekle.**

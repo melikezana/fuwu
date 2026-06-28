@@ -1,4 +1,4 @@
-import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getSafeRedirectPath } from "@/lib/security";
@@ -116,21 +116,14 @@ function sanitizeAuthRedirectUrl(redirectTo: string) {
   }
 }
 
-export async function getSession(): Promise<Session | null> {
+export async function getSession(): Promise<User | null> {
   const supabase = createSupabaseBrowserClient();
 
   if (!supabase) {
     return null;
   }
 
-  const { data, error } = await supabase.auth.getSession();
-
-  if (error) {
-    warnAuthError("Supabase session check failed.", error);
-    return null;
-  }
-
-  return data.session;
+  return getCurrentUserForClient(supabase);
 }
 
 export const getCurrentSession = getSession;
