@@ -78,6 +78,18 @@ function slugifyCategory(value: string) {
   return normalizeTurkishText(value).replace(/\s+/g, "-");
 }
 
+function getTrustSignalMarkClassName(mark: string) {
+  if (mark === "01") {
+    return "text-[var(--brand-orange)]";
+  }
+
+  if (mark === "02") {
+    return "text-[var(--trust-green)]";
+  }
+
+  return "text-[var(--brand-navy)]";
+}
+
 function HeroSearch() {
   return (
     <div className="mt-8 max-w-full rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-3 shadow-[var(--shadow-elevated)] sm:p-4">
@@ -232,7 +244,7 @@ export function HeroSection() {
           <div className="mt-5 flex flex-wrap gap-2">
             {heroCategoryPills.map((item) => (
               <Link
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-sm font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all duration-200 hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-card)]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-sm font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-card)] active:translate-y-0"
                 href={`${appRoutes.providers}?category=${slugifyCategory(item)}`}
                 key={item}
               >
@@ -273,19 +285,19 @@ export function HeroSection() {
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {trustSignals.map((signal) => (
               <div
-                className="grid cursor-default select-none grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border border-[var(--border)] bg-white px-4 py-3"
+                className="cursor-default select-none rounded-lg border border-[var(--border)] bg-white px-4 py-4"
                 key={signal.id}
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[0.68rem] font-bold text-[var(--brand-orange-dark)]">
+                <span
+                  className={`block text-3xl font-bold leading-none ${getTrustSignalMarkClassName(signal.mark)}`}
+                >
                   {signal.mark}
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold leading-tight text-[var(--brand-navy)]">
-                    {signal.title}
-                  </span>
-                  <span className="mt-1 block text-xs font-bold leading-5 text-[var(--muted)]">
-                    {signal.description}
-                  </span>
+                <span className="mt-3 block text-sm font-bold leading-tight text-[var(--brand-navy)]">
+                  {signal.title}
+                </span>
+                <span className="mt-1 block text-xs font-bold leading-5 text-[var(--muted)]">
+                  {signal.description}
                 </span>
               </div>
             ))}

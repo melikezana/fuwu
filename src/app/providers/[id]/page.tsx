@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
   BriefcaseBusiness,
   CalendarClock,
+  Camera,
   Home,
   MapPinned,
   MessageCircle,
+  MessageSquarePlus,
   Phone,
   Star,
   Timer,
@@ -18,7 +21,6 @@ import {
   ProviderContactLink,
   ProviderProfileViewTracker,
 } from "@/components/providers/ProviderAnalytics";
-import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
@@ -26,7 +28,11 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { TextLink } from "@/components/ui/TextLink";
 import { appRoutes } from "@/lib/constants/navigation";
-import { getProviderDataNotice, isLiveProvider } from "@/lib/constants/providers";
+import {
+  getProviderDataNotice,
+  getProviderInitials,
+  isLiveProvider,
+} from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
@@ -149,6 +155,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   const hasWhatsApp = Boolean(provider.whatsapp?.trim());
   const hasPhone = Boolean(provider.phone?.trim());
   const hasContact = hasWhatsApp || hasPhone;
+  const responseTimeLabel = provider.responseTime.replace(/^Ortalama cevap:\s*/i, "");
   const availabilityLabel = provider.availabilityStatus.label;
   const availabilityTone = provider.availabilityStatus.tone;
   const availabilityBadgeClassName =
@@ -171,7 +178,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     {
       icon: Timer,
       label: "Yanıt süresi",
-      value: provider.responseTime.replace(/^Ortalama cevap:\s*/i, ""),
+      value: responseTimeLabel,
     },
   ];
 
@@ -200,11 +207,24 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           <section className="relative overflow-hidden rounded-lg bg-white p-6 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
-              <ProviderAvatar
-                className="shadow-[var(--shadow-card)]"
-                provider={provider}
-                variant="profile"
-              />
+              <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-elevated)] ring-2 ring-white sm:h-40 sm:w-40">
+                {provider.profileImageUrl ? (
+                  <Image
+                    alt={provider.name}
+                    className="object-cover"
+                    fill
+                    priority
+                    sizes="(min-width: 640px) 160px, 128px"
+                    src={provider.profileImageUrl}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--brand-orange-soft)] to-[#ffe4bd]">
+                    <span className="text-5xl font-bold tracking-normal text-[var(--brand-navy)]">
+                      {getProviderInitials(provider)}
+                    </span>
+                  </div>
+                )}
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <ProviderTrustBadges
@@ -313,6 +333,30 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </p>
           </section>
 
+          <section className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.06)]">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 className="text-lg font-bold text-[var(--brand-navy)]">
+                İşlerimden Kareler
+              </h2>
+              <span className="text-xs font-semibold text-[var(--muted)]">
+                Yakında eklenecek
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--surface-soft)]"
+                  key={index}
+                >
+                  <Camera className="size-6 text-[var(--muted)] opacity-40" aria-hidden />
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-center text-xs font-semibold text-[var(--muted)]">
+              Bu usta henüz iş fotoğrafı eklememiş.
+            </p>
+          </section>
+
           <ProviderReviews
             isAuthenticated={Boolean(authenticatedUserId)}
             providerId={provider.id}
@@ -396,8 +440,11 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 Doğrudan iletişim
               </p>
               <h2 className="mt-2 text-2xl font-bold leading-tight text-[var(--brand-navy)]">
-                Ustayla hızlıca görüş
+                Hemen İletişime Geç
               </h2>
+              <p className="mt-2 text-sm font-bold text-[var(--trust-green)]">
+                Ortalama {responseTimeLabel} içinde yanıt
+              </p>
               <p className="mt-3 text-sm font-normal leading-6 text-[var(--muted)]">
                 {isLiveProvider(provider)
                   ? "İşin kapsamını, uygun zamanı ve net fiyatı doğrudan ustayla konuş."
@@ -509,32 +556,33 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </section>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
-        <div className="mx-auto flex max-w-2xl gap-3">
+      <div className="safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
+        <div className="mx-auto flex max-w-lg gap-3">
           {hasWhatsApp ? (
             <ProviderContactLink
-              className="h-12 flex-1 gap-2"
+              className="h-12 flex-1 gap-1.5 text-sm"
               kind="whatsapp"
               provider={provider}
               rel="noopener noreferrer"
               target="_blank"
             >
-              <MessageCircle aria-hidden="true" className="size-4" />
+              <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
               <span>WhatsApp</span>
             </ProviderContactLink>
           ) : null}
           {hasPhone ? (
             <ProviderContactLink
-              className="h-12 flex-1 gap-2"
+              className="h-12 flex-1 gap-1.5 text-sm"
               kind="phone"
               provider={provider}
             >
-              <Phone aria-hidden="true" className="size-4" />
+              <Phone aria-hidden="true" className="size-4 shrink-0" />
               <span>Ara</span>
             </ProviderContactLink>
           ) : null}
-          <Button className="h-12 flex-1" href={appRoutes.request} variant="primary">
-            Talep Oluştur
+          <Button className="h-12 flex-1 gap-1.5 text-sm" href={appRoutes.request} variant="primary">
+            <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
+            Talep Et
           </Button>
         </div>
       </div>

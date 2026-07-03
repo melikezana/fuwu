@@ -13,6 +13,7 @@ type ReviewFormProps = {
 export function ReviewForm({ providerId }: ReviewFormProps) {
   const router = useRouter();
   const [comment, setComment] = useState("");
+  const [hoverRating, setHoverRating] = useState(0);
   const [rating, setRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
       }
 
       setComment("");
+      setHoverRating(0);
       setRating(0);
       setSubmitted(true);
       setMessage("Yorumun yayınlandı. Teşekkürler!");
@@ -69,6 +71,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
         >
           {Array.from({ length: 5 }, (_, index) => {
             const value = index + 1;
+            const previewed = hoverRating > 0 && value <= hoverRating;
             const selected = value <= rating;
 
             return (
@@ -78,15 +81,21 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
                 className="rounded-md p-1.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
                 disabled={isSubmitting || submitted}
                 key={value}
+                onBlur={() => setHoverRating(0)}
                 onClick={() => setRating(value)}
+                onFocus={() => setHoverRating(value)}
+                onMouseEnter={() => setHoverRating(value)}
+                onMouseLeave={() => setHoverRating(0)}
                 type="button"
               >
                 <Star
                   aria-hidden="true"
                   className={
-                    selected
+                    previewed
+                      ? "size-7 fill-amber-300 text-amber-300"
+                      : selected
                       ? "size-7 fill-[var(--brand-orange)] text-[var(--brand-orange)]"
-                      : "size-7 text-[var(--muted)]"
+                      : "size-7 text-[#D8DEE8]"
                   }
                 />
               </button>

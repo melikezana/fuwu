@@ -156,8 +156,17 @@ export function ProviderReviews({
               </article>
             ))
           ) : (
-            <div className="rounded-md border border-dashed border-[var(--border)] bg-white p-5 text-sm font-bold text-[var(--muted)]">
-              Henüz yorum yok.
+            <div className="rounded-2xl border-2 border-dashed border-[var(--border)] p-8 text-center">
+              <Star
+                className="mx-auto mb-3 size-10 text-[var(--brand-orange)] opacity-30"
+                aria-hidden
+              />
+              <p className="font-semibold text-[var(--brand-navy)]">
+                İlk değerlendirmeyi sen yaz
+              </p>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Bu usta henüz değerlendirilmemiş.
+              </p>
             </div>
           )}
         </div>

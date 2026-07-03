@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ProfileImageUploader } from "@/components/dashboard/ProfileImageUploader";
 import {
   getProviderDashboardStatusBadgeView,
   ProviderDashboardApplicationPlaceholder,
@@ -163,8 +164,13 @@ export default async function ProviderDashboardProfilePage({
     >
       {providerAccess.ok ? (
         <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
-          <div className="flex flex-col gap-4 border-b border-[var(--border)] pb-5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 cursor-default select-none">
+          <div className="flex flex-col gap-5 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+              <ProfileImageUploader
+                currentImageUrl={providerAccess.profile.profileImageUrl}
+                providerName={providerAccess.profile.name}
+              />
+              <div className="min-w-0 cursor-default select-none">
               <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
                 Usta profili
               </p>
@@ -174,6 +180,7 @@ export default async function ProviderDashboardProfilePage({
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
                 {providerAccess.profile.category} hizmeti, {providerAccess.profile.district} bölgesi
               </p>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2">

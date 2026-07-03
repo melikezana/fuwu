@@ -33,9 +33,7 @@ export function ProviderList({
   const providerGridClassName =
     providers.length === 1
       ? "mx-auto max-w-2xl"
-      : providers.length === 2
-        ? "mx-auto max-w-5xl md:grid-cols-2"
-        : "md:grid-cols-2 xl:grid-cols-3";
+      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
   return (
     <section>
@@ -52,9 +50,13 @@ export function ProviderList({
       </div>
 
       {providers.length > 0 ? (
-        <div className={`mt-6 grid auto-rows-fr gap-5 ${providerGridClassName}`}>
-          {providers.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} />
+        <div className={`mt-6 grid auto-rows-fr gap-4 ${providerGridClassName}`}>
+          {providers.map((provider, index) => (
+            <ProviderCard
+              featured={index < 2}
+              key={provider.id}
+              provider={provider}
+            />
           ))}
         </div>
       ) : categoryDistrictEmptyState ? (

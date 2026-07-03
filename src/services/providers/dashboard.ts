@@ -1,3 +1,5 @@
+import { revalidatePath } from "next/cache";
+import { appRoutes } from "@/lib/constants/navigation";
 import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
 import {
   PROVIDER_APPLICATION_STATUSES,
@@ -19,6 +21,7 @@ type ProviderDashboardRecord = Pick<
   | "phone"
   | "whatsapp"
   | "description"
+  | "profile_image_url"
   | "average_price_min"
   | "average_price_max"
   | "rating"
@@ -57,6 +60,7 @@ export type ProviderDashboardProfile = {
   isApproved: boolean;
   name: string;
   phone: string;
+  profileImageUrl?: string;
   rating: number;
   whatsapp: string;
 };
@@ -115,12 +119,18 @@ export type ProviderAvailabilityActionResult = {
   ok: boolean;
 };
 
+export type ProviderProfileImageActionResult = {
+  code: string;
+  ok: boolean;
+};
+
 const providerSelectQuery = `
   id,
   name,
   phone,
   whatsapp,
   description,
+  profile_image_url,
   average_price_min,
   average_price_max,
   rating,
@@ -137,6 +147,7 @@ const providerSelectQueryWithoutAvailability = `
   phone,
   whatsapp,
   description,
+  profile_image_url,
   average_price_min,
   average_price_max,
   rating,
@@ -237,6 +248,7 @@ function mapProviderDashboardRecord(
     isApproved: record.is_approved,
     name,
     phone,
+    profileImageUrl: sanitizeText(record.profile_image_url ?? "", 500) || undefined,
     rating: Number(record.rating ?? 0),
     whatsapp: sanitizePhone(record.whatsapp ?? "") || phone,
   };
@@ -567,4 +579,73 @@ export async function updateProviderDashboardAvailability(
   }
 
   return createAvailabilityActionResult("availability-updated", true);
+}
+
+export async function updateProviderProfileImage(
+  newImagePath: string,
+  newPublicUrl: string,
+): Promise<ProviderProfileImageActionResult> {
+  try {
+    const providerAccess = await getProviderDashboardAccess();
+    const authContext = await getServerAuthContext();
+    const imagePath = sanitizeText(newImagePath, 500);
+    const publicUrl = sanitizeText(newPublicUrl, 500);
+
+    if (!providerAccess.ok || !authContext.supabase || !authContext.user) {
+      return {
+        code: "image-update-failed",
+        ok: false,
+      };
+    }
+
+    if (!imagePath || !publicUrl) {
+      return {
+        code: "image-update-failed",
+        ok: false,
+      };
+    }
+
+    const { data, error } = await authContext.supabase
+      .from("providers")
+      .update({
+        profile_image_path: imagePath,
+        profile_image_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", providerAccess.profile.id)
+      .eq("user_id", authContext.user.id)
+      .select("id")
+      .maybeSingle();
+
+    if (error || !data) {
+      handleServiceError(error ?? new Error("Provider profile image update matched no rows."), {
+        logContext: "Provider profile image update failed.",
+        publicMessage: "Profil fotoğrafı şu anda güncellenemedi.",
+      });
+
+      return {
+        code: "image-update-failed",
+        ok: false,
+      };
+    }
+
+    revalidatePath(appRoutes.providerDashboardProfile);
+    revalidatePath(`/providers/${providerAccess.profile.id}`);
+    revalidatePath(appRoutes.providers);
+
+    return {
+      code: "image-updated",
+      ok: true,
+    };
+  } catch (error) {
+    handleServiceError(error, {
+      logContext: "Provider profile image update failed.",
+      publicMessage: "Profil fotoğrafı şu anda güncellenemedi.",
+    });
+
+    return {
+      code: "image-update-failed",
+      ok: false,
+    };
+  }
 }

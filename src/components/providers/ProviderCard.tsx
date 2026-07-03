@@ -27,6 +27,7 @@ type ProviderCardProps = {
   provider: Provider;
   actionsId?: string;
   className?: string;
+  featured?: boolean;
 };
 
 function createProviderFilterHref(
@@ -43,9 +44,15 @@ function createProviderFilterHref(
 
 function getDisplayPriceRange(value: string | undefined) {
   const normalizedValue = value?.trim() ?? "";
+  const normalizedLowerValue = normalizedValue.toLocaleLowerCase("tr");
 
-  if (!normalizedValue || /\b(null|undefined|nan)\b/i.test(normalizedValue)) {
-    return "Yakında";
+  if (
+    !normalizedValue ||
+    /\b(null|undefined|nan)\b/i.test(normalizedValue) ||
+    normalizedLowerValue.includes("fiyat bilgisi") ||
+    normalizedLowerValue === "yakında"
+  ) {
+    return "Bilgi yok";
   }
 
   return normalizedValue;
@@ -55,6 +62,7 @@ export function ProviderCard({
   provider,
   actionsId,
   className,
+  featured = false,
 }: ProviderCardProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
@@ -71,6 +79,122 @@ export function ProviderCard({
       : provider.availabilityStatus.tone === "orange"
         ? "border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
         : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
+
+  if (featured) {
+    return (
+      <article
+        aria-labelledby={`provider-${provider.id}-title`}
+        className={cn(
+          "group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[rgba(13,20,36,0.09)] bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(255,138,0,0.34)] hover:shadow-[var(--shadow-premium)]",
+          className,
+        )}
+      >
+        <div className="relative">
+          <ProviderAvatar className="ring-0" provider={provider} variant="hero" />
+          {typeof provider.rating === "number" &&
+          Number.isFinite(provider.rating) &&
+          provider.rating > 0 ? (
+            <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full border border-white/70 bg-white/90 px-2.5 py-1.5 text-xs font-bold text-amber-700 shadow-[var(--shadow-subtle)] backdrop-blur-sm">
+              <Star className="size-3.5 fill-current" />
+              {provider.rating.toFixed(1)}
+            </div>
+          ) : null}
+          <div
+            className={`absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold shadow-[var(--shadow-subtle)] ${availabilityClassName}`}
+          >
+            <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{provider.availabilityStatus.label}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col p-4">
+          <Button
+            className="min-w-0 break-words text-left text-lg font-bold leading-6 text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)]"
+            href={profileHref}
+            id={`provider-${provider.id}-title`}
+            title={provider.name || "İsimsiz Usta"}
+            variant="plain"
+          >
+            {provider.name || "İsimsiz Usta"}
+          </Button>
+
+          <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+            {provider.category ? (
+              <Link
+                className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)]"
+                href={createProviderFilterHref(
+                  currentSearchParams,
+                  "category",
+                  provider.category,
+                )}
+              >
+                <ServiceIcon
+                  className="size-3.5 shrink-0 text-[var(--brand-orange)]"
+                  name={getServiceIconNameForCategory(provider.category)}
+                />
+                <span className="truncate">{provider.category}</span>
+              </Link>
+            ) : null}
+            {provider.district ? (
+              <Link
+                className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)]"
+                href={createProviderFilterHref(
+                  currentSearchParams,
+                  "district",
+                  provider.district,
+                )}
+              >
+                <MapPin className="size-3 shrink-0" />
+                <span className="truncate">{provider.district}</span>
+              </Link>
+            ) : null}
+          </div>
+
+          <div className="mt-4 flex min-w-0 items-center gap-2 rounded-xl border border-[rgba(255,138,0,0.2)] bg-[var(--brand-orange-soft)] px-3 py-2.5 text-sm font-bold text-[var(--brand-navy)]">
+            <Coins className="size-4 shrink-0 text-[var(--brand-orange-dark)]" aria-hidden />
+            <span className="truncate" title={priceRange}>
+              {priceRange}
+            </span>
+          </div>
+
+          <div className="mt-auto grid grid-cols-2 gap-2 pt-4" id={actionsId}>
+            {hasWhatsApp ? (
+              <ProviderContactLink
+                className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
+                kind="whatsapp"
+                provider={provider}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <MessageCircle className="size-4 shrink-0" />
+                <span>WhatsApp</span>
+              </ProviderContactLink>
+            ) : hasPhone ? (
+              <ProviderContactLink
+                className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
+                kind="phone"
+                provider={provider}
+              >
+                <Phone className="size-4 shrink-0" />
+                <span>Telefon</span>
+              </ProviderContactLink>
+            ) : null}
+            <Button
+              className={cn(
+                "h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm",
+                hasContactMethod ? undefined : "col-span-2",
+              )}
+              href={profileHref}
+              variant={hasContactMethod ? "secondary" : "primary"}
+            >
+              <UserRoundSearch className="size-4 shrink-0" />
+              <span>Profili Gör</span>
+            </Button>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article
