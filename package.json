@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
     "check:sentry-logger": "node scripts/check-sentry-logger.mjs",
