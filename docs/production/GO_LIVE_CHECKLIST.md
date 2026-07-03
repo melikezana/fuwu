@@ -1,10 +1,11 @@
 # FUWU Production Go-Live Kontrol Listesi
 
-Tarih: 28 Haziran 2026
+Tarih: 3 Temmuz 2026
 
 ## Nihai karar
 
-**❌ NO-GO — açık P0 maddeleri tamamlanana kadar yayına çıkma.**
+**❌ NO-GO — Upstash production değişkenleri ve production smoke testi
+tamamlanana kadar yayına çıkma.**
 
 Tamamlanan P0 kontroller:
 
@@ -15,11 +16,10 @@ Tamamlanan P0 kontroller:
 - ✅ `profiles.avatar_url` kolonu production'da mevcut.
 - ✅ `reviews` RLS politikaları production'da mevcut.
 - ✅ `backend_health_catalog()` production DB'de CLI login role ile metadata döndürdü.
+- ✅ `scripts/check-backend-db.mjs` production service-role ile PASS çalıştı.
 
 Açık P0 maddeleri:
 
-- ❌ `SUPABASE_SERVICE_ROLE_KEY` bu ortamda yok; `scripts/check-backend-db.mjs`
-  production service-role ile PASS çalıştırılamadı.
 - ❌ `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` production ortamında
   zorunlu değişken olarak hâlâ tamamlanmalı.
 - ❌ Production smoke testi service-role erişimiyle tamamlanmalı ve scoped test
@@ -75,14 +75,16 @@ Yerel migration zinciri:
 Production yetkili kontroller:
 
 - ✅ `supabase link --project-ref bjhyisomjadirdchruix` tamamlandı.
-- ✅ `supabase migration list` local/remote karşılaştırması yapıldı.
-- ✅ `supabase db push --dry-run` yalnızca
-  `20260628000100_add_missing_service_categories.sql` migration'ını gösterdi;
-  `DROP TABLE` / `DROP COLUMN` yok.
-- ✅ `supabase db push` uygulandı; production katalog 11 kategoriye çıktı.
+- ✅ `supabase migration list` local/remote karşılaştırması yapıldı; 41 migration
+  local ve remote tarafta eşit.
+- ✅ `supabase db push --dry-run` `Remote database is up to date` döndü;
+  uygulanacak SQL, `DROP TABLE` veya `DROP COLUMN` yok.
+- ✅ `supabase db push` no-op çalıştı; remote database güncel.
+- ✅ Production SQL doğrulamaları PASS: 11 aktif kategori (`cilingir` dahil),
+  `profiles.avatar_url`, `reviews` RLS politikaları ve `notifications` realtime
+  publication kaydı mevcut.
 - ✅ Production `backend_health_catalog()` CLI login role ile metadata döndürdü.
-- ❌ Production `SUPABASE_SERVICE_ROLE_KEY` bu ortamda yok; zorunlu
-  `scripts/check-backend-db.mjs` service-role çalıştırması tamamlanamadı.
+- ✅ `scripts/check-backend-db.mjs` production service-role ile PASS çalıştı.
 
 Veri kaybı riski dry-run çıktısında DROP içermediği için güvenli görüldü.
 
@@ -132,10 +134,8 @@ Gerçek kullanıcı verisine dokunulmamıştır. Cleanup script'i yalnızca izin
 
 GO kararı için aşağıdakilerin tamamı zorunludur:
 
-1. Production `SUPABASE_SERVICE_ROLE_KEY` ile `scripts/check-backend-db.mjs`
-   kontrolünü PASS çalıştır.
-2. Upstash Redis oluştur ve iki zorunlu Vercel değişkenini ekle.
-3. Production smoke testini tamamla ve scoped test verisini temizle.
+1. Upstash Redis oluştur ve iki zorunlu Vercel değişkenini ekle.
+2. Production smoke testini tamamla ve scoped test verisini temizle.
 
-**❌ NO-GO — service-role backend health, zorunlu Upstash değişkenleri ve
-production smoke testi tamamlanana kadar bekle.**
+**❌ NO-GO — zorunlu Upstash değişkenleri ve production smoke testi
+tamamlanana kadar bekle.**

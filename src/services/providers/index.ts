@@ -16,6 +16,7 @@ import {
   type ProviderBudgetValue,
 } from "@/lib/constants/providers";
 import { handleServiceError } from "@/lib/errors";
+import { logError } from "@/lib/logger";
 import { getSupabaseClientConfig, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   calculateProviderProfileCompletion,
@@ -100,6 +101,11 @@ type ProviderReadResult = {
   providers: Provider[];
   source: ProviderDataSource;
 };
+
+type ProviderByIdResult =
+  | { status: "found"; provider: Provider }
+  | { status: "not-found" }
+  | { status: "error"; supabaseConfigured: boolean };
 
 export type MarketplaceTrustMetrics = {
   activeProviders: number;
@@ -722,8 +728,12 @@ function handleSupabaseListError(error: unknown) {
 }
 
 function handleSupabaseDetailError(error: unknown) {
-  warnProviderReadError(error);
-  return undefined;
+  logError(error, {
+    context: "Provider Supabase detail read failed.",
+    supabaseConfigured: isSupabaseConfigured,
+  });
+
+  return { status: "error", supabaseConfigured: isSupabaseConfigured } satisfies ProviderByIdResult;
 }
 
 async function fetchMatchingCategoryIds(
@@ -982,16 +992,18 @@ async function fetchProvidersFromSupabase(
 
 async function fetchProviderByIdFromSupabase(
   id: string,
-): Promise<Provider | null | undefined> {
+): Promise<ProviderByIdResult> {
   try {
     if (!isUuid(id)) {
-      return isSupabaseConfigured ? undefined : null;
+      return isSupabaseConfigured
+        ? { status: "not-found" }
+        : { status: "error", supabaseConfigured: false };
     }
 
     const supabase = createProvidersSupabaseClient();
 
     if (!supabase) {
-      return null;
+      return { status: "error", supabaseConfigured: false };
     }
 
     let { data, error } = await supabase
@@ -1020,10 +1032,12 @@ async function fetchProviderByIdFromSupabase(
     }
 
     if (!data) {
-      return undefined;
+      return { status: "not-found" };
     }
 
-    return mapSupabaseProvider(data as unknown as SupabaseProviderRecord);
+    const provider = mapSupabaseProvider(data as unknown as SupabaseProviderRecord);
+
+    return provider ? { status: "found", provider } : { status: "not-found" };
   } catch (error) {
     return handleSupabaseDetailError(error);
   }
@@ -1108,13 +1122,17 @@ export async function getProviders(filters: ProviderFilters = {}): Promise<Provi
 }
 
 export async function getProviderById(id: string): Promise<Provider | undefined> {
-  const supabaseProvider = await fetchProviderByIdFromSupabase(id);
+  const result = await fetchProviderByIdFromSupabase(id);
 
-  if (supabaseProvider !== null) {
-    return supabaseProvider;
+  if (result.status === "found") {
+    return result.provider;
   }
 
-  return getMockProviderById(id);
+  if (result.status === "error" && !result.supabaseConfigured) {
+    return getMockProviderById(id);
+  }
+
+  return undefined;
 }
 
 export async function getProvidersByCategory(category: string): Promise<Provider[]> {

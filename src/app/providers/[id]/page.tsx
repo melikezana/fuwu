@@ -176,7 +176,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   ];
 
   return (
-    <div className="bg-[var(--background)]">
+    <div className="bg-[var(--background)] pb-24 lg:pb-0">
       <ProviderProfileViewTracker provider={provider} />
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
@@ -509,41 +509,35 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </section>
       ) : null}
 
-      {hasContact ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur lg:hidden">
-          <div
-            className={cn(
-              "mx-auto grid max-w-xl gap-2",
-              hasWhatsApp && hasPhone ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
-            )}
-          >
-            {hasWhatsApp ? (
-              <ProviderContactLink
-                aria-label={`${provider.name} ile WhatsApp üzerinden yazış`}
-                className="min-h-12 w-full gap-2"
-                kind="whatsapp"
-                provider={provider}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
-                WhatsApp ile Yaz
-              </ProviderContactLink>
-            ) : null}
-            {hasPhone ? (
-              <ProviderContactLink
-                aria-label={`${provider.name} adlı ustayı telefonla ara`}
-                className="min-h-12 gap-2 px-4"
-                kind="phone"
-                provider={provider}
-              >
-                <Phone aria-hidden="true" className="size-4 shrink-0" />
-                <span className={hasWhatsApp ? "sr-only" : undefined}>Telefon</span>
-              </ProviderContactLink>
-            ) : null}
-          </div>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
+        <div className="mx-auto flex max-w-2xl gap-3">
+          {hasWhatsApp ? (
+            <ProviderContactLink
+              className="h-12 flex-1 gap-2"
+              kind="whatsapp"
+              provider={provider}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <MessageCircle aria-hidden="true" className="size-4" />
+              <span>WhatsApp</span>
+            </ProviderContactLink>
+          ) : null}
+          {hasPhone ? (
+            <ProviderContactLink
+              className="h-12 flex-1 gap-2"
+              kind="phone"
+              provider={provider}
+            >
+              <Phone aria-hidden="true" className="size-4" />
+              <span>Ara</span>
+            </ProviderContactLink>
+          ) : null}
+          <Button className="h-12 flex-1" href={appRoutes.request} variant="primary">
+            Talep Oluştur
+          </Button>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

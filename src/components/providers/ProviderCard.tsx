@@ -45,7 +45,7 @@ function getDisplayPriceRange(value: string | undefined) {
   const normalizedValue = value?.trim() ?? "";
 
   if (!normalizedValue || /\b(null|undefined|nan)\b/i.test(normalizedValue)) {
-    return "Fiyat bilgisi yakında";
+    return "Yakında";
   }
 
   return normalizedValue;

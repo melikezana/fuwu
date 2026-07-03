@@ -4,7 +4,12 @@ import { Container } from "@/components/ui/Container";
 import { TextLink } from "@/components/ui/TextLink";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
-import { services, type ServiceIconName } from "@/lib/constants/services";
+import {
+  getServiceIconNameForCategory,
+  services,
+  type ServiceIconName,
+} from "@/lib/constants/services";
+import { normalizeTurkishText } from "@/lib/validations/text";
 
 type TrustSignal = {
   id: string;
@@ -68,6 +73,10 @@ const heroRequests: HeroRequest[] = [
     iconName: "truck",
   },
 ];
+
+function slugifyCategory(value: string) {
+  return normalizeTurkishText(value).replace(/\s+/g, "-");
+}
 
 function HeroSearch() {
   return (
@@ -222,12 +231,17 @@ export function HeroSection() {
 
           <div className="mt-5 flex flex-wrap gap-2">
             {heroCategoryPills.map((item) => (
-              <span
-                className="cursor-default select-none rounded-md border border-[rgba(255,138,0,0.26)] bg-white px-3 py-2 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]"
+              <Link
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-sm font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all duration-200 hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-card)]"
+                href={`${appRoutes.providers}?category=${slugifyCategory(item)}`}
                 key={item}
               >
+                <ServiceIcon
+                  className="size-3.5 text-[var(--brand-orange)]"
+                  name={getServiceIconNameForCategory(item)}
+                />
                 {item}
-              </span>
+              </Link>
             ))}
           </div>
 

@@ -274,7 +274,7 @@ function formatCreatedAt(value: string) {
 }
 
 function formatShortId(value: string) {
-  return value.slice(0, 8);
+  return value.length > 8 ? `${value.slice(0, 8)}...` : value;
 }
 
 function getRequestResponseDateText(request: AdminServiceRequest) {
@@ -598,9 +598,9 @@ function RequestMobileCard({ request }: { request: AdminServiceRequest }) {
       </div>
 
       <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--muted)]">
-        <p>
+        <p title={request.id}>
           <span className="font-semibold text-[var(--brand-navy)]">Talep ID: </span>
-          {request.id}
+          {formatShortId(request.id)}
         </p>
         <p>
           <span className="font-semibold text-[var(--brand-navy)]">Telefon: </span>
@@ -723,7 +723,7 @@ export default async function AdminServiceRequestsPage({
                   <th className="px-4 py-3">Bütçe / teklif</th>
                   <th className="px-4 py-3">Ödeme tercihi</th>
                   <th className="px-4 py-3">Ödeme durumu</th>
-                  <th className="px-4 py-3">Durum / tarih</th>
+                  <th className="px-4 py-3">Durum</th>
                   <th className="px-4 py-3">Atanan usta</th>
                   <th className="px-4 py-3">İşlem</th>
                 </tr>
@@ -775,9 +775,6 @@ export default async function AdminServiceRequestsPage({
                     <td className="px-4 py-4">
                       <div className="grid gap-2">
                         <RequestStatusBadge status={request.status} />
-                        <p className="text-xs font-semibold leading-5 text-[var(--muted)]">
-                          Oluşturuldu: {formatCreatedAt(request.createdAt)}
-                        </p>
                         {getRequestResponseDateText(request) ? (
                           <p className="text-xs font-semibold leading-5 text-[var(--muted)]">
                             {getRequestResponseDateText(request)}

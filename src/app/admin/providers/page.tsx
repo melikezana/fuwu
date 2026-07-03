@@ -222,7 +222,7 @@ function formatRating(rating: number) {
 }
 
 function formatShortId(value: string) {
-  return value.slice(0, 8);
+  return value.length > 8 ? `${value.slice(0, 8)}...` : value;
 }
 
 function getWorkingHoursFormValue(value: string) {
@@ -363,6 +363,18 @@ function BooleanStatus({
       {value ? trueLabel : falseLabel}
     </AdminStatusBadge>
   );
+}
+
+function ProviderPublicationStatusBadge({ provider }: { provider: AdminProvider }) {
+  if (provider.isActive && provider.isApproved) {
+    return <AdminStatusBadge tone="green">Aktif + Onaylı</AdminStatusBadge>;
+  }
+
+  if (provider.isActive && !provider.isApproved) {
+    return <AdminStatusBadge tone="orange">Beklemede</AdminStatusBadge>;
+  }
+
+  return <AdminStatusBadge tone="red">Pasif / Reddedildi</AdminStatusBadge>;
 }
 
 function ProviderActionNotice({
@@ -624,17 +636,7 @@ function ProviderMobileCard({ provider }: { provider: AdminProvider }) {
           <AdminStatusBadge tone={provider.availabilityStatusTone}>
             {provider.availabilityStatusLabel}
           </AdminStatusBadge>
-          <BooleanStatus
-            falseLabel="Pasif"
-            trueLabel="Aktif"
-            value={provider.isActive}
-          />
-          <BooleanStatus
-            falseLabel="Onay Bekliyor"
-            falseTone="orange"
-            trueLabel="Onaylı"
-            value={provider.isApproved}
-          />
+          <ProviderPublicationStatusBadge provider={provider} />
         </div>
         <ProviderVerificationBadges provider={provider} />
         <p>
@@ -792,19 +794,7 @@ export default async function AdminProvidersPage({
                       <ProviderPriceInputs formId={updateFormId} provider={provider} />
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex flex-col gap-2">
-                        <BooleanStatus
-                          falseLabel="Pasif"
-                          trueLabel="Aktif"
-                          value={provider.isActive}
-                        />
-                        <BooleanStatus
-                          falseLabel="Onay Bekliyor"
-                          falseTone="orange"
-                          trueLabel="Onaylı"
-                          value={provider.isApproved}
-                        />
-                      </div>
+                      <ProviderPublicationStatusBadge provider={provider} />
                     </td>
                     <td className="px-4 py-4">
                       <div className="space-y-3">

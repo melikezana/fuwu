@@ -111,9 +111,13 @@ export function AdminPageShell({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
               {breadcrumbLabel ? (
-                <p className="text-xs text-[var(--muted)]">
-                  Admin Paneli &gt; {breadcrumbLabel}
-                </p>
+                <nav aria-label="Breadcrumb" className="mb-2 text-xs text-[var(--muted)]">
+                  <span>Admin Paneli</span>
+                  <span className="mx-1.5 text-[var(--border)]">/</span>
+                  <span className="font-semibold text-[var(--brand-navy)]">
+                    {breadcrumbLabel}
+                  </span>
+                </nav>
               ) : null}
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 Fuwu İç Operasyon
@@ -132,7 +136,7 @@ export function AdminPageShell({
           </div>
 
           <nav
-            className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible"
+            className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             aria-label="Admin menüsü"
           >
             {adminNavItems.map((item) => {
