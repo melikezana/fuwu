@@ -6,7 +6,6 @@ import { Container } from "@/components/ui/Container";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/lib/constants/navigation";
-import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { I18nText } from "@/lib/i18n";
 import {
   createPageMetadata,
@@ -172,17 +171,6 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
   const selectedBudget = getSearchParam(params?.budget);
-  const hasActiveFilters = [
-    selectedAvailability,
-    selectedCategory,
-    selectedDistrict,
-    selectedMaximumPrice,
-    selectedMinimumPrice,
-    selectedPrice,
-    selectedQuery,
-    selectedRating,
-    selectedBudget,
-  ].some((value) => Boolean(value.trim()));
   const providerDirectory = await getProviderDirectory({
     availability: selectedAvailability,
     category: selectedCategory,
@@ -195,12 +183,6 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     budget: selectedBudget,
   });
   const { filterOptions, providers: filteredProviders, source } = providerDirectory;
-  const selectedCategoryLabel =
-    services.find(
-      (service) =>
-        normalizeServiceValue(service.title) ===
-        normalizeServiceValue(selectedCategory),
-    )?.title ?? toTurkishTitleCase(selectedCategory);
   const categoryDistrictEmptyState =
     selectedCategory && selectedDistrict && filteredProviders.length === 0
       ? {
@@ -208,7 +190,6 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             district: selectedDistrict,
             service: selectedCategory,
           }).toString()}`,
-          title: `Bu bölgede henüz ${selectedCategoryLabel} ustası yok`,
         }
       : undefined;
 
@@ -272,7 +253,6 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
         <ProviderList
           categoryDistrictEmptyState={categoryDistrictEmptyState}
-          hasActiveFilters={hasActiveFilters}
           providers={filteredProviders}
           totalCount={providerDirectory.totalCount}
         />

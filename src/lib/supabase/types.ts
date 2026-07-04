@@ -212,6 +212,44 @@ export type Database = {
           },
         ];
       };
+      provider_gallery_images: {
+        Row: {
+          id: string;
+          provider_id: string;
+          storage_path: string;
+          public_url: string;
+          caption: string | null;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          storage_path: string;
+          public_url: string;
+          caption?: string | null;
+          display_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+          storage_path?: string;
+          public_url?: string;
+          caption?: string | null;
+          display_order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "provider_gallery_images_provider_id_fkey";
+            columns: ["provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       provider_applications: {
         Row: {
           id: string;

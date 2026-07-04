@@ -1,5 +1,6 @@
 "use client";
 
+import { UserRoundSearch } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
 import { useI18n } from "@/lib/i18n";
@@ -9,16 +10,48 @@ import { ProviderCard } from "./ProviderCard";
 type ProviderListProps = {
   categoryDistrictEmptyState?: {
     requestHref: string;
-    title: string;
   };
-  hasActiveFilters?: boolean;
   providers: Provider[];
   totalCount: number;
 };
 
+function ProviderEmptyState({
+  requestHref,
+  testId,
+}: {
+  requestHref: string;
+  testId?: string;
+}) {
+  return (
+    <div
+      className="col-span-full mt-6 py-16 text-center"
+      data-testid={testId}
+    >
+      <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-2xl bg-[var(--brand-orange-soft)]">
+        <UserRoundSearch
+          className="size-10 text-[var(--brand-orange)]"
+          aria-hidden
+        />
+      </div>
+      <h3 className="text-xl font-bold text-[var(--brand-navy)]">
+        Bu alanda henüz usta yok
+      </h3>
+      <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
+        İhtiyacını bırak, uygun usta müsait olduğunda seni bilgilendirelim.
+      </p>
+      <Button
+        className="mt-6 inline-flex"
+        href={requestHref}
+        variant="primary"
+      >
+        Talep Oluştur
+      </Button>
+    </div>
+  );
+}
+
 export function ProviderList({
   categoryDistrictEmptyState,
-  hasActiveFilters = false,
   providers,
   totalCount,
 }: ProviderListProps) {
@@ -59,48 +92,15 @@ export function ProviderList({
             />
           ))}
         </div>
-      ) : categoryDistrictEmptyState ? (
-        <div
-          className="mt-6 rounded-lg border border-[rgba(255,138,0,0.28)] bg-[var(--surface)] p-6 text-center shadow-[var(--shadow-card)]"
-          data-testid="provider-category-district-empty-state"
-        >
-          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-base font-semibold text-[var(--brand-orange-dark)]">
-            0
-          </div>
-          <p className="text-lg font-semibold text-[var(--brand-navy)]">
-            {categoryDistrictEmptyState.title}
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-            Talebini bırak, bölgeye uygun usta bulunduğunda süreç hemen başlasın.
-          </p>
-          <Button
-            className="mt-5 w-full sm:w-fit"
-            href={categoryDistrictEmptyState.requestHref}
-          >
-            Talep Oluştur
-          </Button>
-        </div>
       ) : (
-        <div className="mt-6 cursor-default rounded-lg bg-white p-6 text-center shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
-          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-base font-semibold text-[var(--brand-orange-dark)]">
-            0
-          </div>
-          <p className="text-lg font-semibold text-[var(--brand-navy)]">
-            {hasNoPublicProviders
-              ? t("providers.empty.noPublicTitle")
-              : t("providers.empty.noMatchesTitle")}
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-            {hasActiveFilters
-              ? "Bu kategori ve bölgede henüz uygun usta yok. Talep oluşturduğunda uygun ustalar bilgilendirilecek."
-              : hasNoPublicProviders
-                ? t("providers.empty.noPublicDescription")
-                : t("providers.empty.noMatchesDescription")}
-          </p>
-          <Button className="mt-5 w-full sm:w-fit" href={appRoutes.request}>
-            Talep Oluştur
-          </Button>
-        </div>
+        <ProviderEmptyState
+          requestHref={categoryDistrictEmptyState?.requestHref ?? appRoutes.request}
+          testId={
+            categoryDistrictEmptyState
+              ? "provider-category-district-empty-state"
+              : undefined
+          }
+        />
       )}
     </section>
   );

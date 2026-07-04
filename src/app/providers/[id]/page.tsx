@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   BriefcaseBusiness,
   CalendarClock,
-  Camera,
   Home,
   MapPinned,
   MessageCircle,
@@ -34,8 +33,10 @@ import {
   isLiveProvider,
 } from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
+import { getProviderGallery } from "@/services/providers/gallery";
 import { getProviderReviews } from "@/services/reviews";
 import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
@@ -141,10 +142,12 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     return <ProviderNotFoundState />;
   }
 
-  const [providers, reviewData, authenticatedUserId] = await Promise.all([
+  const supabase = await createSupabaseServerClient();
+  const [providers, reviewData, authenticatedUserId, galleryImages] = await Promise.all([
     getProvidersByCategory(provider.category),
     getProviderReviews(provider.id),
     getAuthenticatedServerUserId(),
+    supabase ? getProviderGallery(provider.id, supabase) : Promise.resolve([]),
   ]);
   const relatedProviders = providers
     .filter(
@@ -207,19 +210,19 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           <section className="relative overflow-hidden rounded-lg bg-white p-6 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-elevated)] ring-2 ring-white sm:h-40 sm:w-40">
+              <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-premium)] ring-4 ring-white sm:h-48 sm:w-48">
                 {provider.profileImageUrl ? (
                   <Image
                     alt={provider.name}
                     className="object-cover"
                     fill
                     priority
-                    sizes="(min-width: 640px) 160px, 128px"
+                    sizes="(min-width: 640px) 192px, 144px"
                     src={provider.profileImageUrl}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--brand-orange-soft)] to-[#ffe4bd]">
-                    <span className="text-5xl font-bold tracking-normal text-[var(--brand-navy)]">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--brand-orange)] to-[var(--brand-orange-dark)]">
+                    <span className="text-5xl font-bold tracking-tight text-white drop-shadow-sm">
                       {getProviderInitials(provider)}
                     </span>
                   </div>
@@ -333,29 +336,36 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </p>
           </section>
 
-          <section className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.06)]">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2 className="text-lg font-bold text-[var(--brand-navy)]">
+          {galleryImages.length > 0 ? (
+            <section className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.06)]">
+              <h2 className="mb-4 text-lg font-bold text-[var(--brand-navy)]">
                 İşlerimden Kareler
               </h2>
-              <span className="text-xs font-semibold text-[var(--muted)]">
-                Yakında eklenecek
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--surface-soft)]"
-                  key={index}
-                >
-                  <Camera className="size-6 text-[var(--muted)] opacity-40" aria-hidden />
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-center text-xs font-semibold text-[var(--muted)]">
-              Bu usta henüz iş fotoğrafı eklememiş.
-            </p>
-          </section>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {galleryImages.map((img) => (
+                  <div
+                    className="group relative aspect-square overflow-hidden rounded-xl bg-[var(--surface-soft)]"
+                    key={img.id}
+                  >
+                    <Image
+                      alt={img.caption ?? `${provider.name} iş görseli`}
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="(min-width: 640px) 33vw, 50vw"
+                      src={img.publicUrl}
+                    />
+                    {img.caption ? (
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2">
+                        <p className="truncate text-xs font-medium text-white">
+                          {img.caption}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <ProviderReviews
             isAuthenticated={Boolean(authenticatedUserId)}

@@ -1,7 +1,16 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { appRoutes } from "@/lib/constants/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { updateProviderProfileImage } from "@/services/providers/dashboard";
+import {
+  getProviderDashboardAccess,
+  updateProviderProfileImage,
+} from "@/services/providers/dashboard";
+import {
+  deleteGalleryImage,
+  uploadGalleryImage,
+} from "@/services/providers/gallery";
 import { uploadProviderProfileImage } from "@/services/storage/providerImages";
 
 export type UpdateProviderProfileImageActionResult = {
@@ -57,5 +66,95 @@ export async function updateProviderProfileImageAction(
   return {
     message: "Profil fotoğrafın güncellendi.",
     ok: true,
+  };
+}
+
+export async function uploadGalleryImageAction(
+  formData: FormData,
+): Promise<{ message: string; ok: boolean }> {
+  const fileValue = formData.get("galleryImage");
+  const file = fileValue instanceof File && fileValue.size > 0 ? fileValue : null;
+  const captionValue = formData.get("caption");
+  const caption = typeof captionValue === "string" ? captionValue : undefined;
+
+  if (!file) {
+    return {
+      message: "Lütfen JPG, PNG veya WebP formatında bir iş görseli seç.",
+      ok: false,
+    };
+  }
+
+  const [supabase, providerAccess] = await Promise.all([
+    createSupabaseServerClient(),
+    getProviderDashboardAccess(),
+  ]);
+
+  if (!supabase) {
+    return {
+      message: "İş galerisi şu anda güncellenemiyor. Lütfen daha sonra tekrar dene.",
+      ok: false,
+    };
+  }
+
+  if (!providerAccess.ok) {
+    return {
+      message: "Bu işlem için onaylı usta profiliyle giriş yapmalısın.",
+      ok: false,
+    };
+  }
+
+  const result = await uploadGalleryImage(
+    supabase,
+    providerAccess.profile.id,
+    file,
+    caption,
+  );
+
+  if (result.ok) {
+    revalidatePath(appRoutes.providerDashboardProfile);
+    revalidatePath(`/providers/${providerAccess.profile.id}`);
+    revalidatePath(appRoutes.providers);
+  }
+
+  return {
+    message: result.message,
+    ok: result.ok,
+  };
+}
+
+export async function deleteGalleryImageAction(
+  imageId: string,
+  storagePath: string,
+): Promise<{ message: string; ok: boolean }> {
+  const [supabase, providerAccess] = await Promise.all([
+    createSupabaseServerClient(),
+    getProviderDashboardAccess(),
+  ]);
+
+  if (!supabase) {
+    return {
+      message: "İş galerisi şu anda güncellenemiyor. Lütfen daha sonra tekrar dene.",
+      ok: false,
+    };
+  }
+
+  if (!providerAccess.ok) {
+    return {
+      message: "Bu işlem için onaylı usta profiliyle giriş yapmalısın.",
+      ok: false,
+    };
+  }
+
+  const result = await deleteGalleryImage(supabase, imageId, storagePath);
+
+  if (result.ok) {
+    revalidatePath(appRoutes.providerDashboardProfile);
+    revalidatePath(`/providers/${providerAccess.profile.id}`);
+    revalidatePath(appRoutes.providers);
+  }
+
+  return {
+    message: result.message,
+    ok: result.ok,
   };
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { GalleryManager } from "@/components/dashboard/GalleryManager";
 import { ProfileImageUploader } from "@/components/dashboard/ProfileImageUploader";
 import {
   getProviderDashboardStatusBadgeView,
@@ -15,6 +16,8 @@ import {
   getProviderAvailabilityLabel,
   providerAvailabilityOptions,
 } from "@/lib/constants/providers";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getProviderGallery } from "@/services/providers/gallery";
 import {
   getProviderDashboardAccess,
   updateProviderDashboardAvailability,
@@ -144,6 +147,11 @@ export default async function ProviderDashboardProfilePage({
   searchParams,
 }: ProviderDashboardProfilePageProps) {
   const providerAccess = await getProviderDashboardAccess();
+  const supabase = providerAccess.ok ? await createSupabaseServerClient() : null;
+  const galleryImages =
+    providerAccess.ok && supabase
+      ? await getProviderGallery(providerAccess.profile.id, supabase)
+      : [];
   const resolvedSearchParams = (await searchParams) ?? {};
   const availabilityFeedback = getAvailabilityFeedback(resolvedSearchParams);
   const statusBadge = getProviderDashboardStatusBadgeView(
@@ -194,6 +202,13 @@ export default async function ProviderDashboardProfilePage({
                 {getProviderAvailabilityLabel(providerAccess.profile.availability)}
               </ProviderStatusBadge>
             </div>
+          </div>
+
+          <div className="mt-6 border-t border-[var(--border)] pt-6">
+            <GalleryManager
+              images={galleryImages}
+              providerId={providerAccess.profile.id}
+            />
           </div>
 
           <div className="mt-5 grid gap-4 rounded-lg border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
