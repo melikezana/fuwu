@@ -76,6 +76,7 @@ type SupabaseProviderRecord = Pick<
   | "last_active_at"
   | "response_time_minutes"
   | "profile_completion_score"
+  | "gallery_preview_url"
   | "profile_image_url"
   | "review_count"
 > & {
@@ -142,6 +143,7 @@ const providerSelectQuery = `
   last_active_at,
   response_time_minutes,
   profile_completion_score,
+  gallery_preview_url,
   profile_image_url,
   category:service_categories(name, slug),
   district:districts(name, slug)
@@ -169,6 +171,7 @@ const optionalProviderColumnNames = [
   "is_verified",
   "last_active_at",
   "phone_verified",
+  "gallery_preview_url",
   "profile_completion_score",
   "profile_image_url",
   "review_count",
@@ -279,6 +282,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
   const workingHours = formatProviderWorkingHours(record.working_hours);
   const servicesOffered = [`${category} hizmeti`];
   const responseTimeMinutes = normalizeResponseTimeMinutes(record.response_time_minutes);
+  const galleryPreviewUrl = sanitizeText(record.gallery_preview_url ?? "", 500) || undefined;
   const profileImageUrl = sanitizeText(record.profile_image_url ?? "", 500) || undefined;
   const profileCompletion = calculateProviderProfileCompletion({
     availability,
@@ -304,6 +308,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     averagePriceMax: record.average_price_max,
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
     phone,
+    galleryPreviewUrl,
     profileImageUrl,
     whatsapp,
     availability,

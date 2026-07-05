@@ -28,6 +28,7 @@ type ProviderCardProps = {
   actionsId?: string;
   className?: string;
   featured?: boolean;
+  galleryPreviewUrl?: string;
 };
 
 function createProviderFilterHref(
@@ -63,6 +64,7 @@ export function ProviderCard({
   actionsId,
   className,
   featured = false,
+  galleryPreviewUrl,
 }: ProviderCardProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
@@ -73,6 +75,7 @@ export function ProviderCard({
   const hasPhone = Boolean(provider.phone?.trim());
   const hasBothContactMethods = hasWhatsApp && hasPhone;
   const hasContactMethod = hasWhatsApp || hasPhone;
+  const cardGalleryPreviewUrl = galleryPreviewUrl ?? provider.galleryPreviewUrl;
   const availabilityClassName =
     provider.availabilityStatus.tone === "green"
       ? "border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
@@ -81,6 +84,8 @@ export function ProviderCard({
         : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
 
   if (featured) {
+    const heroImageUrl = provider.profileImageUrl ?? cardGalleryPreviewUrl ?? null;
+
     return (
       <article
         aria-labelledby={`provider-${provider.id}-title`}
@@ -90,7 +95,12 @@ export function ProviderCard({
         )}
       >
         <div className="relative">
-          <ProviderAvatar className="ring-0" provider={provider} variant="hero" />
+          <ProviderAvatar
+            className="ring-0"
+            previewUrl={heroImageUrl ?? undefined}
+            provider={provider}
+            variant="hero"
+          />
           {typeof provider.rating === "number" &&
           Number.isFinite(provider.rating) &&
           provider.rating > 0 ? (

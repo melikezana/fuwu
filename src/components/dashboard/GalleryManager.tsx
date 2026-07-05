@@ -8,6 +8,8 @@ import {
   deleteGalleryImageAction,
   uploadGalleryImageAction,
 } from "@/app/provider-dashboard/profile/actions";
+import { resizeImageForUpload } from "@/lib/utils/resizeImageForUpload";
+import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 import {
   PROVIDER_GALLERY_ACCEPT,
   PROVIDER_GALLERY_MAX_IMAGES,
@@ -31,68 +33,16 @@ type Feedback = {
   tone: "error" | "success";
 };
 
+const GALLERY_IMAGE_MAX_DIMENSION = 1920;
+
 function createTemporaryId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-function createWebpFileName(fileName: string) {
-  const baseName = fileName.replace(/\.[^.]+$/, "").trim() || "gallery-image";
-
-  return `${baseName}.webp`;
-}
-
 async function convertImageFileToWebp(file: File) {
-  if (file.type === "image/webp") {
-    return file;
-  }
-
-  if (typeof document === "undefined") {
-    return file;
-  }
-
-  const imageUrl = URL.createObjectURL(file);
-
-  try {
-    const image = new window.Image();
-    image.decoding = "async";
-    image.src = imageUrl;
-
-    await new Promise<void>((resolve, reject) => {
-      image.onload = () => resolve();
-      image.onerror = () => reject(new Error("Gallery image could not be decoded."));
-    });
-
-    const canvas = document.createElement("canvas");
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
-
-    const context = canvas.getContext("2d");
-
-    if (!context || !canvas.width || !canvas.height) {
-      return file;
-    }
-
-    context.drawImage(image, 0, 0);
-
-    const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, "image/webp", 0.88);
-    });
-
-    if (!blob) {
-      return file;
-    }
-
-    return new File([blob], createWebpFileName(file.name), {
-      lastModified: Date.now(),
-      type: "image/webp",
-    });
-  } catch {
-    return file;
-  } finally {
-    URL.revokeObjectURL(imageUrl);
-  }
+  return resizeImageForUpload(file, GALLERY_IMAGE_MAX_DIMENSION, 0.85);
 }
 
 export function GalleryManager({
@@ -146,6 +96,26 @@ export function GalleryManager({
     event.target.value = "";
 
     if (!sourceFile || hasReachedLimit) {
+      return;
+    }
+
+    const sourceValidationError = validateGalleryImageFile(sourceFile);
+
+    if (sourceValidationError) {
+      setFeedback({
+        message: sourceValidationError,
+        tone: "error",
+      });
+      return;
+    }
+
+    const magicByteError = await validateImageMagicBytes(sourceFile);
+
+    if (magicByteError) {
+      setFeedback({
+        message: magicByteError,
+        tone: "error",
+      });
       return;
     }
 

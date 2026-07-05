@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
+import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 
 export const PROVIDER_IMAGES_BUCKET = "provider-images";
 export const PROVIDER_IMAGE_MAX_SIZE_BYTES = 3 * 1024 * 1024;
@@ -109,6 +110,17 @@ export async function uploadProviderProfileImage(
       status: "skipped",
       path: null,
       publicUrl: null,
+    };
+  }
+
+  const magicByteError = await validateImageMagicBytes(file);
+
+  if (magicByteError) {
+    return {
+      status: "skipped",
+      path: null,
+      publicUrl: null,
+      message: magicByteError,
     };
   }
 

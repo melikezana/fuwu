@@ -7,12 +7,14 @@ import type { Provider } from "@/types/provider";
 
 type ProviderAvatarProps = {
   className?: string;
+  previewUrl?: string;
   provider: Provider;
   variant?: "card" | "hero" | "profile";
 };
 
 export function ProviderAvatar({
   className,
+  previewUrl,
   provider,
   variant = "card",
 }: ProviderAvatarProps) {
@@ -30,6 +32,7 @@ export function ProviderAvatar({
     : isProfileVariant
       ? "(min-width: 640px) 112px, 96px"
       : "64px";
+  const imageUrl = provider.profileImageUrl ?? (isHeroVariant ? previewUrl : undefined);
 
   return (
     <div
@@ -40,13 +43,13 @@ export function ProviderAvatar({
         className,
       )}
     >
-      {provider.profileImageUrl ? (
+      {imageUrl ? (
         <Image
           alt={`${provider.name} profil görseli`}
           className="object-cover"
           fill
           sizes={imageSizes}
-          src={provider.profileImageUrl}
+          src={imageUrl}
         />
       ) : isHeroVariant ? (
         <>

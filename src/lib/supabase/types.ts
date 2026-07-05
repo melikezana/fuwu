@@ -122,6 +122,7 @@ export type Database = {
           last_active_at: string | null;
           response_time_minutes: number | null;
           profile_completion_score: number | null;
+          gallery_preview_url: string | null;
           profile_image_path: string | null;
           profile_image_url: string | null;
           review_count: number;
@@ -151,6 +152,7 @@ export type Database = {
           last_active_at?: string | null;
           response_time_minutes?: number | null;
           profile_completion_score?: number | null;
+          gallery_preview_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
           review_count?: number;
@@ -180,6 +182,7 @@ export type Database = {
           last_active_at?: string | null;
           response_time_minutes?: number | null;
           profile_completion_score?: number | null;
+          gallery_preview_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
           review_count?: number;

@@ -1,11 +1,11 @@
 # FUWU Production Go-Live Kontrol Listesi
 
-Tarih: 3 Temmuz 2026
+Tarih: 5 Temmuz 2026
 
 ## Nihai karar
 
-**❌ NO-GO — Upstash production değişkenleri ve production smoke testi
-tamamlanana kadar yayına çıkma.**
+**❌ NO-GO — Galeri altyapısı production'da tamamlandı; Upstash production
+değişkenleri ve production smoke testi tamamlanana kadar yayına çıkma.**
 
 Tamamlanan P0 kontroller:
 
@@ -15,8 +15,11 @@ Tamamlanan P0 kontroller:
   `havuz-bakimi` dahil.
 - ✅ `profiles.avatar_url` kolonu production'da mevcut.
 - ✅ `reviews` RLS politikaları production'da mevcut.
+- ✅ Provider galeri altyapısı production'da mevcut: `provider_gallery_images`,
+  `provider-gallery` bucket, RLS ve `providers.gallery_preview_url`.
 - ✅ `backend_health_catalog()` production DB'de CLI login role ile metadata döndürdü.
-- ✅ `scripts/check-backend-db.mjs` production service-role ile PASS çalıştı.
+- ⚠️ `scripts/check-backend-db.mjs` bu workspace'te `SUPABASE_SERVICE_ROLE_KEY`
+  bulunmadığı için yeniden çalıştırılamadı; Supabase CLI SQL doğrulamaları PASS.
 
 Açık P0 maddeleri:
 
@@ -66,7 +69,7 @@ Public production kontrolü:
 
 Yerel migration zinciri:
 
-- ✅ 41 migration zinciri korunuyor; son production migration `20260628000100_add_missing_service_categories.sql`.
+- ✅ 44 migration zinciri korunuyor; son production migration `20260706000200_add_provider_gallery_preview_url.sql`.
 - ✅ `backend_health_catalog()` çağrıldı.
 - ✅ Tablolar, RLS politikaları, foreign key kuralları, storage bucket'ları,
   realtime publication, indeksler ve status constraint kontrolleri PASS.
@@ -75,16 +78,19 @@ Yerel migration zinciri:
 Production yetkili kontroller:
 
 - ✅ `supabase link --project-ref bjhyisomjadirdchruix` tamamlandı.
-- ✅ `supabase migration list` local/remote karşılaştırması yapıldı; 41 migration
+- ✅ `supabase migration list` local/remote karşılaştırması yapıldı; 44 migration
   local ve remote tarafta eşit.
-- ✅ `supabase db push --dry-run` `Remote database is up to date` döndü;
-  uygulanacak SQL, `DROP TABLE` veya `DROP COLUMN` yok.
-- ✅ `supabase db push` no-op çalıştı; remote database güncel.
-- ✅ Production SQL doğrulamaları PASS: 11 aktif kategori (`cilingir` dahil),
-  `profiles.avatar_url`, `reviews` RLS politikaları ve `notifications` realtime
-  publication kaydı mevcut.
+- ✅ `supabase db push --dry-run` yalnızca
+  `20260706000200_add_provider_gallery_preview_url.sql` migration'ını gösterdi;
+  `DROP TABLE` veya `DROP COLUMN` yok.
+- ✅ `supabase db push` yeni gallery preview migration'ını production'a uyguladı.
+- ✅ Production SQL doğrulamaları PASS: `provider_gallery_images` tablo sayısı **1**,
+  `provider-gallery` bucket public **true**, galeri RLS **true**,
+  `providers.gallery_preview_url` kolon sayısı **1**, aktif kategori sayısı **11**.
 - ✅ Production `backend_health_catalog()` CLI login role ile metadata döndürdü.
-- ✅ `scripts/check-backend-db.mjs` production service-role ile PASS çalıştı.
+- ⚠️ `scripts/check-backend-db.mjs` bu workspace'te `SUPABASE_SERVICE_ROLE_KEY`
+  bulunmadığı için çalıştırılamadı; script kapsamına `provider_gallery_images`
+  tablosu ve `provider-gallery` bucket eklendi.
 
 Veri kaybı riski dry-run çıktısında DROP içermediği için güvenli görüldü.
 

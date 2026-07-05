@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Camera, Check, Loader2 } from "lucide-react";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { updateProviderProfileImageAction } from "@/app/provider-dashboard/profile/actions";
+import { resizeImageForUpload } from "@/lib/utils/resizeImageForUpload";
+import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 import {
   PROVIDER_IMAGE_ACCEPT,
   validateProviderImageFile,
@@ -16,6 +18,8 @@ type ProfileImageUploaderProps = {
 };
 
 type UploadState = "idle" | "uploading" | "success" | "error";
+
+const PROFILE_IMAGE_MAX_DIMENSION = 1200;
 
 function getInitials(name: string) {
   const initials = name
@@ -54,17 +58,25 @@ export function ProfileImageUploader({
   }, []);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
+    const sourceFile = event.target.files?.[0] ?? null;
     event.target.value = "";
 
-    if (!file) {
+    if (!sourceFile) {
       return;
     }
 
-    const validationError = validateProviderImageFile(file);
+    const sourceValidationError = validateProviderImageFile(sourceFile);
 
-    if (validationError) {
-      setMessage(validationError);
+    if (sourceValidationError) {
+      setMessage(sourceValidationError);
+      setUploadState("error");
+      return;
+    }
+
+    const magicByteError = await validateImageMagicBytes(sourceFile);
+
+    if (magicByteError) {
+      setMessage(magicByteError);
       setUploadState("error");
       return;
     }
@@ -72,6 +84,15 @@ export function ProfileImageUploader({
     if (successTimeoutRef.current) {
       clearTimeout(successTimeoutRef.current);
       successTimeoutRef.current = null;
+    }
+
+    const file = await resizeImageForUpload(sourceFile, PROFILE_IMAGE_MAX_DIMENSION);
+    const validationError = validateProviderImageFile(file);
+
+    if (validationError) {
+      setMessage(validationError);
+      setUploadState("error");
+      return;
     }
 
     const previewUrl = URL.createObjectURL(file);

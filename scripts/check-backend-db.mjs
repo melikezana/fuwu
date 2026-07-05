@@ -7,6 +7,7 @@ const root = process.cwd();
 const expectedTables = [
   "profiles",
   "providers",
+  "provider_gallery_images",
   "provider_applications",
   "service_requests",
   "service_categories",
@@ -39,6 +40,7 @@ const expectedCategorySlugs = [
 
 const expectedStorageBuckets = [
   "provider-images",
+  "provider-gallery",
   "provider-verification-documents",
 ];
 

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizeText } from "@/lib/validations";
+import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 
 export const PROVIDER_GALLERY_BUCKET = "provider-gallery";
 export const PROVIDER_GALLERY_MAX_IMAGES = 12;
@@ -141,6 +142,46 @@ async function cleanupGalleryStorageObject(
   }
 }
 
+async function syncProviderGalleryPreview(
+  supabase: SupabaseClient<Database>,
+  providerId: string,
+) {
+  const { data, error } = await supabase
+    .from("provider_gallery_images")
+    .select("public_url")
+    .eq("provider_id", providerId)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    warnGalleryServiceError(
+      error,
+      "Provider gallery preview lookup failed.",
+      "Galeri önizlemesi güncellenemedi.",
+    );
+    return;
+  }
+
+  const nextPreviewUrl = sanitizeText(data?.public_url ?? "", 500) || null;
+  const { error: updateError } = await supabase
+    .from("providers")
+    .update({
+      gallery_preview_url: nextPreviewUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", providerId);
+
+  if (updateError) {
+    warnGalleryServiceError(
+      updateError,
+      "Provider gallery preview update failed.",
+      "Galeri önizlemesi güncellenemedi.",
+    );
+  }
+}
+
 export async function getProviderGallery(
   providerId: string,
   supabase: SupabaseClient<Database>,
@@ -191,6 +232,15 @@ export async function uploadGalleryImage(
   if (validationError) {
     return {
       message: validationError,
+      ok: false,
+    };
+  }
+
+  const magicByteError = await validateImageMagicBytes(file);
+
+  if (magicByteError) {
+    return {
+      message: magicByteError,
       ok: false,
     };
   }
@@ -281,6 +331,8 @@ export async function uploadGalleryImage(
     };
   }
 
+  await syncProviderGalleryPreview(supabase, safeProviderId);
+
   return {
     image: mapGalleryImage(insertedImage as GalleryRow),
     message: "İş görseli galerine eklendi.",
@@ -325,7 +377,7 @@ export async function deleteGalleryImage(
     .delete()
     .eq("id", safeImageId)
     .eq("storage_path", safeStoragePath)
-    .select("id")
+    .select("id, provider_id")
     .maybeSingle();
 
   if (deleteError || !data) {
@@ -340,6 +392,8 @@ export async function deleteGalleryImage(
       ok: false,
     };
   }
+
+  await syncProviderGalleryPreview(supabase, data.provider_id);
 
   return {
     message: "İş görseli galerinden kaldırıldı.",

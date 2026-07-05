@@ -87,6 +87,7 @@ export function ProviderList({
           {providers.map((provider, index) => (
             <ProviderCard
               featured={index < 2}
+              galleryPreviewUrl={provider.galleryPreviewUrl}
               key={provider.id}
               provider={provider}
             />

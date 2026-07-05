@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { appRoutes } from "@/lib/constants/navigation";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   getProviderDashboardAccess,
@@ -12,6 +13,8 @@ import {
   uploadGalleryImage,
 } from "@/services/providers/gallery";
 import { uploadProviderProfileImage } from "@/services/storage/providerImages";
+
+const ONE_HOUR_MS = 60 * 60 * 1000;
 
 export type UpdateProviderProfileImageActionResult = {
   message: string;
@@ -36,6 +39,33 @@ export async function updateProviderProfileImageAction(
   if (!supabase) {
     return {
       message: "Profil fotoğrafı şu anda yüklenemiyor. Lütfen daha sonra tekrar dene.",
+      ok: false,
+    };
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return {
+      message: "Profil fotoğrafı yüklemek için giriş yapmalısın.",
+      ok: false,
+    };
+  }
+
+  const rateLimitResult = await checkRateLimitWithRedis({
+    action: `profile_image_upload:${user.id}`,
+    limit: 10,
+    supabase,
+    userId: user.id,
+    windowMs: ONE_HOUR_MS,
+  });
+
+  if (!rateLimitResult.allowed) {
+    return {
+      message: "Saatte en fazla 10 profil fotoğrafı yükleyebilirsin. Daha sonra tekrar dene.",
       ok: false,
     };
   }
@@ -103,6 +133,21 @@ export async function uploadGalleryImageAction(
     };
   }
 
+  const rateLimitResult = await checkRateLimitWithRedis({
+    action: `gallery_upload:${providerAccess.profile.id}`,
+    limit: 20,
+    supabase,
+    userId: providerAccess.userId,
+    windowMs: ONE_HOUR_MS,
+  });
+
+  if (!rateLimitResult.allowed) {
+    return {
+      message: "Saatte en fazla 20 görsel yükleyebilirsin. Daha sonra tekrar dene.",
+      ok: false,
+    };
+  }
+
   const result = await uploadGalleryImage(
     supabase,
     providerAccess.profile.id,
@@ -141,6 +186,21 @@ export async function deleteGalleryImageAction(
   if (!providerAccess.ok) {
     return {
       message: "Bu işlem için onaylı usta profiliyle giriş yapmalısın.",
+      ok: false,
+    };
+  }
+
+  const rateLimitResult = await checkRateLimitWithRedis({
+    action: `gallery_delete:${providerAccess.profile.id}`,
+    limit: 30,
+    supabase,
+    userId: providerAccess.userId,
+    windowMs: ONE_HOUR_MS,
+  });
+
+  if (!rateLimitResult.allowed) {
+    return {
+      message: "Saatte en fazla 30 galeri görseli silebilirsin. Daha sonra tekrar dene.",
       ok: false,
     };
   }

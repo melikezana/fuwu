@@ -18,6 +18,7 @@ export type Provider = {
   averagePrice: string;
   availabilityStatus: ProviderOperationalStatus;
   phone: string;
+  galleryPreviewUrl?: string;
   profileImageUrl?: string;
   whatsapp: string;
   availability: ProviderAvailabilityStatus;

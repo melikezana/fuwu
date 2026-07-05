@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -21,6 +22,7 @@ import {
   ProviderProfileViewTracker,
 } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
+import { ProviderGalleryGrid } from "@/components/providers/ProviderGalleryGrid";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +36,7 @@ import {
 } from "@/lib/constants/providers";
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderGallery } from "@/services/providers/gallery";
@@ -134,6 +137,23 @@ function ProviderNotFoundState() {
   );
 }
 
+async function getProviderOwnerUserId(
+  providerId: string,
+  supabase: SupabaseClient<Database>,
+) {
+  const { data, error } = await supabase
+    .from("providers")
+    .select("user_id")
+    .eq("id", providerId)
+    .maybeSingle();
+
+  if (error) {
+    return null;
+  }
+
+  return data?.user_id ?? null;
+}
+
 export default async function ProviderProfilePage({ params }: ProviderProfilePageProps) {
   const { id } = await params;
   const provider = await getProviderById(id);
@@ -143,11 +163,18 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   }
 
   const supabase = await createSupabaseServerClient();
-  const [providers, reviewData, authenticatedUserId, galleryImages] = await Promise.all([
+  const [
+    providers,
+    reviewData,
+    authenticatedUserId,
+    galleryImages,
+    providerOwnerUserId,
+  ] = await Promise.all([
     getProvidersByCategory(provider.category),
     getProviderReviews(provider.id),
     getAuthenticatedServerUserId(),
     supabase ? getProviderGallery(provider.id, supabase) : Promise.resolve([]),
+    supabase ? getProviderOwnerUserId(provider.id, supabase) : Promise.resolve(null),
   ]);
   const relatedProviders = providers
     .filter(
@@ -158,6 +185,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   const hasWhatsApp = Boolean(provider.whatsapp?.trim());
   const hasPhone = Boolean(provider.phone?.trim());
   const hasContact = hasWhatsApp || hasPhone;
+  const isOwnProvider =
+    Boolean(authenticatedUserId) && authenticatedUserId === providerOwnerUserId;
   const responseTimeLabel = provider.responseTime.replace(/^Ortalama cevap:\s*/i, "");
   const availabilityLabel = provider.availabilityStatus.label;
   const availabilityTone = provider.availabilityStatus.tone;
@@ -341,29 +370,22 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               <h2 className="mb-4 text-lg font-bold text-[var(--brand-navy)]">
                 İşlerimden Kareler
               </h2>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {galleryImages.map((img) => (
-                  <div
-                    className="group relative aspect-square overflow-hidden rounded-xl bg-[var(--surface-soft)]"
-                    key={img.id}
-                  >
-                    <Image
-                      alt={img.caption ?? `${provider.name} iş görseli`}
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      fill
-                      sizes="(min-width: 640px) 33vw, 50vw"
-                      src={img.publicUrl}
-                    />
-                    {img.caption ? (
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2">
-                        <p className="truncate text-xs font-medium text-white">
-                          {img.caption}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+              <ProviderGalleryGrid
+                images={galleryImages}
+                providerName={provider.name}
+              />
+            </section>
+          ) : isOwnProvider ? (
+            <section className="rounded-2xl border-2 border-dashed border-[rgba(255,138,0,0.3)] bg-white p-6">
+              <p className="text-sm font-semibold text-[var(--muted)]">
+                İş galeriniz henüz boş.
+              </p>
+              <Link
+                className="mt-3 inline-flex min-h-10 items-center rounded-md bg-[var(--brand-orange)] px-4 py-2 text-sm font-bold text-white shadow-[var(--shadow-action)] transition hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                href={appRoutes.providerDashboardProfile}
+              >
+                Galeri Ekle →
+              </Link>
             </section>
           ) : null}
 
