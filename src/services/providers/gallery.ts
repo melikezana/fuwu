@@ -2,7 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizeText } from "@/lib/validations";
-import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
+import {
+  getImageMagicByteMimeType,
+  validateImageMagicBytes,
+  type SupportedImageMagicByteMimeType,
+} from "@/lib/validations/imageMagicBytes";
 
 export const PROVIDER_GALLERY_BUCKET = "provider-gallery";
 export const PROVIDER_GALLERY_MAX_IMAGES = 12;
@@ -47,7 +51,15 @@ function getFileExtension(fileName: string): GalleryImageExtension | null {
   return null;
 }
 
-function getContentType(file: File, extension: GalleryImageExtension | null) {
+function getContentType(
+  file: File,
+  extension: GalleryImageExtension | null,
+  verifiedContentType?: SupportedImageMagicByteMimeType | null,
+) {
+  if (verifiedContentType) {
+    return verifiedContentType;
+  }
+
   if (acceptedGalleryMimeTypes.includes(file.type as (typeof acceptedGalleryMimeTypes)[number])) {
     return file.type;
   }
@@ -271,11 +283,12 @@ export async function uploadGalleryImage(
 
   const storagePath = createGalleryStoragePath(user.id);
   const extension = getFileExtension(file.name);
+  const verifiedContentType = await getImageMagicByteMimeType(file);
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from(PROVIDER_GALLERY_BUCKET)
     .upload(storagePath, file, {
       cacheControl: "3600",
-      contentType: getContentType(file, extension),
+      contentType: getContentType(file, extension, verifiedContentType),
       upsert: false,
     });
 

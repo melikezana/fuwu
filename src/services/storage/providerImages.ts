@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
-import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
+import {
+  getImageMagicByteMimeType,
+  validateImageMagicBytes,
+  type SupportedImageMagicByteMimeType,
+} from "@/lib/validations/imageMagicBytes";
 
 export const PROVIDER_IMAGES_BUCKET = "provider-images";
 export const PROVIDER_IMAGE_MAX_SIZE_BYTES = 3 * 1024 * 1024;
@@ -43,7 +47,15 @@ function getFileExtension(fileName: string): ProviderImageExtension | null {
   return null;
 }
 
-function getContentType(file: File, extension: ProviderImageExtension) {
+function getContentType(
+  file: File,
+  extension: ProviderImageExtension,
+  verifiedContentType?: SupportedImageMagicByteMimeType | null,
+) {
+  if (verifiedContentType) {
+    return verifiedContentType;
+  }
+
   if (acceptedProviderImageMimeTypes.includes(file.type as (typeof acceptedProviderImageMimeTypes)[number])) {
     return file.type;
   }
@@ -125,6 +137,7 @@ export async function uploadProviderProfileImage(
   }
 
   try {
+    const verifiedContentType = await getImageMagicByteMimeType(file);
     const {
       data: { user },
       error: userError,
@@ -145,7 +158,7 @@ export async function uploadProviderProfileImage(
       .from(PROVIDER_IMAGES_BUCKET)
       .upload(path, file, {
         cacheControl: "3600",
-        contentType: getContentType(file, extension),
+        contentType: getContentType(file, extension, verifiedContentType),
         upsert: false,
       });
 
