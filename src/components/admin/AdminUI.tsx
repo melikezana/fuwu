@@ -11,12 +11,18 @@ import {
   PowerOff,
   ShieldAlert,
   UserCheck,
+  UserCog,
   Users,
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type AdminNavKey = "dashboard" | "providers" | "applications" | "requests";
+type AdminNavKey =
+  | "dashboard"
+  | "users"
+  | "providers"
+  | "applications"
+  | "requests";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -62,6 +68,12 @@ const adminNavItems: Array<{
     icon: LayoutDashboard,
     key: "dashboard",
     label: "Genel Bakış",
+  },
+  {
+    href: "/admin/users",
+    icon: UserCog,
+    key: "users",
+    label: "Kullanıcılar",
   },
   {
     href: "/admin/providers",

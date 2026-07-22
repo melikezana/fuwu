@@ -23,7 +23,8 @@ export type AuditAction =
   | "service_request.completed"
   | "service_request.created"
   | "service_request.in_progress"
-  | "service_request.rejected";
+  | "service_request.rejected"
+  | "user.role_updated";
 
 export type AuditLogEvent = {
   action: AuditAction;
@@ -32,6 +33,7 @@ export type AuditLogEvent = {
   entityType:
     | "admin_action"
     | "payment"
+    | "profile"
     | "provider"
     | "provider_application"
     | "security_event"
