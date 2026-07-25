@@ -3,13 +3,16 @@ import type { ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 import {
   AlertTriangle,
   ClipboardList,
+  CreditCard,
   Eye,
   FileText,
   LayoutDashboard,
   MessageCircle,
   Power,
   PowerOff,
+  ScrollText,
   ShieldAlert,
+  Star,
   UserCheck,
   UserCog,
   Users,
@@ -22,7 +25,10 @@ type AdminNavKey =
   | "users"
   | "providers"
   | "applications"
-  | "requests";
+  | "requests"
+  | "payments"
+  | "reviews"
+  | "audit";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -92,6 +98,24 @@ const adminNavItems: Array<{
     icon: FileText,
     key: "requests",
     label: "Talepler",
+  },
+  {
+    href: "/admin/payments",
+    icon: CreditCard,
+    key: "payments",
+    label: "Ödemeler",
+  },
+  {
+    href: "/admin/reviews",
+    icon: Star,
+    key: "reviews",
+    label: "Yorumlar",
+  },
+  {
+    href: "/admin/audit",
+    icon: ScrollText,
+    key: "audit",
+    label: "İşlem Geçmişi",
   },
 ];
 
