@@ -2,21 +2,77 @@ import { getServerAuthContext } from "@/services/auth/server";
 import { hasAdminRole } from "@/services/auth/constants";
 import { handleServiceError } from "@/lib/errors";
 import { sanitizeText } from "@/lib/validations";
+import { isUuid } from "@/lib/utils";
+import { writeAuditLog } from "@/services/audit";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import type { Database } from "@/lib/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type AdminSupabaseClient = SupabaseClient<Database>;
 
 type AdminGate =
-  | { isConfigured: boolean; ok: false; supabase: null }
-  | { isConfigured: true; ok: true; supabase: AdminSupabaseClient };
+  | { isConfigured: boolean; ok: false; supabase: null; userId: null }
+  | { isConfigured: true; ok: true; supabase: AdminSupabaseClient; userId: string };
 
 async function adminGate(): Promise<AdminGate> {
   const ctx = await getServerAuthContext();
   if (!ctx.supabase || !ctx.user || !hasAdminRole(ctx.profile)) {
-    return { isConfigured: ctx.isConfigured, ok: false, supabase: null };
+    return { isConfigured: ctx.isConfigured, ok: false, supabase: null, userId: null };
   }
-  return { isConfigured: true, ok: true, supabase: ctx.supabase };
+  return { isConfigured: true, ok: true, supabase: ctx.supabase, userId: ctx.user.id };
+}
+
+export type AdminActionResult = { message: string; ok: boolean };
+
+export async function deleteAdminReview(reviewId: string): Promise<AdminActionResult> {
+  const id = sanitizeText(reviewId, 80);
+  if (!id || !isUuid(id)) {
+    return { message: "Geçersiz yorum kimliği.", ok: false };
+  }
+
+  const gate = await adminGate();
+  if (!gate.ok || !gate.supabase) {
+    return { message: "Bu işlem için admin yetkisi gerekli.", ok: false };
+  }
+
+  const rateLimit = await checkRateLimitWithRedis({
+    action: "admin:review.delete",
+    limit: 60,
+    supabase: gate.supabase,
+    userId: gate.userId,
+    windowMs: 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return { message: "Çok fazla işlem yaptın, biraz bekle.", ok: false };
+  }
+
+  const { data, error } = await gate.supabase
+    .from("reviews")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    handleServiceError(error, { logContext: "deleteAdminReview" });
+    return { message: "Yorum silinemedi.", ok: false };
+  }
+  if (!data) {
+    return { message: "Yorum bulunamadı (zaten silinmiş olabilir).", ok: false };
+  }
+
+  await writeAuditLog(
+    {
+      action: "review.deleted",
+      actorUserId: gate.userId,
+      entityId: id,
+      entityType: "review",
+      metadata: {},
+    },
+    gate.supabase,
+  );
+
+  return { message: "Yorum silindi.", ok: true };
 }
 
 function relationName(

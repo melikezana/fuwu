@@ -7,6 +7,7 @@ import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
 import { getAdminAccess } from "@/services/admin";
 import { getAdminReviews } from "@/services/admin/sections";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
+import { ReviewActions } from "./ReviewActions";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,7 @@ export default async function AdminReviewsPage() {
                   <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Usta</th>
                   <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Müşteri</th>
                   <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Tarih</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">İşlem</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,6 +90,9 @@ export default async function AdminReviewsPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-[var(--muted)]">
                       {new Date(review.createdAt).toLocaleDateString("tr-TR")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <ReviewActions reviewId={review.id} />
                     </td>
                   </tr>
                 ))}

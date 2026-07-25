@@ -24,7 +24,9 @@ export type AuditAction =
   | "service_request.created"
   | "service_request.in_progress"
   | "service_request.rejected"
-  | "user.role_updated";
+  | "user.role_updated"
+  | "review.deleted"
+  | "catalog.updated";
 
 export type AuditLogEvent = {
   action: AuditAction;
@@ -32,10 +34,12 @@ export type AuditLogEvent = {
   entityId: string | null;
   entityType:
     | "admin_action"
+    | "catalog"
     | "payment"
     | "profile"
     | "provider"
     | "provider_application"
+    | "review"
     | "security_event"
     | "service_request";
   metadata?: Json;

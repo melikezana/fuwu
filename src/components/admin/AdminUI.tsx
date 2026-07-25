@@ -13,6 +13,7 @@ import {
   ScrollText,
   ShieldAlert,
   Star,
+  Tags,
   UserCheck,
   UserCog,
   Users,
@@ -28,6 +29,7 @@ type AdminNavKey =
   | "requests"
   | "payments"
   | "reviews"
+  | "catalog"
   | "audit";
 
 type IconComponent = ComponentType<{
@@ -110,6 +112,12 @@ const adminNavItems: Array<{
     icon: Star,
     key: "reviews",
     label: "Yorumlar",
+  },
+  {
+    href: "/admin/catalog",
+    icon: Tags,
+    key: "catalog",
+    label: "Katalog",
   },
   {
     href: "/admin/audit",
