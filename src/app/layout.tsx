@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
-import { headers } from "next/headers";
+import { Wrench } from "lucide-react";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
-import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -12,12 +11,7 @@ import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { getPublicAppSettings } from "@/services/admin/settings";
-import { getServerAuthContext } from "@/services/auth/server";
-import { hasAdminRole } from "@/services/auth/constants";
 import "@/styles/globals.css";
-
-// Bakım modunda erişime izin verilen yollar (admin, giriş, auth, api).
-const MAINTENANCE_EXEMPT_PREFIXES = ["/admin", "/login", "/auth", "/api"];
 
 const inter = localFont({
   display: "swap",
@@ -78,43 +72,34 @@ export default async function RootLayout({
 }>) {
   const { announcementBanner, maintenanceMode } = await getPublicAppSettings();
 
-  let showMaintenance = false;
-  if (maintenanceMode) {
-    const headerList = await headers();
-    const pathname = headerList.get("x-pathname") ?? "";
-    const isExempt = MAINTENANCE_EXEMPT_PREFIXES.some(
-      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-    );
-    if (!isExempt) {
-      const authContext = await getServerAuthContext();
-      showMaintenance = !hasAdminRole(authContext.profile);
-    }
-  }
-
   return (
     <html data-scroll-behavior="smooth" dir="ltr" lang="tr" suppressHydrationWarning>
       <body
         className={`${inter.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
       >
-        {showMaintenance ? (
-          <MaintenanceScreen />
-        ) : (
-          <LocaleProvider>
-            <Suspense fallback={null}>
-              <PageViewTracker />
-            </Suspense>
-            <div className="flex min-h-screen flex-col">
-              <AnnouncementBanner message={announcementBanner} />
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <HelpButton />
-            </div>
-            <Suspense fallback={null}>
-              <CookieConsentBanner />
-            </Suspense>
-          </LocaleProvider>
-        )}
+        <LocaleProvider>
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
+          <div className="flex min-h-screen flex-col">
+            {maintenanceMode ? (
+              <div className="w-full bg-red-600 px-4 py-2 text-center text-sm font-semibold text-white">
+                <span className="inline-flex items-center gap-2">
+                  <Wrench className="h-4 w-4 shrink-0" aria-hidden />
+                  Site şu anda bakım modunda.
+                </span>
+              </div>
+            ) : null}
+            <AnnouncementBanner message={announcementBanner} />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <HelpButton />
+          </div>
+          <Suspense fallback={null}>
+            <CookieConsentBanner />
+          </Suspense>
+        </LocaleProvider>
       </body>
     </html>
   );

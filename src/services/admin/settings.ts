@@ -108,16 +108,16 @@ function withDefaults(stored: Record<string, string>): Record<string, string> {
 }
 
 export async function getAdminSettings(): Promise<AdminSettingsData> {
-  const g = await gate();
-  if (!g.ok || !g.supabase) {
-    return {
-      error: g.isConfigured ? "Bu alana erişim yetkin yok." : "Supabase bağlı değil.",
-      isConfigured: g.isConfigured,
-      values: withDefaults({}),
-    };
-  }
-
   try {
+    const g = await gate();
+    if (!g.ok || !g.supabase) {
+      return {
+        error: g.isConfigured ? "Bu alana erişim yetkin yok." : "Supabase bağlı değil.",
+        isConfigured: g.isConfigured,
+        values: withDefaults({}),
+      };
+    }
+
     const { data, error } = await g.supabase.from("app_settings").select("key, value");
 
     if (error) {
