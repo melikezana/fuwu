@@ -13,6 +13,7 @@ import {
   Power,
   PowerOff,
   ScrollText,
+  Settings,
   ShieldAlert,
   Star,
   Tags,
@@ -34,7 +35,8 @@ type AdminNavKey =
   | "catalog"
   | "verifications"
   | "notifications"
-  | "audit";
+  | "audit"
+  | "settings";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -140,6 +142,12 @@ const adminNavItems: Array<{
     icon: ScrollText,
     key: "audit",
     label: "İşlem Geçmişi",
+  },
+  {
+    href: "/admin/settings",
+    icon: Settings,
+    key: "settings",
+    label: "Ayarlar",
   },
 ];
 
