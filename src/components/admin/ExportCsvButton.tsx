@@ -11,7 +11,11 @@ type ExportCsvButtonProps = {
 };
 
 function escapeCell(value: unknown): string {
-  const text = value === null || value === undefined ? "" : String(value);
+  let text = value === null || value === undefined ? "" : String(value);
+  // Elektronik tablo formül enjeksiyonunu etkisizleştir (=, +, -, @, tab, CR ile başlayan hücreler).
+  if (/^[=+\-@\t\r]/.test(text)) {
+    text = `'${text}`;
+  }
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 

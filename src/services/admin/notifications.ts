@@ -130,7 +130,11 @@ export async function sendAdminNotification(input: {
     }
     recipientIds = [userId];
   } else {
-    let query = g.supabase.from("profiles").select("id").limit(MAX_RECIPIENTS);
+    let query = g.supabase
+      .from("profiles")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(MAX_RECIPIENTS);
     if (input.target === "customers") query = query.eq("role", "customer");
     else if (input.target === "providers") query = query.eq("role", "provider");
 
@@ -145,6 +149,8 @@ export async function sendAdminNotification(input: {
   if (recipientIds.length === 0) {
     return { message: "Hedef kitlede alıcı bulunamadı.", ok: false };
   }
+
+  const truncated = input.target !== "user" && recipientIds.length >= MAX_RECIPIENTS;
 
   const buildRow = (recipientId: string) => ({
     user_id: recipientId,
@@ -161,6 +167,7 @@ export async function sendAdminNotification(input: {
   });
 
   let sent = 0;
+  let partialFailure = false;
   for (let i = 0; i < recipientIds.length; i += CHUNK) {
     const chunk = recipientIds.slice(i, i + CHUNK).map(buildRow);
     const { error } = await g.supabase.from("notifications").insert(chunk);
@@ -169,6 +176,7 @@ export async function sendAdminNotification(input: {
       if (sent === 0) {
         return { message: "Bildirim gönderilemedi.", ok: false };
       }
+      partialFailure = true;
       break;
     }
     sent += chunk.length;
@@ -180,10 +188,24 @@ export async function sendAdminNotification(input: {
       actorUserId: g.userId,
       entityId: null,
       entityType: "notification",
-      metadata: { count: sent, target: input.target, title },
+      metadata: { count: sent, partialFailure, target: input.target, title, truncated },
     },
     g.supabase,
   );
+
+  if (partialFailure) {
+    return {
+      message: `Kısmi gönderim: ${sent} kişiye ulaşıldı, kalanlar gönderilemedi. Tekrar dene.`,
+      ok: false,
+    };
+  }
+
+  if (truncated) {
+    return {
+      message: `İlk ${sent} kişiye gönderildi (hedef kitle ${MAX_RECIPIENTS} sınırını aştı).`,
+      ok: true,
+    };
+  }
 
   return { message: `${sent} kişiye bildirim gönderildi.`, ok: true };
 }

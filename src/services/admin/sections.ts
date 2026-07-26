@@ -147,24 +147,53 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
   }
 
   try {
-    const { data, error } = await gate.supabase
-      .from("payments")
-      .select(
-        `id, amount, payment_method, status, confirmed_at, created_at,
-         service_requests(service_categories(name), districts(name))`,
-      )
-      .order("created_at", { ascending: false })
-      .limit(500);
+    // Metrikler tüm tablo üzerinden hesaplanır (500 sınırından etkilenmez).
+    const [totalRes, confirmedRes, listRes] = await Promise.all([
+      gate.supabase.from("payments").select("id", { count: "exact", head: true }),
+      gate.supabase
+        .from("payments")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "confirmed"),
+      gate.supabase
+        .from("payments")
+        .select(
+          `id, amount, payment_method, status, confirmed_at, created_at,
+           service_requests(service_categories(name), districts(name))`,
+        )
+        .order("created_at", { ascending: false })
+        .limit(500),
+    ]);
 
-    if (error) {
-      handleServiceError(error, { logContext: "getAdminPayments" });
+    if (listRes.error) {
+      handleServiceError(listRes.error, { logContext: "getAdminPayments" });
       return { error: "Ödemeler okunamadı.", isConfigured: true, rows: [], totals: empty };
     }
 
-    const rows: AdminPayment[] = [];
-    const totals = { ...empty };
+    // Onaylı ciro: onaylı ödemelerin tutarını sayfalayarak topla (tam doğru).
+    let confirmedAmount = 0;
+    for (let from = 0; from < 100000; from += 1000) {
+      const { data: amountRows, error: amountError } = await gate.supabase
+        .from("payments")
+        .select("amount")
+        .eq("status", "confirmed")
+        .range(from, from + 999);
+      if (amountError || !amountRows) break;
+      for (const row of amountRows as Array<{ amount: number | null }>) {
+        confirmedAmount += Number(row.amount ?? 0);
+      }
+      if (amountRows.length < 1000) break;
+    }
 
-    for (const raw of (data ?? []) as unknown as Array<{
+    const totalCount = totalRes.count ?? 0;
+    const confirmedCount = confirmedRes.count ?? 0;
+    const totals = {
+      confirmedAmount,
+      confirmedCount,
+      pendingCount: Math.max(0, totalCount - confirmedCount),
+      totalCount,
+    };
+
+    const rows: AdminPayment[] = ((listRes.data ?? []) as unknown as Array<{
       amount: number | null;
       confirmed_at: string | null;
       created_at: string;
@@ -181,20 +210,12 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
             service_categories: { name: string | null } | { name: string | null }[] | null;
           }[]
         | null;
-    }>) {
+    }>).map((raw) => {
       const request = Array.isArray(raw.service_requests)
         ? raw.service_requests[0]
         : raw.service_requests;
 
-      totals.totalCount += 1;
-      if (raw.status === "confirmed") {
-        totals.confirmedCount += 1;
-        totals.confirmedAmount += Number(raw.amount ?? 0);
-      } else {
-        totals.pendingCount += 1;
-      }
-
-      rows.push({
+      return {
         amount: raw.amount === null ? null : Number(raw.amount),
         category: relationName(request?.service_categories ?? null),
         confirmedAt: raw.confirmed_at,
@@ -203,8 +224,8 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
         id: raw.id,
         method: raw.payment_method,
         status: raw.status,
-      });
-    }
+      };
+    });
 
     return { error: null, isConfigured: true, rows, totals };
   } catch (error) {

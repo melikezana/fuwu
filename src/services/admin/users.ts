@@ -177,6 +177,15 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
         .limit(100),
     ]);
 
+    if (profileResult.error) {
+      handleServiceError(profileResult.error, { logContext: "getAdminUserDetail:profile" });
+      return { error: "Detay yüklenemedi.", profile: null, requests: [], reviews: [] };
+    }
+    if (requestsResult.error || reviewsResult.error) {
+      handleServiceError(requestsResult.error ?? reviewsResult.error, {
+        logContext: "getAdminUserDetail:related",
+      });
+    }
     if (!profileResult.data) {
       return { error: "Kullanıcı bulunamadı.", profile: null, requests: [], reviews: [] };
     }

@@ -28,6 +28,9 @@ export function SettingsForm({ defs, values }: SettingsFormProps) {
       }
       const result = await saveSettingsAction(formData);
       setFeedback({ ok: result.ok, text: result.message });
+      if (result.ok && result.values) {
+        setState(result.values);
+      }
     });
   }
 

@@ -35,7 +35,11 @@ export type AdminSettingsData = {
   values: Record<string, string>;
 };
 
-export type SettingsActionResult = { message: string; ok: boolean };
+export type SettingsActionResult = {
+  message: string;
+  ok: boolean;
+  values?: Record<string, string>;
+};
 
 type Gate =
   | { isConfigured: boolean; ok: false; supabase: null; userId: null }
@@ -145,5 +149,10 @@ export async function saveAdminSettings(
     metadata: { keys: rows.map((row) => row.key) },
   });
 
-  return { message: "Ayarlar kaydedildi.", ok: true };
+  const normalized: Record<string, string> = {};
+  for (const row of rows) {
+    normalized[row.key] = row.value;
+  }
+
+  return { message: "Ayarlar kaydedildi.", ok: true, values: normalized };
 }
