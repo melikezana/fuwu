@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 import {
   AlertTriangle,
+  Bell,
   ClipboardList,
   CreditCard,
   Eye,
@@ -30,6 +31,7 @@ type AdminNavKey =
   | "payments"
   | "reviews"
   | "catalog"
+  | "notifications"
   | "audit";
 
 type IconComponent = ComponentType<{
@@ -118,6 +120,12 @@ const adminNavItems: Array<{
     icon: Tags,
     key: "catalog",
     label: "Katalog",
+  },
+  {
+    href: "/admin/notifications",
+    icon: Bell,
+    key: "notifications",
+    label: "Bildirimler",
   },
   {
     href: "/admin/audit",

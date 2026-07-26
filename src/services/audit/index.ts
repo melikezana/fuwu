@@ -26,7 +26,8 @@ export type AuditAction =
   | "service_request.rejected"
   | "user.role_updated"
   | "review.deleted"
-  | "catalog.updated";
+  | "catalog.updated"
+  | "notification.sent";
 
 export type AuditLogEvent = {
   action: AuditAction;
@@ -35,6 +36,7 @@ export type AuditLogEvent = {
   entityType:
     | "admin_action"
     | "catalog"
+    | "notification"
     | "payment"
     | "profile"
     | "provider"

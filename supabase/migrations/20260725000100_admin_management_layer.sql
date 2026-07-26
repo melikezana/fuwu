@@ -10,6 +10,10 @@ grant insert, update, delete
   on table public.service_categories, public.districts
   to authenticated;
 
+-- Admin bildirim gönderimi: notifications tablosuna INSERT.
+-- Hangi satırın yazılabileceğini notifications_insert_admin_or_actor RLS'i belirler.
+grant insert on table public.notifications to authenticated;
+
 -- ------------------------------------------------------------------
 -- REVIEWS: admin silme (moderasyon)
 -- ------------------------------------------------------------------
