@@ -260,3 +260,42 @@ export async function renameCatalogItem(
   await logCatalog(g, t, "rename", cleanId);
   return { message: "Güncellendi.", ok: true };
 }
+
+export async function deleteCatalogItem(
+  table: string,
+  id: string,
+): Promise<CatalogActionResult> {
+  const cleanId = sanitizeText(id, 80);
+  if (!cleanId || !isUuid(cleanId)) {
+    return { message: "Geçersiz kayıt.", ok: false };
+  }
+
+  const guard = await withCatalogGuard(table, "delete");
+  if ("ok" in guard) return guard;
+  const { g, table: t } = guard;
+
+  const { data, error } = await g.supabase
+    .from(t)
+    .delete()
+    .eq("id", cleanId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    // 23503 = foreign key violation → kayıt başka yerlerde kullanılıyor.
+    if (error.code === "23503") {
+      return {
+        message: "Bu kayıt kullanımda olduğu için silinemez. Bunun yerine pasifleştir.",
+        ok: false,
+      };
+    }
+    handleServiceError(error, { logContext: "deleteCatalogItem" });
+    return { message: "Silinemedi.", ok: false };
+  }
+  if (!data) {
+    return { message: "Kayıt bulunamadı.", ok: false };
+  }
+
+  await logCatalog(g, t, "delete", cleanId);
+  return { message: "Silindi.", ok: true };
+}

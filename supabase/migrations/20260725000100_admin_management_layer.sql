@@ -2,6 +2,15 @@
 -- Geriye dönük uyumlu ve idempotent: tekrar çalıştırmak güvenlidir.
 
 -- ------------------------------------------------------------------
+-- TABLO YETKİLERİ (GRANT): authenticated rolüne yazma yetkisi.
+-- Bu proje yetkileri açıkça veriyor; katalog tablolarına yazma eksikti.
+-- Hangi satırın yazılabileceğini yine aşağıdaki RLS politikaları belirler.
+-- ------------------------------------------------------------------
+grant insert, update, delete
+  on table public.service_categories, public.districts
+  to authenticated;
+
+-- ------------------------------------------------------------------
 -- REVIEWS: admin silme (moderasyon)
 -- ------------------------------------------------------------------
 drop policy if exists reviews_delete_admin on public.reviews;
