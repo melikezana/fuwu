@@ -6,6 +6,7 @@ import {
   ClipboardList,
   CreditCard,
   Eye,
+  FileCheck,
   FileText,
   LayoutDashboard,
   MessageCircle,
@@ -31,6 +32,7 @@ type AdminNavKey =
   | "payments"
   | "reviews"
   | "catalog"
+  | "verifications"
   | "notifications"
   | "audit";
 
@@ -120,6 +122,12 @@ const adminNavItems: Array<{
     icon: Tags,
     key: "catalog",
     label: "Katalog",
+  },
+  {
+    href: "/admin/verifications",
+    icon: FileCheck,
+    key: "verifications",
+    label: "Belge Doğrulama",
   },
   {
     href: "/admin/notifications",
