@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminPageShell } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
+import { ExportCsvButton } from "@/components/admin/ExportCsvButton";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { getAdminAccess } from "@/services/admin";
@@ -48,6 +49,31 @@ export default async function AdminPaymentsPage() {
           <MetricCard label="Bekleyen Ödeme" value={totals.pendingCount} />
           <MetricCard label="Toplam Kayıt" value={totals.totalCount} />
         </section>
+
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm font-semibold text-[var(--muted)]">
+            {rows.length} kayıt
+          </span>
+          <ExportCsvButton
+            columns={[
+              { header: "Tutar", key: "amount" },
+              { header: "Yöntem", key: "method" },
+              { header: "Durum", key: "status" },
+              { header: "Kategori", key: "category" },
+              { header: "İlçe", key: "district" },
+              { header: "Tarih", key: "createdAt" },
+            ]}
+            filename="odemeler.csv"
+            rows={rows.map((payment) => ({
+              amount: payment.amount ?? "",
+              category: payment.category,
+              createdAt: new Date(payment.createdAt).toLocaleDateString("tr-TR"),
+              district: payment.district,
+              method: paymentMethodLabel(payment.method),
+              status: payment.status === "confirmed" ? "Onaylandı" : "Bekliyor",
+            }))}
+          />
+        </div>
 
         {rows.length === 0 ? (
           <EmptyAdminState message="Henüz ödeme kaydı bulunmuyor." />

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Search } from "lucide-react";
 import { AdminPageShell } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
 import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
+import { ExportCsvButton } from "@/components/admin/ExportCsvButton";
 import { getAdminAccess } from "@/services/admin";
 import { getAdminUsers } from "@/services/admin/users";
 import type { ProfileRole } from "@/types/auth";
@@ -115,6 +117,27 @@ export default async function AdminUsersPage({
           </button>
         </form>
 
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm font-semibold text-[var(--muted)]">
+            {rows.length} kullanıcı
+          </span>
+          <ExportCsvButton
+            columns={[
+              { header: "İsim", key: "name" },
+              { header: "Telefon", key: "phone" },
+              { header: "Rol", key: "role" },
+              { header: "Kayıt Tarihi", key: "createdAt" },
+            ]}
+            filename="kullanicilar.csv"
+            rows={rows.map((user) => ({
+              createdAt: new Date(user.createdAt).toLocaleDateString("tr-TR"),
+              name: user.fullName ?? "",
+              phone: user.phone ?? "",
+              role: user.role,
+            }))}
+          />
+        </div>
+
         {rows.length === 0 ? (
           <EmptyAdminState message="Kayıtlı kullanıcı bulunamadı." />
         ) : (
@@ -145,8 +168,13 @@ export default async function AdminUsersPage({
                     className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]"
                     key={user.id}
                   >
-                    <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
-                      {user.fullName?.trim() || "—"}
+                    <td className="px-4 py-3 text-sm font-semibold">
+                      <Link
+                        className="text-[var(--brand-orange-dark)] hover:underline"
+                        href={`/admin/users/${user.id}`}
+                      >
+                        {user.fullName?.trim() || "Detay"}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
                       {user.phone?.trim() || "—"}

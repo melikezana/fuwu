@@ -115,6 +115,123 @@ export async function getAdminUsers(params?: {
   }
 }
 
+export type UserDetailRequest = {
+  category: string;
+  createdAt: string;
+  district: string;
+  id: string;
+  status: string;
+};
+
+export type UserDetailReview = {
+  comment: string | null;
+  createdAt: string;
+  id: string;
+  providerName: string;
+  rating: number;
+};
+
+export type AdminUserDetail = {
+  error: string | null;
+  profile: AdminUser | null;
+  requests: UserDetailRequest[];
+  reviews: UserDetailReview[];
+};
+
+function firstName(
+  relation: { name: string | null } | { name: string | null }[] | null,
+): string {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+  return record?.name?.trim() || "—";
+}
+
+export async function getAdminUserDetail(userId: string): Promise<AdminUserDetail> {
+  const id = sanitizeText(userId, 80);
+  if (!id || !isUuid(id)) {
+    return { error: "Geçersiz kullanıcı.", profile: null, requests: [], reviews: [] };
+  }
+
+  const ctx = await getAdminContext();
+  if (!ctx.ok || !ctx.supabase) {
+    return { error: "Bu alana erişim yetkin yok.", profile: null, requests: [], reviews: [] };
+  }
+
+  try {
+    const [profileResult, requestsResult, reviewsResult] = await Promise.all([
+      ctx.supabase
+        .from("profiles")
+        .select("id, full_name, phone, role, created_at")
+        .eq("id", id)
+        .maybeSingle(),
+      ctx.supabase
+        .from("service_requests")
+        .select("id, status, created_at, service_categories(name), districts(name)")
+        .eq("user_id", id)
+        .order("created_at", { ascending: false })
+        .limit(100),
+      ctx.supabase
+        .from("reviews")
+        .select("id, rating, comment, created_at, providers(name)")
+        .eq("user_id", id)
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
+
+    if (!profileResult.data) {
+      return { error: "Kullanıcı bulunamadı.", profile: null, requests: [], reviews: [] };
+    }
+
+    const profileRow = profileResult.data as {
+      created_at: string;
+      full_name: string | null;
+      id: string;
+      phone: string | null;
+      role: string;
+    };
+
+    const profile: AdminUser = {
+      createdAt: profileRow.created_at,
+      fullName: profileRow.full_name,
+      id: profileRow.id,
+      phone: profileRow.phone,
+      role: profileRow.role as ProfileRole,
+    };
+
+    const requests: UserDetailRequest[] = ((requestsResult.data ?? []) as unknown as Array<{
+      created_at: string;
+      districts: { name: string | null } | { name: string | null }[] | null;
+      id: string;
+      service_categories: { name: string | null } | { name: string | null }[] | null;
+      status: string;
+    }>).map((row) => ({
+      category: firstName(row.service_categories),
+      createdAt: row.created_at,
+      district: firstName(row.districts),
+      id: row.id,
+      status: row.status,
+    }));
+
+    const reviews: UserDetailReview[] = ((reviewsResult.data ?? []) as unknown as Array<{
+      comment: string | null;
+      created_at: string;
+      id: string;
+      providers: { name: string | null } | { name: string | null }[] | null;
+      rating: number;
+    }>).map((row) => ({
+      comment: row.comment,
+      createdAt: row.created_at,
+      id: row.id,
+      providerName: firstName(row.providers),
+      rating: row.rating,
+    }));
+
+    return { error: null, profile, requests, reviews };
+  } catch (error) {
+    handleServiceError(error, { logContext: "getAdminUserDetail" });
+    return { error: "Detay yüklenemedi.", profile: null, requests: [], reviews: [] };
+  }
+}
+
 export async function updateAdminUserRole(
   userId: string,
   nextRole: string,
