@@ -1,4 +1,3 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getServerAuthContext } from "@/services/auth/server";
 import { hasAdminRole } from "@/services/auth/constants";
 import { handleServiceError } from "@/lib/errors";
@@ -36,7 +35,8 @@ export type PublicAppSettings = {
 };
 
 // Herkese açık ayarları (duyuru bandı, bakım modu) sunucu tarafında okur.
-// Servis-rol istemcisiyle okur; ziyaretçi giriş yapmamış olsa da çalışır.
+// supabase-js yerine doğrudan REST fetch kullanır: WebSocket/realtime bağımlılığı
+// olmadan çalışır (Node 20.x dev sunucusunda güvenli). Servis-rol anahtarı RLS'i atlar.
 export async function getPublicAppSettings(): Promise<PublicAppSettings> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -45,16 +45,19 @@ export async function getPublicAppSettings(): Promise<PublicAppSettings> {
   }
 
   try {
-    const client = createSupabaseClient(url, key, {
-      auth: { autoRefreshToken: false, persistSession: false },
+    const endpoint = `${url.replace(/\/+$/, "")}/rest/v1/app_settings?select=key,value&key=in.(announcement_banner,maintenance_mode)`;
+    const response = await fetch(endpoint, {
+      cache: "no-store",
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
-    const { data } = await client
-      .from("app_settings")
-      .select("key, value")
-      .in("key", ["announcement_banner", "maintenance_mode"]);
 
+    if (!response.ok) {
+      return { announcementBanner: "", maintenanceMode: false };
+    }
+
+    const data = (await response.json()) as Array<{ key: string; value: string }>;
     const map: Record<string, string> = {};
-    for (const row of (data ?? []) as Array<{ key: string; value: string }>) {
+    for (const row of data ?? []) {
       map[row.key] = row.value;
     }
 

@@ -341,17 +341,16 @@ export async function getAdminAuditLogs(params?: {
     };
   }
 
-  try {
-    const from = (page - 1) * AUDIT_PAGE_SIZE;
-    const to = from + AUDIT_PAGE_SIZE - 1;
+  const supabase = gate.supabase;
 
-    let query = gate.supabase
+  const buildQuery = (fromIdx: number, toIdx: number) => {
+    let query = supabase
       .from("audit_logs")
       .select("id, actor_user_id, entity_type, entity_id, action, created_at", {
         count: "exact",
       })
       .order("created_at", { ascending: false })
-      .range(from, to);
+      .range(fromIdx, toIdx);
 
     const action = params?.action ? sanitizeText(params.action, 60) : "";
     if (action) {
@@ -363,10 +362,16 @@ export async function getAdminAuditLogs(params?: {
       query = query.eq("entity_type", entityType);
     }
 
-    const { data, error, count } = await query;
+    return query;
+  };
 
-    if (error) {
-      handleServiceError(error, { logContext: "getAdminAuditLogs" });
+  try {
+    let currentPage = page;
+    let from = (currentPage - 1) * AUDIT_PAGE_SIZE;
+    let result = await buildQuery(from, from + AUDIT_PAGE_SIZE - 1);
+
+    if (result.error) {
+      handleServiceError(result.error, { logContext: "getAdminAuditLogs" });
       return {
         error: "Audit log okunamadı.",
         isConfigured: true,
@@ -377,7 +382,28 @@ export async function getAdminAuditLogs(params?: {
       };
     }
 
-    const rows: AdminAuditLog[] = ((data ?? []) as unknown as Array<{
+    const total = result.count ?? 0;
+    const maxPage = Math.max(1, Math.ceil(total / AUDIT_PAGE_SIZE));
+
+    // İstenen sayfa aralık dışıysa son geçerli sayfaya kırp ve yeniden çek.
+    if ((result.data?.length ?? 0) === 0 && total > 0 && currentPage > maxPage) {
+      currentPage = maxPage;
+      from = (currentPage - 1) * AUDIT_PAGE_SIZE;
+      result = await buildQuery(from, from + AUDIT_PAGE_SIZE - 1);
+      if (result.error) {
+        handleServiceError(result.error, { logContext: "getAdminAuditLogs" });
+        return {
+          error: "Audit log okunamadı.",
+          isConfigured: true,
+          page: currentPage,
+          pageSize: AUDIT_PAGE_SIZE,
+          rows: [],
+          total,
+        };
+      }
+    }
+
+    const rows: AdminAuditLog[] = ((result.data ?? []) as unknown as Array<{
       action: string;
       actor_user_id: string | null;
       created_at: string;
@@ -396,10 +422,10 @@ export async function getAdminAuditLogs(params?: {
     return {
       error: null,
       isConfigured: true,
-      page,
+      page: currentPage,
       pageSize: AUDIT_PAGE_SIZE,
       rows,
-      total: count ?? rows.length,
+      total,
     };
   } catch (error) {
     handleServiceError(error, { logContext: "getAdminAuditLogs" });

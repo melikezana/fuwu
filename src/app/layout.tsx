@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
+import { MaintenanceScreen } from "@/components/layout/MaintenanceScreen";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
+import { getPublicAppSettings } from "@/services/admin/settings";
+import { getServerAuthContext } from "@/services/auth/server";
+import { hasAdminRole } from "@/services/auth/constants";
 import "@/styles/globals.css";
+
+// Bakım modunda erişime izin verilen yollar (admin, giriş, auth, api).
+const MAINTENANCE_EXEMPT_PREFIXES = ["/admin", "/login", "/auth", "/api"];
 
 const inter = localFont({
   display: "swap",
@@ -63,33 +71,50 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { announcementBanner, maintenanceMode } = await getPublicAppSettings();
+
+  let showMaintenance = false;
+  if (maintenanceMode) {
+    const headerList = await headers();
+    const pathname = headerList.get("x-pathname") ?? "";
+    const isExempt = MAINTENANCE_EXEMPT_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    );
+    if (!isExempt) {
+      const authContext = await getServerAuthContext();
+      showMaintenance = !hasAdminRole(authContext.profile);
+    }
+  }
+
   return (
     <html data-scroll-behavior="smooth" dir="ltr" lang="tr" suppressHydrationWarning>
       <body
         className={`${inter.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
       >
-        <LocaleProvider>
-          <Suspense fallback={null}>
-            <PageViewTracker />
-          </Suspense>
-          <div className="flex min-h-screen flex-col">
+        {showMaintenance ? (
+          <MaintenanceScreen />
+        ) : (
+          <LocaleProvider>
             <Suspense fallback={null}>
-              <AnnouncementBanner />
+              <PageViewTracker />
             </Suspense>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <HelpButton />
-          </div>
-          <Suspense fallback={null}>
-            <CookieConsentBanner />
-          </Suspense>
-        </LocaleProvider>
+            <div className="flex min-h-screen flex-col">
+              <AnnouncementBanner message={announcementBanner} />
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <HelpButton />
+            </div>
+            <Suspense fallback={null}>
+              <CookieConsentBanner />
+            </Suspense>
+          </LocaleProvider>
+        )}
       </body>
     </html>
   );
