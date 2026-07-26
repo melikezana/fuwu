@@ -1,3 +1,4 @@
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getServerAuthContext } from "@/services/auth/server";
 import { hasAdminRole } from "@/services/auth/constants";
 import { handleServiceError } from "@/lib/errors";
@@ -28,6 +29,43 @@ export const SETTING_DEFS: SettingDef[] = [
 ];
 
 const KNOWN_KEYS = new Set(SETTING_DEFS.map((definition) => definition.key));
+
+export type PublicAppSettings = {
+  announcementBanner: string;
+  maintenanceMode: boolean;
+};
+
+// Herkese açık ayarları (duyuru bandı, bakım modu) sunucu tarafında okur.
+// Servis-rol istemcisiyle okur; ziyaretçi giriş yapmamış olsa da çalışır.
+export async function getPublicAppSettings(): Promise<PublicAppSettings> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    return { announcementBanner: "", maintenanceMode: false };
+  }
+
+  try {
+    const client = createSupabaseClient(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data } = await client
+      .from("app_settings")
+      .select("key, value")
+      .in("key", ["announcement_banner", "maintenance_mode"]);
+
+    const map: Record<string, string> = {};
+    for (const row of (data ?? []) as Array<{ key: string; value: string }>) {
+      map[row.key] = row.value;
+    }
+
+    return {
+      announcementBanner: map.announcement_banner?.trim() ?? "",
+      maintenanceMode: map.maintenance_mode === "true",
+    };
+  } catch {
+    return { announcementBanner: "", maintenanceMode: false };
+  }
+}
 
 export type AdminSettingsData = {
   error: string | null;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -77,6 +78,9 @@ export default function RootLayout({
             <PageViewTracker />
           </Suspense>
           <div className="flex min-h-screen flex-col">
+            <Suspense fallback={null}>
+              <AnnouncementBanner />
+            </Suspense>
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
