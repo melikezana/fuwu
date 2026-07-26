@@ -32,6 +32,7 @@ import {
   type RequestAnalyticsData,
 } from "@/services/admin/operations";
 import { MetricCard } from "@/components/admin/MetricCard";
+import { BarChart } from "@/components/admin/BarChart";
 import { AdminSection } from "@/components/admin/AdminSection";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyAdminState } from "@/components/admin/EmptyAdminState";
@@ -152,36 +153,20 @@ function OverviewMetrics({ overview }: { overview: AdminOverviewMetrics }) {
 
 function RequestAnalyticsSection({ analytics }: { analytics: RequestAnalyticsData }) {
   if (!analytics) return null;
+  const statusData = Object.entries(analytics.byStatus).map(([status, count]) => ({
+    label:
+      SERVICE_REQUEST_STATUS_LABELS[
+        status as keyof typeof SERVICE_REQUEST_STATUS_LABELS
+      ] || status,
+    value: count,
+  }));
+
   return (
     <AdminSection title="Talep Analitiği">
-      <div className="grid md:grid-cols-3 gap-6 min-w-[600px]">
-        <div>
-          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Duruma Göre</h4>
-          {Object.entries(analytics.byStatus).map(([status, count]) => (
-            <div key={status} className="flex justify-between text-sm py-1 border-b last:border-0">
-              <span className="font-semibold text-[var(--brand-navy)]">{SERVICE_REQUEST_STATUS_LABELS[status as keyof typeof SERVICE_REQUEST_STATUS_LABELS] || status}</span>
-              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
-          {Object.entries(analytics.byCategory).map(([cat, count]) => (
-            <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
-              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
-              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
-          {Object.entries(analytics.byDistrict).map(([dist, count]) => (
-            <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
-              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
-              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
-            </div>
-          ))}
-        </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        <BarChart title="Duruma Göre" data={statusData} />
+        <BarChart title="Kategoriye Göre" data={analytics.byCategory} />
+        <BarChart title="İlçeye Göre" data={analytics.byDistrict} />
       </div>
     </AdminSection>
   );
@@ -196,25 +181,9 @@ function ProviderAnalyticsSection({ analytics }: { analytics: ProviderAnalyticsD
         <MetricCard label="Onaylı Ustalar" value={analytics.approved} />
         <MetricCard label="Pasif/Askıda" value={analytics.inactive} />
       </div>
-      <div className="grid md:grid-cols-2 gap-6 min-w-[400px]">
-        <div>
-          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">Kategoriye Göre</h4>
-          {Object.entries(analytics.byCategory).map(([cat, count]) => (
-            <div key={cat} className="flex justify-between text-sm py-1 border-b last:border-0">
-              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{cat}</span>
-              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h4 className="text-sm font-bold text-[var(--muted)] mb-3 uppercase">İlçeye Göre</h4>
-          {Object.entries(analytics.byDistrict).map(([dist, count]) => (
-            <div key={dist} className="flex justify-between text-sm py-1 border-b last:border-0">
-              <span className="font-semibold text-[var(--brand-navy)] truncate pr-2">{dist}</span>
-              <span className="font-semibold text-[var(--brand-orange)]">{count}</span>
-            </div>
-          ))}
-        </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        <BarChart title="Kategoriye Göre" data={analytics.byCategory} />
+        <BarChart title="İlçeye Göre" data={analytics.byDistrict} />
       </div>
     </AdminSection>
   );
