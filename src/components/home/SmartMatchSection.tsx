@@ -1,14 +1,11 @@
 import Link from "next/link";
 import {
   MapPin,
-  MessageCircle,
-  Phone,
   Sparkles,
   Star,
   Clock3,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
-import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -122,36 +119,11 @@ function SmartMatchProviderResult({ provider }: SmartMatchProviderResultProps) {
         </div>
       </div>
 
-      {provider.whatsapp || provider.phone ? (
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {provider.whatsapp ? (
-          <ProviderContactLink
-            className="min-h-10 gap-2 px-3"
-            kind="whatsapp"
-            provider={provider}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <MessageCircle className="size-4" />
-            WhatsApp
-          </ProviderContactLink>
-        ) : null}
-        {provider.phone ? (
-          <ProviderContactLink
-            className="min-h-10 gap-2 px-3"
-            kind="phone"
-            provider={provider}
-          >
-            <Phone className="size-4" />
-            Telefon
-          </ProviderContactLink>
-        ) : null}
+      <div className="mt-3">
+        <Button className="min-h-10 w-full gap-2 px-3" href={profileHref} variant="secondary">
+          Profili Gör
+        </Button>
       </div>
-      ) : (
-        <p className="mt-3 text-sm font-medium text-[var(--muted)]">
-          İletişim bilgisi yakında eklenecek.
-        </p>
-      )}
     </article>
   );
 }
@@ -202,7 +174,7 @@ export function SmartMatchSection({
             </h2>
           </div>
           <p className="max-w-[22rem] break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-md">
-            Hizmet, ilçe ve bütçe seç. Sonuçlarda direkt WhatsApp veya telefonla ilerle.
+            Hizmet, ilçe ve bütçe seç. Uygun ustanın profilini gör, Fuwu üzerinden talep oluştur.
           </p>
         </div>
 

@@ -101,7 +101,6 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
           initialOfferAmount={initialOfferAmount}
           initialPaymentPreference={initialPaymentPreference}
           initialProfileFullName={profile?.full_name}
-          initialProfilePhone={profile?.phone}
           initialService={initialService}
           initialTimePreference={initialTimePreference}
           insights={insights}

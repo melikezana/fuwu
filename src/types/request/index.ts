@@ -6,7 +6,6 @@ export type ServiceRequestInput = {
   preferredDate: string;
   preferredTimeRange: string;
   fullName: string;
-  phoneNumber: string;
   shortDescription: string;
   // Emergency request fields
   urgencyType?: string; // 'normal' | 'emergency'

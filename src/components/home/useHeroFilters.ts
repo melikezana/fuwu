@@ -290,7 +290,6 @@ export function useHeroFilters(filterOptions: ProviderFilterOptions) {
         offerAmount: String(offeredPrice),
         offeredPrice,
         paymentPreference,
-        phoneNumber: "",
         preferredDate: "",
         preferredTimeRange: "",
         serviceCategory: selectedServiceLabel,

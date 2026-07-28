@@ -454,10 +454,10 @@ function createRequestDescription(data: ServiceRequestInput) {
       data.approximateLocation?.trim()
         ? `Yaklaşık konum: ${data.approximateLocation.trim()}`
         : "",
-      data.fullName?.trim() || data.phoneNumber?.trim()
-        ? `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`
+      data.fullName?.trim()
+        ? `Talep sahibi: ${data.fullName.trim()}`
         : "",
-      "Bildirim kanalı: usta paneli, ileride WhatsApp/SMS/push.",
+      "Bildirim kanalı: usta paneli.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -469,7 +469,7 @@ function createRequestDescription(data: ServiceRequestInput) {
     paymentPreferenceLabel !== "Belirtilmedi"
       ? `Ödeme tercihi: ${paymentPreferenceLabel}`
       : "",
-    `İletişim: ${data.fullName.trim()} / ${data.phoneNumber.trim()}`,
+    data.fullName?.trim() ? `Talep sahibi: ${data.fullName.trim()}` : "",
     `Tercih edilen saat aralığı: ${data.preferredTimeRange.trim()}`,
   ]
     .filter(Boolean)
@@ -785,7 +785,6 @@ export async function createServiceRequest(
 
   await ensureProfileForUser(supabase, user, {
     fullName: requestData.fullName,
-    phone: requestData.phoneNumber,
     preserveExistingPhone: true,
   });
 
@@ -929,7 +928,6 @@ export async function createAuthenticatedServiceRequest(
 
   await ensureProfileForUser(authContext.supabase, authContext.user, {
     fullName: requestData.fullName,
-    phone: requestData.phoneNumber,
     preserveExistingPhone: true,
   });
 

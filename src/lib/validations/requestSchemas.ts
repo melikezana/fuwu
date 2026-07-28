@@ -6,11 +6,9 @@ import {
   commonValidationMessages,
   createValidationFailure,
   createValidationSuccess,
-  isValidPhone,
   type ValidationIssue,
   type ValidationResult,
 } from "./commonSchemas";
-import { sanitizePhone } from "./phone";
 import { sanitizeText } from "./text";
 
 export type ServiceRequestField =
@@ -21,7 +19,6 @@ export type ServiceRequestField =
   | "fullName"
   | "offerAmount"
   | "paymentPreference"
-  | "phoneNumber"
   | "preferredDate"
   | "preferredTimeRange"
   | "serviceCategory"
@@ -42,7 +39,6 @@ const standardRequiredRequestFields: Array<{
   { field: "preferredDate", message: "Tercih edilen tarih zorunludur." },
   { field: "preferredTimeRange", message: "Tercih edilen saat aralığı zorunludur." },
   { field: "fullName", message: "Ad soyad alanı zorunludur." },
-  { field: "phoneNumber", message: "Telefon numarası zorunludur." },
   { field: "shortDescription", message: "Açıklama alanı zorunludur." },
 ];
 
@@ -53,7 +49,6 @@ const emergencyRequiredRequestFields: Array<{
   { field: "serviceCategory", message: "Hizmet kategorisi zorunludur." },
   { field: "district", message: "İlçe alanı zorunludur." },
   { field: "fullName", message: "Ad soyad alanı zorunludur." },
-  { field: "phoneNumber", message: "Telefon numarası zorunludur." },
   { field: "shortDescription", message: "Açıklama alanı zorunludur." },
   { field: "offerAmount", message: "Teklif tutarı zorunludur." },
   { field: "paymentPreference", message: "Ödeme tercihi zorunludur." },
@@ -85,7 +80,6 @@ export function validateServiceRequestInput(
     fullName: sanitizeText(input.fullName, 120),
     offerAmount: sanitizeText(input.offerAmount ?? "", 80),
     paymentPreference: sanitizeText(input.paymentPreference ?? "", 40),
-    phoneNumber: sanitizePhone(input.phoneNumber),
     preferredDate: sanitizeText(input.preferredDate, 30),
     preferredTimeRange: sanitizeText(input.preferredTimeRange, 80),
     serviceCategory: sanitizeText(input.serviceCategory, 220),
@@ -165,13 +159,6 @@ export function validateServiceRequestInput(
     issues.push({
       field: "paymentPreference",
       message: "Geçerli bir ödeme yöntemi seç.",
-    });
-  }
-
-  if (sanitizedData.phoneNumber && !isValidPhone(sanitizedData.phoneNumber)) {
-    issues.push({
-      field: "phoneNumber",
-      message: commonValidationMessages.phoneInvalid,
     });
   }
 

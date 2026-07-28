@@ -6,8 +6,6 @@ import {
   ChevronDown,
   Mail,
   MapPin,
-  MessageCircle,
-  Phone,
   type LucideIcon,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
@@ -113,19 +111,6 @@ export function Footer() {
     { label: t("footer.cookies"), href: appRoutes.cookies },
   ];
   const contactActions: ContactAction[] = [
-    {
-      Icon: Phone,
-      ariaLabel: t("footer.phoneAria"),
-      href: customerServiceContact.phoneHref,
-      label: t("footer.phone"),
-    },
-    {
-      Icon: MessageCircle,
-      ariaLabel: t("footer.whatsappAria"),
-      external: true,
-      href: customerServiceContact.whatsappHref,
-      label: t("footer.whatsapp"),
-    },
     {
       Icon: Mail,
       ariaLabel: t("footer.emailAria"),

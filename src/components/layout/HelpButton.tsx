@@ -29,7 +29,7 @@ export function HelpButton() {
             <div>
               <p className="text-sm font-bold text-[var(--brand-navy)]">Fuwu destek</p>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
-                Telefon, WhatsApp veya e-posta ile bize ulaşabilirsin.
+                Şu anda e-posta ile bize ulaşabilirsin.
               </p>
             </div>
             <button
@@ -42,25 +42,33 @@ export function HelpButton() {
             </button>
           </div>
           <div className="mt-4 grid gap-2">
-            <a
-              aria-label="Fuwu destek hattını telefonla ara"
-              className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 text-sm font-bold text-white shadow-[var(--shadow-action)] transition-colors hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              href={customerServiceContact.phoneHref}
+            {/* Telefon geçici olarak devre dışı. Yeniden aktifleştirmek için bu
+                button'ı <a href={customerServiceContact.phoneHref}> ile değiştir
+                ve disabled/opacity sınıflarını kaldır. */}
+            <button
+              aria-disabled="true"
+              aria-label="Telefon desteği şu anda kapalı"
+              className="inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 text-sm font-bold text-white opacity-50 shadow-[var(--shadow-action)]"
+              disabled
+              type="button"
             >
               <Phone aria-hidden="true" className="size-4" />
               Telefon
-            </a>
+            </button>
             <div className="grid grid-cols-2 gap-2">
-              <a
-                aria-label="Fuwu WhatsApp desteğine yaz"
-                className={helpActionClassName}
-                href={customerServiceContact.whatsappHref}
-                rel="noopener noreferrer"
-                target="_blank"
+              {/* WhatsApp geçici olarak devre dışı. Yeniden aktifleştirmek için
+                  bu button'ı <a href={customerServiceContact.whatsappHref}
+                  rel="noopener noreferrer" target="_blank"> ile değiştir. */}
+              <button
+                aria-disabled="true"
+                aria-label="WhatsApp desteği şu anda kapalı"
+                className={cn(helpActionClassName, "cursor-not-allowed opacity-50 hover:bg-[var(--surface-soft)]")}
+                disabled
+                type="button"
               >
                 <MessageCircle aria-hidden="true" className="size-4" />
                 WhatsApp
-              </a>
+              </button>
               <a
                 aria-label="Fuwu destek ekibine e-posta gönder"
                 className={helpActionClassName}

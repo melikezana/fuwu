@@ -8,19 +8,14 @@ import {
   CalendarClock,
   Home,
   MapPinned,
-  MessageCircle,
   MessageSquarePlus,
-  Phone,
   Star,
   Timer,
   UserSearch,
   WalletCards,
 } from "lucide-react";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
-import {
-  ProviderContactLink,
-  ProviderProfileViewTracker,
-} from "@/components/providers/ProviderAnalytics";
+import { ProviderProfileViewTracker } from "@/components/providers/ProviderAnalytics";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderGalleryGrid } from "@/components/providers/ProviderGalleryGrid";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
@@ -37,7 +32,6 @@ import {
 import { createPageMetadata, getProviderProfessionLabel } from "@/lib/seo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
-import { cn } from "@/lib/utils";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderGallery } from "@/services/providers/gallery";
 import { getProviderReviews } from "@/services/reviews";
@@ -69,7 +63,7 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
 
   return createPageMetadata({
     title: `${provider.district} ${professionLabel} | ${provider.name} | Fuwu`,
-    description: `${provider.district} bölgesinde hizmet veren ${provider.name} için ${provider.averagePrice} fiyat aralığını, ${provider.rating.toFixed(1)} puanını ve telefon/WhatsApp iletişim bilgilerini inceleyin.`,
+    description: `${provider.district} bölgesinde hizmet veren ${provider.name} için ${provider.averagePrice} fiyat aralığını ve ${provider.rating.toFixed(1)} puanını inceleyin, Fuwu üzerinden talep oluşturun.`,
     path: `/providers/${provider.id}`,
     keywords: [
       provider.name,
@@ -182,9 +176,6 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         relatedProvider.id !== provider.id && relatedProvider.category === provider.category,
     )
     .slice(0, 2);
-  const hasWhatsApp = Boolean(provider.whatsapp?.trim());
-  const hasPhone = Boolean(provider.phone?.trim());
-  const hasContact = hasWhatsApp || hasPhone;
   const isOwnProvider =
     Boolean(authenticatedUserId) && authenticatedUserId === providerOwnerUserId;
   const responseTimeLabel = provider.responseTime.replace(/^Ortalama cevap:\s*/i, "");
@@ -320,36 +311,14 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </p>
 
             <div className="relative mt-6 lg:hidden">
-              {hasContact ? (
-                <div className={cn("grid gap-3", hasWhatsApp && hasPhone && "sm:grid-cols-2")}>
-                  {hasWhatsApp ? (
-                    <ProviderContactLink
-                      className="min-h-12 w-full gap-2"
-                      kind="whatsapp"
-                      provider={provider}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
-                      WhatsApp ile Yaz
-                    </ProviderContactLink>
-                  ) : null}
-                  {hasPhone ? (
-                    <ProviderContactLink
-                      className="min-h-12 w-full gap-2"
-                      kind="phone"
-                      provider={provider}
-                    >
-                      <Phone aria-hidden="true" className="size-4 shrink-0" />
-                      Hemen Ara
-                    </ProviderContactLink>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="text-sm font-medium text-[var(--muted)]">
-                  İletişim bilgisi yakında eklenecek.
-                </p>
-              )}
+              <Button
+                className="min-h-12 w-full gap-2"
+                href={appRoutes.request}
+                variant="primary"
+              >
+                <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
+                Talep Oluştur
+              </Button>
             </div>
           </section>
 
@@ -479,40 +448,20 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               </p>
               <p className="mt-3 text-sm font-normal leading-6 text-[var(--muted)]">
                 {isLiveProvider(provider)
-                  ? "İşin kapsamını, uygun zamanı ve net fiyatı doğrudan ustayla konuş."
-                  : "Bu örnek profilde iletişim akışı gösterim amaçlıdır."}
+                  ? "İşin kapsamını, uygun zamanı ve net fiyatı Fuwu üzerinden talep oluşturarak netleştir."
+                  : "Bu örnek profilde talep akışı gösterim amaçlıdır."}
               </p>
 
-              {hasContact ? (
-                <div className="mt-6 grid gap-3">
-                  {hasWhatsApp ? (
-                    <ProviderContactLink
-                      className="min-h-12 w-full gap-2"
-                      kind="whatsapp"
-                      provider={provider}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
-                      WhatsApp ile Yaz
-                    </ProviderContactLink>
-                  ) : null}
-                  {hasPhone ? (
-                    <ProviderContactLink
-                      className="min-h-12 w-full gap-2"
-                      kind="phone"
-                      provider={provider}
-                    >
-                      <Phone aria-hidden="true" className="size-4 shrink-0" />
-                      Hemen Ara
-                    </ProviderContactLink>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="mt-6 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-sm font-medium leading-6 text-[var(--muted)]">
-                  İletişim bilgisi yakında eklenecek.
-                </p>
-              )}
+              <div className="mt-6 grid gap-3">
+                <Button
+                  className="min-h-12 w-full gap-2"
+                  href={appRoutes.request}
+                  variant="primary"
+                >
+                  <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
+                  Talep Oluştur
+                </Button>
+              </div>
 
               <dl className="mt-6 divide-y divide-[var(--border)] border-y border-[var(--border)]">
                 {[
@@ -590,28 +539,6 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
 
       <div className="safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
         <div className="mx-auto flex max-w-lg gap-3">
-          {hasWhatsApp ? (
-            <ProviderContactLink
-              className="h-12 flex-1 gap-1.5 text-sm"
-              kind="whatsapp"
-              provider={provider}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
-              <span>WhatsApp</span>
-            </ProviderContactLink>
-          ) : null}
-          {hasPhone ? (
-            <ProviderContactLink
-              className="h-12 flex-1 gap-1.5 text-sm"
-              kind="phone"
-              provider={provider}
-            >
-              <Phone aria-hidden="true" className="size-4 shrink-0" />
-              <span>Ara</span>
-            </ProviderContactLink>
-          ) : null}
           <Button className="h-12 flex-1 gap-1.5 text-sm" href={appRoutes.request} variant="primary">
             <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
             Talep Et

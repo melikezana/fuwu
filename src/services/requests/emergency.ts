@@ -274,7 +274,6 @@ export async function createEmergencyMatchRequest(
 
   await ensureProfileForUser(supabase, authContext.user, {
     fullName: requestInput.fullName,
-    phone: requestInput.phoneNumber,
     preserveExistingPhone: true,
   });
 

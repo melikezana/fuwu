@@ -56,7 +56,6 @@ type RequestFormState = {
   preferredDate: string;
   preferredTimeRange: string;
   fullName: string;
-  phoneNumber: string;
   shortDescription: string;
 };
 
@@ -73,7 +72,6 @@ type RequestFormProps = {
   initialOfferAmount?: string;
   initialPaymentPreference?: string;
   initialProfileFullName?: string | null;
-  initialProfilePhone?: string | null;
   initialService?: string;
   initialTimePreference?: string;
   insights: RequestFormInsights;
@@ -88,7 +86,6 @@ type RequestInitialFormProps = Pick<
   | "initialOfferAmount"
   | "initialPaymentPreference"
   | "initialProfileFullName"
-  | "initialProfilePhone"
   | "initialService"
   | "initialTimePreference"
 >;
@@ -106,7 +103,6 @@ const initialFormState: RequestFormState = {
   preferredDate: "",
   preferredTimeRange: "",
   fullName: "",
-  phoneNumber: "",
   shortDescription: "",
 };
 
@@ -141,11 +137,6 @@ const emergencyPaymentOptions: Array<{
   value: ServiceRequestPaymentPreference;
 }> = [
   {
-    description: "Usta geldiğinde nakit ödeme niyeti.",
-    label: "Nakit",
-    value: PAYMENT_PREFERENCES.cash,
-  },
-  {
     description: ibanAfterProviderAcceptsText,
     label: "IBAN",
     value: PAYMENT_PREFERENCES.iban,
@@ -161,11 +152,6 @@ const standardPaymentOptions: Array<{
   label: string;
   value: ServiceRequestPaymentPreference;
 }> = [
-  {
-    description: "Usta geldiğinde nakit ödeme yapmak istiyorum.",
-    label: "Nakit",
-    value: PAYMENT_PREFERENCES.cash,
-  },
   {
     description: ibanAfterProviderAcceptsText,
     label: "IBAN",
@@ -311,7 +297,6 @@ function normalizeForm(values: RequestFormState): RequestFormState {
       ? "En kısa süre"
       : values.preferredTimeRange.trim(),
     fullName: values.fullName.trim(),
-    phoneNumber: values.phoneNumber.trim(),
     shortDescription: isEmergencyRequest
       ? values.shortDescription.trim() || createEmergencySummary(values)
       : values.shortDescription.trim(),
@@ -326,7 +311,6 @@ function createInitialFormState({
   initialOfferAmount = "",
   initialPaymentPreference = "",
   initialProfileFullName = "",
-  initialProfilePhone = "",
   initialService = "",
   initialTimePreference = "",
 }: RequestInitialFormProps): RequestFormState {
@@ -386,7 +370,6 @@ function createInitialFormState({
     serviceCategory,
     district,
     fullName: initialProfileFullName?.trim() ?? "",
-    phoneNumber: initialProfilePhone?.trim() ?? "",
     offerAmount: initialOfferAmount.trim() || (suggestedEmergencyPrice ? String(suggestedEmergencyPrice) : ""),
     paymentPreference: canPrefillPaymentPreference ? normalizedPaymentPreference ?? "" : "",
     preferredDate:
@@ -542,7 +525,6 @@ export function RequestForm({
   initialOfferAmount,
   initialPaymentPreference,
   initialProfileFullName,
-  initialProfilePhone,
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
@@ -556,7 +538,6 @@ export function RequestForm({
       initialOfferAmount,
       initialPaymentPreference,
       initialProfileFullName,
-      initialProfilePhone,
       initialService,
       initialTimePreference,
     }),
@@ -1487,14 +1468,14 @@ export function RequestForm({
               Adım 4
             </span>
             <span className="mt-1 block text-xl font-bold leading-tight text-[var(--brand-navy)]">
-              İletişim bilgileri
+              Talep sahibi
             </span>
           </legend>
           <p className="cursor-default select-none text-sm leading-6 text-[var(--muted)]">
-            Ustanın seni doğru bilgilerle araması için iletişim kişisini ekle.
+            Talebinde görünecek adını ekle. Usta ile iletişim ve tüm süreç Fuwu sistemi üzerinden yürür.
           </p>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5">
             <div>
               <label className={labelClassName} htmlFor="fullName">
                 Ad soyad
@@ -1513,33 +1494,9 @@ export function RequestForm({
                 value={formState.fullName}
               />
               <p className={helperClassName} id="fullName-helper">
-                Usta seninle bu isimle iletişime geçer.
+                Talebinde bu isimle görünürsün.
               </p>
               <FieldError id="fullName-error" message={errors.fullName} />
-            </div>
-
-            <div>
-              <label className={labelClassName} htmlFor="phoneNumber">
-                Telefon numarası
-              </label>
-              <input
-                aria-describedby={errors.phoneNumber ? "phoneNumber-error" : "phoneNumber-helper"}
-                aria-invalid={Boolean(errors.phoneNumber)}
-                autoComplete="tel"
-                className={getFieldClassName("phoneNumber")}
-                id="phoneNumber"
-                inputMode="tel"
-                name="phoneNumber"
-                onChange={(event) => updateField("phoneNumber", event.target.value)}
-                placeholder="+90 5xx xxx xx xx"
-                required
-                type="tel"
-                value={formState.phoneNumber}
-              />
-              <p className={helperClassName} id="phoneNumber-helper">
-                Hızlı dönüş için aktif bir numara yaz.
-              </p>
-              <FieldError id="phoneNumber-error" message={errors.phoneNumber} />
             </div>
           </div>
         </fieldset>

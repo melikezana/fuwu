@@ -9,7 +9,6 @@ import {
 import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { HomeHeroFilters } from "@/components/home/HomeHeroFilters";
-import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -52,8 +51,6 @@ function MobileHeroTrustSignals() {
 
 function PhoneProviderRow({ provider }: { provider: Provider }) {
   const profileHref = `${appRoutes.providers}/${provider.id}`;
-  const hasWhatsApp = Boolean(provider.whatsapp?.trim());
-  const hasPhone = Boolean(provider.phone?.trim());
 
   return (
     <article className="group relative cursor-pointer select-none rounded-lg bg-white p-3.5 shadow-[var(--shadow-subtle)] ring-1 ring-[var(--border)] transition-all hover:shadow-[var(--shadow-elevated)] hover:ring-gray-300">
@@ -80,36 +77,6 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
           </span>
         </div>
       </div>
-      {hasWhatsApp || hasPhone ? (
-      <div className="pointer-events-none relative z-10 mt-3 grid grid-cols-2 gap-2">
-        {hasWhatsApp ? (
-        <ProviderContactLink
-          aria-label={`${provider.name} WhatsApp ile yaz`}
-          className="pointer-events-auto h-9 min-h-9 px-3 text-xs"
-          kind="whatsapp"
-          provider={provider}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          WhatsApp
-        </ProviderContactLink>
-        ) : null}
-        {hasPhone ? (
-        <ProviderContactLink
-          aria-label={`${provider.name} telefonla ara`}
-          className="pointer-events-auto h-9 min-h-9 px-3 text-xs"
-          kind="phone"
-          provider={provider}
-        >
-          Telefon
-        </ProviderContactLink>
-        ) : null}
-      </div>
-      ) : (
-        <p className="relative z-10 mt-3 text-xs font-medium text-[var(--muted)]">
-          İletişim bilgisi yakında eklenecek.
-        </p>
-      )}
     </article>
   );
 }

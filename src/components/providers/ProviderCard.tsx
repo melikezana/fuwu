@@ -6,14 +6,11 @@ import {
   Clock3,
   Coins,
   MapPin,
-  MessageCircle,
-  Phone,
   Star,
   Timer,
   UserRoundSearch,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
-import { ProviderContactLink } from "@/components/providers/ProviderAnalytics";
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
@@ -71,10 +68,6 @@ export function ProviderCard({
   const currentSearchParams = new URLSearchParams(searchParams.toString());
   const profileHref = `${appRoutes.providers}/${provider.id}`;
   const priceRange = getDisplayPriceRange(provider.averagePrice);
-  const hasWhatsApp = Boolean(provider.whatsapp?.trim());
-  const hasPhone = Boolean(provider.phone?.trim());
-  const hasBothContactMethods = hasWhatsApp && hasPhone;
-  const hasContactMethod = hasWhatsApp || hasPhone;
   const cardGalleryPreviewUrl = galleryPreviewUrl ?? provider.galleryPreviewUrl;
   const availabilityClassName =
     provider.availabilityStatus.tone === "green"
@@ -167,35 +160,11 @@ export function ProviderCard({
             </span>
           </div>
 
-          <div className="mt-auto grid grid-cols-2 gap-2 pt-4" id={actionsId}>
-            {hasWhatsApp ? (
-              <ProviderContactLink
-                className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
-                kind="whatsapp"
-                provider={provider}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <MessageCircle className="size-4 shrink-0" />
-                <span>WhatsApp</span>
-              </ProviderContactLink>
-            ) : hasPhone ? (
-              <ProviderContactLink
-                className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
-                kind="phone"
-                provider={provider}
-              >
-                <Phone className="size-4 shrink-0" />
-                <span>Telefon</span>
-              </ProviderContactLink>
-            ) : null}
+          <div className="mt-auto pt-4" id={actionsId}>
             <Button
-              className={cn(
-                "h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm",
-                hasContactMethod ? undefined : "col-span-2",
-              )}
+              className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
               href={profileHref}
-              variant={hasContactMethod ? "secondary" : "primary"}
+              variant="primary"
             >
               <UserRoundSearch className="size-4 shrink-0" />
               <span>Profili Gör</span>
@@ -332,38 +301,13 @@ export function ProviderCard({
       </div>
 
       <div
-        className="mt-auto grid grid-cols-2 gap-2 pt-5"
+        className="mt-auto pt-5"
         id={actionsId}
       >
-        {hasWhatsApp ? (
-          <ProviderContactLink
-            className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
-            kind="whatsapp"
-            provider={provider}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <MessageCircle className="size-4 shrink-0" />
-            <span>WhatsApp</span>
-          </ProviderContactLink>
-        ) : null}
-        {hasPhone ? (
-          <ProviderContactLink
-            className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
-            kind="phone"
-            provider={provider}
-          >
-            <Phone className="size-4 shrink-0" />
-            <span>Telefon</span>
-          </ProviderContactLink>
-        ) : null}
         <Button
-          className={cn(
-            "h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm",
-            hasBothContactMethods || !hasContactMethod ? "col-span-2" : undefined,
-          )}
+          className="h-11 min-h-11 w-full gap-2 whitespace-nowrap px-3 text-xs sm:text-sm"
           href={profileHref}
-          variant={hasContactMethod ? "secondary" : "primary"}
+          variant="primary"
         >
           <UserRoundSearch className="size-4 shrink-0" />
           <span>Profili Gör</span>
