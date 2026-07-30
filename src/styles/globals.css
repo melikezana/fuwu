@@ -11,13 +11,22 @@
   --surface: #ffffff;
   --surface-soft: #f3f4f6;
   --border: #e5e7eb;
-  --brand-orange: #ff8a00;
-  --brand-orange-dark: #e87700;
+  --brand-orange: #ff6b00;
+  --brand-orange-dark: #c24e00;
   --brand-orange-soft: #fff2df;
   --brand-navy: #182033;
   --brand-navy-soft: #26324a;
   --trust-green: #17745f;
   --trust-green-soft: #e8f6f1;
+  --fuwu-black: #0f0f0f;
+  --fuwu-surface: #17171a;
+  --fuwu-surface-2: #1f1f23;
+  --fuwu-cream: #f9f8f5;
+  --fuwu-line: rgba(249, 248, 245, 0.09);
+  --fuwu-muted: rgba(249, 248, 245, 0.58);
+  --font-fuwu-display: var(--font-inter), system-ui, sans-serif;
+  --font-fuwu-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   --premium-line: rgba(13, 20, 36, 0.1);
   --premium-shadow: 0 22px 70px rgba(13, 20, 36, 0.1);
   --shadow-subtle: 0 8px 24px rgba(13, 20, 36, 0.05);
@@ -206,4 +215,19 @@ textarea:disabled {
 ::selection {
   background: var(--brand-orange);
   color: white;
+}
+
+@keyframes fuwu-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -0.55rem;
+  }
+}
+
+.home-float-chip {
+  animation: fuwu-drift 7s ease-in-out infinite;
 }

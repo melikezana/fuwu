@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   Camera,
   ChevronDown,
@@ -27,10 +28,10 @@ type ContactAction = FooterLink & {
 };
 
 const footerLinkClass =
-  "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center gap-2 rounded-md px-1 text-sm font-semibold leading-6 text-[var(--muted)] transition-colors hover:text-[var(--brand-orange-dark)] active:text-[var(--brand-orange)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0 sm:px-0";
+  "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center gap-2 rounded-md px-1 text-sm font-semibold leading-6 text-[#F9F8F5]/60 transition-colors hover:text-[#FF8A33] active:text-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F] sm:min-h-0 sm:px-0";
 
 const contactActionClass =
-  "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[rgba(13,20,36,0.1)] bg-white px-2.5 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] active:border-[var(--brand-orange)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
+  "inline-flex min-h-11 w-full cursor-pointer select-none items-center justify-center gap-2 rounded-md border border-[#F9F8F5]/10 bg-[#1F1F23] px-2.5 py-2 text-xs font-bold text-[#F9F8F5] shadow-[0_18px_44px_-32px_rgba(0,0,0,0.9)] transition-all hover:-translate-y-0.5 hover:border-[#FF6B00]/40 hover:bg-[#F9F8F5]/[0.06] active:border-[#FF6B00] active:bg-[#FF6B00] active:text-[#0F0F0F] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F] sm:min-h-12 sm:gap-2.5 sm:px-4 sm:py-3 sm:text-sm";
 
 function FooterAnchor({ item, className }: { className?: string; item: FooterLink }) {
   const isExternal = item.external || item.href.startsWith("http");
@@ -40,7 +41,7 @@ function FooterAnchor({ item, className }: { className?: string; item: FooterLin
   const content = (
     <>
       {Icon ? (
-        <span className="pointer-events-none inline-flex size-8 shrink-0 select-none items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+        <span className="pointer-events-none inline-flex size-8 shrink-0 select-none items-center justify-center rounded-md bg-[#FF6B00]/10 text-[#FF8A33]">
           <Icon aria-hidden="true" className="size-4" />
         </span>
       ) : null}
@@ -74,14 +75,14 @@ function FooterColumn({
   className = "",
   title,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   title: string;
 }) {
   return (
     <section className={`grid content-start gap-4 ${className}`}>
-      <h2 className="cursor-default select-none text-sm font-bold uppercase text-[var(--brand-navy)]">
-        <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
+      <h2 className="cursor-default select-none text-sm font-bold uppercase text-[#F9F8F5]">
+        <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[#FF6B00] align-middle" />
         {title}
       </h2>
       {children}
@@ -128,24 +129,24 @@ export function Footer() {
 
   return (
     <footer
-      className="border-t border-[rgba(13,20,36,0.08)] bg-[linear-gradient(180deg,#FFF7EC_0%,#F8F2E8_52%,#EEF1F5_100%)] text-[var(--brand-navy)]"
+      className="border-t border-[#F9F8F5]/10 bg-[#0F0F0F] text-[#F9F8F5]"
       id="contact"
     >
       <Container className="py-8 sm:py-12 lg:py-14">
         <div className="max-w-2xl cursor-default select-none">
           <Link
             aria-label={t("nav.logo")}
-            className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
             href={appRoutes.home}
           >
-            <FuwuLogo size="md" />
+            <FuwuLogo inverted size="md" />
           </Link>
-          <p className="mt-4 text-sm font-semibold leading-7 text-[var(--muted)]">
+          <p className="mt-4 text-sm font-semibold leading-7 text-[#F9F8F5]/60">
             {t("footer.description")}
           </p>
         </div>
 
-        <div className="grid gap-7 border-y border-[rgba(13,20,36,0.1)] py-7 sm:grid-cols-2 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
+        <div className="grid gap-7 border-y border-[#F9F8F5]/10 py-7 sm:grid-cols-2 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
           <FooterColumn title={t("footer.discover")}>
             <nav aria-label={t("footer.discoverAria")} className="grid gap-2.5">
               {discoverLinks.map((item) => (
@@ -171,10 +172,10 @@ export function Footer() {
           </FooterColumn>
 
           <section className="sm:hidden">
-            <details className="group rounded-lg border border-[rgba(13,20,36,0.1)] bg-white/70">
-              <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-bold uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
+            <details className="group rounded-lg border border-[#F9F8F5]/10 bg-[#17171A]">
+              <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-bold uppercase text-[#F9F8F5] [&::-webkit-details-marker]:hidden">
                 <span>
-                  <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--brand-orange)] align-middle" />
+                  <span className="mr-2 inline-block h-2 w-2 rounded-full bg-[#FF6B00] align-middle" />
                   {t("footer.legal")}
                 </span>
                 <ChevronDown
@@ -184,7 +185,7 @@ export function Footer() {
               </summary>
               <nav
                 aria-label={t("footer.policyAria")}
-                className="grid gap-2.5 border-t border-[rgba(13,20,36,0.08)] px-4 py-3"
+                className="grid gap-2.5 border-t border-[#F9F8F5]/10 px-4 py-3"
               >
                 {policyLinks.map((item) => (
                   <FooterAnchor item={item} key={item.label} />
@@ -195,8 +196,8 @@ export function Footer() {
 
           <FooterColumn className="sm:col-span-2 lg:col-span-4" title={t("footer.contact")}>
             <address className="grid gap-4 not-italic">
-              <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--muted)]">
-                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+              <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[#F9F8F5]/60">
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-[#FF6B00]/10 text-[#FF8A33]">
                   <MapPin aria-hidden="true" className="size-4" />
                 </span>
                 <span>{t("footer.location")}</span>
@@ -210,7 +211,7 @@ export function Footer() {
           </FooterColumn>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/70 bg-white/55 px-4 py-4 text-sm font-semibold text-[var(--muted)] shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 rounded-lg border border-[#F9F8F5]/10 bg-[#17171A] px-4 py-4 text-sm font-semibold text-[#F9F8F5]/50 shadow-[0_18px_44px_-34px_rgba(0,0,0,0.9)] sm:flex-row sm:items-center sm:justify-between">
           <p className="cursor-default select-none">{t("footer.copyright")}</p>
           <p className="cursor-default select-none">{t("footer.tagline")}</p>
         </div>

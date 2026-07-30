@@ -217,7 +217,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[rgba(13,20,36,0.08)] bg-white/[0.97] shadow-[var(--shadow-subtle)] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-[#F9F8F5]/10 bg-[#0F0F0F]/85 shadow-[0_12px_32px_-26px_rgba(0,0,0,0.9)] backdrop-blur-xl">
       <Container className="max-w-[1440px] py-3 xl:py-0">
         <nav
           className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 xl:h-[72px]"
@@ -225,11 +225,11 @@ export function Navbar() {
         >
           <Link
             aria-label={t("nav.logo")}
-            className="inline-flex min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
             onClick={() => handleMenuLinkClick(appRoutes.home)}
             href={appRoutes.home}
           >
-            <FuwuLogo size="sm" />
+            <FuwuLogo inverted size="sm" />
           </Link>
 
           <div className="hidden min-w-0 items-center justify-center gap-0.5 xl:flex">
@@ -237,10 +237,10 @@ export function Navbar() {
               <Link
                 aria-current={isActiveLink(item.href) ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-full px-2.5 text-center text-sm font-semibold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] active:bg-[var(--brand-orange)] active:text-white",
+                  "inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-full px-3 text-center text-sm font-bold leading-5 transition-colors hover:bg-[#F9F8F5]/[0.06] hover:text-[#F9F8F5] active:bg-[#FF6B00] active:text-[#0F0F0F]",
                   isActiveLink(item.href)
-                    ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
-                    : "text-[var(--muted)]",
+                    ? "bg-[#FF6B00]/10 text-[#FF8A33] ring-1 ring-[#FF6B00]/30"
+                    : "text-[#F9F8F5]/60",
                 )}
                 href={item.href}
                 key={item.id}
@@ -256,23 +256,23 @@ export function Navbar() {
             <Button
               aria-current={isActiveLink(appRoutes.providerApplication) ? "page" : undefined}
               className={cn(
-                "h-10 min-h-10 whitespace-nowrap px-3.5",
+                "h-10 min-h-10 whitespace-nowrap rounded-full border border-[#F9F8F5]/10 bg-transparent px-3.5 text-[#F9F8F5] shadow-none ring-0 hover:border-[#F9F8F5]/30 hover:bg-[#F9F8F5]/[0.06] hover:text-[#F9F8F5] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]",
                 isActiveLink(appRoutes.providerApplication)
-                  ? "ring-2 ring-[var(--brand-orange)] ring-offset-2"
+                  ? "ring-2 ring-[#FF6B00] ring-offset-2 ring-offset-[#0F0F0F]"
                   : undefined,
               )}
               href={appRoutes.providerApplication}
               onClick={() => setActiveHref(appRoutes.providerApplication)}
-              variant="secondary"
+              variant="plain"
             >
               {t("cta.provider")}
             </Button>
             <Button
               aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
               className={cn(
-                "h-10 min-h-10 whitespace-nowrap px-4",
+                "h-10 min-h-10 whitespace-nowrap rounded-full bg-[linear-gradient(140deg,#FF8A33,#FF6B00_58%,#C24E00)] px-4 text-[#0F0F0F] shadow-[0_14px_28px_-18px_rgba(255,107,0,0.8)] hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-18px_rgba(255,107,0,0.9)] focus:ring-offset-[#0F0F0F]",
                 isActiveLink(appRoutes.providers)
-                  ? "ring-2 ring-[var(--brand-orange)] ring-offset-2"
+                  ? "ring-2 ring-[#FF6B00] ring-offset-2 ring-offset-[#0F0F0F]"
                   : undefined,
               )}
               href={appRoutes.providers}
@@ -284,18 +284,18 @@ export function Navbar() {
               {isAuthLoading ? (
                 <div
                   aria-hidden="true"
-                  className="h-10 w-full rounded-md bg-[var(--surface-soft)] opacity-70"
+                  className="h-10 w-full rounded-md bg-[#F9F8F5]/10 opacity-70"
                 />
               ) : userProfile ? (
                 <>
                   <NotificationBell className="shrink-0" userId={userProfile.id} />
                   <Button
                     aria-label={`${userDisplayName} profiline git`}
-                    className="h-10 min-h-10 w-[9.5rem] min-w-0 shrink-0 justify-start gap-2 px-3"
+                    className="h-10 min-h-10 w-[9.5rem] min-w-0 shrink-0 justify-start gap-2 rounded-full border border-[#F9F8F5]/10 bg-[#F9F8F5]/[0.04] px-3 text-[#F9F8F5] shadow-none ring-0 hover:bg-[#F9F8F5]/[0.08] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
                     href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account}
                     onClick={() => setActiveHref(userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account)}
                     title={userDisplayName}
-                    variant="secondary"
+                    variant="plain"
                   >
                     <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-medium text-white">
                       {userAvatarInitial}
@@ -303,7 +303,7 @@ export function Navbar() {
                     <span className="min-w-0 flex-1 truncate text-left">{userDisplayName}</span>
                   </Button>
                   <Button
-                    className="h-10 min-h-10 shrink-0 whitespace-nowrap border border-[var(--brand-navy-soft)] px-3.5 text-[var(--brand-navy)] hover:bg-[var(--brand-navy-soft)] hover:text-white"
+                    className="h-10 min-h-10 shrink-0 whitespace-nowrap rounded-full border border-[#F9F8F5]/10 bg-transparent px-3.5 text-[#F9F8F5] shadow-none ring-0 hover:bg-[#F9F8F5]/[0.06] hover:text-[#F9F8F5] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
                     onClick={async () => {
                       try {
                         await fetch("/api/auth/logout", { method: "POST" });
@@ -314,17 +314,17 @@ export function Navbar() {
                       setUserProfile(null);
                       window.location.reload();
                     }}
-                    variant="secondary"
+                    variant="plain"
                   >
                     Çıkış Yap
                   </Button>
                 </>
               ) : (
                 <Button
-                  className="h-10 min-h-10 w-[6.75rem] whitespace-nowrap px-4"
+                  className="h-10 min-h-10 w-[6.75rem] whitespace-nowrap rounded-full border border-[#F9F8F5]/10 bg-transparent px-4 text-[#F9F8F5] shadow-none ring-0 hover:bg-[#F9F8F5]/[0.06] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
                   href={appRoutes.login}
                   onClick={() => setActiveHref(appRoutes.login)}
-                  variant="secondary"
+                  variant="plain"
                 >
                   {t("nav.login")}
                 </Button>
@@ -341,7 +341,7 @@ export function Navbar() {
               aria-controls="mobile-navigation-menu"
               aria-expanded={isMenuOpen}
               aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-[var(--brand-navy)] text-white shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-[#F9F8F5]/10 bg-[#1F1F23] text-[#F9F8F5] shadow-[0_16px_34px_-24px_rgba(0,0,0,0.9)] transition-colors hover:bg-[#F9F8F5]/[0.08] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]"
               onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
               type="button"
             >
@@ -355,7 +355,7 @@ export function Navbar() {
 
           {isMenuOpen ? (
             <div
-              className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 max-h-[min(48vh,18rem)] overflow-y-auto rounded-lg border border-[rgba(13,20,36,0.08)] bg-white py-2 shadow-[var(--shadow-elevated)] xl:hidden"
+              className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 max-h-[min(48vh,18rem)] overflow-y-auto rounded-lg border border-[#F9F8F5]/10 bg-[#17171A] py-2 shadow-[0_28px_70px_-34px_rgba(0,0,0,0.9)] xl:hidden"
               id="mobile-navigation-menu"
             >
               <div className="grid gap-1 px-2">
@@ -366,10 +366,10 @@ export function Navbar() {
                     <Link
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "flex min-h-11 cursor-pointer select-none items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-bold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] active:bg-[var(--brand-orange)] active:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1",
+                        "flex min-h-11 cursor-pointer select-none items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-bold leading-5 transition-colors hover:bg-[#F9F8F5]/[0.06] active:bg-[#FF6B00] active:text-[#0F0F0F] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-1 focus:ring-offset-[#17171A]",
                         isActive
-                          ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
-                          : "text-[var(--brand-navy)]",
+                          ? "bg-[#FF6B00]/10 text-[#FF8A33]"
+                          : "text-[#F9F8F5]",
                       )}
                       href={item.href}
                       key={item.id}
@@ -377,7 +377,7 @@ export function Navbar() {
                     >
                       <span className="min-w-0 truncate">{item.label}</span>
                       {isActive ? (
-                        <span className="h-2 w-2 rounded-full bg-[var(--brand-orange)]" />
+                        <span className="h-2 w-2 rounded-full bg-[#FF6B00]" />
                       ) : null}
                     </Link>
                   );
