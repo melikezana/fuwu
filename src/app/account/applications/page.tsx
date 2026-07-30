@@ -79,7 +79,7 @@ function DetailPill({
   value: string;
 }) {
   return (
-    <div className="rounded-md bg-[#F9FAFB] px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
+    <div className="rounded-md bg-[var(--surface-soft)] px-3 py-2 ring-1 ring-[rgba(13,20,36,0.06)]">
       <dt className="flex items-center gap-1.5 text-[0.68rem] font-medium uppercase text-[var(--muted)]">
         <Icon className="size-3.5" aria-hidden />
         {label}
@@ -97,7 +97,7 @@ function ProviderApplicationCard({
   application: AccountProviderApplication;
 }) {
   return (
-    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
+    <article className="premium-card p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-lg font-bold leading-tight text-[var(--brand-navy)]">
@@ -129,7 +129,7 @@ function ServiceRequestCard({ request }: { request: AccountServiceRequest }) {
   const isEmergency = request.urgencyType === "emergency";
 
   return (
-    <article className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
+    <article className="premium-card p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -181,8 +181,8 @@ export default async function AccountApplicationsPage() {
   const latestApplication = accountData.applications[0] ?? null;
 
   return (
-    <main className="min-h-screen bg-[var(--surface-soft)]">
-      <header className="border-b border-[var(--border)] bg-white">
+    <main className="premium-page-shell min-h-screen">
+      <header className="premium-page-band">
         <Container className="flex min-h-16 items-center justify-between gap-4">
           <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
             <FuwuLogo size="sm" />
@@ -217,7 +217,7 @@ export default async function AccountApplicationsPage() {
               Usta başvurularını ve hizmet taleplerini hesabına bağlı olarak takip edebilirsin.
             </p>
           </div>
-          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <span className="w-fit rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)]">
             {accountData.applications.length} başvuru · {accountData.requests.length} talep
           </span>
         </div>
@@ -247,7 +247,7 @@ export default async function AccountApplicationsPage() {
               <ProviderApplicationCard application={application} key={application.id} />
             ))
           ) : (
-            <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-10 text-center">
+            <div className="premium-card border-dashed border-[rgba(255,138,0,0.38)] px-6 py-10 text-center">
               <h3 className="text-lg font-semibold text-[var(--brand-navy)]">
                 {noProviderApplicationMessage}
               </h3>
@@ -280,7 +280,7 @@ export default async function AccountApplicationsPage() {
               <ServiceRequestCard key={request.id} request={request} />
             ))
           ) : (
-            <div className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-10 text-center">
+            <div className="premium-card border-dashed border-[rgba(255,138,0,0.38)] px-6 py-10 text-center">
               <h3 className="text-lg font-semibold text-[var(--brand-navy)]">
                 Henüz hizmet talebin yok.
               </h3>

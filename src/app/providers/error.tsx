@@ -12,7 +12,7 @@ export default function ProvidersError({
 }) {
   return (
     <section className="bg-[var(--background)] px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-white p-6 text-center shadow-[var(--shadow-elevated)]">
+      <div className="premium-card mx-auto max-w-2xl border-red-200 p-6 text-center shadow-[var(--shadow-elevated)]">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-red-50 text-red-700">
           <AlertTriangle aria-hidden="true" className="h-6 w-6" />
         </div>

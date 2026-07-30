@@ -4,9 +4,9 @@ import { appRoutes, ctaLabels } from "@/lib/constants/navigation";
 
 export default function NotFound() {
   return (
-    <section className="border-b border-[var(--border)] bg-[linear-gradient(180deg,#fff8ef_0%,var(--background)_52%,#ffffff_100%)]">
+    <section className="premium-page-shell border-b border-[var(--border)]">
       <Container className="py-16 sm:py-20">
-        <div className="mx-auto max-w-2xl rounded-lg border border-[var(--border)] bg-white p-6 text-center shadow-[var(--shadow-elevated)] sm:p-8">
+        <div className="premium-card mx-auto max-w-2xl p-6 text-center shadow-[var(--shadow-elevated)] sm:p-8">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Sayfa bulunamadı
           </p>

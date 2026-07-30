@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   MessageCircle,
   ShieldCheck,
+  Star,
   WalletCards,
   Zap,
   type LucideIcon,
@@ -73,7 +74,8 @@ function PhoneProviderRow({ provider }: { provider: Provider }) {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <span className="inline-flex items-center gap-1 rounded-md bg-[var(--surface-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-navy)]">
-            ⭐ {provider.rating.toFixed(1)}
+            <Star className="size-3 fill-current text-amber-600" aria-hidden="true" />
+            {provider.rating.toFixed(1)}
           </span>
         </div>
       </div>

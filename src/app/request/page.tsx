@@ -69,16 +69,16 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
   const initialApproximateLocation = getSearchParam(params?.approximate_location);
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
+    <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative grid min-h-[620px] gap-8 py-10 sm:py-14 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:py-16">
+      <Container className="relative grid min-h-[620px] gap-8 py-10 sm:py-14 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:py-16">
         <div className="min-w-0 cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-[var(--brand-navy)] px-5 py-4 shadow-[var(--shadow-elevated)] transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
-            <FuwuLogo inverted size="lg" />
+            <FuwuLogo size="lg" />
           </Link>
           <p className="mt-7 text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
             Talep oluştur
@@ -90,6 +90,21 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
             Ustaları ve profilleri giriş yapmadan inceleyebilirsin. Hizmet talebi oluşturma adımı
             ise adres ve iletişim bilgisi içerdiği için yalnızca giriş yapan kullanıcılarla açılır.
           </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            {["Hizmeti seç", "İhtiyacını netleştir", "Güvenle talebi gönder"].map(
+              (item, index) => (
+                <div
+                  className="rounded-lg border border-[rgba(20,33,61,0.08)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]"
+                  key={item}
+                >
+                  <span className="mr-2 inline-flex size-7 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-xs text-[var(--brand-orange-dark)]">
+                    {index + 1}
+                  </span>
+                  {item}
+                </div>
+              ),
+            )}
+          </div>
         </div>
 
         <RequestForm

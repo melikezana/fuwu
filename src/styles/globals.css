@@ -9,27 +9,33 @@
   --fuwu-orange-hover: #ea580c;
   --fuwu-orange-soft: #fff3e8;
   --fuwu-navy: #14213d;
+  --fuwu-navy-deep: #0f1b33;
   --fuwu-navy-soft: #eaf0f7;
   --fuwu-background: #fffcf8;
   --fuwu-surface: #ffffff;
+  --fuwu-surface-soft: #f7f9fc;
   --fuwu-text: #172033;
   --fuwu-muted: #687387;
   --fuwu-border: #e8e3dc;
+  --fuwu-success: #17875d;
+  --fuwu-warning: #d97706;
+  --fuwu-danger: #c2413b;
   --background: var(--fuwu-background);
   --foreground: var(--fuwu-text);
   --muted: var(--fuwu-muted);
   --surface: var(--fuwu-surface);
-  --surface-soft: #f7f4ef;
+  --surface-soft: var(--fuwu-surface-soft);
   --border: var(--fuwu-border);
   --brand-orange: var(--fuwu-orange);
   --brand-orange-dark: var(--fuwu-orange-hover);
   --brand-orange-soft: var(--fuwu-orange-soft);
   --brand-navy: var(--fuwu-navy);
+  --brand-navy-deep: var(--fuwu-navy-deep);
   --brand-navy-soft: var(--fuwu-navy-soft);
-  --trust-green: #17745f;
+  --trust-green: var(--fuwu-success);
   --trust-green-soft: #e8f6f1;
   --fuwu-black: #14213d;
-  --fuwu-surface-2: #f7f4ef;
+  --fuwu-surface-2: var(--fuwu-surface-soft);
   --fuwu-cream: #f9f8f5;
   --fuwu-line: rgba(20, 33, 61, 0.1);
   --font-fuwu-display: var(--font-inter), system-ui, sans-serif;
@@ -37,11 +43,17 @@
     "Liberation Mono", "Courier New", monospace;
   --premium-line: rgba(13, 20, 36, 0.1);
   --premium-shadow: 0 22px 70px rgba(13, 20, 36, 0.1);
+  --radius-control: 0.5rem;
+  --radius-card: 0.5rem;
+  --radius-panel: 0.5rem;
   --shadow-subtle: 0 8px 24px rgba(13, 20, 36, 0.05);
   --shadow-card: 0 14px 40px rgba(13, 20, 36, 0.07);
   --shadow-elevated: 0 22px 60px rgba(13, 20, 36, 0.12);
   --shadow-premium: 0 28px 80px rgba(13, 20, 36, 0.16);
   --shadow-action: 0 16px 34px rgba(255, 138, 0, 0.28);
+  --gradient-page: linear-gradient(180deg, #ffffff 0%, #fff8ef 36%, #fffcf8 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  --gradient-warm-surface: linear-gradient(180deg, #ffffff 0%, #fff8ef 100%);
 }
 
 * {
@@ -52,6 +64,7 @@
   * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -238,4 +251,97 @@ textarea:disabled {
 
 .home-float-chip {
   animation: fuwu-drift 7s ease-in-out infinite;
+}
+
+@keyframes fuwu-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.premium-page-shell {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(255, 248, 239, 0.72) 34%,
+    rgba(255, 252, 248, 1) 100%
+  );
+}
+
+.premium-page-band {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fbfcfe 68%, #fffaf3 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.premium-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(20, 33, 61, 0.09);
+  border-radius: var(--radius-card);
+  background: var(--gradient-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.premium-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.38), transparent);
+  opacity: 0.8;
+}
+
+.premium-card-hover {
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    background-color 220ms ease;
+}
+
+.premium-card-hover:hover {
+  border-color: rgba(249, 115, 22, 0.36);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px) perspective(900px) rotateX(0.6deg);
+}
+
+.premium-control {
+  min-height: 2.75rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--brand-navy);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.premium-control:focus,
+.premium-control:focus-visible,
+.premium-control:focus-within {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.14);
+  outline: none;
+}
+
+.premium-reveal {
+  animation: fuwu-reveal 260ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-card-hover:hover {
+    transform: none;
+  }
+
+  .premium-reveal {
+    animation: none;
+  }
 }

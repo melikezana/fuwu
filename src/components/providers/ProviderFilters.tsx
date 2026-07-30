@@ -58,7 +58,7 @@ function FilterGroup({ children, label, className }: { children: ReactNode; labe
 }
 
 const selectClassName =
-  "mt-2 h-12 w-full min-w-0 cursor-pointer select-none overflow-hidden text-ellipsis rounded-md border border-[var(--border)] bg-white px-3.5 pr-10 text-sm font-medium leading-5 text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "premium-control mt-2 h-12 w-full min-w-0 cursor-pointer select-none overflow-hidden text-ellipsis px-3.5 pr-10 text-sm font-semibold leading-5 outline-none";
 
 const visibleBudgetOptions = providerBudgetOptions.filter(
   (option) => option.value !== "acil-hizmet",
@@ -74,7 +74,7 @@ function BudgetPreferenceTags({ selectedBudget }: { selectedBudget?: string }) {
   const selectedBudgetValue = getSelectedBudgetValue(selectedBudget);
 
   return (
-    <div className="mt-2 grid grid-cols-3 gap-1 rounded-md bg-[#F3F4F6] p-1 ring-1 ring-[rgba(13,20,36,0.06)]">
+    <div className="mt-2 grid grid-cols-3 gap-1 rounded-[var(--radius-control)] bg-[var(--surface-soft)] p-1 ring-1 ring-[rgba(13,20,36,0.06)]">
       {visibleBudgetOptions.map((option) => (
         <label className="min-w-0 cursor-pointer" key={option.value}>
           <input
@@ -88,7 +88,7 @@ function BudgetPreferenceTags({ selectedBudget }: { selectedBudget?: string }) {
             type="radio"
             value={option.value}
           />
-          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center whitespace-nowrap rounded-md px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[var(--shadow-action)] sm:text-sm">
+          <span className="inline-flex h-10 w-full min-w-0 select-none items-center justify-center whitespace-nowrap rounded-[var(--radius-control)] px-2 text-xs font-semibold leading-5 text-[var(--muted)] transition-all hover:bg-white hover:text-[var(--brand-navy)] peer-checked:bg-[var(--brand-orange)] peer-checked:text-white peer-checked:shadow-[var(--shadow-action)] sm:text-sm">
             {option.label}
           </span>
         </label>
@@ -146,7 +146,7 @@ export function ProviderFilters({
       aria-label={t("filters.title")}
       action={appRoutes.providers}
       className={cn(
-        "max-w-full cursor-default overflow-hidden rounded-lg bg-white shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)]",
+        "premium-card max-w-full cursor-default p-0",
         compact ? "p-3 sm:p-4" : "p-4 sm:p-5",
       )}
       onSubmit={handleFilterSubmit}

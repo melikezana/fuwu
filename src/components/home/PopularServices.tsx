@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Container } from "@/components/ui/Container";
 import { SectionIntro } from "@/components/ui/SectionIntro";
@@ -29,6 +29,28 @@ export function PopularServices({ services }: PopularServicesProps) {
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
+
+        <form
+          action={appRoutes.providers}
+          className="premium-card mt-8 grid gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:p-4"
+        >
+          <label className="premium-control grid min-h-12 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 px-3">
+            <Search className="size-5 text-[var(--brand-orange-dark)]" aria-hidden="true" />
+            <span className="sr-only">Hizmet ara</span>
+            <input
+              className="min-w-0 bg-transparent text-sm font-semibold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
+              name="q"
+              placeholder="Hizmet, usta veya kategori ara"
+              type="search"
+            />
+          </label>
+          <button
+            className="inline-flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-[var(--brand-navy)] px-5 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            type="submit"
+          >
+            Ustaları Gör
+          </button>
+        </form>
 
         <div className="mt-8 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {services.map((service) => {

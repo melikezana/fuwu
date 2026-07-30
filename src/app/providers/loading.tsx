@@ -10,8 +10,8 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
 
 export default function ProvidersLoading() {
   return (
-    <div className="bg-[var(--background)]">
-      <section className="border-b border-[var(--border)] bg-white">
+    <div className="premium-page-shell">
+      <section className="premium-page-band">
         <Container className="max-w-7xl py-10 sm:py-14 lg:py-16">
           <SkeletonBlock className="h-12 w-36" />
           <SkeletonBlock className="mt-8 h-5 w-32" />
@@ -20,7 +20,7 @@ export default function ProvidersLoading() {
         </Container>
       </section>
       <Container className="max-w-7xl py-6 sm:py-8">
-        <div className="rounded-lg bg-white p-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-5 lg:p-6">
+        <div className="premium-card p-4 sm:p-5 lg:p-6">
           <SkeletonBlock className="h-6 w-56" />
           <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <SkeletonBlock className="h-12" />
@@ -31,7 +31,7 @@ export default function ProvidersLoading() {
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
-              className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)]"
+              className="premium-card p-5"
               key={index}
             >
               <div className="flex gap-4">

@@ -251,8 +251,8 @@ export function ProviderDashboardShell({
   };
 
   return (
-    <div className="min-h-full bg-[var(--surface-soft)]">
-      <section className="border-b border-[var(--border)] bg-white">
+    <div className="premium-page-shell min-h-full">
+      <section className="premium-page-band">
         <Container className="max-w-7xl py-8 sm:py-10">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
@@ -286,7 +286,7 @@ export function ProviderDashboardShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold leading-5 transition-colors",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold leading-5 transition-all hover:-translate-y-0.5",
                     isActive
                       ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-action)]"
                       : "border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
@@ -399,7 +399,7 @@ export function ProviderDashboardAccessPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-lg border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
+        <article className="premium-card p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
@@ -443,7 +443,7 @@ export function ProviderDashboardAccessPlaceholder({
         </article>
 
         <aside
-          className="rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
+          className="premium-card p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
@@ -568,7 +568,7 @@ export function ProviderDashboardApplicationPlaceholder({
   return (
     <section className="grid gap-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <article className="rounded-lg border border-[rgba(13,20,36,0.08)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-8">
+        <article className="premium-card p-5 shadow-[var(--shadow-elevated)] sm:p-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.2)]">
             <BadgeCheck className="h-6 w-6" aria-hidden />
           </div>
@@ -598,7 +598,7 @@ export function ProviderDashboardApplicationPlaceholder({
         </article>
 
         <aside
-          className="rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-elevated)] sm:p-6"
+          className="premium-card p-5 shadow-[var(--shadow-elevated)] sm:p-6"
           role="status"
         >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
@@ -693,7 +693,7 @@ export function ProviderSummaryCard({
 }: SummaryCardProps) {
   return (
     <Link
-      className="group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="premium-card-hover group relative overflow-hidden rounded-lg border border-[rgba(255,138,0,0.24)] bg-white p-5 shadow-[var(--shadow-card)] transition-all hover:border-[rgba(255,138,0,0.62)] hover:shadow-[var(--shadow-elevated)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={href}
     >
       <span className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" aria-hidden />
@@ -719,7 +719,7 @@ export function ProviderSummaryCard({
 
 export function ProviderProfileField({ label, value }: ProfileFieldProps) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 shadow-[var(--shadow-subtle)]">
       <p className="cursor-default select-none text-xs font-medium uppercase text-[var(--muted)]">
         {label}
       </p>

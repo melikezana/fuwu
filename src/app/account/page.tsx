@@ -161,9 +161,9 @@ export default async function AccountPage() {
   const requests = await getUserRequests(authContext.supabase, authContext.user.id);
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:py-12">
+    <main className="premium-page-shell min-h-screen px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-2xl space-y-6">
-        <section className="flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] sm:flex-row sm:items-center">
+        <section className="premium-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
           {profile.avatar_url ? (
             <Image
               alt={profile.full_name ? `${profile.full_name} profil fotoğrafı` : "Profil fotoğrafı"}
@@ -190,7 +190,7 @@ export default async function AccountPage() {
           </div>
           <form action="/api/auth/logout" className="w-full sm:w-auto" method="POST">
             <button
-              className="inline-flex min-h-11 w-full flex-shrink-0 items-center justify-center rounded-xl border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] sm:w-auto"
+              className="inline-flex min-h-11 w-full flex-shrink-0 items-center justify-center rounded-lg border border-[var(--border)] px-4 py-2 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] sm:w-auto"
               type="submit"
             >
               Çıkış Yap
@@ -220,11 +220,11 @@ export default async function AccountPage() {
             },
           ].map((item) => (
             <Link
-              className="group flex items-center gap-3 rounded-xl border border-[var(--border)] p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
+              className="premium-card-hover group flex items-center gap-3 rounded-lg border border-[var(--border)] bg-white p-4 transition hover:border-[rgba(255,138,0,0.5)] hover:bg-[var(--brand-orange-soft)]"
               href={item.href}
               key={item.href}
             >
-              <span className="flex size-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white transition group-hover:border-[rgba(255,138,0,0.4)] group-hover:text-[var(--brand-orange)]">
+              <span className="flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition group-hover:border-[rgba(255,138,0,0.4)] group-hover:text-[var(--brand-orange)]">
                 <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {item.icon}
                 </svg>
@@ -248,7 +248,7 @@ export default async function AccountPage() {
           </div>
 
           {requests.length === 0 ? (
-            <div className="space-y-3 rounded-xl border border-dashed border-[var(--border)] px-6 py-10 text-center">
+            <div className="rounded-lg border border-dashed border-[var(--border)] bg-white px-6 py-10 text-center shadow-[var(--shadow-subtle)]">
               <p className="text-sm font-semibold text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
               <p className="text-xs text-[var(--muted)]">Hizmet ihtiyacını tarif et, uygun ustalarla eşleş.</p>
               <Button
@@ -265,7 +265,7 @@ export default async function AccountPage() {
 
                 return (
                   <div
-                    className="flex items-start justify-between gap-4 rounded-xl border border-[var(--border)] bg-white px-5 py-4 shadow-[var(--shadow-subtle)]"
+                    className="premium-card-hover flex items-start justify-between gap-4 rounded-lg border border-[var(--border)] bg-white px-5 py-4 shadow-[var(--shadow-subtle)]"
                     key={req.id}
                   >
                     <div className="min-w-0 space-y-0.5">
@@ -303,7 +303,7 @@ export default async function AccountPage() {
             { href: appRoutes.cookies, label: "Çerez Politikası" },
           ].map((item) => (
             <Link
-              className="group flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[var(--surface-soft)]"
+              className="group flex items-center justify-between rounded-lg px-4 py-3 transition hover:bg-[var(--surface-soft)]"
               href={item.href}
               key={item.href}
             >

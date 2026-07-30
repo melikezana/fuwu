@@ -78,8 +78,8 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
 
 function ProviderNotFoundState() {
   return (
-    <div className="bg-[var(--background)] pb-24 lg:pb-0">
-      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
+    <div className="premium-page-shell pb-24 lg:pb-0">
+      <section className="premium-page-band relative overflow-hidden">
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
         <Container className="relative py-8">
           <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-[var(--muted)]">
@@ -227,7 +227,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
 
       <Container className="grid gap-8 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,370px)] lg:items-start lg:py-16">
         <div className="min-w-0 space-y-8">
-          <section className="relative overflow-hidden rounded-lg bg-white p-6 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
+          <section className="premium-card relative p-6 sm:p-8">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
               <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-premium)] ring-4 ring-white sm:h-48 sm:w-48">
@@ -306,7 +306,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               })}
             </div>
 
-            <p className="relative mt-6 rounded-md bg-[var(--surface-soft)] px-4 py-3 text-sm font-medium leading-6 text-[var(--muted)]">
+            <p className="relative mt-6 rounded-md border border-[rgba(20,33,61,0.08)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--muted)]">
               {getProviderDataNotice(provider)}
             </p>
 
@@ -322,7 +322,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </div>
           </section>
 
-          <section className="rounded-lg bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <section className="premium-card p-6">
             <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
               Profil özeti
             </p>
@@ -335,7 +335,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           </section>
 
           {galleryImages.length > 0 ? (
-            <section className="rounded-2xl bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.06)]">
+            <section className="premium-card p-6">
               <h2 className="mb-4 text-lg font-bold text-[var(--brand-navy)]">
                 İşlerimden Kareler
               </h2>
@@ -345,7 +345,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               />
             </section>
           ) : isOwnProvider ? (
-            <section className="rounded-2xl border-2 border-dashed border-[rgba(255,138,0,0.3)] bg-white p-6">
+            <section className="rounded-lg border-2 border-dashed border-[rgba(255,138,0,0.3)] bg-white p-6 shadow-[var(--shadow-subtle)]">
               <p className="text-sm font-semibold text-[var(--muted)]">
                 İş galeriniz henüz boş.
               </p>
@@ -366,7 +366,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             summary={reviewData.summary}
           />
 
-          <section className="rounded-lg bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
+          <section className="premium-card p-6">
             <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
               Sunduğu hizmetler
             </p>
@@ -376,7 +376,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {provider.servicesOffered.map((service) => (
                 <div
-                  className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-3 text-sm font-medium text-[var(--brand-navy)]"
+                  className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-3 text-sm font-semibold text-[var(--brand-navy)]"
                   key={service}
                 >
                   {service}
@@ -386,7 +386,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           </section>
 
           <section className="grid gap-8 md:grid-cols-2">
-            <div className="rounded-lg bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <div className="premium-card p-6">
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 Hizmet bölgeleri
               </p>
@@ -406,7 +406,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               </div>
             </div>
 
-            <div className="rounded-lg bg-white p-6 shadow-[var(--shadow-card)] ring-1 ring-[rgba(13,20,36,0.08)]">
+            <div className="premium-card p-6">
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 {isLiveProvider(provider) ? "Güven sinyalleri" : "Örnek güven sinyalleri"}
               </p>
@@ -427,7 +427,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </div>
 
         <aside className="min-w-0 lg:sticky lg:top-24">
-          <section className="overflow-hidden rounded-lg bg-white shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.1)]">
+          <section className="premium-card overflow-hidden p-0 shadow-[var(--shadow-elevated)]">
             <div className="h-1.5 bg-[var(--brand-orange)]" />
             <div className="p-6">
               <Link
@@ -510,7 +510,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
       </Container>
 
       {relatedProviders.length > 0 ? (
-        <section className="border-t border-[var(--border)] bg-white">
+        <section className="border-t border-[var(--border)] bg-white/80">
           <Container className="py-12 lg:py-16">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>

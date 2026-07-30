@@ -6,7 +6,7 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
 
 export default function RequestLoading() {
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#FFF7EC_42%,#ffffff_100%)]">
+    <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <Container className="relative grid min-h-[620px] gap-8 py-10 sm:py-14 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:py-16">
         <div className="min-w-0">
           <SkeletonBlock className="h-16 w-36" />
@@ -18,7 +18,7 @@ export default function RequestLoading() {
         <div
           aria-busy="true"
           aria-label="Talep formu yükleniyor"
-          className="rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
+          className="premium-card p-5 shadow-[var(--shadow-elevated)] sm:p-6"
         >
           <SkeletonBlock className="h-5 w-32" />
           <SkeletonBlock className="mt-3 h-8 w-64 max-w-full" />

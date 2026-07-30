@@ -92,7 +92,7 @@ export default async function RootLayout({
             ) : null}
             <AnnouncementBanner message={announcementBanner} />
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="premium-reveal flex-1">{children}</main>
             <Footer />
             <HelpButton />
           </div>

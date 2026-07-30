@@ -167,7 +167,7 @@ const standardPaymentOptions: Array<{
 const emergencyLocationOptions = ["Ev", "İş yeri", "Site / apartman", "Kapı önü"];
 
 const fieldBaseClassName =
-  "mt-2 w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 py-3 text-sm text-[var(--brand-navy)] outline-none transition-colors focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]";
+  "premium-control mt-2 w-full min-w-0 px-3.5 py-3 text-sm font-semibold outline-none";
 
 const fieldClassName = `${fieldBaseClassName} cursor-text select-text placeholder:text-[var(--muted)]`;
 const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer select-none pr-10`;
@@ -175,7 +175,8 @@ const selectFieldClassName = `${fieldBaseClassName} min-h-12 cursor-pointer sele
 const labelClassName = "block cursor-default select-none text-sm font-semibold text-[var(--brand-navy)]";
 const helperClassName = "mt-1.5 cursor-default select-none text-xs leading-5 text-[var(--muted)]";
 const errorClassName = "mt-2 cursor-default select-none text-sm font-medium text-red-600";
-const sectionClassName = "cursor-default space-y-5 border-t border-[var(--border)] pt-6";
+const sectionClassName =
+  "cursor-default space-y-5 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 shadow-[var(--shadow-subtle)] sm:p-5";
 const serviceRequestSuccessMessage = "Talebiniz başarıyla oluşturuldu";
 const serviceRequestSubmitErrorMessage =
   "Talep oluşturulamadı. Lütfen tekrar deneyin.";
@@ -760,9 +761,9 @@ export function RequestForm({
   }
 
   return (
-    <Card className="min-w-0">
-      <form className="space-y-6" data-testid="request-form" noValidate onSubmit={handleSubmit}>
-        <div className="cursor-default select-none border-b border-[var(--border)] pb-5">
+    <Card className="min-w-0 shadow-[var(--shadow-premium)]">
+      <form className="space-y-5" data-testid="request-form" noValidate onSubmit={handleSubmit}>
+        <div className="cursor-default select-none rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-4 shadow-[var(--shadow-subtle)] sm:p-5">
           <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
             {isEmergencyFlow ? "Acil hizmet" : "Talep özeti"}
           </p>
@@ -785,6 +786,19 @@ export function RequestForm({
               Hızlı Eşleşme seçimlerin forma eklendi.
             </p>
           ) : null}
+          <ol className="mt-4 grid grid-cols-2 gap-2 text-xs font-bold text-[var(--muted)] sm:grid-cols-5">
+            {["Hizmet", "Konum", "Zaman", "Bilgi", "Onay"].map((step, index) => (
+              <li
+                className="flex min-h-10 items-center gap-2 rounded-md border border-[rgba(20,33,61,0.08)] bg-white px-3"
+                key={step}
+              >
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
+                  {index + 1}
+                </span>
+                <span className="truncate">{step}</span>
+              </li>
+            ))}
+          </ol>
         </div>
 
         {submittedRequest ? (
@@ -930,7 +944,7 @@ export function RequestForm({
           </p>
         ) : null}
 
-        <fieldset className="space-y-5">
+        <fieldset className="cursor-default space-y-5 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 shadow-[var(--shadow-subtle)] sm:p-5">
           <legend className="cursor-default select-none">
             <span className="block text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
               Adım 1

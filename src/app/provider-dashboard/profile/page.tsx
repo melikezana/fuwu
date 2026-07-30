@@ -171,7 +171,7 @@ export default async function ProviderDashboardProfilePage({
       title="Profil Bilgileri"
     >
       {providerAccess.ok ? (
-        <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+        <section className="premium-card p-5 sm:p-6">
           <div className="flex flex-col gap-5 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
               <ProfileImageUploader
@@ -228,7 +228,7 @@ export default async function ProviderDashboardProfilePage({
                 Uygunluk durumu
               </label>
               <select
-                className="h-12 min-w-0 rounded-md border border-[var(--border)] bg-white px-3.5 text-sm font-semibold text-[var(--brand-navy)] outline-none focus:border-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange-soft)]"
+                className="premium-control h-12 min-w-0 px-3.5 text-sm font-semibold outline-none"
                 defaultValue={providerAccess.profile.availability}
                 id="providerAvailability"
                 name="availability"
@@ -240,7 +240,7 @@ export default async function ProviderDashboardProfilePage({
                 ))}
               </select>
               <button
-                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-navy-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 type="submit"
               >
                 Güncelle

@@ -21,9 +21,9 @@ export default function LoginPage() {
   ];
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_54%,#F6F7F9_100%)]">
+    <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <FuwuWatermark className="-right-20 top-10 text-[9rem] opacity-[0.035] sm:text-[12rem]" />
-      <Container className="relative grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(20rem,0.55fr)] lg:items-center lg:py-16">
+      <Container className="relative grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.88fr)_minmax(20rem,0.58fr)] lg:items-center lg:py-16">
         <div className="min-w-0 cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"

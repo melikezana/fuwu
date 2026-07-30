@@ -1,26 +1,26 @@
 export function ProviderCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-[var(--shadow-subtle)] border border-gray-100 flex flex-col gap-4 animate-pulse">
+    <div className="premium-card flex flex-col gap-4 p-5 animate-pulse">
       <div className="flex justify-between items-start">
         <div className="flex gap-3 items-center">
-          <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+          <div className="w-12 h-12 rounded-full bg-[rgba(20,33,61,0.1)]"></div>
           <div className="flex flex-col gap-2">
-            <div className="h-5 w-32 bg-gray-200 rounded-md"></div>
-            <div className="h-4 w-48 bg-gray-200 rounded-md"></div>
+            <div className="h-5 w-32 bg-[rgba(20,33,61,0.1)] rounded-md"></div>
+            <div className="h-4 w-48 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
-          <div className="h-4 w-10 bg-gray-200 rounded-md"></div>
+          <div className="h-6 w-16 bg-[rgba(249,115,22,0.16)] rounded-full"></div>
+          <div className="h-4 w-10 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
         </div>
       </div>
 
       <div className="flex items-center gap-2 mt-2">
-        <div className="flex-1 h-10 bg-gray-200 rounded-xl"></div>
-        <div className="flex-1 h-10 bg-gray-200 rounded-xl"></div>
+        <div className="flex-1 h-10 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
+        <div className="flex-1 h-10 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
       </div>
 
-      <div className="w-full h-8 bg-gray-200 rounded-md mt-2"></div>
+      <div className="w-full h-8 bg-[rgba(249,115,22,0.16)] rounded-md mt-2"></div>
     </div>
   );
 }

@@ -83,7 +83,7 @@ export function ProviderCard({
       <article
         aria-labelledby={`provider-${provider.id}-title`}
         className={cn(
-          "group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[rgba(13,20,36,0.09)] bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(255,138,0,0.34)] hover:shadow-[var(--shadow-premium)]",
+          "premium-card-hover group relative flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-[rgba(13,20,36,0.09)] bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:border-[rgba(255,138,0,0.34)] hover:shadow-[var(--shadow-premium)]",
           className,
         )}
       >
@@ -179,7 +179,7 @@ export function ProviderCard({
     <article
       aria-labelledby={`provider-${provider.id}-title`}
       className={cn(
-        "group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[rgba(13,20,36,0.09)] bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[rgba(255,138,0,0.34)] hover:shadow-[var(--shadow-premium)] sm:p-6",
+          "premium-card-hover group relative flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-[rgba(13,20,36,0.09)] bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 hover:border-[rgba(255,138,0,0.34)] hover:shadow-[var(--shadow-premium)] sm:p-6",
         className,
       )}
     >
@@ -256,7 +256,7 @@ export function ProviderCard({
         <ProviderTrustBadges badges={provider.trustBadges} limit={3} />
 
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-3">
-          <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[#FAFAFA] p-3.5">
+          <div className="flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
             <span
               className={`flex size-10 shrink-0 items-center justify-center rounded-lg border ${availabilityClassName}`}
             >
@@ -271,7 +271,7 @@ export function ProviderCard({
               </span>
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[#FAFAFA] p-3.5">
+          <div className="flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-3.5">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand-navy)] ring-1 ring-[var(--border)]">
               <Timer className="size-4" aria-hidden="true" />
             </span>

@@ -72,7 +72,7 @@ export function PaymentConfirmationButton({
       >
         <CheckCircle2 aria-hidden="true" className="mr-2 size-4" />
         {isConfirmed
-          ? "✓ Ödeme Onaylandı"
+          ? "Ödeme Onaylandı"
           : isPending
             ? "Onaylanıyor"
             : getConfirmationLabel(paymentMethod)}

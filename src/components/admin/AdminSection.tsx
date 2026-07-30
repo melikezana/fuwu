@@ -8,7 +8,7 @@ export function AdminSection({
   children: React.ReactNode; 
 }) {
   return (
-    <section className="mt-8 overflow-hidden rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
+    <section className="premium-card mt-8 p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-[var(--brand-navy)]">{title}</h2>
         {description && (

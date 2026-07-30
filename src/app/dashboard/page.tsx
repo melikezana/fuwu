@@ -259,7 +259,7 @@ export default async function CustomerDashboardPage() {
   const cancelled = requests.filter((r) => (CANCELLED_STATUSES as string[]).includes(r.status));
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8]">
+    <div className="premium-page-shell min-h-screen">
       {/* Top Bar */}
       <header className="border-b border-[var(--border)] bg-white">
         <Container className="flex h-14 items-center justify-between gap-4">
@@ -285,10 +285,9 @@ export default async function CustomerDashboardPage() {
 
       <Container className="py-8 sm:py-10">
         {/* Hero Card */}
-        <div className="relative mb-6 overflow-hidden rounded-xl bg-[var(--brand-navy)] px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8">
+        <div className="premium-card relative mb-6 px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8">
           {/* decorative circles */}
-          <div className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-white/5" />
-          <div className="pointer-events-none absolute -bottom-10 right-24 size-40 rounded-full bg-[var(--brand-orange)]/10" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" />
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
@@ -296,13 +295,13 @@ export default async function CustomerDashboardPage() {
                 {avatarLetter}
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50">
+                <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
                   Hesabım
                 </p>
-                <h1 className="mt-1 break-words text-2xl font-bold text-white">
-                  Merhaba, {firstName} 👋
+                <h1 className="mt-1 break-words text-2xl font-bold text-[var(--brand-navy)]">
+                  Merhaba, {firstName}
                 </h1>
-                <p className="mt-0.5 break-all text-sm font-semibold text-white/60">{user.email}</p>
+                <p className="mt-0.5 break-all text-sm font-semibold text-[var(--muted)]">{user.email}</p>
               </div>
             </div>
             <Button
@@ -315,15 +314,15 @@ export default async function CustomerDashboardPage() {
           </div>
 
           {/* Stats row */}
-          <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
+          <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-[var(--border)] pt-5">
             {[
-              { label: "Bekleyen", value: pending.length, color: "text-amber-300" },
-              { label: "Atanan", value: assigned.length, color: "text-blue-300" },
-              { label: "Toplam Talep", value: requests.length, color: "text-white" },
+              { label: "Bekleyen", value: pending.length, color: "text-amber-700" },
+              { label: "Atanan", value: assigned.length, color: "text-[var(--brand-navy)]" },
+              { label: "Toplam Talep", value: requests.length, color: "text-[var(--brand-navy)]" },
             ].map((s) => (
-              <div key={s.label} className="text-center">
+              <div key={s.label} className="rounded-lg bg-[var(--surface-soft)] px-3 py-4 text-center ring-1 ring-[rgba(20,33,61,0.06)]">
                 <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
-                <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-white/40">
+                <p className="mt-1 text-[11px] font-bold uppercase text-[var(--muted)]">
                   {s.label}
                 </p>
               </div>
@@ -429,8 +428,8 @@ function EmptyState({
   actions: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white px-6 py-12 text-center shadow-[var(--shadow-subtle)]">
-      <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[var(--brand-orange-soft)]">
+    <div className="premium-card px-6 py-12 text-center">
+      <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)]">
         {icon}
       </div>
       <h2 className="text-lg font-bold text-[var(--brand-navy)]">{title}</h2>
@@ -467,7 +466,7 @@ function RequestsOverview({
   ];
 
   return (
-    <section className="rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)]">
+    <section className="premium-card p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--brand-orange-dark)]">
@@ -546,10 +545,10 @@ function RequestCard({ request }: { request: ServiceRequest }) {
   const allFollowUpsComplete = request.hasReview && paymentConfirmed;
 
   return (
-    <div className="group flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] transition hover:shadow-[var(--shadow-subtle)] sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+    <div className="premium-card-hover group flex flex-col gap-4 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-subtle)] transition sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
       {/* Left */}
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)]">
+        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)]">
           <Wrench className="size-4 text-[var(--brand-orange)]" />
         </span>
         <div className="min-w-0">
@@ -601,7 +600,7 @@ function RequestCard({ request }: { request: ServiceRequest }) {
           {allFollowUpsComplete ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-[var(--trust-green-soft)] px-3 py-2 text-sm font-bold text-[var(--trust-green)]">
               <CheckCircle2 className="size-4" aria-hidden="true" />
-              ✓ İş tamamlandı
+              İş tamamlandı
             </span>
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -643,9 +642,9 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-white p-4 transition hover:border-[rgba(255,138,0,0.4)] hover:shadow-[var(--shadow-subtle)]"
+      className="premium-card-hover group flex items-center gap-4 rounded-lg border border-[var(--border)] bg-white p-4 transition hover:border-[rgba(255,138,0,0.4)] hover:shadow-[var(--shadow-subtle)]"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] transition group-hover:bg-[var(--brand-orange)] group-hover:text-white">
         <Icon className="size-5" />
       </span>
       <div className="min-w-0">

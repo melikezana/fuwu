@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SlidersHorizontal, UsersRound } from "lucide-react";
 import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
-import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
+import { PageHeader } from "@/components/ui/Premium";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -192,38 +193,71 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           }).toString()}`,
         }
       : undefined;
+  const activeFilterCount = [
+    selectedAvailability,
+    selectedBudget,
+    selectedCategory,
+    selectedDistrict,
+    selectedMaximumPrice,
+    selectedMinimumPrice,
+    selectedPrice,
+    selectedQuery,
+    selectedRating,
+  ].filter(Boolean).length;
 
   return (
-    <div className="bg-[var(--background)]">
-      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_54%,#F6F7F9_100%)]">
-        <Container className="relative max-w-7xl py-8 sm:py-10 lg:py-12">
-          <div className="min-w-0 cursor-default select-none lg:max-w-3xl">
-            <Link
-              aria-label="Fuwu ana sayfasına git"
-              className="inline-flex cursor-pointer rounded-md bg-white px-3 py-2 shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              href={appRoutes.home}
-            >
-              <FuwuLogo size="sm" />
+    <div className="premium-page-shell">
+      <PageHeader
+        actions={
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[rgba(20,33,61,0.1)] bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            href={appRoutes.request}
+          >
+            Talep Oluştur
+          </Link>
+        }
+        badge={source === "supabase" ? "Canlı veri" : "Veri bağlantısı bekleniyor"}
+        breadcrumbs={
+          <>
+            <Link className="hover:text-[var(--brand-navy)]" href={appRoutes.home}>
+              Ana sayfa
             </Link>
-            <p className="mt-5 text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
-              <I18nText i18nKey="providers.hero.eyebrow" />
-            </p>
-            <h1 className="mt-2 max-w-3xl text-3xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-4xl lg:text-5xl">
-              <I18nText i18nKey="providers.hero.title" />
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
-              <I18nText i18nKey="providers.hero.subtitle" />
-            </p>
-            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[var(--muted)]">
-              {source === "supabase"
-                ? <I18nText i18nKey="providers.hero.liveNote" />
-                : <I18nText i18nKey="providers.hero.fallbackNote" />}
-            </p>
-          </div>
-        </Container>
-      </section>
+            <span>/</span>
+            <span className="text-[var(--brand-navy)]">Ustalar</span>
+          </>
+        }
+        description={
+          <>
+            <I18nText i18nKey="providers.hero.subtitle" />{" "}
+            {source === "supabase" ? (
+              <I18nText i18nKey="providers.hero.liveNote" />
+            ) : (
+              <I18nText i18nKey="providers.hero.fallbackNote" />
+            )}
+          </>
+        }
+        eyebrow={<I18nText i18nKey="providers.hero.eyebrow" />}
+        metrics={[
+          {
+            icon: UsersRound,
+            label: "Görünen profil",
+            value: filteredProviders.length,
+          },
+          {
+            icon: UsersRound,
+            label: "Toplam profil",
+            value: providerDirectory.totalCount,
+          },
+          {
+            icon: SlidersHorizontal,
+            label: "Aktif filtre",
+            value: activeFilterCount,
+          },
+        ]}
+        title={<I18nText i18nKey="providers.hero.title" />}
+      />
 
-      <section className="border-b border-[var(--border)] bg-[var(--background)]" id="provider-filters">
+      <section className="border-b border-[var(--border)] bg-white/70" id="provider-filters">
         <Container className="max-w-7xl py-6 sm:py-8">
           <ProviderFilters
             availabilityOptions={filterOptions.availabilityOptions}

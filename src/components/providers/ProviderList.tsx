@@ -2,6 +2,7 @@
 
 import { UserRoundSearch } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { PremiumCard } from "@/components/ui/Premium";
 import { appRoutes } from "@/lib/constants/navigation";
 import { useI18n } from "@/lib/i18n";
 import type { Provider } from "@/types/provider";
@@ -24,10 +25,10 @@ function ProviderEmptyState({
 }) {
   return (
     <div
-      className="col-span-full mt-6 py-16 text-center"
+      className="premium-card col-span-full mt-6 px-5 py-12 text-center sm:px-8"
       data-testid={testId}
     >
-      <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-2xl bg-[var(--brand-orange-soft)]">
+      <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-lg bg-[var(--brand-orange-soft)] shadow-[var(--shadow-subtle)]">
         <UserRoundSearch
           className="size-10 text-[var(--brand-orange)]"
           aria-hidden
@@ -70,7 +71,7 @@ export function ProviderList({
 
   return (
     <section>
-      <div className="cursor-default select-none">
+      <PremiumCard className="premium-reveal cursor-default select-none">
         <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
           {t("providers.list.eyebrow")}
         </p>
@@ -80,7 +81,7 @@ export function ProviderList({
         <p aria-live="polite" className="mt-2 text-sm font-medium leading-6 text-[var(--muted)]">
           {t("providers.list.description", { count: totalCount })}
         </p>
-      </div>
+      </PremiumCard>
 
       {providers.length > 0 ? (
         <div className={`mt-6 grid auto-rows-fr gap-4 ${providerGridClassName}`}>
