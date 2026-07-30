@@ -3,14 +3,9 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { Group, MathUtils } from "three";
-import { HomeModel, ServiceObjects } from "@/components/three/ServiceObjects";
+import { HomeModel } from "@/components/three/ServiceObjects";
 import { SceneFallback } from "@/components/three/SceneFallback";
-import type {
-  ServiceCategoryMapKey,
-  ServiceCategoryTarget,
-} from "@/lib/constants/service-category-map";
 
 function getReducedMotionPreference() {
   if (typeof window === "undefined") {
@@ -92,85 +87,59 @@ function SceneRig({
     }
 
     const scrollDepth = scrollDepthRef.current;
-    const idleLift = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.65) * 0.025;
+    const idleLift = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.55) * 0.025;
 
-    group.rotation.x = MathUtils.lerp(group.rotation.x, pointer.y * 0.045 - 0.06, 0.055);
+    group.rotation.x = MathUtils.lerp(group.rotation.x, pointer.y * 0.035 - 0.04, 0.055);
     group.rotation.y = MathUtils.lerp(
       group.rotation.y,
-      pointer.x * 0.075 - 0.22 + scrollDepth * 0.18,
+      pointer.x * 0.055 - 0.22 + scrollDepth * 0.13,
       0.055,
     );
     group.position.y = MathUtils.lerp(group.position.y, idleLift, 0.05);
-    group.position.z = MathUtils.lerp(group.position.z, -scrollDepth * 0.28, 0.05);
+    group.position.z = MathUtils.lerp(group.position.z, -scrollDepth * 0.2, 0.05);
   });
 
   return <group ref={groupRef}>{children}</group>;
 }
 
-function HeroSceneContent({
-  activeServiceId,
-  onHoverChange,
-  onSelect,
-  reducedMotion,
-  selectedServiceId,
-}: {
-  activeServiceId: ServiceCategoryMapKey | null;
-  onHoverChange: (target: ServiceCategoryTarget | null) => void;
-  onSelect: (target: ServiceCategoryTarget) => void;
-  reducedMotion: boolean;
-  selectedServiceId: ServiceCategoryMapKey | null;
-}) {
+function HeroSceneContent({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <>
-      <ambientLight intensity={1.15} />
+      <ambientLight intensity={1.45} />
       <directionalLight
         castShadow
-        intensity={1.65}
-        position={[3.8, 4.2, 5]}
-        shadow-mapSize={[512, 512]}
+        intensity={1.85}
+        position={[3.8, 4.5, 5.2]}
+        shadow-mapSize={[768, 768]}
       />
-      <pointLight color="#F97316" intensity={0.8} position={[-2.4, 1.7, 2.4]} />
+      <pointLight color="#FF6500" intensity={0.72} position={[-2.8, 1.8, 2.5]} />
+      <pointLight color="#DDEBFA" intensity={0.72} position={[2.4, 2.6, -1.8]} />
       <SceneRig reducedMotion={reducedMotion}>
-        <mesh receiveShadow position={[0, -1.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[2.75, 64]} />
-          <meshStandardMaterial color="#FFF3E8" roughness={0.86} />
+        <mesh receiveShadow position={[0, -1.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[3.25, 96]} />
+          <meshStandardMaterial color="#FFF7EF" roughness={0.86} />
+        </mesh>
+        <mesh receiveShadow position={[0, -1.02, 0.04]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[2.55, 3.12, 96]} />
+          <meshStandardMaterial color="#FFFFFF" roughness={0.72} />
         </mesh>
         <HomeModel />
-        <ServiceObjects
-          activeServiceId={activeServiceId}
-          onHoverChange={onHoverChange}
-          onSelect={onSelect}
-          reducedMotion={reducedMotion}
-          selectedServiceId={selectedServiceId}
-        />
       </SceneRig>
       <ContactShadows
-        blur={2.4}
-        far={4}
-        opacity={0.28}
-        position={[0, -1.12, 0]}
+        blur={2.8}
+        far={4.8}
+        opacity={0.26}
+        position={[0, -1.14, 0]}
         resolution={256}
-        scale={6}
+        scale={7}
       />
     </>
   );
 }
 
 export function FuwuHeroScene() {
-  const router = useRouter();
-  const [activeServiceId, setActiveServiceId] = useState<ServiceCategoryMapKey | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<ServiceCategoryMapKey | null>(null);
   const reducedMotion = useReducedMotion();
   const webGLAvailable = useWebGLAvailable();
-
-  function handleHoverChange(target: ServiceCategoryTarget | null) {
-    setActiveServiceId(target?.id ?? null);
-  }
-
-  function handleSelect(target: ServiceCategoryTarget) {
-    setSelectedServiceId(target.id);
-    router.push(target.href);
-  }
 
   if (webGLAvailable !== true) {
     return <SceneFallback />;
@@ -179,7 +148,7 @@ export function FuwuHeroScene() {
   return (
     <Canvas
       aria-hidden="true"
-      camera={{ fov: 38, position: [0, 1.15, 5.25] }}
+      camera={{ fov: 35, position: [0, 1.35, 5.65] }}
       dpr={[1, 1.4]}
       frameloop={reducedMotion ? "demand" : "always"}
       gl={{
@@ -188,18 +157,9 @@ export function FuwuHeroScene() {
         powerPreference: "low-power",
         preserveDrawingBuffer: process.env.NODE_ENV !== "production",
       }}
-      onPointerMissed={() => {
-        setActiveServiceId(null);
-      }}
       shadows
     >
-      <HeroSceneContent
-        activeServiceId={activeServiceId}
-        onHoverChange={handleHoverChange}
-        onSelect={handleSelect}
-        reducedMotion={reducedMotion}
-        selectedServiceId={selectedServiceId}
-      />
+      <HeroSceneContent reducedMotion={reducedMotion} />
     </Canvas>
   );
 }

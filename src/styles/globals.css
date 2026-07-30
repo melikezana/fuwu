@@ -5,19 +5,19 @@
 }
 
 :root {
-  --fuwu-orange: #f97316;
-  --fuwu-orange-hover: #ea580c;
-  --fuwu-orange-soft: #fff3e8;
-  --fuwu-navy: #14213d;
-  --fuwu-navy-deep: #0f1b33;
+  --fuwu-orange: #ff6500;
+  --fuwu-orange-hover: #e95c00;
+  --fuwu-orange-soft: #fff2e8;
+  --fuwu-navy: #0a2540;
+  --fuwu-navy-deep: #07182f;
   --fuwu-navy-soft: #eaf0f7;
-  --fuwu-background: #fffcf8;
+  --fuwu-background: #fffaf5;
   --fuwu-surface: #ffffff;
   --fuwu-surface-soft: #f7f9fc;
   --fuwu-text: #172033;
   --fuwu-muted: #687387;
-  --fuwu-border: #e8e3dc;
-  --fuwu-success: #17875d;
+  --fuwu-border: #e7e9ee;
+  --fuwu-success: #14966c;
   --fuwu-warning: #d97706;
   --fuwu-danger: #c2413b;
   --background: var(--fuwu-background);
@@ -34,23 +34,23 @@
   --brand-navy-soft: var(--fuwu-navy-soft);
   --trust-green: var(--fuwu-success);
   --trust-green-soft: #e8f6f1;
-  --fuwu-black: #14213d;
+  --fuwu-black: #0a2540;
   --fuwu-surface-2: var(--fuwu-surface-soft);
-  --fuwu-cream: #f9f8f5;
-  --fuwu-line: rgba(20, 33, 61, 0.1);
+  --fuwu-cream: #fffaf5;
+  --fuwu-line: rgba(10, 37, 64, 0.1);
   --font-fuwu-display: var(--font-inter), system-ui, sans-serif;
   --font-fuwu-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
-  --premium-line: rgba(13, 20, 36, 0.1);
-  --premium-shadow: 0 22px 70px rgba(13, 20, 36, 0.1);
+  --premium-line: rgba(10, 37, 64, 0.1);
+  --premium-shadow: 0 22px 70px rgba(10, 37, 64, 0.1);
   --radius-control: 0.5rem;
   --radius-card: 0.5rem;
   --radius-panel: 0.5rem;
-  --shadow-subtle: 0 8px 24px rgba(13, 20, 36, 0.05);
-  --shadow-card: 0 14px 40px rgba(13, 20, 36, 0.07);
-  --shadow-elevated: 0 22px 60px rgba(13, 20, 36, 0.12);
-  --shadow-premium: 0 28px 80px rgba(13, 20, 36, 0.16);
-  --shadow-action: 0 16px 34px rgba(255, 138, 0, 0.28);
+  --shadow-subtle: 0 8px 24px rgba(10, 37, 64, 0.05);
+  --shadow-card: 0 14px 40px rgba(10, 37, 64, 0.07);
+  --shadow-elevated: 0 22px 60px rgba(10, 37, 64, 0.12);
+  --shadow-premium: 0 28px 80px rgba(10, 37, 64, 0.16);
+  --shadow-action: 0 16px 34px rgba(255, 101, 0, 0.28);
   --gradient-page: linear-gradient(180deg, #ffffff 0%, #fff8ef 36%, #fffcf8 100%);
   --gradient-surface: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
   --gradient-warm-surface: linear-gradient(180deg, #ffffff 0%, #fff8ef 100%);
@@ -265,6 +265,53 @@ textarea:disabled {
   }
 }
 
+.premium-hero-ambient {
+  background:
+    radial-gradient(circle at 62% 44%, rgba(255, 255, 255, 0.98) 0 12%, transparent 30%),
+    radial-gradient(circle at 70% 26%, rgba(234, 240, 247, 0.8) 0 8%, transparent 28%),
+    radial-gradient(circle at 32% 64%, rgba(255, 242, 232, 0.9) 0 10%, transparent 36%);
+}
+
+.premium-orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(255, 101, 0, 0.16);
+  border-radius: 9999px;
+  box-shadow: 0 0 42px rgba(255, 101, 0, 0.13);
+  transform: rotate(-12deg);
+}
+
+@keyframes fuwu-slow-orbit {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: rotate(-12deg) scale(1);
+  }
+
+  50% {
+    opacity: 0.86;
+    transform: rotate(-9deg) scale(1.025);
+  }
+}
+
+@keyframes fuwu-soft-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.45rem);
+  }
+}
+
+.premium-orbit-ring {
+  animation: fuwu-slow-orbit 9s ease-in-out infinite;
+}
+
+.premium-3d-float {
+  animation: fuwu-soft-float 6.5s ease-in-out infinite;
+}
+
 .premium-page-shell {
   background: linear-gradient(
     180deg,
@@ -337,6 +384,12 @@ textarea:disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .premium-orbit-ring,
+  .premium-3d-float,
+  .home-float-chip {
+    animation: none !important;
+  }
+
   .premium-card-hover:hover {
     transform: none;
   }

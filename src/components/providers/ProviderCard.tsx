@@ -2,18 +2,22 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import {
   Clock3,
   Coins,
+  Eye,
   MapPin,
   Star,
   Timer,
   UserRoundSearch,
+  X,
 } from "lucide-react";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
+import { ThreeDIcon } from "@/components/ui/ThreeDIcon";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getServiceIconNameForCategory } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
@@ -56,6 +60,133 @@ function getDisplayPriceRange(value: string | undefined) {
   return normalizedValue;
 }
 
+function createProviderRequestHref(provider: Provider) {
+  const params = new URLSearchParams();
+
+  if (provider.category) {
+    params.set("service", provider.category);
+  }
+
+  if (provider.district) {
+    params.set("district", provider.district);
+  }
+
+  const queryString = params.toString();
+
+  return queryString ? `${appRoutes.request}?${queryString}` : appRoutes.request;
+}
+
+function ProviderObjectButton({
+  isOpen,
+  onClick,
+  serviceIconName,
+}: {
+  isOpen: boolean;
+  onClick: () => void;
+  serviceIconName: ReturnType<typeof getServiceIconNameForCategory>;
+}) {
+  return (
+    <button
+      aria-expanded={isOpen}
+      aria-label="Meslek detaylarını aç"
+      className="group inline-flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/92 shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,101,0,0.36)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      onClick={onClick}
+      type="button"
+    >
+      <ThreeDIcon
+        accent="var(--brand-orange)"
+        className="scale-75 transition-transform duration-200 group-hover:scale-[0.82]"
+        name={serviceIconName}
+        size="sm"
+      />
+    </button>
+  );
+}
+
+function ProviderQuickView({
+  onClose,
+  priceRange,
+  profileHref,
+  provider,
+  requestHref,
+}: {
+  onClose: () => void;
+  priceRange: string;
+  profileHref: string;
+  provider: Provider;
+  requestHref: string;
+}) {
+  const hasRating = Number.isFinite(provider.rating) && provider.rating > 0;
+  const hasPrice = priceRange !== "Bilgi yok";
+
+  return (
+    <div className="mt-4 rounded-lg border border-[rgba(10,37,64,0.1)] bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fc_100%)] p-4 shadow-[var(--shadow-subtle)]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-extrabold uppercase leading-4 text-[var(--brand-orange-dark)]">
+            Hızlı Detay
+          </p>
+          <h3 className="mt-1 truncate text-lg font-extrabold leading-6 text-[var(--brand-navy)]">
+            {provider.name || "İsimsiz Usta"}
+          </h3>
+          <p className="mt-1 text-sm font-semibold leading-5 text-[var(--muted)]">
+            {[provider.category, provider.district].filter(Boolean).join(" · ")}
+          </p>
+        </div>
+        <button
+          aria-label="Hızlı detayı kapat"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+          onClick={onClose}
+          type="button"
+        >
+          <X aria-hidden="true" className="size-4" />
+        </button>
+      </div>
+
+      <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+        {hasRating ? (
+          <div className="rounded-md bg-white px-3 py-2 ring-1 ring-[var(--border)]">
+            <dt className="text-xs font-bold uppercase text-[var(--muted)]">Puan</dt>
+            <dd className="mt-1 font-extrabold text-[var(--brand-navy)]">
+              {provider.rating.toFixed(1)} / 5 · {provider.reviewCount} yorum
+            </dd>
+          </div>
+        ) : null}
+        {hasPrice ? (
+          <div className="rounded-md bg-white px-3 py-2 ring-1 ring-[var(--border)]">
+            <dt className="text-xs font-bold uppercase text-[var(--muted)]">Fiyat</dt>
+            <dd className="mt-1 truncate font-extrabold text-[var(--brand-navy)]">{priceRange}</dd>
+          </div>
+        ) : null}
+        <div className="rounded-md bg-white px-3 py-2 ring-1 ring-[var(--border)]">
+          <dt className="text-xs font-bold uppercase text-[var(--muted)]">Müsaitlik</dt>
+          <dd className="mt-1 truncate font-extrabold text-[var(--brand-navy)]">
+            {provider.availabilityStatus.label}
+          </dd>
+        </div>
+        {provider.serviceAreas.length > 0 ? (
+          <div className="rounded-md bg-white px-3 py-2 ring-1 ring-[var(--border)]">
+            <dt className="text-xs font-bold uppercase text-[var(--muted)]">Hizmet Bölgesi</dt>
+            <dd className="mt-1 truncate font-extrabold text-[var(--brand-navy)]">
+              {provider.serviceAreas.join(", ")}
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Button className="h-10 min-h-10 gap-2 px-3 text-xs" href={profileHref}>
+          <Eye aria-hidden="true" className="size-4" />
+          Profili İncele
+        </Button>
+        <Button className="h-10 min-h-10 gap-2 px-3 text-xs" href={requestHref} variant="secondary">
+          Teklif İste
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function ProviderCard({
   provider,
   actionsId,
@@ -67,8 +198,11 @@ export function ProviderCard({
   const searchParams = useSearchParams();
   const currentSearchParams = new URLSearchParams(searchParams.toString());
   const profileHref = `${appRoutes.providers}/${provider.id}`;
+  const requestHref = createProviderRequestHref(provider);
   const priceRange = getDisplayPriceRange(provider.averagePrice);
   const cardGalleryPreviewUrl = galleryPreviewUrl ?? provider.galleryPreviewUrl;
+  const serviceIconName = getServiceIconNameForCategory(provider.category);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const availabilityClassName =
     provider.availabilityStatus.tone === "green"
       ? "border-[rgba(23,116,95,0.2)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
@@ -94,6 +228,13 @@ export function ProviderCard({
             provider={provider}
             variant="hero"
           />
+          <div className="absolute left-3 top-3">
+            <ProviderObjectButton
+              isOpen={isQuickViewOpen}
+              onClick={() => setIsQuickViewOpen((currentValue) => !currentValue)}
+              serviceIconName={serviceIconName}
+            />
+          </div>
           {typeof provider.rating === "number" &&
           Number.isFinite(provider.rating) &&
           provider.rating > 0 ? (
@@ -133,7 +274,7 @@ export function ProviderCard({
               >
                 <ServiceIcon
                   className="size-3.5 shrink-0 text-[var(--brand-orange)]"
-                  name={getServiceIconNameForCategory(provider.category)}
+                  name={serviceIconName}
                 />
                 <span className="truncate">{provider.category}</span>
               </Link>
@@ -159,6 +300,16 @@ export function ProviderCard({
               {priceRange}
             </span>
           </div>
+
+          {isQuickViewOpen ? (
+            <ProviderQuickView
+              onClose={() => setIsQuickViewOpen(false)}
+              priceRange={priceRange}
+              profileHref={profileHref}
+              provider={provider}
+              requestHref={requestHref}
+            />
+          ) : null}
 
           <div className="mt-auto pt-4" id={actionsId}>
             <Button
@@ -218,6 +369,11 @@ export function ProviderCard({
             </p>
           ) : null}
         </div>
+        <ProviderObjectButton
+          isOpen={isQuickViewOpen}
+          onClick={() => setIsQuickViewOpen((currentValue) => !currentValue)}
+          serviceIconName={serviceIconName}
+        />
       </div>
 
       <div className="mt-4 grid gap-3 text-sm">
@@ -233,7 +389,7 @@ export function ProviderCard({
             >
               <ServiceIcon
                 className="size-3.5 shrink-0 text-[var(--brand-orange)]"
-                name={getServiceIconNameForCategory(provider.category)}
+                name={serviceIconName}
               />
               <span className="truncate">{provider.category}</span>
             </Link>
@@ -299,6 +455,16 @@ export function ProviderCard({
           </div>
         </div>
       </div>
+
+      {isQuickViewOpen ? (
+        <ProviderQuickView
+          onClose={() => setIsQuickViewOpen(false)}
+          priceRange={priceRange}
+          profileHref={profileHref}
+          provider={provider}
+          requestHref={requestHref}
+        />
+      ) : null}
 
       <div
         className="mt-auto pt-5"

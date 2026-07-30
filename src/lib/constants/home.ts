@@ -18,7 +18,7 @@ export const homeCopy = {
     description:
       "İhtiyacını seç, güvenilir ustaları karşılaştır, doğru hizmete zahmetsizce ulaş.",
     primaryCta: "Usta Bul",
-    secondaryCta: "Hizmet Ver",
+    secondaryCta: "Usta Ol",
     searchServiceLabel: "Hangi hizmete ihtiyacın var?",
     searchServicePlaceholder: "Elektrik, temizlik, klima bakımı...",
     searchDistrictLabel: "İlçe veya konum",
@@ -136,12 +136,12 @@ export const homeCopy = {
 } as const;
 
 export const homeServiceVisuals: Record<string, { accent: string; iconName: ServiceIconName }> = {
-  electrical: { accent: "#F97316", iconName: "bolt" },
+  electrical: { accent: "#FF6500", iconName: "bolt" },
   plumbing: { accent: "#2563EB", iconName: "faucet" },
   cleaning: { accent: "#17745F", iconName: "broom" },
-  painting: { accent: "#A855F7", iconName: "paint-roller" },
+  painting: { accent: "#FF6500", iconName: "paint-roller" },
   "climate-appliance-service": { accent: "#0EA5E9", iconName: "air-conditioner" },
   locksmith: { accent: "#D97706", iconName: "key" },
-  "furniture-assembly": { accent: "#14213D", iconName: "furniture-tool" },
+  "furniture-assembly": { accent: "#0A2540", iconName: "furniture-tool" },
   "moving-help": { accent: "#64748B", iconName: "truck" },
 };

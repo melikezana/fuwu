@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { ThreeDIcon } from "@/components/ui/ThreeDIcon";
 import {
   getServiceCategoryTargetById,
   type ServiceCategoryTarget,
@@ -11,6 +10,7 @@ import {
 import type { Service, ServiceIconName } from "@/lib/constants/services";
 
 type CategoryCardProps = {
+  providerCount?: number;
   service: Service;
   visual: {
     accent: string;
@@ -40,7 +40,15 @@ function resolveTarget(service: Service): ServiceCategoryTarget {
   );
 }
 
-export function CategoryCard({ service, visual }: CategoryCardProps) {
+function getCountLabel(providerCount?: number) {
+  if (typeof providerCount === "number" && providerCount > 0) {
+    return `${providerCount.toLocaleString("tr-TR")} usta`;
+  }
+
+  return "Usta ara";
+}
+
+export function CategoryCard({ providerCount, service, visual }: CategoryCardProps) {
   const router = useRouter();
   const target = resolveTarget(service);
 
@@ -70,7 +78,7 @@ export function CategoryCard({ service, visual }: CategoryCardProps) {
   return (
     <a
       aria-label={`${target.label} kategorisinde ustaları gör`}
-      className="group flex min-h-[13rem] cursor-pointer flex-col rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-1 hover:border-[rgba(249,115,22,0.38)] hover:bg-white hover:shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="group relative flex min-h-[8.4rem] min-w-[9.5rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.09)] bg-white px-4 pb-4 pt-3 shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-1 hover:border-[rgba(255,101,0,0.38)] hover:shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       href={target.href}
       key={service.id}
       onClick={handleClick}
@@ -78,31 +86,23 @@ export function CategoryCard({ service, visual }: CategoryCardProps) {
       onKeyUp={handleKeyUp}
     >
       <span
-        className="relative flex size-14 shrink-0 items-center justify-center rounded-lg bg-white shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(20,33,61,0.08)] transition-transform duration-200 group-hover:[transform:perspective(480px)_rotateX(8deg)_rotateY(-10deg)_translateY(-2px)]"
-        style={{ color: visual.accent }}
-      >
-        <span
-          aria-hidden="true"
-          className="absolute inset-2 rounded-md opacity-[0.12]"
-          style={{ backgroundColor: visual.accent }}
-        />
-        <ServiceIcon className="relative z-10 size-7" name={visual.iconName} />
-      </span>
-      <span className="mt-5 text-xs font-bold uppercase leading-4 text-[var(--brand-orange-dark)]">
-        {service.category}
-      </span>
-      <h3 className="mt-2 text-xl font-extrabold leading-tight text-[var(--brand-navy)]">
-        {service.title}
-      </h3>
-      <p className="mt-3 line-clamp-3 text-sm font-medium leading-6 text-[var(--muted)]">
-        {service.description}
-      </p>
-      <span className="mt-auto flex items-center gap-2 pt-5 text-sm font-bold text-[var(--brand-navy)]">
-        {target.ctaLabel}
-        <ArrowRight
-          aria-hidden="true"
-          className="size-4 text-[var(--brand-orange)] transition-transform duration-200 group-hover:translate-x-0.5"
-        />
+        aria-hidden="true"
+        className="absolute -right-8 -top-9 size-24 rounded-full opacity-10"
+        style={{ backgroundColor: visual.accent }}
+      />
+      <ThreeDIcon
+        accent={visual.accent}
+        className="premium-3d-float mx-auto mt-1 transition-transform duration-200 group-hover:scale-105"
+        name={visual.iconName}
+        size="sm"
+      />
+      <span className="mt-auto min-w-0">
+        <span className="block truncate text-sm font-extrabold leading-5 text-[var(--brand-navy)]">
+          {target.label}
+        </span>
+        <span className="mt-1 block truncate text-xs font-semibold leading-4 text-[var(--muted)]">
+          {getCountLabel(providerCount)}
+        </span>
       </span>
     </a>
   );

@@ -40,7 +40,7 @@ export const serviceCategories = [
   {
     id: "plumbing",
     category: "Onarım",
-    title: "Tesisat",
+    title: "Su Tesisatı",
     description:
       "Su kaçağı, gider açma ve musluk değişimi için yakındaki tesisatçıları karşılaştır.",
     iconName: "faucet",
@@ -95,7 +95,7 @@ export const serviceCategories = [
   {
     id: "climate-appliance-service",
     category: "Teknik Servis",
-    title: "Klima & Beyaz Eşya",
+    title: "Klima",
     description:
       "Klima bakımı, montajı ve beyaz eşya arızaları için uygun teknik servisleri karşılaştır.",
     iconName: "air-conditioner",

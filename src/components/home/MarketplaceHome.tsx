@@ -1,13 +1,13 @@
-import { ExperienceSection } from "@/components/home/ExperienceSection";
-import { FinalCTA } from "@/components/home/FinalCTA";
 import { HeroSection } from "@/components/home/HeroSection";
-import { HowItWorks } from "@/components/home/HowItWorks";
+import { HomePremiumPanels } from "@/components/home/HomePremiumPanels";
 import { PopularServices } from "@/components/home/PopularServices";
-import { RegionalCoverage } from "@/components/home/RegionalCoverage";
 import { TrustedProviders } from "@/components/home/TrustedProviders";
-import { TrustSection } from "@/components/home/TrustSection";
 import { homePopularServiceIds } from "@/lib/constants/home";
-import { serviceCategories, type Service } from "@/lib/constants/services";
+import {
+  normalizeServiceValue,
+  serviceCategories,
+  type Service,
+} from "@/lib/constants/services";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
 import {
   getMarketplaceTrustMetrics,
@@ -58,6 +58,41 @@ function getFeaturedProviders(providers: Provider[]) {
     .slice(0, 3);
 }
 
+function getServiceCounts(services: Service[], providers: Provider[]) {
+  return services.reduce<Record<string, number>>((counts, service) => {
+    const normalizedTitle = normalizeServiceValue(service.title);
+    const normalizedSlug = normalizeServiceValue(service.slug);
+
+    counts[service.id] = providers.filter((provider) => {
+      const normalizedCategory = normalizeServiceValue(provider.category);
+
+      return (
+        normalizedCategory === normalizedTitle ||
+        normalizedCategory === normalizedSlug ||
+        normalizedCategory.includes(normalizedTitle) ||
+        normalizedTitle.includes(normalizedCategory)
+      );
+    }).length;
+
+    return counts;
+  }, {});
+}
+
+function getAverageRatingLabel(providers: Provider[]) {
+  const ratedProviders = providers.filter(
+    (provider) => Number.isFinite(provider.rating) && provider.rating > 0,
+  );
+
+  if (ratedProviders.length === 0) {
+    return null;
+  }
+
+  const average =
+    ratedProviders.reduce((total, provider) => total + provider.rating, 0) / ratedProviders.length;
+
+  return `${average.toFixed(1)}/5`;
+}
+
 export async function MarketplaceHome() {
   const { allProviders, filterOptions } = await getProviderDirectory();
   const metrics = await getMarketplaceTrustMetrics({
@@ -76,32 +111,22 @@ export async function MarketplaceHome() {
       ? filterOptions.categories
       : serviceCategories.map((service) => service.title);
   const districts = filterOptions.districts;
-  const categoryCount = formatMetric(metrics.serviceCategories);
-  const districtCount = formatMetric(metrics.districts);
-  const heroMetrics = [
-    { label: "kategori", value: categoryCount },
-    { label: "ilçe", value: districtCount },
-    {
-      label: "canlı profil",
-      value: metrics.source === "supabase" ? formatMetric(liveProviders.length) : "Yakında",
-    },
-  ];
+  const serviceCounts = getServiceCounts(popularServices, allProviders);
+  const averageRatingLabel = getAverageRatingLabel(liveProviders);
 
   return (
     <div className="bg-[var(--background)] text-[var(--foreground)]">
-      <HeroSection
-        categories={categories}
-        districts={districts}
-        metrics={heroMetrics}
-        popularServices={popularServices}
+      <HeroSection categories={categories} districts={districts} />
+      <PopularServices serviceCounts={serviceCounts} services={popularServices} />
+      <HomePremiumPanels
+        activeProviderCount={metrics.activeProviders}
+        averageRatingLabel={averageRatingLabel}
+        completedRequestCount={metrics.completedRequests}
+        districtCount={metrics.districts}
+        serviceCategoryCount={metrics.serviceCategories}
+        source={metrics.source}
       />
-      <PopularServices services={popularServices} />
-      <HowItWorks />
       <TrustedProviders providers={featuredProviders} totalCount={allProviders.length} />
-      <TrustSection />
-      <ExperienceSection />
-      <RegionalCoverage districts={districts} />
-      <FinalCTA categoryCount={categoryCount} districtCount={districtCount} />
       <div className="sr-only" aria-live="polite">
         Bugün müsait canlı profil sayısı: {formatMetric(todayProviders.length)}.
       </div>
