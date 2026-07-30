@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
-import { ServiceIcon } from "@/components/home/ServiceIcon";
+import { CategoryCard } from "@/components/home/CategoryCard";
 import { Container } from "@/components/ui/Container";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { homeServiceVisuals } from "@/lib/constants/home";
@@ -60,39 +60,7 @@ export function PopularServices({ services }: PopularServicesProps) {
             };
 
             return (
-              <Link
-                className="group flex min-h-[13rem] cursor-pointer flex-col rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-1 hover:border-[rgba(249,115,22,0.38)] hover:bg-white hover:shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                href={service.href}
-                key={service.id}
-              >
-                <span
-                  className="relative flex size-14 shrink-0 items-center justify-center rounded-lg bg-white shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(20,33,61,0.08)] transition-transform duration-200 group-hover:[transform:perspective(480px)_rotateX(8deg)_rotateY(-10deg)_translateY(-2px)]"
-                  style={{ color: visual.accent }}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-2 rounded-md opacity-[0.12]"
-                    style={{ backgroundColor: visual.accent }}
-                  />
-                  <ServiceIcon className="relative z-10 size-7" name={visual.iconName} />
-                </span>
-                <span className="mt-5 text-xs font-bold uppercase leading-4 text-[var(--brand-orange-dark)]">
-                  {service.category}
-                </span>
-                <h3 className="mt-2 text-xl font-extrabold leading-tight text-[var(--brand-navy)]">
-                  {service.title}
-                </h3>
-                <p className="mt-3 line-clamp-3 text-sm font-medium leading-6 text-[var(--muted)]">
-                  {service.description}
-                </p>
-                <span className="mt-auto flex items-center gap-2 pt-5 text-sm font-bold text-[var(--brand-navy)]">
-                  Usta Bul
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="size-4 text-[var(--brand-orange)] transition-transform duration-200 group-hover:translate-x-0.5"
-                  />
-                </span>
-              </Link>
+              <CategoryCard key={service.id} service={service} visual={visual} />
             );
           })}
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Search, ShieldCheck, UserRoundPlus } from "lucide-react";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { SceneFallback } from "@/components/three/SceneFallback";
+import { SceneServiceLinks } from "@/components/three/SceneServiceLinks";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -100,6 +101,13 @@ export function HeroSection({
           <div className="relative mx-auto aspect-[1.04/1] w-full max-w-[560px] overflow-hidden rounded-lg border border-[rgba(20,33,61,0.08)] bg-[linear-gradient(145deg,#ffffff_0%,#fff8ef_48%,#eaf0f7_100%)] shadow-[var(--shadow-premium)]">
             <FuwuHeroScene />
           </div>
+          <p className="mx-auto mt-3 max-w-[560px] text-center text-sm font-bold leading-6 text-[var(--brand-navy)]">
+            Evin üzerindeki hizmet alanlarına dokun, ilgili ustaları gör.
+          </p>
+          <SceneServiceLinks
+            className="mx-auto mt-3 flex max-w-[560px] gap-2 overflow-x-auto pb-1"
+            linkClassName="inline-flex min-h-10 shrink-0 items-center rounded-md border border-[rgba(20,33,61,0.1)] bg-white px-3 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.38)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+          />
           <div className="mx-auto mt-4 grid max-w-[560px] grid-cols-3 overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-[var(--shadow-subtle)]">
             {metrics.map((metric) => (
               <Link

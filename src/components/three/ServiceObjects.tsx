@@ -1,18 +1,35 @@
 "use client";
 
-import { Float } from "@react-three/drei";
 import type { ReactNode } from "react";
+import { InteractiveServiceObject } from "@/components/three/InteractiveServiceObject";
+import {
+  serviceCategoryMap,
+  type ServiceCategoryMapKey,
+  type ServiceCategoryTarget,
+} from "@/lib/constants/service-category-map";
 
 type ServiceObjectsProps = {
+  activeServiceId: ServiceCategoryMapKey | null;
+  onHoverChange: (target: ServiceCategoryTarget | null) => void;
+  onSelect: (target: ServiceCategoryTarget) => void;
   reducedMotion: boolean;
+  selectedServiceId: ServiceCategoryMapKey | null;
 };
 
 type ServiceNodeProps = {
   children: ReactNode;
+  hitRadius?: number;
   index: number;
+  isActiveServiceId: ServiceCategoryMapKey | null;
+  onHoverChange: (target: ServiceCategoryTarget | null) => void;
+  onSelect: (target: ServiceCategoryTarget) => void;
   position: [number, number, number];
+  reducedMotion: boolean;
   rotation?: [number, number, number];
   scale?: number;
+  selectedServiceId: ServiceCategoryMapKey | null;
+  target: ServiceCategoryTarget;
+  tooltipOffset?: [number, number, number];
 };
 
 const colors = {
@@ -28,22 +45,36 @@ const colors = {
 
 function ServiceNode({
   children,
+  hitRadius,
   index,
+  isActiveServiceId,
+  onHoverChange,
+  onSelect,
   position,
+  reducedMotion,
   rotation = [0, 0, 0],
   scale = 1,
+  selectedServiceId,
+  target,
+  tooltipOffset,
 }: ServiceNodeProps) {
   return (
-    <Float
-      floatIntensity={0.12}
-      floatingRange={[-0.04, 0.05]}
-      rotationIntensity={0.08}
-      speed={0.75 + index * 0.08}
+    <InteractiveServiceObject
+      activeServiceId={isActiveServiceId}
+      hitRadius={hitRadius}
+      index={index}
+      onHoverChange={onHoverChange}
+      onSelect={onSelect}
+      position={position}
+      reducedMotion={reducedMotion}
+      rotation={rotation}
+      scale={scale}
+      selectedServiceId={selectedServiceId}
+      target={target}
+      tooltipOffset={tooltipOffset}
     >
-      <group position={position} rotation={rotation} scale={scale}>
-        {children}
-      </group>
-    </Float>
+      {children}
+    </InteractiveServiceObject>
   );
 }
 
@@ -97,20 +128,24 @@ function KeyObject() {
   );
 }
 
-function DrillObject() {
+function FurnitureObject() {
   return (
-    <group rotation={[0, 0, -0.15]}>
-      <mesh castShadow>
-        <boxGeometry args={[0.55, 0.26, 0.26]} />
+    <group rotation={[0, 0, -0.1]}>
+      <mesh castShadow position={[0, 0.14, 0]}>
+        <boxGeometry args={[0.58, 0.12, 0.38]} />
         <meshStandardMaterial color={colors.navy} roughness={0.62} />
       </mesh>
-      <mesh castShadow position={[0.42, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <coneGeometry args={[0.11, 0.36, 18]} />
-        <meshStandardMaterial color={colors.metal} metalness={0.14} roughness={0.35} />
-      </mesh>
-      <mesh castShadow position={[-0.18, -0.32, 0]} rotation={[0, 0, -0.22]}>
-        <boxGeometry args={[0.16, 0.48, 0.18]} />
+      <mesh castShadow position={[-0.2, -0.12, 0.1]}>
+        <boxGeometry args={[0.08, 0.42, 0.08]} />
         <meshStandardMaterial color={colors.orange} roughness={0.52} />
+      </mesh>
+      <mesh castShadow position={[0.2, -0.12, 0.1]}>
+        <boxGeometry args={[0.08, 0.42, 0.08]} />
+        <meshStandardMaterial color={colors.orange} roughness={0.52} />
+      </mesh>
+      <mesh castShadow position={[0, -0.34, -0.13]}>
+        <boxGeometry args={[0.5, 0.1, 0.08]} />
+        <meshStandardMaterial color={colors.metal} metalness={0.08} roughness={0.38} />
       </mesh>
     </group>
   );
@@ -199,30 +234,85 @@ function PipeObject() {
   );
 }
 
-export function ServiceObjects({ reducedMotion }: ServiceObjectsProps) {
+export function ServiceObjects({
+  activeServiceId,
+  onHoverChange,
+  onSelect,
+  reducedMotion,
+  selectedServiceId,
+}: ServiceObjectsProps) {
   const nodes = [
-    { component: <KeyObject />, position: [-1.9, 0.68, 0.25] as [number, number, number] },
-    { component: <DrillObject />, position: [1.82, 0.56, -0.2] as [number, number, number] },
-    { component: <PaintRollerObject />, position: [-1.62, -0.75, -0.12] as [number, number, number] },
-    { component: <ElectricObject />, position: [1.5, -0.8, 0.32] as [number, number, number] },
-    { component: <CleaningObject />, position: [-0.55, 1.14, -0.3] as [number, number, number] },
-    { component: <AirConditionerObject />, position: [0.72, 1.08, 0.15] as [number, number, number] },
-    { component: <PipeObject />, position: [0.04, -1.3, 0.42] as [number, number, number] },
+    {
+      component: <KeyObject />,
+      hitRadius: 0.5,
+      position: [-1.9, 0.68, 0.25] as [number, number, number],
+      target: serviceCategoryMap.locksmith,
+      tooltipOffset: [0, -0.74, 0] as [number, number, number],
+    },
+    {
+      component: <FurnitureObject />,
+      hitRadius: 0.54,
+      position: [1.82, 0.56, -0.2] as [number, number, number],
+      target: serviceCategoryMap["furniture-assembly"],
+      tooltipOffset: [0, -0.78, 0] as [number, number, number],
+    },
+    {
+      component: <PaintRollerObject />,
+      hitRadius: 0.48,
+      position: [-1.62, -0.75, -0.12] as [number, number, number],
+      target: serviceCategoryMap.painting,
+      tooltipOffset: [0, 0.72, 0] as [number, number, number],
+    },
+    {
+      component: <ElectricObject />,
+      hitRadius: 0.44,
+      position: [1.5, -0.8, 0.32] as [number, number, number],
+      target: serviceCategoryMap.electrical,
+      tooltipOffset: [0, 0.68, 0] as [number, number, number],
+    },
+    {
+      component: <CleaningObject />,
+      hitRadius: 0.48,
+      position: [-0.55, 1.14, -0.3] as [number, number, number],
+      target: serviceCategoryMap.cleaning,
+      tooltipOffset: [0, -0.72, 0] as [number, number, number],
+    },
+    {
+      component: <AirConditionerObject />,
+      hitRadius: 0.52,
+      position: [0.72, 1.08, 0.15] as [number, number, number],
+      target: serviceCategoryMap["climate-appliance-service"],
+      tooltipOffset: [0, -0.76, 0] as [number, number, number],
+    },
+    {
+      component: <PipeObject />,
+      hitRadius: 0.5,
+      position: [0.04, -1.3, 0.42] as [number, number, number],
+      target: serviceCategoryMap.plumbing,
+      tooltipOffset: [0, 0.74, 0] as [number, number, number],
+    },
   ];
 
   return (
     <group>
-      {nodes.map((node, index) =>
-        reducedMotion ? (
-          <group key={index} position={node.position} scale={0.88}>
-            {node.component}
-          </group>
-        ) : (
-          <ServiceNode index={index} key={index} position={node.position} scale={0.88}>
-            {node.component}
-          </ServiceNode>
-        ),
-      )}
+      {nodes.map((node, index) => (
+        <ServiceNode
+          hitRadius={node.hitRadius}
+          index={index}
+          isActiveServiceId={activeServiceId}
+          key={node.target.id}
+          onHoverChange={onHoverChange}
+          onSelect={onSelect}
+          position={node.position}
+          reducedMotion={reducedMotion}
+          scale={0.88}
+          selectedServiceId={selectedServiceId}
+          target={node.target}
+          tooltipOffset={node.tooltipOffset}
+        >
+          {node.component}
+        </ServiceNode>
+      ))}
     </group>
   );
 }

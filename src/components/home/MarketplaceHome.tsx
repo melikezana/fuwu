@@ -21,14 +21,16 @@ function formatMetric(value: number) {
   }).format(value);
 }
 
-function isService(value: Service | undefined): value is Service {
-  return Boolean(value);
-}
+function getPopularServices(): Service[] {
+  return homePopularServiceIds.reduce<Service[]>((popularServices, serviceId) => {
+    const service = serviceCategories.find((item) => item.id === serviceId);
 
-function getPopularServices() {
-  return homePopularServiceIds
-    .map((serviceId) => serviceCategories.find((service) => service.id === serviceId))
-    .filter(isService);
+    if (service) {
+      popularServices.push(service);
+    }
+
+    return popularServices;
+  }, []);
 }
 
 function getFeaturedProviders(providers: Provider[]) {
