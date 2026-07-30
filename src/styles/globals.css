@@ -5,25 +5,33 @@
 }
 
 :root {
-  --background: #f8f6f2;
-  --foreground: #111827;
-  --muted: #374151;
-  --surface: #ffffff;
-  --surface-soft: #f3f4f6;
-  --border: #e5e7eb;
-  --brand-orange: #ff6b00;
-  --brand-orange-dark: #c24e00;
-  --brand-orange-soft: #fff2df;
-  --brand-navy: #182033;
-  --brand-navy-soft: #26324a;
+  --fuwu-orange: #f97316;
+  --fuwu-orange-hover: #ea580c;
+  --fuwu-orange-soft: #fff3e8;
+  --fuwu-navy: #14213d;
+  --fuwu-navy-soft: #eaf0f7;
+  --fuwu-background: #fffcf8;
+  --fuwu-surface: #ffffff;
+  --fuwu-text: #172033;
+  --fuwu-muted: #687387;
+  --fuwu-border: #e8e3dc;
+  --background: var(--fuwu-background);
+  --foreground: var(--fuwu-text);
+  --muted: var(--fuwu-muted);
+  --surface: var(--fuwu-surface);
+  --surface-soft: #f7f4ef;
+  --border: var(--fuwu-border);
+  --brand-orange: var(--fuwu-orange);
+  --brand-orange-dark: var(--fuwu-orange-hover);
+  --brand-orange-soft: var(--fuwu-orange-soft);
+  --brand-navy: var(--fuwu-navy);
+  --brand-navy-soft: var(--fuwu-navy-soft);
   --trust-green: #17745f;
   --trust-green-soft: #e8f6f1;
-  --fuwu-black: #0f0f0f;
-  --fuwu-surface: #17171a;
-  --fuwu-surface-2: #1f1f23;
+  --fuwu-black: #14213d;
+  --fuwu-surface-2: #f7f4ef;
   --fuwu-cream: #f9f8f5;
-  --fuwu-line: rgba(249, 248, 245, 0.09);
-  --fuwu-muted: rgba(249, 248, 245, 0.58);
+  --fuwu-line: rgba(20, 33, 61, 0.1);
   --font-fuwu-display: var(--font-inter), system-ui, sans-serif;
   --font-fuwu-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   FileText,
   Loader2,
+  type LucideIcon,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
@@ -140,7 +141,7 @@ type StatusConfig = {
   color: string;
   bg: string;
   ring: string;
-  Icon: React.ElementType;
+  Icon: LucideIcon;
   dot: string;
 };
 
@@ -637,7 +638,7 @@ function QuickLink({
   href: string;
   label: string;
   desc: string;
-  Icon: React.ElementType;
+  Icon: LucideIcon;
 }) {
   return (
     <Link
