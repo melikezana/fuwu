@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { Container } from "@/components/ui/Container";
@@ -14,6 +15,7 @@ type PopularServicesProps = {
 
 export function PopularServices({ serviceCounts, services }: PopularServicesProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = Boolean(useReducedMotion());
 
   function scrollByCard(direction: "left" | "right") {
     const scroller = scrollerRef.current;
@@ -24,12 +26,12 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
 
     scroller.scrollBy({
       behavior: "smooth",
-      left: direction === "left" ? -280 : 280,
+      left: direction === "left" ? -220 : 220,
     });
   }
 
   return (
-    <section className="bg-white py-8 sm:py-10" id="services">
+    <section className="bg-[#FFFDF9] py-8 sm:py-9" id="services">
       <Container className="max-w-[1390px]">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-base font-extrabold leading-6 text-[var(--brand-navy)]">
@@ -56,23 +58,31 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
         </div>
 
         <div
-          className="mt-4 flex snap-x gap-3 overflow-x-auto pb-3 [scrollbar-width:thin] sm:gap-4"
+          className="mt-4 grid snap-x grid-flow-col auto-cols-[minmax(10rem,1fr)] gap-3 overflow-x-auto pb-4 [scrollbar-width:thin] sm:gap-4 xl:grid-flow-row xl:grid-cols-8 xl:overflow-visible xl:pb-1"
           ref={scrollerRef}
         >
-          {services.map((service) => {
+          {services.map((service, index) => {
             const visual = homeServiceVisuals[service.id] ?? {
               accent: "#FF6500",
               iconName: service.iconName,
             };
 
             return (
-              <div className="snap-start" key={service.id}>
+              <motion.div
+                className="min-w-0 snap-start"
+                initial={false}
+                key={service.id}
+                transition={{ delay: reduceMotion ? 0 : index * 0.035, duration: reduceMotion ? 0 : 0.34, ease: "easeOut" }}
+                viewport={{ amount: 0.35, once: true }}
+                whileHover={reduceMotion ? undefined : { scale: 1.018, y: -4 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              >
                 <CategoryCard
                   providerCount={serviceCounts[service.id]}
                   service={service}
                   visual={visual}
                 />
-              </div>
+              </motion.div>
             );
           })}
         </div>

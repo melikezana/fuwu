@@ -115,7 +115,7 @@ export async function MarketplaceHome() {
   const averageRatingLabel = getAverageRatingLabel(liveProviders);
 
   return (
-    <div className="bg-[var(--background)] text-[var(--foreground)]">
+    <div className="bg-[#FFFDF9] text-[var(--foreground)]">
       <HeroSection categories={categories} districts={districts} />
       <PopularServices serviceCounts={serviceCounts} services={popularServices} />
       <HomePremiumPanels

@@ -1,0 +1,22 @@
+warning: in the working copy of 'src/components/home/CategoryCard.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/HeroSearch.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/HeroSection.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/HomePremiumPanels.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/MarketplaceHome.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/home/PopularServices.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/three/FuwuHeroScene.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/three/SceneFallback.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/constants/home.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/styles/globals.css', LF will be replaced by CRLF the next time Git touches it
+ next-env.d.ts                             |   2 [32m+[m[31m-[m
+ src/components/home/CategoryCard.tsx      |   2 [32m+[m[31m-[m
+ src/components/home/HeroSearch.tsx        |   8 [32m+[m[31m-[m
+ src/components/home/HeroSection.tsx       | 155 [32m+++++++++++++++++++++[m[31m---------[m
+ src/components/home/HomePremiumPanels.tsx |  69 [32m++++++[m[31m-------[m
+ src/components/home/MarketplaceHome.tsx   |   2 [32m+[m[31m-[m
+ src/components/home/PopularServices.tsx   |  22 [32m+++[m[31m--[m
+ src/components/three/FuwuHeroScene.tsx    |  44 [32m+++++[m[31m----[m
+ src/components/three/SceneFallback.tsx    |  16 [32m+[m[31m--[m
+ src/lib/constants/home.ts                 |  10 [32m+[m[31m-[m
+ src/styles/globals.css                    |  56 [32m++++++++++[m[31m-[m
+ 11 files changed, 259 insertions(+), 127 deletions(-)

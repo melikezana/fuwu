@@ -267,9 +267,9 @@ textarea:disabled {
 
 .premium-hero-ambient {
   background:
-    radial-gradient(circle at 62% 44%, rgba(255, 255, 255, 0.98) 0 12%, transparent 30%),
-    radial-gradient(circle at 70% 26%, rgba(234, 240, 247, 0.8) 0 8%, transparent 28%),
-    radial-gradient(circle at 32% 64%, rgba(255, 242, 232, 0.9) 0 10%, transparent 36%);
+    radial-gradient(circle at 58% 44%, rgba(255, 255, 255, 0.98) 0 14%, transparent 32%),
+    radial-gradient(circle at 69% 24%, rgba(255, 101, 0, 0.11) 0 8%, transparent 30%),
+    radial-gradient(circle at 32% 66%, rgba(10, 37, 64, 0.06) 0 9%, transparent 34%);
 }
 
 .premium-orbit-ring {
@@ -304,12 +304,60 @@ textarea:disabled {
   }
 }
 
+@keyframes fuwu-scene-chip-reveal {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(14px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
 .premium-orbit-ring {
   animation: fuwu-slow-orbit 9s ease-in-out infinite;
 }
 
 .premium-3d-float {
   animation: fuwu-soft-float 6.5s ease-in-out infinite;
+}
+
+.home-scene-node {
+  animation: fuwu-scene-chip-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center;
+  will-change: transform, filter, opacity;
+}
+
+.premium-home-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(10, 37, 64, 0.08);
+  border-radius: var(--radius-card);
+  background: #ffffff;
+  box-shadow: 0 22px 60px rgba(10, 37, 64, 0.1);
+  transition:
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    transform 260ms ease;
+}
+
+.premium-home-panel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 101, 0, 0.36), transparent);
+  opacity: 0.85;
+}
+
+.premium-home-panel:hover {
+  border-color: rgba(255, 101, 0, 0.24);
+  box-shadow: 0 30px 78px rgba(10, 37, 64, 0.14);
+  transform: translateY(-3px);
 }
 
 .premium-page-shell {
@@ -386,10 +434,12 @@ textarea:disabled {
 @media (prefers-reduced-motion: reduce) {
   .premium-orbit-ring,
   .premium-3d-float,
+  .home-scene-node,
   .home-float-chip {
     animation: none !important;
   }
 
+  .premium-home-panel:hover,
   .premium-card-hover:hover {
     transform: none;
   }

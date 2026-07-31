@@ -78,7 +78,7 @@ export function CategoryCard({ providerCount, service, visual }: CategoryCardPro
   return (
     <a
       aria-label={`${target.label} kategorisinde ustaları gör`}
-      className="group relative flex min-h-[8.4rem] min-w-[9.5rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.09)] bg-white px-4 pb-4 pt-3 shadow-[var(--shadow-subtle)] transition-all duration-200 hover:-translate-y-1 hover:border-[rgba(255,101,0,0.38)] hover:shadow-[var(--shadow-card)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="group relative flex min-h-[9.25rem] w-full min-w-[10rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-4 pb-4 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-w-0"
       href={target.href}
       key={service.id}
       onClick={handleClick}

@@ -137,11 +137,11 @@ export const homeCopy = {
 
 export const homeServiceVisuals: Record<string, { accent: string; iconName: ServiceIconName }> = {
   electrical: { accent: "#FF6500", iconName: "bolt" },
-  plumbing: { accent: "#2563EB", iconName: "faucet" },
-  cleaning: { accent: "#17745F", iconName: "broom" },
+  plumbing: { accent: "#0A2540", iconName: "faucet" },
+  cleaning: { accent: "#FF6500", iconName: "broom" },
   painting: { accent: "#FF6500", iconName: "paint-roller" },
-  "climate-appliance-service": { accent: "#0EA5E9", iconName: "air-conditioner" },
-  locksmith: { accent: "#D97706", iconName: "key" },
+  "climate-appliance-service": { accent: "#0A2540", iconName: "air-conditioner" },
+  locksmith: { accent: "#FF6500", iconName: "key" },
   "furniture-assembly": { accent: "#0A2540", iconName: "furniture-tool" },
-  "moving-help": { accent: "#64748B", iconName: "truck" },
+  "moving-help": { accent: "#0A2540", iconName: "truck" },
 };
