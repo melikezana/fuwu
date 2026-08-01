@@ -318,10 +318,6 @@ textarea:disabled {
   }
 }
 
-.premium-orbit-ring {
-  animation: fuwu-slow-orbit 9s ease-in-out infinite;
-}
-
 .premium-3d-float {
   animation: fuwu-soft-float 6.5s ease-in-out infinite;
 }

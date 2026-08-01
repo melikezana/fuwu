@@ -4,11 +4,9 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { BadgeCheck, MousePointerClick, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { motion, useReducedMotion as useMotionReducedMotion } from "framer-motion";
-import gsap from "gsap";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
-import { SceneFallback } from "@/components/three/SceneFallback";
 import { SceneServiceLinks } from "@/components/three/SceneServiceLinks";
 import { Container } from "@/components/ui/Container";
 import { homeCopy } from "@/lib/constants/home";
@@ -23,7 +21,6 @@ import { cn } from "@/lib/utils";
 const FuwuHeroScene = dynamic(
   () => import("@/components/three/FuwuHeroScene").then((mod) => mod.FuwuHeroScene),
   {
-    loading: () => <SceneFallback />,
     ssr: false,
   },
 );
@@ -36,13 +33,13 @@ type HeroSectionProps = {
 const trustIcons = [ShieldCheck, Star, BadgeCheck] as const;
 
 const sceneNodeClassNames: Partial<Record<ServiceCategoryMapKey, string>> = {
-  "climate-appliance-service": "right-[11%] top-[10%]",
-  "furniture-assembly": "right-[1%] top-[57%]",
-  cleaning: "left-[17%] top-[58%]",
-  electrical: "left-[8%] top-[11%]",
-  locksmith: "left-[45%] top-[68%]",
-  painting: "right-[1%] top-[35%]",
-  plumbing: "left-[4%] top-[35%]",
+  "climate-appliance-service": "right-[6%] top-[13%]",
+  "furniture-assembly": "right-[0%] top-[58%]",
+  cleaning: "left-[13%] top-[61%]",
+  electrical: "left-[10%] top-[13%]",
+  locksmith: "left-[43%] top-[73%]",
+  painting: "right-[0%] top-[37%]",
+  plumbing: "left-[4%] top-[37%]",
 };
 
 const sceneShortLabels: Partial<Record<ServiceCategoryMapKey, string>> = {
@@ -56,13 +53,13 @@ const sceneShortLabels: Partial<Record<ServiceCategoryMapKey, string>> = {
 };
 
 const sceneLineCoordinates: Partial<Record<ServiceCategoryMapKey, [number, number, number, number]>> = {
-  "climate-appliance-service": [76, 18, 58, 30],
-  "furniture-assembly": [87, 62, 64, 52],
-  cleaning: [27, 64, 47, 52],
-  electrical: [18, 19, 42, 30],
-  locksmith: [52, 72, 53, 56],
-  painting: [87, 41, 64, 43],
-  plumbing: [16, 41, 40, 43],
+  "climate-appliance-service": [76, 19, 60, 31],
+  "furniture-assembly": [88, 63, 65, 55],
+  cleaning: [25, 66, 45, 56],
+  electrical: [20, 20, 42, 31],
+  locksmith: [52, 77, 53, 59],
+  painting: [88, 43, 65, 45],
+  plumbing: [17, 43, 39, 45],
 };
 
 function getFallbackNodeClassName(index: number) {
@@ -94,10 +91,11 @@ function SceneNode({
     <Link
       aria-label={`${target.label} ustalarını gör`}
       className={cn(
-        "home-scene-node group absolute z-30 hidden min-h-[3.75rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 p-1.5 pr-4 text-xs font-extrabold text-[var(--brand-navy)] shadow-[0_20px_46px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_26px_58px_rgba(10,37,64,0.18)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:inline-flex",
+        "home-scene-node group absolute z-30 hidden min-h-[3.4rem] max-w-[11rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 p-1.5 pr-3 text-xs font-extrabold text-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_24px_54px_rgba(10,37,64,0.17)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:inline-flex",
         sceneNodeClassNames[target.id] ?? getFallbackNodeClassName(index),
         isActive ? "border-[rgba(255,101,0,0.54)] bg-white shadow-[0_28px_70px_rgba(10,37,64,0.18)]" : "",
       )}
+      data-short-label={sceneShortLabels[target.id] ?? target.label}
       href={target.href}
       onFocus={() => onActivate(target)}
       onMouseEnter={() => onActivate(target)}
@@ -105,13 +103,13 @@ function SceneNode({
     >
       <span
         className={cn(
-          "grid size-12 shrink-0 place-items-center rounded-full border border-[rgba(10,37,64,0.08)] bg-white text-[var(--brand-orange)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_12px_26px_rgba(10,37,64,0.13)] transition-transform duration-300 group-hover:scale-110",
-          isActive ? "scale-110 ring-4 ring-[rgba(255,101,0,0.14)]" : "",
+          "grid size-11 shrink-0 place-items-center rounded-full border border-[rgba(10,37,64,0.08)] bg-white text-[var(--brand-orange)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_12px_26px_rgba(10,37,64,0.13)] transition-transform duration-300 group-hover:scale-105",
+          isActive ? "scale-105 ring-4 ring-[rgba(255,101,0,0.14)]" : "",
         )}
       >
         <ServiceIcon className="size-6" name={target.iconName ?? "wrench"} />
       </span>
-      <span className="max-w-[7.75rem] truncate">{sceneShortLabels[target.id] ?? target.label}</span>
+      <span className="max-w-[8rem] truncate">{target.label}</span>
     </Link>
   );
 }
@@ -154,11 +152,11 @@ function SceneConnectorLines({ activeServiceId }: { activeServiceId: ServiceCate
 
 function SceneInfoCard({ target }: { target: ServiceCategoryTarget }) {
   return (
-    <div className="absolute inset-x-5 bottom-[8%] z-40 rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/96 p-4 text-[var(--brand-navy)] shadow-[0_26px_70px_rgba(10,37,64,0.18)] backdrop-blur-xl sm:inset-x-auto sm:bottom-[13%] sm:right-[22%] sm:w-72">
+    <div className="absolute inset-x-5 bottom-[7%] z-40 rounded-lg border border-white/10 bg-[rgba(10,37,64,0.92)] p-4 text-white shadow-[0_26px_70px_rgba(10,37,64,0.24)] backdrop-blur-xl sm:inset-x-auto sm:bottom-[10%] sm:right-[23%] sm:w-[17rem]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="truncate text-base font-extrabold leading-6 text-[var(--brand-navy)]">{target.label}</h3>
-          <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-[rgba(10,37,64,0.68)]">
+          <h3 className="truncate text-base font-extrabold leading-6 text-white">{target.label}</h3>
+          <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-white/76">
             {target.description}
           </p>
         </div>
@@ -181,54 +179,13 @@ function HeroSceneShowcase() {
   const [activeServiceId, setActiveServiceId] =
     useState<ServiceCategoryMapKey>("locksmith");
   const activeTarget = useMemo(() => getServiceCategoryTarget(activeServiceId), [activeServiceId]);
-  const sceneParallaxRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = Boolean(useMotionReducedMotion());
-
-  useEffect(() => {
-    const parallaxElement = sceneParallaxRef.current;
-
-    if (!parallaxElement || reduceMotion) {
-      return;
-    }
-
-    const element: HTMLDivElement = parallaxElement;
-    const xTo = gsap.quickTo(element, "x", { duration: 0.72, ease: "power3.out" });
-    const yTo = gsap.quickTo(element, "y", { duration: 0.72, ease: "power3.out" });
-    const rotateTo = gsap.quickTo(element, "rotate", { duration: 0.72, ease: "power3.out" });
-
-    function handlePointerMove(event: PointerEvent) {
-      const rect = element.getBoundingClientRect();
-      const relativeX = (event.clientX - rect.left) / rect.width - 0.5;
-      const relativeY = (event.clientY - rect.top) / rect.height - 0.5;
-
-      xTo(relativeX * 18);
-      yTo(relativeY * 12);
-      rotateTo(relativeX * 1.2);
-    }
-
-    function handlePointerLeave() {
-      xTo(0);
-      yTo(0);
-      rotateTo(0);
-      setActiveServiceId("locksmith");
-    }
-
-    element.addEventListener("pointermove", handlePointerMove);
-    element.addEventListener("pointerleave", handlePointerLeave);
-
-    return () => {
-      element.removeEventListener("pointermove", handlePointerMove);
-      element.removeEventListener("pointerleave", handlePointerLeave);
-      gsap.set(element, { rotate: 0, x: 0, y: 0 });
-    };
-  }, [reduceMotion]);
 
   return (
-    <div className="relative mx-auto min-h-[540px] w-full max-w-[980px] overflow-visible sm:min-h-[600px] lg:min-h-[660px] xl:min-h-[700px]">
-      <div className="absolute inset-0 origin-center will-change-transform" ref={sceneParallaxRef}>
+    <div className="relative mx-auto min-h-[430px] w-full max-w-[980px] overflow-visible sm:min-h-[560px] lg:min-h-[660px] xl:min-h-[660px] xl:min-w-[760px]" data-home-hero-scene>
+      <div className="absolute inset-0 origin-center" onMouseLeave={() => setActiveServiceId("locksmith")}>
       <div
         aria-hidden="true"
-        className="premium-hero-ambient absolute inset-x-[-2%] bottom-[7%] top-[1%] rounded-[999px] opacity-95"
+        className="premium-hero-ambient absolute inset-x-[-1%] bottom-[8%] top-[2%] rounded-[999px] opacity-95"
       />
       <span className="premium-orbit-ring left-[4%] top-[12%] h-[66%] w-[91%]" aria-hidden="true" />
       <span
@@ -240,7 +197,7 @@ function HeroSceneShowcase() {
 
       <SceneConnectorLines activeServiceId={activeServiceId} />
 
-      <div className="absolute inset-x-[6%] bottom-[14%] top-[2%] z-10 overflow-visible sm:inset-x-[8%] lg:inset-x-[7%]">
+      <div className="absolute inset-x-[4%] bottom-[13%] top-[2%] z-10 overflow-visible sm:inset-x-[7%] lg:inset-x-[5%]">
         <FuwuHeroScene />
       </div>
 
@@ -287,9 +244,9 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
           backgroundSize: "auto, auto, 76px 76px, 76px 76px",
         }}
       />
-      <Container className="grid max-w-[1536px] gap-8 pb-24 pt-12 sm:pb-20 sm:pt-14 lg:min-h-[660px] lg:grid-cols-[minmax(360px,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-4 lg:pb-12 lg:pt-12 xl:gap-6">
+      <Container className="grid max-w-[1440px] gap-8 pb-24 pt-12 sm:pb-20 sm:pt-14 lg:min-h-[660px] lg:grid-cols-[minmax(360px,38fr)_minmax(0,62fr)] lg:items-center lg:gap-6 lg:pb-12 lg:pt-12 xl:grid-cols-[minmax(360px,38fr)_minmax(760px,62fr)]">
         <motion.div
-          className="premium-reveal relative z-20 min-w-0 lg:pl-8 xl:pl-10"
+          className="premium-reveal relative z-20 min-w-0 lg:max-w-[560px] lg:pl-0"
           initial={false}
         >
           <span className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-[rgba(255,101,0,0.22)] bg-white px-3 text-xs font-extrabold leading-5 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]">
@@ -297,9 +254,9 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
             <span className="truncate">{homeCopy.hero.eyebrow}</span>
           </span>
 
-          <h1 className="mt-5 max-w-[36rem] text-5xl font-extrabold leading-[0.98] text-[var(--brand-navy)] sm:text-6xl lg:text-[4rem] xl:text-[4.35rem]">
+          <h1 className="mt-5 max-w-[35rem] text-5xl font-extrabold leading-[1.02] text-[var(--brand-navy)] sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
             Güven, doğru{" "}
-            <span className="whitespace-nowrap">
+            <span>
               ustayla <span className="text-[var(--brand-orange)]">başlar.</span>
             </span>
           </h1>
@@ -318,7 +275,7 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
 
               return (
                 <motion.div
-                  className="flex min-h-[64px] min-w-0 items-center gap-3 rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/92 px-4 py-3 shadow-[0_16px_42px_rgba(10,37,64,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(10,37,64,0.13)]"
+                  className="flex min-h-[66px] min-w-0 items-center gap-3 rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/92 px-4 py-3 shadow-[0_16px_42px_rgba(10,37,64,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_24px_58px_rgba(10,37,64,0.13)]"
                   initial={false}
                   key={signal}
                   transition={{ delay: reduceMotion ? 0 : index * 0.04, duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
@@ -327,7 +284,7 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.16)]">
                     <Icon aria-hidden="true" className="size-4" />
                   </span>
-                  <span className="min-w-0 text-sm font-extrabold leading-5 text-[var(--brand-navy)]">
+                  <span className="min-w-0 text-[0.78rem] font-extrabold leading-5 text-[var(--brand-navy)]">
                     {signal}
                   </span>
                 </motion.div>

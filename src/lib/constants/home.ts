@@ -145,3 +145,14 @@ export const homeServiceVisuals: Record<string, { accent: string; iconName: Serv
   "furniture-assembly": { accent: "#0A2540", iconName: "furniture-tool" },
   "moving-help": { accent: "#0A2540", iconName: "truck" },
 };
+
+export const homeServiceAssetPaths: Record<string, string> = {
+  electrical: "/assets/home/category-electric.webp",
+  plumbing: "/assets/home/category-plumbing.webp",
+  cleaning: "/assets/home/category-cleaning.webp",
+  painting: "/assets/home/category-paint.webp",
+  "climate-appliance-service": "/assets/home/category-ac.webp",
+  locksmith: "/assets/home/category-locksmith.webp",
+  "furniture-assembly": "/assets/home/category-furniture.webp",
+  "moving-help": "/assets/home/category-renovation.webp",
+};

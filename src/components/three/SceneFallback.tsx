@@ -3,29 +3,18 @@ export function SceneFallback() {
     <div className="relative h-full min-h-[320px] w-full overflow-visible">
       <div
         aria-hidden="true"
-        className="absolute left-1/2 top-1/2 h-[78%] w-[88%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF9_100%)] shadow-[0_42px_96px_rgba(10,37,64,0.16)] ring-1 ring-[rgba(10,37,64,0.06)]"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 top-[44%] h-56 w-72 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white shadow-[0_28px_72px_rgba(10,37,64,0.16)] ring-1 ring-[rgba(10,37,64,0.08)]"
+        className="absolute left-1/2 top-1/2 aspect-[1.45] w-[96%] max-w-[880px] -translate-x-1/2 -translate-y-1/2"
       >
-        <div className="absolute inset-x-4 top-1/2 h-px bg-[var(--border)]" />
-        <div className="absolute bottom-4 left-1/2 top-5 w-px bg-[var(--border)]" />
-        <div className="absolute bottom-4 left-4 top-5 w-px bg-[var(--border)]" />
-        <div className="absolute bottom-4 right-4 top-5 w-px bg-[var(--border)]" />
-
-        <div className="absolute -top-14 left-1/2 h-28 w-28 -translate-x-1/2 rotate-45 rounded-md border border-[rgba(10,37,64,0.08)] bg-[#FFFDF9] shadow-[var(--shadow-card)]" />
-
-        <div className="absolute bottom-5 left-8 h-8 w-16 rounded-md bg-[var(--brand-orange-soft)] shadow-[var(--shadow-subtle)]" />
-        <div className="absolute bottom-8 left-24 h-7 w-14 rounded-md bg-[#FFFDF9]" />
-        <div className="absolute bottom-6 right-8 h-10 w-[4.5rem] rounded-md bg-white shadow-[var(--shadow-subtle)]" />
-        <div className="absolute left-8 top-10 h-8 w-14 rounded-md bg-[#FFFDF9]" />
-        <div className="absolute left-24 top-9 h-9 w-16 rounded-md bg-white shadow-[var(--shadow-subtle)] ring-1 ring-[var(--border)]" />
-        <div className="absolute right-9 top-9 h-9 w-14 rounded-md bg-[var(--brand-orange-soft)]" />
-
-        <div className="absolute bottom-0 left-1/2 h-16 w-9 -translate-x-1/2 rounded-t-md bg-[var(--brand-navy)]" />
-        <div className="absolute bottom-16 left-8 h-8 w-8 rounded-md border border-[rgba(10,37,64,0.12)] bg-white" />
-        <div className="absolute bottom-16 right-8 h-8 w-8 rounded-md border border-[rgba(10,37,64,0.12)] bg-white" />
+        <span className="absolute inset-x-[5%] bottom-[6%] h-[22%] rounded-[50%] bg-[linear-gradient(180deg,#FFFFFF_0%,#F3F6FA_100%)] shadow-[0_34px_90px_rgba(10,37,64,0.16)] ring-1 ring-[rgba(10,37,64,0.06)]" />
+        <span className="absolute left-[18%] top-[18%] h-[58%] w-[64%] rounded-[1.1rem] border border-white/80 bg-[linear-gradient(145deg,#FFFFFF_0%,#F7F9FC_54%,#EEF3F8_100%)] shadow-[0_30px_72px_rgba(10,37,64,0.15)]" />
+        <span className="absolute left-[14%] top-[10%] h-[17%] w-[72%] skew-x-[-18deg] rounded-t-[1rem] bg-[linear-gradient(135deg,#07182F_0%,#0A2540_72%,#183B63_100%)] shadow-[0_18px_44px_rgba(10,37,64,0.18)]" />
+        <span className="absolute left-[61%] top-[3%] h-[17%] w-[7%] rounded-sm bg-[linear-gradient(180deg,#FFFFFF_0%,#DDE5EE_100%)] shadow-[0_8px_24px_rgba(10,37,64,0.12)]" />
+        <span className="absolute left-[22%] top-[31%] h-[18%] w-[17%] rounded-md bg-white/96 shadow-[inset_0_0_0_1px_rgba(10,37,64,0.08),0_14px_32px_rgba(10,37,64,0.08)]" />
+        <span className="absolute left-[42%] top-[31%] h-[18%] w-[18%] rounded-md bg-white/92 shadow-[inset_0_0_0_1px_rgba(10,37,64,0.07)]" />
+        <span className="absolute left-[63%] top-[31%] h-[18%] w-[15%] rounded-md bg-[#FFF4EA] shadow-[inset_0_0_0_1px_rgba(255,101,0,0.12)]" />
+        <span className="absolute left-[24%] top-[54%] h-[17%] w-[16%] rounded-md bg-[#FFF4EA] shadow-[inset_0_0_0_1px_rgba(255,101,0,0.12)]" />
+        <span className="absolute left-[43%] top-[54%] h-[17%] w-[17%] rounded-md bg-white/96 shadow-[inset_0_0_0_1px_rgba(10,37,64,0.08)]" />
+        <span className="absolute left-[63%] top-[54%] h-[17%] w-[15%] rounded-md bg-white/92 shadow-[inset_0_0_0_1px_rgba(10,37,64,0.07)]" />
       </div>
     </div>
   );
