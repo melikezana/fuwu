@@ -373,7 +373,7 @@ textarea:disabled {
   text-wrap: pretty;
 }
 
-.premium-home-panel :where(img, canvas) {
+.premium-home-panel :where(img) {
   max-width: 100%;
 }
 
@@ -475,11 +475,11 @@ textarea:disabled {
   min-height: 280px;
   height: 100%;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-end;
   grid-column: 2;
   grid-row: 1 / span 2;
   isolation: isolate;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .premium-character-stage::after {
@@ -514,23 +514,26 @@ textarea:disabled {
 
 .home-character-visual {
   position: absolute;
-  inset: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
   width: 100%;
-  height: 100%;
-  min-height: 300px;
-  overflow: visible;
+  height: 85%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
   pointer-events: none;
   opacity: 0;
+  user-select: none;
   transform: translateY(12px) scale(0.96);
-  transform-origin: bottom center;
+  transform-origin: bottom right;
   transition:
     opacity 560ms ease,
     transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.premium-character-canvas {
-  min-height: 300px;
+.premium-character-image {
+  min-height: 0;
 }
 
 .home-character-visual-ready {
@@ -600,15 +603,29 @@ textarea:disabled {
   }
 
   .premium-character-stage {
-    min-height: 260px;
-    height: clamp(260px, 72vw, 310px);
+    min-height: 0;
+    height: min(70vw, 260px);
+    max-height: 260px;
+    align-items: center;
+    justify-content: center;
     grid-column: 1;
     grid-row: auto;
   }
 
   .home-character-visual,
-  .premium-character-canvas {
-    min-height: 100%;
+  .premium-character-image {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 78%;
+    height: min(70vw, 260px);
+    max-height: 260px;
+    min-height: 0;
+    transform-origin: bottom center;
+  }
+
+  .home-character-visual img {
+    object-position: center bottom;
   }
 
   .premium-character-stage::after {
@@ -638,8 +655,8 @@ textarea:disabled {
   }
 
   .premium-character-stage {
-    min-height: 260px;
-    height: 260px;
+    height: min(74vw, 260px);
+    max-height: 260px;
   }
 }
 

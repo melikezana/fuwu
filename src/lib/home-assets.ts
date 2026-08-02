@@ -21,14 +21,9 @@ export const homeAssets = {
     renovation: "/images/home/Meshy_AI_category-renovation.png",
     "climate-appliance-service": "/images/home/Meshy_AI_category-ac.png",
   },
-  hero: {
-    cutawayHouse: "/images/home/Meshy_AI_cutaway-house-hero.png",
-  },
-  models: {
-    customer: "/models/house/customer.glb",
-    environment: "/models/house/potsdamer_platz_1k.hdr",
-    house: "/models/house/fuwu-house.glb",
-    provider: "/models/house/provider.glb",
+  characters: {
+    customer: "/images/home/Meshy_AI_customer-character.png",
+    provider: "/images/home/Meshy_AI_provider-character.png",
   },
   payment: {
     lockCard: "/images/home/Meshy_AI_payment-lock-card.png",

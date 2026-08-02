@@ -1,13 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { BadgeCheck, MousePointerClick, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { motion, useReducedMotion as useMotionReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { HomeAssetImage } from "@/components/home/HomeAssetImage";
 import { HeroSearch } from "@/components/home/HeroSearch";
+import { SceneServiceLinks } from "@/components/home/SceneServiceLinks";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
-import { SceneServiceLinks } from "@/components/three/SceneServiceLinks";
 import { Container } from "@/components/ui/Container";
 import { homeCopy } from "@/lib/constants/home";
 import {
@@ -16,14 +16,8 @@ import {
   type ServiceCategoryMapKey,
   type ServiceCategoryTarget,
 } from "@/lib/constants/service-category-map";
+import { homeAssets } from "@/lib/home-assets";
 import { cn } from "@/lib/utils";
-
-const FuwuHeroScene = dynamic(
-  () => import("@/components/three/FuwuHeroScene").then((mod) => mod.FuwuHeroScene),
-  {
-    ssr: false,
-  },
-);
 
 type HeroSectionProps = {
   categories: string[];
@@ -61,6 +55,33 @@ const sceneLineCoordinates: Partial<Record<ServiceCategoryMapKey, [number, numbe
   painting: [88, 43, 65, 45],
   plumbing: [17, 43, 39, 45],
 };
+
+const heroVisualAssets = [
+  {
+    className: "left-[9%] top-[18%] h-[28%] w-[26%]",
+    src: homeAssets.categories.electrical,
+  },
+  {
+    className: "right-[10%] top-[14%] h-[29%] w-[27%]",
+    src: homeAssets.categories.ac,
+  },
+  {
+    className: "left-[13%] bottom-[17%] h-[31%] w-[29%]",
+    src: homeAssets.categories.cleaning,
+  },
+  {
+    className: "right-[8%] bottom-[15%] h-[31%] w-[30%]",
+    src: homeAssets.categories.plumbing,
+  },
+  {
+    className: "left-[38%] top-[26%] h-[28%] w-[25%]",
+    src: homeAssets.categories.locksmith,
+  },
+  {
+    className: "left-[38%] bottom-[10%] h-[28%] w-[26%]",
+    src: homeAssets.categories.painting,
+  },
+] as const;
 
 function getFallbackNodeClassName(index: number) {
   const fallbackClassNames = [
@@ -175,6 +196,35 @@ function SceneInfoCard({ target }: { target: ServiceCategoryTarget }) {
   );
 }
 
+function HeroStaticHomeVisual() {
+  return (
+    <div
+      aria-label="Fuwu hizmet kategorileri görseli"
+      className="relative h-full min-h-[320px] w-full select-none overflow-hidden"
+      role="img"
+    >
+      <span className="absolute inset-x-[10%] bottom-[8%] h-[30%] rounded-[50%] bg-white shadow-[0_34px_88px_rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.06)]" />
+      <span className="absolute left-1/2 top-[14%] h-[65%] w-[64%] -translate-x-1/2 rounded-[1.75rem] border border-white bg-[linear-gradient(145deg,#ffffff_0%,#f8fafc_60%,#fff4ea_100%)] shadow-[0_34px_88px_rgba(10,37,64,0.13)] ring-1 ring-[rgba(10,37,64,0.06)]" />
+      <span className="absolute left-1/2 top-[5%] h-[18%] w-[70%] -translate-x-1/2 skew-x-[-15deg] rounded-t-[1.75rem] bg-[linear-gradient(135deg,#07182f_0%,#0a2540_72%,#183b63_100%)] shadow-[0_20px_52px_rgba(10,37,64,0.18)]" />
+      <span className="absolute left-[58%] top-[1%] h-[15%] w-[7%] rounded-sm bg-[linear-gradient(180deg,#ffffff_0%,#dde5ee_100%)] shadow-[0_10px_24px_rgba(10,37,64,0.12)]" />
+      {heroVisualAssets.map((asset) => (
+        <span className={cn("absolute z-20", asset.className)} key={asset.className}>
+          <HomeAssetImage
+            alt=""
+            className="h-full w-full rounded-md"
+            height={512}
+            imageClassName="object-contain object-center"
+            priority
+            sizes="(min-width: 1024px) 180px, 28vw"
+            src={asset.src}
+            width={512}
+          />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function HeroSceneShowcase({ className }: { className?: string }) {
   const [activeServiceId, setActiveServiceId] =
     useState<ServiceCategoryMapKey>("locksmith");
@@ -204,7 +254,7 @@ function HeroSceneShowcase({ className }: { className?: string }) {
       <SceneConnectorLines activeServiceId={activeServiceId} />
 
       <div className="absolute inset-x-[4%] bottom-[13%] top-[2%] z-10 overflow-visible sm:inset-x-[7%] lg:inset-x-[5%]">
-        <FuwuHeroScene />
+        <HeroStaticHomeVisual />
       </div>
 
       {sceneServiceTargets.map((target, index) => (
