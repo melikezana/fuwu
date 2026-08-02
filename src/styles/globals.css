@@ -356,6 +356,20 @@ textarea:disabled {
   transform: translateY(-3px);
 }
 
+.premium-home-panel :where(h2, h3, p, li, span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.premium-home-panel :where(h2, h3) {
+  text-wrap: balance;
+}
+
+.premium-home-panel :where(img, canvas) {
+  max-width: 100%;
+}
+
 .premium-page-shell {
   background: linear-gradient(
     180deg,

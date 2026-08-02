@@ -5,7 +5,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { Container } from "@/components/ui/Container";
-import { homeServiceVisuals } from "@/lib/constants/home";
 import type { Service } from "@/lib/constants/services";
 
 type PopularServicesProps = {
@@ -58,15 +57,10 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
         </div>
 
         <div
-          className="mt-4 grid snap-x grid-flow-col auto-cols-[10.75rem] gap-3.5 overflow-x-auto pb-4 [scrollbar-width:thin] xl:grid-flow-row xl:grid-cols-8 xl:overflow-visible xl:pb-1"
+          className="mt-4 grid snap-x grid-flow-col auto-cols-[11.25rem] gap-3.5 overflow-x-auto pb-4 [scrollbar-width:thin] xl:grid-flow-row xl:grid-cols-9 xl:overflow-visible xl:pb-1"
           ref={scrollerRef}
         >
           {services.map((service, index) => {
-            const visual = homeServiceVisuals[service.id] ?? {
-              accent: "#FF6500",
-              iconName: service.iconName,
-            };
-
             return (
               <motion.div
                 className="min-w-0 snap-start"
@@ -80,7 +74,6 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
                 <CategoryCard
                   providerCount={serviceCounts[service.id]}
                   service={service}
-                  visual={visual}
                 />
               </motion.div>
             );

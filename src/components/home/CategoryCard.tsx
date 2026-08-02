@@ -2,21 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import type { KeyboardEvent, MouseEvent } from "react";
-import { HomeAssetVisual } from "@/components/home/HomeAssetVisual";
+import { HomeAssetImage } from "@/components/home/HomeAssetImage";
 import {
   getServiceCategoryTargetById,
   type ServiceCategoryTarget,
 } from "@/lib/constants/service-category-map";
-import { homeServiceAssetPaths } from "@/lib/constants/home";
-import type { Service, ServiceIconName } from "@/lib/constants/services";
+import type { Service } from "@/lib/constants/services";
+import { getHomeCategoryAssetPath } from "@/lib/home-assets";
 
 type CategoryCardProps = {
   providerCount?: number;
   service: Service;
-  visual: {
-    accent: string;
-    iconName: ServiceIconName;
-  };
 };
 
 function isSpaceActivation(event: KeyboardEvent<HTMLAnchorElement>) {
@@ -49,9 +45,10 @@ function getCountLabel(providerCount?: number) {
   return "Usta ara";
 }
 
-export function CategoryCard({ providerCount, service, visual }: CategoryCardProps) {
+export function CategoryCard({ providerCount, service }: CategoryCardProps) {
   const router = useRouter();
   const target = resolveTarget(service);
+  const assetPath = getHomeCategoryAssetPath(service.id);
 
   function handleKeyDown(event: KeyboardEvent<HTMLAnchorElement>) {
     if (isSpaceActivation(event)) {
@@ -78,33 +75,28 @@ export function CategoryCard({ providerCount, service, visual }: CategoryCardPro
 
   return (
     <a
-      aria-label={`${target.label} kategorisinde ustaları gör`}
-      className="group relative flex h-[9.75rem] w-full min-w-[10rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3.5 pb-3.5 pt-2.5 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-w-0"
+      aria-label={`${target.label} kategorisinde ustalari gor`}
+      className="group relative flex h-[11.25rem] w-full min-w-[10.75rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3.5 pb-3.5 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-w-0"
       href={target.href}
       key={service.id}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
-      <span
-        aria-hidden="true"
-        className="absolute -right-8 -top-9 size-24 rounded-full opacity-10"
-        style={{ backgroundColor: visual.accent }}
-      />
-      <HomeAssetVisual
-        accent={visual.accent}
-        className="mx-auto h-[5.8rem] w-full max-w-[8.75rem] shrink-0 transition-transform duration-200 group-hover:scale-[1.025]"
-        iconName={visual.iconName}
-        imageClassName="object-contain"
+      <HomeAssetImage
+        alt={`${target.label} kategori gorseli`}
+        className="mx-auto h-[6.35rem] w-full max-w-[9rem] shrink-0 rounded-md transition-transform duration-200 group-hover:scale-[1.025]"
+        height={512}
+        imageClassName="object-contain object-center"
         sizes="(min-width: 1280px) 150px, 176px"
-        src={homeServiceAssetPaths[service.id] ?? "/assets/home/category-renovation.webp"}
-        variant="category"
+        src={assetPath}
+        width={512}
       />
       <span className="mt-auto min-w-0">
-        <span className="block truncate text-[0.82rem] font-extrabold leading-5 text-[var(--brand-navy)]">
+        <span className="block min-w-0 text-center text-[clamp(0.76rem,0.72rem+0.18vw,0.86rem)] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
           {target.label}
         </span>
-        <span className="mt-1 block truncate text-xs font-semibold leading-4 text-[var(--muted)]">
+        <span className="mt-1 block min-w-0 text-center text-xs font-semibold leading-4 text-[var(--muted)] [overflow-wrap:anywhere]">
           {getCountLabel(providerCount)}
         </span>
       </span>

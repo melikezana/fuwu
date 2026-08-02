@@ -13,6 +13,8 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { HomeAssetImage } from "@/components/home/HomeAssetImage";
+import { homeAssets } from "@/lib/home-assets";
 import {
   ACESFilmicToneMapping,
   Box3,
@@ -26,9 +28,9 @@ import {
   type PerspectiveCamera as PerspectiveCameraImpl,
 } from "three";
 
-const HOUSE_MODEL_PATH = "/models/house/fuwu-house.glb";
-const PROVIDER_MODEL_PATH = "/models/house/provider.glb";
-const CUSTOMER_MODEL_PATH = "/models/house/customer.glb";
+const HOUSE_MODEL_PATH = homeAssets.models.house;
+const PROVIDER_MODEL_PATH = homeAssets.models.provider;
+const CUSTOMER_MODEL_PATH = homeAssets.models.customer;
 const LOCAL_CITY_PRESET_PATH = "/models/house/";
 const HOUSE_ROTATION_SPEED = 0.035;
 
@@ -223,10 +225,16 @@ function HeroSceneFallback({ decorative = false }: { decorative?: boolean }) {
       className="absolute inset-0 overflow-hidden"
       role={decorative ? undefined : "img"}
     >
-      <span className="absolute inset-x-[10%] bottom-[10%] h-[36%] rounded-[50%] bg-[linear-gradient(180deg,#ffffff_0%,#fff8ef_58%,#eef3f8_100%)] shadow-[0_42px_96px_rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.06)]" />
-      <span className="absolute left-1/2 top-[47%] h-[52%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[radial-gradient(circle,rgba(255,255,255,0.96)_0%,rgba(255,244,234,0.62)_46%,rgba(255,255,255,0)_74%)] blur-[2px]" />
-      <span className="absolute left-[34%] top-[30%] h-[31%] w-[29%] rounded-md bg-white/72 shadow-[0_18px_48px_rgba(10,37,64,0.1)] ring-1 ring-[rgba(10,37,64,0.04)]" />
-      <span className="absolute left-[44%] top-[23%] h-[40%] w-[25%] -skew-x-6 rounded-md bg-[linear-gradient(135deg,rgba(10,37,64,0.16),rgba(255,255,255,0.58))] opacity-60 blur-[0.5px]" />
+      <HomeAssetImage
+        alt={decorative ? "" : "Fuwu ev hizmetleri sahnesi"}
+        className="absolute inset-[3%] rounded-md"
+        height={1024}
+        imageClassName="object-contain object-bottom"
+        priority
+        sizes="(min-width: 1024px) 680px, 92vw"
+        src={homeAssets.hero.cutawayHouse}
+        width={1024}
+      />
     </div>
   );
 }

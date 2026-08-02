@@ -1,5 +1,3 @@
-import type { ServiceIconName } from "@/lib/constants/services";
-
 export const homePopularServiceIds = [
   "electrical",
   "plumbing",
@@ -9,6 +7,7 @@ export const homePopularServiceIds = [
   "locksmith",
   "furniture-assembly",
   "moving-help",
+  "carpet-cleaning",
 ] as const;
 
 export const homeCopy = {
@@ -134,25 +133,3 @@ export const homeCopy = {
     secondaryCta: "Hizmet Ver",
   },
 } as const;
-
-export const homeServiceVisuals: Record<string, { accent: string; iconName: ServiceIconName }> = {
-  electrical: { accent: "#FF6500", iconName: "bolt" },
-  plumbing: { accent: "#0A2540", iconName: "faucet" },
-  cleaning: { accent: "#FF6500", iconName: "broom" },
-  painting: { accent: "#FF6500", iconName: "paint-roller" },
-  "climate-appliance-service": { accent: "#0A2540", iconName: "air-conditioner" },
-  locksmith: { accent: "#FF6500", iconName: "key" },
-  "furniture-assembly": { accent: "#0A2540", iconName: "furniture-tool" },
-  "moving-help": { accent: "#0A2540", iconName: "truck" },
-};
-
-export const homeServiceAssetPaths: Record<string, string> = {
-  electrical: "/assets/home/category-electric.webp",
-  plumbing: "/assets/home/category-plumbing.webp",
-  cleaning: "/assets/home/category-cleaning.webp",
-  painting: "/assets/home/category-paint.webp",
-  "climate-appliance-service": "/assets/home/category-ac.webp",
-  locksmith: "/assets/home/category-locksmith.webp",
-  "furniture-assembly": "/assets/home/category-furniture.webp",
-  "moving-help": "/assets/home/category-renovation.webp",
-};

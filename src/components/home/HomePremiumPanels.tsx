@@ -8,11 +8,14 @@ import {
   ShieldCheck,
   UserRoundPlus,
 } from "lucide-react";
-import { HomeAssetVisual } from "@/components/home/HomeAssetVisual";
+import type { ReactNode } from "react";
+import { CustomerCharacterVisual } from "@/components/home/CustomerCharacterVisual";
+import { HomeAssetImage } from "@/components/home/HomeAssetImage";
+import { ProviderCharacterVisual } from "@/components/home/ProviderCharacterVisual";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { ThreeDIcon } from "@/components/ui/ThreeDIcon";
 import { appRoutes } from "@/lib/constants/navigation";
+import { homeAssets } from "@/lib/home-assets";
 import { cn } from "@/lib/utils";
 
 type HomePremiumPanelsProps = {
@@ -32,18 +35,18 @@ type StatItem = {
 
 const howSteps = [
   {
+    asset: homeAssets.steps.selectService,
     description: "Hangi hizmete ihtiyacın olduğunu seç.",
-    iconName: "paint-roller",
     title: "İhtiyacını Seç",
   },
   {
+    asset: homeAssets.steps.compareProviders,
     description: "Fiyat, yorum ve puanlara göre karşılaştır.",
-    iconName: "faucet",
     title: "Ustaları Karşılaştır",
   },
   {
+    asset: homeAssets.steps.confirmService,
     description: "Doğru ustayı seç, hizmetini al.",
-    iconName: "home",
     title: "Güvenle Karar Ver",
   },
 ] as const;
@@ -53,7 +56,7 @@ const trustItems = [
   "Gerçek kullanıcı yorumları",
   "Hizmet sonrası destek",
   "Şeffaf fiyatlandırma",
-  "Güvenli ödeme altyapısı",
+  "Güvenli ödeme takibi",
 ];
 
 const providerActions = [
@@ -76,40 +79,6 @@ function formatNumber(value: number) {
   }).format(value);
 }
 
-function PersonIllustration({
-  className,
-  tone,
-}: {
-  className?: string;
-  tone: "customer" | "provider";
-}) {
-  return (
-    <HomeAssetVisual
-      className={cn("h-full min-h-[11.5rem] w-full", className)}
-      imageClassName="object-contain object-bottom"
-      sizes="(min-width: 1280px) 170px, (min-width: 640px) 42vw, 72vw"
-      src={
-        tone === "provider"
-          ? "/assets/home/provider-character.webp"
-          : "/assets/home/customer-character.webp"
-      }
-      variant={tone === "provider" ? "provider-character" : "customer-character"}
-    />
-  );
-}
-
-function LockPaymentIllustration({ className }: { className?: string }) {
-  return (
-    <HomeAssetVisual
-      className={cn("h-full min-h-[8.5rem] w-full", className)}
-      imageClassName="object-contain object-right"
-      sizes="(min-width: 1024px) 260px, 70vw"
-      src="/assets/home/payment-lock-card.webp"
-      variant="payment-lock-card"
-    />
-  );
-}
-
 function BulletList({
   className,
   compact = false,
@@ -120,11 +89,11 @@ function BulletList({
   items: readonly string[];
 }) {
   return (
-    <ul className={cn("mt-4 grid gap-2", compact ? "gap-1.5" : "", className)}>
+    <ul className={cn("mt-4 grid min-w-0 gap-2", compact ? "gap-1.5" : "", className)}>
       {items.map((item) => (
         <li
           className={cn(
-            "flex min-w-0 items-start gap-2 font-semibold text-[var(--brand-navy)]",
+            "flex min-w-0 items-start gap-2 font-semibold text-[var(--brand-navy)] [overflow-wrap:anywhere]",
             compact ? "text-[0.78rem] leading-5" : "text-sm leading-5",
           )}
           key={item}
@@ -134,6 +103,50 @@ function BulletList({
         </li>
       ))}
     </ul>
+  );
+}
+
+function ActionPanel({
+  buttonClassName,
+  children,
+  ctaLabel,
+  description,
+  href,
+  items,
+  title,
+}: {
+  buttonClassName?: string;
+  children: ReactNode;
+  ctaLabel: string;
+  description: string;
+  href: string;
+  items: readonly string[];
+  title: string;
+}) {
+  return (
+    <article className="premium-home-panel grid min-h-[270px] min-w-0 overflow-hidden p-5 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.9fr)] sm:p-6">
+      <div className="relative z-20 flex min-w-0 flex-col">
+        <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+          {title}
+        </h2>
+        <p className="mt-2 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+          {description}
+        </p>
+        <BulletList compact items={items} />
+        <Button
+          className={cn(
+            "relative z-10 mt-auto min-h-11 w-full rounded-md px-5 text-center sm:w-fit",
+            buttonClassName,
+          )}
+          href={href}
+        >
+          {ctaLabel}
+        </Button>
+      </div>
+      <div className="relative -mb-6 mt-4 min-h-[13.5rem] min-w-0 sm:-mb-8 sm:mt-0 sm:h-[calc(100%+2rem)]">
+        {children}
+      </div>
+    </article>
   );
 }
 
@@ -193,85 +206,84 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
   return (
     <section className="bg-[#FFFDF9] pb-12 sm:pb-14">
       <Container className="max-w-[1440px]">
-        <div className="grid auto-rows-fr gap-4 lg:grid-cols-[1.05fr_1.05fr_1.1fr_1.1fr]">
-          <article className="premium-home-panel min-h-[16.5rem] p-5 sm:p-6">
-            <h2 className="text-[1.35rem] font-extrabold leading-tight text-[var(--brand-navy)]">
+        <div className="grid auto-rows-fr gap-4 lg:grid-cols-2 min-[1360px]:grid-cols-[1.05fr_1.05fr_1.12fr_1.12fr]">
+          <article className="premium-home-panel min-h-[270px] min-w-0 p-5 sm:p-6">
+            <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
               Nasıl Çalışır?
             </h2>
-            <p className="mt-1 text-sm font-semibold leading-5 text-[var(--muted)]">
+            <p className="mt-1 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
               3 adımda hızlı ve güvenli hizmet
             </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:gap-3">
+            <div className="mt-4 grid min-w-0 grid-cols-3 gap-2">
               {howSteps.map((step, index) => (
                 <div className="relative flex min-w-0 flex-col items-center text-center" key={step.title}>
-                  {index < howSteps.length - 1 ? (
-                    <span className="absolute left-[calc(50%+2.1rem)] top-6 hidden w-[calc(100%-4.2rem)] border-t border-dashed border-[rgba(10,37,64,0.18)] sm:block" />
-                  ) : null}
-                  <div className="relative">
-                    <span className="absolute -right-2 -top-1 z-20 grid size-6 place-items-center rounded-full bg-white text-xs font-extrabold text-[var(--brand-orange)] shadow-[0_8px_20px_rgba(255,101,0,0.2)] ring-1 ring-[rgba(255,101,0,0.22)]">
-                      {index + 1}
-                    </span>
-                    <ThreeDIcon accent="var(--brand-orange)" name={step.iconName} size="sm" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-[0.78rem] font-extrabold leading-5 text-[var(--brand-navy)]">
-                      {step.title}
-                    </h3>
-                    <p className="mt-1 text-[0.72rem] font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
-                      {step.description}
-                    </p>
-                  </div>
+                  <span className="absolute right-1 top-0 z-20 grid size-6 place-items-center rounded-full bg-white text-xs font-extrabold text-[var(--brand-orange)] shadow-[0_8px_20px_rgba(255,101,0,0.2)] ring-1 ring-[rgba(255,101,0,0.22)]">
+                    {index + 1}
+                  </span>
+                  <HomeAssetImage
+                    alt={`${step.title} adim gorseli`}
+                    className="h-[5.85rem] w-full max-w-[6.7rem] rounded-md"
+                    height={512}
+                    imageClassName="object-contain object-center"
+                    sizes="(min-width: 1360px) 105px, (min-width: 640px) 28vw, 30vw"
+                    src={step.asset}
+                    width={512}
+                  />
+                  <h3 className="mt-2 min-w-0 text-[clamp(0.68rem,0.62rem+0.24vw,0.8rem)] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 min-w-0 text-[clamp(0.66rem,0.6rem+0.18vw,0.74rem)] font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+                    {step.description}
+                  </p>
                 </div>
               ))}
             </div>
           </article>
 
-          <article className="premium-home-panel relative min-h-[16.5rem] p-5 sm:p-6">
-            <h2 className="text-[1.35rem] font-extrabold leading-tight text-[var(--brand-navy)]">
-              Güven Sistemi
-            </h2>
-            <p className="mt-1 text-sm font-semibold leading-5 text-[var(--muted)]">
-              İçin rahat olsun diye buradayız
-            </p>
-            <BulletList className="max-w-full pr-0 sm:max-w-[62%]" compact items={trustItems} />
-            <HomeAssetVisual
-              className="absolute bottom-4 right-4 hidden h-[8.8rem] w-[9rem] sm:block"
+          <article className="premium-home-panel grid min-h-[270px] min-w-0 gap-3 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.72fr)] sm:p-6">
+            <div className="relative z-10 min-w-0">
+              <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+                Güven Sistemi
+              </h2>
+              <p className="mt-1 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+                İçin rahat olsun diye buradayız
+              </p>
+              <BulletList compact items={trustItems} />
+            </div>
+            <HomeAssetImage
+              alt="Fuwu guven sistemi kalkan gorseli"
+              className="relative min-h-[10rem] min-w-0 self-end rounded-md sm:h-full"
+              height={512}
               imageClassName="object-contain object-bottom"
-              sizes="150px"
-              src="/assets/home/security-lock.webp"
-              variant="security-lock"
+              sizes="(min-width: 1360px) 150px, (min-width: 640px) 28vw, 70vw"
+              src={homeAssets.trust.securityShield}
+              width={512}
             />
           </article>
 
-          <article className="premium-home-panel relative flex min-h-[16.5rem] flex-col p-5 sm:p-6">
-            <h2 className="text-[1.35rem] font-extrabold leading-tight text-[var(--brand-navy)]">Usta Ol</h2>
-            <p className="mt-2 max-w-full text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere] sm:max-w-[52%]">
-              İşini büyüt, daha fazla müşteriye ulaş.
-            </p>
-            <BulletList className="max-w-full sm:max-w-[52%]" compact items={providerActions} />
-            <Button className="relative z-10 mt-auto h-11 min-h-11 w-fit rounded-md px-5" href={appRoutes.providerApplication}>
-              Hemen Usta Ol
-            </Button>
-            <PersonIllustration className="relative mt-4 h-44 w-full sm:absolute sm:bottom-0 sm:right-0 sm:mt-0 sm:h-[88%] sm:w-[48%]" tone="provider" />
-          </article>
+          <ActionPanel
+            ctaLabel="Hemen Usta Ol"
+            description="İşini büyüt, daha fazla müşteriye ulaş."
+            href={appRoutes.providerApplication}
+            items={providerActions}
+            title="Usta Ol"
+          >
+            <ProviderCharacterVisual className="h-full min-h-[13.5rem] object-bottom" />
+          </ActionPanel>
 
-          <article className="premium-home-panel relative flex min-h-[16.5rem] flex-col p-5 sm:p-6">
-            <h2 className="text-[1.35rem] font-extrabold leading-tight text-[var(--brand-navy)]">Usta Bul</h2>
-            <p className="mt-2 max-w-full text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere] sm:max-w-[52%]">
-              Güvenilir ustaları keşfet, işini kolaylaştır.
-            </p>
-            <BulletList className="max-w-full sm:max-w-[52%]" compact items={customerActions} />
-            <Button
-              className="relative z-10 mt-auto h-11 min-h-11 w-fit rounded-md bg-[var(--brand-navy)] px-5 shadow-[0_18px_42px_rgba(10,37,64,0.18)] hover:bg-[var(--brand-navy)]"
-              href={appRoutes.providers}
-            >
-              Usta Bul
-            </Button>
-            <PersonIllustration className="relative mt-4 h-44 w-full sm:absolute sm:bottom-0 sm:right-0 sm:mt-0 sm:h-[88%] sm:w-[48%]" tone="customer" />
-          </article>
+          <ActionPanel
+            buttonClassName="bg-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.18)] hover:bg-[var(--brand-navy)]"
+            ctaLabel="Usta Bul"
+            description="Güvenilir ustaları keşfet, işini kolaylaştır."
+            href={appRoutes.providers}
+            items={customerActions}
+            title="Usta Bul"
+          >
+            <CustomerCharacterVisual className="h-full min-h-[13.5rem] object-bottom" />
+          </ActionPanel>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(32rem,0.78fr)]">
+        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.72fr)]">
           <div className="grid min-h-[9.5rem] overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white shadow-[0_22px_60px_rgba(10,37,64,0.10)] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
             {stats.map((item) => {
               const Icon = item.icon;
@@ -285,10 +297,10 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
                     <Icon aria-hidden="true" className="size-4" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[0.8rem] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere]">
+                    <span className="block min-w-0 text-[0.8rem] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere]">
                       {item.value}
                     </span>
-                    <span className="mt-1 block text-[0.68rem] font-semibold leading-4 text-[var(--muted)] [overflow-wrap:anywhere]">
+                    <span className="mt-1 block min-w-0 text-[0.68rem] font-semibold leading-4 text-[var(--muted)] [overflow-wrap:anywhere]">
                       {item.label}
                     </span>
                   </span>
@@ -297,18 +309,18 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             })}
           </div>
 
-          <article className="premium-home-panel grid min-h-[9.5rem] min-w-0 gap-3 p-5 sm:grid-cols-[minmax(0,1fr)_15rem] sm:p-6">
+          <article className="premium-home-panel grid min-h-[9.75rem] min-w-0 gap-3 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.72fr)] sm:p-6">
             <div className="relative z-10 min-w-0 max-w-md">
-              <h2 className="text-[1.35rem] font-extrabold leading-tight text-[var(--brand-navy)]">
+              <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
                 Güvenli Ödeme Altyapısı
               </h2>
-              <p className="mt-2 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
-                Nakit, IBAN/Havale ve online ödeme yakında tercihleri ödeme takip kaydına bağlanır.
+              <p className="mt-2 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+                Nakit ve IBAN/Havale tercihleri ödeme takip kaydına bağlanır.
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {["Nakit", "IBAN / Havale", "Online ödeme yakında"].map((label) => (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {["Nakit", "IBAN / Havale"].map((label) => (
                   <span
-                    className="inline-flex min-h-10 min-w-0 items-center justify-center rounded-md border border-[rgba(10,37,64,0.08)] bg-white px-3 py-2 text-center text-[0.68rem] font-extrabold leading-4 text-[var(--brand-navy)] shadow-[0_14px_34px_rgba(10,37,64,0.09)]"
+                    className="inline-flex min-h-10 min-w-0 items-center justify-center rounded-md border border-[rgba(10,37,64,0.08)] bg-white px-3 py-2 text-center text-[0.72rem] font-extrabold leading-4 text-[var(--brand-navy)] shadow-[0_14px_34px_rgba(10,37,64,0.09)] [overflow-wrap:anywhere]"
                     key={label}
                   >
                     {label}
@@ -316,7 +328,15 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
                 ))}
               </div>
             </div>
-            <LockPaymentIllustration className="relative min-h-[8.5rem] sm:min-h-full" />
+            <HomeAssetImage
+              alt="Fuwu odeme kilitli kart gorseli"
+              className="relative min-h-[9rem] min-w-0 self-end rounded-md sm:h-full"
+              height={512}
+              imageClassName="object-contain object-center"
+              sizes="(min-width: 1024px) 230px, 72vw"
+              src={homeAssets.payment.lockCard}
+              width={512}
+            />
           </article>
         </div>
       </Container>
