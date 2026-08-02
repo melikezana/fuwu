@@ -13,14 +13,17 @@ type ProviderListProps = {
   categoryDistrictEmptyState?: {
     requestHref: string;
   };
+  hasActiveFilters?: boolean;
   providers: Provider[];
   totalCount: number;
 };
 
 function ProviderEmptyState({
+  hasActiveFilters = false,
   requestHref,
   testId,
 }: {
+  hasActiveFilters?: boolean;
   requestHref: string;
   testId?: string;
 }) {
@@ -36,24 +39,30 @@ function ProviderEmptyState({
         />
       </div>
       <h3 className="text-xl font-bold text-[var(--brand-navy)]">
-        Bu alanda henüz usta yok
+        {hasActiveFilters ? "Bu ölçütlere uygun usta bulunamadı." : "Bu alanda henüz usta yok"}
       </h3>
       <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-        İhtiyacını bırak, uygun usta müsait olduğunda seni bilgilendirelim.
+        {hasActiveFilters
+          ? "Filtreleri temizleyerek daha geniş bir listeye dönebilir veya ihtiyacını talep olarak bırakabilirsin."
+          : "İhtiyacını bırak, uygun usta müsait olduğunda seni bilgilendirelim."}
       </p>
-      <Button
-        className="mt-6 inline-flex"
-        href={requestHref}
-        variant="primary"
-      >
-        Talep Oluştur
-      </Button>
+      <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+        {hasActiveFilters ? (
+          <Button className="inline-flex" href={appRoutes.providers} variant="secondary">
+            Filtreleri Temizle
+          </Button>
+        ) : null}
+        <Button className="inline-flex" href={requestHref} variant="primary">
+          Talep Oluştur
+        </Button>
+      </div>
     </div>
   );
 }
 
 export function ProviderList({
   categoryDistrictEmptyState,
+  hasActiveFilters = false,
   providers,
   totalCount,
 }: ProviderListProps) {
@@ -63,7 +72,9 @@ export function ProviderList({
     hasNoPublicProviders
       ? t("providers.list.noPublic")
       : providers.length > 0
-        ? t("providers.list.count", { count: providers.length })
+        ? providers.length === 1
+          ? "1 uygun usta bulundu"
+          : t("providers.list.count", { count: providers.length })
         : t("providers.list.noMatches");
   const providerGridClassName =
     providers.length === 1 ? "justify-center" : "";
@@ -103,6 +114,7 @@ export function ProviderList({
         </div>
       ) : (
         <ProviderEmptyState
+          hasActiveFilters={hasActiveFilters && !hasNoPublicProviders}
           requestHref={categoryDistrictEmptyState?.requestHref ?? appRoutes.request}
           testId={
             categoryDistrictEmptyState

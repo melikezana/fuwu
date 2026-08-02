@@ -6,6 +6,10 @@ import {
   type ProviderAvailabilityStatus,
 } from "@/lib/constants/statuses";
 import {
+  getServiceCategorySearchValues,
+  getServiceDisplayLabel,
+} from "@/lib/constants/services";
+import {
   getProviderById as getMockProviderById,
   providerAvailabilityOptions,
   providerAveragePrices,
@@ -25,6 +29,11 @@ import {
   getProviderOperationalStatus,
   getProviderTrustBadges,
 } from "@/lib/providers/trust";
+import {
+  filterProvidersByState,
+  getProviderFilterCapabilities,
+  sortProvidersByState,
+} from "@/lib/provider-filters";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import {
@@ -79,6 +88,7 @@ type SupabaseProviderRecord = Pick<
   | "gallery_preview_url"
   | "profile_image_url"
   | "review_count"
+  | "created_at"
 > & {
   availability?: string | null;
   category?: SupabaseNamedRelation | SupabaseNamedRelation[] | null;
@@ -145,6 +155,7 @@ const providerSelectQuery = `
   profile_completion_score,
   gallery_preview_url,
   profile_image_url,
+  created_at,
   category:service_categories(name, slug),
   district:districts(name, slug)
 `;
@@ -161,6 +172,7 @@ const providerSelectQueryWithoutAvailability = `
   average_price_min,
   average_price_max,
   rating,
+  created_at,
   category:service_categories(name, slug),
   district:districts(name, slug)
 `;
@@ -265,12 +277,13 @@ function normalizeResponseTimeMinutes(value: number | null | undefined) {
 }
 
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
-  const category = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
+  const rawCategory = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
+  const category = sanitizeText(getServiceDisplayLabel(rawCategory), 120);
   const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
   const name = sanitizeText(record.name, 120);
   const phone = sanitizePhone(record.phone);
 
-  if (!category || !district || !name || !phone) {
+  if (!rawCategory || !category || !district || !name || !phone) {
     return null;
   }
 
@@ -328,6 +341,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
       phoneVerified: record.phone_verified,
     }),
     completedJobs: 0,
+    createdAt: record.created_at ?? null,
     responseTime: formatProviderResponseTime(responseTimeMinutes),
     responseTimeMinutes,
     reviewCount: Math.max(0, Number(record.review_count ?? 0)),
@@ -417,12 +431,19 @@ function normalizeProviderFilters(filters: ProviderFilters = {}): ProviderFilter
     availability: normalizeOptionalFilterText(filters.availability, 80),
     category: normalizeOptionalFilterText(filters.category),
     district: normalizeOptionalFilterText(filters.district),
+    hasPortfolio: normalizeOptionalFilterText(filters.hasPortfolio, 20),
+    hasPrice: normalizeOptionalFilterText(filters.hasPrice, 40),
+    hasProfileImage: normalizeOptionalFilterText(filters.hasProfileImage, 20),
+    hasReviews: normalizeOptionalFilterText(filters.hasReviews, 20),
     maximumPrice: normalizeOptionalFilterText(filters.maximumPrice, 40),
     minimumPrice: normalizeOptionalFilterText(filters.minimumPrice, 40),
     price: normalizeOptionalFilterText(filters.price, 80),
     budget: normalizeBudgetFilterValue(filters.budget),
     query: normalizeOptionalFilterText(filters.query, 160),
     rating: normalizeOptionalFilterText(filters.rating, 12),
+    responseTime: normalizeOptionalFilterText(filters.responseTime, 40),
+    sort: normalizeOptionalFilterText(filters.sort, 40),
+    verified: normalizeOptionalFilterText(filters.verified, 20),
   };
 }
 
@@ -437,13 +458,20 @@ function matchesExactFilter(providerValue: string, requestedValue: string) {
 }
 
 function matchesCategoryFilter(providerCategory: string, requestedCategory: string) {
-  const providerValue = normalizeFilterValue(providerCategory);
-  const requestedValue = normalizeFilterValue(requestedCategory);
+  const providerValues = getServiceCategorySearchValues(providerCategory);
+  const requestedValues = getServiceCategorySearchValues(requestedCategory);
 
-  return (
-    providerValue === requestedValue ||
-    providerValue.includes(requestedValue) ||
-    requestedValue.includes(providerValue)
+  return providerValues.some((providerValue) =>
+    requestedValues.some((requestedValue) => {
+      const normalizedProviderValue = normalizeFilterValue(providerValue);
+      const normalizedRequestedValue = normalizeFilterValue(requestedValue);
+
+      return (
+        normalizedProviderValue === normalizedRequestedValue ||
+        normalizedProviderValue.includes(normalizedRequestedValue) ||
+        normalizedRequestedValue.includes(normalizedProviderValue)
+      );
+    }),
   );
 }
 
@@ -643,7 +671,7 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
     hasFilterValue(filters.minimumPrice) ||
     hasFilterValue(filters.maximumPrice);
 
-  return providers.filter((provider) => {
+  const primaryFilteredProviders = providers.filter((provider) => {
     const categoryMatches =
       !hasFilterValue(filters.category) ||
       matchesCategoryFilter(provider.category, filters.category ?? "");
@@ -669,6 +697,8 @@ function applyProviderFilters(providers: Provider[], filters: ProviderFilters = 
       queryMatches
     );
   });
+
+  return filterProvidersByState(primaryFilteredProviders, filters);
 }
 
 function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
@@ -680,7 +710,10 @@ function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
       new Set(providers.map((provider) => provider.averagePrice).filter(Boolean)),
     ),
     budgetOptions: providerBudgetOptions.map((option) => option.value),
-    categories: getUniqueSortedOptions(providers.map((provider) => provider.category)),
+    capabilities: getProviderFilterCapabilities(providers),
+    categories: getOrderedCategoryOptions(
+      providers.map((provider) => getServiceDisplayLabel(provider.category)),
+    ),
     districts: getUniqueSortedOptions(
       providers.flatMap((provider) => [provider.district, ...provider.serviceAreas]),
     ),
@@ -692,6 +725,7 @@ function buildFallbackFilterOptions(): ProviderFilterOptions {
     availabilityOptions: [...providerAvailabilityOptions],
     averagePrices: [...providerAveragePrices],
     budgetOptions: providerBudgetOptions.map((option) => option.value),
+    capabilities: getProviderFilterCapabilities(mockProviders),
     categories: [...providerCategories],
     districts: [...providerDistricts],
   };
@@ -709,7 +743,7 @@ function mergeLookupFilterOptions(
     availabilityOptions: providerOptions.availabilityOptions.length
       ? providerOptions.availabilityOptions
       : fallbackOptions.availabilityOptions,
-    categories: getUniqueSortedOptions([...lookups.categories, ...fallbackOptions.categories]),
+    categories: getOrderedCategoryOptions([...lookups.categories, ...fallbackOptions.categories]),
     districts: lookups.districts,
   };
 }
@@ -718,6 +752,20 @@ function getUniqueSortedOptions(values: string[]) {
   return Array.from(new Set(values.filter(Boolean))).sort((firstValue, secondValue) =>
     firstValue.localeCompare(secondValue, "tr"),
   );
+}
+
+function getOrderedCategoryOptions(values: string[]) {
+  const displayValues = Array.from(
+    new Set(values.map((value) => getServiceDisplayLabel(value)).filter(Boolean)),
+  );
+  const preferredValues = providerCategories.filter((category) =>
+    displayValues.some((value) => matchesCategoryFilter(value, category)),
+  );
+  const extraValues = displayValues
+    .filter((value) => !preferredValues.some((category) => matchesCategoryFilter(value, category)))
+    .sort((firstValue, secondValue) => firstValue.localeCompare(secondValue, "tr"));
+
+  return [...preferredValues, ...extraValues];
 }
 
 function warnProviderReadError(error: unknown) {
@@ -774,7 +822,7 @@ async function fetchServiceCategoryFilterOptions(supabase: SupabaseClient<Databa
     throw error;
   }
 
-  return getUniqueSortedOptions((data ?? []).map((record) => record.name));
+  return getOrderedCategoryOptions((data ?? []).map((record) => record.name));
 }
 
 async function fetchDistrictFilterOptions(supabase: SupabaseClient<Database>) {
@@ -985,11 +1033,7 @@ async function fetchProvidersFromSupabase(
       .map((record, index) => mapSupabaseProvider(record, index))
       .filter(isProvider);
 
-    return applyProviderFilters(providers, {
-      availability: filters.availability,
-      budget: filters.budget,
-      query: filters.query,
-    });
+    return applyProviderFilters(providers, filters);
   } catch (error) {
     return handleSupabaseListError(error);
   }
@@ -1107,11 +1151,14 @@ export async function getProviderDirectory(
           districts: fallbackFilterOptions.districts,
         }
       : fallbackFilterOptions;
+  const sortedProviders = sortProvidersByState(filteredProviderResult.providers, safeFilters.sort, {
+    selectedDistrict: safeFilters.district,
+  });
 
   return {
     allProviders,
     filterOptions,
-    providers: filteredProviderResult.providers,
+    providers: sortedProviders,
     source:
       filteredProviderResult.source === "supabase" && allProviderResult.source === "supabase"
         ? "supabase"
@@ -1121,9 +1168,12 @@ export async function getProviderDirectory(
 }
 
 export async function getProviders(filters: ProviderFilters = {}): Promise<Provider[]> {
-  const providerResult = await readProviders(normalizeProviderFilters(filters));
+  const safeFilters = normalizeProviderFilters(filters);
+  const providerResult = await readProviders(safeFilters);
 
-  return providerResult.providers;
+  return sortProvidersByState(providerResult.providers, safeFilters.sort, {
+    selectedDistrict: safeFilters.district,
+  });
 }
 
 export async function getProviderById(id: string): Promise<Provider | undefined> {

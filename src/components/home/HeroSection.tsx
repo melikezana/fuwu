@@ -52,13 +52,13 @@ const sceneNodeClassNames: Partial<Record<ServiceCategoryMapKey, string>> = {
 };
 
 const sceneShortLabels: Partial<Record<ServiceCategoryMapKey, string>> = {
-  "climate-appliance-service": "Klima",
+  "climate-appliance-service": "Beyaz",
   "furniture-assembly": "Mobilya",
   cleaning: "Temizlik",
   electrical: "Elektrik",
   locksmith: "Çilingir",
   painting: "Boya",
-  plumbing: "Su",
+  plumbing: "Tesisat",
 };
 
 function getFallbackNodeClassName(index: number) {

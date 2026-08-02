@@ -29,7 +29,7 @@ const homeServiceCardDetails: Record<
   }
 > = {
   plumbing: {
-    description: "Su kaçağı, gider açma ve musluk değişimi için yakın ustaları karşılaştır.",
+    description: "Su kaçağı, musluk, gider, boru ve tesisat çözümleri için ustaları karşılaştır.",
     trustLine: "Acil ve planlı işler için uygun profiller",
   },
   locksmith: {
@@ -49,7 +49,7 @@ const homeServiceCardDetails: Record<
     trustLine: "İstanbul içi servis seçenekleri",
   },
   "climate-appliance-service": {
-    description: "Klima bakımı, montaj ve beyaz eşya arızaları için servisleri karşılaştır.",
+    description: "Klima, buzdolabı, çamaşır ve bulaşık makinesi için teknik servisleri karşılaştır.",
     trustLine: "Teknik servis profilleri tek ekranda",
   },
   "furniture-assembly": {
@@ -63,6 +63,14 @@ const homeServiceCardDetails: Record<
   "moving-help": {
     description: "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği al.",
     trustLine: "Yakındaki taşıma desteğini filtrele",
+  },
+  "pool-garden": {
+    description: "Bahçe düzenleme, havuz temizliği ve dış mekan bakımını tek ekranda karşılaştır.",
+    trustLine: "Dış mekan bakım profillerini incele",
+  },
+  renovation: {
+    description: "Küçük tadilat, yenileme ve ev iyileştirme işleri için uygun profilleri incele.",
+    trustLine: "Tadilat kapsamını netleştir",
   },
 };
 

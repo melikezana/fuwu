@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/Premium";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/lib/constants/navigation";
+import { defaultProviderSort } from "@/lib/provider-filters";
 import { I18nText } from "@/lib/i18n";
 import {
   createPageMetadata,
@@ -22,16 +23,22 @@ type ProvidersSearchParams = {
   district?: string | string[];
   average_price_max?: string | string[];
   average_price_min?: string | string[];
-  budget?: string | string[];
   maxPrice?: string | string[];
   minPrice?: string | string[];
   price?: string | string[];
   rating?: string | string[];
+  response_time?: string | string[];
+  sort?: string | string[];
   q?: string | string[];
   search?: string | string[];
   availability?: string | string[];
+  portfolio?: string | string[];
+  price_info?: string | string[];
+  profile_image?: string | string[];
+  reviews?: string | string[];
   service?: string | string[];
   location?: string | string[];
+  verified?: string | string[];
 };
 
 type ProvidersPageProps = {
@@ -55,7 +62,13 @@ function createProvidersCanonicalPath(params: {
   price?: string;
   query?: string;
   rating?: string;
-  budget?: string;
+  responseTime?: string;
+  sort?: string;
+  hasPortfolio?: string;
+  hasPrice?: string;
+  hasProfileImage?: string;
+  hasReviews?: string;
+  verified?: string;
 }) {
   const canonicalParams = new URLSearchParams();
 
@@ -83,12 +96,36 @@ function createProvidersCanonicalPath(params: {
     canonicalParams.set("rating", params.rating);
   }
 
-  if (params.budget) {
-    canonicalParams.set("budget", params.budget);
-  }
-
   if (params.availability) {
     canonicalParams.set("availability", params.availability);
+  }
+
+  if (params.verified) {
+    canonicalParams.set("verified", params.verified);
+  }
+
+  if (params.responseTime) {
+    canonicalParams.set("response_time", params.responseTime);
+  }
+
+  if (params.hasPrice) {
+    canonicalParams.set("price_info", params.hasPrice);
+  }
+
+  if (params.hasProfileImage) {
+    canonicalParams.set("profile_image", params.hasProfileImage);
+  }
+
+  if (params.hasPortfolio) {
+    canonicalParams.set("portfolio", params.hasPortfolio);
+  }
+
+  if (params.hasReviews) {
+    canonicalParams.set("reviews", params.hasReviews);
+  }
+
+  if (params.sort && params.sort !== defaultProviderSort) {
+    canonicalParams.set("sort", params.sort);
   }
 
   if (params.query) {
@@ -110,19 +147,31 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
     getSearchParam(params?.average_price_max) || getSearchParam(params?.maxPrice);
   const selectedPrice = getSearchParam(params?.price);
   const selectedRating = getSearchParam(params?.rating);
+  const selectedResponseTime = getSearchParam(params?.response_time);
+  const selectedSort = getSearchParam(params?.sort);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
-  const selectedBudget = getSearchParam(params?.budget);
+  const selectedHasPortfolio = getSearchParam(params?.portfolio);
+  const selectedHasPrice = getSearchParam(params?.price_info);
+  const selectedHasProfileImage = getSearchParam(params?.profile_image);
+  const selectedHasReviews = getSearchParam(params?.reviews);
+  const selectedVerified = getSearchParam(params?.verified);
   const areaLabel = selectedDistrict ? toTurkishTitleCase(selectedDistrict) : "İstanbul";
   const categoryLabel = selectedCategory ? getProviderListingLabel(selectedCategory) : "";
   const hasGranularFilters = Boolean(
     selectedAvailability ||
-      selectedBudget ||
       selectedMaximumPrice ||
       selectedMinimumPrice ||
       selectedPrice ||
+      selectedHasPortfolio ||
+      selectedHasPrice ||
+      selectedHasProfileImage ||
+      selectedHasReviews ||
       selectedQuery ||
-      selectedRating,
+      selectedRating ||
+      selectedResponseTime ||
+      selectedVerified ||
+      (selectedSort && selectedSort !== defaultProviderSort),
   );
   const title = selectedCategory
     ? `${areaLabel} ${categoryLabel} | Fuwu`
@@ -145,7 +194,13 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
       price: selectedPrice,
       query: selectedQuery,
       rating: selectedRating,
-      budget: selectedBudget,
+      responseTime: selectedResponseTime,
+      sort: selectedSort,
+      hasPortfolio: selectedHasPortfolio,
+      hasPrice: selectedHasPrice,
+      hasProfileImage: selectedHasProfileImage,
+      hasReviews: selectedHasReviews,
+      verified: selectedVerified,
     }),
     keywords: [
       selectedCategory,
@@ -169,9 +224,15 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     getSearchParam(params?.average_price_max) || getSearchParam(params?.maxPrice);
   const selectedPrice = getSearchParam(params?.price);
   const selectedRating = getSearchParam(params?.rating);
+  const selectedResponseTime = getSearchParam(params?.response_time);
+  const selectedSort = getSearchParam(params?.sort);
   const selectedQuery = getSearchParam(params?.q) || getSearchParam(params?.search);
   const selectedAvailability = getSearchParam(params?.availability);
-  const selectedBudget = getSearchParam(params?.budget);
+  const selectedHasPortfolio = getSearchParam(params?.portfolio);
+  const selectedHasPrice = getSearchParam(params?.price_info);
+  const selectedHasProfileImage = getSearchParam(params?.profile_image);
+  const selectedHasReviews = getSearchParam(params?.reviews);
+  const selectedVerified = getSearchParam(params?.verified);
   const providerDirectory = await getProviderDirectory({
     availability: selectedAvailability,
     category: selectedCategory,
@@ -181,7 +242,13 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     price: selectedPrice,
     query: selectedQuery,
     rating: selectedRating,
-    budget: selectedBudget,
+    responseTime: selectedResponseTime,
+    sort: selectedSort,
+    hasPortfolio: selectedHasPortfolio,
+    hasPrice: selectedHasPrice,
+    hasProfileImage: selectedHasProfileImage,
+    hasReviews: selectedHasReviews,
+    verified: selectedVerified,
   });
   const { filterOptions, providers: filteredProviders, source } = providerDirectory;
   const categoryDistrictEmptyState =
@@ -195,14 +262,19 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       : undefined;
   const activeFilterCount = [
     selectedAvailability,
-    selectedBudget,
     selectedCategory,
     selectedDistrict,
+    selectedHasPortfolio,
+    selectedHasPrice,
+    selectedHasProfileImage,
+    selectedHasReviews,
     selectedMaximumPrice,
     selectedMinimumPrice,
     selectedPrice,
     selectedQuery,
     selectedRating,
+    selectedResponseTime,
+    selectedVerified,
   ].filter(Boolean).length;
 
   return (
@@ -262,6 +334,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           <ProviderFilters
             availabilityOptions={filterOptions.availabilityOptions}
             averagePrices={filterOptions.averagePrices}
+            capabilities={filterOptions.capabilities}
             categories={filterOptions.categories}
             districts={filterOptions.districts}
             values={{
@@ -271,10 +344,17 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
               maximumPrice: selectedMaximumPrice,
               minimumPrice: selectedMinimumPrice,
               price: selectedPrice,
-              budget: selectedBudget,
               query: selectedQuery,
               rating: selectedRating,
+              responseTime: selectedResponseTime,
+              sort: selectedSort,
+              hasPortfolio: selectedHasPortfolio,
+              hasPrice: selectedHasPrice,
+              hasProfileImage: selectedHasProfileImage,
+              hasReviews: selectedHasReviews,
+              verified: selectedVerified,
             }}
+            resultCount={filteredProviders.length}
           />
           <LazyVoiceCommandButton
             categories={filterOptions.categories}
@@ -287,6 +367,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
         <ProviderList
           categoryDistrictEmptyState={categoryDistrictEmptyState}
+          hasActiveFilters={activeFilterCount > 0 || Boolean(selectedSort && selectedSort !== defaultProviderSort)}
           providers={filteredProviders}
           totalCount={providerDirectory.totalCount}
         />

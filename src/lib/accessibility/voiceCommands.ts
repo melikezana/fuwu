@@ -1,5 +1,6 @@
 import { normalizeServiceValue, services } from "@/lib/constants/services";
 import { providerDistricts } from "@/lib/constants/providers";
+import type { ProviderSortValue } from "@/lib/provider-filters";
 export {
   getProviderSpeechSummary,
   readProviderSummaries,
@@ -28,6 +29,18 @@ export type VoiceCommandIntent =
     }
   | {
       type: "show-providers";
+      spokenText: string;
+    }
+  | {
+      category?: string;
+      district?: string;
+      sort?: ProviderSortValue;
+      spokenText: string;
+      type: "provider-filters";
+      verified?: boolean;
+    }
+  | {
+      type: "proximity-unavailable";
       spokenText: string;
     }
   | {
@@ -88,12 +101,17 @@ const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
     ],
   },
   {
-    values: ["Klima & Beyaz Eşya"],
+    values: ["Beyaz Eşya"],
     aliases: ["klima", "beyaz eşya", "beyaz esya", "teknik servis"],
   },
-  { values: ["Mobilya Montaj"], aliases: ["mobilya", "montaj", "mobilya montaj"] },
+  { values: ["Mobilya Montajı"], aliases: ["mobilya", "montaj", "mobilya montaj"] },
   { values: ["Boya Badana"], aliases: ["boya", "badana", "boyacı", "boyaci"] },
-  { values: ["Nakliye Yardımı"], aliases: ["nakliye", "taşıma", "tasima"] },
+  { values: ["Nakliye"], aliases: ["nakliye", "taşıma", "tasima"] },
+  {
+    values: ["Havuz ve Bahçe Bakımı"],
+    aliases: ["bahçe", "bahce", "havuz", "peyzaj", "dış mekan", "dis mekan"],
+  },
+  { values: ["Ev Tadilatı"], aliases: ["tadilat", "ev tadilatı", "ev tadilati"] },
 ];
 
 function normalizeVoiceText(value: string) {
@@ -213,6 +231,55 @@ export function interpretVoiceCommand(
 
   const categoryMatch = getCategoryMatch(normalizedText, options.categories);
   const districtMatch = getDistrictMatch(normalizedText, options.districts);
+  const wantsVerified = includesAny(normalizedText, [
+    "doğrulanmış",
+    "dogrulanmis",
+    "onaylı",
+    "onayli",
+  ]);
+  const wantsHighestRated = includesAny(normalizedText, [
+    "en yüksek puan",
+    "en yuksek puan",
+    "yüksek puanlı",
+    "yuksek puanli",
+    "puanlı",
+    "puanli",
+  ]);
+  const wantsFastestResponse = includesAny(normalizedText, [
+    "en hızlı yanıt",
+    "en hizli yanit",
+    "hızlı yanıt",
+    "hizli yanit",
+    "hızlı dönüş",
+    "hizli donus",
+  ]);
+  const wantsProximity = includesAny(normalizedText, [
+    "yakınımdaki",
+    "yakinimdaki",
+    "en yakın",
+    "en yakin",
+    "yakındaki",
+    "yakindaki",
+  ]);
+
+  if (wantsProximity) {
+    return { type: "proximity-unavailable", spokenText };
+  }
+
+  if (wantsVerified || wantsHighestRated || wantsFastestResponse) {
+    return {
+      category: categoryMatch ?? undefined,
+      district: districtMatch ?? undefined,
+      sort: wantsHighestRated
+        ? "rating_desc"
+        : wantsFastestResponse
+          ? "response_time_asc"
+          : undefined,
+      type: "provider-filters",
+      verified: wantsVerified || undefined,
+      spokenText,
+    };
+  }
 
   if (categoryMatch && districtMatch) {
     return {
@@ -244,11 +311,10 @@ export function interpretVoiceCommand(
 
 export function getKnownVoiceCommandExamples() {
   return [
-    "tesisat ara",
-    "elektrik ara",
-    "temizlik ara",
+    "Kadıköy’de tesisat ustası bul",
+    "En yüksek puanlı elektrikçileri göster",
+    "Doğrulanmış ustaları listele",
     "acil usta çağır",
-    "Kadıköy ustaları",
     "Sarıyer tesisat",
     "profilleri oku",
     "sıfırla",

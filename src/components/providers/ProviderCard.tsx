@@ -19,7 +19,10 @@ import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges"
 import { Button } from "@/components/ui/Button";
 import { ThreeDIcon } from "@/components/ui/ThreeDIcon";
 import { appRoutes } from "@/lib/constants/navigation";
-import { getServiceIconNameForCategory } from "@/lib/constants/services";
+import {
+  getServiceFilterValue,
+  getServiceIconNameForCategory,
+} from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { Provider } from "@/types/provider";
@@ -38,7 +41,7 @@ function createProviderFilterHref(
   value: string,
 ) {
   const nextParams = new URLSearchParams(searchParams.toString());
-  nextParams.set(filterName, value);
+  nextParams.set(filterName, filterName === "category" ? getServiceFilterValue(value) : value);
   if (filterName === "category") nextParams.delete("service");
   if (filterName === "district") nextParams.delete("location");
   return `${appRoutes.providers}?${nextParams.toString()}`;

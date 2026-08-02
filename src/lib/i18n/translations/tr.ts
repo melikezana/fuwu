@@ -22,9 +22,9 @@ export const trTranslations = {
   "cta.goToSection": "Bölüme git",
   "filters.title": "Usta arama filtreleri",
   "filters.description":
-    "Hizmetini ve ilçeni seç; bütçe tercihi, puan ve uygunluğa göre profilleri daralt.",
+    "Hizmetini ve ilçeni seç; doğrulama, puan, uygunluk ve gerçek profil verilerine göre profilleri daralt.",
   "filters.search": "Arama",
-  "filters.service": "Kategori",
+  "filters.service": "Hizmet",
   "filters.district": "İlçe",
   "filters.minimumPrice": "Minimum Fiyat",
   "filters.maximumPrice": "Maksimum Fiyat",
@@ -32,7 +32,7 @@ export const trTranslations = {
   "filters.pricePreset": "Hazır fiyat aralığı",
   "filters.availability": "Uygunluk",
   "filters.allServices": "Tüm hizmetler",
-  "filters.allCategories": "Tüm kategoriler",
+  "filters.allCategories": "Tüm hizmetler",
   "filters.allDistricts": "Tüm ilçeler",
   "filters.allRatings": "Tüm puanlar",
   "filters.allPrices": "Tüm fiyatlar",
@@ -115,8 +115,8 @@ export const trTranslations = {
   "providers.summary.districts": "ilçe",
   "providers.list.eyebrow": "Sana uygun ustalar",
   "providers.list.noPublic": "Henüz yayında usta bulunmuyor",
-  "providers.list.count": "{count} usta listelendi",
-  "providers.list.noMatches": "Filtrelerine uygun usta bulunamadı",
+  "providers.list.count": "{count} uygun usta bulundu",
+  "providers.list.noMatches": "Bu ölçütlere uygun usta bulunamadı.",
   "providers.list.description":
     "İstanbul genelinde {count} aktif profil arasından puan, fiyat ve uygunlukla karşılaştırabileceğin sonuçlar.",
   "providers.empty.noPublicTitle": "Henüz yayında usta bulunmuyor.",
@@ -336,7 +336,8 @@ export const trTranslations = {
   "policy.cookies.title": "Çerez Politikası",
   "policy.cookies.description":
     "Fuwu’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme.",
-  "voice.examples": "Örnek komutlar: {examples}.",
+  "voice.examples":
+    "Şöyle söyleyebilirsin: ‘Kadıköy’de tesisat ustası bul’, ‘En yüksek puanlı elektrikçileri göster’ veya ‘Doğrulanmış ustaları listele’.",
   "voice.button.start": "Sesli Komut",
   "voice.button.listening": "Dinleniyor…",
   "voice.button.stop": "Durdur",
@@ -351,6 +352,12 @@ export const trTranslations = {
   "voice.districtOpening": "{value} ustaları açılıyor.",
   "voice.emergencyOpening": "Acil usta çağırma ekranı açılıyor.",
   "voice.providersOpening": "Usta listesi açılıyor.",
+  "voice.filtersOpening": "Filtrelenmiş usta listesi açılıyor.",
+  "voice.proximityUnavailable":
+    "Yakınlık sıralaması için konum verisi henüz yok. İlçe seçerek ustaları daraltabilirsin.",
+  "voice.ratingUnavailable": "Puan verisi olan profil bulunmadığı için puan sıralaması açılamıyor.",
+  "voice.responseTimeUnavailable":
+    "Yanıt süresi verisi olan profil bulunmadığı için hızlı yanıt sıralaması açılamıyor.",
   "voice.whatsappFocused": "İlk WhatsApp düğmesi odaklandı. Açmak için Enter tuşuna basabilirsin.",
   "voice.whatsappMissing": "Bu listede WhatsApp düğmesi bulunamadı.",
   "voice.unsupported": "Tarayıcınız sesli komutu desteklemiyor.",
@@ -362,7 +369,7 @@ export const trTranslations = {
   "voice.reset": "Sesli komut sıfırlandı.",
   "voice.startFailed": "Sesli komut başlatılamadı. Biraz sonra tekrar deneyebilirsin.",
   "voice.unknown":
-    "Komutu anlayamadık. Örneğin: tesisat ara.",
+    "Komutu anlayamadık. Örneğin: Kadıköy’de tesisat ustası bul.",
   "voice.readUnsupported": "Bu tarayıcı sesli okumayı desteklemiyor.",
   "voice.readEmpty": "Sesli okunacak profil bulunamadı.",
   "voice.readingLimited": "İlk 6 profil sesli okunuyor.",
@@ -394,7 +401,7 @@ export const trTranslations = {
   "footer.tagline": "Ustaya ulaşmanın en hızlı yolu.",
   "services.plumbing.title": "Tesisat",
   "services.plumbing.description":
-    "Su kaçağı, gider açma ve musluk değişimi için yakındaki tesisatçıları karşılaştır.",
+    "Su kaçağı, musluk, gider, boru ve tesisat çözümleri.",
   "services.electrical.title": "Elektrik",
   "services.electrical.description":
     "Priz, aydınlatma, sigorta ve arıza tespitinde güvenilir elektrik ustalarını gör.",
@@ -404,27 +411,30 @@ export const trTranslations = {
   "services.carpet-cleaning.title": "Halı Yıkama",
   "services.carpet-cleaning.description":
     "Halı yıkama, teslim alma ve leke çıkarma için uygun profilleri karşılaştır.",
-  "services.climate-appliance-service.title": "Klima & Beyaz Eşya",
+  "services.climate-appliance-service.title": "Beyaz Eşya",
   "services.climate-appliance-service.description":
-    "Klima bakımı, montajı ve beyaz eşya arızaları için uygun teknik servisleri karşılaştır.",
-  "services.furniture-assembly.title": "Mobilya Montaj",
+    "Klima, buzdolabı, çamaşır ve bulaşık makinesi için teknik servis.",
+  "services.furniture-assembly.title": "Mobilya Montajı",
   "services.furniture-assembly.description":
     "Dolap, yatak, masa ve raf montajında deneyimli ustalara hemen ulaş.",
   "services.painting.title": "Boya Badana",
   "services.painting.description":
     "Boya badana, rötuş ve yüzey hazırlığı için fiyat aralığını gör, usta seç.",
-  "services.moving-help.title": "Nakliye Yardımı",
+  "services.moving-help.title": "Nakliye",
   "services.moving-help.description":
     "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği için usta bul.",
   "services.locksmith.title": "Çilingir",
   "services.locksmith.description":
     "Kapıda kalma, kilit değiştirme ve oto çilingir ihtiyaçları için hemen usta bul.",
-  "services.garden.title": "Bahçe Bakımı",
+  "services.garden.title": "Havuz ve Bahçe Bakımı",
   "services.garden.description":
-    "Bahçe düzenleme, bakım ve temizlik",
-  "services.pool.title": "Havuz Bakımı",
+    "Bahçe düzenleme, havuz temizliği ve dış mekan bakımı için uygun ustaları karşılaştır.",
+  "services.pool.title": "Havuz ve Bahçe Bakımı",
   "services.pool.description":
-    "Havuz temizlik, bakım ve kontrol",
+    "Bahçe düzenleme, havuz temizliği ve dış mekan bakımı için uygun ustaları karşılaştır.",
+  "services.renovation.title": "Ev Tadilatı",
+  "services.renovation.description":
+    "Küçük tadilat, yenileme ve ev iyileştirme işleri için uygun profilleri incele.",
 } as const;
 
 export type TranslationDictionary = Record<keyof typeof trTranslations, string>;

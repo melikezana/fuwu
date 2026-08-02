@@ -73,6 +73,29 @@ function createProviderCombinedQuery(category: string, district: string) {
   return `${appRoutes.providers}?${params.toString()}`;
 }
 
+function createProviderFilteredQuery({
+  category,
+  district,
+  sort,
+  verified,
+}: {
+  category?: string;
+  district?: string;
+  sort?: string;
+  verified?: boolean;
+}) {
+  const params = new URLSearchParams();
+
+  if (category) params.set("category", category);
+  if (district) params.set("district", district);
+  if (sort) params.set("sort", sort);
+  if (verified) params.set("verified", "true");
+
+  const queryString = params.toString();
+
+  return queryString ? `${appRoutes.providers}?${queryString}` : appRoutes.providers;
+}
+
 function focusFirstWhatsAppLink() {
   const link = document.querySelector<HTMLAnchorElement>("[data-provider-whatsapp='true']");
 
@@ -160,6 +183,47 @@ export function VoiceCommandButton({
       trackVoiceCommandUsage({ action: "district", matched: true });
       setStatusMessage(t("voice.districtOpening", { value: command.value }));
       router.push(createProviderQuery("district", command.value));
+      return;
+    }
+
+    if (command.type === "provider-filters") {
+      const hasRatingData = providers.some(
+        (provider) => Number.isFinite(provider.rating) && provider.rating > 0,
+      );
+      const hasResponseTimeData = providers.some(
+        (provider) =>
+          typeof provider.responseTimeMinutes === "number" &&
+          Number.isFinite(provider.responseTimeMinutes),
+      );
+
+      if (command.sort === "rating_desc" && !hasRatingData) {
+        trackVoiceCommandUsage({ action: "provider-filters", matched: false });
+        setStatusMessage(t("voice.ratingUnavailable"));
+        return;
+      }
+
+      if (command.sort === "response_time_asc" && !hasResponseTimeData) {
+        trackVoiceCommandUsage({ action: "provider-filters", matched: false });
+        setStatusMessage(t("voice.responseTimeUnavailable"));
+        return;
+      }
+
+      trackVoiceCommandUsage({ action: "provider-filters", matched: true });
+      setStatusMessage(t("voice.filtersOpening"));
+      router.push(
+        createProviderFilteredQuery({
+          category: command.category,
+          district: command.district,
+          sort: command.sort,
+          verified: command.verified,
+        }),
+      );
+      return;
+    }
+
+    if (command.type === "proximity-unavailable") {
+      trackVoiceCommandUsage({ action: "proximity-unavailable", matched: false });
+      setStatusMessage(t("voice.proximityUnavailable"));
       return;
     }
 

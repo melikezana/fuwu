@@ -1,4 +1,5 @@
 import type { ProviderAvailabilityStatus } from "@/lib/constants/statuses";
+import type { ProviderFilterCapabilities } from "@/lib/provider-filters";
 import type {
   ProviderOperationalStatus,
   ProviderTrustBadge,
@@ -29,6 +30,7 @@ export type Provider = {
   servicesOffered: string[];
   trustBadges: ProviderTrustBadge[];
   completedJobs: number;
+  createdAt?: string | null;
   responseTime: string;
   responseTimeMinutes?: number | null;
   reviewCount: number;
@@ -53,7 +55,14 @@ export type ProviderFilters = {
   rating?: string;
   availability?: string;
   budget?: string;
+  hasPortfolio?: string;
+  hasPrice?: string;
+  hasProfileImage?: string;
+  hasReviews?: string;
   query?: string;
+  responseTime?: string;
+  sort?: string;
+  verified?: string;
 };
 
 export type ProviderFilterOptions = {
@@ -61,6 +70,7 @@ export type ProviderFilterOptions = {
   averagePrices: string[];
   budgetOptions: string[];
   categories: string[];
+  capabilities: ProviderFilterCapabilities;
   districts: string[];
 };
 

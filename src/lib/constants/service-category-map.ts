@@ -11,6 +11,8 @@ export const serviceCategoryIds = [
   "furniture-assembly",
   "painting",
   "moving-help",
+  "pool-garden",
+  "renovation",
 ] as const;
 
 export const sceneServiceIds = [
@@ -71,6 +73,8 @@ export const serviceCategoryMap = {
   "furniture-assembly": createServiceTarget("furniture-assembly"),
   painting: createServiceTarget("painting"),
   "moving-help": createServiceTarget("moving-help"),
+  "pool-garden": createServiceTarget("pool-garden"),
+  renovation: createServiceTarget("renovation"),
   "all-services": {
     ctaLabel: "Ustaları Gör",
     description: "Fuwu'daki tüm aktif hizmet kategorilerini ve ustaları keşfet.",

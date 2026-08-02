@@ -8,6 +8,8 @@ export const homePopularServiceIds = [
   "furniture-assembly",
   "moving-help",
   "carpet-cleaning",
+  "pool-garden",
+  "renovation",
 ] as const;
 
 export const homeCopy = {

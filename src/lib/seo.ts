@@ -86,20 +86,28 @@ const categoryLabels: Record<string, { listing: string; profession: string }> = 
     profession: "Halı Yıkama Hizmeti",
   },
   "klima beyaz esya": {
-    listing: "Klima ve Beyaz Eşya Servisleri",
-    profession: "Klima ve Beyaz Eşya Servisi",
+    listing: "Beyaz Eşya Servisleri",
+    profession: "Beyaz Eşya Servisi",
+  },
+  "beyaz esya": {
+    listing: "Beyaz Eşya Servisleri",
+    profession: "Beyaz Eşya Servisi",
   },
   "mobilya montaj": {
-    listing: "Mobilya Montaj Ustaları",
-    profession: "Mobilya Montaj Ustası",
+    listing: "Mobilya Montajı Ustaları",
+    profession: "Mobilya Montajı Ustası",
   },
   "boya badana": {
     listing: "Boya Badana Ustaları",
     profession: "Boyacı",
   },
   "nakliye yardimi": {
-    listing: "Nakliye Yardımı Ustaları",
-    profession: "Nakliye Yardımı",
+    listing: "Nakliye Ustaları",
+    profession: "Nakliye Ustası",
+  },
+  nakliye: {
+    listing: "Nakliye Ustaları",
+    profession: "Nakliye Ustası",
   },
   tamir: {
     listing: "Tamir Ustaları",
@@ -116,6 +124,14 @@ const categoryLabels: Record<string, { listing: string; profession: string }> = 
   "havuz bakimi": {
     listing: "Havuz Bakımı Hizmetleri",
     profession: "Havuz Bakımı Ustası",
+  },
+  "havuz bahce bakimi": {
+    listing: "Havuz ve Bahçe Bakımı Hizmetleri",
+    profession: "Havuz ve Bahçe Bakımı Ustası",
+  },
+  "ev tadilati": {
+    listing: "Ev Tadilatı Ustaları",
+    profession: "Ev Tadilatı Ustası",
   },
 };
 

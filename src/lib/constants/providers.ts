@@ -56,8 +56,7 @@ export const providers: Provider[] = [
 ];
 
 export const providerCategories = services
-  .map((service) => service.title)
-  .sort((firstCategory, secondCategory) => firstCategory.localeCompare(secondCategory, "tr"));
+  .map((service) => service.title);
 
 export const istanbulDistricts = [
   "Adalar",
