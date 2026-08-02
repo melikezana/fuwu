@@ -1,22 +1,30 @@
 "use client";
 
+import { Clone, OrbitControls, useGLTF } from "@react-three/drei";
+import { Canvas, useThree } from "@react-three/fiber";
 import Link from "next/link";
-import { BadgeCheck, MousePointerClick, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { BadgeCheck, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { motion, useReducedMotion as useMotionReducedMotion } from "framer-motion";
-import { useMemo, useState } from "react";
-import { HomeAssetImage } from "@/components/home/HomeAssetImage";
+import {
+  Component,
+  Suspense,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
+import { Box3, Vector3, type Group, type PerspectiveCamera } from "three";
 import { HeroSearch } from "@/components/home/HeroSearch";
-import { SceneServiceLinks } from "@/components/home/SceneServiceLinks";
-import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Container } from "@/components/ui/Container";
 import { homeCopy } from "@/lib/constants/home";
 import {
-  getServiceCategoryTarget,
   sceneServiceTargets,
   type ServiceCategoryMapKey,
   type ServiceCategoryTarget,
 } from "@/lib/constants/service-category-map";
-import { homeAssets } from "@/lib/home-assets";
 import { cn } from "@/lib/utils";
 
 type HeroSectionProps = {
@@ -25,15 +33,22 @@ type HeroSectionProps = {
 };
 
 const trustIcons = [ShieldCheck, Star, BadgeCheck] as const;
+const houseModelPath = "/models/house/fuwu-house.glb";
+const houseModelTargetSize = 4.8;
+
+type OrbitControlsHandle = {
+  target: Vector3;
+  update: () => void;
+};
 
 const sceneNodeClassNames: Partial<Record<ServiceCategoryMapKey, string>> = {
-  "climate-appliance-service": "right-[6%] top-[13%]",
-  "furniture-assembly": "right-[0%] top-[58%]",
-  cleaning: "left-[13%] top-[61%]",
-  electrical: "left-[10%] top-[13%]",
-  locksmith: "left-[43%] top-[73%]",
-  painting: "right-[0%] top-[37%]",
-  plumbing: "left-[4%] top-[37%]",
+  "climate-appliance-service": "right-[4%] top-[12%] sm:right-[6%] sm:top-[13%]",
+  "furniture-assembly": "right-[2%] top-[59%] sm:right-[0%] sm:top-[58%]",
+  cleaning: "left-[7%] top-[63%] sm:left-[13%] sm:top-[61%]",
+  electrical: "left-[4%] top-[16%] sm:left-[10%] sm:top-[13%]",
+  locksmith: "left-[42%] top-[74%] sm:left-[43%] sm:top-[73%]",
+  painting: "right-[2%] top-[38%] sm:right-[0%] sm:top-[37%]",
+  plumbing: "left-[3%] top-[40%] sm:left-[4%] sm:top-[37%]",
 };
 
 const sceneShortLabels: Partial<Record<ServiceCategoryMapKey, string>> = {
@@ -46,55 +61,18 @@ const sceneShortLabels: Partial<Record<ServiceCategoryMapKey, string>> = {
   plumbing: "Su",
 };
 
-const sceneLineCoordinates: Partial<Record<ServiceCategoryMapKey, [number, number, number, number]>> = {
-  "climate-appliance-service": [76, 19, 60, 31],
-  "furniture-assembly": [88, 63, 65, 55],
-  cleaning: [25, 66, 45, 56],
-  electrical: [20, 20, 42, 31],
-  locksmith: [52, 77, 53, 59],
-  painting: [88, 43, 65, 45],
-  plumbing: [17, 43, 39, 45],
-};
-
-const heroVisualAssets = [
-  {
-    className: "left-[9%] top-[18%] h-[28%] w-[26%]",
-    src: homeAssets.categories.electrical,
-  },
-  {
-    className: "right-[10%] top-[14%] h-[29%] w-[27%]",
-    src: homeAssets.categories.ac,
-  },
-  {
-    className: "left-[13%] bottom-[17%] h-[31%] w-[29%]",
-    src: homeAssets.categories.cleaning,
-  },
-  {
-    className: "right-[8%] bottom-[15%] h-[31%] w-[30%]",
-    src: homeAssets.categories.plumbing,
-  },
-  {
-    className: "left-[38%] top-[26%] h-[28%] w-[25%]",
-    src: homeAssets.categories.locksmith,
-  },
-  {
-    className: "left-[38%] bottom-[10%] h-[28%] w-[26%]",
-    src: homeAssets.categories.painting,
-  },
-] as const;
-
 function getFallbackNodeClassName(index: number) {
   const fallbackClassNames = [
-    "left-[12%] top-[14%]",
-    "left-[8%] top-[36%]",
-    "left-[20%] top-[58%]",
-    "right-[14%] top-[13%]",
-    "right-[2%] top-[36%]",
-    "right-[2%] top-[58%]",
-    "left-[45%] top-[70%]",
+    "left-[8%] top-[14%]",
+    "left-[5%] top-[38%]",
+    "left-[12%] top-[62%]",
+    "right-[12%] top-[13%]",
+    "right-[3%] top-[38%]",
+    "right-[3%] top-[62%]",
+    "left-[42%] top-[74%]",
   ];
 
-  return fallbackClassNames[index] ?? "left-[45%] top-[70%]";
+  return fallbackClassNames[index] ?? "left-[42%] top-[74%]";
 }
 
 function SceneNode({
@@ -112,7 +90,7 @@ function SceneNode({
     <Link
       aria-label={`${target.label} ustalarını gör`}
       className={cn(
-        "home-scene-node group absolute z-30 hidden min-h-[3.4rem] max-w-[11rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 p-1.5 pr-3 text-xs font-extrabold text-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_24px_54px_rgba(10,37,64,0.17)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:inline-flex",
+        "home-scene-node group absolute z-30 inline-flex min-h-10 max-w-[8.5rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 px-3 py-2 text-[0.72rem] font-extrabold text-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_24px_54px_rgba(10,37,64,0.17)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:max-w-[12rem] sm:px-4 sm:text-xs",
         sceneNodeClassNames[target.id] ?? getFallbackNodeClassName(index),
         isActive ? "border-[rgba(255,101,0,0.54)] bg-white shadow-[0_28px_70px_rgba(10,37,64,0.18)]" : "",
       )}
@@ -123,112 +101,190 @@ function SceneNode({
       style={{ animationDelay: `${index * 110}ms` }}
     >
       <span
+        aria-hidden="true"
         className={cn(
-          "grid size-11 shrink-0 place-items-center rounded-full border border-[rgba(10,37,64,0.08)] bg-white text-[var(--brand-orange)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_12px_26px_rgba(10,37,64,0.13)] transition-transform duration-300 group-hover:scale-105",
-          isActive ? "scale-105 ring-4 ring-[rgba(255,101,0,0.14)]" : "",
+          "size-2.5 shrink-0 rounded-full bg-[var(--brand-orange)] shadow-[0_0_0_5px_rgba(255,101,0,0.13)] transition-transform duration-300 group-hover:scale-110",
+          isActive ? "scale-110 shadow-[0_0_0_6px_rgba(255,101,0,0.2)]" : "",
         )}
-      >
-        <ServiceIcon className="size-6" name={target.iconName ?? "wrench"} />
-      </span>
-      <span className="max-w-[8rem] truncate">{target.label}</span>
+      />
+      <span className="min-w-0 truncate sm:hidden">{sceneShortLabels[target.id] ?? target.label}</span>
+      <span className="hidden min-w-0 truncate sm:inline">{target.label}</span>
     </Link>
   );
 }
 
-function SceneConnectorLines({ activeServiceId }: { activeServiceId: ServiceCategoryMapKey }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full overflow-visible sm:block"
-      preserveAspectRatio="none"
-      viewBox="0 0 100 82"
-    >
-      {sceneServiceTargets.map((target) => {
-        const coordinates = sceneLineCoordinates[target.id];
-
-        if (!coordinates) {
-          return null;
-        }
-
-        const [x1, y1, x2, y2] = coordinates;
-        const isActive = activeServiceId === target.id;
-
-        return (
-          <line
-            key={target.id}
-            stroke={isActive ? "rgba(255,101,0,0.54)" : "rgba(10,37,64,0.16)"}
-            strokeLinecap="round"
-            strokeWidth={isActive ? 0.34 : 0.22}
-            vectorEffect="non-scaling-stroke"
-            x1={x1}
-            x2={x2}
-            y1={y1}
-            y2={y2}
-          />
-        );
-      })}
-    </svg>
-  );
-}
-
-function SceneInfoCard({ target }: { target: ServiceCategoryTarget }) {
-  return (
-    <div className="absolute inset-x-5 bottom-[7%] z-40 rounded-lg border border-white/10 bg-[rgba(10,37,64,0.92)] p-4 text-white shadow-[0_26px_70px_rgba(10,37,64,0.24)] backdrop-blur-xl sm:inset-x-auto sm:bottom-[10%] sm:right-[23%] sm:w-[17rem]">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-extrabold leading-6 text-white">{target.label}</h3>
-          <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-white/76">
-            {target.description}
-          </p>
-        </div>
-        <ServiceIcon
-          className="size-5 shrink-0 text-[var(--brand-orange)]"
-          name={target.iconName ?? "wrench"}
-        />
-      </div>
-      <Link
-        className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-[var(--brand-orange)] px-4 text-xs font-extrabold text-white shadow-[var(--shadow-action)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-        href={target.href}
-      >
-        {target.ctaLabel}
-      </Link>
-    </div>
-  );
-}
-
-function HeroStaticHomeVisual() {
+function HeroModelLoadingFallback() {
   return (
     <div
-      aria-label="Fuwu hizmet kategorileri görseli"
-      className="relative h-full min-h-[320px] w-full select-none overflow-hidden"
-      role="img"
+      aria-hidden="true"
+      className="absolute inset-x-[9%] bottom-[13%] top-[4%] z-10 overflow-hidden rounded-[2rem] border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.72),rgba(255,246,238,0.54))] shadow-[0_32px_90px_rgba(10,37,64,0.12)]"
     >
-      <span className="absolute inset-x-[10%] bottom-[8%] h-[30%] rounded-[50%] bg-white shadow-[0_34px_88px_rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.06)]" />
-      <span className="absolute left-1/2 top-[14%] h-[65%] w-[64%] -translate-x-1/2 rounded-[1.75rem] border border-white bg-[linear-gradient(145deg,#ffffff_0%,#f8fafc_60%,#fff4ea_100%)] shadow-[0_34px_88px_rgba(10,37,64,0.13)] ring-1 ring-[rgba(10,37,64,0.06)]" />
-      <span className="absolute left-1/2 top-[5%] h-[18%] w-[70%] -translate-x-1/2 skew-x-[-15deg] rounded-t-[1.75rem] bg-[linear-gradient(135deg,#07182f_0%,#0a2540_72%,#183b63_100%)] shadow-[0_20px_52px_rgba(10,37,64,0.18)]" />
-      <span className="absolute left-[58%] top-[1%] h-[15%] w-[7%] rounded-sm bg-[linear-gradient(180deg,#ffffff_0%,#dde5ee_100%)] shadow-[0_10px_24px_rgba(10,37,64,0.12)]" />
-      {heroVisualAssets.map((asset) => (
-        <span className={cn("absolute z-20", asset.className)} key={asset.className}>
-          <HomeAssetImage
-            alt=""
-            className="h-full w-full rounded-md"
-            height={512}
-            imageClassName="object-contain object-center"
-            priority
-            sizes="(min-width: 1024px) 180px, 28vw"
-            src={asset.src}
-            width={512}
-          />
-        </span>
-      ))}
+      <span className="absolute inset-x-[18%] bottom-[18%] h-[27%] rounded-[50%] bg-white/90 shadow-[0_34px_86px_rgba(10,37,64,0.12)]" />
+      <span className="absolute left-1/2 top-[35%] size-16 -translate-x-1/2 rounded-full border border-[rgba(255,101,0,0.22)] bg-white/82 shadow-[0_20px_50px_rgba(255,101,0,0.14)]" />
+      <span className="absolute left-1/2 top-[35%] size-16 -translate-x-1/2 animate-ping rounded-full bg-[rgba(255,101,0,0.12)]" />
     </div>
   );
 }
+
+function HeroPremiumStaticFallback() {
+  return (
+    <div
+      aria-label="Fuwu ev modeli yedek görseli"
+      className="absolute inset-x-[8%] bottom-[12%] top-[3%] z-10 overflow-hidden rounded-[2rem] border border-white bg-[linear-gradient(145deg,#ffffff_0%,#fff8f1_58%,#eef4f8_100%)] shadow-[0_34px_92px_rgba(10,37,64,0.14)]"
+      role="img"
+    >
+      <span className="absolute inset-x-[12%] bottom-[11%] h-[31%] rounded-[50%] bg-white shadow-[0_34px_88px_rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.06)]" />
+      <span className="absolute left-1/2 top-[24%] h-[46%] w-[55%] -translate-x-1/2 rounded-lg border border-white/90 bg-[linear-gradient(145deg,#ffffff_0%,#f8fafc_72%,#fff4ea_100%)] shadow-[0_28px_74px_rgba(10,37,64,0.13)]" />
+      <span className="absolute left-1/2 top-[13%] h-[22%] w-[62%] -translate-x-1/2 skew-x-[-13deg] rounded-t-lg bg-[linear-gradient(135deg,#07182f_0%,#0a2540_76%,#183b63_100%)] shadow-[0_20px_52px_rgba(10,37,64,0.18)]" />
+      <span className="absolute left-[59%] top-[8%] h-[14%] w-[7%] rounded-sm bg-[linear-gradient(180deg,#ffffff_0%,#dde5ee_100%)] shadow-[0_10px_24px_rgba(10,37,64,0.12)]" />
+      <span className="absolute left-[29%] top-[39%] h-[15%] w-[12%] rounded-md bg-[rgba(255,101,0,0.12)] ring-1 ring-[rgba(255,101,0,0.18)]" />
+      <span className="absolute right-[29%] top-[39%] h-[15%] w-[12%] rounded-md bg-[rgba(10,37,64,0.08)] ring-1 ring-[rgba(10,37,64,0.1)]" />
+      <span className="absolute left-1/2 bottom-[24%] h-[24%] w-[13%] -translate-x-1/2 rounded-t-md bg-[rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.1)]" />
+    </div>
+  );
+}
+
+type HeroModelErrorBoundaryProps = {
+  children: ReactNode;
+  onError: () => void;
+};
+
+type HeroModelErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class HeroModelErrorBoundary extends Component<
+  HeroModelErrorBoundaryProps,
+  HeroModelErrorBoundaryState
+> {
+  state: HeroModelErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): HeroModelErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
+    this.props.onError();
+
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[Fuwu homepage] Hero house model could not be loaded.", error, errorInfo);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+
+    return this.props.children;
+  }
+}
+
+function FuwuHouseModel({ onReady }: { onReady: () => void }) {
+  const { scene } = useGLTF(houseModelPath) as unknown as { scene: Group };
+  const model = useMemo(() => scene.clone(true), [scene]);
+  const groupRef = useRef<Group>(null);
+  const hasAnnouncedReadyRef = useRef(false);
+  const camera = useThree((state) => state.camera) as PerspectiveCamera;
+  const canvasSize = useThree((state) => state.size);
+  const controls = useThree((state) => state.controls) as OrbitControlsHandle | null;
+
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+
+    if (!group) {
+      return;
+    }
+
+    const box = new Box3().setFromObject(model);
+    const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
+    const maxDimension = Math.max(size.x, size.y, size.z);
+
+    if (!Number.isFinite(maxDimension) || maxDimension <= 0) {
+      return;
+    }
+
+    const scale = houseModelTargetSize / maxDimension;
+    const scaledSize = size.clone().multiplyScalar(scale);
+    const aspect = canvasSize.width / Math.max(canvasSize.height, 1);
+    const verticalFov = (camera.fov * Math.PI) / 180;
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * aspect);
+    const verticalDistance = (scaledSize.y * 0.62) / Math.tan(verticalFov / 2);
+    const horizontalDistance = (scaledSize.x * 0.62) / Math.tan(horizontalFov / 2);
+    const cameraDistance = Math.max(verticalDistance, horizontalDistance, scaledSize.z * 1.35);
+    const targetY = scaledSize.y * 0.04;
+
+    model.position.set(-center.x, -center.y, -center.z);
+    group.scale.setScalar(scale);
+    group.position.set(0, -scaledSize.y * 0.06, 0);
+    camera.position.set(scaledSize.x * 0.04, scaledSize.y * 0.16, cameraDistance * 1.08);
+    camera.near = Math.max(cameraDistance / 100, 0.01);
+    camera.far = cameraDistance * 100;
+    camera.lookAt(0, targetY, 0);
+    camera.updateProjectionMatrix();
+    controls?.target.set(0, targetY, 0);
+    controls?.update();
+
+    if (!hasAnnouncedReadyRef.current) {
+      hasAnnouncedReadyRef.current = true;
+      onReady();
+    }
+  }, [camera, canvasSize.height, canvasSize.width, controls, model, onReady]);
+
+  return (
+    <group ref={groupRef}>
+      <Clone object={model} />
+    </group>
+  );
+}
+
+function HeroHouseCanvas() {
+  const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">("loading");
+  const handleModelReady = useCallback(() => setModelStatus("ready"), []);
+  const handleModelError = useCallback(() => setModelStatus("error"), []);
+
+  return (
+    <>
+      {modelStatus === "loading" ? <HeroModelLoadingFallback /> : null}
+      {modelStatus === "error" ? <HeroPremiumStaticFallback /> : null}
+      {modelStatus !== "error" ? (
+        <Canvas
+          camera={{ fov: 30, position: [0, 0.6, 8] }}
+          className="absolute inset-0 z-10 h-full w-full"
+          dpr={[1, 1.7]}
+          fallback={<HeroPremiumStaticFallback />}
+          gl={{ alpha: true, antialias: true }}
+          shadows
+        >
+          <ambientLight intensity={1.35} />
+          <hemisphereLight args={["#ffffff", "#f8d8bd", 1.15]} />
+          <directionalLight castShadow intensity={2.35} position={[3.5, 5, 5.5]} />
+          <directionalLight intensity={0.72} position={[-3, 2, -2]} />
+          <OrbitControls
+            autoRotate={false}
+            enableDamping={true}
+            enablePan={false}
+            enableRotate={true}
+            enableZoom={false}
+            makeDefault
+          />
+          <HeroModelErrorBoundary onError={handleModelError}>
+            <Suspense fallback={null}>
+              <FuwuHouseModel onReady={handleModelReady} />
+            </Suspense>
+          </HeroModelErrorBoundary>
+        </Canvas>
+      ) : null}
+    </>
+  );
+}
+
+useGLTF.preload("/models/house/fuwu-house.glb");
 
 function HeroSceneShowcase({ className }: { className?: string }) {
   const [activeServiceId, setActiveServiceId] =
     useState<ServiceCategoryMapKey>("locksmith");
-  const activeTarget = useMemo(() => getServiceCategoryTarget(activeServiceId), [activeServiceId]);
 
   return (
     <div
@@ -239,46 +295,30 @@ function HeroSceneShowcase({ className }: { className?: string }) {
       data-home-hero-scene
     >
       <div className="absolute inset-0 origin-center" onMouseLeave={() => setActiveServiceId("locksmith")}>
-      <div
-        aria-hidden="true"
-        className="premium-hero-ambient absolute inset-x-[-1%] bottom-[8%] top-[2%] rounded-[999px] opacity-95"
-      />
-      <span className="premium-orbit-ring left-[4%] top-[12%] h-[66%] w-[91%]" aria-hidden="true" />
-      <span
-        className="premium-orbit-ring left-[15%] top-[22%] h-[45%] w-[70%]"
-        aria-hidden="true"
-        style={{ animationDelay: "900ms" }}
-      />
-      <div className="absolute inset-x-[5%] bottom-[11%] h-[38%] rounded-[50%] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF9_100%)] shadow-[0_42px_96px_rgba(10,37,64,0.16)] ring-1 ring-[rgba(10,37,64,0.06)]" />
-
-      <SceneConnectorLines activeServiceId={activeServiceId} />
-
-      <div className="absolute inset-x-[4%] bottom-[13%] top-[2%] z-10 overflow-visible sm:inset-x-[7%] lg:inset-x-[5%]">
-        <HeroStaticHomeVisual />
-      </div>
-
-      {sceneServiceTargets.map((target, index) => (
-        <SceneNode
-          index={index}
-          isActive={activeServiceId === target.id}
-          key={target.id}
-          onActivate={(nextTarget) => setActiveServiceId(nextTarget.id)}
-          target={target}
+        <div
+          aria-hidden="true"
+          className="premium-hero-ambient absolute inset-x-[-1%] bottom-[8%] top-[2%] rounded-[999px] opacity-95"
         />
-      ))}
+        <span className="premium-orbit-ring left-[4%] top-[12%] h-[66%] w-[91%]" aria-hidden="true" />
+        <span
+          className="premium-orbit-ring left-[15%] top-[22%] h-[45%] w-[70%]"
+          aria-hidden="true"
+          style={{ animationDelay: "900ms" }}
+        />
+        <div className="absolute inset-x-[5%] bottom-[11%] h-[38%] rounded-[50%] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF9_100%)] shadow-[0_42px_96px_rgba(10,37,64,0.16)] ring-1 ring-[rgba(10,37,64,0.06)]" />
 
-      <SceneInfoCard target={activeTarget} />
+        <HeroHouseCanvas />
+
+        {sceneServiceTargets.map((target, index) => (
+          <SceneNode
+            index={index}
+            isActive={activeServiceId === target.id}
+            key={target.id}
+            onActivate={(nextTarget) => setActiveServiceId(nextTarget.id)}
+            target={target}
+          />
+        ))}
       </div>
-
-      <p className="absolute inset-x-0 bottom-1 z-20 flex items-center justify-center gap-2 text-center text-sm font-semibold leading-6 text-[rgba(10,37,64,0.64)]">
-        <MousePointerClick aria-hidden="true" className="size-4 text-[var(--brand-navy)]" />
-        Keşfetmek için evin bölümlerine tıklayın
-      </p>
-
-      <SceneServiceLinks
-        className="absolute inset-x-0 -bottom-14 z-20 flex gap-2 overflow-x-auto pb-1 sm:hidden"
-        linkClassName="inline-flex min-h-11 shrink-0 items-center rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-3 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,101,0,0.38)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-      />
     </div>
   );
 }
