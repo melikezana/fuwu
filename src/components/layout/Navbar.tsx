@@ -331,17 +331,26 @@ export function Navbar() {
             ) : (
               <Link
                 aria-label="Bildirimleri görmek için giriş yap"
-                className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                className="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
                 href={appRoutes.login}
               >
                 <Bell className="size-5" aria-hidden="true" />
               </Link>
             )}
+            <Button
+              aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
+              className="h-11 min-h-11 gap-1.5 whitespace-nowrap rounded-md px-3 text-sm sm:px-4"
+              href={appRoutes.providers}
+              onClick={() => setActiveHref(appRoutes.providers)}
+            >
+              <UsersRound aria-hidden="true" className="size-4" />
+              Usta Bul
+            </Button>
             <button
               aria-controls="mobile-navigation-menu"
               aria-expanded={isMenuOpen}
               aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-[rgba(10,37,64,0.1)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-[rgba(10,37,64,0.1)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
               type="button"
             >

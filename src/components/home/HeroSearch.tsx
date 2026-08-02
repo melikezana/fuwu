@@ -32,12 +32,12 @@ export function HeroSearch({ categories, districts }: HeroSearchProps) {
       className="mt-6 overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white shadow-[0_24px_70px_rgba(10,37,64,0.12)]"
       onSubmit={handleSubmit}
     >
-      <div className="grid min-w-0 gap-0 sm:grid-cols-[minmax(0,1.16fr)_minmax(10.75rem,0.74fr)_7.5rem]">
-        <label className="grid min-h-[58px] min-w-0 grid-cols-[2.8rem_minmax(0,1fr)] items-center border-b border-[var(--border)] px-2 sm:border-b-0 sm:border-r">
+      <div className="grid min-w-0 gap-0 md:grid-cols-[minmax(0,1.16fr)_minmax(10.75rem,0.74fr)_7.75rem]">
+        <label className="grid min-h-[58px] min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center border-b border-[var(--border)] px-2 md:border-b-0 md:border-r">
           <Search aria-hidden="true" className="mx-auto size-5 text-[var(--muted)]" />
           <span className="sr-only">{homeCopy.hero.searchServiceLabel}</span>
           <input
-            className="h-full min-w-0 bg-transparent pr-3 text-sm font-semibold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
+            className="h-full min-w-0 bg-transparent pr-3 text-[0.95rem] font-semibold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
             list="home-service-options"
             name="q"
             placeholder="Hangi hizmete ihtiyacın var?"
@@ -50,11 +50,11 @@ export function HeroSearch({ categories, districts }: HeroSearchProps) {
           </datalist>
         </label>
 
-        <label className="grid min-h-[58px] min-w-0 grid-cols-[2.8rem_minmax(0,1fr)] items-center border-b border-[var(--border)] px-2 sm:border-b-0 sm:border-r">
+        <label className="grid min-h-[58px] min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center border-b border-[var(--border)] px-2 md:border-b-0 md:border-r">
           <MapPin aria-hidden="true" className="mx-auto size-5 text-[var(--brand-navy)]" />
           <span className="sr-only">{homeCopy.hero.searchDistrictLabel}</span>
           <select
-            className="h-full min-w-0 cursor-pointer truncate bg-transparent pr-3 text-sm font-semibold text-[var(--brand-navy)] outline-none"
+            className="h-full min-w-0 cursor-pointer truncate bg-transparent pr-3 text-[0.95rem] font-semibold text-[var(--brand-navy)] outline-none"
             defaultValue=""
             name="district"
           >
@@ -68,7 +68,7 @@ export function HeroSearch({ categories, districts }: HeroSearchProps) {
         </label>
 
         <div className="min-w-0 p-1.5">
-          <Button className="h-[46px] min-h-[46px] w-full rounded-md px-4 sm:w-[7.5rem]" type="submit">
+          <Button className="h-12 min-h-12 w-full rounded-md px-4 md:w-[7.75rem]" type="submit">
             Usta Bul
           </Button>
         </div>

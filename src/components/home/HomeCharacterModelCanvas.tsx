@@ -8,6 +8,7 @@ import {
   useCallback,
   useLayoutEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from "react";
 import {
@@ -58,6 +59,10 @@ type CharacterSceneErrorBoundaryState = {
 const CARD_CAMERA_FOV = 29;
 const CARD_MODEL_HEIGHT = 3.25;
 const CARD_MODEL_MARGIN = 1.2;
+const CHARACTER_ROTATION_Y: Record<CharacterTone, number> = {
+  customer: 0.32,
+  provider: -0.32,
+};
 
 function configureLocalStudioPreset(loader: Loader) {
   loader.setPath("/models/house/");
@@ -172,7 +177,7 @@ function FramedCharacterModel({
   const { scene } = useGLTF(modelPath);
   const { camera, invalidate } = useThree();
   const frame = useCharacterFrame(scene);
-  const rotationY = tone === "provider" ? -0.18 : 0.18;
+  const rotationY = CHARACTER_ROTATION_Y[tone];
 
   useLayoutEffect(() => {
     if (!isPerspectiveCamera(camera)) {
@@ -207,8 +212,8 @@ function FramedCharacterModel({
         scale={frame.shadowScale}
       />
       <OrbitControls
-        autoRotate
-        autoRotateSpeed={0.4}
+        autoRotate={false}
+        enableDamping={false}
         enablePan={false}
         enableRotate={false}
         enableZoom={false}
@@ -260,15 +265,21 @@ export function HomeCharacterModelCanvas({
   modelPath,
   tone,
 }: HomeCharacterModelCanvasProps) {
-  const handleModelReady = useCallback(() => undefined, []);
+  const [modelReady, setModelReady] = useState(false);
+  const handleModelReady = useCallback(() => setModelReady(true), []);
   const handleSceneError = useCallback((error: unknown) => {
+    setModelReady(true);
     console.error(`[Fuwu homepage] Failed to render ${tone} model`, error);
   }, [tone]);
 
   return (
     <div
       aria-label={label}
-      className={cn("relative h-full min-h-[14.75rem] w-full overflow-hidden", className)}
+      className={cn(
+        "home-character-visual relative h-full min-h-[14.75rem] w-full overflow-hidden",
+        modelReady ? "home-character-visual-ready" : "",
+        className,
+      )}
       role="img"
     >
       <CharacterSceneErrorBoundary fallback={null} onError={handleSceneError}>
@@ -276,7 +287,7 @@ export function HomeCharacterModelCanvas({
           aria-hidden="true"
           className="h-full w-full pointer-events-none"
           dpr={[1, 1.5]}
-          frameloop="always"
+          frameloop="demand"
           gl={{
             alpha: true,
             antialias: true,

@@ -92,7 +92,7 @@ body {
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -353,21 +353,93 @@ textarea:disabled {
 .premium-home-panel:hover {
   border-color: rgba(255, 101, 0, 0.24);
   box-shadow: 0 30px 78px rgba(10, 37, 64, 0.14);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .premium-home-panel :where(h2, h3, p, li, span) {
   min-width: 0;
-  overflow-wrap: anywhere;
+  max-width: 100%;
+  hyphens: none;
+  overflow-wrap: normal;
   word-break: normal;
+  text-rendering: optimizeLegibility;
 }
 
 .premium-home-panel :where(h2, h3) {
   text-wrap: balance;
 }
 
+.premium-home-panel :where(p, li) {
+  text-wrap: pretty;
+}
+
 .premium-home-panel :where(img, canvas) {
   max-width: 100%;
+}
+
+.premium-action-panel:hover {
+  transform: none;
+}
+
+.home-character-visual {
+  opacity: 0;
+  transform: scale(0.985);
+  transform-origin: bottom center;
+  transition:
+    opacity 420ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-character-visual-ready {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.premium-action-panel:hover .home-character-visual-ready {
+  transform: translateY(-2px) scale(1);
+}
+
+.home-stat-cell {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.home-stat-cell:nth-child(2n) {
+  border-right: 0;
+}
+
+.home-stat-cell:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .home-stat-cell,
+  .home-stat-cell:nth-child(2n) {
+    border-right: 1px solid var(--border);
+  }
+
+  .home-stat-cell:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .home-stat-cell:nth-last-child(-n + 3) {
+    border-bottom: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .home-stat-cell,
+  .home-stat-cell:nth-child(3n) {
+    border-right: 1px solid var(--border);
+  }
+
+  .home-stat-cell {
+    border-bottom: 0;
+  }
+
+  .home-stat-cell:last-child {
+    border-right: 0;
+  }
 }
 
 .premium-page-shell {
@@ -452,6 +524,14 @@ textarea:disabled {
   .premium-home-panel:hover,
   .premium-card-hover:hover {
     transform: none;
+  }
+
+  .home-character-visual,
+  .home-character-visual-ready,
+  .premium-action-panel:hover .home-character-visual-ready {
+    opacity: 1;
+    transform: scale(1);
+    transition-duration: 80ms;
   }
 
   .premium-reveal {

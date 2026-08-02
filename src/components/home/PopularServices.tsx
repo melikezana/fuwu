@@ -30,7 +30,7 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
   }
 
   return (
-    <section className="bg-[#FFFDF9] py-8 sm:py-9" id="services">
+    <section className="bg-[#FFFDF9] pb-12 pt-8 sm:pb-14 sm:pt-9" id="services">
       <Container className="max-w-[1440px]">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-base font-extrabold leading-6 text-[var(--brand-navy)]">
@@ -57,7 +57,7 @@ export function PopularServices({ serviceCounts, services }: PopularServicesProp
         </div>
 
         <div
-          className="mt-4 grid snap-x grid-flow-col auto-cols-[11.25rem] gap-3.5 overflow-x-auto pb-4 [scrollbar-width:thin] xl:grid-flow-row xl:grid-cols-9 xl:overflow-visible xl:pb-1"
+          className="mt-4 grid snap-x snap-mandatory grid-flow-col auto-cols-[9.75rem] gap-3 overflow-x-auto overscroll-x-contain pb-4 [scrollbar-width:thin] min-[390px]:auto-cols-[10.25rem] sm:auto-cols-[11rem] xl:grid-flow-row xl:grid-cols-9 xl:overflow-visible xl:pb-1"
           ref={scrollerRef}
         >
           {services.map((service, index) => {

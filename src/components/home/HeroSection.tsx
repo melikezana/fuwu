@@ -175,13 +175,19 @@ function SceneInfoCard({ target }: { target: ServiceCategoryTarget }) {
   );
 }
 
-function HeroSceneShowcase() {
+function HeroSceneShowcase({ className }: { className?: string }) {
   const [activeServiceId, setActiveServiceId] =
     useState<ServiceCategoryMapKey>("locksmith");
   const activeTarget = useMemo(() => getServiceCategoryTarget(activeServiceId), [activeServiceId]);
 
   return (
-    <div className="relative mx-auto min-h-[430px] w-full max-w-[980px] overflow-visible sm:min-h-[560px] lg:min-h-[660px] xl:min-h-[660px] xl:min-w-[760px]" data-home-hero-scene>
+    <div
+      className={cn(
+        "relative mx-auto min-h-[390px] w-full max-w-[980px] overflow-visible sm:min-h-[560px] lg:min-h-[660px] xl:min-h-[660px] xl:min-w-[760px]",
+        className,
+      )}
+      data-home-hero-scene
+    >
       <div className="absolute inset-0 origin-center" onMouseLeave={() => setActiveServiceId("locksmith")}>
       <div
         aria-hidden="true"
@@ -221,8 +227,42 @@ function HeroSceneShowcase() {
 
       <SceneServiceLinks
         className="absolute inset-x-0 -bottom-14 z-20 flex gap-2 overflow-x-auto pb-1 sm:hidden"
-        linkClassName="inline-flex min-h-10 shrink-0 items-center rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-3 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,101,0,0.38)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+        linkClassName="inline-flex min-h-11 shrink-0 items-center rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-3 text-xs font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,101,0,0.38)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       />
+    </div>
+  );
+}
+
+function HeroTrustSignals({ reduceMotion }: { reduceMotion: boolean }) {
+  return (
+    <div
+      aria-label="Fuwu guven gostergeleri"
+      className="relative z-20 grid min-w-0 gap-3 lg:col-span-2 lg:row-start-2 lg:-mt-8 lg:grid-cols-3"
+    >
+      {homeCopy.hero.trustSignals.map((signal, index) => {
+        const Icon = trustIcons[index] ?? BadgeCheck;
+
+        return (
+          <motion.div
+            className="flex min-h-[72px] min-w-0 items-center gap-3 rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/92 p-4 text-left shadow-[0_16px_42px_rgba(10,37,64,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_58px_rgba(10,37,64,0.13)] sm:p-[17px]"
+            initial={false}
+            key={signal}
+            transition={{
+              delay: reduceMotion ? 0 : index * 0.04,
+              duration: reduceMotion ? 0 : 0.22,
+              ease: "easeOut",
+            }}
+            whileHover={reduceMotion ? undefined : { scale: 1.01, y: -2 }}
+          >
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.16)]">
+              <Icon aria-hidden="true" className="size-4" />
+            </span>
+            <span className="min-w-0 text-[0.95rem] font-extrabold leading-[1.35] text-[var(--brand-navy)] [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal] lg:text-base">
+              {signal}
+            </span>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -244,9 +284,9 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
           backgroundSize: "auto, auto, 76px 76px, 76px 76px",
         }}
       />
-      <Container className="grid max-w-[1440px] gap-8 pb-24 pt-12 sm:pb-20 sm:pt-14 lg:min-h-[660px] lg:grid-cols-[minmax(360px,38fr)_minmax(0,62fr)] lg:items-center lg:gap-6 lg:pb-12 lg:pt-12 xl:grid-cols-[minmax(360px,38fr)_minmax(760px,62fr)]">
+      <Container className="grid max-w-[1440px] gap-x-6 gap-y-6 pb-24 pt-10 sm:pb-20 sm:pt-14 lg:min-h-[720px] lg:grid-cols-[minmax(360px,38fr)_minmax(0,62fr)] lg:grid-rows-[minmax(0,1fr)_auto] lg:items-center lg:pb-12 lg:pt-12 xl:grid-cols-[minmax(380px,38fr)_minmax(760px,62fr)]">
         <motion.div
-          className="premium-reveal relative z-20 min-w-0 lg:max-w-[560px] lg:pl-0"
+          className="premium-reveal relative z-20 min-w-0 lg:col-start-1 lg:row-start-1 lg:max-w-[560px] lg:pl-0"
           initial={false}
         >
           <span className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-[rgba(255,101,0,0.22)] bg-white px-3 text-xs font-extrabold leading-5 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]">
@@ -254,46 +294,23 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
             <span className="truncate">{homeCopy.hero.eyebrow}</span>
           </span>
 
-          <h1 className="mt-5 max-w-[35rem] text-5xl font-extrabold leading-[1.02] text-[var(--brand-navy)] sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
+          <h1 className="mt-5 max-w-[35rem] text-[2.625rem] font-extrabold leading-[1.04] text-[var(--brand-navy)] min-[390px]:text-5xl sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
             Güven, doğru{" "}
             <span>
               ustayla <span className="text-[var(--brand-orange)]">başlar.</span>
             </span>
           </h1>
-          <p className="mt-5 max-w-xl text-base font-medium leading-7 text-[rgba(10,37,64,0.78)] sm:text-lg sm:leading-8">
+          <p className="mt-5 max-w-xl text-[1.05rem] font-medium leading-[1.58] text-[rgba(10,37,64,0.78)] sm:text-lg sm:leading-8">
             {homeCopy.hero.description}
           </p>
 
           <HeroSearch categories={categories} districts={districts} />
 
-          <div
-            className="mt-4 grid gap-3 sm:grid-cols-3"
-            aria-label="Fuwu güven göstergeleri"
-          >
-            {homeCopy.hero.trustSignals.map((signal, index) => {
-              const Icon = trustIcons[index] ?? BadgeCheck;
-
-              return (
-                <motion.div
-                  className="flex min-h-[66px] min-w-0 items-center gap-3 rounded-lg border border-[rgba(10,37,64,0.08)] bg-white/92 px-4 py-3 shadow-[0_16px_42px_rgba(10,37,64,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_24px_58px_rgba(10,37,64,0.13)]"
-                  initial={false}
-                  key={signal}
-                  transition={{ delay: reduceMotion ? 0 : index * 0.04, duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
-                  whileHover={reduceMotion ? undefined : { scale: 1.018, y: -4 }}
-                >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--brand-orange-soft)] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.16)]">
-                    <Icon aria-hidden="true" className="size-4" />
-                  </span>
-                  <span className="min-w-0 text-[0.78rem] font-extrabold leading-5 text-[var(--brand-navy)]">
-                    {signal}
-                  </span>
-                </motion.div>
-              );
-            })}
-          </div>
         </motion.div>
 
-        <HeroSceneShowcase />
+        <HeroTrustSignals reduceMotion={reduceMotion} />
+
+        <HeroSceneShowcase className="lg:col-start-2 lg:row-start-1" />
       </Container>
     </motion.section>
   );

@@ -73,6 +73,13 @@ const customerActions = [
   "Kolayca iletişime geç",
 ];
 
+const panelTitleClassName =
+  "min-w-0 max-w-full text-[1.5rem] font-extrabold leading-[1.12] text-[var(--brand-navy)] md:text-[1.75rem] [text-wrap:balance]";
+const actionTitleClassName =
+  "min-w-0 max-w-full text-[1.5rem] font-extrabold leading-[1.08] text-[var(--brand-navy)] md:text-[1.75rem] xl:text-[2rem] [text-wrap:balance]";
+const panelCopyClassName =
+  "mt-2 min-w-0 max-w-[34ch] text-[0.95rem] font-semibold leading-[1.55] text-[var(--muted)] [text-wrap:pretty]";
+
 function formatNumber(value: number) {
   return new Intl.NumberFormat("tr-TR", {
     maximumFractionDigits: 0,
@@ -89,17 +96,19 @@ function BulletList({
   items: readonly string[];
 }) {
   return (
-    <ul className={cn("mt-4 grid min-w-0 gap-2", compact ? "gap-1.5" : "", className)}>
+    <ul className={cn("mt-4 grid min-w-0 gap-2.5", compact ? "gap-2" : "", className)}>
       {items.map((item) => (
         <li
           className={cn(
-            "flex min-w-0 items-start gap-2 font-semibold text-[var(--brand-navy)] [overflow-wrap:anywhere]",
-            compact ? "text-[0.78rem] leading-5" : "text-sm leading-5",
+            "flex min-w-0 items-start gap-2.5 font-semibold text-[var(--brand-navy)] [hyphens:none] [overflow-wrap:normal] [word-break:normal]",
+            compact ? "text-[0.94rem] leading-[1.45]" : "text-[0.98rem] leading-[1.5]",
           )}
           key={item}
         >
-          <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[var(--brand-navy)]" />
-          <span className="min-w-0 [overflow-wrap:anywhere]">{item}</span>
+          <Check aria-hidden="true" className="mt-1 size-4 shrink-0 text-[var(--brand-navy)]" />
+          <span className="min-w-0 [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
+            {item}
+          </span>
         </li>
       ))}
     </ul>
@@ -124,28 +133,26 @@ function ActionPanel({
   title: string;
 }) {
   return (
-    <article className="premium-home-panel grid min-h-[290px] min-w-0 grid-cols-[minmax(0,1fr)_minmax(8.75rem,0.86fr)] overflow-hidden p-5 sm:grid-cols-[minmax(0,0.95fr)_minmax(12rem,1fr)] sm:p-6">
-      <div className="relative z-20 flex min-w-0 flex-col">
-        <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
-          {title}
-        </h2>
-        <p className="mt-2 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+    <article className="premium-home-panel premium-action-panel grid min-h-[280px] min-w-0 grid-cols-1 gap-4 overflow-hidden p-5 sm:p-6 md:h-[300px] md:grid-cols-[minmax(0,1fr)_minmax(180px,0.82fr)] md:grid-rows-[minmax(0,1fr)_auto] md:gap-x-5 md:gap-y-3">
+      <div className="relative z-20 min-w-0 md:col-start-1 md:row-start-1">
+        <h2 className={actionTitleClassName}>{title}</h2>
+        <p className="mt-3 min-w-0 max-w-[32ch] text-[0.98rem] font-semibold leading-[1.55] text-[var(--muted)] [text-wrap:pretty]">
           {description}
         </p>
         <BulletList compact items={items} />
-        <Button
-          className={cn(
-            "relative z-10 mt-auto min-h-11 w-full rounded-md px-5 text-center sm:w-fit",
-            buttonClassName,
-          )}
-          href={href}
-        >
-          {ctaLabel}
-        </Button>
       </div>
-      <div className="relative -my-5 -mr-5 min-h-[15.75rem] min-w-0 overflow-hidden sm:-my-6 sm:-mr-6 sm:h-[calc(100%+3rem)]">
+      <div className="premium-character-stage relative min-h-[220px] min-w-0 overflow-hidden rounded-md sm:min-h-[240px] md:col-start-2 md:row-span-2 md:row-start-1 md:-my-6 md:-mr-6 md:h-[calc(100%+3rem)] md:min-h-0 md:self-stretch">
         {children}
       </div>
+      <Button
+        className={cn(
+          "relative z-20 min-h-12 w-full rounded-md px-5 text-center md:col-start-1 md:row-start-2 md:mt-auto md:w-fit",
+          buttonClassName,
+        )}
+        href={href}
+      >
+        {ctaLabel}
+      </Button>
     </article>
   );
 }
@@ -204,55 +211,60 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
   const stats = createStats(props);
 
   return (
-    <section className="bg-[#FFFDF9] pb-12 sm:pb-14">
+    <section className="bg-[#FFFDF9] pb-14 pt-4 sm:pb-16">
       <Container className="max-w-[1440px]">
-        <div className="grid auto-rows-fr gap-4 lg:grid-cols-2 min-[1360px]:grid-cols-[1.05fr_1.05fr_1.12fr_1.12fr]">
-          <article className="premium-home-panel min-h-[270px] min-w-0 p-5 sm:p-6">
-            <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+        <div className="grid gap-4 md:grid-cols-2 xl:gap-5">
+          <article className="premium-home-panel min-h-[280px] min-w-0 p-5 sm:p-6">
+            <h2 className={panelTitleClassName}>
               Nasıl Çalışır?
             </h2>
-            <p className="mt-1 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+            <p className={panelCopyClassName}>
               3 adımda hızlı ve güvenli hizmet
             </p>
-            <div className="mt-4 grid min-w-0 grid-cols-3 gap-2">
+            <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-3 sm:gap-2.5">
               {howSteps.map((step, index) => (
-                <div className="relative flex min-w-0 flex-col items-center text-center" key={step.title}>
-                  <span className="absolute right-1 top-0 z-20 grid size-6 place-items-center rounded-full bg-white text-xs font-extrabold text-[var(--brand-orange)] shadow-[0_8px_20px_rgba(255,101,0,0.2)] ring-1 ring-[rgba(255,101,0,0.22)]">
+                <div
+                  className="relative grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-3 text-left sm:flex sm:flex-col sm:items-center sm:text-center"
+                  key={step.title}
+                >
+                  <span className="absolute left-12 top-0 z-20 grid size-6 place-items-center rounded-full bg-white text-xs font-extrabold text-[var(--brand-orange)] shadow-[0_8px_20px_rgba(255,101,0,0.2)] ring-1 ring-[rgba(255,101,0,0.22)] sm:left-auto sm:right-1">
                     {index + 1}
                   </span>
                   <HomeAssetImage
                     alt={`${step.title} adim gorseli`}
-                    className="h-[5.85rem] w-full max-w-[6.7rem] rounded-md"
+                    className="h-[4.6rem] w-full max-w-[4.8rem] rounded-md sm:h-[5.85rem] sm:max-w-[6.7rem]"
                     height={512}
                     imageClassName="object-contain object-center"
                     sizes="(min-width: 1360px) 105px, (min-width: 640px) 28vw, 30vw"
                     src={step.asset}
                     width={512}
                   />
-                  <h3 className="mt-2 min-w-0 text-[clamp(0.68rem,0.62rem+0.24vw,0.8rem)] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
-                    {step.title}
-                  </h3>
-                  <p className="mt-1 min-w-0 text-[clamp(0.66rem,0.6rem+0.18vw,0.74rem)] font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
-                    {step.description}
-                  </p>
+                  <div className="min-w-0">
+                    <h3 className="min-w-0 text-sm font-extrabold leading-5 text-[var(--brand-navy)] [text-wrap:balance]">
+                      {step.title}
+                    </h3>
+                    <p className="mt-1 min-w-0 text-[0.82rem] font-semibold leading-5 text-[var(--muted)] [text-wrap:pretty]">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           </article>
 
-          <article className="premium-home-panel grid min-h-[270px] min-w-0 gap-3 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.72fr)] sm:p-6">
+          <article className="premium-home-panel grid min-h-[280px] min-w-0 gap-4 p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_minmax(180px,0.72fr)] md:items-end">
             <div className="relative z-10 min-w-0">
-              <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+              <h2 className={panelTitleClassName}>
                 Güven Sistemi
               </h2>
-              <p className="mt-1 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+              <p className={panelCopyClassName}>
                 İçin rahat olsun diye buradayız
               </p>
               <BulletList compact items={trustItems} />
             </div>
             <HomeAssetImage
               alt="Fuwu guven sistemi kalkan gorseli"
-              className="relative min-h-[10rem] min-w-0 self-end rounded-md sm:h-full"
+              className="relative h-[180px] min-w-0 self-end rounded-md md:h-full"
               height={512}
               imageClassName="object-contain object-bottom"
               sizes="(min-width: 1360px) 150px, (min-width: 640px) 28vw, 70vw"
@@ -268,7 +280,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={providerActions}
             title="Usta Ol"
           >
-            <ProviderCharacterVisual className="h-full min-h-[15.75rem]" />
+            <ProviderCharacterVisual className="h-full min-h-[220px] md:min-h-[15.75rem]" />
           </ActionPanel>
 
           <ActionPanel
@@ -279,28 +291,28 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={customerActions}
             title="Usta Bul"
           >
-            <CustomerCharacterVisual className="h-full min-h-[15.75rem]" />
+            <CustomerCharacterVisual className="h-full min-h-[220px] md:min-h-[15.75rem]" />
           </ActionPanel>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.72fr)]">
-          <div className="grid min-h-[9.5rem] overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white shadow-[0_22px_60px_rgba(10,37,64,0.10)] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-6 grid gap-5">
+          <div className="home-stats-grid grid min-h-[160px] grid-cols-2 overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white shadow-[0_22px_60px_rgba(10,37,64,0.10)] md:grid-cols-3 xl:grid-cols-6">
             {stats.map((item) => {
               const Icon = item.icon;
 
               return (
                 <div
-                  className="flex min-w-0 items-center gap-2 border-b border-[var(--border)] px-3 py-4 last:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
+                  className="home-stat-cell flex min-w-0 flex-col justify-center gap-3 p-5 sm:p-6 xl:p-5"
                   key={item.label}
                 >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-md bg-[#FFFDF9] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.14)]">
-                    <Icon aria-hidden="true" className="size-4" />
+                  <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#FFFDF9] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.14)]">
+                    <Icon aria-hidden="true" className="size-5" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block min-w-0 text-[0.8rem] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere]">
+                    <span className="block min-w-0 text-[1.05rem] font-extrabold leading-[1.3] text-[var(--brand-navy)] sm:text-[1.15rem] xl:text-[1.25rem] [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]">
                       {item.value}
                     </span>
-                    <span className="mt-1 block min-w-0 text-[0.68rem] font-semibold leading-4 text-[var(--muted)] [overflow-wrap:anywhere]">
+                    <span className="mt-1.5 block min-w-0 max-w-[16ch] text-[0.84rem] font-semibold leading-[1.4] text-[var(--muted)] [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]">
                       {item.label}
                     </span>
                   </span>
@@ -309,18 +321,18 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             })}
           </div>
 
-          <article className="premium-home-panel grid min-h-[9.75rem] min-w-0 gap-3 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.72fr)] sm:p-6">
-            <div className="relative z-10 min-w-0 max-w-md">
-              <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+          <article className="premium-home-panel grid min-h-[220px] min-w-0 gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.48fr)] lg:items-center">
+            <div className="relative z-10 min-w-0">
+              <h2 className="min-w-0 max-w-[18ch] text-[1.5rem] font-extrabold leading-[1.12] text-[var(--brand-navy)] md:text-[1.75rem] xl:text-[2rem] [text-wrap:balance]">
                 Güvenli Ödeme Altyapısı
               </h2>
-              <p className="mt-2 min-w-0 text-sm font-semibold leading-5 text-[var(--muted)] [overflow-wrap:anywhere]">
+              <p className="mt-3 min-w-0 max-w-[36ch] text-[0.98rem] font-semibold leading-[1.5] text-[var(--muted)] [text-wrap:pretty]">
                 Nakit ve IBAN/Havale tercihleri ödeme takip kaydına bağlanır.
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-5 grid max-w-[24rem] grid-cols-1 gap-2 min-[380px]:grid-cols-2">
                 {["Nakit", "IBAN / Havale"].map((label) => (
                   <span
-                    className="inline-flex min-h-10 min-w-0 items-center justify-center rounded-md border border-[rgba(10,37,64,0.08)] bg-white px-3 py-2 text-center text-[0.72rem] font-extrabold leading-4 text-[var(--brand-navy)] shadow-[0_14px_34px_rgba(10,37,64,0.09)] [overflow-wrap:anywhere]"
+                    className="inline-flex min-h-12 min-w-0 items-center justify-center whitespace-nowrap rounded-md border border-[rgba(10,37,64,0.08)] bg-white px-4 py-2.5 text-center text-sm font-extrabold leading-5 text-[var(--brand-navy)] shadow-[0_14px_34px_rgba(10,37,64,0.09)]"
                     key={label}
                   >
                     {label}
@@ -330,7 +342,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             </div>
             <HomeAssetImage
               alt="Fuwu odeme kilitli kart gorseli"
-              className="relative min-h-[9rem] min-w-0 self-end rounded-md sm:h-full"
+              className="relative h-[180px] min-w-0 self-end rounded-md sm:h-[220px] lg:h-[240px]"
               height={512}
               imageClassName="object-contain object-center"
               sizes="(min-width: 1024px) 230px, 72vw"

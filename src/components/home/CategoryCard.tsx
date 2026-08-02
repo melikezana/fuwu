@@ -76,7 +76,7 @@ export function CategoryCard({ providerCount, service }: CategoryCardProps) {
   return (
     <a
       aria-label={`${target.label} kategorisinde ustalari gor`}
-      className="group relative flex h-[11.25rem] w-full min-w-[10.75rem] cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3.5 pb-3.5 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-w-0"
+      className="group relative flex h-[11rem] w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3.5 pb-3.5 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:h-[11.25rem]"
       href={target.href}
       key={service.id}
       onClick={handleClick}
@@ -85,7 +85,7 @@ export function CategoryCard({ providerCount, service }: CategoryCardProps) {
     >
       <HomeAssetImage
         alt={`${target.label} kategori gorseli`}
-        className="mx-auto h-[6.35rem] w-full max-w-[9rem] shrink-0 rounded-md transition-transform duration-200 group-hover:scale-[1.025]"
+        className="mx-auto h-[6.1rem] w-full max-w-[8.5rem] shrink-0 rounded-md transition-transform duration-200 group-hover:scale-[1.025] sm:h-[6.35rem] sm:max-w-[9rem]"
         height={512}
         imageClassName="object-contain object-center"
         sizes="(min-width: 1280px) 150px, 176px"
@@ -93,10 +93,10 @@ export function CategoryCard({ providerCount, service }: CategoryCardProps) {
         width={512}
       />
       <span className="mt-auto min-w-0">
-        <span className="block min-w-0 text-center text-[clamp(0.76rem,0.72rem+0.18vw,0.86rem)] font-extrabold leading-5 text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
+        <span className="block min-w-0 text-center text-[0.82rem] font-extrabold leading-5 text-[var(--brand-navy)] [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal] sm:text-[0.86rem]">
           {target.label}
         </span>
-        <span className="mt-1 block min-w-0 text-center text-xs font-semibold leading-4 text-[var(--muted)] [overflow-wrap:anywhere]">
+        <span className="mt-1 block min-w-0 text-center text-xs font-semibold leading-4 text-[var(--muted)] [hyphens:none] [overflow-wrap:normal] [word-break:normal]">
           {getCountLabel(providerCount)}
         </span>
       </span>
