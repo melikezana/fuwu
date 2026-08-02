@@ -26,7 +26,7 @@ const contentSecurityPolicyDirectives = [
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${localSupabaseHttpSources}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${localSupabaseConnectSources}`,
+  `connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co${localSupabaseConnectSources}`,
   "form-action 'self' https://*.supabase.co https://accounts.google.com",
   "frame-src 'self' https://*.supabase.co https://accounts.google.com",
   "frame-ancestors 'none'",
