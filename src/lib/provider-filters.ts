@@ -50,7 +50,6 @@ export type ProviderSortOption = (typeof providerSortOptions)[number];
 export const minimumRatingFilterOptions = [
   { chipLabel: "4,5+ Puan", label: "4,5 ve üzeri", value: "4.5" },
   { chipLabel: "4,0+ Puan", label: "4,0 ve üzeri", value: "4.0" },
-  { chipLabel: "3,5+ Puan", label: "3,5 ve üzeri", value: "3.5" },
 ] as const;
 
 export const responseTimeFilterOptions = [
@@ -81,7 +80,13 @@ export const priceInfoFilterOptions = [
   },
 ] as const;
 
+export type MinimumRatingFilterOption = (typeof minimumRatingFilterOptions)[number];
+export type AvailabilityFilterOption = (typeof availabilityFilterOptions)[number];
+export type ResponseTimeFilterOption = (typeof responseTimeFilterOptions)[number];
+export type PriceInfoFilterOption = (typeof priceInfoFilterOptions)[number];
+
 export type ProviderFilterCapabilities = {
+  availabilityOptions: AvailabilityFilterOption[];
   hasAvailability: boolean;
   hasCreatedAt: boolean;
   hasDistance: false;
@@ -92,6 +97,9 @@ export type ProviderFilterCapabilities = {
   hasResponseTime: boolean;
   hasReviews: boolean;
   hasVerification: boolean;
+  priceInfoOptions: PriceInfoFilterOption[];
+  ratingOptions: MinimumRatingFilterOption[];
+  responseTimeOptions: ResponseTimeFilterOption[];
   sortOptions: ProviderSortOption[];
 };
 
@@ -486,19 +494,33 @@ export function sortProvidersByState<T extends ProviderFilterable>(
 export function getProviderFilterCapabilities(
   providers: ProviderFilterable[],
 ): ProviderFilterCapabilities {
-  const capabilities = {
-    hasAvailability: providers.some((provider) =>
-      availabilityFilterOptions.some((option) =>
-        matchesTextValue(provider.availability ?? "", option.value),
-      ),
+  const ratingOptions = minimumRatingFilterOptions.filter((option) => {
+    const minimumRating = parseFilterNumber(option.value);
+
+    return minimumRating !== null && providers.some((provider) => provider.rating >= minimumRating);
+  });
+  const availabilityOptions = availabilityFilterOptions.filter((option) =>
+    providers.some((provider) => matchesTextValue(provider.availability ?? "", option.value)),
+  );
+  const responseTimeOptions = responseTimeFilterOptions.filter((option) =>
+    providers.some(
+      (provider) =>
+        isFinitePositiveNumber(provider.responseTimeMinutes) &&
+        (provider.responseTimeMinutes as number) <= option.maximumMinutes,
     ),
+  );
+  const priceInfoOptions = priceInfoFilterOptions.filter((option) =>
+    providers.some((provider) => matchesPriceInfo(provider, option.value)),
+  );
+  const capabilities = {
+    hasAvailability: availabilityOptions.length > 0,
     hasCreatedAt: providers.some((provider) => getTimeValue(provider.createdAt) !== null),
     hasDistance: false as const,
     hasPortfolio: providers.some((provider) => hasText(provider.galleryPreviewUrl)),
-    hasPrice: providers.some(hasPrice),
+    hasPrice: priceInfoOptions.length > 0,
     hasProfileImage: providers.some((provider) => hasText(provider.profileImageUrl)),
-    hasRating: providers.some((provider) => Number.isFinite(provider.rating) && provider.rating > 0),
-    hasResponseTime: providers.some((provider) => isFinitePositiveNumber(provider.responseTimeMinutes)),
+    hasRating: ratingOptions.length > 0,
+    hasResponseTime: responseTimeOptions.length > 0,
     hasReviews: providers.some((provider) => provider.reviewCount > 0),
     hasVerification: providers.some((provider) => Boolean(provider.isVerified)),
   };
@@ -528,6 +550,10 @@ export function getProviderFilterCapabilities(
 
   return {
     ...capabilities,
+    availabilityOptions,
+    priceInfoOptions,
+    ratingOptions,
+    responseTimeOptions,
     sortOptions,
   };
 }

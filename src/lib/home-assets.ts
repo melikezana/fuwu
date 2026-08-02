@@ -1,4 +1,5 @@
 export type HomeAssetPath = `/${string}`;
+export type HomeCategoryAssetPath = HomeAssetPath | null;
 
 export const homeAssets = {
   categories: {
@@ -8,8 +9,10 @@ export const homeAssets = {
     cleaning: "/images/home/Meshy_AI_category-cleaning-v2.png",
     electric: "/images/home/Meshy_AI_category-electric-pilot.png",
     electrical: "/images/home/Meshy_AI_category-electric-pilot.png",
-    furniture: "/images/home/Meshy_AI_category-renovation.png",
-    "furniture-assembly": "/images/home/Meshy_AI_category-renovation.png",
+    furniture: null,
+    "mobilya-montaj": null,
+    "mobilya-montaji": null,
+    "furniture-assembly": null,
     locksmith: "/images/home/Meshy_AI_category-locksmith.png",
     moving: "/images/home/Meshy_AI_moving-truck-icon.png",
     "moving-help": "/images/home/Meshy_AI_moving-truck-icon.png",
@@ -19,8 +22,9 @@ export const homeAssets = {
     plumbing: "/images/home/Meshy_AI_category-plumbing.png",
     "pool-garden": "/images/home/Meshy_AI_pool-garden-icon-v3.png",
     renovation: "/images/home/Meshy_AI_category-renovation.png",
+    "ev-tadilati": "/images/home/Meshy_AI_category-renovation.png",
     "climate-appliance-service": "/images/home/Meshy_AI_category-ac.png",
-  },
+  } satisfies Record<string, HomeCategoryAssetPath>,
   characters: {
     customer: "/images/home/Meshy_AI_customer-character.png",
     provider: "/images/home/Meshy_AI_provider-character.png",

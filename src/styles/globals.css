@@ -770,6 +770,15 @@ textarea:disabled {
   outline: none;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .premium-reveal {
   animation: fuwu-reveal 260ms ease both;
 }

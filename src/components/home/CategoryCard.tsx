@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import type { KeyboardEvent, MouseEvent } from "react";
+import Link from "next/link";
 import { HomeAssetImage } from "@/components/home/HomeAssetImage";
 import {
   getServiceCategoryTargetById,
@@ -14,14 +13,6 @@ type CategoryCardProps = {
   providerCount?: number;
   service: Service;
 };
-
-function isSpaceActivation(event: KeyboardEvent<HTMLAnchorElement>) {
-  return event.key === " " || event.key === "Space" || event.key === "Spacebar";
-}
-
-function isModifiedClick(event: MouseEvent<HTMLAnchorElement>) {
-  return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0;
-}
 
 function resolveTarget(service: Service): ServiceCategoryTarget {
   return (
@@ -46,46 +37,20 @@ function getCountLabel(providerCount?: number) {
 }
 
 export function CategoryCard({ providerCount, service }: CategoryCardProps) {
-  const router = useRouter();
   const target = resolveTarget(service);
   const assetPath = getHomeCategoryAssetPath(service.id);
 
-  function handleKeyDown(event: KeyboardEvent<HTMLAnchorElement>) {
-    if (isSpaceActivation(event)) {
-      event.preventDefault();
-      router.push(target.href);
-    }
-  }
-
-  function handleKeyUp(event: KeyboardEvent<HTMLAnchorElement>) {
-    if (isSpaceActivation(event)) {
-      event.preventDefault();
-      router.push(target.href);
-    }
-  }
-
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
-    if (isModifiedClick(event)) {
-      return;
-    }
-
-    event.preventDefault();
-    router.push(target.href);
-  }
-
   return (
-    <a
-      aria-label={`${target.label} kategorisinde ustalari gor`}
-      className="group relative flex h-[11rem] w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3.5 pb-3.5 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:h-[11.25rem]"
+    <Link
+      aria-label={`${target.label} kategorisinde ustaları gör`}
+      className="group relative flex h-[12.25rem] w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white px-3 pb-3.5 pt-3 shadow-[0_18px_48px_rgba(10,37,64,0.10)] transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.4)] hover:shadow-[0_28px_70px_rgba(10,37,64,0.16)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:h-[12.5rem]"
       href={target.href}
       key={service.id}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
     >
       <HomeAssetImage
-        alt={`${target.label} kategori gorseli`}
-        className="mx-auto h-[6.1rem] w-full max-w-[8.5rem] shrink-0 rounded-md transition-transform duration-200 group-hover:scale-[1.025] sm:h-[6.35rem] sm:max-w-[9rem]"
+        alt={`${target.label} kategori görseli`}
+        className="mx-auto h-[6.625rem] w-full shrink-0 rounded-[16px] bg-[linear-gradient(145deg,#ffffff_0%,#fffaf3_62%,#eef3f8_100%)] p-3 ring-1 ring-[rgba(10,37,64,0.06)] transition-transform duration-200 group-hover:scale-[1.025] sm:h-[7rem]"
+        fallbackIconName={service.iconName}
         height={512}
         imageClassName="object-contain object-center"
         sizes="(min-width: 1280px) 150px, 176px"
@@ -100,6 +65,6 @@ export function CategoryCard({ providerCount, service }: CategoryCardProps) {
           {getCountLabel(providerCount)}
         </span>
       </span>
-    </a>
+    </Link>
   );
 }
