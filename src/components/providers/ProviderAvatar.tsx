@@ -27,6 +27,11 @@ export function ProviderAvatar({
       : "size-16";
   const shapeClassName = isHeroVariant ? "rounded-t-2xl rounded-b-none" : "rounded-xl";
   const iconClassName = isHeroVariant ? "size-16" : isProfileVariant ? "size-9" : "size-6";
+  const initialsClassName = isHeroVariant
+    ? "text-4xl"
+    : isProfileVariant
+      ? "text-3xl sm:text-4xl"
+      : "text-[1.65rem]";
   const imageSizes = isHeroVariant
     ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
     : isProfileVariant
@@ -46,7 +51,7 @@ export function ProviderAvatar({
       {imageUrl ? (
         <Image
           alt={`${provider.name} profil görseli`}
-          className="object-cover"
+          className="object-cover object-center"
           fill
           sizes={imageSizes}
           src={imageUrl}
@@ -57,19 +62,18 @@ export function ProviderAvatar({
             className={`${iconClassName} absolute left-5 top-5 opacity-40`}
             name={getServiceIconNameForCategory(provider.category)}
           />
-          <span className="relative z-10 text-4xl font-bold tracking-normal text-[var(--brand-navy)]">
+          <span className={`relative z-10 font-bold leading-none tracking-normal text-[var(--brand-navy)] ${initialsClassName}`}>
             {getProviderInitials(provider)}
           </span>
         </>
       ) : isProfileVariant ? (
-        <span className="relative z-10 text-3xl font-semibold tracking-normal text-[var(--brand-navy)] sm:text-4xl">
+        <span className={`relative z-10 font-semibold leading-none tracking-normal text-[var(--brand-navy)] ${initialsClassName}`}>
           {getProviderInitials(provider)}
         </span>
       ) : (
-        <ServiceIcon
-          className={`${iconClassName} relative z-10`}
-          name={getServiceIconNameForCategory(provider.category)}
-        />
+        <span className={`relative z-10 font-bold leading-none tracking-normal text-[var(--brand-navy)] ${initialsClassName}`}>
+          {getProviderInitials(provider)}
+        </span>
       )}
     </div>
   );

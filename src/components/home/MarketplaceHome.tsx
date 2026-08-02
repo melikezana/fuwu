@@ -9,6 +9,7 @@ import {
   type Service,
 } from "@/lib/constants/services";
 import { PROVIDER_AVAILABILITY_STATUSES } from "@/lib/constants/statuses";
+import { getAuthenticatedServerUserId } from "@/services/auth/server";
 import {
   getMarketplaceTrustMetrics,
   getProviderDirectory,
@@ -94,7 +95,10 @@ function getAverageRatingLabel(providers: Provider[]) {
 }
 
 export async function MarketplaceHome() {
-  const { allProviders, filterOptions } = await getProviderDirectory();
+  const [{ allProviders, filterOptions }, authenticatedUserId] = await Promise.all([
+    getProviderDirectory(),
+    getAuthenticatedServerUserId(),
+  ]);
   const metrics = await getMarketplaceTrustMetrics({
     activeProviders: allProviders.length,
     districts: filterOptions.districts.length,
@@ -123,6 +127,7 @@ export async function MarketplaceHome() {
         averageRatingLabel={averageRatingLabel}
         completedRequestCount={metrics.completedRequests}
         districtCount={metrics.districts}
+        isAuthenticated={Boolean(authenticatedUserId)}
         serviceCategoryCount={metrics.serviceCategories}
         source={metrics.source}
       />

@@ -40,7 +40,7 @@ export function ProviderTrustBadges({
         return (
           <span
             className={cn(
-              "inline-flex max-w-full items-center gap-1.5 rounded-full border font-medium leading-4",
+              "inline-flex max-w-full items-center gap-1.5 rounded-full border font-medium leading-4 [hyphens:none] [overflow-wrap:normal] [word-break:normal]",
               featured
                 ? "min-h-8 px-3 py-1.5 text-xs shadow-[var(--shadow-subtle)]"
                 : "min-h-7 px-2 py-1 text-[0.72rem]",
@@ -49,7 +49,7 @@ export function ProviderTrustBadges({
             key={badge.id}
           >
             <Icon aria-hidden="true" className="size-3.5 shrink-0" />
-            <span className="truncate">{badge.label}</span>
+            <span className="min-w-0 whitespace-normal sm:whitespace-nowrap">{badge.label}</span>
           </span>
         );
       })}

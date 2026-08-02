@@ -1,3 +1,6 @@
+"use client";
+
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   BadgeCheck,
@@ -8,7 +11,7 @@ import {
   ShieldCheck,
   UserRoundPlus,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { CustomerCharacterVisual } from "@/components/home/CustomerCharacterVisual";
 import { HomeAssetImage } from "@/components/home/HomeAssetImage";
 import { ProviderCharacterVisual } from "@/components/home/ProviderCharacterVisual";
@@ -23,11 +26,14 @@ type HomePremiumPanelsProps = {
   averageRatingLabel: string | null;
   completedRequestCount: number;
   districtCount: number;
+  isAuthenticated: boolean;
   serviceCategoryCount: number;
   source: "fallback" | "supabase";
 };
 
 type StatItem = {
+  ariaLabel?: string;
+  href?: string;
   icon: LucideIcon;
   label: string;
   value: string;
@@ -35,18 +41,24 @@ type StatItem = {
 
 const howSteps = [
   {
+    actionLabel: "Hizmetleri Gör",
     asset: homeAssets.steps.selectService,
     description: "Hangi hizmete ihtiyacın olduğunu seç.",
+    href: appRoutes.request,
     title: "İhtiyacını Seç",
   },
   {
+    actionLabel: "Ustaları İncele",
     asset: homeAssets.steps.compareProviders,
     description: "Fiyat, yorum ve puanlara göre karşılaştır.",
+    href: appRoutes.providers,
     title: "Ustaları Karşılaştır",
   },
   {
+    actionLabel: "Güven Sistemini Keşfet",
     asset: homeAssets.steps.confirmService,
     description: "Doğru ustayı seç, hizmetini al.",
+    href: appRoutes.trust,
     title: "Güvenle Karar Ver",
   },
 ] as const;
@@ -84,6 +96,15 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("tr-TR", {
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function handleLinkSpaceActivation(event: KeyboardEvent<HTMLAnchorElement>) {
+  if (event.key !== " " && event.key !== "Space" && event.key !== "Spacebar") {
+    return;
+  }
+
+  event.preventDefault();
+  event.currentTarget.click();
 }
 
 function BulletList({
@@ -175,6 +196,7 @@ function createStats({
   averageRatingLabel,
   completedRequestCount,
   districtCount,
+  isAuthenticated,
   serviceCategoryCount,
   source,
 }: HomePremiumPanelsProps): StatItem[] {
@@ -182,6 +204,8 @@ function createStats({
 
   return [
     {
+      ariaLabel: "Güvenilir usta listesini aç",
+      href: appRoutes.providers,
       icon: UserRoundPlus,
       label: "Güvenilir Usta",
       value:
@@ -190,6 +214,10 @@ function createStats({
           : "Büyüyen usta ağı",
     },
     {
+      ariaLabel: isAuthenticated
+        ? "Tamamlanan hizmet geçmişini aç"
+        : "Fuwu çalışma sürecini incele",
+      href: isAuthenticated ? appRoutes.dashboardRequests : appRoutes.howItWorks,
       icon: SearchCheck,
       label: "Tamamlanan Hizmet",
       value:
@@ -198,21 +226,29 @@ function createStats({
           : "Takip ediliyor",
     },
     {
+      ariaLabel: "Yüksek puanlı ustaları incele",
+      href: `${appRoutes.providers}?rating=4.8`,
       icon: BadgeCheck,
       label: "Ortalama Puan",
       value: averageRatingLabel ?? "Yorumlar geldikçe",
     },
     {
+      ariaLabel: "Hizmet ağımızdaki kategorileri gör",
+      href: appRoutes.services,
       icon: ShieldCheck,
       label: "Hizmet Ağımız",
       value: hasLiveMetrics && districtCount > 0 ? formatNumber(districtCount) : "İstanbul genelinde",
     },
     {
+      ariaLabel: "Hizmet kategorilerini gör",
+      href: appRoutes.services,
       icon: KeyRound,
       label: "Kategori",
       value: hasLiveMetrics && serviceCategoryCount > 0 ? formatNumber(serviceCategoryCount) : "Aktif katalog",
     },
     {
+      ariaLabel: isAuthenticated ? "Ödeme ve talep geçmişini aç" : undefined,
+      href: isAuthenticated ? appRoutes.dashboardRequests : undefined,
       icon: CreditCard,
       label: "Ödeme",
       value: "Manuel onay takibi",
@@ -227,7 +263,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
     <section className="bg-[#FFFDF9] pb-14 pt-4 sm:pb-16">
       <Container className="max-w-[1440px]">
         <div className="grid gap-4 lg:grid-cols-2 xl:gap-5">
-          <article className="premium-home-panel min-h-[280px] min-w-0 p-5 sm:p-6">
+          <article className="premium-home-panel min-h-[280px] min-w-0 p-5 sm:p-6" id="how-it-works">
             <h2 className={panelTitleClassName}>
               Nasıl Çalışır?
             </h2>
@@ -236,16 +272,19 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             </p>
             <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-3 sm:gap-2.5">
               {howSteps.map((step, index) => (
-                <div
-                  className="relative grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-3 text-left sm:flex sm:flex-col sm:items-center sm:text-center"
+                <Link
+                  aria-label={`${step.title}: ${step.actionLabel}`}
+                  className="group/how-step relative grid min-w-0 cursor-pointer grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-3 rounded-xl border border-transparent p-2 text-left transition-all duration-200 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.34)] hover:bg-[#FFFDF9] hover:shadow-[0_18px_44px_rgba(10,37,64,0.11)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:flex sm:flex-col sm:items-center sm:p-3 sm:text-center"
+                  href={step.href}
                   key={step.title}
+                  onKeyDown={handleLinkSpaceActivation}
                 >
                   <span className="absolute left-12 top-0 z-20 grid size-6 place-items-center rounded-full bg-white text-xs font-extrabold text-[var(--brand-orange)] shadow-[0_8px_20px_rgba(255,101,0,0.2)] ring-1 ring-[rgba(255,101,0,0.22)] sm:left-auto sm:right-1">
                     {index + 1}
                   </span>
                   <HomeAssetImage
                     alt={`${step.title} adim gorseli`}
-                    className="h-[4.6rem] w-full max-w-[4.8rem] rounded-md sm:h-[5.85rem] sm:max-w-[6.7rem]"
+                    className="h-[4.6rem] w-full max-w-[4.8rem] rounded-md transition-transform duration-200 group-hover/how-step:scale-[1.04] sm:h-[5.85rem] sm:max-w-[6.7rem]"
                     height={512}
                     imageClassName="object-contain object-center"
                     sizes="(min-width: 1360px) 105px, (min-width: 640px) 28vw, 30vw"
@@ -259,13 +298,16 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
                     <p className="mt-1 min-w-0 text-[0.82rem] font-semibold leading-5 text-[var(--muted)] [text-wrap:pretty]">
                       {step.description}
                     </p>
+                    <span className="mt-2 inline-flex text-[0.72rem] font-extrabold leading-4 text-[var(--brand-orange-dark)]">
+                      {step.actionLabel}
+                    </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </article>
 
-          <article className="premium-home-panel grid min-h-[280px] min-w-0 gap-4 p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_minmax(180px,0.72fr)] md:items-end">
+          <article className="premium-home-panel grid min-h-[280px] min-w-0 gap-4 p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_minmax(180px,0.72fr)] md:items-end" id="trust">
             <div className="relative z-10 min-w-0">
               <h2 className={panelTitleClassName}>
                 Güven Sistemi
@@ -312,13 +354,9 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
           <div className="home-stats-grid grid min-h-[160px] grid-cols-2 overflow-hidden rounded-lg border border-[rgba(10,37,64,0.08)] bg-white shadow-[0_22px_60px_rgba(10,37,64,0.10)] md:grid-cols-3 xl:grid-cols-6">
             {stats.map((item) => {
               const Icon = item.icon;
-
-              return (
-                <div
-                  className="home-stat-cell flex min-w-0 flex-col justify-center gap-3 p-5 sm:p-6 xl:p-5"
-                  key={item.label}
-                >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#FFFDF9] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.14)]">
+              const statContent = (
+                <>
+                  <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#FFFDF9] text-[var(--brand-orange)] ring-1 ring-[rgba(255,101,0,0.14)] transition-transform duration-200 group-hover/stat:scale-105 group-focus-visible/stat:scale-105">
                     <Icon aria-hidden="true" className="size-5" />
                   </span>
                   <span className="min-w-0">
@@ -328,7 +366,31 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
                     <span className="mt-1.5 block min-w-0 max-w-[16ch] text-[0.84rem] font-semibold leading-[1.4] text-[var(--muted)] [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]">
                       {item.label}
                     </span>
+                    {item.href ? (
+                      <span className="mt-3 block text-[0.72rem] font-extrabold leading-4 text-[var(--brand-orange-dark)]">
+                        Detayları gör
+                      </span>
+                    ) : null}
                   </span>
+                </>
+              );
+
+              return item.href ? (
+                <Link
+                  aria-label={item.ariaLabel ?? `${item.label} detaylarını gör`}
+                  className="home-stat-cell group/stat flex min-w-0 cursor-pointer flex-col justify-center gap-3 p-5 transition-[background-color,border-color,box-shadow] duration-200 hover:border-[rgba(255,101,0,0.38)] hover:bg-[#FFFDF9] hover:shadow-[inset_0_0_0_1px_rgba(255,101,0,0.16),0_16px_42px_rgba(10,37,64,0.08)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-0 sm:p-6 xl:p-5"
+                  href={item.href}
+                  key={item.label}
+                  onKeyDown={handleLinkSpaceActivation}
+                >
+                  {statContent}
+                </Link>
+              ) : (
+                <div
+                  className="home-stat-cell flex min-w-0 cursor-default flex-col justify-center gap-3 p-5 sm:p-6 xl:p-5"
+                  key={item.label}
+                >
+                  {statContent}
                 </div>
               );
             })}

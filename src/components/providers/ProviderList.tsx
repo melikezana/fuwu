@@ -1,6 +1,7 @@
 "use client";
 
 import { UserRoundSearch } from "lucide-react";
+import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
 import { PremiumCard } from "@/components/ui/Premium";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -65,9 +66,13 @@ export function ProviderList({
         ? t("providers.list.count", { count: providers.length })
         : t("providers.list.noMatches");
   const providerGridClassName =
-    providers.length === 1
-      ? "mx-auto max-w-2xl"
-      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    providers.length === 1 ? "justify-center" : "";
+  const providerGridStyle: CSSProperties = {
+    gridTemplateColumns:
+      providers.length === 1
+        ? "minmax(0, min(100%, 28rem))"
+        : "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+  };
 
   return (
     <section>
@@ -84,10 +89,12 @@ export function ProviderList({
       </PremiumCard>
 
       {providers.length > 0 ? (
-        <div className={`mt-6 grid auto-rows-fr gap-4 ${providerGridClassName}`}>
-          {providers.map((provider, index) => (
+        <div
+          className={`mt-6 grid auto-rows-fr items-stretch gap-5 sm:gap-6 ${providerGridClassName}`}
+          style={providerGridStyle}
+        >
+          {providers.map((provider) => (
             <ProviderCard
-              featured={index < 2}
               galleryPreviewUrl={provider.galleryPreviewUrl}
               key={provider.id}
               provider={provider}
