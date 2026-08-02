@@ -18,7 +18,7 @@ const HomeCharacterModelCanvas = dynamic(
 export function ProviderCharacterVisual({ className }: { className?: string }) {
   return (
     <HomeCharacterModelCanvas
-      className={cn("rounded-md", className)}
+      className={cn("premium-character-canvas", className)}
       label="Fuwu usta modeli"
       modelPath={homeAssets.models.provider}
       tone="provider"

@@ -18,7 +18,7 @@ const HomeCharacterModelCanvas = dynamic(
 export function CustomerCharacterVisual({ className }: { className?: string }) {
   return (
     <HomeCharacterModelCanvas
-      className={cn("rounded-md", className)}
+      className={cn("premium-character-canvas", className)}
       label="Fuwu hizmet arayan modeli"
       modelPath={homeAssets.models.customer}
       tone="customer"

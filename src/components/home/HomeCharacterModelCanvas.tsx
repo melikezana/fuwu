@@ -56,12 +56,12 @@ type CharacterSceneErrorBoundaryState = {
   hasError: boolean;
 };
 
-const CARD_CAMERA_FOV = 29;
-const CARD_MODEL_HEIGHT = 3.25;
-const CARD_MODEL_MARGIN = 1.2;
+const CARD_CAMERA_FOV = 28;
+const CARD_MODEL_HEIGHT = 3.6;
+const CARD_MODEL_VIEW_MARGIN = 1.07;
 const CHARACTER_ROTATION_Y: Record<CharacterTone, number> = {
-  customer: 0.32,
-  provider: -0.32,
+  customer: 0.42,
+  provider: -0.42,
 };
 
 function configureLocalStudioPreset(loader: Loader) {
@@ -113,7 +113,7 @@ function enableModelShadows(scene: Object3D) {
   });
 }
 
-function getModelFrame(scene: Object3D, aspect: number): CharacterFrame {
+function fitCameraToObject(scene: Object3D, aspect: number): CharacterFrame {
   const bounds = new Box3().setFromObject(scene);
 
   if (bounds.isEmpty()) {
@@ -141,15 +141,15 @@ function getModelFrame(scene: Object3D, aspect: number): CharacterFrame {
   const rotationSafeWidth = Math.hypot(normalizedSize.x, normalizedSize.z);
   const verticalDistance = normalizedSize.y / (2 * Math.tan(verticalFov / 2));
   const horizontalDistance = rotationSafeWidth / (2 * Math.tan(horizontalFov / 2));
-  const cameraDistance = Math.max(verticalDistance, horizontalDistance) * CARD_MODEL_MARGIN;
-  const targetY = normalizedSize.y * 0.52;
+  const cameraDistance = Math.max(verticalDistance, horizontalDistance) * CARD_MODEL_VIEW_MARGIN;
+  const targetY = normalizedSize.y * 0.5;
 
   return {
     cameraDistance,
-    cameraPosition: [0.08, targetY + normalizedSize.y * 0.03, cameraDistance],
+    cameraPosition: [0.06, targetY + normalizedSize.y * 0.025, cameraDistance],
     offset: [-center.x, -bounds.min.y, -center.z],
     scale,
-    shadowScale: Math.max(rotationSafeWidth, normalizedSize.z, 2.2) * 1.16,
+    shadowScale: Math.max(rotationSafeWidth, normalizedSize.z, 2.35) * 1.22,
     target: [0, targetY, 0],
   };
 }
@@ -161,7 +161,7 @@ function useCharacterFrame(scene: Object3D): CharacterFrame {
   return useMemo(() => {
     enableModelShadows(scene);
 
-    return getModelFrame(scene, aspect);
+    return fitCameraToObject(scene, aspect);
   }, [aspect, scene]);
 }
 
@@ -206,10 +206,10 @@ function FramedCharacterModel({
         color="#0a2540"
         far={frame.shadowScale}
         frames={1}
-        opacity={0.28}
+        opacity={0.18}
         position={[0, -0.015, 0]}
         resolution={160}
-        scale={frame.shadowScale}
+        scale={frame.shadowScale * 1.08}
       />
       <OrbitControls
         autoRotate={false}
@@ -276,7 +276,7 @@ export function HomeCharacterModelCanvas({
     <div
       aria-label={label}
       className={cn(
-        "home-character-visual relative h-full min-h-[14.75rem] w-full overflow-hidden",
+        "home-character-visual h-full w-full",
         modelReady ? "home-character-visual-ready" : "",
         className,
       )}

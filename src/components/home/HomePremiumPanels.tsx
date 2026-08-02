@@ -76,7 +76,7 @@ const customerActions = [
 const panelTitleClassName =
   "min-w-0 max-w-full text-[1.5rem] font-extrabold leading-[1.12] text-[var(--brand-navy)] md:text-[1.75rem] [text-wrap:balance]";
 const actionTitleClassName =
-  "min-w-0 max-w-full text-[1.5rem] font-extrabold leading-[1.08] text-[var(--brand-navy)] md:text-[1.75rem] xl:text-[2rem] [text-wrap:balance]";
+  "premium-action-title";
 const panelCopyClassName =
   "mt-2 min-w-0 max-w-[34ch] text-[0.95rem] font-semibold leading-[1.55] text-[var(--muted)] [text-wrap:pretty]";
 
@@ -115,6 +115,19 @@ function BulletList({
   );
 }
 
+function ActionBulletList({ items }: { items: readonly string[] }) {
+  return (
+    <ul className="premium-action-list">
+      {items.map((item) => (
+        <li className="premium-action-list-item" key={item}>
+          <Check aria-hidden="true" className="premium-action-check" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ActionPanel({
   buttonClassName,
   children,
@@ -133,20 +146,20 @@ function ActionPanel({
   title: string;
 }) {
   return (
-    <article className="premium-home-panel premium-action-panel grid min-h-[280px] min-w-0 grid-cols-1 gap-4 overflow-hidden p-5 sm:p-6 md:h-[300px] md:grid-cols-[minmax(0,1fr)_minmax(180px,0.82fr)] md:grid-rows-[minmax(0,1fr)_auto] md:gap-x-5 md:gap-y-3">
-      <div className="relative z-20 min-w-0 md:col-start-1 md:row-start-1">
+    <article className="premium-home-panel premium-action-panel">
+      <div className="premium-action-content">
         <h2 className={actionTitleClassName}>{title}</h2>
-        <p className="mt-3 min-w-0 max-w-[32ch] text-[0.98rem] font-semibold leading-[1.55] text-[var(--muted)] [text-wrap:pretty]">
+        <p className="premium-action-description">
           {description}
         </p>
-        <BulletList compact items={items} />
+        <ActionBulletList items={items} />
       </div>
-      <div className="premium-character-stage relative min-h-[220px] min-w-0 overflow-hidden rounded-md sm:min-h-[240px] md:col-start-2 md:row-span-2 md:row-start-1 md:-my-6 md:-mr-6 md:h-[calc(100%+3rem)] md:min-h-0 md:self-stretch">
+      <div className="premium-character-stage">
         {children}
       </div>
       <Button
         className={cn(
-          "relative z-20 min-h-12 w-full rounded-md px-5 text-center md:col-start-1 md:row-start-2 md:mt-auto md:w-fit",
+          "premium-action-cta",
           buttonClassName,
         )}
         href={href}
@@ -213,7 +226,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
   return (
     <section className="bg-[#FFFDF9] pb-14 pt-4 sm:pb-16">
       <Container className="max-w-[1440px]">
-        <div className="grid gap-4 md:grid-cols-2 xl:gap-5">
+        <div className="grid gap-4 lg:grid-cols-2 xl:gap-5">
           <article className="premium-home-panel min-h-[280px] min-w-0 p-5 sm:p-6">
             <h2 className={panelTitleClassName}>
               Nasıl Çalışır?
@@ -280,7 +293,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={providerActions}
             title="Usta Ol"
           >
-            <ProviderCharacterVisual className="h-full min-h-[220px] md:min-h-[15.75rem]" />
+            <ProviderCharacterVisual />
           </ActionPanel>
 
           <ActionPanel
@@ -291,7 +304,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={customerActions}
             title="Usta Bul"
           >
-            <CustomerCharacterVisual className="h-full min-h-[220px] md:min-h-[15.75rem]" />
+            <CustomerCharacterVisual />
           </ActionPanel>
         </div>
 
