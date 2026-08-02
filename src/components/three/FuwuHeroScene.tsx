@@ -29,8 +29,6 @@ import {
 } from "three";
 
 const HOUSE_MODEL_PATH = homeAssets.models.house;
-const PROVIDER_MODEL_PATH = homeAssets.models.provider;
-const CUSTOMER_MODEL_PATH = homeAssets.models.customer;
 const LOCAL_CITY_PRESET_PATH = "/models/house/";
 const HOUSE_ROTATION_SPEED = 0.035;
 
@@ -59,9 +57,7 @@ type SceneLayout = {
   };
   contactShadow: ContactShadowSettings;
   controlsTarget: Vec3;
-  customer: ModelTransform;
   house: ModelTransform;
-  provider: ModelTransform;
   shadowCameraSize: number;
   shadowMapSize: number;
 };
@@ -81,20 +77,10 @@ const DESKTOP_LAYOUT: SceneLayout = {
     scale: 7.8,
   },
   controlsTarget: [0, 0.28, 0.32],
-  customer: {
-    position: [-0.76, -1.02, 2.24],
-    rotation: [0, 0.32, 0],
-    scale: 0.56,
-  },
   house: {
     position: [0, -1.02, -0.14],
     rotation: [0, -0.36, 0],
     scale: 2.46,
-  },
-  provider: {
-    position: [1.96, -1.02, 2.14],
-    rotation: [0, -0.34, 0],
-    scale: 0.58,
   },
   shadowCameraSize: 4.25,
   shadowMapSize: 1024,
@@ -115,20 +101,10 @@ const MOBILE_LAYOUT: SceneLayout = {
     scale: 5.4,
   },
   controlsTarget: [0, 0.16, 0.4],
-  customer: {
-    position: [-0.36, -0.42, 1.42],
-    rotation: [0, 0.18, 0],
-    scale: 0.34,
-  },
   house: {
     position: [0, -0.42, -0.18],
     rotation: [0, -0.28, 0],
     scale: 1.55,
-  },
-  provider: {
-    position: [0.72, -0.42, 1.38],
-    rotation: [0, -0.18, 0],
-    scale: 0.34,
   },
   shadowCameraSize: 3.2,
   shadowMapSize: 512,
@@ -267,23 +243,6 @@ function useGroundedModelOffset(scene: Object3D): Vec3 {
   }, [scene]);
 }
 
-function StaticModel({ scene, transform }: { scene: Object3D; transform: ModelTransform }) {
-  const offset = useGroundedModelOffset(scene);
-
-  return (
-    <group
-      dispose={null}
-      position={transform.position}
-      rotation={transform.rotation}
-      scale={transform.scale}
-    >
-      <group position={offset}>
-        <primitive object={scene} />
-      </group>
-    </group>
-  );
-}
-
 function RotatingHouseModel({ scene, transform }: { scene: Object3D; transform: ModelTransform }) {
   const groupRef = useRef<Group>(null);
   const offset = useGroundedModelOffset(scene);
@@ -369,26 +328,18 @@ function PremiumLighting({ layout }: { layout: SceneLayout }) {
 function HeroModels({ layout, onReady }: { layout: SceneLayout; onReady: () => void }) {
   const hasReportedReadyRef = useRef(false);
   const { scene: houseScene } = useGLTF(HOUSE_MODEL_PATH);
-  const { scene: providerScene } = useGLTF(PROVIDER_MODEL_PATH);
-  const { scene: customerScene } = useGLTF(CUSTOMER_MODEL_PATH);
 
   useEffect(() => {
     enableModelShadows(houseScene);
-    enableModelShadows(providerScene);
-    enableModelShadows(customerScene);
 
     if (!hasReportedReadyRef.current) {
       hasReportedReadyRef.current = true;
       onReady();
     }
-  }, [customerScene, houseScene, onReady, providerScene]);
+  }, [houseScene, onReady]);
 
   return (
-    <>
-      <RotatingHouseModel scene={houseScene} transform={layout.house} />
-      <StaticModel scene={customerScene} transform={layout.customer} />
-      <StaticModel scene={providerScene} transform={layout.provider} />
-    </>
+    <RotatingHouseModel scene={houseScene} transform={layout.house} />
   );
 }
 
@@ -491,5 +442,3 @@ export function FuwuHeroScene() {
 }
 
 useGLTF.preload(HOUSE_MODEL_PATH);
-useGLTF.preload(PROVIDER_MODEL_PATH);
-useGLTF.preload(CUSTOMER_MODEL_PATH);

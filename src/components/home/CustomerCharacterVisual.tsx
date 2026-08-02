@@ -10,9 +10,7 @@ const HomeCharacterModelCanvas = dynamic(
       (mod) => mod.HomeCharacterModelCanvas,
     ),
   {
-    loading: () => (
-      <div className="relative h-full min-h-[13.5rem] w-full overflow-hidden rounded-md bg-[linear-gradient(145deg,#ffffff_0%,#f8fafc_58%,#eef3f8_100%)] ring-1 ring-[rgba(10,37,64,0.06)]" />
-    ),
+    loading: () => null,
     ssr: false,
   },
 );

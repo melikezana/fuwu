@@ -124,7 +124,7 @@ function ActionPanel({
   title: string;
 }) {
   return (
-    <article className="premium-home-panel grid min-h-[270px] min-w-0 overflow-hidden p-5 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.9fr)] sm:p-6">
+    <article className="premium-home-panel grid min-h-[290px] min-w-0 grid-cols-[minmax(0,1fr)_minmax(8.75rem,0.86fr)] overflow-hidden p-5 sm:grid-cols-[minmax(0,0.95fr)_minmax(12rem,1fr)] sm:p-6">
       <div className="relative z-20 flex min-w-0 flex-col">
         <h2 className="min-w-0 text-[clamp(1.18rem,1rem+0.7vw,1.42rem)] font-extrabold leading-tight text-[var(--brand-navy)] [overflow-wrap:anywhere] [text-wrap:balance]">
           {title}
@@ -143,7 +143,7 @@ function ActionPanel({
           {ctaLabel}
         </Button>
       </div>
-      <div className="relative -mb-6 mt-4 min-h-[13.5rem] min-w-0 sm:-mb-8 sm:mt-0 sm:h-[calc(100%+2rem)]">
+      <div className="relative -my-5 -mr-5 min-h-[15.75rem] min-w-0 overflow-hidden sm:-my-6 sm:-mr-6 sm:h-[calc(100%+3rem)]">
         {children}
       </div>
     </article>
@@ -268,7 +268,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={providerActions}
             title="Usta Ol"
           >
-            <ProviderCharacterVisual className="h-full min-h-[13.5rem] object-bottom" />
+            <ProviderCharacterVisual className="h-full min-h-[15.75rem]" />
           </ActionPanel>
 
           <ActionPanel
@@ -279,7 +279,7 @@ export function HomePremiumPanels(props: HomePremiumPanelsProps) {
             items={customerActions}
             title="Usta Bul"
           >
-            <CustomerCharacterVisual className="h-full min-h-[13.5rem] object-bottom" />
+            <CustomerCharacterVisual className="h-full min-h-[15.75rem]" />
           </ActionPanel>
         </div>
 

@@ -13,6 +13,7 @@ const localSupabaseConnectSources =
     : `${localSupabaseHttpSources} ws://127.0.0.1:54321 ws://localhost:54321`;
 const developmentEvalSource =
   process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+const wasmEvalSource = " 'wasm-unsafe-eval'";
 
 const contentSecurityPolicyDirectives = [
   "default-src 'self'",
@@ -22,7 +23,7 @@ const contentSecurityPolicyDirectives = [
   // gerekli. Nonce-based CSP'ye geçiş gelecek milestone'da
   // planlanmalı. Referans: https://nextjs.org/docs/app/building-
   // your-application/configuring/content-security-policy
-  `script-src 'self' 'unsafe-inline'${developmentEvalSource}`,
+  `script-src 'self' 'unsafe-inline'${wasmEvalSource}${developmentEvalSource}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${localSupabaseHttpSources}`,

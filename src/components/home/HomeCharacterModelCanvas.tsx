@@ -1,15 +1,13 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { ContactShadows, Environment, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { Canvas, useThree } from "@react-three/fiber";
+import { ContactShadows, Environment, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import {
   Component,
   Suspense,
   useCallback,
-  useEffect,
+  useLayoutEffect,
   useMemo,
-  useRef,
-  useState,
   type ReactNode,
 } from "react";
 import {
@@ -19,6 +17,8 @@ import {
   PCFShadowMap,
   SRGBColorSpace,
   Vector3,
+  type Camera,
+  type Loader,
   type Object3D,
   type PerspectiveCamera as PerspectiveCameraImpl,
 } from "three";
@@ -36,6 +36,15 @@ type HomeCharacterModelCanvasProps = {
   tone: CharacterTone;
 };
 
+type CharacterFrame = {
+  cameraDistance: number;
+  cameraPosition: Vec3;
+  offset: Vec3;
+  scale: number;
+  shadowScale: number;
+  target: Vec3;
+};
+
 type CharacterSceneErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
@@ -45,6 +54,21 @@ type CharacterSceneErrorBoundaryProps = {
 type CharacterSceneErrorBoundaryState = {
   hasError: boolean;
 };
+
+const CARD_CAMERA_FOV = 29;
+const CARD_MODEL_HEIGHT = 3.25;
+const CARD_MODEL_MARGIN = 1.2;
+
+function configureLocalStudioPreset(loader: Loader) {
+  loader.setPath("/models/house/");
+  loader.manager.setURLModifier((url) => {
+    if (url.endsWith("studio_small_03_1k.hdr")) {
+      return homeAssets.models.environment;
+    }
+
+    return url;
+  });
+}
 
 class CharacterSceneErrorBoundary extends Component<
   CharacterSceneErrorBoundaryProps,
@@ -71,21 +95,8 @@ class CharacterSceneErrorBoundary extends Component<
   }
 }
 
-function CharacterModelPlaceholder({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        "absolute inset-0 overflow-hidden rounded-[inherit] bg-[linear-gradient(145deg,#ffffff_0%,#f8fafc_60%,#eef3f8_100%)] ring-1 ring-[rgba(10,37,64,0.06)]",
-        className,
-      )}
-    >
-      <span className="absolute inset-x-[18%] bottom-[16%] h-px bg-[rgba(10,37,64,0.14)]" />
-      <span className="absolute inset-x-[26%] bottom-[30%] h-px bg-[rgba(255,101,0,0.2)]" />
-      <span className="absolute inset-x-[20%] top-[26%] h-px bg-[rgba(10,37,64,0.08)]" />
-      <span className="absolute inset-[16%] rounded-md border border-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)]" />
-    </div>
-  );
+function isPerspectiveCamera(camera: Camera): camera is PerspectiveCameraImpl {
+  return (camera as PerspectiveCameraImpl).isPerspectiveCamera === true;
 }
 
 function enableModelShadows(scene: Object3D) {
@@ -97,13 +108,17 @@ function enableModelShadows(scene: Object3D) {
   });
 }
 
-function getModelFrame(scene: Object3D): { offset: Vec3; scale: number } {
+function getModelFrame(scene: Object3D, aspect: number): CharacterFrame {
   const bounds = new Box3().setFromObject(scene);
 
   if (bounds.isEmpty()) {
     return {
+      cameraDistance: 6,
+      cameraPosition: [0, 1.7, 6],
       offset: [0, 0, 0],
       scale: 1,
+      shadowScale: 3.5,
+      target: [0, 1.55, 0],
     };
   }
 
@@ -113,32 +128,39 @@ function getModelFrame(scene: Object3D): { offset: Vec3; scale: number } {
   bounds.getCenter(center);
   bounds.getSize(size);
 
+  const safeAspect = Math.max(aspect, 0.45);
+  const scale = CARD_MODEL_HEIGHT / Math.max(size.y, 0.001);
+  const normalizedSize = size.clone().multiplyScalar(scale);
+  const verticalFov = (CARD_CAMERA_FOV * Math.PI) / 180;
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * safeAspect);
+  const rotationSafeWidth = Math.hypot(normalizedSize.x, normalizedSize.z);
+  const verticalDistance = normalizedSize.y / (2 * Math.tan(verticalFov / 2));
+  const horizontalDistance = rotationSafeWidth / (2 * Math.tan(horizontalFov / 2));
+  const cameraDistance = Math.max(verticalDistance, horizontalDistance) * CARD_MODEL_MARGIN;
+  const targetY = normalizedSize.y * 0.52;
+
   return {
+    cameraDistance,
+    cameraPosition: [0.08, targetY + normalizedSize.y * 0.03, cameraDistance],
     offset: [-center.x, -bounds.min.y, -center.z],
-    scale: 3 / Math.max(size.y, 0.001),
+    scale,
+    shadowScale: Math.max(rotationSafeWidth, normalizedSize.z, 2.2) * 1.16,
+    target: [0, targetY, 0],
   };
 }
 
-function CharacterCamera() {
-  const cameraRef = useRef<PerspectiveCameraImpl>(null);
+function useCharacterFrame(scene: Object3D): CharacterFrame {
+  const { size } = useThree();
+  const aspect = size.height > 0 ? size.width / size.height : 1;
 
-  useEffect(() => {
-    cameraRef.current?.lookAt(0, 0.12, 0);
-  }, []);
+  return useMemo(() => {
+    enableModelShadows(scene);
 
-  return (
-    <PerspectiveCamera
-      far={32}
-      fov={31}
-      makeDefault
-      near={0.1}
-      position={[0, 1.12, 6.12]}
-      ref={cameraRef}
-    />
-  );
+    return getModelFrame(scene, aspect);
+  }, [aspect, scene]);
 }
 
-function CharacterModel({
+function FramedCharacterModel({
   modelPath,
   onReady,
   tone,
@@ -148,24 +170,51 @@ function CharacterModel({
   tone: CharacterTone;
 }) {
   const { scene } = useGLTF(modelPath);
-  const frame = useMemo(() => {
-    enableModelShadows(scene);
+  const { camera, invalidate } = useThree();
+  const frame = useCharacterFrame(scene);
+  const rotationY = tone === "provider" ? -0.18 : 0.18;
 
-    return getModelFrame(scene);
-  }, [scene]);
-  const rotationY = tone === "provider" ? -0.28 : 0.24;
-  const positionX = tone === "provider" ? 0.08 : -0.04;
+  useLayoutEffect(() => {
+    if (!isPerspectiveCamera(camera)) {
+      return;
+    }
 
-  useEffect(() => {
+    camera.fov = CARD_CAMERA_FOV;
+    camera.near = Math.max(0.01, frame.cameraDistance / 100);
+    camera.far = frame.cameraDistance + frame.shadowScale * 5;
+    camera.position.set(...frame.cameraPosition);
+    camera.lookAt(...frame.target);
+    camera.updateProjectionMatrix();
+    invalidate();
     onReady();
-  }, [onReady]);
+  }, [camera, frame, invalidate, onReady]);
 
   return (
-    <group position={[positionX, -1.36, 0]} rotation={[0, rotationY, 0]} scale={frame.scale}>
-      <group position={frame.offset}>
-        <primitive object={scene} />
+    <>
+      <group dispose={null} rotation={[0, rotationY, 0]} scale={frame.scale}>
+        <group position={frame.offset}>
+          <primitive object={scene} />
+        </group>
       </group>
-    </group>
+      <ContactShadows
+        blur={2.8}
+        color="#0a2540"
+        far={frame.shadowScale}
+        frames={1}
+        opacity={0.28}
+        position={[0, -0.015, 0]}
+        resolution={160}
+        scale={frame.shadowScale}
+      />
+      <OrbitControls
+        autoRotate
+        autoRotateSpeed={0.4}
+        enablePan={false}
+        enableRotate={false}
+        enableZoom={false}
+        target={frame.target}
+      />
+    </>
   );
 }
 
@@ -180,37 +229,27 @@ function CharacterScene({
 }) {
   return (
     <>
-      <CharacterCamera />
-      <Environment background={false} files={homeAssets.models.environment} />
-      <ambientLight color="#fff8ef" intensity={0.42} />
-      <hemisphereLight color="#fff7ea" groundColor="#dfe8f2" intensity={0.72} />
+      <PerspectiveCamera far={32} fov={CARD_CAMERA_FOV} makeDefault near={0.1} position={[0, 1.7, 6]} />
+      <Environment background={false} extensions={configureLocalStudioPreset} preset="studio" />
+      <ambientLight color="#fff8ef" intensity={0.34} />
+      <hemisphereLight color="#fff7ea" groundColor="#dfe8f2" intensity={0.46} />
       <directionalLight
         castShadow
         color="#fff1dc"
-        intensity={2.65}
-        position={[3.8, 5.2, 4.6]}
+        intensity={2.15}
+        position={[3.4, 4.8, 4.4]}
         shadow-bias={-0.00014}
-        shadow-camera-bottom={-2.8}
+        shadow-camera-bottom={-3.4}
         shadow-camera-far={14}
-        shadow-camera-left={-2.8}
+        shadow-camera-left={-3.4}
         shadow-camera-near={0.2}
-        shadow-camera-right={2.8}
-        shadow-camera-top={2.8}
+        shadow-camera-right={3.4}
+        shadow-camera-top={3.4}
         shadow-mapSize={[512, 512]}
         shadow-normalBias={0.02}
       />
-      <directionalLight color="#ffffff" intensity={0.48} position={[-3.8, 2.6, 2.8]} />
-      <CharacterModel modelPath={modelPath} onReady={onReady} tone={tone} />
-      <ContactShadows
-        blur={2.5}
-        color="#0a2540"
-        far={3.2}
-        frames={1}
-        opacity={0.26}
-        position={[0, -1.37, 0.2]}
-        resolution={128}
-        scale={3.8}
-      />
+      <directionalLight color="#ffffff" intensity={0.42} position={[-3.8, 2.6, 2.8]} />
+      <FramedCharacterModel modelPath={modelPath} onReady={onReady} tone={tone} />
     </>
   );
 }
@@ -221,62 +260,48 @@ export function HomeCharacterModelCanvas({
   modelPath,
   tone,
 }: HomeCharacterModelCanvasProps) {
-  const [modelLoadFailed, setModelLoadFailed] = useState(false);
-  const [modelReady, setModelReady] = useState(false);
-  const handleModelReady = useCallback(() => setModelReady(true), []);
+  const handleModelReady = useCallback(() => undefined, []);
   const handleSceneError = useCallback((error: unknown) => {
-    setModelLoadFailed(true);
     console.error(`[Fuwu homepage] Failed to render ${tone} model`, error);
   }, [tone]);
 
   return (
     <div
       aria-label={label}
-      className={cn("relative h-full min-h-[13.5rem] w-full overflow-hidden", className)}
+      className={cn("relative h-full min-h-[14.75rem] w-full overflow-hidden", className)}
       role="img"
     >
-      {modelReady && !modelLoadFailed ? null : <CharacterModelPlaceholder />}
-      {modelLoadFailed ? null : (
-        <CharacterSceneErrorBoundary
-          fallback={<CharacterModelPlaceholder />}
-          onError={handleSceneError}
+      <CharacterSceneErrorBoundary fallback={null} onError={handleSceneError}>
+        <Canvas
+          aria-hidden="true"
+          className="h-full w-full pointer-events-none"
+          dpr={[1, 1.5]}
+          frameloop="always"
+          gl={{
+            alpha: true,
+            antialias: true,
+            depth: true,
+            powerPreference: "high-performance",
+            stencil: false,
+          }}
+          onCreated={({ gl }) => {
+            gl.outputColorSpace = SRGBColorSpace;
+            gl.shadowMap.enabled = true;
+            gl.shadowMap.type = PCFShadowMap;
+            gl.toneMapping = ACESFilmicToneMapping;
+            gl.toneMappingExposure = 0.98;
+          }}
+          performance={{ debounce: 240, min: 0.75 }}
+          shadows
         >
-          <div
-            className={cn(
-              "absolute inset-0 z-10 transition-opacity duration-500 ease-out",
-              modelReady ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <Canvas
-              aria-hidden="true"
-              className="h-full w-full pointer-events-none"
-              dpr={[1, 1.5]}
-              frameloop="demand"
-              gl={{
-                alpha: true,
-                antialias: true,
-                depth: true,
-                powerPreference: "high-performance",
-                stencil: false,
-              }}
-              onCreated={({ gl, invalidate }) => {
-                gl.outputColorSpace = SRGBColorSpace;
-                gl.shadowMap.enabled = true;
-                gl.shadowMap.type = PCFShadowMap;
-                gl.toneMapping = ACESFilmicToneMapping;
-                gl.toneMappingExposure = 0.98;
-                invalidate();
-              }}
-              performance={{ debounce: 240, min: 0.75 }}
-              shadows
-            >
-              <Suspense fallback={null}>
-                <CharacterScene modelPath={modelPath} onReady={handleModelReady} tone={tone} />
-              </Suspense>
-            </Canvas>
-          </div>
-        </CharacterSceneErrorBoundary>
-      )}
+          <Suspense fallback={null}>
+            <CharacterScene modelPath={modelPath} onReady={handleModelReady} tone={tone} />
+          </Suspense>
+        </Canvas>
+      </CharacterSceneErrorBoundary>
     </div>
   );
 }
+
+useGLTF.preload(homeAssets.models.provider);
+useGLTF.preload(homeAssets.models.customer);
