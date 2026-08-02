@@ -16,24 +16,121 @@ import {
 import {
   ACESFilmicToneMapping,
   Box3,
-  Group,
   Mesh,
-  Object3D,
+  PCFShadowMap,
   SRGBColorSpace,
   Vector3,
+  type Group,
+  type Loader,
+  type Object3D,
   type PerspectiveCamera as PerspectiveCameraImpl,
 } from "three";
 
 const HOUSE_MODEL_PATH = "/models/house/fuwu-house.glb";
 const PROVIDER_MODEL_PATH = "/models/house/provider.glb";
 const CUSTOMER_MODEL_PATH = "/models/house/customer.glb";
-// Same HDRI file used by drei's city preset, served locally so CSP never blocks the hero.
-const CITY_ENVIRONMENT_PATH = "/models/house/potsdamer_platz_1k.hdr";
-const HOUSE_ROTATION_SPEED = 0.09;
-const DESKTOP_HOUSE_SCALE = 2.46;
-const MOBILE_HOUSE_SCALE = 1.55;
-const DESKTOP_PERSON_SCALE = 0.58;
-const MOBILE_PERSON_SCALE = 0.34;
+const LOCAL_CITY_PRESET_PATH = "/models/house/";
+const HOUSE_ROTATION_SPEED = 0.035;
+
+type Vec3 = [number, number, number];
+
+type ModelTransform = {
+  position: Vec3;
+  rotation: Vec3;
+  scale: number;
+};
+
+type ContactShadowSettings = {
+  blur: number;
+  far: number;
+  opacity: number;
+  position: Vec3;
+  resolution: number;
+  scale: number;
+};
+
+type SceneLayout = {
+  camera: {
+    fov: number;
+    position: Vec3;
+    target: Vec3;
+  };
+  contactShadow: ContactShadowSettings;
+  controlsTarget: Vec3;
+  customer: ModelTransform;
+  house: ModelTransform;
+  provider: ModelTransform;
+  shadowCameraSize: number;
+  shadowMapSize: number;
+};
+
+const DESKTOP_LAYOUT: SceneLayout = {
+  camera: {
+    fov: 31,
+    position: [2.35, 2.22, 6.95],
+    target: [0, 0.22, 0.28],
+  },
+  contactShadow: {
+    blur: 3,
+    far: 5.4,
+    opacity: 0.34,
+    position: [0, -1.04, 0.7],
+    resolution: 256,
+    scale: 7.8,
+  },
+  controlsTarget: [0, 0.28, 0.32],
+  customer: {
+    position: [-0.76, -1.02, 2.24],
+    rotation: [0, 0.32, 0],
+    scale: 0.56,
+  },
+  house: {
+    position: [0, -1.02, -0.14],
+    rotation: [0, -0.36, 0],
+    scale: 2.46,
+  },
+  provider: {
+    position: [1.96, -1.02, 2.14],
+    rotation: [0, -0.34, 0],
+    scale: 0.58,
+  },
+  shadowCameraSize: 4.25,
+  shadowMapSize: 1024,
+};
+
+const MOBILE_LAYOUT: SceneLayout = {
+  camera: {
+    fov: 35,
+    position: [1.35, 1.62, 6.35],
+    target: [0, 0.2, 0.35],
+  },
+  contactShadow: {
+    blur: 2.45,
+    far: 3.8,
+    opacity: 0.32,
+    position: [0, -0.42, 0.6],
+    resolution: 128,
+    scale: 5.4,
+  },
+  controlsTarget: [0, 0.16, 0.4],
+  customer: {
+    position: [-0.36, -0.42, 1.42],
+    rotation: [0, 0.18, 0],
+    scale: 0.34,
+  },
+  house: {
+    position: [0, -0.42, -0.18],
+    rotation: [0, -0.28, 0],
+    scale: 1.55,
+  },
+  provider: {
+    position: [0.72, -0.42, 1.38],
+    rotation: [0, -0.18, 0],
+    scale: 0.34,
+  },
+  shadowCameraSize: 3.2,
+  shadowMapSize: 512,
+};
 
 type SceneErrorBoundaryProps = {
   children: ReactNode;
@@ -68,7 +165,7 @@ class SceneErrorBoundary extends Component<SceneErrorBoundaryProps, SceneErrorBo
 }
 
 function getMediaQueryMatch(query: string) {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || typeof window.matchMedia === "undefined") {
     return false;
   }
 
@@ -78,7 +175,7 @@ function getMediaQueryMatch(query: string) {
 function useMediaQuery(query: string) {
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
-      if (typeof window === "undefined") {
+      if (typeof window === "undefined" || typeof window.matchMedia === "undefined") {
         return () => undefined;
       }
 
@@ -118,49 +215,24 @@ function useWebGLAvailable() {
   return webGLAvailable;
 }
 
-function ModelLoadingSurface() {
+function HeroSceneFallback({ decorative = false }: { decorative?: boolean }) {
   return (
-    <div aria-hidden="true" className="absolute inset-0">
-      <span className="absolute inset-x-[13%] bottom-[10%] h-[33%] rounded-[50%] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF4EA_56%,#EEF3F8_100%)] shadow-[0_38px_88px_rgba(10,37,64,0.13)] ring-1 ring-[rgba(10,37,64,0.05)]" />
-      <span className="absolute left-1/2 top-[47%] h-[48%] w-[68%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[radial-gradient(circle,rgba(255,255,255,0.94)_0%,rgba(255,244,234,0.58)_44%,rgba(255,255,255,0)_73%)] blur-[2px]" />
+    <div
+      aria-hidden={decorative || undefined}
+      aria-label={decorative ? undefined : "Fuwu home service scene"}
+      className="absolute inset-0 overflow-hidden"
+      role={decorative ? undefined : "img"}
+    >
+      <span className="absolute inset-x-[10%] bottom-[10%] h-[36%] rounded-[50%] bg-[linear-gradient(180deg,#ffffff_0%,#fff8ef_58%,#eef3f8_100%)] shadow-[0_42px_96px_rgba(10,37,64,0.14)] ring-1 ring-[rgba(10,37,64,0.06)]" />
+      <span className="absolute left-1/2 top-[47%] h-[52%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[radial-gradient(circle,rgba(255,255,255,0.96)_0%,rgba(255,244,234,0.62)_46%,rgba(255,255,255,0)_74%)] blur-[2px]" />
+      <span className="absolute left-[34%] top-[30%] h-[31%] w-[29%] rounded-md bg-white/72 shadow-[0_18px_48px_rgba(10,37,64,0.1)] ring-1 ring-[rgba(10,37,64,0.04)]" />
+      <span className="absolute left-[44%] top-[23%] h-[40%] w-[25%] -skew-x-6 rounded-md bg-[linear-gradient(135deg,rgba(10,37,64,0.16),rgba(255,255,255,0.58))] opacity-60 blur-[0.5px]" />
     </div>
   );
 }
 
-function SceneLoader() {
-  return (
-    <div className="absolute inset-0 z-0">
-      <div className="absolute left-1/2 top-1/2 aspect-[1.45] w-[82%] max-w-[760px] -translate-x-1/2 -translate-y-1/2 sm:w-[74%] lg:w-[66%] xl:w-[62%]">
-        <ModelLoadingSurface />
-      </div>
-    </div>
-  );
-}
-
-function HeroCamera({ isMobile }: { isMobile: boolean }) {
-  const cameraRef = useRef<PerspectiveCameraImpl>(null);
-  const cameraPosition: [number, number, number] = isMobile
-    ? [1.35, 1.62, 6.35]
-    : [2.35, 2.22, 6.95];
-  const cameraTarget = useMemo<[number, number, number]>(
-    () => (isMobile ? [0, 0.2, 0.35] : [0, 0.22, 0.28]),
-    [isMobile],
-  );
-
-  useEffect(() => {
-    cameraRef.current?.lookAt(...cameraTarget);
-  }, [cameraTarget]);
-
-  return (
-    <PerspectiveCamera
-      far={40}
-      fov={isMobile ? 35 : 31}
-      makeDefault
-      near={0.1}
-      position={cameraPosition}
-      ref={cameraRef}
-    />
-  );
+function configureLocalCityPreset(loader: Loader) {
+  loader.setPath(LOCAL_CITY_PRESET_PATH);
 }
 
 function enableModelShadows(scene: Object3D) {
@@ -172,36 +244,31 @@ function enableModelShadows(scene: Object3D) {
   });
 }
 
-function useGroundedModelOffset(scene: Object3D): [number, number, number] {
+function useGroundedModelOffset(scene: Object3D): Vec3 {
   return useMemo(() => {
-    const box = new Box3().setFromObject(scene);
+    const bounds = new Box3().setFromObject(scene);
 
-    if (box.isEmpty()) {
+    if (bounds.isEmpty()) {
       return [0, 0, 0];
     }
 
     const center = new Vector3();
-    box.getCenter(center);
+    bounds.getCenter(center);
 
-    return [-center.x, -box.min.y, -center.z];
+    return [-center.x, -bounds.min.y, -center.z];
   }, [scene]);
 }
 
-function GroundedModel({
-  position,
-  rotation,
-  scale,
-  scene,
-}: {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: number;
-  scene: Object3D;
-}) {
+function StaticModel({ scene, transform }: { scene: Object3D; transform: ModelTransform }) {
   const offset = useGroundedModelOffset(scene);
 
   return (
-    <group dispose={null} position={position} rotation={rotation} scale={scale}>
+    <group
+      dispose={null}
+      position={transform.position}
+      rotation={transform.rotation}
+      scale={transform.scale}
+    >
       <group position={offset}>
         <primitive object={scene} />
       </group>
@@ -209,12 +276,9 @@ function GroundedModel({
   );
 }
 
-function FuwuHouseModel({ isMobile, scene }: { isMobile: boolean; scene: Object3D }) {
+function RotatingHouseModel({ scene, transform }: { scene: Object3D; transform: ModelTransform }) {
   const groupRef = useRef<Group>(null);
   const offset = useGroundedModelOffset(scene);
-  const scale = isMobile ? MOBILE_HOUSE_SCALE : DESKTOP_HOUSE_SCALE;
-  const position: [number, number, number] = isMobile ? [0, -0.42, -0.18] : [0, -1.02, -0.14];
-  const initialRotationY = isMobile ? -0.28 : -0.38;
 
   useFrame((_, delta) => {
     if (groupRef.current) {
@@ -225,10 +289,10 @@ function FuwuHouseModel({ isMobile, scene }: { isMobile: boolean; scene: Object3
   return (
     <group
       dispose={null}
-      position={position}
+      position={transform.position}
       ref={groupRef}
-      rotation={[0, initialRotationY, 0]}
-      scale={scale}
+      rotation={transform.rotation}
+      scale={transform.scale}
     >
       <group position={offset}>
         <primitive object={scene} />
@@ -237,20 +301,68 @@ function FuwuHouseModel({ isMobile, scene }: { isMobile: boolean; scene: Object3
   );
 }
 
-function HeroModels({ isMobile, onReady }: { isMobile: boolean; onReady: () => void }) {
+function HeroCamera({ layout }: { layout: SceneLayout }) {
+  const cameraRef = useRef<PerspectiveCameraImpl>(null);
+
+  useEffect(() => {
+    cameraRef.current?.lookAt(...layout.camera.target);
+  }, [layout]);
+
+  return (
+    <PerspectiveCamera
+      far={45}
+      fov={layout.camera.fov}
+      makeDefault
+      near={0.1}
+      position={layout.camera.position}
+      ref={cameraRef}
+    />
+  );
+}
+
+function PremiumLighting({ layout }: { layout: SceneLayout }) {
+  const shadowMapSize = useMemo<[number, number]>(
+    () => [layout.shadowMapSize, layout.shadowMapSize],
+    [layout],
+  );
+
+  return (
+    <>
+      <Environment
+        background={false}
+        environmentIntensity={0.5}
+        environmentRotation={[0, -0.26, 0]}
+        extensions={configureLocalCityPreset}
+        preset="city"
+      />
+      <ambientLight color="#fff8ef" intensity={0.26} />
+      <hemisphereLight color="#fff5e7" groundColor="#dfe8f2" intensity={0.48} />
+      <directionalLight
+        castShadow
+        color="#fff2df"
+        intensity={2.65}
+        position={[4.4, 6.1, 5.4]}
+        shadow-bias={-0.00016}
+        shadow-camera-bottom={-layout.shadowCameraSize}
+        shadow-camera-far={16}
+        shadow-camera-left={-layout.shadowCameraSize}
+        shadow-camera-near={0.25}
+        shadow-camera-right={layout.shadowCameraSize}
+        shadow-camera-top={layout.shadowCameraSize}
+        shadow-mapSize={shadowMapSize}
+        shadow-normalBias={0.025}
+      />
+      <directionalLight color="#ffffff" intensity={0.5} position={[-4.4, 2.8, 3.2]} />
+      <directionalLight color="#ffd7b3" intensity={0.3} position={[0.2, 2.4, -3.6]} />
+    </>
+  );
+}
+
+function HeroModels({ layout, onReady }: { layout: SceneLayout; onReady: () => void }) {
   const hasReportedReadyRef = useRef(false);
   const { scene: houseScene } = useGLTF(HOUSE_MODEL_PATH);
   const { scene: providerScene } = useGLTF(PROVIDER_MODEL_PATH);
   const { scene: customerScene } = useGLTF(CUSTOMER_MODEL_PATH);
-  const personScale = isMobile ? MOBILE_PERSON_SCALE : DESKTOP_PERSON_SCALE;
-  const providerPosition: [number, number, number] = isMobile
-    ? [0.72, -0.42, 1.38]
-    : [1.92, -1.02, 2.16];
-  const customerPosition: [number, number, number] = isMobile
-    ? [-0.34, -0.42, 1.42]
-    : [-0.48, -1.02, 2.28];
-  const providerRotation: [number, number, number] = [0, isMobile ? -0.18 : -0.32, 0];
-  const customerRotation: [number, number, number] = [0, isMobile ? 0.18 : 0.32, 0];
 
   useEffect(() => {
     enableModelShadows(houseScene);
@@ -265,63 +377,38 @@ function HeroModels({ isMobile, onReady }: { isMobile: boolean; onReady: () => v
 
   return (
     <>
-      <FuwuHouseModel isMobile={isMobile} scene={houseScene} />
-      <GroundedModel
-        position={customerPosition}
-        rotation={customerRotation}
-        scale={personScale}
-        scene={customerScene}
-      />
-      <GroundedModel
-        position={providerPosition}
-        rotation={providerRotation}
-        scale={personScale}
-        scene={providerScene}
-      />
+      <RotatingHouseModel scene={houseScene} transform={layout.house} />
+      <StaticModel scene={customerScene} transform={layout.customer} />
+      <StaticModel scene={providerScene} transform={layout.provider} />
     </>
   );
 }
 
-function HeroSceneContent({ isMobile, onReady }: { isMobile: boolean; onReady: () => void }) {
-  const shadowMapSize: [number, number] = isMobile ? [512, 512] : [1024, 1024];
-  const controlsTarget: [number, number, number] = isMobile ? [0, 0.16, 0.36] : [0, 0.2, 0.28];
-
+function HeroSceneContent({ layout, onReady }: { layout: SceneLayout; onReady: () => void }) {
   return (
     <>
-      <HeroCamera isMobile={isMobile} />
-      <Environment files={CITY_ENVIRONMENT_PATH} />
-      <ambientLight color="#fff8ef" intensity={0.28} />
-      <hemisphereLight color="#fff5e7" groundColor="#dfe8f2" intensity={0.54} />
-      <directionalLight
-        castShadow
-        color="#fff2df"
-        intensity={2.9}
-        position={[4.4, 6.1, 5.4]}
-        shadow-camera-bottom={-4}
-        shadow-camera-left={-4}
-        shadow-camera-near={0.2}
-        shadow-camera-right={4}
-        shadow-camera-top={4}
-        shadow-mapSize={shadowMapSize}
-      />
-      <directionalLight color="#ffffff" intensity={0.58} position={[-4.4, 2.8, 3.2]} />
-      <pointLight color="#ffd7b3" intensity={0.36} position={[0, 2.4, -3.2]} />
-      <HeroModels isMobile={isMobile} onReady={onReady} />
+      <HeroCamera layout={layout} />
+      <PremiumLighting layout={layout} />
+      <HeroModels layout={layout} onReady={onReady} />
       <ContactShadows
-        blur={isMobile ? 2.35 : 3}
-        far={isMobile ? 3.8 : 5.4}
-        opacity={0.32}
-        position={[0, isMobile ? -0.42 : -1.02, 0.66]}
-        resolution={isMobile ? 128 : 256}
-        scale={isMobile ? 5.5 : 7.6}
+        blur={layout.contactShadow.blur}
+        color="#0a2540"
+        far={layout.contactShadow.far}
+        frames={1}
+        opacity={layout.contactShadow.opacity}
+        position={layout.contactShadow.position}
+        resolution={layout.contactShadow.resolution}
+        scale={layout.contactShadow.scale}
       />
       <OrbitControls
         autoRotate
         autoRotateSpeed={0.35}
+        dampingFactor={0.08}
+        enableDamping
         enablePan={false}
         enableRotate={false}
         enableZoom={false}
-        target={controlsTarget}
+        target={layout.controlsTarget}
       />
     </>
   );
@@ -329,62 +416,64 @@ function HeroSceneContent({ isMobile, onReady }: { isMobile: boolean; onReady: (
 
 export function FuwuHeroScene() {
   const isMobile = useMediaQuery("(max-width: 767px)");
-  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const webGLAvailable = useWebGLAvailable();
+  const layout = isMobile ? MOBILE_LAYOUT : DESKTOP_LAYOUT;
   const [modelLoadFailed, setModelLoadFailed] = useState(false);
   const [modelReady, setModelReady] = useState(false);
   const handleModelReady = useCallback(() => setModelReady(true), []);
-  const handleModelError = useCallback((error: unknown) => {
+  const handleSceneError = useCallback((error: unknown) => {
     setModelLoadFailed(true);
-    console.error("[Fuwu hero] Failed to load hero GLB models", error);
+    console.error("[Fuwu hero] Failed to render the hero scene", error);
   }, []);
 
   useEffect(() => {
     if (webGLAvailable === false) {
-      console.error("[Fuwu hero] Cannot render hero GLB models: WebGL is unavailable.");
+      console.error("[Fuwu hero] WebGL is unavailable; showing the fallback scene.");
     }
   }, [webGLAvailable]);
 
-  if (webGLAvailable !== true) {
+  if (webGLAvailable !== true || modelLoadFailed) {
     return (
       <div className="relative h-full min-h-[320px] w-full overflow-visible">
-        <SceneLoader />
+        <HeroSceneFallback />
       </div>
     );
   }
 
   return (
     <div className="relative h-full min-h-[320px] w-full overflow-visible">
-      <SceneErrorBoundary fallback={<SceneLoader />} onError={handleModelError}>
-        {modelLoadFailed || !modelReady ? <SceneLoader /> : null}
+      <SceneErrorBoundary fallback={<HeroSceneFallback />} onError={handleSceneError}>
+        {modelReady ? null : <HeroSceneFallback decorative />}
         <div
           className={[
-            "absolute inset-0 z-10 origin-center",
-            reducedMotion ? "" : "transition-[opacity,transform] duration-500 ease-out",
+            "absolute inset-0 z-10 origin-center transition-[opacity,transform] duration-500 ease-out",
             modelReady ? "scale-100 opacity-100" : "scale-[0.985] opacity-0",
           ].join(" ")}
         >
           <Canvas
             aria-hidden="true"
-            className="h-full w-full"
-            dpr={isMobile ? [0.75, 1] : [1, 2]}
+            className="h-full w-full pointer-events-none"
+            dpr={[1, 2]}
             frameloop="always"
             gl={{
               alpha: true,
               antialias: true,
+              depth: true,
               powerPreference: "high-performance",
+              stencil: false,
             }}
             onCreated={({ gl }) => {
               gl.outputColorSpace = SRGBColorSpace;
+              gl.shadowMap.enabled = true;
+              gl.shadowMap.type = PCFShadowMap;
               gl.toneMapping = ACESFilmicToneMapping;
+              gl.toneMappingExposure = 0.96;
             }}
+            performance={{ debounce: 240, min: 0.65 }}
             shadows
           >
             <Suspense fallback={null}>
-              <HeroSceneContent
-                isMobile={isMobile}
-                onReady={handleModelReady}
-              />
+              <HeroSceneContent layout={layout} onReady={handleModelReady} />
             </Suspense>
           </Canvas>
         </div>
@@ -393,6 +482,6 @@ export function FuwuHeroScene() {
   );
 }
 
-useGLTF.preload("/models/house/fuwu-house.glb");
-useGLTF.preload("/models/house/provider.glb");
-useGLTF.preload("/models/house/customer.glb");
+useGLTF.preload(HOUSE_MODEL_PATH);
+useGLTF.preload(PROVIDER_MODEL_PATH);
+useGLTF.preload(CUSTOMER_MODEL_PATH);
