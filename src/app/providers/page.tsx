@@ -285,7 +285,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[rgba(20,33,61,0.1)] bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.request}
           >
-            Talep Oluştur
+            Hizmeti Satın Al
           </Link>
         }
         badge={source === "supabase" ? "Canlı veri" : "Veri bağlantısı bekleniyor"}

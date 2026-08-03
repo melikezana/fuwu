@@ -397,7 +397,7 @@ export default async function AccountRequestsPage({
               className="mt-5"
               href={appRoutes.request}
             >
-              Talep Oluştur
+              Hizmeti Satın Al
             </Button>
           </section>
         )}

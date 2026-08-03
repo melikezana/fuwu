@@ -415,7 +415,7 @@ export function WaitlistForm() {
             Bu gönderim gerçek kayıt oluşturmaz ve kişisel veri saklamaz.
           </p>
           <Button className="w-full sm:w-fit" type="submit">
-            Talep Oluştur
+            Hizmeti Satın Al
           </Button>
         </div>
       </form>

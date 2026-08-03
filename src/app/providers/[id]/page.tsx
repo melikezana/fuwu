@@ -317,7 +317,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 variant="primary"
               >
                 <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
-                Talep Oluştur
+                Hizmeti Satın Al
               </Button>
             </div>
           </section>
@@ -459,7 +459,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                   variant="primary"
                 >
                   <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
-                  Talep Oluştur
+                  Hizmeti Satın Al
                 </Button>
               </div>
 
@@ -541,7 +541,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         <div className="mx-auto flex max-w-lg gap-3">
           <Button className="h-12 flex-1 gap-1.5 text-sm" href={appRoutes.request} variant="primary">
             <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
-            Talep Et
+            Hizmeti Satın Al
           </Button>
         </div>
       </div>

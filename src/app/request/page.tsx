@@ -11,9 +11,9 @@ import {
 import { getRequestFormInsights } from "@/services/requests";
 
 export const metadata: Metadata = {
-  title: "Talep Oluştur",
+  title: "Hizmeti Satın Al",
   description:
-    "Fuwu hizmet talebi oluşturma akışı giriş yapan kullanıcılar için güvenli şekilde hazırlanır.",
+    "Fuwu premium hizmet satın alma akışı servis, adres, zaman, özet ve ödeme adımlarıyla hazırlanır.",
 };
 
 export const dynamic = "force-dynamic";
@@ -71,27 +71,29 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
   return (
     <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative grid min-h-[620px] gap-8 py-10 sm:py-14 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:py-16">
-        <div className="min-w-0 cursor-default select-none">
-          <Link
-            aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-            href={appRoutes.home}
-          >
-            <FuwuLogo size="lg" />
-          </Link>
-          <p className="mt-7 text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
-            Talep oluştur
-          </p>
-          <h1 className="mt-4 max-w-xl text-4xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
-            Talep oluşturmak için hesabınla devam et.
-          </h1>
-          <p className="mt-5 max-w-xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
-            Ustaları ve profilleri giriş yapmadan inceleyebilirsin. Hizmet talebi oluşturma adımı
-            ise adres ve iletişim bilgisi içerdiği için yalnızca giriş yapan kullanıcılarla açılır.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {["Hizmeti seç", "İhtiyacını netleştir", "Güvenle talebi gönder"].map(
+      <Container className="relative min-h-[620px] py-10 sm:py-14 lg:py-16">
+        <div className="mb-8 grid min-w-0 cursor-default select-none gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.42fr)] lg:items-end">
+          <div className="min-w-0">
+            <Link
+              aria-label="Fuwu ana sayfasına git"
+              className="inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              href={appRoutes.home}
+            >
+              <FuwuLogo size="lg" />
+            </Link>
+            <p className="mt-7 text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+              Premium checkout
+            </p>
+            <h1 className="mt-4 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
+              Hizmetini seç, randevunu planla, ödemeye geç.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
+              Fuwu booking akışı artık canlı sipariş özeti, ek hizmetler ve ödeme adımıyla premium
+              marketplace checkout deneyimi sunar.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            {["Hizmeti seç", "Randevuyu netleştir", "Ödemeye geç"].map(
               (item, index) => (
                 <div
                   className="rounded-lg border border-[rgba(20,33,61,0.08)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]"

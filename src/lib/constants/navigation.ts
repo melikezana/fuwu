@@ -45,8 +45,8 @@ export function buildLoginRedirectUrl(nextPath: string) {
 export const ctaLabels = {
   findProvider: "Usta Bul",
   login: "Giriş Yakında",
-  request: "Talep Oluştur",
-  waitlist: "Talep Oluştur",
+  request: "Hizmeti Satın Al",
+  waitlist: "Hizmeti Satın Al",
   provider: "Usta Ağına Katıl",
 } as const;
 

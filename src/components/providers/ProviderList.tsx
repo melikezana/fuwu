@@ -53,7 +53,7 @@ function ProviderEmptyState({
           </Button>
         ) : null}
         <Button className="inline-flex" href={requestHref} variant="primary">
-          Talep Oluştur
+          Hizmeti Satın Al
         </Button>
       </div>
     </div>

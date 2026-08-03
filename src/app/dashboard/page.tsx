@@ -309,7 +309,7 @@ export default async function CustomerDashboardPage() {
               className="shrink-0 gap-2"
             >
               <Plus className="size-4" />
-              Yeni Talep Oluştur
+              Hizmeti Satın Al
             </Button>
           </div>
 
@@ -339,7 +339,7 @@ export default async function CustomerDashboardPage() {
             actions={
               <>
                 <Button href={appRoutes.request}>
-                  Talep Oluştur
+                  Hizmeti Satın Al
                 </Button>
                 <Button href={appRoutes.providers} variant="secondary">
                   Ustaları İncele
@@ -355,7 +355,7 @@ export default async function CustomerDashboardPage() {
             actions={
               <>
                 <Button href={appRoutes.request}>
-                  İlk Talebimi Oluştur
+                  Hizmeti Satın Al
                 </Button>
                 <Button href={appRoutes.providers} variant="secondary">
                   Ustaları Gözat
@@ -404,8 +404,8 @@ export default async function CustomerDashboardPage() {
           />
           <QuickLink
             href={appRoutes.request}
-            label="Yeni Talep Oluştur"
-            desc="Hizmet talebi oluştur ve uygun ustayı bul"
+            label="Hizmeti Satın Al"
+            desc="Hizmetini seç ve ödemeye ilerle"
             Icon={Plus}
           />
         </div>

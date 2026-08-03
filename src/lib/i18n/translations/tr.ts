@@ -14,7 +14,7 @@ export const trTranslations = {
   "nav.openMenu": "Menüyü aç",
   "nav.closeMenu": "Menüyü kapat",
   "cta.findProvider": "Usta Bul",
-  "cta.request": "Talep Oluştur",
+  "cta.request": "Hizmeti Satın Al",
   "cta.provider": "Usta Ağına Katıl",
   "cta.clearFilters": "Filtreleri temizle",
   "cta.reviewProfiles": "Tüm profilleri incele",

@@ -75,7 +75,7 @@ export function PopularServicesSection() {
                       {service.detail}
                     </span>
                     <span className="shrink-0 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-orange-dark)] transition-colors duration-300 group-hover:border-[var(--brand-orange)] group-hover:bg-[var(--brand-orange)] group-hover:text-[var(--brand-navy)]">
-                      Talep Oluştur
+                      Hizmeti Satın Al
                     </span>
                   </div>
                 </div>
