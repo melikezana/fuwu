@@ -129,7 +129,7 @@ test.describe("CTO launch verification", () => {
       role: "customer",
     });
     await submitStandardLocksmithRequest(customerPage);
-    await expect(customerPage.getByTestId("request-success-card")).toBeVisible();
+    await expect(customerPage).toHaveURL(/\/order-tracking\/[0-9a-f-]{36}$/);
     await captureEvidence(customerPage, "03-customer-request-created.png");
 
     const { data: request, error: requestReadError } = await admin

@@ -82,7 +82,7 @@ test.describe("auth-required form restoration", () => {
           district: "Kadıköy",
           fullAddress: "Korunan test adresi",
           offerAmount: "",
-          paymentPreference: "cash",
+          paymentPreference: "online_soon",
           urgencyLevel: "Bu hafta",
           urgencyType: "standard",
           preferredDate: "2026-07-01",

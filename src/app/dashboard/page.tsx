@@ -580,7 +580,7 @@ function RequestCard({ request }: { request: ServiceRequest }) {
             )}
             {request.confirmation_code && (
               <span className="rounded-md bg-[var(--surface-soft)] px-1.5 py-0.5 font-semibold text-[var(--brand-navy)]">
-                #{request.confirmation_code}
+                Müşteri kodu: {request.confirmation_code}
               </span>
             )}
           </div>

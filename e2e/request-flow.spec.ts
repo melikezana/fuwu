@@ -12,8 +12,8 @@ test.describe("customer request flow", () => {
     await loginWithEmailMagicLink(page);
     await submitStandardLocksmithRequest(page);
 
-    await expect(page.getByTestId("request-success-card")).toBeVisible();
-    await expect(page.getByTestId("request-success-code")).toContainText(/^FW-/);
-    await expect(page.getByTestId("request-success-card")).toHaveClass(/trust-green-soft/);
+    await expect(page).toHaveURL(/\/order-tracking\/[0-9a-f-]{36}$/);
+    await expect(page.getByText("Order Tracking")).toBeVisible();
+    await expect(page.getByText("6 haneli kod")).toBeVisible();
   });
 });

@@ -43,9 +43,14 @@ import { isUuid } from "@/lib/utils/validation";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { writeAuditLog } from "@/services/audit";
 import {
+  notifyServiceRequestCreated,
   notifyServiceRequestAccepted,
   notifyServiceRequestRejected,
 } from "@/services/notifications";
+import {
+  generateCustomerVerificationCode,
+  generateUniqueCustomerVerificationCode,
+} from "@/services/requests/verificationCode";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import type {
   ServiceRequestInput,
@@ -175,12 +180,7 @@ function createLiveRequestCode(id: unknown) {
 }
 
 export function generateJobConfirmationCode() {
-  const randomNumber =
-    typeof globalThis.crypto !== "undefined" && "getRandomValues" in globalThis.crypto
-      ? globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 9000
-      : Math.floor(Math.random() * 9000);
-
-  return `FW-${String(randomNumber + 1000).padStart(4, "0")}`;
+  return generateCustomerVerificationCode();
 }
 
 export const generateConfirmationCode = generateJobConfirmationCode;
@@ -651,12 +651,13 @@ async function buildServiceRequestInsert(
     urgencyType === "emergency"
       ? validateEmergencyPrice(data.offerAmount, serviceCategoryName)
       : null;
+  const confirmationCode = await generateUniqueCustomerVerificationCode(supabase);
   const emergencyRequest =
     urgencyType === "emergency"
       ? createEmergencyMatchRequest({
           approximateLocation: data.approximateLocation,
           budgetTag: "acil-hizmet",
-          confirmationCode: generateJobConfirmationCode(),
+          confirmationCode,
           district: data.district,
           notes: data.shortDescription,
           offerAmount: emergencyPriceValidation?.price ?? data.offerAmount,
@@ -736,7 +737,7 @@ async function buildServiceRequestInsert(
     offered_price: offeredPrice,
     payment_method: paymentPreference,
     payment_preference: paymentPreference,
-    confirmation_code: emergencyRequest?.confirmationCode ?? generateJobConfirmationCode(),
+    confirmation_code: emergencyRequest?.confirmationCode ?? confirmationCode,
     estimated_arrival_text: emergencyRequest?.estimatedArrivalText ?? null,
     approximate_location: emergencyRequest?.approximateLocation ?? null,
     preferred_date: data.preferredDate.trim() || (urgencyType === "emergency" ? getTodayDateInput() : null),
@@ -870,6 +871,13 @@ export async function createServiceRequest(
   );
 
   const requestCode = createLiveRequestCode(requestId);
+  await notifyServiceRequestCreated({
+    customerUserId: user.id,
+    requestCode,
+    requestId,
+    supabaseClient: supabase,
+    verificationCode: insertPayload.confirmation_code ?? null,
+  });
   const eligibleProviderCount = requestId
     ? await matchAndNotifyEligibleProviders(supabase, {
         categoryId: insertPayload.category_id,
@@ -1016,6 +1024,13 @@ export async function createAuthenticatedServiceRequest(
   );
 
   const requestCode = createLiveRequestCode(requestId);
+  await notifyServiceRequestCreated({
+    customerUserId: authContext.user.id,
+    requestCode,
+    requestId,
+    supabaseClient: authContext.supabase,
+    verificationCode: insertPayload.confirmation_code ?? null,
+  });
   const eligibleProviderCount = requestId
     ? await matchAndNotifyEligibleProviders(authContext.supabase, {
         categoryId: insertPayload.category_id,
@@ -1394,7 +1409,8 @@ export async function assignProviderToEmergencyRequest(
     accepted_at: null,
     accepted_provider_id: null,
     assigned_provider_id: providerId,
-    confirmation_code: request.confirmation_code ?? generateJobConfirmationCode(),
+    confirmation_code:
+      request.confirmation_code ?? (await generateUniqueCustomerVerificationCode(supabase)),
     emergency_status: EMERGENCY_REQUEST_STATUSES.assigned,
     estimated_arrival_text:
       request.estimated_arrival_text ??
@@ -1603,7 +1619,7 @@ export async function acceptEmergencyRequest(
 
   const { data: currentRequest, error: requestError } = await supabase
     .from("service_requests")
-    .select("id, status, urgency_type, category_id, district_id, assigned_provider_id, districts(name)")
+    .select("id, status, urgency_type, category_id, district_id, assigned_provider_id, confirmation_code, districts(name)")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -1644,7 +1660,9 @@ export async function acceptEmergencyRequest(
     accepted_at: acceptedAt,
     accepted_provider_id: providerId,
     assigned_provider_id: providerId,
-    confirmation_code: generateJobConfirmationCode(),
+    confirmation_code:
+      currentRequest.confirmation_code ??
+      (await generateUniqueCustomerVerificationCode(supabase)),
     emergency_status: EMERGENCY_REQUEST_STATUSES.accepted,
     estimated_arrival_text: calculateEstimatedArrivalText({
       acceptedAt,
@@ -1777,7 +1795,8 @@ export async function respondToProviderAssignedRequest(
 
     if (isEmergencyRequest && action === "accept") {
       updatePayload.confirmation_code =
-        currentRequest.confirmation_code ?? generateJobConfirmationCode();
+        currentRequest.confirmation_code ??
+        (await generateUniqueCustomerVerificationCode(supabase));
       updatePayload.emergency_status = EMERGENCY_REQUEST_STATUSES.accepted;
       updatePayload.estimated_arrival_text =
         currentRequest.estimated_arrival_text ??

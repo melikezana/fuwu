@@ -229,7 +229,7 @@ export async function fillStandardLocksmithRequest(page: Page) {
   await page.locator('input[name="fullAddress"]').fill(`E2E adres ${suffix}`);
   await page.locator('input[name="urgencyLevel"][value="Bu hafta"]').check({ force: true });
   await page.locator('input[name="budgetTag"]').first().check({ force: true });
-  await page.locator('input[name="paymentPreference"][value="cash"]').check({ force: true });
+  await page.locator('input[name="paymentPreference"][value="online_soon"]').check({ force: true });
   await page.locator('input[name="preferredDate"]').fill("2026-07-01");
   await page.locator('select[name="preferredTimeRange"]').selectOption({ index: 1 });
   await page.locator('textarea[name="shortDescription"]').fill(`E2E çilingir talebi ${suffix}`);

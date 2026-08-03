@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { confirmPaymentByCustomerAction } from "@/app/account/requests/actions";
@@ -20,14 +20,14 @@ type PaymentConfirmationButtonProps = {
 
 function getConfirmationLabel(method: ServiceRequestPaymentPreference) {
   if (method === PAYMENT_PREFERENCES.iban) {
-    return "IBAN transferini onayladım";
+    return "Kodu doğrula ve transferi onayla";
   }
 
   if (method === PAYMENT_PREFERENCES.onlineSoon) {
-    return "Online ödemeyi onayladım";
+    return "Kodu doğrula ve ödemeyi serbest bırak";
   }
 
-  return "Nakit ödemeyi onayladım";
+  return "Kodu doğrula ve ödemeyi onayla";
 }
 
 export function PaymentConfirmationButton({
@@ -41,12 +41,23 @@ export function PaymentConfirmationButton({
     status === PAYMENT_STATUSES.confirmed,
   );
   const [message, setMessage] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
+  const normalizedVerificationCode = verificationCode.replace(/\D/g, "").slice(0, 6);
+  const canSubmitCode = normalizedVerificationCode.length === 6;
 
   function handleConfirm() {
     setMessage(null);
 
+    if (!canSubmitCode) {
+      setMessage("6 haneli müşteri doğrulama kodunu gir.");
+      return;
+    }
+
     startTransition(async () => {
-      const result = await confirmPaymentByCustomerAction(requestId);
+      const result = await confirmPaymentByCustomerAction(
+        requestId,
+        normalizedVerificationCode,
+      );
 
       if (!result.ok) {
         setMessage(result.message);
@@ -54,19 +65,53 @@ export function PaymentConfirmationButton({
       }
 
       setIsConfirmed(true);
+      setVerificationCode("");
       router.refresh();
     });
   }
 
   return (
-    <div>
+    <div className="max-w-md">
+      {!isConfirmed ? (
+        <div className="mb-3">
+          <label
+            className="block text-xs font-bold uppercase tracking-normal text-[var(--muted)]"
+            htmlFor={`verification-code-${requestId}`}
+          >
+            Müşteri doğrulama kodu
+          </label>
+          <div className="relative mt-2">
+            <ShieldCheck
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--trust-green)]"
+            />
+            <input
+              autoComplete="one-time-code"
+              className="premium-control min-h-12 w-full pl-10 pr-4 text-center font-mono text-lg font-extrabold tracking-[0.24em] text-[var(--brand-navy)] outline-none"
+              id={`verification-code-${requestId}`}
+              inputMode="numeric"
+              maxLength={6}
+              onChange={(event) =>
+                setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+              pattern="[0-9]*"
+              placeholder="000000"
+              type="text"
+              value={normalizedVerificationCode}
+            />
+          </div>
+          <p className="mt-2 text-xs font-semibold leading-5 text-[var(--muted)]">
+            Kod yalnızca müşteri hesabında görünür. Hatalı kodda ödeme emanet hesapta kalır.
+          </p>
+        </div>
+      ) : null}
       <Button
         className={
           isConfirmed
             ? "w-full bg-[var(--trust-green)] text-white hover:bg-[var(--trust-green)] sm:w-fit"
             : "w-full bg-[var(--trust-green)] text-white hover:bg-[var(--trust-green)] sm:w-fit"
         }
-        disabled={isPending || isConfirmed}
+        disabled={isPending || isConfirmed || !canSubmitCode}
         onClick={handleConfirm}
         type="button"
       >

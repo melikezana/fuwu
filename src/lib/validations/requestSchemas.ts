@@ -122,7 +122,7 @@ export function validateServiceRequestInput(
     ) {
       issues.push({
         field: "paymentPreference",
-        message: "Acil hizmette ödeme tercihi Nakit veya IBAN olmalıdır.",
+        message: "Acil hizmette ödeme tercihi Online Ödeme olmalıdır.",
       });
     }
 

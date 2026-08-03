@@ -92,14 +92,16 @@ async function main() {
       throw new Error("Payment test category or district seed is missing.");
     }
 
+    const verificationCode = "123456";
     const { data: request, error: requestError } = await admin
       .from("service_requests")
       .insert({
         address: "Payment Test Kadıköy",
         category_id: category.id,
+        confirmation_code: verificationCode,
         description: "Müşteri ödeme onayı entegrasyon testi",
         district_id: district.id,
-        payment_preference: "cash",
+        payment_preference: "online_soon",
         status: "completed",
         urgency: "normal",
         urgency_type: "standard",
@@ -117,7 +119,7 @@ async function main() {
       .from("payments")
       .insert({
         amount: 1250,
-        payment_method: "cash",
+        payment_method: "online_soon",
         request_id: requestId,
         status: "pending_confirmation",
       })
@@ -129,7 +131,11 @@ async function main() {
     }
 
     paymentId = payment.id;
-    const confirmed = await confirmPaymentByCustomer(requestId, customerClient);
+    const confirmed = await confirmPaymentByCustomer(
+      requestId,
+      verificationCode,
+      customerClient,
+    );
     const [{ data: persistedPayment }, { data: auditLog }] = await Promise.all([
       admin
         .from("payments")

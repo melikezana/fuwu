@@ -57,5 +57,6 @@ export const config = {
     "/provider-dashboard/:path*",
     "/account/:path*",
     "/dashboard/:path*",
+    "/order-tracking/:path*",
   ],
 };

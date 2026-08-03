@@ -32,6 +32,8 @@ type RequestSearchParams = {
   notes?: string | string[];
   offer_amount?: string | string[];
   payment_preference?: string | string[];
+  provider_id?: string | string[];
+  provider_name?: string | string[];
   service?: string | string[];
   time?: string | string[];
 };
@@ -67,6 +69,9 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
     getSearchParam(params?.payment_preference) ||
     getSearchParam(params?.match_payment_preference);
   const initialApproximateLocation = getSearchParam(params?.approximate_location);
+  const initialProviderId = getSearchParam(params?.provider_id);
+  const initialProviderName = getSearchParam(params?.provider_name);
+  const isProviderProfileCheckout = Boolean(initialProviderId && initialService);
 
   return (
     <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
@@ -82,18 +87,24 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
               <FuwuLogo size="lg" />
             </Link>
             <p className="mt-7 text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              Premium checkout
+              {isProviderProfileCheckout ? "Provider checkout" : "Premium checkout"}
             </p>
             <h1 className="mt-4 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
-              Hizmetini seç, randevunu planla, ödemeye geç.
+              {isProviderProfileCheckout
+                ? `${initialProviderName || "Seçtiğin usta"} için randevunu planla.`
+                : "Hizmetini seç, randevunu planla, ödemeye geç."}
             </h1>
             <p className="mt-5 max-w-3xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
-              Fuwu booking akışı artık canlı sipariş özeti, ek hizmetler ve ödeme adımıyla premium
-              marketplace checkout deneyimi sunar.
+              {isProviderProfileCheckout
+                ? "Profil üzerinden başladığın için servis seçimi tamamlandı; tarih, saat, ek hizmetler, adres, notlar, özet ve online ödeme adımlarıyla devam et."
+                : "Fuwu booking akışı artık canlı sipariş özeti, ek hizmetler ve ödeme adımıyla premium marketplace checkout deneyimi sunar."}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {["Hizmeti seç", "Randevuyu netleştir", "Ödemeye geç"].map(
+            {(isProviderProfileCheckout
+              ? ["Tarihi seç", "Randevuyu netleştir", "Online ödeme"]
+              : ["Hizmeti seç", "Randevuyu netleştir", "Ödemeye geç"]
+            ).map(
               (item, index) => (
                 <div
                   className="rounded-lg border border-[rgba(20,33,61,0.08)] bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]"
@@ -118,6 +129,8 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
           initialOfferAmount={initialOfferAmount}
           initialPaymentPreference={initialPaymentPreference}
           initialProfileFullName={profile?.full_name}
+          initialProviderId={initialProviderId}
+          initialProviderName={initialProviderName}
           initialService={initialService}
           initialTimePreference={initialTimePreference}
           insights={insights}

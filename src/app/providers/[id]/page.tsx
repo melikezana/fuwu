@@ -204,6 +204,13 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
       value: responseTimeLabel,
     },
   ];
+  const providerCheckoutParams = new URLSearchParams({
+    district: provider.district,
+    provider_id: provider.id,
+    provider_name: provider.name,
+    service: provider.category,
+  });
+  const providerCheckoutHref = `${appRoutes.request}?${providerCheckoutParams.toString()}`;
 
   return (
     <div className="bg-[var(--background)] pb-24 lg:pb-0">
@@ -313,7 +320,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             <div className="relative mt-6 lg:hidden">
               <Button
                 className="min-h-12 w-full gap-2"
-                href={appRoutes.request}
+                href={providerCheckoutHref}
                 variant="primary"
               >
                 <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
@@ -455,7 +462,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               <div className="mt-6 grid gap-3">
                 <Button
                   className="min-h-12 w-full gap-2"
-                  href={appRoutes.request}
+                  href={providerCheckoutHref}
                   variant="primary"
                 >
                   <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
@@ -539,7 +546,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
 
       <div className="safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
         <div className="mx-auto flex max-w-lg gap-3">
-          <Button className="h-12 flex-1 gap-1.5 text-sm" href={appRoutes.request} variant="primary">
+          <Button className="h-12 flex-1 gap-1.5 text-sm" href={providerCheckoutHref} variant="primary">
             <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />
             Hizmeti Satın Al
           </Button>

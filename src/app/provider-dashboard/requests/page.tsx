@@ -461,9 +461,7 @@ export default async function ProviderDashboardRequestsPage({
                   {request.urgencyType === "emergency" ? (
                     <>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        Kod: {normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.pending
-                          ? "Kabul sonrası"
-                          : request.confirmationCode ?? "Kabul sonrası"}
+                        Kod: müşteri hesabında
                       </span>
                       <ProviderRequestActions request={request} />
                     </>

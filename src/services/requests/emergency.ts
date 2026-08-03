@@ -25,6 +25,11 @@ import { ensureProfileForUser } from "@/services/auth/profiles";
 import { saveEmergencyPaymentPreference } from "@/services/payments";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import { writeAuditLog } from "@/services/audit";
+import { notifyServiceRequestCreated } from "@/services/notifications";
+import {
+  generateCustomerVerificationCode,
+  generateUniqueCustomerVerificationCode,
+} from "@/services/requests/verificationCode";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import type { ServiceRequestInput, ServiceRequestSubmitResult } from "@/types/request";
@@ -54,8 +59,12 @@ function createRequestCode(id: unknown) {
   return `FW-${id.slice(0, 8).toLocaleUpperCase("tr")}`;
 }
 
-export async function generateJobConfirmationCode(): Promise<string> {
-  return `FW-${Math.floor(1000 + Math.random() * 9000)}`;
+export async function generateJobConfirmationCode(
+  supabase?: SupabaseClient<Database>,
+): Promise<string> {
+  return supabase
+    ? generateUniqueCustomerVerificationCode(supabase)
+    : generateCustomerVerificationCode();
 }
 
 export async function calculateSuggestedPrice(category: string): Promise<number> {
@@ -181,7 +190,7 @@ async function createEmergencyInsert(
     });
   }
 
-  const confirmationCode = await generateJobConfirmationCode();
+  const confirmationCode = await generateJobConfirmationCode(supabase);
   const emergencyRequest = buildEmergencyMatchRequest({
     approximateLocation: input.approximateLocation,
     budgetTag: "acil-hizmet",
@@ -335,6 +344,13 @@ export async function createEmergencyMatchRequest(
 
   const requestCode = createRequestCode(data?.id);
   const requestId = typeof data?.id === "string" ? data.id : null;
+  await notifyServiceRequestCreated({
+    customerUserId: authContext.user.id,
+    requestCode,
+    requestId,
+    supabaseClient: supabase,
+    verificationCode: insertPayload.confirmation_code ?? null,
+  });
   const eligibleProviderCount = requestId
     ? await matchAndNotifyEligibleProviders(supabase, {
         categoryId: insertPayload.category_id,

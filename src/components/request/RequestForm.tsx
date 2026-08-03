@@ -49,7 +49,6 @@ import {
   EMERGENCY_PAYMENT_PREFERENCES,
   PAYMENT_PREFERENCES,
   getPaymentPreferenceLabel,
-  ibanAfterProviderAcceptsText,
   normalizePaymentPreference,
   type ServiceRequestPaymentPreference,
 } from "@/services/payments";
@@ -88,6 +87,8 @@ type RequestFormProps = {
   initialOfferAmount?: string;
   initialPaymentPreference?: string;
   initialProfileFullName?: string | null;
+  initialProviderId?: string;
+  initialProviderName?: string;
   initialService?: string;
   initialTimePreference?: string;
   insights: RequestFormInsights;
@@ -102,6 +103,8 @@ type RequestInitialFormProps = Pick<
   | "initialOfferAmount"
   | "initialPaymentPreference"
   | "initialProfileFullName"
+  | "initialProviderId"
+  | "initialProviderName"
   | "initialService"
   | "initialTimePreference"
 >;
@@ -145,7 +148,7 @@ const initialFormState: RequestFormState = {
   district: "",
   fullAddress: "",
   offerAmount: "",
-  paymentPreference: "",
+  paymentPreference: PAYMENT_PREFERENCES.onlineSoon,
   urgencyLevel: "",
   urgencyType: "standard",
   preferredDate: "",
@@ -156,13 +159,23 @@ const initialFormState: RequestFormState = {
 
 const checkoutSteps: CheckoutStep[] = [
   { id: "service", icon: ShoppingBag, kicker: "1", title: "Service" },
-  { id: "address", icon: MapPin, kicker: "2", title: "Address" },
-  { id: "date", icon: CalendarDays, kicker: "3", title: "Date" },
-  { id: "time", icon: Clock3, kicker: "4", title: "Time" },
-  { id: "extras", icon: PackagePlus, kicker: "5", title: "Extra Services" },
+  { id: "date", icon: CalendarDays, kicker: "2", title: "Date" },
+  { id: "time", icon: Clock3, kicker: "3", title: "Time" },
+  { id: "extras", icon: PackagePlus, kicker: "4", title: "Extra Services" },
+  { id: "address", icon: MapPin, kicker: "5", title: "Address" },
   { id: "notes", icon: Camera, kicker: "6", title: "Notes & Photos" },
   { id: "summary", icon: ReceiptText, kicker: "7", title: "Order Summary" },
   { id: "payment", icon: CreditCard, kicker: "8", title: "Payment" },
+];
+
+const providerProfileCheckoutSteps: CheckoutStep[] = [
+  { id: "date", icon: CalendarDays, kicker: "1", title: "Date" },
+  { id: "time", icon: Clock3, kicker: "2", title: "Time" },
+  { id: "extras", icon: PackagePlus, kicker: "3", title: "Extras" },
+  { id: "address", icon: MapPin, kicker: "4", title: "Address" },
+  { id: "notes", icon: Camera, kicker: "5", title: "Notes / Photos" },
+  { id: "summary", icon: ReceiptText, kicker: "6", title: "Order Summary" },
+  { id: "payment", icon: CreditCard, kicker: "7", title: "Payment" },
 ];
 
 const urgencyOptions: Array<{
@@ -190,22 +203,18 @@ const timeRangeOptions = [
   "Akşam (18:00 - 21:00)",
 ];
 
-const emergencyPaymentOptions: Array<{
+const onlinePaymentOption: {
   description: string;
   label: string;
   value: ServiceRequestPaymentPreference;
-}> = [
-  {
-    description: "Hizmet tamamlandığında ödeme onayı alınır.",
-    label: "Kapıda nakit",
-    value: PAYMENT_PREFERENCES.cash,
-  },
-  {
-    description: ibanAfterProviderAcceptsText,
-    label: "IBAN / Havale",
-    value: PAYMENT_PREFERENCES.iban,
-  },
-];
+} = {
+  description:
+    "Kartla online ödeme alınır; tutar doğrulama kodu girilene kadar emanet hesapta tutulur.",
+  label: "Online Ödeme",
+  value: PAYMENT_PREFERENCES.onlineSoon,
+};
+
+const emergencyPaymentOptions = [onlinePaymentOption];
 
 const standardBudgetOptions = providerBudgetOptions.filter(
   (option) => option.value !== "acil-hizmet",
@@ -215,23 +224,7 @@ const standardPaymentOptions: Array<{
   description: string;
   label: string;
   value: ServiceRequestPaymentPreference;
-}> = [
-  {
-    description: "Hizmet tamamlandığında ödeme onayı alınır.",
-    label: "Kapıda nakit",
-    value: PAYMENT_PREFERENCES.cash,
-  },
-  {
-    description: ibanAfterProviderAcceptsText,
-    label: "IBAN / Havale",
-    value: PAYMENT_PREFERENCES.iban,
-  },
-  {
-    description: "Online ödeme açıldığında bu sipariş akışına bağlanır.",
-    label: "Online ödeme",
-    value: PAYMENT_PREFERENCES.onlineSoon,
-  },
-];
+}> = [onlinePaymentOption];
 
 const emergencyLocationOptions = ["Ev", "İş yeri", "Site / apartman", "Kapı önü"];
 
@@ -545,7 +538,9 @@ function createInitialFormState({
     district,
     fullName: initialProfileFullName?.trim() ?? "",
     offerAmount: initialOfferAmount.trim() || (suggestedEmergencyPrice ? String(suggestedEmergencyPrice) : ""),
-    paymentPreference: canPrefillPaymentPreference ? normalizedPaymentPreference ?? "" : "",
+    paymentPreference: canPrefillPaymentPreference
+      ? normalizedPaymentPreference ?? PAYMENT_PREFERENCES.onlineSoon
+      : PAYMENT_PREFERENCES.onlineSoon,
     preferredDate:
       formatPreferredDateFromOffset(timeIntent.preferredDateOffsetDays) ||
       (isEmergencyFlow ? getTodayDateInput() : ""),
@@ -701,17 +696,23 @@ function getCheckoutStepForField(field: RequestField): CheckoutStepId {
 function buildCheckoutDescription({
   couponCode,
   photoNames,
+  providerId,
+  providerName,
   selectedExtras,
   selectedSubService,
   shortDescription,
 }: {
   couponCode: string;
   photoNames: string[];
+  providerId?: string;
+  providerName?: string;
   selectedExtras: CheckoutExtra[];
   selectedSubService: string;
   shortDescription: string;
 }) {
   const checkoutLines = [
+    providerName ? `Seçilen usta: ${providerName}` : "",
+    providerId ? `Seçilen usta ID: ${providerId}` : "",
     selectedSubService ? `Alt hizmet: ${selectedSubService}` : "",
     selectedExtras.length > 0
       ? `Ek hizmetler: ${selectedExtras.map((extra) => extra.label).join(", ")}`
@@ -721,6 +722,42 @@ function buildCheckoutDescription({
   ].filter(Boolean);
 
   return [shortDescription.trim(), ...checkoutLines].filter(Boolean).join("\n");
+}
+
+function getCheckoutStepDefinition(
+  stepId: CheckoutStepId,
+  steps: CheckoutStep[],
+) {
+  return steps.find((step) => step.id === stepId) ?? checkoutSteps.find((step) => step.id === stepId)!;
+}
+
+function getCheckoutStepOrderClassName(
+  stepId: CheckoutStepId,
+  isProviderProfileCheckout: boolean,
+) {
+  const providerStepOrder: Partial<Record<CheckoutStepId, string>> = {
+    date: "order-1",
+    time: "order-2",
+    extras: "order-3",
+    address: "order-4",
+    notes: "order-5",
+    summary: "order-6",
+    payment: "order-7",
+  };
+  const standardStepOrder: Record<CheckoutStepId, string> = {
+    service: "order-1",
+    date: "order-2",
+    time: "order-3",
+    extras: "order-4",
+    address: "order-5",
+    notes: "order-6",
+    summary: "order-7",
+    payment: "order-8",
+  };
+
+  return isProviderProfileCheckout
+    ? providerStepOrder[stepId] ?? "hidden"
+    : standardStepOrder[stepId];
 }
 
 function InsightNote({
@@ -746,12 +783,14 @@ function InsightNote({
 
 function CheckoutStepCard({
   children,
+  className,
   isActive,
   isComplete,
   onActivate,
   step,
 }: {
   children: ReactNode;
+  className?: string;
   isActive: boolean;
   isComplete: boolean;
   onActivate: () => void;
@@ -766,6 +805,7 @@ function CheckoutStepCard({
         isActive
           ? "border-[rgba(255,101,0,0.34)] shadow-[var(--shadow-elevated)] ring-2 ring-[rgba(255,101,0,0.08)]"
           : "border-[rgba(10,37,64,0.08)]",
+        className,
       )}
       onFocusCapture={onActivate}
     >
@@ -924,7 +964,7 @@ function OrderSummaryPanel({
         type="submit"
         variant="premium"
       >
-        {isSubmitting ? "Ödemeye hazırlanıyor..." : "Ödemeye Geç"}
+        {isSubmitting ? "Ödeme hazırlanıyor..." : "Online Ödemeyi Tamamla"}
       </Button>
       <p className="mt-3 text-center text-xs font-semibold leading-5 text-[var(--muted)]">
         Ödeme kaydı mevcut Fuwu sipariş güvenliğiyle tamamlanır.
@@ -943,10 +983,17 @@ export function RequestForm({
   initialOfferAmount,
   initialPaymentPreference,
   initialProfileFullName,
+  initialProviderId,
+  initialProviderName,
   initialService,
   initialTimePreference,
 }: RequestFormProps) {
   const router = useRouter();
+  const initialProviderIdValue = initialProviderId?.trim() ?? "";
+  const initialProviderNameValue = initialProviderName?.trim() ?? "";
+  const hasProviderProfilePrefill = Boolean(
+    initialProviderIdValue && initialService?.trim(),
+  );
   const [formState, setFormState] = useState<RequestFormState>(() =>
     createInitialFormState({
       initialApproximateLocation,
@@ -956,11 +1003,15 @@ export function RequestForm({
       initialOfferAmount,
       initialPaymentPreference,
       initialProfileFullName,
+      initialProviderId,
+      initialProviderName,
       initialService,
       initialTimePreference,
     }),
   );
-  const [activeStepId, setActiveStepId] = useState<CheckoutStepId>("service");
+  const [activeStepId, setActiveStepId] = useState<CheckoutStepId>(
+    hasProviderProfilePrefill ? "date" : "service",
+  );
   const [selectedExtraIds, setSelectedExtraIds] = useState<CheckoutExtraId[]>([]);
   const [selectedSubService, setSelectedSubService] = useState("");
   const [couponCode, setCouponCode] = useState("");
@@ -973,6 +1024,12 @@ export function RequestForm({
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const isEmergencyFlow = formState.urgencyType === "emergency";
   const selectedService = getSelectedService(formState.serviceCategory);
+  const isProviderProfileCheckout = Boolean(
+    hasProviderProfilePrefill && selectedService,
+  );
+  const visibleCheckoutSteps = isProviderProfileCheckout
+    ? providerProfileCheckoutSteps
+    : checkoutSteps;
   const subServiceOptions = useMemo(() => getSubServiceOptions(selectedService), [selectedService]);
   const selectedExtras = useMemo(
     () => checkoutExtraOptions.filter((extra) => selectedExtraIds.includes(extra.id)),
@@ -1211,6 +1268,8 @@ export function RequestForm({
       shortDescription: buildCheckoutDescription({
         couponCode,
         photoNames,
+        providerId: initialProviderIdValue,
+        providerName: initialProviderNameValue,
         selectedExtras,
         selectedSubService: currentSubService,
         shortDescription: formState.shortDescription,
@@ -1240,7 +1299,8 @@ export function RequestForm({
             pendingRequestFormStorageKey,
             JSON.stringify(normalizedRequest),
           );
-          router.push("/login?next=/request&restore=1");
+          const returnTo = `${window.location.pathname}${window.location.search}`;
+          router.push(`/login?next=${encodeURIComponent(returnTo)}&restore=1`);
           return;
         }
 
@@ -1255,6 +1315,11 @@ export function RequestForm({
         requestCode: result.requestCode,
         urgencyLevel: normalizedRequest.urgencyLevel,
       });
+      if (result.requestId) {
+        router.push(`${appRoutes.orderTracking}/${result.requestId}`);
+        return;
+      }
+
       setSubmittedRequest(result);
     } catch (error) {
       setSubmittedRequest(null);
@@ -1323,18 +1388,22 @@ export function RequestForm({
       onSubmit={handleSubmit}
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_410px]">
-        <div className="min-w-0 space-y-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <div className="rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-5 shadow-[var(--shadow-elevated)] sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-2xl">
                 <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                  Premium checkout
+                  {isProviderProfileCheckout ? "Provider checkout" : "Premium checkout"}
                 </p>
                 <h2 className="mt-3 text-3xl font-extrabold leading-tight text-[var(--brand-navy)] sm:text-4xl">
-                  Hizmeti satın al, randevunu netleştir.
+                  {isProviderProfileCheckout
+                    ? "Tarih seç, randevunu netleştir."
+                    : "Hizmeti satın al, randevunu netleştir."}
                 </h2>
                 <p className="mt-3 text-base font-semibold leading-7 text-[var(--muted)]">
-                  Servisi, adresi, zamanı ve ödeme tercihini tek akışta tamamla.
+                  {isProviderProfileCheckout
+                    ? `${initialProviderNameValue || "Seçtiğin usta"} için servis seçimini geçip doğrudan randevu ve ödeme adımlarına devam et.`
+                    : "Servisi, adresi, zamanı ve ödeme tercihini tek akışta tamamla."}
                 </p>
               </div>
               <div className="rounded-lg bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(10,37,64,0.08)]">
@@ -1343,17 +1412,26 @@ export function RequestForm({
               </div>
             </div>
 
-            {hasSmartMatchPrefill ? (
+            {hasSmartMatchPrefill && !isProviderProfileCheckout ? (
               <p className="mt-4 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
                 Hızlı Eşleşme seçimlerin checkout akışına eklendi.
               </p>
             ) : null}
 
+            {isProviderProfileCheckout ? (
+              <p className="mt-4 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
+                {initialProviderNameValue || "Seçili usta"} profili üzerinden başladığın için hizmet seçimi tamamlandı.
+              </p>
+            ) : null}
+
             <ol
               aria-label="Rezervasyon adımları"
-              className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8"
+              className={cn(
+                "mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4",
+                isProviderProfileCheckout ? "xl:grid-cols-7" : "xl:grid-cols-8",
+              )}
             >
-              {checkoutSteps.map((step) => {
+              {visibleCheckoutSteps.map((step) => {
                 const Icon = step.icon;
                 const isActive = activeStepId === step.id;
                 const isComplete = isStepComplete(step.id);
@@ -1495,10 +1573,11 @@ export function RequestForm({
           ) : null}
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("service", isProviderProfileCheckout)}
             isActive={activeStepId === "service"}
             isComplete={isStepComplete("service")}
             onActivate={() => setActiveStepId("service")}
-            step={checkoutSteps[0]}
+            step={getCheckoutStepDefinition("service", visibleCheckoutSteps)}
           >
             <div
               aria-describedby={
@@ -1595,10 +1674,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("address", isProviderProfileCheckout)}
             isActive={activeStepId === "address"}
             isComplete={isStepComplete("address")}
             onActivate={() => setActiveStepId("address")}
-            step={checkoutSteps[1]}
+            step={getCheckoutStepDefinition("address", visibleCheckoutSteps)}
           >
             <div className="grid gap-5 md:grid-cols-2">
               <div>
@@ -1716,10 +1796,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("date", isProviderProfileCheckout)}
             isActive={activeStepId === "date"}
             isComplete={isStepComplete("date")}
             onActivate={() => setActiveStepId("date")}
-            step={checkoutSteps[2]}
+            step={getCheckoutStepDefinition("date", visibleCheckoutSteps)}
           >
             <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
               <div>
@@ -1807,10 +1888,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("time", isProviderProfileCheckout)}
             isActive={activeStepId === "time"}
             isComplete={isStepComplete("time")}
             onActivate={() => setActiveStepId("time")}
-            step={checkoutSteps[3]}
+            step={getCheckoutStepDefinition("time", visibleCheckoutSteps)}
           >
             <div className="grid gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
               <div>
@@ -1869,10 +1951,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("extras", isProviderProfileCheckout)}
             isActive={activeStepId === "extras"}
             isComplete={isStepComplete("extras")}
             onActivate={() => setActiveStepId("extras")}
-            step={checkoutSteps[4]}
+            step={getCheckoutStepDefinition("extras", visibleCheckoutSteps)}
           >
             <div className="grid gap-3 md:grid-cols-2">
               {checkoutExtraOptions.map((extra) => {
@@ -1922,10 +2005,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("notes", isProviderProfileCheckout)}
             isActive={activeStepId === "notes"}
             isComplete={isStepComplete("notes")}
             onActivate={() => setActiveStepId("notes")}
-            step={checkoutSteps[5]}
+            step={getCheckoutStepDefinition("notes", visibleCheckoutSteps)}
           >
             <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
               <div>
@@ -2022,10 +2106,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("summary", isProviderProfileCheckout)}
             isActive={activeStepId === "summary"}
             isComplete={isStepComplete("summary")}
             onActivate={() => setActiveStepId("summary")}
-            step={checkoutSteps[6]}
+            step={getCheckoutStepDefinition("summary", visibleCheckoutSteps)}
           >
             <div className="grid gap-3 rounded-lg bg-[#fffdf9] p-4 ring-1 ring-[rgba(10,37,64,0.08)] sm:grid-cols-2">
               <SummaryLine label="Hizmet" value={selectedService?.title ?? ""} />
@@ -2040,10 +2125,11 @@ export function RequestForm({
           </CheckoutStepCard>
 
           <CheckoutStepCard
+            className={getCheckoutStepOrderClassName("payment", isProviderProfileCheckout)}
             isActive={activeStepId === "payment"}
             isComplete={isStepComplete("payment")}
             onActivate={() => setActiveStepId("payment")}
-            step={checkoutSteps[7]}
+            step={getCheckoutStepDefinition("payment", visibleCheckoutSteps)}
           >
             {isEmergencyFlow ? (
               <div className="rounded-lg border border-[rgba(255,138,0,0.22)] bg-[#fffdf9] p-4 shadow-[var(--shadow-card)]">
@@ -2144,7 +2230,7 @@ export function RequestForm({
 
             <div className="mt-5">
               <span className={labelClassName}>Ödeme yöntemi</span>
-              <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="mt-2 grid grid-cols-1 gap-3">
                 {paymentOptions.map((option) => {
                   const isSelected = formState.paymentPreference === option.value;
 
@@ -2153,7 +2239,7 @@ export function RequestForm({
                       className={cn(
                         "flex min-h-28 cursor-pointer flex-col justify-between rounded-lg border bg-white p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                         isSelected
-                          ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)]"
+                          ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)] ring-2 ring-[rgba(255,138,0,0.14)]"
                           : "border-[var(--border)] hover:border-[var(--brand-orange)]",
                         errors.paymentPreference && "border-red-500",
                       )}
@@ -2171,6 +2257,9 @@ export function RequestForm({
                       <span className="flex items-center gap-2 text-sm font-extrabold text-[var(--brand-navy)]">
                         <Wallet aria-hidden="true" className="size-4 text-[var(--brand-orange-dark)]" />
                         {option.label}
+                        <span className="ml-auto rounded-md bg-white px-2 py-1 text-[0.68rem] font-bold uppercase text-[var(--brand-orange-dark)] ring-1 ring-[rgba(255,138,0,0.22)]">
+                          Birincil
+                        </span>
                       </span>
                       <span className="mt-3 text-xs font-semibold leading-5 text-[var(--muted)]">
                         {option.description}
@@ -2222,7 +2311,7 @@ export function RequestForm({
             type="submit"
             variant="premium"
           >
-            {isSubmitting ? "Hazırlanıyor..." : "Ödemeye Geç"}
+            {isSubmitting ? "Hazırlanıyor..." : "Online Ödeme"}
           </Button>
         </div>
       </div>

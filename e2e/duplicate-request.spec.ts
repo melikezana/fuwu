@@ -11,7 +11,7 @@ test.describe("duplicate request guard", () => {
 
     await loginWithEmailMagicLink(page);
     await submitStandardLocksmithRequest(page);
-    await expect(page.getByTestId("request-success-card")).toBeVisible();
+    await expect(page).toHaveURL(/\/order-tracking\/[0-9a-f-]{36}$/);
 
     await submitStandardLocksmithRequest(page);
     await expect(

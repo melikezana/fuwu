@@ -3,6 +3,10 @@ import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils/validation";
 import { AppError, AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { writeAuditLog } from "@/services/audit";
+import {
+  generateUniqueCustomerVerificationCode,
+  normalizeCustomerVerificationCode,
+} from "@/services/requests/verificationCode";
 import type { ServiceRequestPaymentPreference } from "@/types/request";
 
 export type { ServiceRequestPaymentPreference } from "@/types/request";
@@ -30,8 +34,7 @@ export const PAYMENT_PREFERENCES = {
 } as const satisfies Record<string, ServiceRequestPaymentPreference>;
 
 export const EMERGENCY_PAYMENT_PREFERENCES = [
-  PAYMENT_PREFERENCES.cash,
-  PAYMENT_PREFERENCES.iban,
+  PAYMENT_PREFERENCES.onlineSoon,
 ] as const;
 
 export const PAYMENT_STATUSES = {
@@ -42,7 +45,7 @@ export const PAYMENT_STATUSES = {
 export const PAYMENT_PREFERENCE_LABELS: Record<ServiceRequestPaymentPreference, string> = {
   [PAYMENT_PREFERENCES.cash]: "Nakit",
   [PAYMENT_PREFERENCES.iban]: "IBAN / Havale",
-  [PAYMENT_PREFERENCES.onlineSoon]: "Online Ödeme - Yakında",
+  [PAYMENT_PREFERENCES.onlineSoon]: "Online Ödeme",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
@@ -73,6 +76,8 @@ export function normalizePaymentPreference(
   if (
     [
       "online",
+      "online-odeme",
+      "online-ödeme",
       "online-soon",
       "online_soon",
       "online-odeme-yakinda",
@@ -108,7 +113,7 @@ export function isEmergencyPaymentPreference(
 ): value is (typeof EMERGENCY_PAYMENT_PREFERENCES)[number] {
   const paymentPreference = normalizePaymentPreference(value);
 
-  return paymentPreference === PAYMENT_PREFERENCES.cash || paymentPreference === PAYMENT_PREFERENCES.iban;
+  return paymentPreference === PAYMENT_PREFERENCES.onlineSoon;
 }
 
 export function saveEmergencyPaymentPreference(value: string | null | undefined) {
@@ -233,7 +238,7 @@ export async function createPaymentTrackingForCompletedRequest({
 
   const { data: request, error: requestError } = await supabase
     .from("service_requests")
-    .select("id, offered_price, payment_preference, status")
+    .select("id, confirmation_code, offered_price, payment_preference, status")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -244,6 +249,29 @@ export async function createPaymentTrackingForCompletedRequest({
 
   if (!request || request.status !== "completed") {
     return false;
+  }
+
+  const currentVerificationCode = normalizeCustomerVerificationCode(
+    request.confirmation_code,
+  );
+
+  if (
+    currentVerificationCode.length !== 6 ||
+    currentVerificationCode !== request.confirmation_code
+  ) {
+    const confirmationCode = await generateUniqueCustomerVerificationCode(supabase);
+    const { error } = await supabase
+      .from("service_requests")
+      .update({
+        confirmation_code: confirmationCode,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", requestId);
+
+    if (error) {
+      warnPaymentTrackingError("verification code backfill", error);
+      return false;
+    }
   }
 
   const existingPayment = await getExistingPaymentForRequest(supabase, requestId);
@@ -259,7 +287,7 @@ export async function createPaymentTrackingForCompletedRequest({
         ? null
         : Number(request.offered_price);
   const paymentMethod =
-    savePaymentPreference(request.payment_preference) ?? PAYMENT_PREFERENCES.cash;
+    savePaymentPreference(request.payment_preference) ?? PAYMENT_PREFERENCES.onlineSoon;
 
   if (existingPayment) {
     const updatePayload: PaymentUpdate = {
@@ -339,6 +367,7 @@ export async function confirmTrackedPaymentForRequest({
 
 export async function confirmPaymentByCustomer(
   requestId: string,
+  verificationCode: string,
   supabase: PaymentSupabaseClient,
 ): Promise<PaymentTrackingRecord> {
   if (!isUuid(requestId)) {
@@ -361,7 +390,7 @@ export async function confirmPaymentByCustomer(
 
   const { data: request, error: requestError } = await supabase
     .from("service_requests")
-    .select("id, status")
+    .select("id, confirmation_code, status")
     .eq("id", requestId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -387,6 +416,23 @@ export async function confirmPaymentByCustomer(
       code: "payment-request-not-completed",
       publicMessage: "Ödeme yalnızca tamamlanmış işler için onaylanabilir.",
       statusCode: 409,
+    });
+  }
+
+  const expectedVerificationCode = normalizeCustomerVerificationCode(
+    request.confirmation_code,
+  );
+  const providedVerificationCode = normalizeCustomerVerificationCode(verificationCode);
+
+  if (
+    !expectedVerificationCode ||
+    providedVerificationCode.length !== 6 ||
+    providedVerificationCode !== expectedVerificationCode
+  ) {
+    throw new AppError("payment-verification-code-invalid", {
+      code: "payment-verification-code-invalid",
+      publicMessage: "Doğrulama kodu hatalı. Ödeme emanet hesapta beklemeye devam eder.",
+      statusCode: 403,
     });
   }
 
@@ -436,6 +482,7 @@ export async function confirmPaymentByCustomer(
       metadata: {
         paymentMethod: payment.paymentMethod,
         requestId,
+        verificationCodeConfirmed: true,
       },
     },
     supabase,

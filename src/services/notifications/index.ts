@@ -35,10 +35,13 @@ export type ProviderApplicationDecisionNotification = {
 };
 
 export type ServiceRequestCreatedNotification = {
+  customerUserId?: string | null;
   eligibleProviderCount?: number;
   notificationChannels?: Array<"provider_dashboard" | "push" | "sms" | "whatsapp">;
   requestCode?: string;
   requestId?: string | null;
+  supabaseClient?: SupabaseClient<Database> | null;
+  verificationCode?: string | null;
 };
 
 export type ServiceRequestLifecycleNotification = {
@@ -207,6 +210,23 @@ function getLifecycleNotificationMetadata(
     providerUserId: metadata.providerUserId ?? null,
     requestCode: metadata.requestCode,
     requestId: metadata.requestId ?? null,
+  };
+}
+
+function getServiceRequestCreatedLogMetadata(
+  metadata?: ServiceRequestCreatedNotification,
+): ServiceRequestCreatedNotification | undefined {
+  if (!metadata) {
+    return undefined;
+  }
+
+  return {
+    customerUserId: metadata.customerUserId,
+    eligibleProviderCount: metadata.eligibleProviderCount,
+    notificationChannels: metadata.notificationChannels,
+    requestCode: metadata.requestCode,
+    requestId: metadata.requestId,
+    verificationCode: metadata.verificationCode,
   };
 }
 
@@ -542,7 +562,28 @@ export async function notifyProviderApplicationRejected(
 export async function notifyServiceRequestCreated(
   metadata?: ServiceRequestCreatedNotification,
 ): Promise<NotificationMockResult> {
-  return createMockNotificationResult("service_request_created", metadata);
+  if (metadata?.customerUserId && metadata.requestId && metadata.supabaseClient) {
+    await createNotificationRecordIfTableExists({
+      body: metadata.verificationCode
+        ? `Müşteri doğrulama kodun: ${metadata.verificationCode}. Bu kodu yalnızca hizmet tamamlandığında ödeme serbest bırakmak için kullan.`
+        : "Müşteri doğrulama kodun sipariş takip sayfanda hazır.",
+      event: "service_request_created",
+      metadata: {
+        requestCode: metadata.requestCode,
+        requestId: metadata.requestId,
+        verificationCodeReady: Boolean(metadata.verificationCode),
+      },
+      recipientUserId: metadata.customerUserId,
+      requestId: metadata.requestId,
+      supabaseClient: metadata.supabaseClient,
+      title: "Doğrulama kodun hazır",
+    });
+  }
+
+  return createMockNotificationResult(
+    "service_request_created",
+    getServiceRequestCreatedLogMetadata(metadata),
+  );
 }
 
 export async function notifyEmergencyRequestDispatched(

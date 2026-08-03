@@ -10,6 +10,7 @@ export const appRoutes = {
   login: "/login",
   waitlist: "/waitlist",
   request: "/request",
+  orderTracking: "/order-tracking",
   account: "/account",
   accountApplications: "/account/applications",
   accountRequests: "/dashboard/requests",

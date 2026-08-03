@@ -272,7 +272,7 @@ function RequestCard({
 
       {request.confirmation_code ? (
         <p className="mt-4 inline-flex rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
-          Kod: {request.confirmation_code}
+          Müşteri doğrulama kodu: {request.confirmation_code}
         </p>
       ) : null}
 

@@ -32,14 +32,9 @@ const paymentOptions: Array<{
   value: ServiceRequestPaymentPreference;
 }> = [
   {
-    description: "Usta geldiğinde öde",
-    label: "Nakit",
-    value: PAYMENT_PREFERENCES.cash,
-  },
-  {
-    description: "IBAN bilgisi usta kabulünden sonra paylaşılır.",
-    label: "IBAN",
-    value: PAYMENT_PREFERENCES.iban,
+    description: "Ödeme emanet hesapta tutulur; kod doğrulanınca serbest bırakılır.",
+    label: "Online Ödeme",
+    value: PAYMENT_PREFERENCES.onlineSoon,
   },
 ];
 
@@ -200,11 +195,6 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
                   {formatHeroPrice(filters.offeredPrice)} ·{" "}
                   {getPaymentPreferenceLabel(filters.paymentPreference)}
                 </p>
-                {filters.paymentPreference === PAYMENT_PREFERENCES.iban ? (
-                  <p className="mt-3 rounded-md bg-white px-3 py-2 text-sm font-medium leading-6 text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                    IBAN bilgisi usta kabulünden sonra paylaşılır.
-                  </p>
-                ) : null}
               </div>
               <Button
                 className="h-12 min-h-12 w-full px-7 text-base lg:w-fit"
@@ -221,8 +211,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
                 aria-hidden
               />
               <p className="text-sm font-medium leading-6 text-[var(--muted)]">
-                Usta kabul edince geçici doğrulama üretilir. Nakit veya IBAN tercihin kayıt
-                altında kalır.
+                Usta kabul edince müşteri doğrulama kodu hazırlanır. Ödeme kod doğrulanana kadar emanet hesapta kalır.
               </p>
             </div>
           </section>

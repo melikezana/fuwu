@@ -12,7 +12,7 @@ export type ServiceRequestInput = {
   budgetTag?: string; // 'ekonomik' | 'standart' | 'premium' | 'acil'
   offerAmount?: string;
   offeredPrice?: number;
-  paymentPreference?: string; // 'nakit' | 'iban'
+  paymentPreference?: string; // default booking flow uses 'online_soon'
   approximateLocation?: string;
   emergencyStatus?: string; // 'pending' | 'accepted' 
 };

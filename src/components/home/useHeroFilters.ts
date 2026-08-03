@@ -305,13 +305,12 @@ export function useHeroFilters(filterOptions: ProviderFilterOptions) {
 
       const result = response.data;
       setSubmittedRequest(result);
-      const params = new URLSearchParams({ created: "1" });
-
       if (result.requestId) {
-        params.set("requestId", result.requestId);
+        router.push(`${appRoutes.orderTracking}/${result.requestId}`);
+        return;
       }
 
-      router.push(`${appRoutes.accountRequests}?${params.toString()}`);
+      router.push(`${appRoutes.accountRequests}?created=1`);
     } catch (error) {
       setSubmitError(
         getPublicErrorMessage(

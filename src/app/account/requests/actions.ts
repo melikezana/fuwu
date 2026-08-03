@@ -16,6 +16,7 @@ export type ConfirmPaymentActionResult =
 
 export async function confirmPaymentByCustomerAction(
   requestId: string,
+  verificationCode: string,
 ): Promise<ConfirmPaymentActionResult> {
   try {
     const authContext = await getServerAuthContext();
@@ -27,10 +28,11 @@ export async function confirmPaymentByCustomerAction(
       };
     }
 
-    await confirmPaymentByCustomer(requestId, authContext.supabase);
+    await confirmPaymentByCustomer(requestId, verificationCode, authContext.supabase);
     revalidatePath("/account/requests");
     revalidatePath("/dashboard/requests");
     revalidatePath("/dashboard");
+    revalidatePath(`/order-tracking/${requestId}`);
 
     return { ok: true };
   } catch (error) {
