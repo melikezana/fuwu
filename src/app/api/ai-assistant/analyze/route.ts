@@ -13,7 +13,7 @@ import {
   setCachedAssistantResponse,
 } from "@/lib/ai/rate-limit";
 import { searchProviders } from "@/lib/ai/provider-tools";
-import { logError, logWarn } from "@/lib/logger";
+import { logWarn } from "@/lib/logger";
 import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { detectImageMagicByteMimeType } from "@/lib/validations/imageMagicBytes";
@@ -25,6 +25,8 @@ const maxImageBytes = 10 * 1024 * 1024;
 const maxMessageLength = 2_000;
 const openAiTimeoutMs = 35_000;
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const supportedImageDataUrlPattern =
+  /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
 
 type ConversationContextMessage = {
   role: "assistant" | "user";
@@ -45,6 +47,7 @@ type ParsedAssistantRequest = {
 };
 
 type OpenAiResponsePayload = {
+  id?: string;
   output?: Array<{
     content?: Array<{
       text?: string;
@@ -54,6 +57,90 @@ type OpenAiResponsePayload = {
   }>;
   output_text?: string;
 };
+
+type OpenAiErrorBody = {
+  error?: {
+    code?: unknown;
+    message?: unknown;
+    type?: unknown;
+  };
+};
+
+type OpenAiInputContent =
+  | {
+      text: string;
+      type: "input_text";
+    }
+  | {
+      detail: "auto";
+      image_url: string;
+      type: "input_image";
+    };
+
+type OpenAiInputMessage = {
+  content: OpenAiInputContent[];
+  role: "user";
+};
+
+type OpenAiResponsesPayload = {
+  input: OpenAiInputMessage[];
+  instructions: string;
+  max_output_tokens: number;
+  model: string;
+  store: false;
+  text: {
+    format: {
+      description: string;
+      name: string;
+      schema: typeof assistantAnalysisJsonSchema;
+      strict: true;
+      type: "json_schema";
+    };
+  };
+};
+
+type OpenAiRequestResult = {
+  payload: OpenAiResponsePayload;
+  requestId: string | null;
+};
+
+class OpenAiRequestError extends Error {
+  code: string | null;
+  httpStatus: number;
+  requestId: string | null;
+  type: string | null;
+
+  constructor(
+    message: string,
+    details: {
+      code: string | null;
+      httpStatus: number;
+      requestId: string | null;
+      type: string | null;
+    },
+  ) {
+    super(message);
+    this.name = "OpenAiRequestError";
+    this.code = details.code;
+    this.httpStatus = details.httpStatus;
+    this.requestId = details.requestId;
+    this.type = details.type;
+  }
+}
+
+class AssistantStructuredOutputError extends Error {
+  causeError: unknown;
+  httpStatus: number;
+  requestId: string | null;
+
+  constructor(message: string, requestId: string | null, causeError?: unknown) {
+    super(message);
+    this.name = "AssistantStructuredOutputError";
+    this.causeError = causeError;
+    this.httpStatus = 200;
+    this.requestId = requestId;
+  }
+}
 
 type AssistantPersistenceClient = {
   auth: {
@@ -82,6 +169,190 @@ function assistantJson(body: Record<string, unknown>, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
   response.headers.set("Cache-Control", "no-store, max-age=0");
   return response;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function getStringValue(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function getNumberValue(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function redactOpenAiApiKey(value: string | null) {
+  if (!value) {
+    return value;
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+
+  return apiKey ? value.split(apiKey).join("[redacted]") : value;
+}
+
+function getHeaderValue(headers: unknown, headerName: string) {
+  if (typeof Headers !== "undefined" && headers instanceof Headers) {
+    return getStringValue(headers.get(headerName));
+  }
+
+  if (!isRecord(headers)) {
+    return null;
+  }
+
+  const normalizedHeaderName = headerName.toLocaleLowerCase("en-US");
+
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLocaleLowerCase("en-US") === normalizedHeaderName) {
+      return Array.isArray(value) ? getStringValue(value[0]) : getStringValue(value);
+    }
+  }
+
+  return null;
+}
+
+function getSafeRequestId(value: unknown) {
+  const requestId = getStringValue(value);
+
+  return requestId && /^[A-Za-z0-9._:-]{1,200}$/.test(requestId) ? requestId : null;
+}
+
+function getNestedErrorRecord(error: unknown) {
+  if (!isRecord(error)) {
+    return null;
+  }
+
+  return isRecord(error.error) ? error.error : null;
+}
+
+function getErrorName(error: unknown) {
+  if (error instanceof Error) {
+    return error.name;
+  }
+
+  if (isRecord(error)) {
+    return getStringValue(error.name) ?? "NonError";
+  }
+
+  return "NonError";
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return redactOpenAiApiKey(error.message) ?? "";
+  }
+
+  const recordMessage = isRecord(error) ? getStringValue(error.message) : null;
+  const nestedMessage = getStringValue(getNestedErrorRecord(error)?.message);
+
+  return redactOpenAiApiKey(recordMessage ?? nestedMessage ?? String(error)) ?? "";
+}
+
+function getHttpStatus(error: unknown) {
+  if (!isRecord(error)) {
+    return null;
+  }
+
+  const response = isRecord(error.response) ? error.response : null;
+
+  return (
+    getNumberValue(error.httpStatus) ??
+    getNumberValue(error.status) ??
+    getNumberValue(error.statusCode) ??
+    getNumberValue(response?.status)
+  );
+}
+
+function getOpenAiErrorCode(error: unknown) {
+  if (!isRecord(error)) {
+    return null;
+  }
+
+  return (
+    getStringValue(error.code) ??
+    getStringValue(error.error_code) ??
+    getStringValue(getNestedErrorRecord(error)?.code)
+  );
+}
+
+function getOpenAiErrorType(error: unknown) {
+  if (!isRecord(error)) {
+    return null;
+  }
+
+  return getStringValue(error.type) ?? getStringValue(getNestedErrorRecord(error)?.type);
+}
+
+function getErrorRequestId(error: unknown) {
+  if (!isRecord(error)) {
+    return null;
+  }
+
+  return (
+    getSafeRequestId(error.requestId) ??
+    getSafeRequestId(error.request_id) ??
+    getSafeRequestId(error._request_id) ??
+    getSafeRequestId(getHeaderValue(error.headers, "x-request-id")) ??
+    getSafeRequestId(getHeaderValue(error.headers, "request-id")) ??
+    getSafeRequestId(getNestedErrorRecord(error)?.request_id)
+  );
+}
+
+function getErrorStack(error: unknown) {
+  const stack = error instanceof Error ? error.stack ?? null : isRecord(error) ? getStringValue(error.stack) : null;
+
+  return redactOpenAiApiKey(stack);
+}
+
+function getAssistantErrorLogPayload(error: unknown) {
+  return {
+    name: getErrorName(error),
+    message: getErrorMessage(error),
+    httpStatus: getHttpStatus(error),
+    openAiErrorCode: getOpenAiErrorCode(error),
+    openAiErrorType: getOpenAiErrorType(error),
+    requestId: getErrorRequestId(error),
+    stackTrace: getErrorStack(error),
+  };
+}
+
+function logAssistantAnalyzeError(error: unknown) {
+  const payload = getAssistantErrorLogPayload(error);
+
+  if (error instanceof AssistantStructuredOutputError) {
+    console.error("AI assistant structured output parse failed.", {
+      ...payload,
+      cause: error.causeError ? getAssistantErrorLogPayload(error.causeError) : null,
+    });
+    return;
+  }
+
+  console.error("AI assistant analyze failed.", payload);
+}
+
+function getAssistantFailureStatus(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (error instanceof AssistantStructuredOutputError) {
+    return 500;
+  }
+
+  if (
+    message === "empty-request" ||
+    message === "image-too-large" ||
+    message === "image-type-invalid" ||
+    message === "image-url-invalid"
+  ) {
+    return 400;
+  }
+
+  if (message === "openai-key-missing" || message === "openai-model-missing") {
+    return 503;
+  }
+
+  return 502;
 }
 
 function hashValue(value: string | Buffer) {
@@ -195,7 +466,21 @@ function getCacheKey(parsedRequest: ParsedAssistantRequest) {
   );
 }
 
-function buildOpenAiInput(parsedRequest: ParsedAssistantRequest) {
+function isSupportedImageInputUrl(value: string) {
+  if (supportedImageDataUrlPattern.test(value)) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function buildOpenAiInput(parsedRequest: ParsedAssistantRequest): OpenAiInputMessage[] {
   const contextPayload = {
     category: parsedRequest.category,
     conversationContext: parsedRequest.history,
@@ -206,7 +491,7 @@ function buildOpenAiInput(parsedRequest: ParsedAssistantRequest) {
     },
     message: parsedRequest.message,
   };
-  const content: Array<Record<string, unknown>> = [
+  const content: OpenAiInputContent[] = [
     {
       type: "input_text",
       text: `Aşağıdaki kullanıcı talebini JSON structured output ile değerlendir:\n${JSON.stringify(
@@ -218,6 +503,10 @@ function buildOpenAiInput(parsedRequest: ParsedAssistantRequest) {
   ];
 
   if (parsedRequest.imageDataUrl) {
+    if (!isSupportedImageInputUrl(parsedRequest.imageDataUrl)) {
+      throw new Error("image-url-invalid");
+    }
+
     content.push({
       detail: "auto",
       image_url: parsedRequest.imageDataUrl,
@@ -233,8 +522,18 @@ function buildOpenAiInput(parsedRequest: ParsedAssistantRequest) {
   ];
 }
 
-async function callOpenAi(payload: Record<string, unknown>) {
-  const apiKey = process.env.OPENAI_API_KEY;
+async function readOpenAiErrorBody(response: Response) {
+  try {
+    const body = (await response.json()) as unknown;
+
+    return isRecord(body) && isRecord(body.error) ? (body as OpenAiErrorBody).error ?? null : null;
+  } catch {
+    return null;
+  }
+}
+
+async function callOpenAi(payload: OpenAiResponsesPayload): Promise<OpenAiRequestResult> {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
 
   if (!apiKey) {
     throw new Error("openai-key-missing");
@@ -254,9 +553,17 @@ async function callOpenAi(payload: Record<string, unknown>) {
         method: "POST",
         signal: controller.signal,
       });
+      const requestId = getSafeRequestId(response.headers.get("x-request-id"));
 
       if (response.ok) {
-        return (await response.json()) as OpenAiResponsePayload;
+        try {
+          return {
+            payload: (await response.json()) as OpenAiResponsePayload,
+            requestId,
+          };
+        } catch (error) {
+          throw new AssistantStructuredOutputError("openai-response-json-invalid", requestId, error);
+        }
       }
 
       if (attempt === 1 && (response.status === 429 || response.status >= 500)) {
@@ -264,10 +571,17 @@ async function callOpenAi(payload: Record<string, unknown>) {
         continue;
       }
 
-      logWarn("OpenAI assistant response failed.", {
-        status: response.status,
-      });
-      throw new Error("openai-request-failed");
+      const openAiError = await readOpenAiErrorBody(response);
+
+      throw new OpenAiRequestError(
+        getStringValue(openAiError?.message) ?? "openai-request-failed",
+        {
+          code: getStringValue(openAiError?.code),
+          httpStatus: response.status,
+          requestId,
+          type: getStringValue(openAiError?.type),
+        },
+      );
     } finally {
       clearTimeout(timeout);
     }
@@ -290,6 +604,30 @@ function extractOutputText(response: OpenAiResponsePayload) {
   }
 
   return "";
+}
+
+function parseAssistantAnalysisResponse(response: OpenAiRequestResult) {
+  const outputText = extractOutputText(response.payload);
+
+  if (!outputText.trim()) {
+    throw new AssistantStructuredOutputError("assistant-output-empty", response.requestId);
+  }
+
+  let outputJson: unknown;
+
+  try {
+    outputJson = JSON.parse(outputText);
+  } catch (error) {
+    throw new AssistantStructuredOutputError("assistant-output-json-invalid", response.requestId, error);
+  }
+
+  const parsedAnalysis = parseAssistantAnalysis(outputJson);
+
+  if (!parsedAnalysis) {
+    throw new AssistantStructuredOutputError("assistant-schema-invalid", response.requestId);
+  }
+
+  return parsedAnalysis;
 }
 
 function includesEmergencySignal(parsedRequest: ParsedAssistantRequest) {
@@ -410,43 +748,6 @@ async function persistAssistantExchange(
   }
 }
 
-function getClientError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-
-  if (message === "image-too-large") {
-    return {
-      message: "Fotoğraf en fazla 10 MB olabilir.",
-      status: 400,
-    };
-  }
-
-  if (message === "image-type-invalid") {
-    return {
-      message: "Yalnızca JPG, JPEG, PNG veya WEBP fotoğraf yükleyebilirsin.",
-      status: 400,
-    };
-  }
-
-  if (message === "empty-request") {
-    return {
-      message: "Sorunu birkaç cümleyle anlat veya fotoğraf yükle.",
-      status: 400,
-    };
-  }
-
-  if (message === "openai-key-missing") {
-    return {
-      message: "Akıllı Asistan için server ortamında OPENAI_API_KEY tanımlanmalı.",
-      status: 503,
-    };
-  }
-
-  return {
-    message: "İlk değerlendirme şu anda hazırlanamadı. Lütfen biraz sonra tekrar dene.",
-    status: 502,
-  };
-}
-
 export async function POST(request: NextRequest) {
   const rateLimit = await checkApiRateLimit(request, aiAssistantRateLimitConfig);
 
@@ -463,15 +764,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const model = process.env.OPENAI_VISION_MODEL;
+    const model = process.env.OPENAI_VISION_MODEL?.trim();
+
+    console.info("AI model:", model);
 
     if (!model) {
-      return assistantJson(
-        {
-          message: "Akıllı Asistan için server ortamında OPENAI_VISION_MODEL tanımlanmalı.",
-        },
-        { status: 503 },
-      );
+      throw new Error("openai-model-missing");
     }
 
     const parsedRequest = await parseAssistantRequest(request);
@@ -498,12 +796,7 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-    const outputText = extractOutputText(openAiResponse);
-    const parsedAnalysis = parseAssistantAnalysis(JSON.parse(outputText));
-
-    if (!parsedAnalysis) {
-      throw new Error("assistant-schema-invalid");
-    }
+    const parsedAnalysis = parseAssistantAnalysisResponse(openAiResponse);
 
     const analysis = applySafetyOverrides(parsedAnalysis, parsedRequest);
     const providers =
@@ -537,20 +830,17 @@ export async function POST(request: NextRequest) {
 
     return assistantJson(response);
   } catch (error) {
-    const clientError = getClientError(error);
-
-    if (clientError.status >= 500) {
-      logError(error, {
-        context: "AI assistant analyze failed.",
-      });
-    }
+    logAssistantAnalyzeError(error);
 
     return assistantJson(
       {
-        message: clientError.message,
+        ok: false,
+        error: "assistant_analysis_failed",
+        message: "İlk değerlendirme şu anda hazırlanamadı.",
+        requestId: getErrorRequestId(error),
       },
       {
-        status: clientError.status,
+        status: getAssistantFailureStatus(error),
       },
     );
   }
