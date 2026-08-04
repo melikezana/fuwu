@@ -20,10 +20,11 @@ import { detectImageMagicByteMimeType } from "@/lib/validations/imageMagicBytes"
 import { sanitizeText } from "@/lib/validations";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const maxImageBytes = 10 * 1024 * 1024;
 const maxMessageLength = 2_000;
-const openAiTimeoutMs = 35_000;
+const openAiTimeoutMs = 25_000;
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const supportedImageDataUrlPattern =
   /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
