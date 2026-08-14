@@ -530,6 +530,51 @@ export type Database = {
           },
         ];
       };
+      request_messages: {
+        Row: {
+          id: string;
+          request_id: string;
+          sender_id: string;
+          sender_role: "customer" | "provider";
+          message: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          request_id: string;
+          sender_id: string;
+          sender_role: "customer" | "provider";
+          message: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          request_id?: string;
+          sender_id?: string;
+          sender_role?: "customer" | "provider";
+          message?: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "request_messages_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: false;
+            referencedRelation: "service_requests";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "request_messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       payments: {
         Row: {
           id: string;

@@ -15,6 +15,7 @@ import {
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
+import { RequestChatThread } from "@/components/messaging/RequestChatThread";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
@@ -32,6 +33,7 @@ import {
   type PaymentTrackingRecord,
 } from "@/services/payments";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
+import { getUnreadRequestMessageCount } from "@/services/messaging";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +124,17 @@ function shouldShowAssignedProviderContact(status: string) {
     normalizedStatus === SERVICE_REQUEST_STATUSES.assigned ||
     normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
     normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
+  );
+}
+
+function shouldShowRequestMessaging(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return (
+    normalizedStatus === SERVICE_REQUEST_STATUSES.assigned ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.completed
   );
 }
 
@@ -329,6 +342,10 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
   const timelineItems = getTimelineItems(request, payment);
   const showProviderContact =
     Boolean(providerContact) && shouldShowAssignedProviderContact(request.status);
+  const showMessaging = shouldShowRequestMessaging(request.status);
+  const unreadMessageCount = showMessaging
+    ? await getUnreadRequestMessageCount(request.id, "customer", authContext.supabase)
+    : 0;
   const isPaymentReleased = payment?.status === PAYMENT_STATUSES.confirmed;
   const isServiceCompleted =
     normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.completed;
@@ -402,6 +419,19 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
             <div className="mt-6">
               <Timeline items={timelineItems} />
             </div>
+
+            {showMessaging ? (
+              <div className="mt-6">
+                <RequestChatThread
+                  collapsible={false}
+                  defaultOpen
+                  initialUnreadCount={unreadMessageCount}
+                  requestId={request.id}
+                  senderRole="customer"
+                  title="Usta ile yaz"
+                />
+              </div>
+            ) : null}
           </section>
 
           <aside className="min-w-0 lg:sticky lg:top-24 lg:h-fit">

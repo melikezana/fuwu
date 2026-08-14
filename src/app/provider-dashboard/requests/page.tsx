@@ -7,9 +7,11 @@ import {
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
 import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
+import { RequestChatThread } from "@/components/messaging/RequestChatThread";
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
+import { getUnreadRequestMessageCounts } from "@/services/messaging";
 import { getProviderAssignedRequests } from "@/services/requests";
 import { providerUpdateRequestStatusAction } from "./actions";
 import {
@@ -235,6 +237,46 @@ function ProviderRequestActions({ request }: { request: ProviderAssignedRequest 
   );
 }
 
+function canUseProviderRequestChat(
+  request: ProviderAssignedRequest,
+  providerId: string,
+) {
+  const normalizedStatus = normalizeServiceRequestStatus(request.status);
+  const isAssignedToProvider =
+    request.assignedProviderId === providerId ||
+    request.acceptedProviderId === providerId;
+
+  return Boolean(
+    isAssignedToProvider &&
+      (normalizedStatus === SERVICE_REQUEST_STATUSES.assigned ||
+        normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+        normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress ||
+        normalizedStatus === SERVICE_REQUEST_STATUSES.completed),
+  );
+}
+
+function ProviderRequestMessagingPanel({
+  providerId,
+  request,
+  unreadCount,
+}: {
+  providerId: string;
+  request: ProviderAssignedRequest;
+  unreadCount: number;
+}) {
+  return (
+    <RequestChatThread
+      buttonLabel="Müşteriyle yaz"
+      disabledReason="Yazışma, talep sana atandıktan sonra açılır."
+      initialUnreadCount={unreadCount}
+      isEnabled={canUseProviderRequestChat(request, providerId)}
+      requestId={request.id}
+      senderRole="provider"
+      title="Müşteriyle yaz"
+    />
+  );
+}
+
 function ProviderRequestStatusText({ status }: { status: string }) {
   const normalizedStatus = normalizeServiceRequestStatus(status);
 
@@ -292,6 +334,13 @@ export default async function ProviderDashboardRequestsPage({
   const assignedRequests = providerAccess.ok && authContext.supabase
     ? await getProviderAssignedRequests(providerAccess.profile.id, authContext.supabase)
     : [];
+  const unreadMessageCounts = providerAccess.ok && authContext.supabase
+    ? await getUnreadRequestMessageCounts(
+        assignedRequests.map((request) => request.id),
+        "provider",
+        authContext.supabase,
+      )
+    : {};
   const statusBadge = getProviderDashboardStatusBadgeView(
     providerAccess.ok
       ? providerAccess.application?.status
@@ -395,6 +444,11 @@ export default async function ProviderDashboardRequestsPage({
                   </p>
                 </div>
                 <ProviderRequestActions request={request} />
+                <ProviderRequestMessagingPanel
+                  providerId={providerAccess.profile.id}
+                  request={request}
+                  unreadCount={unreadMessageCounts[request.id] ?? 0}
+                />
               </article>
             ))}
           </div>
@@ -488,6 +542,13 @@ export default async function ProviderDashboardRequestsPage({
                   {request.urgencyType !== "emergency" ? (
                     <ProviderRequestActions request={request} />
                   ) : null}
+                </div>
+                <div className="md:col-span-8">
+                  <ProviderRequestMessagingPanel
+                    providerId={providerAccess.profile.id}
+                    request={request}
+                    unreadCount={unreadMessageCounts[request.id] ?? 0}
+                  />
                 </div>
               </article>
             ))}

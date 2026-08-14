@@ -189,6 +189,7 @@ function FuwuHouseModel({ onReady }: { onReady: () => void }) {
   const canvasSize = useThree((state) => state.size);
   const controls = useThree((state) => state.controls) as OrbitControlsHandle | null;
 
+  /* eslint-disable react-hooks/immutability -- R3F camera/controls are mutable scene objects. */
   useLayoutEffect(() => {
     const group = groupRef.current;
 
@@ -231,6 +232,7 @@ function FuwuHouseModel({ onReady }: { onReady: () => void }) {
       onReady();
     }
   }, [camera, canvasSize.height, canvasSize.width, controls, model, onReady]);
+  /* eslint-enable react-hooks/immutability */
 
   return (
     <group ref={groupRef}>
