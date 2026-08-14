@@ -106,6 +106,7 @@ type ProviderAssignedRequestRecord = Pick<
   | "accepted_provider_id"
   | "address"
   | "approximate_location"
+  | "assigned_at"
   | "assigned_provider_id"
   | "budget"
   | "budget_tag"
@@ -1294,14 +1295,16 @@ export async function assignProviderToRequest(
     });
   }
 
+  const assignedAt = new Date().toISOString();
   const { data, error } = await supabase
     .from("service_requests")
     .update({ 
       accepted_at: null,
       accepted_provider_id: null,
+      assigned_at: assignedAt,
       assigned_provider_id: providerId,
       status: SERVICE_REQUEST_STATUSES.assigned,
-      updated_at: new Date().toISOString(),
+      updated_at: assignedAt,
     })
     .eq("id", requestId)
     .eq("status", request.status)
@@ -1405,9 +1408,11 @@ export async function assignProviderToEmergencyRequest(
 
   const requestWithDistrict = request as typeof request & ServiceRequestDistrictRelation;
   const districtName = getRelationName(requestWithDistrict.districts, "");
+  const assignedAt = new Date().toISOString();
   const updatePayload: ServiceRequestUpdate = {
     accepted_at: null,
     accepted_provider_id: null,
+    assigned_at: assignedAt,
     assigned_provider_id: providerId,
     confirmation_code:
       request.confirmation_code ?? (await generateUniqueCustomerVerificationCode(supabase)),
@@ -1419,7 +1424,7 @@ export async function assignProviderToEmergencyRequest(
         urgencyType: "emergency",
       }),
     status: SERVICE_REQUEST_STATUSES.assigned,
-    updated_at: new Date().toISOString(),
+    updated_at: assignedAt,
     urgency_type: "emergency",
   };
 
@@ -1475,6 +1480,7 @@ export async function getProviderAssignedRequests(
       emergency_status,
       accepted_provider_id,
       assigned_provider_id,
+      assigned_at,
       status,
       address,
       preferred_date,
@@ -1581,6 +1587,7 @@ export async function getProviderAssignedRequests(
     emergencyStatus: request.emergency_status ?? null,
     acceptedProviderId: request.accepted_provider_id ?? null,
     assignedProviderId: request.assigned_provider_id ?? null,
+    assignedAt: request.assigned_at ?? null,
     acceptedAt: request.accepted_at ?? null,
     address: request.address ?? "",
     preferredDate: request.preferred_date,

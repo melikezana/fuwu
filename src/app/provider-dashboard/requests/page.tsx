@@ -6,6 +6,7 @@ import {
   ProviderStatusBadge,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { SlaCountdown } from "@/components/dashboard/SlaCountdown";
 import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { RequestChatThread } from "@/components/messaging/RequestChatThread";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -289,6 +290,28 @@ function ProviderRequestStatusText({ status }: { status: string }) {
     : status;
 }
 
+function isEmergencyWaitingForProviderResponse(request: ProviderAssignedRequest) {
+  return (
+    request.urgencyType === "emergency" &&
+    normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned
+  );
+}
+
+function ProviderEmergencyEta({ request }: { request: ProviderAssignedRequest }) {
+  if (request.urgencyType !== "emergency") {
+    return null;
+  }
+
+  return (
+    <span className="mt-1 flex flex-wrap items-center gap-2 text-xs font-bold text-[var(--brand-orange-dark)]">
+      <span>{request.estimatedArrivalText ?? liveTrackingSoonText}</span>
+      {isEmergencyWaitingForProviderResponse(request) && request.assignedAt ? (
+        <SlaCountdown assignedAt={request.assignedAt} />
+      ) : null}
+    </span>
+  );
+}
+
 function formatRequestCreatedAt(value: string) {
   return new Intl.DateTimeFormat("tr-TR", {
     dateStyle: "medium",
@@ -442,6 +465,7 @@ export default async function ProviderDashboardRequestsPage({
                     <span className="font-semibold text-[var(--brand-navy)]">Zaman: </span>
                     {request.preferredDate || "Tarih esnek"} / {request.preferredTime || "Saat esnek"}
                   </p>
+                  <ProviderEmergencyEta request={request} />
                 </div>
                 <ProviderRequestActions request={request} />
                 <ProviderRequestMessagingPanel
@@ -521,11 +545,7 @@ export default async function ProviderDashboardRequestsPage({
                   <span className="hidden">
                     Oluşturulma: {formatRequestCreatedAt(request.createdAt)}
                   </span>
-                  {request.urgencyType === "emergency" ? (
-                    <span className="mt-1 text-xs font-bold text-[var(--brand-orange-dark)]">
-                      {request.estimatedArrivalText ?? liveTrackingSoonText}
-                    </span>
-                  ) : null}
+                  <ProviderEmergencyEta request={request} />
                 </div>
                 <div className="flex flex-col gap-2 justify-center">
                   <span className="text-sm font-bold text-[var(--brand-navy)]">

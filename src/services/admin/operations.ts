@@ -6,6 +6,7 @@ import {
   PROVIDER_APPLICATION_STATUSES,
   SERVICE_REQUEST_STATUSES,
 } from "@/lib/constants/statuses";
+import { EMERGENCY_RESPONSE_SLA_MINUTES } from "@/lib/constants/sla";
 import type { Database } from "@/lib/supabase/types";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
@@ -39,7 +40,7 @@ type ProviderAnalyticsRecord = Pick<
 
 type AssignmentMonitoringRecord = Pick<
   ServiceRequestRow,
-  "assigned_provider_id" | "created_at" | "id" | "status"
+  "assigned_at" | "assigned_provider_id" | "created_at" | "id" | "status" | "urgency_type"
 > & {
   assigned_provider: MaybeRelation;
   districts: MaybeRelation;
@@ -53,6 +54,7 @@ export type AdminOverviewMetrics = {
   incelenenTalep: number;
   iptalEdilenTalep: number;
   onayBekleyenUsta: number;
+  slaBreachedEmergencyRequests: number;
   tamamlananTalep: number;
   toplamTalep: number;
   ustayaYonlendirildi: number;
@@ -82,6 +84,8 @@ export type AssignmentMonitoringItem = {
   customerPhone: string;
   district: string;
   id: string;
+  assignedAt: string | null;
+  slaBreached: boolean;
   status: string;
 };
 
@@ -104,6 +108,29 @@ function getRelationPhone(relation: MaybePhoneRelation) {
   return record?.phone?.trim() || "Belirtilmedi";
 }
 
+function getEmergencySlaCutoffIso() {
+  return new Date(
+    Date.now() - EMERGENCY_RESPONSE_SLA_MINUTES * 60 * 1000,
+  ).toISOString();
+}
+
+function isEmergencyResponseSlaBreached(request: AssignmentMonitoringRecord) {
+  if (
+    request.urgency_type !== "emergency" ||
+    request.status !== SERVICE_REQUEST_STATUSES.assigned ||
+    !request.assigned_at
+  ) {
+    return false;
+  }
+
+  const assignedAtMs = new Date(request.assigned_at).getTime();
+
+  return (
+    Number.isFinite(assignedAtMs) &&
+    assignedAtMs + EMERGENCY_RESPONSE_SLA_MINUTES * 60 * 1000 < Date.now()
+  );
+}
+
 export async function getAdminOperationsAccess() {
   const authContext = await getServerAuthContext();
   if (!authContext.supabase || !authContext.user || !hasAdminRole(authContext.profile)) {
@@ -119,6 +146,7 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
   }
 
   try {
+    const slaCutoffIso = getEmergencySlaCutoffIso();
     const [
       totalRequestsResult,
       yeniRequestsResult,
@@ -128,6 +156,7 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
       iptalRequestsResult,
       activeProvidersResult,
       pendingApplicationsResult,
+      slaBreachedEmergencyRequestsResult,
     ] = await Promise.all([
       supabase.from("service_requests").select("id", { count: "exact", head: true }),
       supabase
@@ -144,6 +173,13 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
       supabase.from("service_requests").select("id", { count: "exact", head: true }).eq("status", SERVICE_REQUEST_STATUSES.cancelled),
       supabase.from("providers").select("id", { count: "exact", head: true }).eq("is_active", true).eq("is_approved", true),
       supabase.from("provider_applications").select("id", { count: "exact", head: true }).eq("status", PROVIDER_APPLICATION_STATUSES.pending),
+      supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("urgency_type", "emergency")
+        .eq("status", SERVICE_REQUEST_STATUSES.assigned)
+        .not("assigned_at", "is", null)
+        .lt("assigned_at", slaCutoffIso),
     ]);
 
     return {
@@ -155,6 +191,7 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
       iptalEdilenTalep: iptalRequestsResult.count ?? 0,
       aktifUsta: activeProvidersResult.count ?? 0,
       onayBekleyenUsta: pendingApplicationsResult.count ?? 0,
+      slaBreachedEmergencyRequests: slaBreachedEmergencyRequestsResult.count ?? 0,
     };
   } catch (error) {
     handleServiceError(error, { logContext: "getAdminOverviewMetrics" });
@@ -247,7 +284,9 @@ export async function getAssignmentMonitoring(): Promise<AssignmentMonitoringIte
       .select(`
         id,
         status,
+        urgency_type,
         assigned_provider_id,
+        assigned_at,
         created_at,
         service_categories(name),
         districts(name),
@@ -264,11 +303,13 @@ export async function getAssignmentMonitoring(): Promise<AssignmentMonitoringIte
       id: req.id,
       status: req.status,
       assignedProviderId: req.assigned_provider_id,
+      assignedAt: req.assigned_at ?? null,
       assignedProviderName: getRelationName(req.assigned_provider, "Bilinmiyor"),
       category: getRelationName(req.service_categories),
       district: getRelationName(req.districts),
       customerPhone: getRelationPhone(req.profiles),
       createdAt: req.created_at,
+      slaBreached: isEmergencyResponseSlaBreached(req),
     }));
   } catch (error) {
     handleServiceError(error, { logContext: "getAssignmentMonitoring" });

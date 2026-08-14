@@ -2099,12 +2099,14 @@ export async function assignAdminServiceRequest(
   }
 
   const assignmentStatus = SERVICE_REQUEST_STATUSES.assigned;
+  const assignedAt = new Date().toISOString();
   const updatePayload: Partial<ServiceRequestRow> = {
     accepted_at: null,
     accepted_provider_id: null,
+    assigned_at: assignedAt,
     assigned_provider_id: normalizedProviderId,
     status: assignmentStatus,
-    updated_at: new Date().toISOString(),
+    updated_at: assignedAt,
   };
   const [
     { data: existingRequest, error: requestLookupError },

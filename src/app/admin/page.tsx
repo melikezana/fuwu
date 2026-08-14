@@ -118,6 +118,7 @@ function OperationalAlerts({ overview }: { overview: AdminOverviewMetrics }) {
   const alerts = [];
   if (overview.onayBekleyenUsta > 0) alerts.push(`${overview.onayBekleyenUsta} onay bekleyen usta başvurusu var.`);
   if (overview.bekleyenTalep > 0) alerts.push(`${overview.bekleyenTalep} atanmamış/bekleyen talep var.`);
+  if (overview.slaBreachedEmergencyRequests > 0) alerts.push(`${overview.slaBreachedEmergencyRequests} acil talepte usta yanıt SLA'sı aşıldı.`);
   if (overview.aktifUsta < 10) alerts.push("Aktif usta sayısı düşük, platform kapasitesi sınırlı olabilir.");
   
   if (alerts.length === 0) return null;
@@ -146,6 +147,7 @@ function OverviewMetrics({ overview }: { overview: AdminOverviewMetrics }) {
         <MetricCard label="İptal Edilen" value={overview.iptalEdilenTalep} />
         <MetricCard label="Aktif Usta" value={overview.aktifUsta} />
         <MetricCard label="Onay Bekleyen Usta" value={overview.onayBekleyenUsta} />
+        <MetricCard label="SLA Aşan Acil" value={overview.slaBreachedEmergencyRequests} />
       </div>
     </AdminSection>
   );
@@ -220,14 +222,19 @@ function AssignmentMonitoringSection({ assignments }: { assignments: AssignmentM
                   </td>
                   <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-orange)]">{a.assignedProviderName}</td>
                   <td className="py-3 px-4">
-                    <StatusBadge
-                      status={statusLabel || a.status}
-                      tone={
-                        normalizedStatus === SERVICE_REQUEST_STATUSES.completed
-                          ? "success"
-                          : "info"
-                      }
-                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      <StatusBadge
+                        status={statusLabel || a.status}
+                        tone={
+                          normalizedStatus === SERVICE_REQUEST_STATUSES.completed
+                            ? "success"
+                            : "info"
+                        }
+                      />
+                      {a.slaBreached ? (
+                        <StatusBadge status="SLA aşıldı" tone="error" />
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               );

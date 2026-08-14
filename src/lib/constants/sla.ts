@@ -1,0 +1,1 @@
+export const EMERGENCY_RESPONSE_SLA_MINUTES = 5;

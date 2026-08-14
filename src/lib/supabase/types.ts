@@ -387,6 +387,7 @@ export type Database = {
             | "matched"
             | "open";
           assigned_provider_id: string | null;
+          assigned_at: string | null;
           accepted_provider_id: string | null;
           accepted_at: string | null;
           created_at: string;
@@ -437,6 +438,7 @@ export type Database = {
             | "matched"
             | "open";
           assigned_provider_id?: string | null;
+          assigned_at?: string | null;
           accepted_provider_id?: string | null;
           accepted_at?: string | null;
           created_at?: string;
@@ -487,6 +489,7 @@ export type Database = {
             | "matched"
             | "open";
           assigned_provider_id?: string | null;
+          assigned_at?: string | null;
           accepted_provider_id?: string | null;
           accepted_at?: string | null;
           created_at?: string;

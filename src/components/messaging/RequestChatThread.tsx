@@ -1,7 +1,15 @@
 "use client";
 
 import { ChevronDown, Loader2, MessageCircle, Send } from "lucide-react";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -84,6 +92,7 @@ export function RequestChatThread({
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const bottomRef = useRef<HTMLDivElement>(null);
   const isMarkingReadRef = useRef(false);
+  const channelInstanceId = useId().replaceAll(":", "");
   const supabase = useMemo(() => createClient(), []);
   const characterCount = draft.length;
   const canSend =
@@ -164,7 +173,7 @@ export function RequestChatThread({
     }
 
     const channel = supabase
-      .channel(`request_messages:${requestId}`)
+      .channel(`request_messages:${requestId}:${senderRole}:${channelInstanceId}`)
       .on(
         "postgres_changes",
         {
@@ -204,7 +213,7 @@ export function RequestChatThread({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [hasLoaded, isEnabled, isOpen, requestId, senderRole, supabase]);
+  }, [channelInstanceId, hasLoaded, isEnabled, isOpen, requestId, senderRole, supabase]);
 
   useEffect(() => {
     if (!isOpen) {
