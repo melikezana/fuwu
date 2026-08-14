@@ -1,5 +1,5 @@
 import path from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   ensureTestUserRole,
   getTestAdminClient,
@@ -10,6 +10,11 @@ import {
 } from "./helpers";
 
 const SEEDED_LOCKSMITH_PROVIDER_ID = "00000000-0000-4000-8000-000000000013";
+const EXPECTED_CUSTOMER_PHONE = "+90 555 000 01 01";
+const EXPECTED_CUSTOMER_TEL_HREF = "tel:+905550000101";
+const EXPECTED_CUSTOMER_WHATSAPP_NUMBER = "905550000101";
+const EXPECTED_PROVIDER_TEL_HREF = "tel:+905550000013";
+const EXPECTED_PROVIDER_WHATSAPP_NUMBER = "905550000013";
 const PNG_FIXTURE = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZfWQAAAAASUVORK5CYII=",
   "base64",
@@ -24,6 +29,33 @@ async function captureEvidence(page: Page, fileName: string) {
     fullPage: true,
     path: path.resolve("docs", "production", "evidence", fileName),
   });
+}
+
+async function expectContactLinks(
+  {
+    scope,
+    telHref,
+    whatsappMessageText,
+    whatsappNumber,
+  }: {
+    scope: Locator;
+    telHref: string;
+    whatsappMessageText: string;
+    whatsappNumber: string;
+  },
+) {
+  await expect(scope.locator(`a[href="${telHref}"]`)).toHaveCount(1);
+
+  const whatsappLink = scope.locator(
+    `a[href^="https://wa.me/${whatsappNumber}?text="]`,
+  );
+  await expect(whatsappLink).toHaveCount(1);
+
+  const whatsappHref = await whatsappLink.first().getAttribute("href");
+  expect(whatsappHref).toBeTruthy();
+
+  const parsedUrl = new URL(whatsappHref!);
+  expect(parsedUrl.searchParams.get("text")).toBe(whatsappMessageText);
 }
 
 test.describe("CTO launch verification", () => {
@@ -82,6 +114,13 @@ test.describe("CTO launch verification", () => {
       .eq("id", SEEDED_LOCKSMITH_PROVIDER_ID);
 
     expect(providerLinkError).toBeNull();
+
+    const { error: customerProfilePhoneError } = await admin
+      .from("profiles")
+      .update({ phone: EXPECTED_CUSTOMER_PHONE })
+      .eq("id", customerUserId);
+
+    expect(customerProfilePhoneError).toBeNull();
 
     const customerContext = await browser.newContext();
     const providerContext = await browser.newContext();
@@ -280,6 +319,12 @@ test.describe("CTO launch verification", () => {
       .locator("article:visible")
       .filter({ hasText: request!.id });
     await expect(providerRequestCard).toHaveCount(1);
+    await expectContactLinks({
+      scope: providerRequestCard,
+      telHref: EXPECTED_CUSTOMER_TEL_HREF,
+      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebiniz için yazıyorum.",
+      whatsappNumber: EXPECTED_CUSTOMER_WHATSAPP_NUMBER,
+    });
     await providerRequestCard.getByRole("button", { name: "Kabul Et" }).click();
 
     await expect
@@ -304,6 +349,33 @@ test.describe("CTO launch verification", () => {
       customerRequestCard.getByText("Usta talebini kabul etti.", { exact: true }),
     ).toBeVisible();
     await captureEvidence(customerPage, "09-customer-sees-accepted-status.png");
+
+    await customerPage.goto("/dashboard");
+    const customerDashboardCard = customerPage
+      .locator(".premium-card-hover")
+      .filter({ hasText: "Usta talebini kabul etti." });
+    await expect(customerDashboardCard).toHaveCount(1);
+    await expect(customerDashboardCard.getByText("Acil Cilingir Istanbul")).toBeVisible();
+    await expectContactLinks({
+      scope: customerDashboardCard,
+      telHref: EXPECTED_PROVIDER_TEL_HREF,
+      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebim için yazıyorum.",
+      whatsappNumber: EXPECTED_PROVIDER_WHATSAPP_NUMBER,
+    });
+
+    await customerPage.goto(`/order-tracking/${request!.id}`);
+    const trackingProviderCard = customerPage
+      .locator("div")
+      .filter({ hasText: "Usta" })
+      .filter({ hasText: "Acil Cilingir Istanbul" })
+      .first();
+    await expect(trackingProviderCard).toBeVisible();
+    await expectContactLinks({
+      scope: trackingProviderCard,
+      telHref: EXPECTED_PROVIDER_TEL_HREF,
+      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebim için yazıyorum.",
+      whatsappNumber: EXPECTED_PROVIDER_WHATSAPP_NUMBER,
+    });
 
     expect(consoleErrors).toEqual([]);
     expect(unexpectedHttpErrors).toEqual([]);
