@@ -6,6 +6,7 @@ import {
   ProviderStatusBadge,
   ProviderRequestsEmptyState,
 } from "@/components/dashboard/ProviderDashboardUI";
+import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
@@ -269,6 +270,10 @@ function getProviderBudgetOfferText(request: ProviderAssignedRequest) {
   return Array.from(new Set(parts)).join(" / ") || "Belirtilmedi";
 }
 
+function createProviderToCustomerWhatsAppMessage(request: ProviderAssignedRequest) {
+  return `Merhaba, Fuwu üzerinden ${request.category} talebiniz için yazıyorum.`;
+}
+
 export const metadata: Metadata = {
   title: "Talepler | Usta Paneli",
   description: "Fuwu onaylı ustaları için gelen talep görünümü.",
@@ -337,8 +342,14 @@ export default async function ProviderDashboardRequestsPage({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="font-semibold text-[var(--brand-navy)]">{request.category}</h3>
-                    <p className="mt-1 text-sm font-semibold text-[var(--muted)]">
-                      {request.customerName} - {request.phone}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-[var(--muted)]">
+                      <span>{request.customerName}</span>
+                      <span aria-hidden="true">-</span>
+                      <PhoneWhatsAppLinks
+                        phone={request.phone}
+                        whatsappAriaLabel={`${request.customerName} müşterisine WhatsApp üzerinden yaz`}
+                        whatsappMessage={createProviderToCustomerWhatsAppMessage(request)}
+                      />
                     </p>
                   </div>
                   <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-orange-dark)]">
@@ -411,7 +422,15 @@ export default async function ProviderDashboardRequestsPage({
                 </div>
                 <div className="flex flex-col">
                   <span className="font-semibold text-[var(--brand-navy)]">{request.category}</span>
-                  <span className="mt-1 text-sm text-[var(--muted)]">{request.customerName} - {request.phone}</span>
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[var(--muted)]">
+                    <span>{request.customerName}</span>
+                    <span aria-hidden="true">-</span>
+                    <PhoneWhatsAppLinks
+                      phone={request.phone}
+                      whatsappAriaLabel={`${request.customerName} müşterisine WhatsApp üzerinden yaz`}
+                      whatsappMessage={createProviderToCustomerWhatsAppMessage(request)}
+                    />
+                  </span>
                   <span className="mt-1 line-clamp-2 text-sm text-[var(--muted)]">{request.description || "Açıklama yok"}</span>
                   {request.urgencyType === "emergency" ? (
                     <span className="mt-2 rounded-md bg-[var(--brand-orange-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-orange-dark)]">

@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -44,6 +45,10 @@ export const metadata: Metadata = {
 };
 
 type ServiceRequest = {
+  assigned_provider:
+    | { name: string | null; phone: string | null }
+    | { name: string | null; phone: string | null }[]
+    | null;
   assigned_provider_id: string | null;
   id: string;
   status: string;
@@ -66,7 +71,7 @@ async function getUserRequests(userId: string): Promise<ServiceRequest[]> {
   const { data, error } = await supabase
     .from("service_requests")
     .select(
-      "id, assigned_provider_id, status, urgency_type, budget_tag, confirmation_code, description, created_at, service_categories(name), districts(name)",
+      "id, assigned_provider_id, status, urgency_type, budget_tag, confirmation_code, description, created_at, service_categories(name), districts(name), assigned_provider:providers!service_requests_assigned_provider_id_fkey(name, phone)",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
@@ -234,6 +239,39 @@ function formatDate(dateStr?: string | null) {
   } catch {
     return null;
   }
+}
+
+function getAssignedProviderContact(
+  relation: ServiceRequest["assigned_provider"],
+) {
+  const provider = Array.isArray(relation) ? relation[0] : relation;
+  const name = provider?.name?.trim() ?? "";
+  const phone = provider?.phone?.trim() ?? "";
+
+  if (!name && !phone) {
+    return null;
+  }
+
+  return {
+    name: name || "Atanan usta",
+    phone: phone || null,
+  };
+}
+
+function shouldShowAssignedProviderContact(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return (
+    normalizedStatus === SERVICE_REQUEST_STATUSES.assigned ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress ||
+    (ASSIGNED_STATUSES as string[]).includes(status) ||
+    (ACCEPTED_STATUSES as string[]).includes(status)
+  );
+}
+
+function createCustomerToProviderWhatsAppMessage(category: string) {
+  return `Merhaba, Fuwu üzerinden ${category} talebim için yazıyorum.`;
 }
 
 export default async function CustomerDashboardPage() {
@@ -533,8 +571,11 @@ function RequestCard({ request }: { request: ServiceRequest }) {
   const category =
     (request.service_categories as { name?: string } | null)?.name ?? "Hizmet Talebi";
   const district = (request.districts as { name?: string } | null)?.name ?? null;
+  const assignedProvider = getAssignedProviderContact(request.assigned_provider);
   const date = formatDate(request.created_at);
   const isEmergency = request.urgency_type === "emergency";
+  const showAssignedProviderContact =
+    Boolean(assignedProvider) && shouldShowAssignedProviderContact(request.status);
   const isCompleted =
     normalizeServiceRequestStatus(request.status) ===
     SERVICE_REQUEST_STATUSES.completed;
@@ -586,6 +627,24 @@ function RequestCard({ request }: { request: ServiceRequest }) {
           </div>
         </div>
       </div>
+
+      {showAssignedProviderContact && assignedProvider ? (
+        <div className="order-3 mt-3 flex w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-2 sm:basis-full">
+          <span className="text-xs font-bold uppercase text-[var(--muted)]">
+            Usta
+          </span>
+          <span className="text-sm font-extrabold text-[var(--brand-navy)]">
+            {assignedProvider.name}
+          </span>
+          {assignedProvider.phone ? (
+            <PhoneWhatsAppLinks
+              phone={assignedProvider.phone}
+              whatsappAriaLabel={`${assignedProvider.name} ustasına WhatsApp üzerinden yaz`}
+              whatsappMessage={createCustomerToProviderWhatsAppMessage(category)}
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       {/* Right — status badge */}
       <span

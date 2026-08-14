@@ -13,6 +13,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
+import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { PaymentConfirmationButton } from "@/components/dashboard/PaymentConfirmationButton";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -49,6 +50,11 @@ type RequestRelation = {
   name: string | null;
 };
 
+type AssignedProviderRelation =
+  | { name: string | null; phone: string | null }
+  | { name: string | null; phone: string | null }[]
+  | null;
+
 type OrderTrackingRequest = Pick<
   Database["public"]["Tables"]["service_requests"]["Row"],
   | "address"
@@ -64,10 +70,7 @@ type OrderTrackingRequest = Pick<
   | "status"
   | "urgency_type"
 > & {
-  assigned_provider:
-    | { name: string | null }
-    | { name: string | null }[]
-    | null;
+  assigned_provider: AssignedProviderRelation;
   districts: RequestRelation | RequestRelation[] | null;
   service_categories: RequestRelation | RequestRelation[] | null;
 };
@@ -93,14 +96,37 @@ function getRelationName(relation: RequestRelation | RequestRelation[] | null | 
   return relation?.name?.trim() ?? "";
 }
 
-function getAssignedProviderName(
-  relation: OrderTrackingRequest["assigned_provider"],
-) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.name?.trim() ?? "";
+function getAssignedProviderContact(relation: AssignedProviderRelation) {
+  const provider = Array.isArray(relation) ? relation[0] : relation;
+  const name = provider?.name?.trim() ?? "";
+  const phone = provider?.phone?.trim() ?? "";
+
+  if (!name && !phone) {
+    return null;
   }
 
-  return relation?.name?.trim() ?? "";
+  return {
+    name: name || "Atanan usta",
+    phone: phone || null,
+  };
+}
+
+function getAssignedProviderName(relation: AssignedProviderRelation) {
+  return getAssignedProviderContact(relation)?.name ?? "";
+}
+
+function shouldShowAssignedProviderContact(status: string) {
+  const normalizedStatus = normalizeServiceRequestStatus(status);
+
+  return (
+    normalizedStatus === SERVICE_REQUEST_STATUSES.assigned ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.accepted ||
+    normalizedStatus === SERVICE_REQUEST_STATUSES.inProgress
+  );
+}
+
+function createCustomerToProviderWhatsAppMessage(category: string) {
+  return `Merhaba, Fuwu üzerinden ${category} talebim için yazıyorum.`;
 }
 
 function formatDateTime(value: string | null) {
@@ -209,7 +235,7 @@ async function getOrderTrackingData({
   const { data, error } = await supabase
     .from("service_requests")
     .select(
-      "id, status, urgency_type, emergency_status, confirmation_code, created_at, preferred_date, preferred_time, address, description, offered_price, payment_preference, service_categories(name), districts(name), assigned_provider:providers!service_requests_assigned_provider_id_fkey(name)",
+      "id, status, urgency_type, emergency_status, confirmation_code, created_at, preferred_date, preferred_time, address, description, offered_price, payment_preference, service_categories(name), districts(name), assigned_provider:providers!service_requests_assigned_provider_id_fkey(name, phone)",
     )
     .eq("id", requestId)
     .eq("user_id", userId)
@@ -298,8 +324,11 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
   const { payment, request } = data;
   const category = getRelationName(request.service_categories) || "Hizmet Siparişi";
   const district = getRelationName(request.districts) || "Bölge bekleniyor";
-  const providerName = getAssignedProviderName(request.assigned_provider);
+  const providerContact = getAssignedProviderContact(request.assigned_provider);
+  const providerName = providerContact?.name ?? "";
   const timelineItems = getTimelineItems(request, payment);
+  const showProviderContact =
+    Boolean(providerContact) && shouldShowAssignedProviderContact(request.status);
   const isPaymentReleased = payment?.status === PAYMENT_STATUSES.confirmed;
   const isServiceCompleted =
     normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.completed;
@@ -351,6 +380,14 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
                   <p className="mt-1 text-sm font-extrabold text-[var(--brand-navy)]">
                     {providerName || "Atama bekleniyor"}
                   </p>
+                  {showProviderContact && providerContact?.phone ? (
+                    <PhoneWhatsAppLinks
+                      className="mt-2"
+                      phone={providerContact.phone}
+                      whatsappAriaLabel={`${providerContact.name} ustasına WhatsApp üzerinden yaz`}
+                      whatsappMessage={createCustomerToProviderWhatsAppMessage(category)}
+                    />
+                  ) : null}
                 </div>
                 <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
                   <CreditCard aria-hidden="true" className="size-4 text-[var(--brand-orange-dark)]" />
