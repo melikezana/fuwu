@@ -169,6 +169,12 @@ export const serviceRequestSubmitErrorMessage =
 const serviceRequestRateLimitMessage =
   "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
 
+const serviceRequestCreateRateLimit = {
+  action: "service_request_create",
+  limit: 5,
+  windowMs: 10 * 60 * 1000,
+} as const;
+
 const emptyRequestFormInsights: RequestFormInsights = {
   averageResponseMinutesByCategory: {},
   providerCountByCategory: {},
@@ -217,11 +223,11 @@ async function assertServiceRequestRateLimit(
   userId: string,
 ) {
   const result = await checkRateLimitWithRedis({
-    action: "service_request_create",
-    limit: 10,
+    action: serviceRequestCreateRateLimit.action,
+    limit: serviceRequestCreateRateLimit.limit,
     supabase,
     userId,
-    windowMs: 60 * 60 * 1000,
+    windowMs: serviceRequestCreateRateLimit.windowMs,
   });
 
   if (!result.allowed) {

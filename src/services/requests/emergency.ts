@@ -51,6 +51,12 @@ const emergencyRequestLoginRequiredMessage =
 const emergencyRequestRateLimitMessage =
   "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
 
+const emergencyRequestCreateRateLimit = {
+  action: "service_request_create",
+  limit: 5,
+  windowMs: 10 * 60 * 1000,
+} as const;
+
 function createRequestCode(id: unknown) {
   if (typeof id !== "string" || !id.trim()) {
     return `FW-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -234,11 +240,11 @@ async function assertEmergencyRequestRateLimit(
   userId: string,
 ) {
   const result = await checkRateLimitWithRedis({
-    action: "service_request_create",
-    limit: 10,
+    action: emergencyRequestCreateRateLimit.action,
+    limit: emergencyRequestCreateRateLimit.limit,
     supabase,
     userId,
-    windowMs: 60 * 60 * 1000,
+    windowMs: emergencyRequestCreateRateLimit.windowMs,
   });
 
   if (!result.allowed) {

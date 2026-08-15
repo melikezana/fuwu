@@ -7,6 +7,7 @@ import {
 } from "@/lib/errors";
 import { getSupabaseClientConfig } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import {
   sanitizeText,
   validateReviewInput,
@@ -72,6 +73,15 @@ const fallbackReviewTemplates = [
     createdAt: "2026-02-22T16:45:00.000Z",
   },
 ] satisfies Array<Pick<ProviderReview, "comment" | "rating"> & { createdAt: string }>;
+
+const providerReviewRateLimitMessage =
+  "Kısa sürede çok sayıda yorum gönderdin. Lütfen biraz sonra tekrar dene.";
+
+const providerReviewSubmitRateLimit = {
+  action: "provider_review_submit",
+  limit: 5,
+  windowMs: 10 * 60 * 1000,
+} as const;
 
 function createReviewsSupabaseClient(): SupabaseClient<Database> | null {
   const config = getSupabaseClientConfig();
@@ -198,6 +208,26 @@ export async function getProviderReviews(providerId: string): Promise<ProviderRe
   return getFallbackProviderReviews(providerId);
 }
 
+async function assertProviderReviewRateLimit(
+  supabase: ReviewSupabaseClient,
+  userId: string,
+) {
+  const result = await checkRateLimitWithRedis({
+    action: providerReviewSubmitRateLimit.action,
+    limit: providerReviewSubmitRateLimit.limit,
+    supabase,
+    userId,
+    windowMs: providerReviewSubmitRateLimit.windowMs,
+  });
+
+  if (!result.allowed) {
+    throw new ValidationError("Provider review submit rate limit exceeded.", {
+      publicMessage: providerReviewRateLimitMessage,
+      statusCode: 429,
+    });
+  }
+}
+
 export async function submitProviderReview(
   input: SubmitProviderReviewInput,
   supabase: ReviewSupabaseClient,
@@ -227,6 +257,8 @@ export async function submitProviderReview(
       publicMessage: "Yorum yazmak için giriş yapmalısın.",
     });
   }
+
+  await assertProviderReviewRateLimit(supabase, user.id);
 
   const { data: eligibleRequest, error: eligibilityError } = await supabase
     .from("service_requests")
