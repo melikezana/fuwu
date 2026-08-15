@@ -927,6 +927,10 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      current_user_is_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
       notify_eligible_providers_for_request: {
         Args: {
           p_request_id: string;

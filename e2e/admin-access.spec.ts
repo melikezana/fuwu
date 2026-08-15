@@ -2,13 +2,13 @@ import { expect, test } from "@playwright/test";
 import { loginWithEmailMagicLink, skipUnlessLocalSupabase } from "./helpers";
 
 test.describe("admin access", () => {
-  test("non-admin session sees AdminAccessGate", async ({ page }) => {
+  test("non-admin session is redirected away from admin", async ({ page }) => {
     skipUnlessLocalSupabase();
 
     await loginWithEmailMagicLink(page);
     await page.goto("/admin");
-    await expect(page.getByTestId("admin-access-gate")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Admin paneline erişim" })).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.getByRole("heading", { name: "Hesabım" })).toBeVisible();
   });
 
   test("admin session can see dashboard shell", async ({ page }) => {
