@@ -40,6 +40,20 @@ function getNotificationBody(notification: NotificationRecord) {
   return notification.body || notification.message;
 }
 
+function isProviderRequestNotification(notification: NotificationRecord) {
+  const providerRequestEvents = [
+    "emergency_request_dispatched",
+    "emergency_request_reassigned_away",
+    "new_service_request_match",
+    "service_request_assigned",
+  ];
+
+  return (
+    providerRequestEvents.includes(notification.type) ||
+    providerRequestEvents.includes(notification.event)
+  );
+}
+
 export function NotificationBell({
   className,
   panelAlign = "right",
@@ -135,12 +149,8 @@ export function NotificationBell({
           );
           setHasLoaded(true);
 
-          const isNewProviderMatch =
-            notification.type === "new_service_request_match" ||
-            notification.event === "new_service_request_match";
-
           if (
-            isNewProviderMatch &&
+            isProviderRequestNotification(notification) &&
             pathname?.startsWith("/provider-dashboard/requests")
           ) {
             router.refresh();
@@ -199,9 +209,7 @@ export function NotificationBell({
   }, [isOpen]);
 
   async function handleNotificationRead(notification: NotificationRecord) {
-    const shouldOpenProviderRequests =
-      notification.type === "new_service_request_match" ||
-      notification.event === "new_service_request_match";
+    const shouldOpenProviderRequests = isProviderRequestNotification(notification);
 
     if (supabase && !notification.is_read) {
       setNotifications((currentNotifications) =>

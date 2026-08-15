@@ -12,6 +12,8 @@ import type { Database } from "@/lib/supabase/types";
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
 type AuditLogRow = Database["public"]["Tables"]["audit_logs"]["Row"];
+type RequestReassignmentLogRow =
+  Database["public"]["Tables"]["request_reassignment_log"]["Row"];
 
 type NamedRelation = {
   name: string | null;
@@ -46,6 +48,31 @@ type AssignmentMonitoringRecord = Pick<
   districts: MaybeRelation;
   profiles: MaybePhoneRelation;
   service_categories: MaybeRelation;
+};
+
+type RequestReassignmentRequestRelation = Pick<ServiceRequestRow, "created_at" | "id"> & {
+  districts: MaybeRelation;
+  service_categories: MaybeRelation;
+};
+
+type MaybeRequestReassignmentRequestRelation =
+  | RequestReassignmentRequestRelation
+  | RequestReassignmentRequestRelation[]
+  | null;
+
+type RequestReassignmentLogRecord = Pick<
+  RequestReassignmentLogRow,
+  | "created_at"
+  | "id"
+  | "is_dry_run"
+  | "new_provider_id"
+  | "previous_provider_id"
+  | "reason"
+  | "request_id"
+> & {
+  new_provider: MaybeRelation;
+  previous_provider: MaybeRelation;
+  request: MaybeRequestReassignmentRequestRelation;
 };
 
 export type AdminOverviewMetrics = {
@@ -89,6 +116,28 @@ export type AssignmentMonitoringItem = {
   status: string;
 };
 
+export type RequestReassignmentLogItem = {
+  category: string;
+  createdAt: string;
+  district: string;
+  id: string;
+  isDryRun: boolean;
+  newProviderId: string | null;
+  newProviderName: string;
+  previousProviderId: string | null;
+  previousProviderName: string;
+  reason: RequestReassignmentLogRow["reason"];
+  reasonLabel: string;
+  requestCreatedAt: string | null;
+  requestId: string;
+  requestLabel: string;
+};
+
+export type RequestReassignmentLogsData = {
+  data: RequestReassignmentLogItem[];
+  error: string | null;
+};
+
 export type AuditLogEntry = AuditLogRow;
 
 export type AuditLogsData = {
@@ -106,6 +155,30 @@ function getRelationPhone(relation: MaybePhoneRelation) {
   const record = Array.isArray(relation) ? relation[0] : relation;
 
   return record?.phone?.trim() || "Belirtilmedi";
+}
+
+function getRequestRelation(relation: MaybeRequestReassignmentRequestRelation) {
+  return Array.isArray(relation) ? relation[0] : relation;
+}
+
+function getRequestCode(requestId: string) {
+  return `FW-${requestId.slice(0, 8).toLocaleUpperCase("tr")}`;
+}
+
+function getReassignmentReasonLabel(reason: RequestReassignmentLogRow["reason"]) {
+  if (reason === "sla_breach_reassigned") {
+    return "Yeniden atandı";
+  }
+
+  if (reason === "no_eligible_provider" || reason === "no_eligible_provider_dry_run") {
+    return "Uygun aday yok";
+  }
+
+  if (reason === "max_reassignment_limit_reached") {
+    return "Limit doldu";
+  }
+
+  return "Dry-run aday";
 }
 
 function getEmergencySlaCutoffIso() {
@@ -314,6 +387,72 @@ export async function getAssignmentMonitoring(): Promise<AssignmentMonitoringIte
   } catch (error) {
     handleServiceError(error, { logContext: "getAssignmentMonitoring" });
     return [];
+  }
+}
+
+export async function getRequestReassignmentLogs(
+  limit = 25,
+): Promise<RequestReassignmentLogsData> {
+  const { ok, supabase } = await getAdminOperationsAccess();
+  if (!ok || !supabase) return { data: [], error: null };
+
+  try {
+    const { data, error } = await supabase
+      .from("request_reassignment_log")
+      .select(`
+        id,
+        request_id,
+        previous_provider_id,
+        new_provider_id,
+        is_dry_run,
+        reason,
+        created_at,
+        request:service_requests!request_reassignment_log_request_id_fkey(
+          id,
+          created_at,
+          service_categories(name),
+          districts(name)
+        ),
+        previous_provider:providers!request_reassignment_log_previous_provider_id_fkey(name),
+        new_provider:providers!request_reassignment_log_new_provider_id_fkey(name)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      handleServiceError(error, { logContext: "getRequestReassignmentLogs" });
+      return { data: [], error: "SLA aşım kayıtları okunamadı." };
+    }
+
+    const rows = ((data ?? []) as unknown as RequestReassignmentLogRecord[]).map((log) => {
+      const request = getRequestRelation(log.request);
+
+      return {
+        category: getRelationName(request?.service_categories ?? null),
+        createdAt: log.created_at,
+        district: getRelationName(request?.districts ?? null),
+        id: log.id,
+        isDryRun: log.is_dry_run,
+        newProviderId: log.new_provider_id,
+        newProviderName: log.new_provider_id
+          ? getRelationName(log.new_provider, "Bilinmiyor")
+          : log.reason === "max_reassignment_limit_reached"
+            ? "Limit nedeniyle durdu"
+          : "Uygun aday yok",
+        previousProviderId: log.previous_provider_id,
+        previousProviderName: getRelationName(log.previous_provider, "Bilinmiyor"),
+        reason: log.reason,
+        reasonLabel: getReassignmentReasonLabel(log.reason),
+        requestCreatedAt: request?.created_at ?? null,
+        requestId: log.request_id,
+        requestLabel: getRequestCode(log.request_id),
+      };
+    });
+
+    return { data: rows, error: null };
+  } catch (error) {
+    handleServiceError(error, { logContext: "getRequestReassignmentLogs" });
+    return { data: [], error: "SLA aşım kayıtları yapılandırması henüz tamamlanmadı." };
   }
 }
 

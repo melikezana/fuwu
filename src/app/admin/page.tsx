@@ -24,11 +24,13 @@ import {
   getRequestAnalytics,
   getProviderAnalytics,
   getAssignmentMonitoring,
+  getRequestReassignmentLogs,
   getLatestAuditLogs,
   type AdminOverviewMetrics,
   type AssignmentMonitoringItem,
   type AuditLogsData,
   type ProviderAnalyticsData,
+  type RequestReassignmentLogsData,
   type RequestAnalyticsData,
 } from "@/services/admin/operations";
 import { MetricCard } from "@/components/admin/MetricCard";
@@ -246,6 +248,84 @@ function AssignmentMonitoringSection({ assignments }: { assignments: AssignmentM
   );
 }
 
+function getReassignmentLogTone(log: RequestReassignmentLogsData["data"][number]) {
+  if (
+    log.reason === "no_eligible_provider" ||
+    log.reason === "no_eligible_provider_dry_run" ||
+    log.reason === "max_reassignment_limit_reached"
+  ) {
+    return "error";
+  }
+
+  if (log.reason === "sla_breach_reassigned") {
+    return "success";
+  }
+
+  return log.isDryRun ? "warning" : "info";
+}
+
+function ReassignmentLogsSection({
+  logsData,
+}: {
+  logsData: RequestReassignmentLogsData;
+}) {
+  return (
+    <AdminSection
+      title="SLA Aşım Kayıtları"
+      description="Acil talepler için otomatik yeniden atama ve manuel müdahale kayıtları."
+    >
+      {logsData.error ? (
+        <EmptyAdminState message={logsData.error} />
+      ) : logsData.data.length === 0 ? (
+        <EmptyAdminState message="Kayıtlı SLA aşım kaydı bulunmuyor." />
+      ) : (
+        <table className="w-full min-w-[820px] border-collapse text-left">
+          <thead>
+            <tr className="border-b-2 border-[var(--border)]">
+              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Zaman</th>
+              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Talep</th>
+              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Önceki Usta</th>
+              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Yeni Usta</th>
+              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Sonuç</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logsData.data.map((log) => (
+              <tr
+                className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]"
+                key={log.id}
+              >
+                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                  {new Date(log.createdAt).toLocaleString("tr-TR")}
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                  {log.requestLabel}
+                  <br />
+                  <span className="text-xs font-normal text-[var(--muted)]">
+                    {log.category} / {log.district}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                  {log.previousProviderName}
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-orange)]">
+                  {log.newProviderName}
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    status={log.reasonLabel}
+                    tone={getReassignmentLogTone(log)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </AdminSection>
+  );
+}
+
 function AuditLogsSection({ logsData }: { logsData: AuditLogsData }) {
   return (
     <AdminSection title="Sistem İşlem Geçmişi (Audit Logs)">
@@ -297,6 +377,7 @@ export default async function AdminDashboardPage() {
   const reqAnalytics = await getRequestAnalytics();
   const provAnalytics = await getProviderAnalytics();
   const assignments = await getAssignmentMonitoring();
+  const reassignmentLogs = await getRequestReassignmentLogs();
   const auditLogs = await getLatestAuditLogs();
 
   return (
@@ -350,6 +431,7 @@ export default async function AdminDashboardPage() {
       {reqAnalytics && <RequestAnalyticsSection analytics={reqAnalytics} />}
       {provAnalytics && <ProviderAnalyticsSection analytics={provAnalytics} />}
       {assignments && <AssignmentMonitoringSection assignments={assignments} />}
+      <ReassignmentLogsSection logsData={reassignmentLogs} />
       {auditLogs && <AuditLogsSection logsData={auditLogs} />}
       
       </AdminPageShell>

@@ -52,6 +52,7 @@ function checkEnvironment() {
     "NEXT_PUBLIC_SUPABASE_URL",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
+    "CRON_SECRET",
   ];
 
   if ((process.env.PREFLIGHT_ENV ?? process.env.VERCEL_ENV) === "production") {

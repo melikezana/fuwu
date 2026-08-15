@@ -100,6 +100,10 @@ type ServiceRequestDistrictRelation = {
   districts: MaybeNamedRelation;
 };
 
+type EmergencyAssignmentOptions = {
+  expectedAssignedProviderId?: string | null;
+};
+
 type ProviderAssignedRequestRecord = Pick<
   ServiceRequestRow,
   | "accepted_at"
@@ -1181,8 +1185,11 @@ export async function cancelAuthenticatedServiceRequest(
   return true;
 }
 
-export async function getMatchedProviders(requestId: string) {
-  const supabase = createServiceRequestClient();
+export async function getMatchedProviders(
+  requestId: string,
+  supabaseClient?: SupabaseClient<Database>,
+) {
+  const supabase = supabaseClient ?? createServiceRequestClient();
 
   if (!supabase) {
     return [];
@@ -1331,6 +1338,7 @@ export async function assignProviderToEmergencyRequest(
   requestId: string,
   providerId: string,
   supabaseClient?: SupabaseClient<Database>,
+  options: EmergencyAssignmentOptions = {},
 ) {
   if (!isUuid(requestId) || !isUuid(providerId)) {
     throw new ValidationError("Invalid emergency request or provider id.", {
@@ -1399,6 +1407,23 @@ export async function assignProviderToEmergencyRequest(
     });
   }
 
+  const hasExpectedAssignedProvider = Object.prototype.hasOwnProperty.call(
+    options,
+    "expectedAssignedProviderId",
+  );
+  const expectedAssignedProviderId = hasExpectedAssignedProvider
+    ? options.expectedAssignedProviderId ?? null
+    : request.assigned_provider_id;
+
+  if (
+    hasExpectedAssignedProvider &&
+    request.assigned_provider_id !== expectedAssignedProviderId
+  ) {
+    throw new ValidationError("Emergency request assignment changed before update.", {
+      publicMessage: "Acil talep bu sırada güncellendi. Lütfen sayfayı yenileyip tekrar dene.",
+    });
+  }
+
   if (
     request.assigned_provider_id === providerId &&
     normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned
@@ -1428,11 +1453,17 @@ export async function assignProviderToEmergencyRequest(
     urgency_type: "emergency",
   };
 
-  const { data, error } = await supabase
+  let updateQuery = supabase
     .from("service_requests")
     .update(updatePayload)
     .eq("id", requestId)
-    .eq("status", request.status)
+    .eq("status", request.status);
+
+  updateQuery = expectedAssignedProviderId
+    ? updateQuery.eq("assigned_provider_id", expectedAssignedProviderId)
+    : updateQuery.is("assigned_provider_id", null);
+
+  const { data, error } = await updateQuery
     .select("id")
     .maybeSingle();
 

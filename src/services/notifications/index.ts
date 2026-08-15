@@ -4,10 +4,12 @@ import type { Database, Json } from "@/lib/supabase/types";
 
 export type NotificationEvent =
   | "emergency_request_dispatched"
+  | "emergency_request_reassigned_away"
   | "new_service_request_match"
   | "provider_application_submitted"
   | "provider_application_approved"
   | "provider_application_rejected"
+  | "sla_breach_detected"
   | "service_request_created"
   | "service_request_assigned"
   | "service_request_accepted"
@@ -54,11 +56,32 @@ export type ServiceRequestLifecycleNotification = {
   supabaseClient?: SupabaseClient<Database> | null;
 };
 
+export type EmergencyRequestDispatchedNotification =
+  ServiceRequestLifecycleNotification & {
+    notificationChannels?: Array<"provider_dashboard" | "push" | "sms" | "whatsapp">;
+  };
+
+export type EmergencySlaBreachNotification = {
+  candidateProviderId?: string | null;
+  previousProviderId?: string | null;
+  reason:
+    | "sla_breach_dry_run"
+    | "no_eligible_provider_dry_run"
+    | "sla_breach_reassigned"
+    | "no_eligible_provider"
+    | "max_reassignment_limit_reached";
+  requestCode?: string;
+  requestId: string;
+  supabaseClient: SupabaseClient<Database>;
+};
+
 type NotificationMetadata =
   | ProviderApplicationSubmittedNotification
   | ProviderApplicationDecisionNotification
   | ServiceRequestCreatedNotification
-  | ServiceRequestLifecycleNotification;
+  | EmergencyRequestDispatchedNotification
+  | ServiceRequestLifecycleNotification
+  | EmergencySlaBreachNotification;
 
 type NotificationRecordInput = {
   actorUserId?: string | null;
@@ -112,8 +135,8 @@ type NotificationInsertClient = {
     upsert: (
       payload: NotificationPayload[],
       options: {
-        count: "exact";
-        ignoreDuplicates: true;
+        count?: "exact";
+        ignoreDuplicates?: boolean;
         onConflict: string;
       },
     ) => Promise<{
@@ -476,7 +499,6 @@ export async function notifyNewServiceRequestMatch(
       .from("notifications")
       .upsert(notificationPayloads, {
         count: "exact",
-        ignoreDuplicates: true,
         onConflict: "recipient_user_id,request_id,event",
       });
 
@@ -587,12 +609,170 @@ export async function notifyServiceRequestCreated(
 }
 
 export async function notifyEmergencyRequestDispatched(
-  metadata?: ServiceRequestCreatedNotification,
+  metadata?: EmergencyRequestDispatchedNotification,
 ): Promise<NotificationMockResult> {
+  if (metadata?.providerUserId && metadata.requestId && metadata.supabaseClient) {
+    await createNotificationRecordIfTableExists({
+      actorUserId: metadata.actorUserId,
+      body: "Sana yeni bir acil hizmet talebi yönlendirildi. Talep ayrıntılarını inceleyip yanıt ver.",
+      event: "emergency_request_dispatched",
+      metadata: {
+        ...getLifecycleNotificationMetadata(metadata),
+        notificationChannels:
+          metadata.notificationChannels ?? ["provider_dashboard"],
+        urgencyType: "emergency",
+      },
+      providerId: metadata.providerId,
+      recipientUserId: metadata.providerUserId,
+      requestId: metadata.requestId,
+      supabaseClient: metadata.supabaseClient,
+      title: "Yeni acil hizmet talebi",
+    });
+  }
+
   return createMockNotificationResult("emergency_request_dispatched", {
     ...metadata,
     notificationChannels: metadata?.notificationChannels ?? ["provider_dashboard"],
   });
+}
+
+export async function notifyEmergencyRequestReassignedAway(
+  metadata: ServiceRequestLifecycleNotification,
+): Promise<NotificationMockResult> {
+  await createNotificationRecordIfTableExists({
+    actorUserId: metadata.actorUserId,
+    body: "Bu talep süre aşımı nedeniyle başka bir ustaya yönlendirildi.",
+    event: "emergency_request_reassigned_away",
+    metadata: getLifecycleNotificationMetadata(metadata),
+    providerId: metadata.providerId,
+    recipientUserId: metadata.providerUserId,
+    requestId: metadata.requestId,
+    supabaseClient: metadata.supabaseClient,
+    title: "Talep başka ustaya yönlendirildi",
+  });
+
+  return createMockNotificationResult(
+    "emergency_request_reassigned_away",
+    metadata,
+  );
+}
+
+export async function notifyEmergencySlaBreachDetected(
+  metadata: EmergencySlaBreachNotification,
+) {
+  const startedAt = Date.now();
+  const { data: admins, error: adminError } = await metadata.supabaseClient
+    .from("profiles")
+    .select("id")
+    .eq("role", "admin")
+    .limit(100);
+
+  if (adminError) {
+    logWarn("Emergency SLA breach admin recipient lookup failed.", {
+      durationMs: Date.now() - startedAt,
+      requestId: metadata.requestId,
+      supabaseError: getSupabaseErrorLogDetails(adminError),
+    });
+    return 0;
+  }
+
+  const recipientIds = Array.from(
+    new Set(
+      (admins ?? [])
+        .map((admin) => admin.id)
+        .filter((id): id is string => Boolean(id?.trim())),
+    ),
+  );
+
+  if (recipientIds.length === 0) {
+    logWarn("Emergency SLA breach notification skipped because no admin recipients exist.", {
+      durationMs: Date.now() - startedAt,
+      requestId: metadata.requestId,
+    });
+    return 0;
+  }
+
+  const isDryRun = metadata.reason.endsWith("_dry_run");
+  const needsManualIntervention =
+    metadata.reason === "no_eligible_provider" ||
+    metadata.reason === "no_eligible_provider_dry_run" ||
+    metadata.reason === "max_reassignment_limit_reached";
+  const title =
+    metadata.reason === "max_reassignment_limit_reached"
+      ? "Acil SLA aşıldı: yeniden atama limiti"
+      : metadata.reason === "no_eligible_provider"
+        ? "Acil SLA aşıldı: uygun usta yok"
+        : metadata.reason === "sla_breach_reassigned"
+          ? "Acil SLA yeniden atandı"
+          : needsManualIntervention
+            ? "Acil SLA aşıldı: müdahale gerekiyor"
+            : "Acil SLA dry-run yeniden atama";
+  const body =
+    metadata.reason === "max_reassignment_limit_reached"
+      ? "Acil talep maksimum otomatik yeniden atama sınırına ulaştı. Yüksek öncelikli manuel müdahale gerekiyor."
+      : metadata.reason === "no_eligible_provider"
+        ? "Acil talepte SLA aşıldı ve uygun yeni usta bulunamadı. Yüksek öncelikli manuel müdahale gerekiyor."
+        : metadata.reason === "sla_breach_reassigned"
+          ? "Acil talepte SLA aşıldı ve sistem talebi otomatik olarak yeni bir ustaya yönlendirdi."
+          : needsManualIntervention
+            ? "Acil talepte SLA aşıldı ve uygun yeni usta bulunamadı. Manuel müdahale gerekiyor."
+            : "Acil talepte SLA aşıldı. Dry-run modunda yeni usta adayı loglandı; gerçek atama yapılmadı.";
+  const notificationPayloads: NotificationPayload[] = recipientIds.map((recipientId) => ({
+    actor_user_id: null,
+    body,
+    entity_id: metadata.requestId,
+    entity_type: "service_request",
+    event: "sla_breach_detected",
+    is_read: false,
+    message: body,
+    metadata: {
+      candidateProviderId: metadata.candidateProviderId ?? null,
+      dryRun: isDryRun,
+      previousProviderId: metadata.previousProviderId ?? null,
+      priority: needsManualIntervention ? "high" : "normal",
+      reason: metadata.reason,
+      requestCode: metadata.requestCode,
+      requestId: metadata.requestId,
+    },
+    provider_id: metadata.candidateProviderId ?? metadata.previousProviderId ?? null,
+    recipient_user_id: recipientId,
+    request_id: metadata.requestId,
+    title,
+    type: "sla_breach_detected",
+    user_id: recipientId,
+  }));
+
+  try {
+    const notificationsClient =
+      metadata.supabaseClient as unknown as NotificationInsertClient;
+    const { count, error } = await notificationsClient
+      .from("notifications")
+      .upsert(notificationPayloads, {
+        count: "exact",
+        onConflict: "recipient_user_id,request_id,event",
+      });
+
+    if (error) {
+      if (!isMissingNotificationsTable(error)) {
+        logWarn("Emergency SLA breach notification insert failed.", {
+          durationMs: Date.now() - startedAt,
+          requestId: metadata.requestId,
+          supabaseError: getSupabaseErrorLogDetails(error),
+        });
+      }
+
+      return 0;
+    }
+
+    return count ?? notificationPayloads.length;
+  } catch (error) {
+    logWarn("Emergency SLA breach notification insert threw.", {
+      durationMs: Date.now() - startedAt,
+      error,
+      requestId: metadata.requestId,
+    });
+    return 0;
+  }
 }
 
 export async function notifyServiceRequestAssigned(

@@ -533,6 +533,76 @@ export type Database = {
           },
         ];
       };
+      request_reassignment_log: {
+        Row: {
+          id: string;
+          request_id: string;
+          previous_provider_id: string | null;
+          new_provider_id: string | null;
+          reason:
+            | "sla_breach_dry_run"
+            | "no_eligible_provider_dry_run"
+            | "sla_breach_reassigned"
+            | "no_eligible_provider"
+            | "max_reassignment_limit_reached";
+          is_dry_run: boolean;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          request_id: string;
+          previous_provider_id?: string | null;
+          new_provider_id?: string | null;
+          reason:
+            | "sla_breach_dry_run"
+            | "no_eligible_provider_dry_run"
+            | "sla_breach_reassigned"
+            | "no_eligible_provider"
+            | "max_reassignment_limit_reached";
+          is_dry_run?: boolean;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          request_id?: string;
+          previous_provider_id?: string | null;
+          new_provider_id?: string | null;
+          reason?:
+            | "sla_breach_dry_run"
+            | "no_eligible_provider_dry_run"
+            | "sla_breach_reassigned"
+            | "no_eligible_provider"
+            | "max_reassignment_limit_reached";
+          is_dry_run?: boolean;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "request_reassignment_log_request_id_fkey";
+            columns: ["request_id"];
+            isOneToOne: false;
+            referencedRelation: "service_requests";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "request_reassignment_log_previous_provider_id_fkey";
+            columns: ["previous_provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "request_reassignment_log_new_provider_id_fkey";
+            columns: ["new_provider_id"];
+            isOneToOne: false;
+            referencedRelation: "providers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       request_messages: {
         Row: {
           id: string;
