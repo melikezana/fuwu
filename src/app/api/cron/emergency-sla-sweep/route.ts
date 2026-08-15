@@ -26,7 +26,12 @@ type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"]
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type EmergencySlaRequest = Pick<
   ServiceRequestRow,
-  "assigned_at" | "assigned_provider_id" | "id" | "status"
+  | "accepted_at"
+  | "accepted_provider_id"
+  | "assigned_at"
+  | "assigned_provider_id"
+  | "id"
+  | "status"
 >;
 type ProviderNotificationRecipient = Pick<ProviderRow, "id" | "user_id">;
 type RequestNotificationRecipient = Pick<ServiceRequestRow, "id" | "user_id">;
@@ -201,7 +206,7 @@ async function getCurrentEmergencyAssignment(
 ) {
   const { data, error } = await supabase
     .from("service_requests")
-    .select("id, assigned_at, assigned_provider_id, status")
+    .select("id, accepted_at, accepted_provider_id, assigned_at, assigned_provider_id, status")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -230,8 +235,13 @@ async function isRequestStillSafeToReassign({
     };
   }
 
+  const wasAccepted =
+    currentRequest.status === SERVICE_REQUEST_STATUSES.accepted ||
+    Boolean(currentRequest.accepted_at || currentRequest.accepted_provider_id);
   const ok =
     currentRequest.status === SERVICE_REQUEST_STATUSES.assigned &&
+    currentRequest.accepted_at === null &&
+    currentRequest.accepted_provider_id === null &&
     currentRequest.assigned_provider_id === request.assigned_provider_id &&
     currentRequest.assigned_at === request.assigned_at;
 
@@ -239,7 +249,11 @@ async function isRequestStillSafeToReassign({
     currentProviderId: currentRequest.assigned_provider_id,
     currentStatus: currentRequest.status,
     ok,
-    reason: ok ? "request_still_assigned" : "request_changed_before_reassignment",
+    reason: ok
+      ? "request_still_assigned"
+      : wasAccepted
+        ? "request_accepted_before_reassignment"
+        : "request_changed_before_reassignment",
   };
 }
 
@@ -502,7 +516,7 @@ export async function GET(request: Request) {
   const slaCutoffIso = getEmergencySlaCutoffIso();
   const { data, error } = await supabase
     .from("service_requests")
-    .select("id, assigned_at, assigned_provider_id, status")
+    .select("id, accepted_at, accepted_provider_id, assigned_at, assigned_provider_id, status")
     .eq("urgency_type", "emergency")
     .eq("status", SERVICE_REQUEST_STATUSES.assigned)
     .not("assigned_at", "is", null)
