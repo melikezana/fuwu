@@ -36,7 +36,7 @@ import {
 import { getPublicErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
-import { trackRequestCreated } from "@/services/analytics";
+import { trackMetaLead, trackRequestCreated } from "@/services/analytics";
 import {
   calculateSuggestedPrice,
   getBudgetTagLabel,
@@ -1315,6 +1315,7 @@ export function RequestForm({
         requestCode: result.requestCode,
         urgencyLevel: normalizedRequest.urgencyLevel,
       });
+      trackMetaLead();
       if (result.requestId) {
         router.push(`${appRoutes.orderTracking}/${result.requestId}`);
         return;

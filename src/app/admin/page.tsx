@@ -271,11 +271,42 @@ function ReassignmentLogsSection({
 }: {
   logsData: RequestReassignmentLogsData;
 }) {
+  const summary = logsData.summary;
+
   return (
     <AdminSection
       title="SLA Aşım Kayıtları"
       description="Acil talepler için otomatik yeniden atama ve manuel müdahale kayıtları."
     >
+      <div className="mb-4 border-b border-[var(--border)] pb-4">
+        <p className="text-sm font-semibold leading-6 text-[var(--brand-navy)]">
+          Son 7 gün:{" "}
+          <span className="font-extrabold text-[var(--brand-orange-dark)]">
+            {summary.reassignedCount}
+          </span>{" "}
+          yeniden atama,{" "}
+          <span className="font-extrabold text-[var(--brand-orange-dark)]">
+            {summary.adminEscalatedCount}
+          </span>{" "}
+          admin&apos;e escalate.
+        </p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
+          Uygun aday yok: {summary.noEligibleProviderCount} · Limit doldu:{" "}
+          {summary.maxReassignmentLimitReachedCount} · Canlı karar:{" "}
+          {summary.totalDecisionCount}
+        </p>
+        {summary.requestIdsAboveLimit.length > 0 ? (
+          <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs font-bold leading-5 text-red-700">
+            Dikkat: {summary.requestIdsAboveLimit.length} talep 3&apos;ten fazla canlı
+            yeniden atama denemesi almış görünüyor.
+          </p>
+        ) : null}
+        {logsData.summaryError ? (
+          <p className="mt-2 text-xs font-semibold leading-5 text-[var(--muted)]">
+            {logsData.summaryError}
+          </p>
+        ) : null}
+      </div>
       {logsData.error ? (
         <EmptyAdminState message={logsData.error} />
       ) : logsData.data.length === 0 ? (

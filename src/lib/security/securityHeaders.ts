@@ -14,6 +14,9 @@ const localSupabaseConnectSources =
 const developmentEvalSource =
   process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
 const wasmEvalSource = " 'wasm-unsafe-eval'";
+const metaPixelConnectSources = " https://*.facebook.com https://*.facebook.net";
+const metaPixelImageSources = " https://*.facebook.com https://*.facebook.net";
+const metaPixelScriptSources = " https://connect.facebook.net";
 
 function compactContentSecurityPolicy(directives: string[]) {
   return directives.join("; ").replace(/\s{2,}/g, " ").trim();
@@ -25,11 +28,11 @@ export function createContentSecurityPolicyHeaderValue(nonce: string) {
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
-    `script-src 'self' ${nonceSource} 'strict-dynamic'${wasmEvalSource}${developmentEvalSource}`,
+    `script-src 'self' ${nonceSource} 'strict-dynamic'${metaPixelScriptSources}${wasmEvalSource}${developmentEvalSource}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
-    `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${localSupabaseHttpSources}`,
-    `connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co${localSupabaseConnectSources}`,
+    `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${metaPixelImageSources}${localSupabaseHttpSources}`,
+    `connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co${metaPixelConnectSources}${localSupabaseConnectSources}`,
     "form-action 'self' https://*.supabase.co https://accounts.google.com",
     "frame-src 'self' https://*.supabase.co https://accounts.google.com",
     "frame-ancestors 'none'",

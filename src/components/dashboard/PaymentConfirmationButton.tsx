@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { confirmPaymentByCustomerAction } from "@/app/account/requests/actions";
 import { Button } from "@/components/ui/Button";
+import { trackMetaPurchase } from "@/services/analytics";
 import {
   PAYMENT_PREFERENCES,
   PAYMENT_STATUSES,
@@ -66,6 +67,10 @@ export function PaymentConfirmationButton({
 
       setIsConfirmed(true);
       setVerificationCode("");
+      trackMetaPurchase({
+        currency: result.currency,
+        value: result.amount,
+      });
       router.refresh();
     });
   }

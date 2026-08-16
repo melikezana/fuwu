@@ -7,6 +7,8 @@ import { confirmPaymentByCustomer } from "@/services/payments";
 
 export type ConfirmPaymentActionResult =
   | {
+      amount: number | null;
+      currency: "TRY";
       ok: true;
     }
   | {
@@ -28,13 +30,21 @@ export async function confirmPaymentByCustomerAction(
       };
     }
 
-    await confirmPaymentByCustomer(requestId, verificationCode, authContext.supabase);
+    const payment = await confirmPaymentByCustomer(
+      requestId,
+      verificationCode,
+      authContext.supabase,
+    );
     revalidatePath("/account/requests");
     revalidatePath("/dashboard/requests");
     revalidatePath("/dashboard");
     revalidatePath(`/order-tracking/${requestId}`);
 
-    return { ok: true };
+    return {
+      amount: payment.amount,
+      currency: "TRY",
+      ok: true,
+    };
   } catch (error) {
     return {
       message: getPublicErrorMessage(

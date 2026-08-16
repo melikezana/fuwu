@@ -18,7 +18,7 @@ const sections: PolicySection[] = [
     title: "Kullanım amaçları",
     body: [
       "Çerezler; oturum güvenliği, tercihlerin hatırlanması, performansın anlaşılması ve hata ayıklama gibi amaçlarla kullanılabilir.",
-      "Gelecekte analitik veya pazarlama çerezleri kullanılacaksa, kullanıcıya daha açık tercih seçenekleri sunulması hedeflenir.",
+      "Analitik ve pazarlama ölçüm araçları yalnızca çerez izni kabul edildiğinde yüklenir; izin reddedilirse bu izleme kodları sessizce atlanır.",
     ],
   },
   {

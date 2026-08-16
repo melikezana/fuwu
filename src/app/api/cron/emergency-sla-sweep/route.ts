@@ -41,6 +41,10 @@ type RequestReassignmentLogRead = Pick<
   Database["public"]["Tables"]["request_reassignment_log"]["Row"],
   "is_dry_run" | "new_provider_id" | "previous_provider_id" | "reason"
 >;
+type LegacyRequestReassignmentLogRead = Omit<
+  RequestReassignmentLogRead,
+  "is_dry_run"
+>;
 type RequestReassignmentReason = RequestReassignmentLogInsert["reason"];
 type CronSupabaseClient = SupabaseClient<Database>;
 
@@ -58,6 +62,32 @@ function getEmergencySlaCutoffIso() {
   return new Date(
     Date.now() - EMERGENCY_RESPONSE_SLA_MINUTES * 60 * 1000,
   ).toISOString();
+}
+
+function isMissingReassignmentLogColumn(error: unknown) {
+  const maybeError = error as { code?: string; message?: string } | null;
+  const message = maybeError?.message ?? "";
+
+  return (
+    (maybeError?.code === "42703" || maybeError?.code === "PGRST204") &&
+    message.includes("request_reassignment_log") &&
+    (message.includes("is_dry_run") || message.includes("metadata"))
+  );
+}
+
+function inferReassignmentLogDryRun(reason: RequestReassignmentReason) {
+  return reason.endsWith("_dry_run");
+}
+
+function normalizeLegacyReassignmentLog(
+  log: LegacyRequestReassignmentLogRead & { is_dry_run?: boolean },
+): RequestReassignmentLogRead {
+  return {
+    is_dry_run: log.is_dry_run ?? inferReassignmentLogDryRun(log.reason),
+    new_provider_id: log.new_provider_id,
+    previous_provider_id: log.previous_provider_id,
+    reason: log.reason,
+  };
 }
 
 function getCronAuthorizationError(request: Request) {
@@ -128,11 +158,32 @@ async function getReassignmentContext(
     .eq("request_id", request.id)
     .order("created_at", { ascending: true });
 
+  let logs: RequestReassignmentLogRead[];
+
   if (error) {
-    throw error;
+    if (!isMissingReassignmentLogColumn(error)) {
+      throw error;
+    }
+
+    const { data: legacyData, error: legacyError } = await supabase
+      .from("request_reassignment_log")
+      .select("previous_provider_id, new_provider_id, reason")
+      .eq("request_id", request.id)
+      .order("created_at", { ascending: true });
+
+    if (legacyError) {
+      throw legacyError;
+    }
+
+    logs = ((legacyData ?? []) as LegacyRequestReassignmentLogRead[]).map(
+      normalizeLegacyReassignmentLog,
+    );
+  } else {
+    logs = ((data ?? []) as RequestReassignmentLogRead[]).map(
+      normalizeLegacyReassignmentLog,
+    );
   }
 
-  const logs = (data ?? []) as RequestReassignmentLogRead[];
   const liveReassignmentLogs = logs.filter(
     (log) => !log.is_dry_run && log.reason === "sla_breach_reassigned",
   );
@@ -293,6 +344,24 @@ async function logReassignmentDecision({
   const { error } = await supabase.from("request_reassignment_log").insert(payload);
 
   if (error) {
+    if (isMissingReassignmentLogColumn(error)) {
+      const legacyPayload: RequestReassignmentLogInsert = {
+        new_provider_id: candidateProviderId,
+        previous_provider_id: request.assigned_provider_id,
+        reason,
+        request_id: request.id,
+      };
+      const { error: legacyError } = await supabase
+        .from("request_reassignment_log")
+        .insert(legacyPayload);
+
+      if (legacyError) {
+        throw legacyError;
+      }
+
+      return;
+    }
+
     throw error;
   }
 }

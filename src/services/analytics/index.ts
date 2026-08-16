@@ -52,6 +52,7 @@ type VoiceCommandPayload = {
 
 declare global {
   interface Window {
+    fbq?: (command: "track", eventName: string, parameters?: Record<string, AnalyticsValue>) => void;
     gtag?: (command: "event", eventName: string, parameters?: Record<string, AnalyticsValue>) => void;
   }
 }
@@ -75,6 +76,7 @@ const analyticsConfig = {
   debug: process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true",
   enabled: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true",
   gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "",
+  metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "",
 };
 
 function sanitizePayload(payload: AnalyticsPayload) {
@@ -90,9 +92,19 @@ function sanitizePayload(payload: AnalyticsPayload) {
   );
 }
 
+function hasAnalyticsConsent() {
+  if (typeof window === "undefined") return false;
+
+  try {
+    return localStorage.getItem("fuwu:cookie-consent") === "accepted";
+  } catch {
+    return false;
+  }
+}
+
 function canTrackWithGoogleAnalytics() {
   if (typeof window === "undefined") return false;
-  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return false;
+  if (!hasAnalyticsConsent()) return false;
   return (
     analyticsConfig.enabled &&
     Boolean(analyticsConfig.gaMeasurementId) &&
@@ -100,9 +112,19 @@ function canTrackWithGoogleAnalytics() {
   );
 }
 
+function canTrackWithMetaPixel() {
+  if (typeof window === "undefined") return false;
+  if (!hasAnalyticsConsent()) return false;
+  return (
+    analyticsConfig.enabled &&
+    Boolean(analyticsConfig.metaPixelId) &&
+    typeof window.fbq === "function"
+  );
+}
+
 function trackOperationalEvent(eventName: AnalyticsEventName, payload: AnalyticsPayload = {}) {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return;
+  if (!hasAnalyticsConsent()) return;
 
   const safePayload = sanitizePayload(payload);
 
@@ -123,7 +145,7 @@ function trackOperationalEvent(eventName: AnalyticsEventName, payload: Analytics
 
 export function trackPageView(payload: PageViewPayload) {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem("fuwu:cookie-consent") !== "accepted") return;
+  if (!hasAnalyticsConsent()) return;
 
   trackOperationalEvent(analyticsEvents.pageView, {
     path: payload.path,
@@ -217,5 +239,33 @@ export function trackAdminAction(actionName: string, payload: { targetId?: strin
     action_name: actionName,
     target_id: payload.targetId,
     status: payload.status,
+  });
+}
+
+export function trackMetaPixelEvent(eventName: string, payload: AnalyticsPayload = {}) {
+  if (!canTrackWithMetaPixel()) return;
+
+  const safePayload = sanitizePayload(payload);
+  window.fbq?.(
+    "track",
+    eventName,
+    Object.keys(safePayload).length > 0 ? safePayload : undefined,
+  );
+}
+
+export function trackMetaLead() {
+  trackMetaPixelEvent("Lead");
+}
+
+export function trackMetaProviderApplicationSubmitted() {
+  trackMetaPixelEvent("SubmitApplication");
+}
+
+export function trackMetaPurchase(payload: { currency?: string; value?: number | null }) {
+  if (typeof payload.value !== "number" || !Number.isFinite(payload.value)) return;
+
+  trackMetaPixelEvent("Purchase", {
+    currency: payload.currency ?? "TRY",
+    value: payload.value,
   });
 }

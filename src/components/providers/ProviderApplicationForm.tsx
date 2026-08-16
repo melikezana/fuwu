@@ -12,7 +12,10 @@ import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { validateProviderApplicationInput } from "@/lib/validations";
-import { trackProviderApplicationSubmitted } from "@/services/analytics";
+import {
+  trackMetaProviderApplicationSubmitted,
+  trackProviderApplicationSubmitted,
+} from "@/services/analytics";
 import {
   PROVIDER_IMAGE_ACCEPT,
   PROVIDER_VERIFICATION_DOCUMENT_ACCEPT,
@@ -498,6 +501,7 @@ export function ProviderApplicationForm({
         mode: submitResult.result.mode,
         serviceArea: normalizedApplication.districtId,
       });
+      trackMetaProviderApplicationSubmitted();
       setSubmittedApplication(submitResult.result);
       setFormState(initialFormState);
       setProfileImageFile(null);

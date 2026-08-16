@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getServerAuthContext } from "@/services/auth/server";
 import { hasAdminRole } from "@/services/auth/constants";
 import { handleServiceError } from "@/lib/errors";
@@ -79,6 +80,23 @@ type RequestReassignmentLogRecord = Pick<
   previous_provider: MaybeRelation;
   request: MaybeRequestReassignmentRequestRelation;
 };
+type LegacyRequestReassignmentLogRecord = Omit<
+  RequestReassignmentLogRecord,
+  "is_dry_run"
+> & {
+  is_dry_run?: boolean;
+};
+type RequestReassignmentSummaryRecord = Pick<
+  RequestReassignmentLogRow,
+  "is_dry_run" | "reason" | "request_id"
+>;
+type LegacyRequestReassignmentSummaryRecord = Omit<
+  RequestReassignmentSummaryRecord,
+  "is_dry_run"
+> & {
+  is_dry_run?: boolean;
+};
+type AdminSupabaseClient = SupabaseClient<Database>;
 
 export type AdminOverviewMetrics = {
   aktifUsta: number;
@@ -139,9 +157,21 @@ export type RequestReassignmentLogItem = {
   requestLabel: string;
 };
 
+export type RequestReassignmentLogSummary = {
+  adminEscalatedCount: number;
+  maxReassignmentLimitReachedCount: number;
+  noEligibleProviderCount: number;
+  reassignedCount: number;
+  requestIdsAboveLimit: string[];
+  since: string;
+  totalDecisionCount: number;
+};
+
 export type RequestReassignmentLogsData = {
   data: RequestReassignmentLogItem[];
   error: string | null;
+  summary: RequestReassignmentLogSummary;
+  summaryError: string | null;
 };
 
 export type AuditLogEntry = AuditLogRow;
@@ -190,6 +220,57 @@ function getReassignmentReasonLabel(reason: RequestReassignmentLogRow["reason"])
   }
 
   return "Dry-run aday";
+}
+
+function getRequestReassignmentSummaryCutoffIso() {
+  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function createEmptyRequestReassignmentSummary(
+  since = getRequestReassignmentSummaryCutoffIso(),
+): RequestReassignmentLogSummary {
+  return {
+    adminEscalatedCount: 0,
+    maxReassignmentLimitReachedCount: 0,
+    noEligibleProviderCount: 0,
+    reassignedCount: 0,
+    requestIdsAboveLimit: [],
+    since,
+    totalDecisionCount: 0,
+  };
+}
+
+function isMissingReassignmentLogColumn(error: unknown) {
+  const maybeError = error as { code?: string; message?: string } | null;
+  const message = maybeError?.message ?? "";
+
+  return (
+    (maybeError?.code === "42703" || maybeError?.code === "PGRST204") &&
+    message.includes("request_reassignment_log") &&
+    (message.includes("is_dry_run") || message.includes("metadata"))
+  );
+}
+
+function inferReassignmentLogDryRun(reason: RequestReassignmentLogRow["reason"]) {
+  return reason.endsWith("_dry_run");
+}
+
+function normalizeReassignmentLogRecord(
+  log: LegacyRequestReassignmentLogRecord,
+): RequestReassignmentLogRecord {
+  return {
+    ...log,
+    is_dry_run: log.is_dry_run ?? inferReassignmentLogDryRun(log.reason),
+  };
+}
+
+function normalizeReassignmentSummaryRecord(
+  log: LegacyRequestReassignmentSummaryRecord,
+): RequestReassignmentSummaryRecord {
+  return {
+    ...log,
+    is_dry_run: log.is_dry_run ?? inferReassignmentLogDryRun(log.reason),
+  };
 }
 
 function getEmergencySlaCutoffIso() {
@@ -543,13 +624,121 @@ export async function getAssignmentMonitoring(): Promise<AssignmentMonitoringIte
   }
 }
 
+async function getRequestReassignmentSummary(
+  supabase: AdminSupabaseClient,
+): Promise<{
+  error: string | null;
+  summary: RequestReassignmentLogSummary;
+}> {
+  const since = getRequestReassignmentSummaryCutoffIso();
+  const emptySummary = createEmptyRequestReassignmentSummary(since);
+
+  try {
+    const { data, error } = await supabase
+      .from("request_reassignment_log")
+      .select("request_id, reason, is_dry_run")
+      .gte("created_at", since)
+      .limit(1000);
+
+    let records: RequestReassignmentSummaryRecord[];
+
+    if (error) {
+      if (!isMissingReassignmentLogColumn(error)) {
+        handleServiceError(error, { logContext: "getRequestReassignmentSummary" });
+        return {
+          error: "Son 7 gün SLA özeti okunamadı.",
+          summary: emptySummary,
+        };
+      }
+
+      const { data: legacyData, error: legacyError } = await supabase
+        .from("request_reassignment_log")
+        .select("request_id, reason")
+        .gte("created_at", since)
+        .limit(1000);
+
+      if (legacyError) {
+        handleServiceError(legacyError, {
+          logContext: "getRequestReassignmentSummary legacy",
+        });
+        return {
+          error: "Son 7 gün SLA özeti okunamadı.",
+          summary: emptySummary,
+        };
+      }
+
+      records = ((legacyData ?? []) as LegacyRequestReassignmentSummaryRecord[]).map(
+        normalizeReassignmentSummaryRecord,
+      );
+    } else {
+      records = ((data ?? []) as RequestReassignmentSummaryRecord[]).map(
+        normalizeReassignmentSummaryRecord,
+      );
+    }
+
+    const reassignmentAttemptsByRequest = new Map<string, number>();
+    const summary = records.reduce<RequestReassignmentLogSummary>(
+      (currentSummary, log) => {
+        if (log.is_dry_run) {
+          return currentSummary;
+        }
+
+        currentSummary.totalDecisionCount += 1;
+
+        if (log.reason === "sla_breach_reassigned") {
+          currentSummary.reassignedCount += 1;
+          reassignmentAttemptsByRequest.set(
+            log.request_id,
+            (reassignmentAttemptsByRequest.get(log.request_id) ?? 0) + 1,
+          );
+        }
+
+        if (log.reason === "no_eligible_provider") {
+          currentSummary.noEligibleProviderCount += 1;
+          currentSummary.adminEscalatedCount += 1;
+        }
+
+        if (log.reason === "max_reassignment_limit_reached") {
+          currentSummary.maxReassignmentLimitReachedCount += 1;
+          currentSummary.adminEscalatedCount += 1;
+        }
+
+        return currentSummary;
+      },
+      createEmptyRequestReassignmentSummary(since),
+    );
+
+    summary.requestIdsAboveLimit = Array.from(
+      reassignmentAttemptsByRequest.entries(),
+    )
+      .filter(([, attempts]) => attempts > 3)
+      .map(([requestId]) => requestId);
+
+    return { error: null, summary };
+  } catch (error) {
+    handleServiceError(error, { logContext: "getRequestReassignmentSummary" });
+    return {
+      error: "Son 7 gün SLA özeti yapılandırması henüz tamamlanmadı.",
+      summary: emptySummary,
+    };
+  }
+}
+
 export async function getRequestReassignmentLogs(
   limit = 25,
 ): Promise<RequestReassignmentLogsData> {
   const { ok, supabase } = await getAdminOperationsAccess();
-  if (!ok || !supabase) return { data: [], error: null };
+  if (!ok || !supabase) {
+    return {
+      data: [],
+      error: null,
+      summary: createEmptyRequestReassignmentSummary(),
+      summaryError: null,
+    };
+  }
 
   try {
+    const summaryResult = await getRequestReassignmentSummary(supabase);
     const { data, error } = await supabase
       .from("request_reassignment_log")
       .select(`
@@ -572,12 +761,62 @@ export async function getRequestReassignmentLogs(
       .order("created_at", { ascending: false })
       .limit(limit);
 
+    let records: RequestReassignmentLogRecord[];
+
     if (error) {
-      handleServiceError(error, { logContext: "getRequestReassignmentLogs" });
-      return { data: [], error: "SLA aşım kayıtları okunamadı." };
+      if (!isMissingReassignmentLogColumn(error)) {
+        handleServiceError(error, { logContext: "getRequestReassignmentLogs" });
+        return {
+          data: [],
+          error: "SLA aşım kayıtları okunamadı.",
+          summary: summaryResult.summary,
+          summaryError: summaryResult.error,
+        };
+      }
+
+      const { data: legacyData, error: legacyError } = await supabase
+        .from("request_reassignment_log")
+        .select(`
+          id,
+          request_id,
+          previous_provider_id,
+          new_provider_id,
+          reason,
+          created_at,
+          request:service_requests!request_reassignment_log_request_id_fkey(
+            id,
+            created_at,
+            service_categories(name),
+            districts(name)
+          ),
+          previous_provider:providers!request_reassignment_log_previous_provider_id_fkey(name),
+          new_provider:providers!request_reassignment_log_new_provider_id_fkey(name)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (legacyError) {
+        handleServiceError(legacyError, {
+          logContext: "getRequestReassignmentLogs legacy",
+        });
+        return {
+          data: [],
+          error: "SLA aşım kayıtları okunamadı.",
+          summary: summaryResult.summary,
+          summaryError: summaryResult.error,
+        };
+      }
+
+      records = ((legacyData ?? []) as LegacyRequestReassignmentLogRecord[]).map(
+        normalizeReassignmentLogRecord,
+      );
+    } else {
+      records = ((data ?? []) as RequestReassignmentLogRecord[]).map(
+        normalizeReassignmentLogRecord,
+      );
     }
 
-    const rows = ((data ?? []) as unknown as RequestReassignmentLogRecord[]).map((log) => {
+    const rows = records.map((log) => {
       const request = getRequestRelation(log.request);
 
       return {
@@ -602,10 +841,20 @@ export async function getRequestReassignmentLogs(
       };
     });
 
-    return { data: rows, error: null };
+    return {
+      data: rows,
+      error: null,
+      summary: summaryResult.summary,
+      summaryError: summaryResult.error,
+    };
   } catch (error) {
     handleServiceError(error, { logContext: "getRequestReassignmentLogs" });
-    return { data: [], error: "SLA aşım kayıtları yapılandırması henüz tamamlanmadı." };
+    return {
+      data: [],
+      error: "SLA aşım kayıtları yapılandırması henüz tamamlanmadı.",
+      summary: createEmptyRequestReassignmentSummary(),
+      summaryError: "Son 7 gün SLA özeti yapılandırması henüz tamamlanmadı.",
+    };
   }
 }
 
