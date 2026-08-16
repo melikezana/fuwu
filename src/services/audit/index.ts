@@ -10,6 +10,8 @@ export type AuditAction =
   | "ai_assistant.openai_failure"
   | "payment.confirmed"
   | "payment.confirmed_by_customer"
+  | "payment.escrow_release_failed"
+  | "payment.escrow_released"
   | "provider.created"
   | "provider.payment_onboarding_submitted"
   | "provider.price_updated"

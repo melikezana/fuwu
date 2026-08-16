@@ -1,8 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import { isUuid } from "@/lib/utils/validation";
 import { AppError, AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { writeAuditLog } from "@/services/audit";
+import { approveIyzicoPaymentItem } from "@/services/payments/iyzico-marketplace";
 import {
   generateUniqueCustomerVerificationCode,
   normalizeCustomerVerificationCode,
@@ -15,6 +17,17 @@ type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
 type PaymentUpdate = Database["public"]["Tables"]["payments"]["Update"];
 type PaymentSupabaseClient = SupabaseClient<Database>;
+type PaymentReleaseRecord = Pick<
+  PaymentRow,
+  | "amount"
+  | "confirmed_at"
+  | "id"
+  | "iyzico_conversation_id"
+  | "iyzico_payment_transaction_id"
+  | "payment_method"
+  | "request_id"
+  | "status"
+>;
 
 export type PaymentStatus = PaymentRow["status"];
 
@@ -295,6 +308,17 @@ export async function createPaymentTrackingForCompletedRequest({
     return true;
   }
 
+  if (
+    existingPayment?.paymentMethod === PAYMENT_PREFERENCES.iyzico &&
+    [
+      PAYMENT_STATUSES.escrowHeld,
+      PAYMENT_STATUSES.escrowReleased,
+      PAYMENT_STATUSES.escrowRefunded,
+    ].includes(existingPayment.status)
+  ) {
+    return true;
+  }
+
   const amount =
     typeof request.offered_price === "number"
       ? request.offered_price
@@ -380,6 +404,251 @@ export async function confirmTrackedPaymentForRequest({
   return Boolean(data?.id);
 }
 
+function getPaymentPrivilegedClient(fallbackClient: PaymentSupabaseClient) {
+  return createSupabaseServiceRoleClient() ?? fallbackClient;
+}
+
+async function getPaymentForCustomerConfirmation(
+  supabase: PaymentSupabaseClient,
+  requestId: string,
+) {
+  const { data, error } = await supabase
+    .from("payments")
+    .select(
+      "id, request_id, amount, payment_method, status, confirmed_at, iyzico_conversation_id, iyzico_payment_transaction_id",
+    )
+    .eq("request_id", requestId)
+    .maybeSingle();
+
+  if (error) {
+    throw handleServiceError(error, {
+      logContext: "Customer payment lookup failed.",
+      publicMessage: "Ödeme kaydı şu anda kontrol edilemedi.",
+      tableName: "payments",
+    });
+  }
+
+  return data as PaymentReleaseRecord | null;
+}
+
+async function notifyAdminsAboutEscrowFailure({
+  actorUserId,
+  errorMessage,
+  paymentId,
+  requestId,
+  supabase,
+}: {
+  actorUserId: string;
+  errorMessage: string;
+  paymentId: string;
+  requestId: string;
+  supabase: PaymentSupabaseClient;
+}) {
+  const { data: admins, error: adminError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("role", "admin")
+    .limit(100);
+
+  if (adminError || !admins?.length) {
+    return false;
+  }
+
+  const notificationRows = admins.map((admin) => ({
+    actor_user_id: actorUserId,
+    body:
+      "iyzico escrow release başarısız oldu. Ödeme manuel kontrol ve acil müdahale bekliyor.",
+    entity_id: requestId,
+    entity_type: "service_request" as const,
+    event: "payment_escrow_failed",
+    is_read: false,
+    message:
+      "iyzico escrow release başarısız oldu. Ödeme manuel kontrol ve acil müdahale bekliyor.",
+    metadata: {
+      errorMessage,
+      paymentId,
+      requestId,
+    },
+    provider_id: null,
+    recipient_user_id: admin.id,
+    request_id: requestId,
+    title: "Acil: iyzico payout başarısız",
+    type: "payment_escrow_failed",
+    user_id: admin.id,
+  }));
+
+  const { error } = await supabase
+    .from("notifications")
+    .upsert(notificationRows, {
+      onConflict: "recipient_user_id,request_id,event",
+    });
+
+  return !error;
+}
+
+async function markIyzicoEscrowFailed({
+  actorUserId,
+  error,
+  payment,
+  supabase,
+}: {
+  actorUserId: string;
+  error: unknown;
+  payment: PaymentReleaseRecord;
+  supabase: PaymentSupabaseClient;
+}) {
+  const errorMessage =
+    error instanceof Error ? error.message : "iyzico escrow release failed.";
+  const now = new Date().toISOString();
+
+  await supabase
+    .from("payments")
+    .update({
+      escrow_failed_at: now,
+      status: PAYMENT_STATUSES.escrowFailed,
+      updated_at: now,
+    })
+    .eq("id", payment.id);
+
+  await Promise.all([
+    notifyAdminsAboutEscrowFailure({
+      actorUserId,
+      errorMessage,
+      paymentId: payment.id,
+      requestId: payment.request_id,
+      supabase,
+    }),
+    writeAuditLog(
+      {
+        action: "payment.escrow_release_failed",
+        actorUserId,
+        entityId: payment.id,
+        entityType: "payment",
+        metadata: {
+          errorMessage,
+          requestId: payment.request_id,
+        },
+      },
+      supabase,
+    ),
+  ]);
+}
+
+async function releaseIyzicoEscrowPayment({
+  actorUserId,
+  payment,
+  supabase,
+}: {
+  actorUserId: string;
+  payment: PaymentReleaseRecord;
+  supabase: PaymentSupabaseClient;
+}) {
+  if (payment.status === PAYMENT_STATUSES.escrowReleased) {
+    return mapPaymentRecord(payment as PaymentRow);
+  }
+
+  if (payment.status !== PAYMENT_STATUSES.escrowHeld) {
+    throw new AppError("payment-escrow-not-held", {
+      code: "payment-escrow-not-held",
+      publicMessage: "Ödeme henüz iyzico emanet hesabında görünmüyor.",
+      statusCode: 409,
+    });
+  }
+
+  if (!payment.iyzico_conversation_id || !payment.iyzico_payment_transaction_id) {
+    await markIyzicoEscrowFailed({
+      actorUserId,
+      error: new Error("Missing iyzico payment transaction id for escrow release."),
+      payment,
+      supabase,
+    });
+
+    throw new AppError("payment-escrow-release-missing-transaction", {
+      code: "payment-escrow-release-missing-transaction",
+      publicMessage: "Ödeme aktarımı için iyzico işlem bilgisi eksik. Admin ekibi bilgilendirildi.",
+      statusCode: 500,
+    });
+  }
+
+  try {
+    await approveIyzicoPaymentItem({
+      conversationId: payment.iyzico_conversation_id,
+      paymentTransactionId: payment.iyzico_payment_transaction_id,
+    });
+  } catch (error) {
+    await markIyzicoEscrowFailed({
+      actorUserId,
+      error,
+      payment,
+      supabase,
+    });
+
+    throw new AppError("payment-escrow-release-failed", {
+      code: "payment-escrow-release-failed",
+      publicMessage:
+        "iyzico payout onayı başarısız oldu. Admin ekibi acil müdahale için bilgilendirildi.",
+      statusCode: 502,
+    });
+  }
+
+  const now = new Date().toISOString();
+  const { data: releasedPayment, error: releaseUpdateError } = await supabase
+    .from("payments")
+    .update({
+      confirmed_at: now,
+      confirmed_by: actorUserId,
+      escrow_released_at: now,
+      escrow_released_by: actorUserId,
+      status: PAYMENT_STATUSES.escrowReleased,
+      updated_at: now,
+    })
+    .eq("id", payment.id)
+    .eq("status", PAYMENT_STATUSES.escrowHeld)
+    .select("id, request_id, amount, payment_method, status, confirmed_at")
+    .maybeSingle();
+
+  if (releaseUpdateError) {
+    throw handleServiceError(releaseUpdateError, {
+      logContext: "iyzico escrow release update failed.",
+      publicMessage: "Ödeme aktarıldı ancak kayıt güncellenemedi. Destek ekibiyle iletişime geç.",
+      tableName: "payments",
+    });
+  }
+
+  if (!releasedPayment) {
+    const latestPayment = await getPaymentForCustomerConfirmation(
+      supabase,
+      payment.request_id,
+    );
+
+    if (latestPayment?.status === PAYMENT_STATUSES.escrowReleased) {
+      return mapPaymentRecord(latestPayment as PaymentRow);
+    }
+
+    throw new AppError("payment-escrow-release-race", {
+      code: "payment-escrow-release-race",
+      publicMessage: "Ödeme durumu bu sırada değişti. Lütfen tekrar kontrol et.",
+      statusCode: 409,
+    });
+  }
+
+  await writeAuditLog(
+    {
+      action: "payment.escrow_released",
+      actorUserId,
+      entityId: payment.id,
+      entityType: "payment",
+      metadata: {
+        paymentTransactionId: payment.iyzico_payment_transaction_id,
+        requestId: payment.request_id,
+      },
+    },
+    supabase,
+  );
+
+  return mapPaymentRecord(releasedPayment as PaymentRow);
+}
+
 export async function confirmPaymentByCustomer(
   requestId: string,
   verificationCode: string,
@@ -448,6 +717,20 @@ export async function confirmPaymentByCustomer(
       code: "payment-verification-code-invalid",
       publicMessage: "Doğrulama kodu hatalı. Ödeme emanet hesapta beklemeye devam eder.",
       statusCode: 403,
+    });
+  }
+
+  const privilegedPaymentClient = getPaymentPrivilegedClient(supabase);
+  const paymentForConfirmation = await getPaymentForCustomerConfirmation(
+    privilegedPaymentClient,
+    requestId,
+  );
+
+  if (paymentForConfirmation?.payment_method === PAYMENT_PREFERENCES.iyzico) {
+    return releaseIyzicoEscrowPayment({
+      actorUserId: user.id,
+      payment: paymentForConfirmation,
+      supabase: privilegedPaymentClient,
     });
   }
 
