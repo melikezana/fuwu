@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Wrench } from "lucide-react";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
@@ -70,7 +71,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const { announcementBanner, maintenanceMode } = await getPublicAppSettings();
+  // Next applies this nonce to framework scripts from the CSP header automatically.
+  // Pass this value to explicit <Script> components if the root layout adds any.
+  void nonce;
 
   return (
     <html data-scroll-behavior="smooth" dir="ltr" lang="tr" suppressHydrationWarning>

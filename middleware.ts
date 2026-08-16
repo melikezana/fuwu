@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import type { Database, Json } from "@/lib/supabase/types";
+import { createContentSecurityPolicyHeaderValue } from "@/lib/security/securityHeaders";
 import { writeAuditLog } from "@/services/audit";
 
 const PROTECTED_PATHS = [
@@ -20,6 +21,62 @@ type AdminClaimCheck = {
   role: string | null;
   source: string | null;
 };
+
+type RequestSecurityContext = {
+  contentSecurityPolicy: string;
+  nonce: string;
+  requestHeaders: Headers;
+};
+
+function createNonce() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+
+  return btoa(String.fromCharCode(...bytes));
+}
+
+function createRequestSecurityContext(request: NextRequest): RequestSecurityContext {
+  const nonce = createNonce();
+  const contentSecurityPolicy = createContentSecurityPolicyHeaderValue(nonce);
+  const requestHeaders = new Headers(request.headers);
+
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+
+  return {
+    contentSecurityPolicy,
+    nonce,
+    requestHeaders,
+  };
+}
+
+function applySecurityHeaders<TResponse extends NextResponse>(
+  response: TResponse,
+  securityContext: RequestSecurityContext,
+) {
+  response.headers.set("Content-Security-Policy", securityContext.contentSecurityPolicy);
+  response.headers.set("x-nonce", securityContext.nonce);
+
+  return response;
+}
+
+function nextWithSecurityHeaders(securityContext: RequestSecurityContext) {
+  return applySecurityHeaders(
+    NextResponse.next({
+      request: {
+        headers: securityContext.requestHeaders,
+      },
+    }),
+    securityContext,
+  );
+}
+
+function redirectWithSecurityHeaders(
+  url: string | URL,
+  securityContext: RequestSecurityContext,
+) {
+  return applySecurityHeaders(NextResponse.redirect(url), securityContext);
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -150,23 +207,24 @@ async function writeUnauthorizedAdminAuditLog({
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const securityContext = createRequestSecurityContext(request);
+  const response = nextWithSecurityHeaders(securityContext);
 
   const isProtected = PROTECTED_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 
   if (!isProtected) {
-    return NextResponse.next();
+    return response;
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.next();
+    return response;
   }
 
-  const response = NextResponse.next();
   const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
@@ -187,7 +245,7 @@ export async function middleware(request: NextRequest) {
   if (!user) {
     const loginUrl = new URL("/login", request.nextUrl.origin);
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return redirectWithSecurityHeaders(loginUrl, securityContext);
   }
 
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
@@ -222,7 +280,7 @@ export async function middleware(request: NextRequest) {
       user,
     });
 
-    return NextResponse.redirect(new URL("/dashboard", request.nextUrl.origin));
+    return redirectWithSecurityHeaders(new URL("/dashboard", request.nextUrl.origin), securityContext);
   }
 
   const { data: isAdmin, error: adminRoleError } = await supabase.rpc(
@@ -237,7 +295,7 @@ export async function middleware(request: NextRequest) {
       user,
     });
 
-    return NextResponse.redirect(new URL("/dashboard", request.nextUrl.origin));
+    return redirectWithSecurityHeaders(new URL("/dashboard", request.nextUrl.origin), securityContext);
   }
 
   return response;
@@ -245,9 +303,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/provider-dashboard/:path*",
-    "/account/:path*",
-    "/dashboard/:path*",
+    {
+      missing: [
+        { key: "next-router-prefetch", type: "header" },
+        { key: "purpose", type: "header", value: "prefetch" },
+      ],
+      source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    },
   ],
 };

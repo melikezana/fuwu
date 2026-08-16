@@ -67,11 +67,11 @@ Shared security utilities live in `src/lib/security`.
   - `X-Content-Type-Options`
   - `Referrer-Policy`
   - `Permissions-Policy`
-  - a documented `Content-Security-Policy` placeholder
+  - a nonce-based `Content-Security-Policy` builder used by middleware/proxy
 - `safeRedirect.ts` only allows internal redirect paths and falls back to `/` or a supplied fallback route.
 - `rateLimit.ts` provides a local in-memory foundation for simple limits.
 
-The current Next config applies the non-CSP headers globally. CSP is documented but not enabled yet because it needs a full audit of scripts, images, fonts, and Supabase endpoints.
+The current Next config applies the non-CSP headers globally. CSP is generated per request in middleware/proxy so `script-src` can use a nonce without `'unsafe-inline'`; `style-src` still allows `'unsafe-inline'` for Tailwind and framework inline styles.
 
 ## Future Sentry Plan
 

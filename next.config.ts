@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { productionSecurityHeaders } from "./src/lib/security/securityHeaders";
+import { recommendedSecurityHeaders } from "./src/lib/security/securityHeaders";
 
 const localSupabaseImagePatterns: NonNullable<
   NonNullable<NextConfig["images"]>["remotePatterns"]
@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        headers: productionSecurityHeaders,
+        headers: recommendedSecurityHeaders,
         source: "/:path*",
       },
     ];
