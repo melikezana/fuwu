@@ -10,7 +10,7 @@ import {
   PAYMENT_STATUSES,
   type PaymentStatus,
   type ServiceRequestPaymentPreference,
-} from "@/services/payments";
+} from "@/services/payments/constants";
 
 type PaymentConfirmationButtonProps = {
   paymentMethod: ServiceRequestPaymentPreference;

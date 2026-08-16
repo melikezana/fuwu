@@ -1,7 +1,7 @@
 import { WalletCards } from "lucide-react";
 import { HeroFilterStepShell } from "@/components/home/HeroFilterShell";
 import { cn } from "@/lib/utils";
-import type { ServiceRequestPaymentPreference } from "@/services/payments";
+import type { ServiceRequestPaymentPreference } from "@/services/payments/constants";
 
 type PaymentOption = {
   description: string;

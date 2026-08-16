@@ -1,5 +1,8 @@
 import type { ServiceRequestInput } from "@/types/request";
-import { isEmergencyPaymentPreference, normalizePaymentPreference } from "@/services/payments";
+import {
+  isEmergencyPaymentPreference,
+  normalizePaymentPreference,
+} from "@/services/payments/constants";
 import { normalizeBudgetTag } from "@/services/matching/budget";
 import {
   addRequiredTextIssue,

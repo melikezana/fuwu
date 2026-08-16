@@ -19,7 +19,7 @@ import {
   PAYMENT_PREFERENCES,
   getPaymentPreferenceLabel,
   type ServiceRequestPaymentPreference,
-} from "@/services/payments";
+} from "@/services/payments/constants";
 import type { ProviderFilterOptions } from "@/services/providers";
 
 type HomeHeroFiltersProps = {

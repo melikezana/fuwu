@@ -51,7 +51,7 @@ import {
   getPaymentPreferenceLabel,
   normalizePaymentPreference,
   type ServiceRequestPaymentPreference,
-} from "@/services/payments";
+} from "@/services/payments/constants";
 import type { ServiceRequestSubmitResult } from "@/services/requests";
 import { liveTrackingSoonText } from "@/services/tracking";
 import type { RequestFormInsights } from "@/types/request";

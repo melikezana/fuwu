@@ -5,7 +5,7 @@ import { sanitizeText } from "@/lib/validations";
 import { isUuid } from "@/lib/utils";
 import { writeAuditLog } from "@/services/audit";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
-import { PAYMENT_STATUSES } from "@/services/payments";
+import { PAYMENT_STATUSES } from "@/services/payments/constants";
 import type { Database } from "@/lib/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 

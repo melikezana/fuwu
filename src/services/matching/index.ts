@@ -6,7 +6,7 @@ import { sanitizeText } from "@/lib/validations";
 import { logInfo, logWarn } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils";
-import { saveEmergencyPaymentPreference } from "@/services/payments";
+import { saveEmergencyPaymentPreference } from "@/services/payments/constants";
 import { getProviders } from "@/services/providers";
 import { calculateEstimatedArrivalText } from "@/services/tracking";
 import type { Provider, ProviderFilters } from "@/types/provider";

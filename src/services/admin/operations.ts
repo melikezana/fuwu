@@ -11,7 +11,7 @@ import { isUuid } from "@/lib/utils/validation";
 import type { Database } from "@/lib/supabase/types";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { writeAuditLog } from "@/services/audit";
-import { PAYMENT_STATUSES } from "@/services/payments";
+import { PAYMENT_STATUSES } from "@/services/payments/constants";
 import { refundIyzicoPayment } from "@/services/payments/iyzico-marketplace";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];

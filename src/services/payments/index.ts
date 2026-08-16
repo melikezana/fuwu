@@ -1,17 +1,35 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
-import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import { isUuid } from "@/lib/utils/validation";
 import { AppError, AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { writeAuditLog } from "@/services/audit";
-import { approveIyzicoPaymentItem } from "@/services/payments/iyzico-marketplace";
 import {
   generateUniqueCustomerVerificationCode,
   normalizeCustomerVerificationCode,
 } from "@/services/requests/verificationCode";
-import type { ServiceRequestPaymentPreference } from "@/types/request";
+import {
+  PAYMENT_PREFERENCES,
+  PAYMENT_STATUSES,
+  savePaymentPreference,
+  type PaymentStatus,
+  type ServiceRequestPaymentPreference,
+} from "./constants";
 
-export type { ServiceRequestPaymentPreference } from "@/types/request";
+export {
+  EMERGENCY_PAYMENT_PREFERENCES,
+  PAYMENT_PREFERENCE_LABELS,
+  PAYMENT_PREFERENCES,
+  PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUSES,
+  getPaymentPreferenceLabel,
+  getPaymentStatusLabel,
+  ibanAfterProviderAcceptsText,
+  isEmergencyPaymentPreference,
+  normalizePaymentPreference,
+  saveEmergencyPaymentPreference,
+  savePaymentPreference,
+} from "./constants";
+export type { PaymentStatus, ServiceRequestPaymentPreference } from "./constants";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
@@ -28,8 +46,11 @@ type PaymentReleaseRecord = Pick<
   | "request_id"
   | "status"
 >;
-
-export type PaymentStatus = PaymentRow["status"];
+const processedIyzicoPaymentStatuses = new Set<string>([
+  PAYMENT_STATUSES.escrowHeld,
+  PAYMENT_STATUSES.escrowReleased,
+  PAYMENT_STATUSES.escrowRefunded,
+]);
 
 export type PaymentTrackingRecord = {
   amount: number | null;
@@ -39,116 +60,6 @@ export type PaymentTrackingRecord = {
   requestId: string;
   status: PaymentStatus;
 };
-
-export const PAYMENT_PREFERENCES = {
-  cash: "cash",
-  iban: "iban",
-  iyzico: "iyzico",
-  onlineSoon: "online_soon",
-} as const satisfies Record<string, ServiceRequestPaymentPreference>;
-
-export const EMERGENCY_PAYMENT_PREFERENCES = [
-  PAYMENT_PREFERENCES.iyzico,
-  PAYMENT_PREFERENCES.onlineSoon,
-] as const;
-
-export const PAYMENT_STATUSES = {
-  confirmed: "confirmed",
-  escrowFailed: "escrow_failed",
-  escrowHeld: "escrow_held",
-  escrowRefunded: "escrow_refunded",
-  escrowReleased: "escrow_released",
-  pendingConfirmation: "pending_confirmation",
-} as const satisfies Record<string, PaymentStatus>;
-
-export const PAYMENT_PREFERENCE_LABELS: Record<ServiceRequestPaymentPreference, string> = {
-  [PAYMENT_PREFERENCES.cash]: "Nakit",
-  [PAYMENT_PREFERENCES.iban]: "IBAN / Havale",
-  [PAYMENT_PREFERENCES.iyzico]: "iyzico",
-  [PAYMENT_PREFERENCES.onlineSoon]: "Online Ödeme",
-};
-
-export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  [PAYMENT_STATUSES.confirmed]: "Onaylandı",
-  [PAYMENT_STATUSES.escrowFailed]: "Emanet ödeme müdahale bekliyor",
-  [PAYMENT_STATUSES.escrowHeld]: "Emanette bekliyor",
-  [PAYMENT_STATUSES.escrowRefunded]: "İade edildi",
-  [PAYMENT_STATUSES.escrowReleased]: "Ustaya aktarıldı",
-  [PAYMENT_STATUSES.pendingConfirmation]: "Onay bekliyor",
-};
-
-export const ibanAfterProviderAcceptsText =
-  "IBAN bilgisi usta kabul ettikten sonra paylaşılır.";
-
-export function normalizePaymentPreference(
-  value: string | null | undefined,
-): ServiceRequestPaymentPreference | null {
-  const normalizedValue = value?.trim().toLocaleLowerCase("tr").replace(/\s+/g, "-") ?? "";
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  if (["cash", "nakit"].includes(normalizedValue)) {
-    return PAYMENT_PREFERENCES.cash;
-  }
-
-  if (["iban", "havale", "iban-ile-odeme", "iban-ile-ödeme"].includes(normalizedValue)) {
-    return PAYMENT_PREFERENCES.iban;
-  }
-
-  if (
-    [
-      "online",
-      "online-odeme",
-      "online-ödeme",
-      "online-soon",
-      "online_soon",
-      "iyzico",
-      "online-odeme-yakinda",
-      "online-ödeme-yakında",
-    ].includes(normalizedValue)
-  ) {
-    return normalizedValue === "iyzico"
-      ? PAYMENT_PREFERENCES.iyzico
-      : PAYMENT_PREFERENCES.onlineSoon;
-  }
-
-  return null;
-}
-
-export function getPaymentPreferenceLabel(value: string | null | undefined) {
-  const paymentPreference = normalizePaymentPreference(value);
-
-  return paymentPreference ? PAYMENT_PREFERENCE_LABELS[paymentPreference] : "Belirtilmedi";
-}
-
-export function savePaymentPreference(value: string | null | undefined) {
-  return normalizePaymentPreference(value);
-}
-
-export function getPaymentStatusLabel(value: string | null | undefined) {
-  return value && value in PAYMENT_STATUS_LABELS
-    ? PAYMENT_STATUS_LABELS[value as PaymentStatus]
-    : "Takip kaydı yok";
-}
-
-export function isEmergencyPaymentPreference(
-  value: string | null | undefined,
-): value is (typeof EMERGENCY_PAYMENT_PREFERENCES)[number] {
-  const paymentPreference = normalizePaymentPreference(value);
-
-  return (
-    paymentPreference === PAYMENT_PREFERENCES.onlineSoon ||
-    paymentPreference === PAYMENT_PREFERENCES.iyzico
-  );
-}
-
-export function saveEmergencyPaymentPreference(value: string | null | undefined) {
-  const paymentPreference = normalizePaymentPreference(value);
-
-  return isEmergencyPaymentPreference(paymentPreference) ? paymentPreference : null;
-}
 
 function isMissingPaymentsTable(error: unknown) {
   if (!error || typeof error !== "object") {
@@ -310,11 +221,7 @@ export async function createPaymentTrackingForCompletedRequest({
 
   if (
     existingPayment?.paymentMethod === PAYMENT_PREFERENCES.iyzico &&
-    [
-      PAYMENT_STATUSES.escrowHeld,
-      PAYMENT_STATUSES.escrowReleased,
-      PAYMENT_STATUSES.escrowRefunded,
-    ].includes(existingPayment.status)
+    processedIyzicoPaymentStatuses.has(existingPayment.status)
   ) {
     return true;
   }
@@ -404,7 +311,11 @@ export async function confirmTrackedPaymentForRequest({
   return Boolean(data?.id);
 }
 
-function getPaymentPrivilegedClient(fallbackClient: PaymentSupabaseClient) {
+async function getPaymentPrivilegedClient(fallbackClient: PaymentSupabaseClient) {
+  const { createSupabaseServiceRoleClient } = await import(
+    "@/lib/supabase/serviceRole"
+  );
+
   return createSupabaseServiceRoleClient() ?? fallbackClient;
 }
 
@@ -571,6 +482,10 @@ async function releaseIyzicoEscrowPayment({
   }
 
   try {
+    const { approveIyzicoPaymentItem } = await import(
+      "@/services/payments/iyzico-marketplace"
+    );
+
     await approveIyzicoPaymentItem({
       conversationId: payment.iyzico_conversation_id,
       paymentTransactionId: payment.iyzico_payment_transaction_id,
@@ -720,7 +635,7 @@ export async function confirmPaymentByCustomer(
     });
   }
 
-  const privilegedPaymentClient = getPaymentPrivilegedClient(supabase);
+  const privilegedPaymentClient = await getPaymentPrivilegedClient(supabase);
   const paymentForConfirmation = await getPaymentForCustomerConfirmation(
     privilegedPaymentClient,
     requestId,

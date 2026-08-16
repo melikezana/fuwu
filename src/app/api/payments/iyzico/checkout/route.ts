@@ -5,9 +5,14 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import type { Database } from "@/lib/supabase/types";
 import { getServerAuthContext } from "@/services/auth/server";
 import { initializeIyzicoCheckoutForm } from "@/services/payments/iyzico-checkout";
-import { PAYMENT_STATUSES } from "@/services/payments";
+import { PAYMENT_STATUSES } from "@/services/payments/constants";
 
 type CheckoutSupabaseClient = SupabaseClient<Database>;
+const processedIyzicoPaymentStatuses = new Set<string>([
+  PAYMENT_STATUSES.escrowHeld,
+  PAYMENT_STATUSES.escrowReleased,
+  PAYMENT_STATUSES.escrowRefunded,
+]);
 
 type NamedRelation = {
   name: string | null;
@@ -200,14 +205,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "payment_lookup_failed" }, { status: 500 });
   }
 
-  if (
-    existingPayment &&
-    [
-      PAYMENT_STATUSES.escrowHeld,
-      PAYMENT_STATUSES.escrowReleased,
-      PAYMENT_STATUSES.escrowRefunded,
-    ].includes(existingPayment.status)
-  ) {
+  if (existingPayment && processedIyzicoPaymentStatuses.has(existingPayment.status)) {
     return NextResponse.json({ error: "payment_already_processed" }, { status: 409 });
   }
 

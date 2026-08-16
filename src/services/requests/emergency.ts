@@ -22,7 +22,7 @@ import {
 } from "@/services/matching";
 import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/server";
 import { ensureProfileForUser } from "@/services/auth/profiles";
-import { saveEmergencyPaymentPreference } from "@/services/payments";
+import { saveEmergencyPaymentPreference } from "@/services/payments/constants";
 import { createServiceSuccess } from "@/services/serviceResponse";
 import { writeAuditLog } from "@/services/audit";
 import { notifyServiceRequestCreated } from "@/services/notifications";

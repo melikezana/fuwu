@@ -2,11 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import type { Database } from "@/lib/supabase/types";
-import { PAYMENT_STATUSES } from "@/services/payments";
+import { PAYMENT_STATUSES } from "@/services/payments/constants";
 import { verifyIyzicoWebhookSignature } from "@/services/payments/iyzico-client";
 import { retrieveIyzicoCheckoutFormResult } from "@/services/payments/iyzico-checkout";
 
 type WebhookSupabaseClient = SupabaseClient<Database>;
+const terminalEscrowStatuses = new Set<string>([
+  PAYMENT_STATUSES.escrowHeld,
+  PAYMENT_STATUSES.escrowReleased,
+  PAYMENT_STATUSES.escrowRefunded,
+]);
 
 type WebhookPayload = Record<string, unknown>;
 
@@ -48,11 +53,7 @@ function isSuccessStatus(value: string) {
 }
 
 function isTerminalEscrowStatus(status: string) {
-  return [
-    PAYMENT_STATUSES.escrowHeld,
-    PAYMENT_STATUSES.escrowReleased,
-    PAYMENT_STATUSES.escrowRefunded,
-  ].includes(status as (typeof PAYMENT_STATUSES)[keyof typeof PAYMENT_STATUSES]);
+  return terminalEscrowStatuses.has(status);
 }
 
 async function getPaymentByConversationId(
