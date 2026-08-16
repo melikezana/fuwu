@@ -30,26 +30,37 @@ export type PaymentTrackingRecord = {
 export const PAYMENT_PREFERENCES = {
   cash: "cash",
   iban: "iban",
+  iyzico: "iyzico",
   onlineSoon: "online_soon",
 } as const satisfies Record<string, ServiceRequestPaymentPreference>;
 
 export const EMERGENCY_PAYMENT_PREFERENCES = [
+  PAYMENT_PREFERENCES.iyzico,
   PAYMENT_PREFERENCES.onlineSoon,
 ] as const;
 
 export const PAYMENT_STATUSES = {
   confirmed: "confirmed",
+  escrowFailed: "escrow_failed",
+  escrowHeld: "escrow_held",
+  escrowRefunded: "escrow_refunded",
+  escrowReleased: "escrow_released",
   pendingConfirmation: "pending_confirmation",
 } as const satisfies Record<string, PaymentStatus>;
 
 export const PAYMENT_PREFERENCE_LABELS: Record<ServiceRequestPaymentPreference, string> = {
   [PAYMENT_PREFERENCES.cash]: "Nakit",
   [PAYMENT_PREFERENCES.iban]: "IBAN / Havale",
+  [PAYMENT_PREFERENCES.iyzico]: "iyzico",
   [PAYMENT_PREFERENCES.onlineSoon]: "Online Ödeme",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   [PAYMENT_STATUSES.confirmed]: "Onaylandı",
+  [PAYMENT_STATUSES.escrowFailed]: "Emanet ödeme müdahale bekliyor",
+  [PAYMENT_STATUSES.escrowHeld]: "Emanette bekliyor",
+  [PAYMENT_STATUSES.escrowRefunded]: "İade edildi",
+  [PAYMENT_STATUSES.escrowReleased]: "Ustaya aktarıldı",
   [PAYMENT_STATUSES.pendingConfirmation]: "Onay bekliyor",
 };
 
@@ -80,11 +91,14 @@ export function normalizePaymentPreference(
       "online-ödeme",
       "online-soon",
       "online_soon",
+      "iyzico",
       "online-odeme-yakinda",
       "online-ödeme-yakında",
     ].includes(normalizedValue)
   ) {
-    return PAYMENT_PREFERENCES.onlineSoon;
+    return normalizedValue === "iyzico"
+      ? PAYMENT_PREFERENCES.iyzico
+      : PAYMENT_PREFERENCES.onlineSoon;
   }
 
   return null;
@@ -101,11 +115,9 @@ export function savePaymentPreference(value: string | null | undefined) {
 }
 
 export function getPaymentStatusLabel(value: string | null | undefined) {
-  return value === PAYMENT_STATUSES.confirmed
-    ? PAYMENT_STATUS_LABELS[PAYMENT_STATUSES.confirmed]
-    : value === PAYMENT_STATUSES.pendingConfirmation
-      ? PAYMENT_STATUS_LABELS[PAYMENT_STATUSES.pendingConfirmation]
-      : "Takip kaydı yok";
+  return value && value in PAYMENT_STATUS_LABELS
+    ? PAYMENT_STATUS_LABELS[value as PaymentStatus]
+    : "Takip kaydı yok";
 }
 
 export function isEmergencyPaymentPreference(
@@ -113,7 +125,10 @@ export function isEmergencyPaymentPreference(
 ): value is (typeof EMERGENCY_PAYMENT_PREFERENCES)[number] {
   const paymentPreference = normalizePaymentPreference(value);
 
-  return paymentPreference === PAYMENT_PREFERENCES.onlineSoon;
+  return (
+    paymentPreference === PAYMENT_PREFERENCES.onlineSoon ||
+    paymentPreference === PAYMENT_PREFERENCES.iyzico
+  );
 }
 
 export function saveEmergencyPaymentPreference(value: string | null | undefined) {

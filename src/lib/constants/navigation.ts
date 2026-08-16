@@ -19,6 +19,7 @@ export const appRoutes = {
   providerApplication: "/provider-application",
   providerDashboard: "/provider-dashboard",
   providerDashboardProfile: "/provider-dashboard/profile",
+  providerDashboardPaymentInfo: "/provider-dashboard/payment-info",
   providerDashboardRequests: "/provider-dashboard/requests",
   providerDashboardEarnings: "/provider-dashboard/earnings",
   providerDashboardReviews: "/provider-dashboard/reviews",

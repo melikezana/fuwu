@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from "next";
+import Link from "next/link";
 import {
   getProviderDashboardStatusBadgeView,
   ProviderDashboardApplicationPlaceholder,
@@ -10,6 +11,7 @@ import { SlaCountdown } from "@/components/dashboard/SlaCountdown";
 import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
 import { RequestChatThread } from "@/components/messaging/RequestChatThread";
 import { getServerAuthContext } from "@/services/auth/server";
+import { appRoutes } from "@/lib/constants/navigation";
 import { getProviderAvailabilityLabel } from "@/lib/constants/providers";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getUnreadRequestMessageCounts } from "@/services/messaging";
@@ -51,6 +53,11 @@ const providerRequestActionMessages: Record<
   "provider-not-authorized": {
     body: "Usta hesabın aktif ve onaylı değilse talep yanıtlanamaz.",
     title: "İşlem yapılamadı",
+    tone: "error",
+  },
+  "provider-payment-info-required": {
+    body: "Ödeme almak için önce ödeme bilgilerini tamamla.",
+    title: "Ödeme bilgisi gerekli",
     tone: "error",
   },
   "request-accepted": {
@@ -163,7 +170,45 @@ function ProviderRequestActionButton({
   );
 }
 
-function ProviderEmergencyActions({ request }: { request: ProviderAssignedRequest }) {
+function isProviderOnlinePaidRequest(request: ProviderAssignedRequest) {
+  const amount =
+    typeof request.offeredPrice === "number"
+      ? request.offeredPrice
+      : request.offeredPrice === null
+        ? 0
+        : Number(request.offeredPrice);
+
+  return (
+    Number.isFinite(amount) &&
+    amount > 0 &&
+    (request.paymentMethod === "iyzico" ||
+      request.paymentPreference === "iyzico" ||
+      request.paymentMethod === "online_soon" ||
+      request.paymentPreference === "online_soon")
+  );
+}
+
+function ProviderPaymentInfoRequiredNotice() {
+  return (
+    <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
+      <p className="text-sm font-bold">Ödeme almak için önce ödeme bilgilerini tamamla.</p>
+      <Link
+        className="mt-2 inline-flex min-h-10 items-center rounded-md border border-red-200 bg-white px-3 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
+        href={appRoutes.providerDashboardPaymentInfo}
+      >
+        Ödeme Bilgilerine Git
+      </Link>
+    </div>
+  );
+}
+
+function ProviderEmergencyActions({
+  canAcceptPaidRequests,
+  request,
+}: {
+  canAcceptPaidRequests: boolean;
+  request: ProviderAssignedRequest;
+}) {
   if (request.urgencyType !== "emergency") {
     return null;
   }
@@ -172,6 +217,17 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
     normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned;
 
   if (isWaitingForAcceptance) {
+    if (isProviderOnlinePaidRequest(request) && !canAcceptPaidRequests) {
+      return (
+        <div className="mt-2 grid gap-2">
+          <ProviderPaymentInfoRequiredNotice />
+          <div className="flex flex-wrap gap-2">
+            <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
@@ -201,7 +257,13 @@ function ProviderEmergencyActions({ request }: { request: ProviderAssignedReques
   return null;
 }
 
-function ProviderStandardActions({ request }: { request: ProviderAssignedRequest }) {
+function ProviderStandardActions({
+  canAcceptPaidRequests,
+  request,
+}: {
+  canAcceptPaidRequests: boolean;
+  request: ProviderAssignedRequest;
+}) {
   if (request.urgencyType === "emergency") {
     return null;
   }
@@ -210,6 +272,17 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
     normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.assigned;
 
   if (isWaitingForAcceptance) {
+    if (isProviderOnlinePaidRequest(request) && !canAcceptPaidRequests) {
+      return (
+        <div className="mt-2 grid gap-2">
+          <ProviderPaymentInfoRequiredNotice />
+          <div className="flex flex-wrap gap-2">
+            <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
@@ -230,11 +303,17 @@ function ProviderStandardActions({ request }: { request: ProviderAssignedRequest
   return null;
 }
 
-function ProviderRequestActions({ request }: { request: ProviderAssignedRequest }) {
+function ProviderRequestActions({
+  canAcceptPaidRequests,
+  request,
+}: {
+  canAcceptPaidRequests: boolean;
+  request: ProviderAssignedRequest;
+}) {
   return request.urgencyType === "emergency" ? (
-    <ProviderEmergencyActions request={request} />
+    <ProviderEmergencyActions canAcceptPaidRequests={canAcceptPaidRequests} request={request} />
   ) : (
-    <ProviderStandardActions request={request} />
+    <ProviderStandardActions canAcceptPaidRequests={canAcceptPaidRequests} request={request} />
   );
 }
 
@@ -370,6 +449,8 @@ export default async function ProviderDashboardRequestsPage({
       : providerAccess.applicationStatus,
     providerAccess.ok,
   );
+  const canAcceptPaidRequests =
+    providerAccess.ok && providerAccess.profile.iyzicoSubmerchantStatus === "active";
 
   return (
     <ProviderDashboardShell
@@ -398,6 +479,9 @@ export default async function ProviderDashboardRequestsPage({
               </ProviderStatusBadge>
               <ProviderStatusBadge tone={providerAccess.profile.availability === PROVIDER_AVAILABILITY_STATUSES.musait ? "green" : "orange"}>
                 {getProviderAvailabilityLabel(providerAccess.profile.availability)}
+              </ProviderStatusBadge>
+              <ProviderStatusBadge tone={canAcceptPaidRequests ? "green" : "orange"}>
+                {canAcceptPaidRequests ? "Online ödeme aktif" : "Ödeme bilgisi eksik"}
               </ProviderStatusBadge>
               <ProviderStatusBadge tone="orange">
                 {assignedRequests.length} talep
@@ -467,7 +551,7 @@ export default async function ProviderDashboardRequestsPage({
                   </p>
                   <ProviderEmergencyEta request={request} />
                 </div>
-                <ProviderRequestActions request={request} />
+                <ProviderRequestActions canAcceptPaidRequests={canAcceptPaidRequests} request={request} />
                 <ProviderRequestMessagingPanel
                   providerId={providerAccess.profile.id}
                   request={request}
@@ -556,11 +640,11 @@ export default async function ProviderDashboardRequestsPage({
                       <span className="text-xs font-bold text-[var(--muted)]">
                         Kod: müşteri hesabında
                       </span>
-                      <ProviderRequestActions request={request} />
+                      <ProviderRequestActions canAcceptPaidRequests={canAcceptPaidRequests} request={request} />
                     </>
                   ) : null}
                   {request.urgencyType !== "emergency" ? (
-                    <ProviderRequestActions request={request} />
+                    <ProviderRequestActions canAcceptPaidRequests={canAcceptPaidRequests} request={request} />
                   ) : null}
                 </div>
                 <div className="md:col-span-8">

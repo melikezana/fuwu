@@ -100,6 +100,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      app_settings: {
+        Row: {
+          key: string;
+          value: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          value?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: string;
+          value?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       providers: {
         Row: {
           id: string;
@@ -125,6 +143,14 @@ export type Database = {
           gallery_preview_url: string | null;
           profile_image_path: string | null;
           profile_image_url: string | null;
+          payout_iban: string | null;
+          tax_identity_number: string | null;
+          tax_office: string | null;
+          legal_name: string | null;
+          payout_address: string | null;
+          iyzico_submerchant_key: string | null;
+          iyzico_submerchant_status: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_conversation_id: string | null;
           review_count: number;
           is_active: boolean;
           is_approved: boolean;
@@ -155,6 +181,14 @@ export type Database = {
           gallery_preview_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
+          payout_iban?: string | null;
+          tax_identity_number?: string | null;
+          tax_office?: string | null;
+          legal_name?: string | null;
+          payout_address?: string | null;
+          iyzico_submerchant_key?: string | null;
+          iyzico_submerchant_status?: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_conversation_id?: string | null;
           review_count?: number;
           is_active?: boolean;
           is_approved?: boolean;
@@ -185,6 +219,14 @@ export type Database = {
           gallery_preview_url?: string | null;
           profile_image_path?: string | null;
           profile_image_url?: string | null;
+          payout_iban?: string | null;
+          tax_identity_number?: string | null;
+          tax_office?: string | null;
+          legal_name?: string | null;
+          payout_address?: string | null;
+          iyzico_submerchant_key?: string | null;
+          iyzico_submerchant_status?: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_conversation_id?: string | null;
           review_count?: number;
           is_active?: boolean;
           is_approved?: boolean;
@@ -353,8 +395,8 @@ export type Database = {
           budget: string | null;
           budget_tag: string | null;
           offered_price: number | null;
-          payment_method: "cash" | "iban" | "online_soon" | null;
-          payment_preference: "cash" | "iban" | "online_soon" | null;
+          payment_method: "cash" | "iban" | "online_soon" | "iyzico" | null;
+          payment_preference: "cash" | "iban" | "online_soon" | "iyzico" | null;
           confirmation_code: string | null;
           estimated_arrival_text: string | null;
           approximate_location: string | null;
@@ -404,8 +446,8 @@ export type Database = {
           budget?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
-          payment_method?: "cash" | "iban" | "online_soon" | null;
-          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          payment_method?: "cash" | "iban" | "online_soon" | "iyzico" | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | "iyzico" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;
           approximate_location?: string | null;
@@ -455,8 +497,8 @@ export type Database = {
           budget?: string | null;
           budget_tag?: string | null;
           offered_price?: number | null;
-          payment_method?: "cash" | "iban" | "online_soon" | null;
-          payment_preference?: "cash" | "iban" | "online_soon" | null;
+          payment_method?: "cash" | "iban" | "online_soon" | "iyzico" | null;
+          payment_preference?: "cash" | "iban" | "online_soon" | "iyzico" | null;
           confirmation_code?: string | null;
           estimated_arrival_text?: string | null;
           approximate_location?: string | null;
@@ -653,10 +695,29 @@ export type Database = {
           id: string;
           request_id: string;
           amount: number | null;
-          payment_method: "cash" | "iban" | "online_soon";
-          status: "pending_confirmation" | "confirmed";
+          payment_method: "cash" | "iban" | "online_soon" | "iyzico";
+          status:
+            | "pending_confirmation"
+            | "confirmed"
+            | "escrow_held"
+            | "escrow_released"
+            | "escrow_failed"
+            | "escrow_refunded";
           confirmed_at: string | null;
           confirmed_by: string | null;
+          commission_rate: number | null;
+          commission_amount: number | null;
+          provider_payout_amount: number | null;
+          iyzico_conversation_id: string | null;
+          iyzico_checkout_token: string | null;
+          iyzico_payment_id: string | null;
+          iyzico_payment_transaction_id: string | null;
+          escrow_held_at: string | null;
+          escrow_released_at: string | null;
+          escrow_released_by: string | null;
+          escrow_failed_at: string | null;
+          escrow_refunded_at: string | null;
+          refund_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -664,10 +725,29 @@ export type Database = {
           id?: string;
           request_id: string;
           amount?: number | null;
-          payment_method?: "cash" | "iban" | "online_soon";
-          status?: "pending_confirmation" | "confirmed";
+          payment_method?: "cash" | "iban" | "online_soon" | "iyzico";
+          status?:
+            | "pending_confirmation"
+            | "confirmed"
+            | "escrow_held"
+            | "escrow_released"
+            | "escrow_failed"
+            | "escrow_refunded";
           confirmed_at?: string | null;
           confirmed_by?: string | null;
+          commission_rate?: number | null;
+          commission_amount?: number | null;
+          provider_payout_amount?: number | null;
+          iyzico_conversation_id?: string | null;
+          iyzico_checkout_token?: string | null;
+          iyzico_payment_id?: string | null;
+          iyzico_payment_transaction_id?: string | null;
+          escrow_held_at?: string | null;
+          escrow_released_at?: string | null;
+          escrow_released_by?: string | null;
+          escrow_failed_at?: string | null;
+          escrow_refunded_at?: string | null;
+          refund_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -675,10 +755,29 @@ export type Database = {
           id?: string;
           request_id?: string;
           amount?: number | null;
-          payment_method?: "cash" | "iban" | "online_soon";
-          status?: "pending_confirmation" | "confirmed";
+          payment_method?: "cash" | "iban" | "online_soon" | "iyzico";
+          status?:
+            | "pending_confirmation"
+            | "confirmed"
+            | "escrow_held"
+            | "escrow_released"
+            | "escrow_failed"
+            | "escrow_refunded";
           confirmed_at?: string | null;
           confirmed_by?: string | null;
+          commission_rate?: number | null;
+          commission_amount?: number | null;
+          provider_payout_amount?: number | null;
+          iyzico_conversation_id?: string | null;
+          iyzico_checkout_token?: string | null;
+          iyzico_payment_id?: string | null;
+          iyzico_payment_transaction_id?: string | null;
+          escrow_held_at?: string | null;
+          escrow_released_at?: string | null;
+          escrow_released_by?: string | null;
+          escrow_failed_at?: string | null;
+          escrow_refunded_at?: string | null;
+          refund_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -693,6 +792,13 @@ export type Database = {
           {
             foreignKeyName: "payments_confirmed_by_fkey";
             columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_escrow_released_by_fkey";
+            columns: ["escrow_released_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];

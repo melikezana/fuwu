@@ -43,7 +43,7 @@ export type ServiceRequestUrgency = "low" | "normal" | "high" | "urgent";
 
 export type ServiceRequestUrgencyType = "standard" | "emergency";
 
-export type ServiceRequestPaymentPreference = "cash" | "iban" | "online_soon";
+export type ServiceRequestPaymentPreference = "cash" | "iban" | "online_soon" | "iyzico";
 
 export type ServiceRequestEmergencyStatus =
   | "pending"

@@ -11,6 +11,7 @@ export type AuditAction =
   | "payment.confirmed"
   | "payment.confirmed_by_customer"
   | "provider.created"
+  | "provider.payment_onboarding_submitted"
   | "provider.price_updated"
   | "provider.status_updated"
   | "provider_application.approved"

@@ -121,6 +121,7 @@ type ProviderAssignedRequestRecord = Pick<
   | "estimated_arrival_text"
   | "id"
   | "offered_price"
+  | "payment_method"
   | "payment_preference"
   | "preferred_date"
   | "preferred_time"
@@ -142,6 +143,7 @@ export type ProviderAssignedRequestActionCode =
   | "request-invalid-id"
   | "request-invalid-status"
   | "request-not-assigned"
+  | "provider-payment-info-required"
   | "provider-not-authorized"
   | "supabase-not-configured";
 
@@ -242,6 +244,7 @@ const providerAssignedRequestActionMessages: Record<
   ProviderAssignedRequestActionCode,
   string
 > = {
+  "provider-payment-info-required": "Ödeme almak için önce ödeme bilgilerini tamamla.",
   "provider-not-authorized": "Kabul işlemi başarısız oldu.",
   "request-accepted": "Talep kabul edildi.",
   "request-action-failed": "Kabul işlemi başarısız oldu.",
@@ -391,6 +394,43 @@ async function insertProviderRequestAuditLog({
 
 function isProviderResponseWaitingStatus(status: string) {
   return normalizeServiceRequestStatus(status) === SERVICE_REQUEST_STATUSES.assigned;
+}
+
+function parseOnlinePaymentAmount(value: string | number | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (typeof value === "string") {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : 0;
+  }
+
+  return 0;
+}
+
+function requestRequiresActiveSubmerchant(request: {
+  offered_price?: string | number | null;
+  payment_method?: string | null;
+  payment_preference?: string | null;
+}) {
+  const paymentMethod = request.payment_method?.trim();
+  const paymentPreference = request.payment_preference?.trim();
+  const amount = parseOnlinePaymentAmount(request.offered_price);
+
+  return (
+    amount > 0 &&
+    (paymentMethod === "iyzico" ||
+      paymentPreference === "iyzico" ||
+      paymentMethod === "online_soon" ||
+      paymentPreference === "online_soon")
+  );
+}
+
+function providerHasActiveSubmerchant(provider: {
+  iyzico_submerchant_status?: string | null;
+}) {
+  return provider.iyzico_submerchant_status === "active";
 }
 
 function parseServiceCategoryName(serviceCategory: string) {
@@ -1510,6 +1550,7 @@ export async function getProviderAssignedRequests(
       budget,
       budget_tag,
       offered_price,
+      payment_method,
       payment_preference,
       confirmation_code,
       estimated_arrival_text,
@@ -1618,6 +1659,7 @@ export async function getProviderAssignedRequests(
     budgetTag: request.budget_tag ?? null,
     offeredPrice: request.offered_price ?? null,
     paymentPreference: request.payment_preference ?? null,
+    paymentMethod: request.payment_method ?? null,
     confirmationCode: request.confirmation_code ?? null,
     estimatedArrivalText: request.estimated_arrival_text ?? null,
     approximateLocation: request.approximate_location ?? null,
@@ -1652,7 +1694,7 @@ export async function acceptEmergencyRequest(
 
   const { data: provider, error: providerError } = await supabase
     .from("providers")
-    .select("id, category_id, district_id, is_active, is_approved")
+    .select("id, category_id, district_id, is_active, is_approved, iyzico_submerchant_status")
     .eq("id", providerId)
     .maybeSingle();
 
@@ -1663,7 +1705,7 @@ export async function acceptEmergencyRequest(
 
   const { data: currentRequest, error: requestError } = await supabase
     .from("service_requests")
-    .select("id, status, urgency_type, category_id, district_id, assigned_provider_id, confirmation_code, districts(name)")
+    .select("id, status, urgency_type, category_id, district_id, assigned_provider_id, confirmation_code, offered_price, payment_method, payment_preference, districts(name)")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -1692,6 +1734,13 @@ export async function acceptEmergencyRequest(
 
   if (
     normalizeServiceRequestStatus(currentRequestStatus) !== SERVICE_REQUEST_STATUSES.assigned
+  ) {
+    return false;
+  }
+
+  if (
+    requestRequiresActiveSubmerchant(currentRequest) &&
+    !providerHasActiveSubmerchant(provider)
   ) {
     return false;
   }
@@ -1768,13 +1817,13 @@ export async function respondToProviderAssignedRequest(
     ] = await Promise.all([
       supabase
         .from("providers")
-        .select("id, user_id, is_active, is_approved")
+        .select("id, user_id, is_active, is_approved, iyzico_submerchant_status")
         .eq("id", providerId)
         .maybeSingle(),
       supabase
         .from("service_requests")
         .select(
-          "id, user_id, status, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, districts(name)",
+          "id, user_id, status, urgency_type, assigned_provider_id, confirmation_code, estimated_arrival_text, offered_price, payment_method, payment_preference, districts(name)",
         )
         .eq("id", requestId)
         .eq("assigned_provider_id", providerId)
@@ -1815,6 +1864,18 @@ export async function respondToProviderAssignedRequest(
 
     if (!isProviderResponseWaitingStatus(currentStatus)) {
       return createProviderAssignedRequestActionResult("request-invalid-status", false, action);
+    }
+
+    if (
+      action === "accept" &&
+      requestRequiresActiveSubmerchant(currentRequest) &&
+      !providerHasActiveSubmerchant(provider)
+    ) {
+      return createProviderAssignedRequestActionResult(
+        "provider-payment-info-required",
+        false,
+        action,
+      );
     }
 
     const now = new Date().toISOString();

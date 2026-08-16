@@ -5,6 +5,7 @@ import {
   Bell,
   Calendar,
   ClipboardList,
+  CreditCard,
   Eye,
   Inbox,
   LayoutDashboard,
@@ -22,6 +23,7 @@ import { cn } from "@/lib/utils";
 type ProviderDashboardNavKey =
   | "overview"
   | "profile"
+  | "paymentInfo"
   | "requests"
   | "earnings"
   | "reviews"
@@ -88,6 +90,12 @@ const providerNavItems: Array<{
     icon: UserRound,
     key: "profile",
     label: "Profil",
+  },
+  {
+    href: appRoutes.providerDashboardPaymentInfo,
+    icon: CreditCard,
+    key: "paymentInfo",
+    label: "Ödeme Bilgileri",
   },
   {
     href: appRoutes.providerDashboardRequests,
@@ -804,6 +812,7 @@ export function ProviderDashboardRestrictedAreaEmptyState() {
 export const providerDashboardIcons = {
   eye: Eye,
   inbox: Inbox,
+  payment: CreditCard,
   shield: ShieldCheck,
   star: Star,
   user: UserRound,

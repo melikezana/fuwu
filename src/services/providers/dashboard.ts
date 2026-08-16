@@ -29,6 +29,14 @@ type ProviderDashboardRecord = Pick<
   | "is_approved"
 > & {
   availability?: string | null;
+  payout_iban?: string | null;
+  tax_identity_number?: string | null;
+  tax_office?: string | null;
+  legal_name?: string | null;
+  payout_address?: string | null;
+  iyzico_submerchant_key?: string | null;
+  iyzico_submerchant_status?: ProviderIyzicoSubmerchantStatus | null;
+  iyzico_submerchant_conversation_id?: string | null;
   districts: ProviderRelation | ProviderRelation[] | null;
   service_categories: ProviderRelation | ProviderRelation[] | null;
 };
@@ -49,6 +57,12 @@ type ProviderRelation = {
   name: string | null;
 };
 
+export type ProviderIyzicoSubmerchantStatus =
+  | "missing"
+  | "pending_review"
+  | "active"
+  | "rejected";
+
 export type ProviderDashboardProfile = {
   averagePriceRange: string;
   availability: ProviderAvailabilityStatus;
@@ -58,10 +72,18 @@ export type ProviderDashboardProfile = {
   id: string;
   isActive: boolean;
   isApproved: boolean;
+  iyzicoSubmerchantConversationId?: string;
+  iyzicoSubmerchantKey?: string;
+  iyzicoSubmerchantStatus: ProviderIyzicoSubmerchantStatus;
+  legalName?: string;
   name: string;
+  payoutAddress?: string;
+  payoutIban?: string;
   phone: string;
   profileImageUrl?: string;
   rating: number;
+  taxIdentityNumber?: string;
+  taxOffice?: string;
   whatsapp: string;
 };
 
@@ -131,6 +153,14 @@ const providerSelectQuery = `
   whatsapp,
   description,
   profile_image_url,
+  payout_iban,
+  tax_identity_number,
+  tax_office,
+  legal_name,
+  payout_address,
+  iyzico_submerchant_key,
+  iyzico_submerchant_status,
+  iyzico_submerchant_conversation_id,
   average_price_min,
   average_price_max,
   rating,
@@ -141,7 +171,7 @@ const providerSelectQuery = `
   districts(name)
 `;
 
-const providerSelectQueryWithoutAvailability = `
+const providerSelectQueryFallback = `
   id,
   name,
   phone,
@@ -168,6 +198,16 @@ const providerApplicationSelectQueryWithUserId = `
   service_categories(name),
   districts(name)
 `;
+
+export const PROVIDER_IYZICO_SUBMERCHANT_STATUS_LABELS: Record<
+  ProviderIyzicoSubmerchantStatus,
+  string
+> = {
+  active: "Ödeme hesabı aktif",
+  missing: "Ödeme bilgisi eksik",
+  pending_review: "iyzico incelemede",
+  rejected: "iyzico kaydı reddedildi",
+};
 
 function getRelationName(
   relation: ProviderRelation | ProviderRelation[] | null | undefined,
@@ -246,10 +286,25 @@ function mapProviderDashboardRecord(
     id: record.id,
     isActive: record.is_active,
     isApproved: record.is_approved,
+    iyzicoSubmerchantConversationId:
+      sanitizeText(record.iyzico_submerchant_conversation_id ?? "", 120) || undefined,
+    iyzicoSubmerchantKey:
+      sanitizeText(record.iyzico_submerchant_key ?? "", 500) || undefined,
+    iyzicoSubmerchantStatus:
+      record.iyzico_submerchant_status &&
+      record.iyzico_submerchant_status in PROVIDER_IYZICO_SUBMERCHANT_STATUS_LABELS
+        ? record.iyzico_submerchant_status
+        : "missing",
+    legalName: sanitizeText(record.legal_name ?? "", 180) || undefined,
     name,
+    payoutAddress: sanitizeText(record.payout_address ?? "", 255) || undefined,
+    payoutIban: sanitizeText(record.payout_iban ?? "", 40) || undefined,
     phone,
     profileImageUrl: sanitizeText(record.profile_image_url ?? "", 500) || undefined,
     rating: Number(record.rating ?? 0),
+    taxIdentityNumber:
+      sanitizeText(record.tax_identity_number ?? "", 20) || undefined,
+    taxOffice: sanitizeText(record.tax_office ?? "", 120) || undefined,
     whatsapp: sanitizePhone(record.whatsapp ?? "") || phone,
   };
 }
@@ -274,6 +329,23 @@ function isMissingColumn(error: unknown, columnName: string) {
 
 function isMissingAvailabilityColumn(error: unknown) {
   return isMissingColumn(error, "availability");
+}
+
+function isMissingProviderPaymentColumn(error: unknown) {
+  return [
+    "payout_iban",
+    "tax_identity_number",
+    "tax_office",
+    "legal_name",
+    "payout_address",
+    "iyzico_submerchant_key",
+    "iyzico_submerchant_status",
+    "iyzico_submerchant_conversation_id",
+  ].some((columnName) => isMissingColumn(error, columnName));
+}
+
+function shouldFallbackProviderDashboardSelect(error: unknown) {
+  return isMissingAvailabilityColumn(error) || isMissingProviderPaymentColumn(error);
 }
 
 function getProviderDashboardReadError(error: unknown) {
@@ -414,10 +486,10 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     .limit(1)
     .maybeSingle();
 
-  if (error && isMissingAvailabilityColumn(error)) {
+  if (error && shouldFallbackProviderDashboardSelect(error)) {
     const fallbackResult = await authContext.supabase
       .from("providers")
-      .select(providerSelectQueryWithoutAvailability)
+      .select(providerSelectQueryFallback)
       .eq("user_id", authContext.user.id)
       .order("is_approved", { ascending: false })
       .order("created_at", { ascending: false })
