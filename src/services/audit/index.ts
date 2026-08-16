@@ -12,6 +12,7 @@ export type AuditAction =
   | "payment.confirmed_by_customer"
   | "payment.escrow_release_failed"
   | "payment.escrow_released"
+  | "payment.refunded"
   | "provider.created"
   | "provider.payment_onboarding_submitted"
   | "provider.price_updated"

@@ -5,6 +5,7 @@ import { sanitizeText } from "@/lib/validations";
 import { isUuid } from "@/lib/utils";
 import { writeAuditLog } from "@/services/audit";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
+import { PAYMENT_STATUSES } from "@/services/payments";
 import type { Database } from "@/lib/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -97,6 +98,7 @@ function relationFullName(
 
 export type AdminPayment = {
   amount: number | null;
+  canRefund: boolean;
   category: string;
   confirmedAt: string | null;
   createdAt: string;
@@ -121,6 +123,7 @@ export type AdminPaymentsData = {
 const paymentMethodLabels: Record<string, string> = {
   cash: "Nakit",
   iban: "IBAN / Havale",
+  iyzico: "iyzico",
   online_soon: "Online (yakında)",
 };
 
@@ -153,7 +156,7 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
       gate.supabase
         .from("payments")
         .select("id", { count: "exact", head: true })
-        .eq("status", "confirmed"),
+        .in("status", [PAYMENT_STATUSES.confirmed, PAYMENT_STATUSES.escrowReleased]),
       gate.supabase
         .from("payments")
         .select(
@@ -175,7 +178,7 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
       const { data: amountRows, error: amountError } = await gate.supabase
         .from("payments")
         .select("amount")
-        .eq("status", "confirmed")
+        .in("status", [PAYMENT_STATUSES.confirmed, PAYMENT_STATUSES.escrowReleased])
         .range(from, from + 999);
       if (amountError || !amountRows) break;
       for (const row of amountRows as Array<{ amount: number | null }>) {
@@ -217,6 +220,8 @@ export async function getAdminPayments(): Promise<AdminPaymentsData> {
 
       return {
         amount: raw.amount === null ? null : Number(raw.amount),
+        canRefund:
+          raw.payment_method === "iyzico" && raw.status === PAYMENT_STATUSES.escrowHeld,
         category: relationName(request?.service_categories ?? null),
         confirmedAt: raw.confirmed_at,
         createdAt: raw.created_at,

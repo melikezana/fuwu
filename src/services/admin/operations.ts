@@ -7,7 +7,12 @@ import {
   SERVICE_REQUEST_STATUSES,
 } from "@/lib/constants/statuses";
 import { EMERGENCY_RESPONSE_SLA_MINUTES } from "@/lib/constants/sla";
+import { isUuid } from "@/lib/utils/validation";
 import type { Database } from "@/lib/supabase/types";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
+import { writeAuditLog } from "@/services/audit";
+import { PAYMENT_STATUSES } from "@/services/payments";
+import { refundIyzicoPayment } from "@/services/payments/iyzico-marketplace";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
@@ -146,6 +151,11 @@ export type AuditLogsData = {
   error: string | null;
 };
 
+export type AdminActionResult = {
+  message: string;
+  ok: boolean;
+};
+
 function getRelationName(relation: MaybeRelation, fallback = "Belirtilmedi") {
   const record = Array.isArray(relation) ? relation[0] : relation;
 
@@ -212,9 +222,139 @@ function isEmergencyResponseSlaBreached(request: AssignmentMonitoringRecord) {
 export async function getAdminOperationsAccess() {
   const authContext = await getServerAuthContext();
   if (!authContext.supabase || !authContext.user || !hasAdminRole(authContext.profile)) {
-    return { ok: false, supabase: null };
+    return { ok: false, supabase: null, userId: null };
   }
-  return { ok: true, supabase: authContext.supabase };
+  return { ok: true, supabase: authContext.supabase, userId: authContext.user.id };
+}
+
+function parsePaymentAmount(value: number | string | null) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === "string") {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : null;
+  }
+
+  return null;
+}
+
+function normalizeRefundPrice(value: number) {
+  return Number(value.toFixed(2));
+}
+
+export async function refundAdminIyzicoPayment(
+  paymentId: string,
+): Promise<AdminActionResult> {
+  if (!isUuid(paymentId)) {
+    return { message: "Geçersiz ödeme kimliği.", ok: false };
+  }
+
+  const { ok, supabase, userId } = await getAdminOperationsAccess();
+
+  if (!ok || !supabase || !userId) {
+    return { message: "Bu işlem için admin yetkisi gerekli.", ok: false };
+  }
+
+  const rateLimit = await checkRateLimitWithRedis({
+    action: "admin:payment.refund",
+    limit: 20,
+    supabase,
+    userId,
+    windowMs: 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return { message: "Çok fazla işlem yaptın, biraz bekle.", ok: false };
+  }
+
+  const { data: payment, error: paymentError } = await supabase
+    .from("payments")
+    .select(
+      "id, request_id, amount, payment_method, status, iyzico_conversation_id, iyzico_payment_transaction_id",
+    )
+    .eq("id", paymentId)
+    .maybeSingle();
+
+  if (paymentError) {
+    handleServiceError(paymentError, { logContext: "refundAdminIyzicoPayment lookup" });
+    return { message: "Ödeme kaydı okunamadı.", ok: false };
+  }
+
+  if (!payment) {
+    return { message: "Ödeme bulunamadı.", ok: false };
+  }
+
+  if (payment.payment_method !== "iyzico") {
+    return { message: "Yalnızca iyzico ödemeleri bu aksiyonla iade edilebilir.", ok: false };
+  }
+
+  if (payment.status !== PAYMENT_STATUSES.escrowHeld) {
+    return { message: "Yalnızca emanet hesapta bekleyen ödemeler iade edilebilir.", ok: false };
+  }
+
+  if (!payment.iyzico_conversation_id || !payment.iyzico_payment_transaction_id) {
+    return { message: "iyzico işlem bilgisi eksik olduğu için iade başlatılamadı.", ok: false };
+  }
+
+  const amount = parsePaymentAmount(payment.amount);
+
+  if (!amount || amount <= 0) {
+    return { message: "İade tutarı için geçerli ödeme tutarı bulunamadı.", ok: false };
+  }
+
+  try {
+    const refundResponse = await refundIyzicoPayment({
+      conversationId: payment.iyzico_conversation_id,
+      paymentTransactionId: payment.iyzico_payment_transaction_id,
+      price: normalizeRefundPrice(amount),
+    });
+    const now = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from("payments")
+      .update({
+        escrow_refunded_at: now,
+        refund_id:
+          refundResponse.refundHostReference ??
+          refundResponse.paymentId ??
+          refundResponse.paymentTransactionId ??
+          null,
+        status: PAYMENT_STATUSES.escrowRefunded,
+        updated_at: now,
+      })
+      .eq("id", payment.id)
+      .eq("status", PAYMENT_STATUSES.escrowHeld);
+
+    if (updateError) {
+      handleServiceError(updateError, { logContext: "refundAdminIyzicoPayment update" });
+      return { message: "İade alındı ancak ödeme kaydı güncellenemedi.", ok: false };
+    }
+
+    await writeAuditLog(
+      {
+        action: "payment.refunded",
+        actorUserId: userId,
+        entityId: payment.id,
+        entityType: "payment",
+        metadata: {
+          amount,
+          paymentTransactionId: payment.iyzico_payment_transaction_id,
+          requestId: payment.request_id,
+          refundHostReference: refundResponse.refundHostReference ?? null,
+        },
+      },
+      supabase,
+    );
+
+    return {
+      message: "iyzico iade işlemi başlatıldı ve ödeme iade edildi olarak işaretlendi.",
+      ok: true,
+    };
+  } catch (error) {
+    handleServiceError(error, { logContext: "refundAdminIyzicoPayment iyzico" });
+    return { message: "iyzico iade isteği başarısız oldu.", ok: false };
+  }
 }
 
 export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | null> {
