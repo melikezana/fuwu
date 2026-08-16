@@ -7,6 +7,7 @@ type AuditSupabaseClient = SupabaseClient<Database>;
 
 export type AuditAction =
   | "admin.action_failed"
+  | "ai_assistant.openai_failure"
   | "payment.confirmed"
   | "payment.confirmed_by_customer"
   | "provider.created"
@@ -36,6 +37,7 @@ export type AuditLogEvent = {
   entityId: string | null;
   entityType:
     | "admin_action"
+    | "ai_assistant"
     | "catalog"
     | "notification"
     | "payment"

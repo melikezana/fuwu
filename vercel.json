@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/emergency-sla-sweep",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/ai-assistant-health-check",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

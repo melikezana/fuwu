@@ -121,6 +121,7 @@ function OperationalAlerts({ overview }: { overview: AdminOverviewMetrics }) {
   if (overview.onayBekleyenUsta > 0) alerts.push(`${overview.onayBekleyenUsta} onay bekleyen usta başvurusu var.`);
   if (overview.bekleyenTalep > 0) alerts.push(`${overview.bekleyenTalep} atanmamış/bekleyen talep var.`);
   if (overview.slaBreachedEmergencyRequests > 0) alerts.push(`${overview.slaBreachedEmergencyRequests} acil talepte usta yanıt SLA'sı aşıldı.`);
+  if (overview.aiAssistantOpenAiFailures24h > 0) alerts.push(`Son 24 saatte ${overview.aiAssistantOpenAiFailures24h} AI/OpenAI altyapı hatası kaydedildi.`);
   if (overview.aktifUsta < 10) alerts.push("Aktif usta sayısı düşük, platform kapasitesi sınırlı olabilir.");
   
   if (alerts.length === 0) return null;
@@ -150,6 +151,7 @@ function OverviewMetrics({ overview }: { overview: AdminOverviewMetrics }) {
         <MetricCard label="Aktif Usta" value={overview.aktifUsta} />
         <MetricCard label="Onay Bekleyen Usta" value={overview.onayBekleyenUsta} />
         <MetricCard label="SLA Aşan Acil" value={overview.slaBreachedEmergencyRequests} />
+        <MetricCard label="AI OpenAI Hatası (24s)" value={overview.aiAssistantOpenAiFailures24h} />
       </div>
     </AdminSection>
   );

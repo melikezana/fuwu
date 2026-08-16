@@ -16,8 +16,10 @@ import { searchProviders } from "@/lib/ai/provider-tools";
 import { logWarn } from "@/lib/logger";
 import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/supabase/types";
 import { detectImageMagicByteMimeType } from "@/lib/validations/imageMagicBytes";
 import { sanitizeText } from "@/lib/validations";
+import { writeAuditLog } from "@/services/audit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,6 +28,14 @@ const maxImageBytes = 10 * 1024 * 1024;
 const maxMessageLength = 2_000;
 const openAiTimeoutMs = 25_000;
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const auditTrackedOpenAiFailureCodes = new Set([
+  "billing_hard_limit_reached",
+  "insufficient_quota",
+  "invalid_api_key",
+  "openai-key-missing",
+  "openai-model-missing",
+  "quota_exceeded",
+]);
 const supportedImageDataUrlPattern =
   /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
 
@@ -317,6 +327,50 @@ function getAssistantErrorLogPayload(error: unknown) {
     requestId: getErrorRequestId(error),
     stackTrace: getErrorStack(error),
   };
+}
+
+function getTrackedOpenAiFailureCode(error: unknown) {
+  const message = getErrorMessage(error);
+  const code = getOpenAiErrorCode(error);
+
+  for (const value of [code, message]) {
+    if (value && auditTrackedOpenAiFailureCodes.has(value)) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+async function writeOpenAiFailureAuditLog(error: unknown) {
+  const trackedCode = getTrackedOpenAiFailureCode(error);
+
+  if (!trackedCode) {
+    return;
+  }
+
+  try {
+    await writeAuditLog({
+      action: "ai_assistant.openai_failure",
+      actorUserId: null,
+      entityId: null,
+      entityType: "ai_assistant",
+      metadata: {
+        code: trackedCode,
+        httpStatus: getHttpStatus(error),
+        name: getErrorName(error),
+        openAiErrorCode: getOpenAiErrorCode(error),
+        openAiErrorType: getOpenAiErrorType(error),
+        requestId: getErrorRequestId(error),
+        route: "/api/ai-assistant/analyze",
+      } satisfies Json,
+    });
+  } catch (auditError) {
+    logWarn("AI assistant OpenAI failure audit log failed.", {
+      auditError,
+      trackedCode,
+    });
+  }
 }
 
 function logAssistantAnalyzeError(error: unknown) {
@@ -832,6 +886,7 @@ export async function POST(request: NextRequest) {
     return assistantJson(response);
   } catch (error) {
     logAssistantAnalyzeError(error);
+    await writeOpenAiFailureAuditLog(error);
 
     return assistantJson(
       {

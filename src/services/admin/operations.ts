@@ -77,6 +77,7 @@ type RequestReassignmentLogRecord = Pick<
 
 export type AdminOverviewMetrics = {
   aktifUsta: number;
+  aiAssistantOpenAiFailures24h: number;
   bekleyenTalep: number;
   incelenenTalep: number;
   iptalEdilenTalep: number;
@@ -187,6 +188,10 @@ function getEmergencySlaCutoffIso() {
   ).toISOString();
 }
 
+function getAiAssistantFailureCutoffIso() {
+  return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+}
+
 function isEmergencyResponseSlaBreached(request: AssignmentMonitoringRecord) {
   if (
     request.urgency_type !== "emergency" ||
@@ -220,6 +225,7 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
 
   try {
     const slaCutoffIso = getEmergencySlaCutoffIso();
+    const aiAssistantFailureCutoffIso = getAiAssistantFailureCutoffIso();
     const [
       totalRequestsResult,
       yeniRequestsResult,
@@ -230,6 +236,7 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
       activeProvidersResult,
       pendingApplicationsResult,
       slaBreachedEmergencyRequestsResult,
+      aiAssistantOpenAiFailuresResult,
     ] = await Promise.all([
       supabase.from("service_requests").select("id", { count: "exact", head: true }),
       supabase
@@ -253,10 +260,16 @@ export async function getAdminOverviewMetrics(): Promise<AdminOverviewMetrics | 
         .eq("status", SERVICE_REQUEST_STATUSES.assigned)
         .not("assigned_at", "is", null)
         .lt("assigned_at", slaCutoffIso),
+      supabase
+        .from("audit_logs")
+        .select("id", { count: "exact", head: true })
+        .eq("action", "ai_assistant.openai_failure")
+        .gte("created_at", aiAssistantFailureCutoffIso),
     ]);
 
     return {
       toplamTalep: totalRequestsResult.count ?? 0,
+      aiAssistantOpenAiFailures24h: aiAssistantOpenAiFailuresResult.count ?? 0,
       bekleyenTalep: yeniRequestsResult.count ?? 0,
       incelenenTalep: inceleniyorRequestsResult.count ?? 0,
       ustayaYonlendirildi: yonlendirildiRequestsResult.count ?? 0,

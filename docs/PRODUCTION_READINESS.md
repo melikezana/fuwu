@@ -60,6 +60,7 @@ tek başına yeterli olmayabilir. Riskli DDL değişikliklerinde:
 | `NEXT_PUBLIC_ANALYTICS_DEBUG` | Opsiyonel | Opsiyonel | Kapalı/opsiyonel | Analytics debug logları. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Opsiyonel | Opsiyonel | Analytics açıksa zorunlu | Google Analytics measurement ID. |
 | `NEXT_PUBLIC_SENTRY_DSN` | Opsiyonel | Önerilen | Önerilen | Yoksa Sentry tamamen no-op olur. |
+| `SLACK_ALERT_WEBHOOK_URL` | Opsiyonel | Önerilen | Önerilen | AI/OpenAI hata alarmı webhook'u; boşsa alarm gönderimi sessizce atlanır. |
 | `SENTRY_ORG` | Opsiyonel | Source map için önerilen | Source map için önerilen | Sentry organizasyonu. |
 | `SENTRY_PROJECT` | Opsiyonel | Source map için önerilen | Source map için önerilen | Sentry projesi. |
 | `SENTRY_AUTH_TOKEN` | Opsiyonel | Source map için önerilen | Source map için önerilen | Build secret; public değildir. |
