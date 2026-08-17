@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { confirmPaymentByCustomerAction } from "@/app/account/requests/actions";
 import { Button } from "@/components/ui/Button";
+import { useKeyboardOpen } from "@/hooks/useKeyboardOpen";
+import { cn } from "@/lib/utils";
 import { trackMetaPurchase } from "@/services/analytics";
 import {
   PAYMENT_PREFERENCES,
@@ -46,6 +48,8 @@ export function PaymentConfirmationButton({
   const normalizedVerificationCode = verificationCode.replace(/\D/g, "").slice(0, 6);
   const canSubmitCode = normalizedVerificationCode.length === 6;
 
+  const isKeyboardOpen = useKeyboardOpen();
+
   function handleConfirm() {
     setMessage(null);
 
@@ -76,7 +80,12 @@ export function PaymentConfirmationButton({
   }
 
   return (
-    <div className="mobile-sticky-action sticky bottom-[var(--mobile-bottom-action-offset)] z-40 max-w-md rounded-lg border border-[var(--border)] bg-white p-3 shadow-[var(--shadow-elevated)] md:static md:bottom-auto md:z-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+    <div
+      className={cn(
+        "mobile-sticky-action fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] left-0 right-0 z-40 bg-white p-4 border-t border-[var(--border)] shadow-[var(--shadow-elevated)] md:static md:bottom-auto md:z-auto md:max-w-md md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none",
+        isKeyboardOpen && "static bottom-auto shadow-none",
+      )}
+    >
       {!isConfirmed ? (
         <div className="mb-3">
           <label

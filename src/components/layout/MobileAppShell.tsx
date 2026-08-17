@@ -6,6 +6,8 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
 import { MobileBottomNav } from "./MobileBottomNav";
 
+import { PageTransition } from "./PageTransition";
+
 type MobileAppShellProps = {
   children: ReactNode;
 };
@@ -22,7 +24,9 @@ export function MobileAppShell({ children }: MobileAppShellProps) {
           "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] md:pb-0",
       )}
     >
-      {children}
+      <PageTransition key={pathname} className="flex flex-1 flex-col">
+        {children}
+      </PageTransition>
       <MobileBottomNav />
     </div>
   );

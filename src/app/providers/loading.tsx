@@ -1,52 +1,22 @@
 import { Container } from "@/components/ui/Container";
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-md bg-[rgba(13,20,36,0.08)] ${className}`}
-    />
-  );
+  return <div className={`animate-pulse rounded-md bg-[rgba(13,20,36,0.08)] ${className}`} />;
 }
 
 export default function ProvidersLoading() {
   return (
-    <div className="premium-page-shell">
-      <section className="premium-page-band">
-        <Container className="max-w-7xl py-10 sm:py-14 lg:py-16">
-          <SkeletonBlock className="h-12 w-36" />
-          <SkeletonBlock className="mt-8 h-5 w-32" />
-          <SkeletonBlock className="mt-4 h-14 max-w-3xl" />
-          <SkeletonBlock className="mt-4 h-6 max-w-2xl" />
-        </Container>
-      </section>
-      <Container className="max-w-7xl py-6 sm:py-8">
-        <div className="premium-card p-4 sm:p-5 lg:p-6">
-          <SkeletonBlock className="h-6 w-56" />
-          <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <SkeletonBlock className="h-12" />
-            <SkeletonBlock className="h-12" />
-            <SkeletonBlock className="h-12" />
+    <main className="min-h-screen bg-[var(--surface-soft)] py-8">
+      <Container>
+        <section aria-busy="true" aria-label="Ustalar yükleniyor" className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
+          <SkeletonBlock className="h-8 w-56" />
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonBlock className="h-48 w-full" key={index} />
+            ))}
           </div>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              className="premium-card p-5"
-              key={index}
-            >
-              <div className="flex gap-4">
-                <SkeletonBlock className="size-14 shrink-0" />
-                <div className="flex-1">
-                  <SkeletonBlock className="h-7 w-2/3" />
-                  <SkeletonBlock className="mt-3 h-5 w-1/2" />
-                </div>
-              </div>
-              <SkeletonBlock className="mt-5 h-20" />
-              <SkeletonBlock className="mt-5 h-12" />
-            </div>
-          ))}
-        </div>
+        </section>
       </Container>
-    </div>
+    </main>
   );
 }

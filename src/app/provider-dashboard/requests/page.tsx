@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/components/dashboard/ProviderDashboardUI";
 import { SlaCountdown } from "@/components/dashboard/SlaCountdown";
 import { PhoneWhatsAppLinks } from "@/components/contact/PhoneWhatsAppLinks";
+import { ProviderRequestActionDock } from "@/components/dashboard/ProviderRequestActionDock";
 import { RequestChatThread } from "@/components/messaging/RequestChatThread";
 import { getServerAuthContext } from "@/services/auth/server";
 import { appRoutes } from "@/lib/constants/navigation";
@@ -168,14 +169,6 @@ function ProviderRequestActionButton({
         {label}
       </button>
     </form>
-  );
-}
-
-function ProviderRequestActionDock({ children }: { children: ReactNode }) {
-  return (
-    <div className="mobile-sticky-action sticky bottom-[var(--mobile-bottom-action-offset)] z-40 mt-3 rounded-lg border border-[var(--border)] bg-white p-3 shadow-[var(--shadow-elevated)] md:static md:bottom-auto md:z-auto md:mt-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-      {children}
-    </div>
   );
 }
 
