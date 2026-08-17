@@ -76,21 +76,21 @@ export const metadata: Metadata = {
   icons: {
     apple: [
       {
-        sizes: "192x192",
-        type: "image/svg+xml",
-        url: "/icons/fuwu-icon-192.svg",
+        sizes: "180x180",
+        type: "image/png",
+        url: "/icons/fuwu-icon-180.png",
       },
     ],
     icon: [
       {
         sizes: "192x192",
-        type: "image/svg+xml",
-        url: "/icons/fuwu-icon-192.svg",
+        type: "image/png",
+        url: "/icons/fuwu-icon-192.png",
       },
       {
         sizes: "512x512",
-        type: "image/svg+xml",
-        url: "/icons/fuwu-icon-512.svg",
+        type: "image/png",
+        url: "/icons/fuwu-icon-512.png",
       },
     ],
   },

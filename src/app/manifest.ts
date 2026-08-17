@@ -8,14 +8,16 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     icons: [
       {
+        purpose: "any maskable" as any,
         sizes: "192x192",
-        src: "/icons/fuwu-icon-192.svg",
-        type: "image/svg+xml",
+        src: "/icons/fuwu-icon-192.png",
+        type: "image/png",
       },
       {
+        purpose: "any maskable" as any,
         sizes: "512x512",
-        src: "/icons/fuwu-icon-512.svg",
-        type: "image/svg+xml",
+        src: "/icons/fuwu-icon-512.png",
+        type: "image/png",
       },
     ],
     name: "FUWU - Ev Hizmetleri",

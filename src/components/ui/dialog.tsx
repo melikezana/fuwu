@@ -28,7 +28,6 @@ export function Dialog({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      setDragY(0);
     } else {
       document.body.style.overflow = "";
     }

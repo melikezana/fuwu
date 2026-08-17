@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
+    "generate:icons": "tsx scripts/generate-icons.ts",
     "check:backend": "node scripts/check-backend.mjs",
     "check:backend:db": "node scripts/check-backend-db.mjs",
     "check:sentry-logger": "node scripts/check-sentry-logger.mjs",

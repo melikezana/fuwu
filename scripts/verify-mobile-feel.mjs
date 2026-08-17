@@ -1,6 +1,4 @@
 import { chromium } from "playwright";
-import fs from "node:fs";
-import path from "node:path";
 
 async function runVerification() {
   console.log("Launching browser for mobile verification...");
