@@ -2296,7 +2296,7 @@ export function RequestForm({
         </aside>
       </div>
 
-      <div className="safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[rgba(10,37,64,0.12)] bg-white/95 px-4 py-3 shadow-[0_-18px_40px_rgba(10,37,64,0.12)] backdrop-blur lg:hidden">
+      <div className="safe-area-bottom fixed inset-x-0 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-40 border-t border-[rgba(10,37,64,0.12)] bg-white/95 px-4 py-3 shadow-[0_-18px_40px_rgba(10,37,64,0.12)] backdrop-blur md:bottom-0 lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">

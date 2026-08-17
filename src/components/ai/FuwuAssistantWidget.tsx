@@ -183,11 +183,12 @@ export function FuwuAssistantWidget() {
 
       <div
         className={cn(
-          "fixed right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end sm:bottom-5 sm:right-5",
+          "fixed right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end md:bottom-5 md:right-5",
           hasMobileContactBar
-            ? "bottom-[calc(5.75rem+env(safe-area-inset-bottom))] lg:bottom-[calc(1rem+env(safe-area-inset-bottom))]"
-            : "bottom-[calc(1rem+env(safe-area-inset-bottom))]",
-          isOpen && view !== "menu" ? "inset-x-0 bottom-0 max-w-none items-stretch sm:inset-auto sm:w-[min(480px,calc(100vw-2rem))]" : "",
+            ? "bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+5.75rem)] md:bottom-[calc(5.75rem+var(--safe-bottom))] lg:bottom-[calc(1rem+var(--safe-bottom))]"
+            : "bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+1rem)] md:bottom-5",
+          isOpen ? "z-[70]" : "",
+          isOpen && view !== "menu" ? "inset-x-0 bottom-0 max-w-none items-stretch md:inset-auto md:w-[min(480px,calc(100vw-2rem))]" : "",
         )}
       >
         {isOpen ? (

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 import { Suspense } from "react";
@@ -8,6 +8,7 @@ import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
+import { MobileAppShell } from "@/components/layout/MobileAppShell";
 import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
@@ -47,6 +48,8 @@ const inter = localFont({
   variable: "--font-inter",
 });
 
+const fuwuThemeColor = "#ff6500";
+
 export const metadata: Metadata = {
   ...createPageMetadata({
     title: seoConfig.defaultTitle,
@@ -65,6 +68,42 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: true,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FUWU",
+  },
+  icons: {
+    apple: [
+      {
+        sizes: "192x192",
+        type: "image/svg+xml",
+        url: "/icons/fuwu-icon-192.svg",
+      },
+    ],
+    icon: [
+      {
+        sizes: "192x192",
+        type: "image/svg+xml",
+        url: "/icons/fuwu-icon-192.svg",
+      },
+      {
+        sizes: "512x512",
+        type: "image/svg+xml",
+        url: "/icons/fuwu-icon-512.svg",
+      },
+    ],
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
+};
+
+export const viewport: Viewport = {
+  initialScale: 1,
+  themeColor: fuwuThemeColor,
+  viewportFit: "cover",
+  width: "device-width",
 };
 
 const analyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true";
@@ -92,7 +131,7 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <PageViewTracker />
           </Suspense>
-          <div className="flex min-h-screen flex-col">
+          <MobileAppShell>
             {maintenanceMode ? (
               <div className="w-full bg-red-600 px-4 py-2 text-center text-sm font-semibold text-white">
                 <span className="inline-flex items-center gap-2">
@@ -106,7 +145,7 @@ export default async function RootLayout({
             <main className="premium-reveal flex-1">{children}</main>
             <Footer />
             <HelpButton />
-          </div>
+          </MobileAppShell>
           <Suspense fallback={null}>
             <CookieConsentBanner />
           </Suspense>

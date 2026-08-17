@@ -544,7 +544,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </section>
       ) : null}
 
-      <div className="safe-area-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm lg:hidden">
+      <div className="safe-area-bottom fixed inset-x-0 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-40 border-t border-[var(--border)] bg-white/95 p-3 shadow-[var(--shadow-card)] backdrop-blur-sm md:bottom-0 lg:hidden">
         <div className="mx-auto flex max-w-lg gap-3">
           <Button className="h-12 flex-1 gap-1.5 text-sm" href={providerCheckoutHref} variant="primary">
             <MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />

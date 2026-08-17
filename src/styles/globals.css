@@ -54,6 +54,12 @@
   --gradient-page: linear-gradient(180deg, #ffffff 0%, #fff8ef 36%, #fffcf8 100%);
   --gradient-surface: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
   --gradient-warm-surface: linear-gradient(180deg, #ffffff 0%, #fff8ef 100%);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-bottom-nav-height: 4.75rem;
+  --mobile-bottom-action-offset: calc(
+    var(--mobile-bottom-nav-height) + var(--safe-bottom) + 0.75rem
+  );
 }
 
 * {
@@ -131,7 +137,13 @@ li {
 }
 
 .safe-area-bottom {
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: max(0.75rem, var(--safe-bottom));
+}
+
+@media (max-width: 767.98px) {
+  .mobile-sticky-action:focus-within {
+    position: static;
+  }
 }
 
 @supports not (overflow: clip) {

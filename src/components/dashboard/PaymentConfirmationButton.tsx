@@ -76,7 +76,7 @@ export function PaymentConfirmationButton({
   }
 
   return (
-    <div className="max-w-md">
+    <div className="mobile-sticky-action sticky bottom-[var(--mobile-bottom-action-offset)] z-40 max-w-md rounded-lg border border-[var(--border)] bg-white p-3 shadow-[var(--shadow-elevated)] md:static md:bottom-auto md:z-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
       {!isConfirmed ? (
         <div className="mb-3">
           <label

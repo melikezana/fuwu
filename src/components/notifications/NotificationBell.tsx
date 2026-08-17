@@ -276,11 +276,15 @@ export function NotificationBell({
         <div
           aria-label="Bildirimler"
           className={cn(
-            "absolute top-[calc(100%+0.6rem)] z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-[rgba(13,20,36,0.1)] bg-white shadow-[var(--shadow-elevated)]",
-            panelAlign === "right" ? "right-0" : "left-0",
+            "fixed inset-x-3 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+0.75rem)] z-50 max-h-[min(72dvh,30rem)] overflow-hidden rounded-t-2xl border border-[rgba(13,20,36,0.1)] bg-white shadow-[var(--shadow-elevated)] md:absolute md:inset-x-auto md:bottom-auto md:top-[calc(100%+0.6rem)] md:max-h-none md:w-[min(22rem,calc(100vw-2rem))] md:rounded-lg",
+            panelAlign === "right" ? "md:right-0" : "md:left-0",
           )}
           role="dialog"
         >
+          <div
+            aria-hidden="true"
+            className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-[var(--brand-navy-soft)] md:hidden"
+          />
           <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[var(--brand-navy)]">Bildirimler</p>

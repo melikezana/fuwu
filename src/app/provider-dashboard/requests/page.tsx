@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   getProviderDashboardStatusBadgeView,
   ProviderDashboardApplicationPlaceholder,
@@ -162,11 +163,19 @@ function ProviderRequestActionButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] ${toneClassName}`}
+        className={`min-h-11 rounded-md border px-4 py-2 text-sm font-semibold transition-colors active:scale-[0.98] md:min-h-0 md:px-3 md:py-1.5 md:text-xs ${toneClassName}`}
       >
         {label}
       </button>
     </form>
+  );
+}
+
+function ProviderRequestActionDock({ children }: { children: ReactNode }) {
+  return (
+    <div className="mobile-sticky-action sticky bottom-[var(--mobile-bottom-action-offset)] z-40 mt-3 rounded-lg border border-[var(--border)] bg-white p-3 shadow-[var(--shadow-elevated)] md:static md:bottom-auto md:z-auto md:mt-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+      {children}
+    </div>
   );
 }
 
@@ -219,38 +228,46 @@ function ProviderEmergencyActions({
   if (isWaitingForAcceptance) {
     if (isProviderOnlinePaidRequest(request) && !canAcceptPaidRequests) {
       return (
-        <div className="mt-2 grid gap-2">
-          <ProviderPaymentInfoRequiredNotice />
-          <div className="flex flex-wrap gap-2">
-            <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+        <ProviderRequestActionDock>
+          <div className="mt-2 grid gap-2">
+            <ProviderPaymentInfoRequiredNotice />
+            <div className="flex flex-wrap gap-2">
+              <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+            </div>
           </div>
-        </div>
+        </ProviderRequestActionDock>
       );
     }
 
     return (
-      <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
-      </div>
+      <ProviderRequestActionDock>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
+          <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+        </div>
+      </ProviderRequestActionDock>
     );
   }
 
   if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
     return (
-      <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Yola çıktım" requestId={request.id} status={SERVICE_REQUEST_STATUSES.inProgress} tone="neutral" />
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
-      </div>
+      <ProviderRequestActionDock>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <ProviderRequestActionButton label="Yola çıktım" requestId={request.id} status={SERVICE_REQUEST_STATUSES.inProgress} tone="neutral" />
+          <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
+        </div>
+      </ProviderRequestActionDock>
     );
   }
 
   if (normalizeServiceRequestStatus(request.status) === SERVICE_REQUEST_STATUSES.inProgress) {
     return (
-      <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
-        <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
-      </div>
+      <ProviderRequestActionDock>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
+          <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
+        </div>
+      </ProviderRequestActionDock>
     );
   }
 
@@ -274,29 +291,35 @@ function ProviderStandardActions({
   if (isWaitingForAcceptance) {
     if (isProviderOnlinePaidRequest(request) && !canAcceptPaidRequests) {
       return (
-        <div className="mt-2 grid gap-2">
-          <ProviderPaymentInfoRequiredNotice />
-          <div className="flex flex-wrap gap-2">
-            <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+        <ProviderRequestActionDock>
+          <div className="mt-2 grid gap-2">
+            <ProviderPaymentInfoRequiredNotice />
+            <div className="flex flex-wrap gap-2">
+              <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+            </div>
           </div>
-        </div>
+        </ProviderRequestActionDock>
       );
     }
 
     return (
-      <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
-        <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
-      </div>
+      <ProviderRequestActionDock>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <ProviderRequestActionButton label="Kabul Et" requestId={request.id} status={SERVICE_REQUEST_STATUSES.accepted} tone="green" />
+          <ProviderRequestActionButton label="Reddet" requestId={request.id} status={SERVICE_REQUEST_STATUSES.rejected} tone="red" />
+        </div>
+      </ProviderRequestActionDock>
     );
   }
 
   if (request.status === SERVICE_REQUEST_STATUSES.accepted) {
     return (
-      <div className="mt-2 flex flex-wrap gap-2">
-        <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
-        <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
-      </div>
+      <ProviderRequestActionDock>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <ProviderRequestActionButton label="Tamamla" requestId={request.id} status={SERVICE_REQUEST_STATUSES.completed} tone="green" />
+          <ProviderRequestActionButton label="İptal" requestId={request.id} status={SERVICE_REQUEST_STATUSES.cancelled} tone="red" />
+        </div>
+      </ProviderRequestActionDock>
     );
   }
 

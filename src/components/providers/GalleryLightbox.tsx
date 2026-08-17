@@ -70,7 +70,7 @@ export function GalleryLightbox({
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(24,32,51,0.92)] px-4 py-6"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(24,32,51,0.92)] px-0 pb-0 pt-6 md:items-center md:px-4 md:py-6"
       onClick={onClose}
       role="dialog"
     >
@@ -98,7 +98,7 @@ export function GalleryLightbox({
       ) : null}
 
       <div
-        className="flex max-h-[88vh] w-full max-w-4xl flex-col items-center gap-3 rounded-2xl bg-white/5 p-3 backdrop-blur"
+        className="flex max-h-[88dvh] w-full flex-col items-center gap-3 rounded-t-2xl bg-white/5 p-3 backdrop-blur md:max-h-[88vh] md:max-w-4xl md:rounded-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="relative h-[68vh] max-h-[44rem] w-full">
