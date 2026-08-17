@@ -25,6 +25,7 @@ import {
   type ServiceCategoryMapKey,
   type ServiceCategoryTarget,
 } from "@/lib/constants/service-category-map";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type HeroSectionProps = {
@@ -360,6 +361,7 @@ function HeroTrustSignals({ reduceMotion }: { reduceMotion: boolean }) {
 }
 
 export function HeroSection({ categories, districts }: HeroSectionProps) {
+  const { locale } = useI18n();
   const reduceMotion = Boolean(useMotionReducedMotion());
 
   return (
@@ -385,6 +387,12 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
             <Sparkles aria-hidden="true" className="size-4 shrink-0 text-[var(--brand-orange)]" />
             <span className="truncate">{homeCopy.hero.eyebrow}</span>
           </span>
+
+          {locale === "tr" ? (
+            <p className="mt-4 text-sm font-bold uppercase tracking-wide text-[var(--brand-orange)]">
+              Artık komşuya değil, FUWU'ya sor.
+            </p>
+          ) : null}
 
           <h1 className="mt-5 max-w-[35rem] text-[2.625rem] font-extrabold leading-[1.04] text-[var(--brand-navy)] min-[390px]:text-5xl sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
             Güven, doğru{" "}

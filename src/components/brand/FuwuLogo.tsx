@@ -46,12 +46,12 @@ export function FuwuLogo({ className, inverted = false, size = "md" }: FuwuLogoP
           inverted ? "text-white" : "text-[var(--brand-navy)]",
         )}
       >
-        FUW<span className="text-[var(--brand-orange)]">U</span>
+        FUW<span className={inverted ? "text-white" : "text-[var(--brand-orange)]"}>U</span>
       </span>
       <span className="mt-1.5 flex items-center gap-2">
         <span
           aria-hidden="true"
-          className={cn("rounded-full bg-[var(--brand-orange)]", accentSizeClasses[size])}
+          className={cn("rounded-full", inverted ? "bg-white" : "bg-[var(--brand-orange)]", accentSizeClasses[size])}
         />
         <span
           className={cn(

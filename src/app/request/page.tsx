@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { RequestForm } from "@/components/request/RequestForm";
+import { RequestSlogan } from "@/components/request/RequestSlogan";
 import { appRoutes } from "@/lib/constants/navigation";
 import {
   getAuthenticatedServerUserId,
@@ -94,6 +95,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
                 ? `${initialProviderName || "Seçtiğin usta"} için randevunu planla.`
                 : "Hizmetini seç, randevunu planla, ödemeye geç."}
             </h1>
+            <RequestSlogan />
             <p className="mt-5 max-w-3xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
               {isProviderProfileCheckout
                 ? "Profil üzerinden başladığın için servis seçimi tamamlandı; tarih, saat, ek hizmetler, adres, notlar, özet ve online ödeme adımlarıyla devam et."
