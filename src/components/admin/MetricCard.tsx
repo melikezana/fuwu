@@ -1,12 +1,14 @@
+export type MetricCardProps = {
+  label: string;
+  value: string | number;
+  subtext?: string;
+};
+
 export function MetricCard({ 
   label, 
   value, 
   subtext 
-}: { 
-  label: string; 
-  value: string | number; 
-  subtext?: string;
-}) {
+}: MetricCardProps) {
   return (
     <div className="flex min-w-[140px] flex-1 flex-col rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-subtle)]">
       <span className="text-xs font-medium uppercase tracking-wider text-[var(--muted)]">{label}</span>

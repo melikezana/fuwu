@@ -39,3 +39,6 @@ Thumbs.db
 tsconfig.tsbuildinfo
 
 .vercel
+
+*storybook.log
+storybook-static

@@ -1,10 +1,12 @@
+export type StatusBadgeProps = {
+  status: string;
+  tone?: "neutral" | "success" | "warning" | "error" | "info";
+};
+
 export function StatusBadge({ 
   status, 
   tone = "neutral" 
-}: { 
-  status: string; 
-  tone?: "neutral" | "success" | "warning" | "error" | "info";
-}) {
+}: StatusBadgeProps) {
   const tones = {
     neutral: "bg-gray-100 text-gray-800 border-gray-200",
     success: "bg-[var(--trust-green-soft)] text-[var(--trust-green)] border-[rgba(23,116,95,0.2)]",

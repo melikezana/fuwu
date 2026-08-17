@@ -5,7 +5,7 @@ import {
 } from "@/lib/contact-links";
 import { cn } from "@/lib/utils";
 
-type PhoneWhatsAppLinksProps = {
+export type PhoneWhatsAppLinksProps = {
   className?: string;
   iconClassName?: string;
   phone: string | null | undefined;

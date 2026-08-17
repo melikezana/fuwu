@@ -16,17 +16,17 @@ type BaseButtonProps = {
   variant?: ButtonVariant;
 };
 
-type NativeButtonProps = BaseButtonProps &
+export type NativeButtonProps = BaseButtonProps &
   ButtonHTMLAttributes<HTMLButtonElement> & {
     href?: never;
   };
 
-type LinkButtonProps = BaseButtonProps &
+export type LinkButtonProps = BaseButtonProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "href"> & {
     href: string;
   };
 
-type ButtonProps = NativeButtonProps | LinkButtonProps;
+export type ButtonProps = NativeButtonProps | LinkButtonProps;
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:

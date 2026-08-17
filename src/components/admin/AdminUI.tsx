@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   Star,
   Tags,
+  TrendingUp,
   UserCheck,
   UserCog,
   Users,
@@ -31,6 +32,7 @@ type AdminNavKey =
   | "applications"
   | "requests"
   | "payments"
+  | "revenue"
   | "reviews"
   | "catalog"
   | "verifications"
@@ -112,6 +114,12 @@ const adminNavItems: Array<{
     icon: CreditCard,
     key: "payments",
     label: "Ödemeler",
+  },
+  {
+    href: "/admin/revenue",
+    icon: TrendingUp,
+    key: "revenue",
+    label: "Gelir ve Büyüme",
   },
   {
     href: "/admin/reviews",

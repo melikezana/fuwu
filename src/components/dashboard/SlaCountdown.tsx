@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { EMERGENCY_RESPONSE_SLA_MINUTES } from "@/lib/constants/sla";
 
-type SlaCountdownProps = {
+export type SlaCountdownProps = {
   assignedAt: string;
 };
 

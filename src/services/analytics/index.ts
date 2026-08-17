@@ -50,9 +50,15 @@ type VoiceCommandPayload = {
   matched?: boolean;
 };
 
+type MetaPixelTrackCommand = "track" | "trackCustom";
+
 declare global {
   interface Window {
-    fbq?: (command: "track", eventName: string, parameters?: Record<string, AnalyticsValue>) => void;
+    fbq?: (
+      command: "init" | MetaPixelTrackCommand,
+      eventName: string,
+      parameters?: Record<string, AnalyticsValue>,
+    ) => void;
     gtag?: (command: "event", eventName: string, parameters?: Record<string, AnalyticsValue>) => void;
   }
 }
@@ -242,12 +248,16 @@ export function trackAdminAction(actionName: string, payload: { targetId?: strin
   });
 }
 
-export function trackMetaPixelEvent(eventName: string, payload: AnalyticsPayload = {}) {
+export function trackMetaPixelEvent(
+  eventName: string,
+  payload: AnalyticsPayload = {},
+  command: MetaPixelTrackCommand = "track",
+) {
   if (!canTrackWithMetaPixel()) return;
 
   const safePayload = sanitizePayload(payload);
   window.fbq?.(
-    "track",
+    command,
     eventName,
     Object.keys(safePayload).length > 0 ? safePayload : undefined,
   );
@@ -258,7 +268,7 @@ export function trackMetaLead() {
 }
 
 export function trackMetaProviderApplicationSubmitted() {
-  trackMetaPixelEvent("SubmitApplication");
+  trackMetaPixelEvent("ProviderApplicationSubmitted", {}, "trackCustom");
 }
 
 export function trackMetaPurchase(payload: { currency?: string; value?: number | null }) {

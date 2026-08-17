@@ -1,0 +1,163 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Tasarim Sistemi/Design Tokens" />
+
+# Tasarim Tokenlari
+
+Fuwu komponentlerinde ham renk yerine global token kullanilir. Primary aksiyonlar turuncu,
+basliklar ve karar metinleri lacivert, yuzeyler ise sicak beyaz ve soft gri ailesinden gelir.
+
+export const tokenGroups = [
+  {
+    title: "Primary action",
+    tokens: [
+      {
+        name: "--fuwu-orange",
+        alias: "--brand-orange",
+        color: "var(--fuwu-orange)",
+        usage: "Ana CTA, form submit, aktif secim ve odeme aksiyonlari.",
+      },
+      {
+        name: "--fuwu-orange-hover",
+        alias: "--brand-orange-dark",
+        color: "var(--fuwu-orange-hover)",
+        usage: "Primary hover, link vurgusu ve daha koyu aksiyon metni.",
+      },
+      {
+        name: "--fuwu-orange-soft",
+        alias: "--brand-orange-soft",
+        color: "var(--fuwu-orange-soft)",
+        usage: "Secili kart zemini, hafif uyarilar ve CTA destek yuzeyi.",
+      },
+    ],
+  },
+  {
+    title: "Navigation and text",
+    tokens: [
+      {
+        name: "--fuwu-navy",
+        alias: "--brand-navy",
+        color: "var(--fuwu-navy)",
+        usage: "Baslik, ana metin, secondary button metni ve panel konturlari.",
+      },
+      {
+        name: "--fuwu-navy-deep",
+        alias: "--brand-navy-deep",
+        color: "var(--fuwu-navy-deep)",
+        usage: "Yuksek kontrastli basliklar ve ciddi operasyon alanlari.",
+      },
+      {
+        name: "--fuwu-navy-soft",
+        alias: "--brand-navy-soft",
+        color: "var(--fuwu-navy-soft)",
+        usage: "Lacivert tonlu pasif yuzeyler ve secim arka planlari.",
+      },
+    ],
+  },
+  {
+    title: "Surface and utility",
+    tokens: [
+      {
+        name: "--fuwu-background",
+        alias: "--background",
+        color: "var(--fuwu-background)",
+        usage: "Sayfa zemini ve genis layout arka plani.",
+      },
+      {
+        name: "--fuwu-surface",
+        alias: "--surface",
+        color: "var(--fuwu-surface)",
+        usage: "Kart, modal, form ve tablo yuzeyi.",
+      },
+      {
+        name: "--fuwu-surface-soft",
+        alias: "--surface-soft",
+        color: "var(--fuwu-surface-soft)",
+        usage: "Admin panel satirlari, chat header ve bolum ic zeminleri.",
+      },
+      {
+        name: "--fuwu-border",
+        alias: "--border",
+        color: "var(--fuwu-border)",
+        usage: "Kart, form alanlari ve bolucu cizgiler.",
+      },
+    ],
+  },
+  {
+    title: "Status",
+    tokens: [
+      {
+        name: "--fuwu-success",
+        alias: "--trust-green",
+        color: "var(--fuwu-success)",
+        usage: "Odeme onayi, basarili durum ve guven sinyalleri.",
+      },
+      {
+        name: "--fuwu-warning",
+        alias: "raw token",
+        color: "var(--fuwu-warning)",
+        usage: "Dikkat gerektiren operasyon durumlari.",
+      },
+      {
+        name: "--fuwu-danger",
+        alias: "raw token",
+        color: "var(--fuwu-danger)",
+        usage: "Hata, iptal, kritik SLA veya riskli islem durumlari.",
+      },
+    ],
+  },
+];
+
+<div style={{ display: "grid", gap: "22px" }}>
+  {tokenGroups.map((group) => (
+    <section key={group.title}>
+      <h2 style={{ color: "var(--brand-navy)", fontSize: "20px", marginBottom: "12px" }}>
+        {group.title}
+      </h2>
+      <div
+        style={{
+          display: "grid",
+          gap: "12px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+        }}
+      >
+        {group.tokens.map((token) => (
+          <article
+            key={token.name}
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "8px",
+              boxShadow: "var(--shadow-subtle)",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ background: token.color, height: "72px" }} />
+            <div style={{ padding: "14px" }}>
+              <code style={{ color: "var(--brand-navy)", fontWeight: 800 }}>{token.name}</code>
+              <p style={{ color: "var(--muted)", fontSize: "13px", margin: "6px 0 0" }}>
+                Alias: <code>{token.alias}</code>
+              </p>
+              <p style={{ color: "var(--foreground)", fontSize: "14px", lineHeight: 1.55, margin: "10px 0 0" }}>
+                {token.usage}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
+</div>
+
+## Komponent Rehberi
+
+- `Button variant="primary"`: `--brand-orange` zemin, beyaz metin. Talep olusturma,
+  odeme, form submit gibi birincil aksiyonlarda kullan.
+- `Button variant="secondary"`: beyaz zemin, `--brand-navy` metin. Alternatif rota,
+  geri donus ve dusuk riskli seceneklerde kullan.
+- `StatusBadge`: basari durumunda `--trust-green`, SLA/hata durumunda kirmizi,
+  bekleme durumunda sari veya bilgi tonu kullan.
+- `MetricCard`: beyaz yuzey, `--border`, `--brand-navy` deger metni. Admin metrikleri
+  taranabilir ve yogun kalmali.
+- `RequestChatThread`: kendi mesajinda `--brand-orange`, karsi taraf mesajinda beyaz
+  yuzey ve lacivert metin kullanir.

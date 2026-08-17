@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
-import Script from "next/script";
 import { Suspense } from "react";
 import { Wrench } from "lucide-react";
+import { MetaPixelScript } from "@/components/analytics/MetaPixelScript";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
@@ -70,10 +70,6 @@ export const metadata: Metadata = {
 const analyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true";
 const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
 
-function serializeForInlineScript(value: string) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -87,58 +83,11 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased`}
       >
-        {analyticsEnabled && metaPixelId ? (
-          <Script
-            dangerouslySetInnerHTML={{
-              __html: `
-(function() {
-  var pixelId = ${serializeForInlineScript(metaPixelId)};
-  var consentKey = "fuwu:cookie-consent";
-  var initialized = false;
-
-  function hasConsent() {
-    try {
-      return window.localStorage.getItem(consentKey) === "accepted";
-    } catch (error) {
-      return false;
-    }
-  }
-
-  function initMetaPixel() {
-    if (initialized || !pixelId || !hasConsent()) return;
-    initialized = true;
-
-    !function(f,b,e,v,n,t,s) {
-      if (f.fbq) return;
-      n = f.fbq = function() {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      };
-      if (!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = true;
-      n.version = "2.0";
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = true;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-
-    window.fbq("init", pixelId);
-    window.fbq("track", "PageView");
-  }
-
-  initMetaPixel();
-  window.addEventListener("fuwuConsentChanged", initMetaPixel);
-})();
-`,
-            }}
-            id="meta-pixel"
-            nonce={nonce}
-            strategy="afterInteractive"
-          />
-        ) : null}
+        <MetaPixelScript
+          enabled={analyticsEnabled}
+          nonce={nonce}
+          pixelId={metaPixelId}
+        />
         <LocaleProvider>
           <Suspense fallback={null}>
             <PageViewTracker />

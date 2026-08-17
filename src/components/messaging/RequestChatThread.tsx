@@ -20,7 +20,7 @@ import {
   type RequestMessageSenderRole,
 } from "@/services/messaging";
 
-type RequestChatThreadProps = {
+export type RequestChatThreadProps = {
   buttonLabel?: string;
   className?: string;
   collapsible?: boolean;

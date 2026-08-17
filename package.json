@@ -22,7 +22,9 @@
     "test:customer-payment": "tsx scripts/test-customer-payment-confirmation.ts",
     "test:provider-validation": "tsx scripts/test-provider-validation.ts",
     "test:provider-matching": "tsx scripts/test-provider-matching.ts",
-    "test:review-submission": "tsx scripts/test-review-submission.ts"
+    "test:review-submission": "tsx scripts/test-review-submission.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -38,6 +40,7 @@
     "next": "16.2.9",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "recharts": "^3.10.1",
     "three": "^0.185.1"
   },
   "devDependencies": {
@@ -50,6 +53,19 @@
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.22.4",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "storybook": "^10.5.8",
+    "@storybook/nextjs-vite": "^10.5.8",
+    "@chromatic-com/storybook": "latest",
+    "@storybook/addon-vitest": "^10.5.8",
+    "@storybook/addon-a11y": "^10.5.8",
+    "@storybook/addon-docs": "^10.5.8",
+    "@storybook/addon-mcp": "latest",
+    "vite": "latest",
+    "eslint-plugin-storybook": "^10.5.8",
+    "vitest": "latest",
+    "playwright": "latest",
+    "@vitest/browser-playwright": "latest",
+    "@vitest/coverage-v8": "latest"
   }
 }

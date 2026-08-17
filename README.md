@@ -42,6 +42,12 @@ Start the development server:
 npm run dev
 ```
 
+Tasarim sistemi ve komponent dokumantasyonu icin Storybook'u calistirin:
+
+```bash
+npm run storybook
+```
+
 ## Yerel Geliştirme Kurulumu
 
 Supabase ile sıfırdan yerel geliştirme için önerilen akış:
@@ -94,6 +100,8 @@ npm run lint
 - `npm run build` - Build the app for production.
 - `npm run start` - Start the built production app.
 - `npm run lint` - Run ESLint.
+- `npm run storybook` - Open local design system and component documentation.
+- `npm run build-storybook` - Build the local Storybook documentation.
 - `npm run maintenance:cleanup-audit-logs` - Delete non-security audit logs older than 90 days.
 
 ## Environment Variables
