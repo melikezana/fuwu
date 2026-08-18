@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { triggerHapticFeedback } from "@/lib/utils/haptics";
 import { createClient } from "@/lib/supabase/client";
 import {
   getRequestMessages,
@@ -198,6 +199,8 @@ export function RequestChatThread({
           if (nextMessage.sender_role === senderRole) {
             return;
           }
+
+          triggerHapticFeedback(50);
 
           if (isOpen) {
             setUnreadCount(0);

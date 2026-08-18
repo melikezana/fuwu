@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
-import { BarChart3, CheckCircle2, Clock, Star, TrendingUp, Wallet } from "lucide-react";
+import { BarChart3, CheckCircle2, Clock, Star, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import {
   getProviderDashboardStatusBadgeView,
   ProviderDashboardRestrictedAreaEmptyState,
@@ -138,8 +138,38 @@ async function loadProviderStats(providerId: string, supabase: ServerSupabaseCli
 }
 
 function ProviderEarningsContent({ stats }: { stats: ProviderStats }) {
+  const isTrendUp = stats.weeklyTrendDirection === "up";
+  const isTrendDown = stats.weeklyTrendDirection === "down";
+  const TrendIcon = isTrendDown ? TrendingDown : TrendingUp;
+  const trendToneClass = isTrendUp
+    ? "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
+    : isTrendDown
+      ? "border-red-200 bg-red-50 text-red-700"
+      : "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]";
+  const trendLabel = isTrendUp
+    ? `Geçen haftaya göre %${stats.weeklyTrendPercent} artış`
+    : isTrendDown
+      ? `Geçen haftaya göre %${stats.weeklyTrendPercent} azalış`
+      : "Geçen haftaya göre dengeli seyir";
+
   return (
     <div className="grid gap-6">
+      {/* Weekly Earnings Trend Notice */}
+      <div className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 shadow-[var(--shadow-subtle)] ${trendToneClass}`}>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex size-9 items-center justify-center rounded-full bg-white/80 shadow-sm">
+            <TrendIcon className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider">Haftalık Trend Göstergesi</p>
+            <p className="text-sm font-extrabold">{trendLabel}</p>
+          </div>
+        </div>
+        <div className="text-xs font-bold">
+          Bu hafta: {formatCurrency(stats.thisWeekEarnings)} TL · Geçen hafta: {formatCurrency(stats.lastWeekEarnings)} TL
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={Wallet}

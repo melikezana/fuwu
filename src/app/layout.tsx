@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { Wrench } from "lucide-react";
 import { MetaPixelScript } from "@/components/analytics/MetaPixelScript";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
@@ -152,6 +154,8 @@ export default async function RootLayout({
             <CookieConsentBanner />
           </Suspense>
         </LocaleProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

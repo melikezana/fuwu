@@ -11,7 +11,7 @@ export function RequestSlogan() {
 
   return (
     <p className="mt-2 text-xs font-semibold tracking-wide text-[var(--brand-orange)] md:hidden">
-      Artık komşuya değil, FUWU'ya sor.
+      Artık komşuya değil, FUWU&apos;ya sor.
     </p>
   );
 }

@@ -1380,6 +1380,13 @@ export function RequestForm({
   }
 
   const paymentOptions = isEmergencyFlow ? emergencyPaymentOptions : standardPaymentOptions;
+  const activeStepIndex = Math.max(
+    0,
+    visibleCheckoutSteps.findIndex((step) => step.id === activeStepId),
+  );
+  const progressPercentage = Math.round(
+    ((activeStepIndex + 1) / visibleCheckoutSteps.length) * 100,
+  );
 
   return (
     <form
@@ -1388,6 +1395,21 @@ export function RequestForm({
       noValidate
       onSubmit={handleSubmit}
     >
+      {/* Top progress bar for step completion ambiguity reduction */}
+      <div
+        aria-label={`İlerleme %${progressPercentage}`}
+        aria-valuemax={100}
+        aria-valuemin={0}
+        aria-valuenow={progressPercentage}
+        className="sticky top-0 z-30 mb-6 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-soft)] shadow-sm"
+        role="progressbar"
+      >
+        <div
+          className="h-1 bg-[var(--brand-orange)] transition-all duration-500 ease-out"
+          style={{ width: `${progressPercentage}%` }}
+        />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_410px]">
         <div className="flex min-w-0 flex-col gap-5">
           <div className="rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-5 shadow-[var(--shadow-elevated)] sm:p-6">

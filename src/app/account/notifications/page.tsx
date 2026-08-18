@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { getServerAuthContext } from "@/services/auth/server";
+import { NotificationHapticTrigger } from "@/components/notifications/NotificationHapticTrigger";
 import {
   getNotificationsForUser,
   type NotificationRecord,
@@ -94,6 +95,7 @@ export default async function AccountNotificationsPage() {
       </header>
 
       <Container className="max-w-5xl py-8 sm:py-10">
+        <NotificationHapticTrigger unreadCount={unreadCount} />
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">

@@ -390,7 +390,7 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
 
           {locale === "tr" ? (
             <p className="mt-4 text-sm font-bold uppercase tracking-wide text-[var(--brand-orange)]">
-              Artık komşuya değil, FUWU'ya sor.
+              Artık komşuya değil, FUWU&apos;ya sor.
             </p>
           ) : null}
 

@@ -14,6 +14,10 @@ export type ProviderStats = {
   responseRate: number;
   thisMonthCompleted: number;
   thisMonthEarnings: number;
+  thisWeekEarnings: number;
+  lastWeekEarnings: number;
+  weeklyTrendPercent: number;
+  weeklyTrendDirection: "up" | "down" | "neutral";
 };
 
 type StatsRequestRow = {
@@ -37,6 +41,50 @@ function calcResponseRate(total: number, responded: number) {
   return Math.round((responded / total) * 100);
 }
 
+function calcWeeklyTrend(completedRequests: StatsRequestRow[]) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  const thisWeekCompleted = completedRequests.filter((r) => r.created_at >= sevenDaysAgo);
+  const lastWeekCompleted = completedRequests.filter(
+    (r) => r.created_at >= fourteenDaysAgo && r.created_at < sevenDaysAgo,
+  );
+
+  const thisWeekEarnings = thisWeekCompleted.reduce(
+    (sum, r) => sum + (Number(r.offered_price) || 0),
+    0,
+  );
+  const lastWeekEarnings = lastWeekCompleted.reduce(
+    (sum, r) => sum + (Number(r.offered_price) || 0),
+    0,
+  );
+
+  let percentChange = 0;
+  let direction: "up" | "down" | "neutral" = "neutral";
+
+  if (lastWeekEarnings === 0) {
+    if (thisWeekEarnings > 0) {
+      percentChange = 100;
+      direction = "up";
+    } else {
+      percentChange = 0;
+      direction = "neutral";
+    }
+  } else {
+    const diff = thisWeekEarnings - lastWeekEarnings;
+    percentChange = Math.round((Math.abs(diff) / lastWeekEarnings) * 100);
+    direction = diff > 0 ? "up" : diff < 0 ? "down" : "neutral";
+  }
+
+  return {
+    thisWeekEarnings,
+    lastWeekEarnings,
+    weeklyTrendPercent: percentChange,
+    weeklyTrendDirection: direction,
+  };
+}
+
 export async function getProviderStats(
   providerId: string,
   supabase: SupabaseClient<Database>,
@@ -53,6 +101,10 @@ export async function getProviderStats(
     responseRate: 100,
     thisMonthCompleted: 0,
     thisMonthEarnings: 0,
+    thisWeekEarnings: 0,
+    lastWeekEarnings: 0,
+    weeklyTrendPercent: 0,
+    weeklyTrendDirection: "neutral",
   };
 
   try {
@@ -106,6 +158,8 @@ export async function getProviderStats(
       0,
     );
 
+    const weeklyTrend = calcWeeklyTrend(completed);
+
     const avgRating =
       reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -125,6 +179,7 @@ export async function getProviderStats(
       responseRate: calcResponseRate(requests.length, responded),
       thisMonthCompleted: thisMonthCompleted.length,
       thisMonthEarnings,
+      ...weeklyTrend,
     };
   } catch {
     return emptyStats;

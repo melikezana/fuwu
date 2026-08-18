@@ -11,23 +11,26 @@ export function AppSplash() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    let hideTimer: NodeJS.Timeout | null = null;
+    const timerId = window.setTimeout(() => {
+      setMounted(true);
+      if (typeof window !== "undefined") {
+        const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+        const hasBeenShown = sessionStorage.getItem(SPLASH_SESSION_KEY);
+        if (isStandalone && !hasBeenShown) {
+          sessionStorage.setItem(SPLASH_SESSION_KEY, "true");
+          setIsVisible(true);
+          hideTimer = setTimeout(() => {
+            setIsVisible(false);
+          }, 1100);
+        }
+      }
+    }, 0);
 
-    if (typeof window === "undefined") return;
-
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-    const hasBeenShown = sessionStorage.getItem(SPLASH_SESSION_KEY);
-
-    if (isStandalone && !hasBeenShown) {
-      sessionStorage.setItem(SPLASH_SESSION_KEY, "true");
-      setIsVisible(true);
-
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, 1100);
-
-      return () => clearTimeout(timer);
-    }
+    return () => {
+      clearTimeout(timerId);
+      if (hideTimer) clearTimeout(hideTimer);
+    };
   }, []);
 
   if (!mounted) {
@@ -52,7 +55,7 @@ export function AppSplash() {
           >
             <FuwuLogo inverted size="hero" />
             <p className="mt-3 text-lg font-semibold tracking-wide text-white/95 sm:text-xl">
-              Artık komşuya değil, FUWU'ya sor.
+              Artık komşuya değil, FUWU&apos;ya sor.
             </p>
           </motion.div>
         </motion.div>
