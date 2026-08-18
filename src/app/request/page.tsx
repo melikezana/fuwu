@@ -77,32 +77,32 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
   return (
     <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative min-h-[620px] py-10 sm:py-14 lg:py-16">
-        <div className="mb-8 grid min-w-0 cursor-default select-none gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.42fr)] lg:items-end">
+      <Container className="relative min-h-[620px] py-5 sm:py-14 lg:py-16">
+        <div className="mb-4 md:mb-8 grid min-w-0 cursor-default select-none gap-4 md:gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.42fr)] lg:items-end">
           <div className="min-w-0">
             <Link
               aria-label="Fuwu ana sayfasına git"
-              className="inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+              className="hidden md:inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={appRoutes.home}
             >
               <FuwuLogo size="lg" />
             </Link>
-            <p className="mt-7 text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+            <p className="mt-2 text-xs md:mt-7 md:text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
               {isProviderProfileCheckout ? "Provider checkout" : "Premium checkout"}
             </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-5xl">
+            <h1 className="mt-1 md:mt-4 max-w-4xl text-2xl font-extrabold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl md:text-5xl">
               {isProviderProfileCheckout
                 ? `${initialProviderName || "Seçtiğin usta"} için randevunu planla.`
                 : "Hizmetini seç, randevunu planla, ödemeye geç."}
             </h1>
             <RequestSlogan />
-            <p className="mt-5 max-w-3xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
+            <p className="mt-2 md:mt-5 max-w-3xl text-xs sm:text-base font-semibold leading-relaxed text-[var(--muted)] sm:leading-8">
               {isProviderProfileCheckout
                 ? "Profil üzerinden başladığın için servis seçimi tamamlandı; tarih, saat, ek hizmetler, adres, notlar, özet ve online ödeme adımlarıyla devam et."
-                : "Fuwu booking akışı artık canlı sipariş özeti, ek hizmetler ve ödeme adımıyla premium marketplace checkout deneyimi sunar."}
+                : "Hizmeti seç, tarihi belirle, ödemeni güvenle tamamla — hepsi tek ekranda."}
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+          <div className="hidden md:grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {(isProviderProfileCheckout
               ? ["Tarihi seç", "Randevuyu netleştir", "Online ödeme"]
               : ["Hizmeti seç", "Randevuyu netleştir", "Ödemeye geç"]
