@@ -261,23 +261,23 @@ export function ProviderDashboardShell({
   return (
     <div className="premium-page-shell min-h-full">
       <section className="premium-page-band">
-        <Container className="max-w-7xl py-8 sm:py-10">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <Container className="max-w-7xl py-4 sm:py-10">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
                 Fuwu Usta Paneli
               </p>
-              <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+              <h1 className="mt-1 text-2xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                 {title}
               </h1>
-              <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base">
+              <p className="mt-1.5 max-w-3xl text-xs font-semibold leading-relaxed text-[var(--muted)] sm:text-base">
                 {description}
               </p>
             </div>
 
             <div
               className={cn(
-                "inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium leading-4",
+                "inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium leading-4",
                 statusToneClasses[statusTone],
               )}
             >
@@ -286,7 +286,7 @@ export function ProviderDashboardShell({
             </div>
           </div>
 
-          <nav className="mt-6 flex flex-wrap gap-2 pb-1" aria-label="Usta paneli menüsü">
+          <nav className="mt-4 flex flex-wrap gap-2 pb-1 sm:mt-6" aria-label="Usta paneli menüsü">
             {providerNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
@@ -294,7 +294,7 @@ export function ProviderDashboardShell({
               return (
                 <Link
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold leading-5 transition-all hover:-translate-y-0.5",
+                    "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold leading-5 transition-all hover:-translate-y-0.5",
                     isActive
                       ? "border-[rgba(255,138,0,0.48)] bg-[var(--brand-orange-soft)] text-[var(--brand-navy)] shadow-[var(--shadow-action)]"
                       : "border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
@@ -311,7 +311,7 @@ export function ProviderDashboardShell({
         </Container>
       </section>
 
-      <Container className="max-w-7xl py-6 sm:py-8">{children}</Container>
+      <Container className="max-w-7xl py-4 sm:py-8">{children}</Container>
     </div>
   );
 }
