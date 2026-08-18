@@ -213,14 +213,14 @@ function getTimelineItems(
     isPaymentReleased,
   ];
   const labels = [
-    ["Order Received", "Sipariş ve online ödeme talebin alındı."],
-    ["Provider Assigned", "Uygun usta siparişe bağlanır."],
-    ["Provider On The Way", "Usta konuma doğru yola çıkar."],
-    ["Provider Arrived", "Usta adrese ulaştığında takip ilerler."],
-    ["Service Started", "Hizmet aktif olarak başlar."],
-    ["Service Completed", "Usta işi tamamlandı olarak işaretler."],
-    ["Verification Code Confirmed", "Müşteri kodu doğrulanır."],
-    ["Payment Released", "Emanet ödeme ustaya serbest bırakılır."],
+    ["Sipariş Alındı", "Sipariş ve online ödeme talebin alındı."],
+    ["Usta Atandı", "Uygun usta siparişe bağlanır."],
+    ["Usta Yolda", "Usta konuma doğru yola çıkar."],
+    ["Usta Ulaştı", "Usta adrese ulaştığında takip ilerler."],
+    ["Hizmet Başladı", "Hizmet aktif olarak başlar."],
+    ["Hizmet Tamamlandı", "Usta işi tamamlandı olarak işaretler."],
+    ["Doğrulama Kodu Onaylandı", "Müşteri kodu doğrulanır."],
+    ["Ödeme Serbest Bırakıldı", "Emanet ödeme ustaya serbest bırakılır."],
   ] as const;
   const firstPendingIndex = completionFlags.findIndex((isComplete) => !isComplete);
 
@@ -365,20 +365,20 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
         </Container>
       </header>
 
-      <Container className="max-w-6xl py-8 sm:py-10">
+      <Container className="max-w-6xl py-4 sm:py-10">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
           <section className="min-w-0">
-            <div className="rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-5 shadow-[var(--shadow-elevated)] sm:p-6">
-              <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                Order Tracking
+            <div className="rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-4 shadow-[var(--shadow-elevated)] sm:p-6">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+                Sipariş Takibi
               </p>
-              <h1 className="mt-3 text-3xl font-extrabold leading-tight text-[var(--brand-navy)] sm:text-4xl">
+              <h1 className="mt-1 sm:mt-3 text-2xl sm:text-4xl font-extrabold leading-tight text-[var(--brand-navy)]">
                 {category}
               </h1>
-              <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)]">
+              <p className="mt-2 sm:mt-3 max-w-2xl text-xs sm:text-base font-semibold leading-relaxed text-[var(--muted)]">
                 Online ödeme emanet hesapta tutulur. Hizmet tamamlandıktan sonra müşteri kodu doğrulanınca ödeme otomatik serbest bırakılır.
               </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 sm:mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
                   <MapPin aria-hidden="true" className="size-4 text-[var(--brand-orange-dark)]" />
                   <p className="mt-2 text-xs font-bold uppercase text-[var(--muted)]">Bölge</p>
@@ -435,11 +435,11 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
           </section>
 
           <aside className="min-w-0 lg:sticky lg:top-24 lg:h-fit">
-            <section className="rounded-lg border border-[rgba(10,37,64,0.09)] bg-white p-5 shadow-[var(--shadow-premium)]">
+            <section className="rounded-lg border border-[rgba(10,37,64,0.09)] bg-white p-4 sm:p-5 shadow-[var(--shadow-premium)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                    Secure Release
+                    Güvenli Doğrulama
                   </p>
                   <h2 className="mt-2 text-2xl font-extrabold leading-tight text-[var(--brand-navy)]">
                     Müşteri doğrulaması
