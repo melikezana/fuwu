@@ -23,28 +23,28 @@ export default function LoginPage() {
   return (
     <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <FuwuWatermark className="-right-20 top-10 text-[9rem] opacity-[0.035] sm:text-[12rem]" />
-      <Container className="relative grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.88fr)_minmax(20rem,0.58fr)] lg:items-center lg:py-16">
+      <Container className="relative grid gap-5 py-5 sm:py-14 lg:grid-cols-[minmax(0,0.88fr)_minmax(20rem,0.58fr)] lg:items-center lg:py-16">
         <div className="min-w-0 cursor-default select-none">
           <Link
             aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="hidden md:inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >
             <FuwuLogo size="md" />
           </Link>
-          <p className="mt-7 text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
+          <p className="mt-2 text-xs md:mt-7 md:text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
             <I18nText i18nKey="login.eyebrow" />
           </p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight text-[var(--brand-navy)] sm:text-5xl">
+          <h1 className="mt-1 md:mt-3 max-w-3xl text-2xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl md:text-5xl">
             <I18nText i18nKey="login.title" />
           </h1>
-          <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
+          <p className="mt-2 md:mt-5 max-w-2xl text-xs sm:text-base font-semibold leading-relaxed text-[var(--muted)] sm:leading-8">
             <I18nText i18nKey="login.description" />
           </p>
-          <div className="mt-7 flex flex-wrap gap-2">
+          <div className="mt-3 md:mt-7 flex flex-wrap gap-2">
             {badges.map((badge) => (
               <Link
-                className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+                className="inline-flex min-h-[44px] items-center rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] sm:text-sm"
                 href={appRoutes.providers}
                 key={badge}
               >
