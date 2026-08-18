@@ -314,6 +314,13 @@ export default async function CustomerDashboardPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
               >
                 <LogOut className="size-3.5" />
+            </span>
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
+              >
+                <LogOut className="size-3.5" />
                 Çıkış
               </button>
             </form>
@@ -321,30 +328,30 @@ export default async function CustomerDashboardPage() {
         </Container>
       </header>
 
-      <Container className="py-8 sm:py-10">
+      <Container className="py-4 sm:py-10">
         {/* Hero Card */}
-        <div className="premium-card relative mb-6 px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8">
+        <div className="premium-card relative mb-4 p-4 shadow-[var(--shadow-elevated)] sm:mb-6 sm:px-8 sm:py-7">
           {/* decorative circles */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[var(--brand-orange)]" />
 
-          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-center gap-4">
-              <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)] text-2xl font-medium text-white shadow-[var(--shadow-action)]">
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+              <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)] text-xl font-medium text-white shadow-[var(--shadow-action)] sm:size-14 sm:text-2xl">
                 {avatarLetter}
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+                <p className="text-[11px] sm:text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
                   Hesabım
                 </p>
-                <h1 className="mt-1 break-words text-2xl font-bold text-[var(--brand-navy)]">
+                <h1 className="mt-0.5 break-words text-xl font-bold text-[var(--brand-navy)] sm:mt-1 sm:text-2xl">
                   Merhaba, {firstName}
                 </h1>
-                <p className="mt-0.5 break-all text-sm font-semibold text-[var(--muted)]">{user.email}</p>
+                <p className="mt-0.5 break-all text-xs font-semibold text-[var(--muted)] sm:text-sm">{user.email}</p>
               </div>
             </div>
             <Button
               href={appRoutes.request}
-              className="shrink-0 gap-2"
+              className="shrink-0 gap-2 min-h-[44px]"
             >
               <Plus className="size-4" />
               Hizmeti Satın Al
@@ -352,7 +359,7 @@ export default async function CustomerDashboardPage() {
           </div>
 
           {/* Stats row */}
-          <div className="relative mt-6 grid grid-cols-3 gap-3 border-t border-[var(--border)] pt-5">
+          <div className="relative mt-4 grid grid-cols-3 gap-2 border-t border-[var(--border)] pt-4 sm:mt-6 sm:gap-3 sm:pt-5">
             {[
               { label: "Bekleyen", value: pending.length, color: "text-amber-700" },
               { label: "Atanan", value: assigned.length, color: "text-[var(--brand-navy)]" },
