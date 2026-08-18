@@ -55,7 +55,7 @@ export function AppSplash() {
           >
             <FuwuLogo inverted size="hero" />
             <p className="mt-3 text-lg font-semibold tracking-wide text-white/95 sm:text-xl">
-              Artık komşuya değil, FUWU&apos;ya sor.
+              Komşuya değil, FUWU&apos;ya sor.
             </p>
           </motion.div>
         </motion.div>

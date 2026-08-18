@@ -378,7 +378,7 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
           backgroundSize: "auto, auto, 76px 76px, 76px 76px",
         }}
       />
-      <Container className="grid max-w-[1440px] gap-x-6 gap-y-6 pb-24 pt-10 sm:pb-20 sm:pt-14 lg:min-h-[720px] lg:grid-cols-[minmax(360px,38fr)_minmax(0,62fr)] lg:grid-rows-[minmax(0,1fr)_auto] lg:items-center lg:pb-12 lg:pt-12 xl:grid-cols-[minmax(380px,38fr)_minmax(760px,62fr)]">
+      <Container className="grid max-w-[1440px] gap-x-6 gap-y-4 pb-12 pt-4 sm:pb-20 sm:pt-14 lg:min-h-[720px] lg:grid-cols-[minmax(360px,38fr)_minmax(0,62fr)] lg:grid-rows-[minmax(0,1fr)_auto] lg:items-center lg:pb-12 lg:pt-12 xl:grid-cols-[minmax(380px,38fr)_minmax(760px,62fr)]">
         <motion.div
           className="premium-reveal relative z-20 min-w-0 lg:col-start-1 lg:row-start-1 lg:max-w-[560px] lg:pl-0"
           initial={false}
@@ -389,18 +389,18 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
           </span>
 
           {locale === "tr" ? (
-            <p className="mt-4 text-sm font-bold uppercase tracking-wide text-[var(--brand-orange)]">
-              Artık komşuya değil, FUWU&apos;ya sor.
+            <p className="mt-2 text-xs md:mt-4 md:text-sm font-bold uppercase tracking-wide text-[var(--brand-orange)]">
+              Komşuya değil, FUWU&apos;ya sor.
             </p>
           ) : null}
 
-          <h1 className="mt-5 max-w-[35rem] text-[2.625rem] font-extrabold leading-[1.04] text-[var(--brand-navy)] min-[390px]:text-5xl sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
+          <h1 className="mt-2 md:mt-5 max-w-[35rem] text-[2rem] font-extrabold leading-[1.08] text-[var(--brand-navy)] min-[390px]:text-4xl sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
             Güven, doğru{" "}
             <span>
               ustayla <span className="text-[var(--brand-orange)]">başlar.</span>
             </span>
           </h1>
-          <p className="mt-5 max-w-xl text-[1.05rem] font-medium leading-[1.58] text-[rgba(10,37,64,0.78)] sm:text-lg sm:leading-8">
+          <p className="mt-2 md:mt-5 max-w-xl text-sm font-medium leading-normal text-[rgba(10,37,64,0.78)] sm:text-lg sm:leading-8">
             {homeCopy.hero.description}
           </p>
 
