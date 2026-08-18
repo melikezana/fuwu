@@ -217,8 +217,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
       <ProviderProfileViewTracker provider={provider} />
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFAFB_100%)]">
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
-        <Container className="relative py-8">
-          <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-[var(--muted)]">
+        <Container className="relative py-3 sm:py-8">
+          <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-[var(--muted)] sm:text-sm">
             <TextLink className="text-[var(--muted)] no-underline" href={appRoutes.home}>
               Ana sayfa
             </TextLink>
@@ -232,12 +232,12 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </Container>
       </section>
 
-      <Container className="grid gap-8 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,370px)] lg:items-start lg:py-16">
-        <div className="min-w-0 space-y-8">
-          <section className="premium-card relative p-6 sm:p-8">
+      <Container className="grid gap-6 py-4 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,370px)] lg:items-start lg:py-16">
+        <div className="min-w-0 space-y-6 sm:space-y-8">
+          <section className="premium-card relative p-4 sm:p-8">
             <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
-            <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-premium)] ring-4 ring-white sm:h-48 sm:w-48">
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl shadow-[var(--shadow-premium)] ring-4 ring-white sm:h-48 sm:w-48">
                 {provider.profileImageUrl ? (
                   <Image
                     alt={provider.name}

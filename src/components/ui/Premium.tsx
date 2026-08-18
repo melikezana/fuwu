@@ -100,25 +100,25 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <section className="premium-page-band relative overflow-hidden">
-      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {breadcrumbs ? (
           <nav
             aria-label="Breadcrumb"
-            className="mb-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--muted)]"
+            className="mb-2 sm:mb-5 flex flex-wrap items-center gap-2 text-xs sm:text-sm font-semibold text-[var(--muted)]"
           >
             {breadcrumbs}
           </nav>
         ) : null}
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="min-w-0">
-            <div className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[rgba(249,115,22,0.24)] bg-[var(--brand-orange-soft)] px-3 py-1 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
+            <div className="inline-flex min-h-8 items-center gap-2 rounded-full border border-[rgba(249,115,22,0.24)] bg-[var(--brand-orange-soft)] px-3 py-1 text-[11px] sm:text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
               <ShieldCheck className="size-4" aria-hidden="true" />
               {eyebrow}
             </div>
-            <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl lg:text-5xl">
+            <h1 className="mt-1.5 max-w-4xl text-2xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl lg:text-5xl">
               {title}
             </h1>
-            <p className="mt-4 max-w-3xl text-sm font-semibold leading-6 text-[var(--muted)] sm:text-base sm:leading-7">
+            <p className="mt-1.5 max-w-3xl text-xs font-semibold leading-relaxed text-[var(--muted)] sm:text-base sm:leading-7">
               {description}
             </p>
           </div>
