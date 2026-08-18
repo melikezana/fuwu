@@ -314,13 +314,6 @@ export default async function CustomerDashboardPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
               >
                 <LogOut className="size-3.5" />
-            </span>
-            <form action="/api/auth/logout" method="POST">
-              <button
-                type="submit"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-bold text-[var(--muted)] transition hover:bg-[var(--surface-soft)]"
-              >
-                <LogOut className="size-3.5" />
                 Çıkış
               </button>
             </form>
