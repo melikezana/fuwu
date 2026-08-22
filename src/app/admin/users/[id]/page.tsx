@@ -55,7 +55,7 @@ export default async function AdminUserDetailPage({
         title={profile?.fullName?.trim() || "Kullanıcı Detayı"}
       >
         <Link
-          className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-orange-dark)] hover:underline"
+          className="mb-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-[var(--brand-orange-dark)] hover:underline md:min-h-0"
           href="/admin/users"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />

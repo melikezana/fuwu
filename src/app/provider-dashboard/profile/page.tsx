@@ -59,7 +59,7 @@ const availabilityActionMessages: Record<string, AvailabilityFeedback> = {
     tone: "error",
   },
   "availability-update-failed": {
-    body: "Uygunluk durumu şu anda kaydedilemedi. Daha sonra tekrar dene.",
+    body: "Uygunluk durumunu kaydedemedik. Daha sonra tekrar dene.",
     title: "Güncelleme tamamlanamadı",
     tone: "error",
   },

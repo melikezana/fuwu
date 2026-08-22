@@ -71,7 +71,7 @@ const requestActionMessages: Record<string, RequestActionFeedback> = {
     tone: "success",
   },
   "payment-confirmation-failed": {
-    body: "Ödeme onayı şu anda tamamlanamadı. Lütfen tekrar deneyin.",
+    body: "Ödeme onayını tamamlayamadık. Lütfen tekrar deneyin.",
     title: "Ödeme onaylanamadı",
     tone: "error",
   },

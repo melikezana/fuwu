@@ -230,7 +230,7 @@ export function Navbar() {
         >
           <Link
             aria-label={t("nav.logo")}
-            className="inline-flex min-w-0 cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="inline-flex min-h-11 min-w-0 cursor-pointer items-center rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-h-0"
             href={appRoutes.home}
             onClick={() => handleMenuLinkClick(appRoutes.home)}
           >

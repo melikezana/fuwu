@@ -10,7 +10,7 @@ const sections: PolicySection[] = [
   {
     title: "Hizmetin niteliği",
     body: [
-      "Fuwu, müşterilerin yerel hizmet sağlayıcı profillerini incelemesine ve doğrudan iletişim kurmasına yardımcı olan bir hizmet pazaryeri deneyimi sunar.",
+      "Fuwu ile yerel hizmet sağlayıcı profillerini incele ve doğrudan iletişim kur.",
       "Usta profillerindeki fiyat aralıkları ve uygunluk bilgileri bilgilendirme amaçlıdır; nihai kapsam, fiyat ve randevu kullanıcı ile hizmet sağlayıcı arasında netleşir.",
     ],
   },

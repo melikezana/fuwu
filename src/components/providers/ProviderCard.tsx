@@ -210,11 +210,11 @@ function ProviderQuickView({
       </dl>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <Button className="h-10 min-h-10 gap-2 px-3 text-xs" href={profileHref}>
+        <Button className="h-11 min-h-11 gap-2 px-3 text-xs sm:h-10 sm:min-h-10" href={profileHref}>
           <Eye aria-hidden="true" className="size-4" />
           Profili İncele
         </Button>
-        <Button className="h-10 min-h-10 gap-2 px-3 text-xs" href={requestHref} variant="secondary">
+        <Button className="h-11 min-h-11 gap-2 px-3 text-xs sm:h-10 sm:min-h-10" href={requestHref} variant="secondary">
           Teklif İste
         </Button>
       </div>
@@ -291,7 +291,7 @@ export function ProviderCard({
 
         <div className="flex flex-1 flex-col p-4">
           <Button
-            className="min-w-0 break-words text-left text-lg font-bold leading-6 text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)]"
+            className="inline-flex min-h-11 min-w-0 items-center break-words text-left text-lg font-bold leading-6 text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)] sm:min-h-0"
             href={profileHref}
             id={`provider-${provider.id}-title`}
             title={provider.name || "İsimsiz Usta"}
@@ -303,7 +303,7 @@ export function ProviderCard({
           <div className="mt-3 flex min-w-0 flex-wrap gap-2">
             {provider.category ? (
               <Link
-                className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)]"
+                className="inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] sm:min-h-8"
                 href={createProviderFilterHref(
                   currentSearchParams,
                   "category",
@@ -319,7 +319,7 @@ export function ProviderCard({
             ) : null}
             {provider.district ? (
               <Link
-                className="inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)]"
+                className="inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] sm:min-h-8"
                 href={createProviderFilterHref(
                   currentSearchParams,
                   "district",
@@ -386,7 +386,7 @@ export function ProviderCard({
         <div className="min-w-0 flex-1">
           <div className="min-w-0">
             <Button
-              className="line-clamp-2 max-w-full min-w-0 rounded-md text-left text-[1.25rem] font-extrabold leading-[1.18] text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]"
+              className="inline-flex min-h-11 max-w-full min-w-0 items-center rounded-md text-left text-[1.25rem] font-extrabold leading-[1.18] text-[var(--brand-navy)] transition-colors hover:text-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0 [hyphens:none] [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]"
               href={profileHref}
               id={`provider-${provider.id}-title`}
               title={provider.name || "İsimsiz Usta"}
@@ -415,7 +415,7 @@ export function ProviderCard({
         <div className="flex min-w-0 flex-wrap gap-2">
           {provider.category ? (
             <Link
-              className="inline-flex min-h-9 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 [hyphens:none] [overflow-wrap:normal] [word-break:normal]"
+              className="inline-flex min-h-11 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-9 [hyphens:none] [overflow-wrap:normal] [word-break:normal]"
               href={createProviderFilterHref(
                 currentSearchParams,
                 "category",
@@ -431,7 +431,7 @@ export function ProviderCard({
           ) : null}
           {provider.district ? (
             <Link
-              className="inline-flex min-h-9 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 [hyphens:none] [overflow-wrap:normal] [word-break:normal]"
+              className="inline-flex min-h-11 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-[0.82rem] font-semibold leading-4 text-[var(--brand-navy)] transition-colors hover:border-[rgba(255,138,0,0.4)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-9 [hyphens:none] [overflow-wrap:normal] [word-break:normal]"
               href={createProviderFilterHref(
                 currentSearchParams,
                 "district",

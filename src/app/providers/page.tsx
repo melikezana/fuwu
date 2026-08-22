@@ -291,7 +291,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
         badge={source === "supabase" ? "Canlı veri" : "Veri bağlantısı bekleniyor"}
         breadcrumbs={
           <>
-            <Link className="hover:text-[var(--brand-navy)]" href={appRoutes.home}>
+            <Link className="inline-flex min-h-11 items-center hover:text-[var(--brand-navy)] sm:min-h-0" href={appRoutes.home}>
               Ana sayfa
             </Link>
             <span>/</span>

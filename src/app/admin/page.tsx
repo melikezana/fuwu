@@ -199,52 +199,57 @@ function AssignmentMonitoringSection({ assignments }: { assignments: AssignmentM
   return (
     <AdminSection title="Aktif Atamalar ve Eşleşmeler" description="Ustaya yönlendirilmiş ancak henüz tamamlanmamış veya yakın zamanda atanmış son 50 talep.">
       {assignments.length === 0 ? (
-        <EmptyAdminState message="Şu anda takip edilen atanmış talep bulunmuyor." />
+        <EmptyAdminState message="Takip edilen atanmış talep bulunmuyor." />
       ) : (
-        <table className="w-full text-left border-collapse min-w-[700px]">
-          <thead>
-            <tr className="border-b-2 border-[var(--border)]">
-              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Müşteri Tel</th>
-              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Kategori & İlçe</th>
-              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Atanan Usta</th>
-              <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Durum</th>
-            </tr>
-          </thead>
-          <tbody>
-            {assignments.map((a) => {
-              const normalizedStatus = normalizeServiceRequestStatus(a.status);
-              const statusLabel = normalizedStatus
-                ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus]
-                : a.status;
-
-              return (
-                <tr key={a.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]">
-                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">{a.customerPhone}</td>
-                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">
-                    {a.category}<br/>
-                    <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
-                  </td>
-                  <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-orange)]">{a.assignedProviderName}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      <StatusBadge
-                        status={statusLabel || a.status}
-                        tone={
-                          normalizedStatus === SERVICE_REQUEST_STATUSES.completed
-                            ? "success"
-                            : "info"
-                        }
-                      />
-                      {a.slaBreached ? (
-                        <StatusBadge status="SLA aşıldı" tone="error" />
-                      ) : null}
-                    </div>
-                  </td>
+        <>
+          <p className="mb-2 text-xs text-[var(--muted)] md:hidden">→ Kaydırarak tüm sütunları gör</p>
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <table className="w-full text-left border-collapse min-w-[700px]">
+              <thead>
+                <tr className="border-b-2 border-[var(--border)]">
+                  <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Müşteri Tel</th>
+                  <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Kategori & İlçe</th>
+                  <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Atanan Usta</th>
+                  <th className="py-3 px-4 text-xs font-bold text-[var(--muted)] uppercase">Durum</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {assignments.map((a) => {
+                  const normalizedStatus = normalizeServiceRequestStatus(a.status);
+                  const statusLabel = normalizedStatus
+                    ? SERVICE_REQUEST_STATUS_LABELS[normalizedStatus]
+                    : a.status;
+
+                  return (
+                    <tr key={a.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]">
+                      <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">{a.customerPhone}</td>
+                      <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-navy)]">
+                        {a.category}<br/>
+                        <span className="text-[var(--muted)] font-normal text-xs">{a.district}</span>
+                      </td>
+                      <td className="py-3 px-4 text-sm font-semibold text-[var(--brand-orange)]">{a.assignedProviderName}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          <StatusBadge
+                            status={statusLabel || a.status}
+                            tone={
+                              normalizedStatus === SERVICE_REQUEST_STATUSES.completed
+                                ? "success"
+                                : "info"
+                            }
+                          />
+                          {a.slaBreached ? (
+                            <StatusBadge status="SLA aşıldı" tone="error" />
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </AdminSection>
   );
@@ -312,48 +317,53 @@ function ReassignmentLogsSection({
       ) : logsData.data.length === 0 ? (
         <EmptyAdminState message="Kayıtlı SLA aşım kaydı bulunmuyor." />
       ) : (
-        <table className="w-full min-w-[820px] border-collapse text-left">
-          <thead>
-            <tr className="border-b-2 border-[var(--border)]">
-              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Zaman</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Talep</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Önceki Usta</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Yeni Usta</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Sonuç</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logsData.data.map((log) => (
-              <tr
-                className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]"
-                key={log.id}
-              >
-                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
-                  {new Date(log.createdAt).toLocaleString("tr-TR")}
-                </td>
-                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
-                  {log.requestLabel}
-                  <br />
-                  <span className="text-xs font-normal text-[var(--muted)]">
-                    {log.category} / {log.district}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
-                  {log.previousProviderName}
-                </td>
-                <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-orange)]">
-                  {log.newProviderName}
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge
-                    status={log.reasonLabel}
-                    tone={getReassignmentLogTone(log)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <p className="mb-2 text-xs text-[var(--muted)] md:hidden">→ Kaydırarak tüm sütunları gör</p>
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <table className="w-full min-w-[820px] border-collapse text-left">
+              <thead>
+                <tr className="border-b-2 border-[var(--border)]">
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Zaman</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Talep</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Önceki Usta</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Yeni Usta</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase text-[var(--muted)]">Sonuç</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logsData.data.map((log) => (
+                  <tr
+                    className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-soft)]"
+                    key={log.id}
+                  >
+                    <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                      {new Date(log.createdAt).toLocaleString("tr-TR")}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                      {log.requestLabel}
+                      <br />
+                      <span className="text-xs font-normal text-[var(--muted)]">
+                        {log.category} / {log.district}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-navy)]">
+                      {log.previousProviderName}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-semibold text-[var(--brand-orange)]">
+                      {log.newProviderName}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge
+                        status={log.reasonLabel}
+                        tone={getReassignmentLogTone(log)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </AdminSection>
   );
@@ -367,26 +377,31 @@ function AuditLogsSection({ logsData }: { logsData: AuditLogsData }) {
       ) : logsData.data.length === 0 ? (
         <EmptyAdminState message="Kayıtlı işlem geçmişi bulunmuyor." />
       ) : (
-        <table className="w-full text-left border-collapse min-w-[600px]">
-          <thead>
-            <tr className="border-b border-[var(--border)]">
-              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Tarih</th>
-              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Aksiyon</th>
-              <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Varlık Türü</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logsData.data.map((l) => (
-              <tr key={l.id} className="border-b border-[var(--border)] last:border-0">
-                <td className="py-2 px-4 text-sm text-[var(--muted)]">
-                  {new Date(l.created_at).toLocaleString("tr-TR")}
-                </td>
-                <td className="py-2 px-4 text-sm font-bold text-[var(--brand-navy)]">{l.action}</td>
-                <td className="py-2 px-4 text-sm text-[var(--brand-orange)]">{l.entity_type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <p className="mb-2 text-xs text-[var(--muted)] md:hidden">→ Kaydırarak tüm sütunları gör</p>
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Tarih</th>
+                  <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Aksiyon</th>
+                  <th className="py-2 px-4 text-xs font-bold text-[var(--muted)] uppercase">Varlık Türü</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logsData.data.map((l) => (
+                  <tr key={l.id} className="border-b border-[var(--border)] last:border-0">
+                    <td className="py-2 px-4 text-sm text-[var(--muted)]">
+                      {new Date(l.created_at).toLocaleString("tr-TR")}
+                    </td>
+                    <td className="py-2 px-4 text-sm font-bold text-[var(--brand-navy)]">{l.action}</td>
+                    <td className="py-2 px-4 text-sm text-[var(--brand-orange)]">{l.entity_type}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </AdminSection>
   );

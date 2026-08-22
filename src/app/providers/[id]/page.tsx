@@ -83,11 +83,11 @@ function ProviderNotFoundState() {
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
         <Container className="relative py-8">
           <nav className="flex flex-wrap items-center gap-2 text-sm font-medium text-[var(--muted)]">
-            <TextLink className="text-[var(--muted)] no-underline" href={appRoutes.home}>
+            <TextLink className="inline-flex min-h-11 items-center text-[var(--muted)] no-underline sm:min-h-0" href={appRoutes.home}>
               Ana sayfa
             </TextLink>
             <span>/</span>
-            <TextLink className="text-[var(--muted)] no-underline" href={appRoutes.providers}>
+            <TextLink className="inline-flex min-h-11 items-center text-[var(--muted)] no-underline sm:min-h-0" href={appRoutes.providers}>
               Usta Bul
             </TextLink>
             <span>/</span>
@@ -219,11 +219,11 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         <FuwuWatermark className="-right-14 -top-14 text-[8rem] opacity-[0.035] sm:text-[10rem]" />
         <Container className="relative py-3 sm:py-8">
           <nav className="flex flex-wrap items-center gap-2 text-xs font-medium text-[var(--muted)] sm:text-sm">
-            <TextLink className="text-[var(--muted)] no-underline" href={appRoutes.home}>
+            <TextLink className="inline-flex min-h-11 items-center text-[var(--muted)] no-underline sm:min-h-0" href={appRoutes.home}>
               Ana sayfa
             </TextLink>
             <span>/</span>
-            <TextLink className="text-[var(--muted)] no-underline" href={appRoutes.providers}>
+            <TextLink className="inline-flex min-h-11 items-center text-[var(--muted)] no-underline sm:min-h-0" href={appRoutes.providers}>
               Usta Bul
             </TextLink>
             <span>/</span>
@@ -273,13 +273,13 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 </h1>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <TextLink
-                    className="rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)] sm:min-h-0"
                     href={`${appRoutes.providers}?category=${encodeURIComponent(provider.category)}`}
                   >
                     {provider.category}
                   </TextLink>
                   <TextLink
-                    className="rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)]"
+                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-navy)] no-underline hover:border-[rgba(255,138,0,0.36)] hover:bg-[var(--brand-orange-soft)] sm:min-h-0"
                     href={`${appRoutes.providers}?district=${encodeURIComponent(provider.district)}`}
                   >
                     {provider.district}
@@ -357,7 +357,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 İş galeriniz henüz boş.
               </p>
               <Link
-                className="mt-3 inline-flex min-h-10 items-center rounded-md bg-[var(--brand-orange)] px-4 py-2 text-sm font-bold text-white shadow-[var(--shadow-action)] transition hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+                className="mt-3 inline-flex min-h-11 items-center rounded-md bg-[var(--brand-orange)] px-4 py-2 text-sm font-bold text-white shadow-[var(--shadow-action)] transition hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:min-h-10"
                 href={appRoutes.providerDashboardProfile}
               >
                 Galeri Ekle →
@@ -403,7 +403,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               <div className="mt-4 flex flex-wrap gap-2">
                 {provider.serviceAreas.map((area) => (
                   <TextLink
-                    className="rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-2 text-sm font-medium text-[var(--brand-navy)] no-underline hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
+                    className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--surface-soft)] px-3 py-2 text-sm font-medium text-[var(--brand-navy)] no-underline hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)] sm:min-h-0"
                     href={`${appRoutes.providers}?district=${encodeURIComponent(area)}`}
                     key={area}
                   >

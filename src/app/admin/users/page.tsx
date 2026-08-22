@@ -110,7 +110,7 @@ export default async function AdminUsersPage({
           </label>
 
           <button
-            className="rounded-md bg-[var(--brand-navy)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+            className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 md:min-h-0"
             type="submit"
           >
             Filtrele

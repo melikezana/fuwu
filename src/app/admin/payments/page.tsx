@@ -253,7 +253,7 @@ export default async function AdminPaymentsPage({
                         <form action={refundIyzicoPaymentAction}>
                           <input name="paymentId" type="hidden" value={payment.id} />
                           <button
-                            className="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
+                            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 md:min-h-10"
                             type="submit"
                           >
                             <RotateCcw className="size-3.5" aria-hidden />

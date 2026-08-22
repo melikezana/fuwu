@@ -368,7 +368,7 @@ export function LoginOptions() {
       <div className="mt-4 min-h-12 cursor-default select-none rounded-md border border-[rgba(255,138,0,0.2)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
         {t("login.guestNote")}{" "}
         <a
-          className="cursor-pointer underline decoration-[var(--brand-orange-dark)] decoration-2 underline-offset-4 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+          className="inline-flex min-h-11 cursor-pointer items-center underline decoration-[var(--brand-orange-dark)] decoration-2 underline-offset-4 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0"
           href="mailto:fuwuhizmet@gmail.com"
         >
           {t("login.emailLink")}

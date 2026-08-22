@@ -89,7 +89,7 @@ const paymentInfoActionMessages: Record<string, PaymentInfoFeedback> = {
     tone: "error",
   },
   "payment-info-update-failed": {
-    body: "Ödeme bilgileri şu anda kaydedilemedi. Lütfen tekrar dene.",
+    body: "Ödeme bilgilerini kaydedemedik. Lütfen tekrar dene.",
     title: "Kayıt tamamlanamadı",
     tone: "error",
   },

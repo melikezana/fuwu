@@ -87,7 +87,7 @@ export default async function AdminVerificationsPage() {
                     </p>
                     {item.documentUrl ? (
                       <a
-                        className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-white px-3 py-1.5 text-sm font-semibold text-[var(--brand-orange-dark)] hover:bg-[var(--surface-soft)]"
+                        className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-md border border-[var(--border)] bg-white px-3 py-1.5 text-sm font-semibold text-[var(--brand-orange-dark)] hover:bg-[var(--surface-soft)] md:min-h-0"
                         href={item.documentUrl}
                         rel="noreferrer"
                         target="_blank"

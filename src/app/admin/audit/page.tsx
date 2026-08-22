@@ -102,7 +102,7 @@ export default async function AdminAuditPage({
             </select>
           </label>
           <button
-            className="rounded-md bg-[var(--brand-navy)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+            className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90 md:min-h-0"
             type="submit"
           >
             Filtrele
@@ -150,7 +150,7 @@ export default async function AdminAuditPage({
               <div className="flex gap-2">
                 {currentPage > 1 ? (
                   <Link
-                    className="rounded-md border border-[var(--border)] bg-white px-3 py-1.5 hover:bg-[var(--surface-soft)]"
+                    className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-white px-3 py-1.5 hover:bg-[var(--surface-soft)] md:min-h-0"
                     href={buildQuery({ action, entityType, page: currentPage - 1 })}
                   >
                     ← Önceki
@@ -158,7 +158,7 @@ export default async function AdminAuditPage({
                 ) : null}
                 {currentPage < totalPages ? (
                   <Link
-                    className="rounded-md border border-[var(--border)] bg-white px-3 py-1.5 hover:bg-[var(--surface-soft)]"
+                    className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-white px-3 py-1.5 hover:bg-[var(--surface-soft)] md:min-h-0"
                     href={buildQuery({ action, entityType, page: currentPage + 1 })}
                   >
                     Sonraki →

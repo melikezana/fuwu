@@ -77,7 +77,7 @@ const providerRequestActionMessages: Record<
     tone: "error",
   },
   "request-invalid-status": {
-    body: "Bu talep şu anda yanıtlanamaz.",
+    body: "Bu talebi daha sonra tekrar kontrol et.",
     title: "Durum uygun değil",
     tone: "error",
   },
@@ -194,7 +194,7 @@ function ProviderPaymentInfoRequiredNotice() {
     <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
       <p className="text-sm font-bold">Ödeme almak için önce ödeme bilgilerini tamamla.</p>
       <Link
-        className="mt-2 inline-flex min-h-10 items-center rounded-md border border-red-200 bg-white px-3 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
+        className="mt-2 inline-flex min-h-11 items-center rounded-md border border-red-200 bg-white px-3 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 md:min-h-10"
         href={appRoutes.providerDashboardPaymentInfo}
       >
         Ödeme Bilgilerine Git

@@ -91,7 +91,7 @@ function SceneNode({
     <Link
       aria-label={`${target.label} ustalarını gör`}
       className={cn(
-        "home-scene-node group absolute z-30 inline-flex min-h-10 max-w-[8.5rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 px-3 py-2 text-[0.72rem] font-extrabold text-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_24px_54px_rgba(10,37,64,0.17)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-12 sm:max-w-[12rem] sm:px-4 sm:text-xs",
+        "home-scene-node group absolute z-30 inline-flex min-h-12 max-w-[8.5rem] min-w-0 cursor-pointer items-center gap-2 rounded-full border border-white bg-white/94 px-3 py-2 text-[0.72rem] font-extrabold text-[var(--brand-navy)] shadow-[0_18px_42px_rgba(10,37,64,0.13)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(255,101,0,0.42)] hover:bg-white hover:shadow-[0_24px_54px_rgba(10,37,64,0.17)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:max-w-[12rem] sm:px-4 sm:text-xs",
         sceneNodeClassNames[target.id] ?? getFallbackNodeClassName(index),
         isActive ? "border-[rgba(255,101,0,0.54)] bg-white shadow-[0_28px_70px_rgba(10,37,64,0.18)]" : "",
       )}

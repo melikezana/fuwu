@@ -35,14 +35,14 @@ export function CookieConsentBanner() {
           Fuwu, deneyimi iyileştirmek için çerez kullanır.{" "}
           <Link
             href={appRoutes.privacy}
-            className="font-bold text-[var(--brand-orange-dark)] hover:underline"
+            className="inline-flex min-h-11 items-center font-bold text-[var(--brand-orange-dark)] hover:underline sm:min-h-0"
           >
             Gizlilik Politikası
           </Link>{" "}
           ·{" "}
           <Link
             href={appRoutes.cookies}
-            className="font-bold text-[var(--brand-orange-dark)] hover:underline"
+            className="inline-flex min-h-11 items-center font-bold text-[var(--brand-orange-dark)] hover:underline sm:min-h-0"
           >
             Çerez Politikası
           </Link>
@@ -50,14 +50,14 @@ export function CookieConsentBanner() {
         <div className="flex w-full shrink-0 items-center justify-end gap-2">
           <Button
             variant="ghost"
-            className="h-10 min-h-10 shrink-0 px-4 py-2 text-xs font-bold text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]"
+            className="h-11 min-h-11 shrink-0 px-4 py-2 text-xs font-bold text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)] sm:h-10 sm:min-h-10"
             onClick={() => handleConsent("rejected")}
           >
             Reddet
           </Button>
           <Button
             variant="primary"
-            className="h-10 min-h-10 shrink-0 px-4 py-2 text-xs font-bold"
+            className="h-11 min-h-11 shrink-0 px-4 py-2 text-xs font-bold sm:h-10 sm:min-h-10"
             onClick={() => handleConsent("accepted")}
           >
             Kabul Et

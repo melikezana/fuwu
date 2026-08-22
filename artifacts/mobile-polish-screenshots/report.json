@@ -1,0 +1,4020 @@
+[
+  {
+    "finalUrl": "http://127.0.0.1:3013/",
+    "route": "/",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__home.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount",
+    "route": "/account",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__account.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fapplications",
+    "route": "/account/applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__account-applications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fnotifications",
+    "route": "/account/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__account-notifications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Frequests",
+    "route": "/account/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__account-requests.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin",
+    "route": "/admin",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Faudit",
+    "route": "/admin/audit",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-audit.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fcatalog",
+    "route": "/admin/catalog",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-catalog.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fnotifications",
+    "route": "/admin/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-notifications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fpayments",
+    "route": "/admin/payments",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-payments.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fprovider-applications",
+    "route": "/admin/provider-applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-provider-applications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fproviders",
+    "route": "/admin/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-providers.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Frevenue",
+    "route": "/admin/revenue",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-revenue.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Freviews",
+    "route": "/admin/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-reviews.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fservice-requests",
+    "route": "/admin/service-requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-service-requests.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fsettings",
+    "route": "/admin/settings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-settings.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers",
+    "route": "/admin/users",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-users.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers%2Fmobile-polish-sample",
+    "route": "/admin/users/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-users-id.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fverifications",
+    "route": "/admin/verifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__admin-verifications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/cerez-politikasi",
+    "route": "/cerez-politikasi",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__cookies.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard",
+    "route": "/dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__dashboard.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard%2Frequests",
+    "route": "/dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__dashboard-requests.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/gizlilik",
+    "route": "/gizlilik",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__privacy.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kullanim-sartlari",
+    "route": "/kullanim-sartlari",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__terms.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kvkk",
+    "route": "/kvkk",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__kvkk.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login",
+    "route": "/login",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__login.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/order-tracking/mobile-polish-sample",
+    "route": "/order-tracking/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__order-tracking-id.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/provider-application",
+    "route": "/provider-application",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-application.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard",
+    "route": "/provider-dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fcalendar",
+    "route": "/provider-dashboard/calendar",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-calendar.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fearnings",
+    "route": "/provider-dashboard/earnings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-earnings.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fmessages",
+    "route": "/provider-dashboard/messages",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-messages.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fnotifications",
+    "route": "/provider-dashboard/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-notifications.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fpayment-info",
+    "route": "/provider-dashboard/payment-info",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-payment-info.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fprofile",
+    "route": "/provider-dashboard/profile",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-profile.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Frequests",
+    "route": "/provider-dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-requests.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Freviews",
+    "route": "/provider-dashboard/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__provider-dashboard-reviews.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers",
+    "route": "/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__providers.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers/mobile-polish-sample",
+    "route": "/providers/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__providers-id.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/request",
+    "route": "/request",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__request.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/waitlist",
+    "route": "/waitlist",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\iphone14-375__waitlist.png",
+    "status": 200,
+    "viewport": "iphone14-375",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/",
+    "route": "/",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__home.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount",
+    "route": "/account",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__account.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fapplications",
+    "route": "/account/applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__account-applications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fnotifications",
+    "route": "/account/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__account-notifications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Frequests",
+    "route": "/account/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__account-requests.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin",
+    "route": "/admin",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Faudit",
+    "route": "/admin/audit",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-audit.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fcatalog",
+    "route": "/admin/catalog",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-catalog.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fnotifications",
+    "route": "/admin/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-notifications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fpayments",
+    "route": "/admin/payments",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-payments.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fprovider-applications",
+    "route": "/admin/provider-applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-provider-applications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fproviders",
+    "route": "/admin/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-providers.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Frevenue",
+    "route": "/admin/revenue",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-revenue.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Freviews",
+    "route": "/admin/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-reviews.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fservice-requests",
+    "route": "/admin/service-requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-service-requests.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fsettings",
+    "route": "/admin/settings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-settings.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers",
+    "route": "/admin/users",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-users.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers%2Fmobile-polish-sample",
+    "route": "/admin/users/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-users-id.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fverifications",
+    "route": "/admin/verifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__admin-verifications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/cerez-politikasi",
+    "route": "/cerez-politikasi",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__cookies.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard",
+    "route": "/dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__dashboard.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard%2Frequests",
+    "route": "/dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__dashboard-requests.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/gizlilik",
+    "route": "/gizlilik",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__privacy.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kullanim-sartlari",
+    "route": "/kullanim-sartlari",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__terms.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kvkk",
+    "route": "/kvkk",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__kvkk.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login",
+    "route": "/login",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__login.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/order-tracking/mobile-polish-sample",
+    "route": "/order-tracking/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__order-tracking-id.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/provider-application",
+    "route": "/provider-application",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-application.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard",
+    "route": "/provider-dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fcalendar",
+    "route": "/provider-dashboard/calendar",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-calendar.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fearnings",
+    "route": "/provider-dashboard/earnings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-earnings.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fmessages",
+    "route": "/provider-dashboard/messages",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-messages.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fnotifications",
+    "route": "/provider-dashboard/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-notifications.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fpayment-info",
+    "route": "/provider-dashboard/payment-info",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-payment-info.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fprofile",
+    "route": "/provider-dashboard/profile",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-profile.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Frequests",
+    "route": "/provider-dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-requests.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Freviews",
+    "route": "/provider-dashboard/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__provider-dashboard-reviews.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers",
+    "route": "/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__providers.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers/mobile-polish-sample",
+    "route": "/providers/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__providers-id.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/request",
+    "route": "/request",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__request.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/request",
+    "route": "/waitlist",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\android-412__waitlist.png",
+    "status": 200,
+    "viewport": "android-412",
+    "clientWidth": 412,
+    "scrollWidth": 412,
+    "horizontalOverflow": false,
+    "smallTargets": []
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/",
+    "route": "/",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__home.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount",
+    "route": "/account",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__account.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fapplications",
+    "route": "/account/applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__account-applications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Fnotifications",
+    "route": "/account/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__account-notifications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Faccount%2Frequests",
+    "route": "/account/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__account-requests.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin",
+    "route": "/admin",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Faudit",
+    "route": "/admin/audit",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-audit.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fcatalog",
+    "route": "/admin/catalog",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-catalog.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fnotifications",
+    "route": "/admin/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-notifications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fpayments",
+    "route": "/admin/payments",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-payments.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fprovider-applications",
+    "route": "/admin/provider-applications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-provider-applications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fproviders",
+    "route": "/admin/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-providers.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Frevenue",
+    "route": "/admin/revenue",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-revenue.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Freviews",
+    "route": "/admin/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-reviews.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fservice-requests",
+    "route": "/admin/service-requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-service-requests.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fsettings",
+    "route": "/admin/settings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-settings.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers",
+    "route": "/admin/users",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-users.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fusers%2Fmobile-polish-sample",
+    "route": "/admin/users/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-users-id.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fadmin%2Fverifications",
+    "route": "/admin/verifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__admin-verifications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/cerez-politikasi",
+    "route": "/cerez-politikasi",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__cookies.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard",
+    "route": "/dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__dashboard.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fdashboard%2Frequests",
+    "route": "/dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__dashboard-requests.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/gizlilik",
+    "route": "/gizlilik",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__privacy.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kullanim-sartlari",
+    "route": "/kullanim-sartlari",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__terms.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/kvkk",
+    "route": "/kvkk",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__kvkk.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login",
+    "route": "/login",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__login.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/order-tracking/mobile-polish-sample",
+    "route": "/order-tracking/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__order-tracking-id.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/provider-application",
+    "route": "/provider-application",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-application.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard",
+    "route": "/provider-dashboard",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fcalendar",
+    "route": "/provider-dashboard/calendar",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-calendar.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fearnings",
+    "route": "/provider-dashboard/earnings",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-earnings.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fmessages",
+    "route": "/provider-dashboard/messages",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-messages.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fnotifications",
+    "route": "/provider-dashboard/notifications",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-notifications.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fpayment-info",
+    "route": "/provider-dashboard/payment-info",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-payment-info.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Fprofile",
+    "route": "/provider-dashboard/profile",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-profile.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Frequests",
+    "route": "/provider-dashboard/requests",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-requests.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/login?next=%2Fprovider-dashboard%2Freviews",
+    "route": "/provider-dashboard/reviews",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__provider-dashboard-reviews.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers",
+    "route": "/providers",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__providers.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/providers/mobile-polish-sample",
+    "route": "/providers/mobile-polish-sample",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__providers-id.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/request",
+    "route": "/request",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__request.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  },
+  {
+    "finalUrl": "http://127.0.0.1:3013/request",
+    "route": "/waitlist",
+    "screenshot": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\mobile-polish-screenshots\\desktop-1440__waitlist.png",
+    "status": 200,
+    "viewport": "desktop-1440",
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "smallTargets": [
+      {
+        "tag": "a",
+        "text": "FUWUHİZMET",
+        "width": 84,
+        "height": 39,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ana Sayfa",
+        "width": 78,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Hizmetler",
+        "width": 74,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Ustalar",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Nasıl Çalışır?",
+        "width": 97,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "Güven",
+        "width": 52,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İletişim",
+        "width": 57,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      },
+      {
+        "tag": "a",
+        "text": "İstanbul",
+        "width": 127,
+        "height": 40,
+        "visible": true,
+        "inlineTextLink": false
+      }
+    ]
+  }
+]

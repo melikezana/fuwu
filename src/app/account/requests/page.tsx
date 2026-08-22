@@ -143,7 +143,7 @@ async function getUserRequests(
   supabase: NonNullable<ServerAuthContext["supabase"]>,
   userId: string,
 ): Promise<UserRequestsResult> {
-  const fallbackMessage = "Talepler şu anda yüklenemedi. Lütfen tekrar dene.";
+  const fallbackMessage = "Talepleri yükleyemedik. Lütfen tekrar dene.";
   const { data, error } = await supabase
     .from("service_requests")
     .select(
