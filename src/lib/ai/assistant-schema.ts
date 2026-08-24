@@ -7,7 +7,6 @@ export const assistantCategories = [
   "painting",
   "furniture",
   "moving",
-  "carpet_cleaning",
   "pool_garden",
   "renovation",
   "unknown",
@@ -200,4 +199,3 @@ export function parseAssistantAnalysis(value: unknown): AssistantAnalysis | null
     providerSearchRecommended: Boolean(value.providerSearchRecommended),
   };
 }
-

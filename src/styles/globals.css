@@ -262,7 +262,7 @@ textarea:disabled {
 }
 
 .home-float-chip {
-  animation: fuwu-drift 7s ease-in-out infinite;
+  transform: translateY(0);
 }
 
 @keyframes fuwu-reveal {
@@ -331,7 +331,7 @@ textarea:disabled {
 }
 
 .premium-3d-float {
-  animation: fuwu-soft-float 6.5s ease-in-out infinite;
+  transform: translateY(0);
 }
 
 .home-scene-node {

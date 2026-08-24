@@ -61,6 +61,7 @@ export type {
 type SupabaseProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 
 type SupabaseNamedRelation = {
+  is_active?: boolean | null;
   name: string | null;
   slug?: string | null;
 };
@@ -156,7 +157,7 @@ const providerSelectQuery = `
   gallery_preview_url,
   profile_image_url,
   created_at,
-  category:service_categories(name, slug),
+  category:service_categories(name, slug, is_active),
   district:districts(name, slug)
 `;
 
@@ -173,7 +174,7 @@ const providerSelectQueryWithoutAvailability = `
   average_price_max,
   rating,
   created_at,
-  category:service_categories(name, slug),
+  category:service_categories(name, slug, is_active),
   district:districts(name, slug)
 `;
 
@@ -221,6 +222,14 @@ function getRelationName(
   }
 
   return relation?.name?.trim() ?? "";
+}
+
+function isRelationActive(
+  relation: SupabaseNamedRelation | SupabaseNamedRelation[] | null | undefined,
+) {
+  const record = Array.isArray(relation) ? relation[0] : relation;
+
+  return record?.is_active !== false;
 }
 
 function formatPrice(value: number) {
@@ -277,6 +286,10 @@ function normalizeResponseTimeMinutes(value: number | null | undefined) {
 }
 
 function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provider | null {
+  if (!isRelationActive(record.category ?? record.service_categories)) {
+    return null;
+  }
+
   const rawCategory = sanitizeText(getRelationName(record.category ?? record.service_categories), 120);
   const category = sanitizeText(getServiceDisplayLabel(rawCategory), 120);
   const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
@@ -1221,9 +1234,10 @@ export async function getMarketplaceTrustMetrics(
     ] = await Promise.allSettled([
       supabase
         .from("providers")
-        .select("id", { count: "exact", head: true })
+        .select("id, service_categories!inner(id)", { count: "exact", head: true })
         .eq("is_active", true)
-        .eq("is_approved", true),
+        .eq("is_approved", true)
+        .eq("service_categories.is_active", true),
       supabase
         .from("service_categories")
         .select("id", { count: "exact", head: true })

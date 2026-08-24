@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:3012",
+      "localStorage": [
+        {
+          "name": "fuwu:cookie-consent",
+          "value": "accepted"
+        }
+      ]
+    }
+  ]
+}

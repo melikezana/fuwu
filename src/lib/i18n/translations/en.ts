@@ -379,9 +379,6 @@ export const enTranslations = {
     "services.cleaning.title": "Cleaning",
     "services.cleaning.description":
       "Quickly list suitable profiles for home, office, and post-move cleaning.",
-    "services.carpet-cleaning.title": "Carpet Cleaning",
-    "services.carpet-cleaning.description":
-      "Compare suitable profiles for carpet washing, pickup, and stain removal.",
     "services.climate-appliance-service.title": "AC & Appliances",
     "services.climate-appliance-service.description":
       "Compare technical services for AC care, installation, and appliance repairs.",

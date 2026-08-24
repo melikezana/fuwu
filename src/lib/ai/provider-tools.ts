@@ -79,7 +79,6 @@ const assistantCategoryServiceMap: Record<AssistantCategory, string | null> = {
   painting: "boya-badana",
   furniture: "mobilya-montaj",
   moving: "nakliye-yardimi",
-  carpet_cleaning: "hali-yikama",
   pool_garden: "havuz-bahce-bakimi",
   renovation: "ev-tadilati",
   unknown: null,
@@ -379,4 +378,3 @@ export async function searchProviders(input: SearchProvidersInput): Promise<Reco
     return [];
   }
 }
-

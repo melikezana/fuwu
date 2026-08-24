@@ -395,10 +395,8 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
           ) : null}
 
           <h1 className="mt-2 md:mt-5 max-w-[35rem] text-[2rem] font-extrabold leading-[1.08] text-[var(--brand-navy)] min-[390px]:text-4xl sm:text-6xl lg:text-[4.125rem] lg:leading-[0.99] 2xl:text-[4.5rem]">
-            Güven, doğru{" "}
-            <span>
-              ustayla <span className="text-[var(--brand-orange)]">başlar.</span>
-            </span>
+            <span className="text-[var(--brand-orange)]">Güven</span>, doğru{" "}
+            <span>ustayla başlar.</span>
           </h1>
           <p className="mt-2 md:mt-5 max-w-xl text-sm font-medium leading-normal text-[rgba(10,37,64,0.78)] sm:text-lg sm:leading-8">
             {homeCopy.hero.description}

@@ -408,9 +408,6 @@ export const trTranslations = {
   "services.cleaning.title": "Temizlik",
   "services.cleaning.description":
     "Ev, ofis ve taşınma sonrası temizlik için uygun profilleri hızlıca listele.",
-  "services.carpet-cleaning.title": "Halı Yıkama",
-  "services.carpet-cleaning.description":
-    "Halı yıkama, teslim alma ve leke çıkarma için uygun profilleri karşılaştır.",
   "services.climate-appliance-service.title": "Beyaz Eşya",
   "services.climate-appliance-service.description":
     "Klima, buzdolabı, çamaşır ve bulaşık makinesi için teknik servis.",

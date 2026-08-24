@@ -51,7 +51,7 @@ values
   ('Çilingir', 'cilingir', 'Kapı, kilit ve oto çilingir hizmetleri.', true),
   ('Elektrik Hizmeti', 'elektrik-hizmeti', 'Elektrik ariza, montaj, priz ve aydinlatma hizmetleri.', true),
   ('Temizlik', 'temizlik', 'Ev, ofis ve tasinma sonrasi temizlik hizmetleri.', true),
-  ('Halı Yıkama', 'hali-yikama', 'Evden teslim halı, koltuk ve tekstil yıkama hizmetleri.', true),
+  ('Halı Yıkama', 'hali-yikama', 'Evden teslim halı, koltuk ve tekstil yıkama hizmetleri.', false),
   ('Klima & Beyaz Eşya', 'klima-beyaz-esya', 'Klima, kombi ve beyaz eşya bakım onarım hizmetleri.', true),
   ('Mobilya Montaj', 'mobilya-montaj', 'Mobilya kurulum, demontaj ve tamir hizmetleri.', true),
   ('Boya Badana', 'boya-badana', 'Ic cephe boya, badana ve tadilat destek hizmetleri.', true),

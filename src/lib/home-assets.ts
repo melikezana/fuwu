@@ -5,7 +5,6 @@ export const homeAssets = {
   categories: {
     ac: "/images/home/Meshy_AI_category-ac.png",
     "carpet-cleaner": "/images/home/Meshy_AI_carpet-cleaner-with-rug-v2.png",
-    "carpet-cleaning": "/images/home/Meshy_AI_carpet-cleaner-with-rug-v2.png",
     cleaning: "/images/home/Meshy_AI_category-cleaning-v2.png",
     electric: "/images/home/Meshy_AI_category-electric-pilot.png",
     electrical: "/images/home/Meshy_AI_category-electric-pilot.png",

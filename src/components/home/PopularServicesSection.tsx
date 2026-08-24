@@ -17,7 +17,6 @@ const popularServiceMeta: Record<string, PopularServiceMeta> = {
   locksmith: { badge: "Acil destek", detail: "Hızlı iletişim" },
   electrical: { badge: "Ev onarımı", detail: "Ustaları karşılaştır" },
   cleaning: { badge: "En çok talep edilen", detail: "Dakikalar içinde talep" },
-  "carpet-cleaning": { badge: "Ev bakımı", detail: "Servisleri karşılaştır" },
   "climate-appliance-service": { badge: "Sezonluk ihtiyaç", detail: "Ziyaret planla" },
 };
 

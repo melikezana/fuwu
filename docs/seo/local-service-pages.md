@@ -7,7 +7,6 @@ Fuwu should grow local SEO pages from real marketplace supply, not from empty ro
 - `/istanbul/tesisat`
 - `/kadikoy/temizlik`
 - `/sisli-elektrik`
-- `/istanbul/hali-yikama`
 
 ## Scalable route model
 

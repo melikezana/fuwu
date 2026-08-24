@@ -14,7 +14,6 @@ type AnalysisResultProps = {
 };
 
 const categoryLabels: Record<AssistantAnalysis["category"], string> = {
-  carpet_cleaning: "Halı Yıkama",
   cleaning: "Temizlik",
   electric: "Elektrik",
   furniture: "Mobilya Montajı",

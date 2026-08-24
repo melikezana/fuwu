@@ -33,7 +33,7 @@ erişilebilir vanayı kapatma, yüzeyi kurutma veya kullanım kılavuzunu kontro
 JSON alanları:
 - summary: Kullanıcıya gösterilecek kısa ilk değerlendirme.
 - likelyIssue: Olası sorun başlığı.
-- category: İstenen enum değerlerinden biri.
+- category: İstenen enum değerlerinden biri. Halı yıkama taleplerini ayrı kategori olarak önerme; gerekiyorsa cleaning kullan.
 - urgency: low, medium, high veya emergency.
 - confidence: 0 ile 1 arası.
 - safeFirstSteps: En fazla 5 güvenli adım.
@@ -43,4 +43,3 @@ JSON alanları:
 - followUpQuestions: Analiz yetersizse en fazla 3 kısa soru.
 - providerSearchRecommended: Gerçek Fuwu ustası araması öneriliyor mu?
 `.trim();
-

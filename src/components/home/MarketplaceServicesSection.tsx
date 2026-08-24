@@ -44,10 +44,6 @@ const homeServiceCardDetails: Record<
     description: "Ev, ofis ve taşınma sonrası temizlik için uygun ekipleri karşılaştır.",
     trustLine: "Bölgen için müsait temizlik ekipleri",
   },
-  "carpet-cleaning": {
-    description: "Halı yıkama, teslim alma ve leke çıkarma hizmetlerini kolayca incele.",
-    trustLine: "İstanbul içi servis seçenekleri",
-  },
   "climate-appliance-service": {
     description: "Klima, buzdolabı, çamaşır ve bulaşık makinesi için teknik servisleri karşılaştır.",
     trustLine: "Teknik servis profilleri tek ekranda",

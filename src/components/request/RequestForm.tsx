@@ -268,7 +268,6 @@ const serviceEstimates: Record<string, ServiceEstimate> = {
   locksmith: { durationMinutes: 45, price: 900 },
   "furniture-assembly": { durationMinutes: 120, price: 1000 },
   "moving-help": { durationMinutes: 180, price: 2500 },
-  "carpet-cleaning": { durationMinutes: 60, price: 800 },
   "pool-garden": { durationMinutes: 180, price: 4000 },
   renovation: { durationMinutes: 360, price: 5000 },
 };
@@ -282,7 +281,6 @@ const subServiceOptionsByServiceId: Record<string, string[]> = {
   locksmith: ["Kapı açma", "Kilit değişimi", "Oto çilingir"],
   "furniture-assembly": ["Dolap montajı", "Yatak / masa", "Raf montajı"],
   "moving-help": ["Küçük eşya", "Koli taşıma", "Apartman içi"],
-  "carpet-cleaning": ["Teslim almalı", "Leke çıkarma", "Yerinde yıkama"],
   "pool-garden": ["Bahçe bakım", "Havuz temizlik", "Peyzaj destek"],
   renovation: ["Küçük tadilat", "Banyo / mutfak", "Genel keşif"],
 };

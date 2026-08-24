@@ -367,8 +367,6 @@ export const arTranslations = {
     "services.electrical.description": "اعثر على كهربائيين موثوقين للمقابس والإضاءة ولوحات الكهرباء وكشف الأعطال.",
     "services.cleaning.title": "التنظيف",
     "services.cleaning.description": "اعرض بسرعة ملفات مناسبة لتنظيف المنزل والمكتب وما بعد الانتقال.",
-    "services.carpet-cleaning.title": "غسيل السجاد",
-    "services.carpet-cleaning.description": "قارن ملفات مناسبة لغسيل السجاد والاستلام وإزالة البقع.",
     "services.climate-appliance-service.title": "المكيفات والأجهزة",
     "services.climate-appliance-service.description":
       "قارن خدمات فنية لصيانة المكيفات وتركيبها وإصلاح الأجهزة المنزلية.",

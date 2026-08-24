@@ -132,17 +132,6 @@ export const serviceCategories = [
     href: createProviderCategoryHref("nakliye-yardimi"),
   },
   {
-    id: "carpet-cleaning",
-    category: "Ev Bakımı",
-    title: "Halı Yıkama",
-    description:
-      "Halı yıkama, teslim alma ve leke çıkarma için uygun profilleri karşılaştır.",
-    iconName: "rug",
-    slug: "hali-yikama",
-    startingHint: "Usta Bul",
-    href: createProviderCategoryHref("hali-yikama"),
-  },
-  {
     id: "pool-garden",
     category: "Dış Mekan",
     title: "Havuz ve Bahçe Bakımı",

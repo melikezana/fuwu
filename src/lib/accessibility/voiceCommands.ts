@@ -90,17 +90,6 @@ const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
     aliases: ["temizlik ara", "temizlik", "temizlikçi", "temizlikci"],
   },
   {
-    values: ["Halı Yıkama"],
-    aliases: [
-      "halı yıkama ara",
-      "hali yikama ara",
-      "halı yıkama",
-      "hali yikama",
-      "halıcı",
-      "halici",
-    ],
-  },
-  {
     values: ["Beyaz Eşya"],
     aliases: ["klima", "beyaz eşya", "beyaz esya", "teknik servis"],
   },

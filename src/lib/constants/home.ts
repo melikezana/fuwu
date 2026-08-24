@@ -7,7 +7,6 @@ export const homePopularServiceIds = [
   "locksmith",
   "furniture-assembly",
   "moving-help",
-  "carpet-cleaning",
   "pool-garden",
   "renovation",
 ] as const;

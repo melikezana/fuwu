@@ -81,10 +81,6 @@ const categoryLabels: Record<string, { listing: string; profession: string }> = 
     listing: "Temizlik Hizmeti Ustaları",
     profession: "Temizlik Hizmeti",
   },
-  "hali yikama": {
-    listing: "Halı Yıkama Hizmetleri",
-    profession: "Halı Yıkama Hizmeti",
-  },
   "klima beyaz esya": {
     listing: "Beyaz Eşya Servisleri",
     profession: "Beyaz Eşya Servisi",
