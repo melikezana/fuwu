@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Bell,
+  Search,
   ClipboardList,
   Home,
   LayoutDashboard,
@@ -35,10 +35,10 @@ const customerTabs: MobileTab[] = [
     match: [appRoutes.home],
   },
   {
-    href: appRoutes.accountRequests,
-    icon: ClipboardList,
-    label: "Taleplerim",
-    match: [appRoutes.accountRequests, "/account/requests", appRoutes.orderTracking],
+    href: appRoutes.providers,
+    icon: Search,
+    label: "Hizmetler",
+    match: [appRoutes.providers],
   },
   {
     center: true,
@@ -48,10 +48,10 @@ const customerTabs: MobileTab[] = [
     match: [appRoutes.request],
   },
   {
-    href: appRoutes.accountNotifications,
-    icon: Bell,
-    label: "Bildirimler",
-    match: [appRoutes.accountNotifications],
+    href: appRoutes.accountRequests,
+    icon: ClipboardList,
+    label: "Taleplerim",
+    match: [appRoutes.accountRequests, "/account/requests", appRoutes.orderTracking],
   },
   {
     href: appRoutes.account,
@@ -159,51 +159,15 @@ export function MobileBottomNav() {
   }
 
   return (
-    <nav
-      aria-label="Mobil alt sekme navigasyonu"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-white/95 pb-[var(--safe-bottom)] shadow-[0_-16px_36px_rgba(10,37,64,0.12)] backdrop-blur-xl md:hidden"
-    >
-      <div className="grid h-[var(--mobile-bottom-nav-height)] grid-cols-5 items-center px-2">
+    <nav aria-label="Mobil alt sekme navigasyonu" className="mobile-tab-bar">
+      <div className="mobile-tabs">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = isRouteActive(pathname, tab);
-
           return (
-            <Link
-              aria-current={isActive ? "page" : undefined}
-              aria-label={tab.label}
-              className={cn(
-                "group relative flex min-h-14 min-w-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-md px-1 text-[0.68rem] font-extrabold leading-4 text-[var(--brand-navy)] transition-colors duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
-                tab.center
-                  ? "text-[var(--brand-orange-dark)]"
-                  : isActive
-                    ? "text-[var(--brand-orange)]"
-                    : "opacity-60 hover:bg-[var(--brand-orange-soft)] hover:opacity-100",
-              )}
-              href={tab.href}
-              key={tab.label}
-            >
-              {tab.center ? (
-                <span className="-mt-6 inline-flex size-14 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] ring-4 ring-white">
-                  <Icon className="size-6" aria-hidden="true" />
-                </span>
-              ) : (
-                <Icon className="size-5" aria-hidden="true" />
-              )}
-              <span
-                className={cn(
-                  "max-w-full text-center",
-                  tab.center ? "whitespace-normal text-[0.62rem] leading-3" : "truncate",
-                )}
-              >
-                {tab.label}
-              </span>
-              {isActive && !tab.center ? (
-                <span
-                  aria-hidden="true"
-                  className="absolute bottom-1 h-1 w-5 rounded-full bg-[var(--brand-orange)]"
-                />
-              ) : null}
+            <Link aria-current={isActive ? "page" : undefined} aria-label={tab.label} className={cn("mobile-tab", isActive && "is-active", tab.center && "mobile-tab-create")} href={tab.href} key={tab.label}>
+              <span className="mobile-tab-icon"><Icon aria-hidden="true" className="size-5" /></span>
+              <span className="mobile-tab-label">{tab.label}</span>
             </Link>
           );
         })}

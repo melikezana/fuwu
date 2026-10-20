@@ -139,7 +139,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-7 border-y border-[var(--border)] py-7 sm:grid-cols-2 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
+        <div className="mt-8 grid grid-cols-2 gap-7 border-y border-[var(--border)] py-7 sm:gap-9 sm:py-9 lg:grid-cols-4 lg:gap-10">
           <FooterColumn title={t("footer.discover")}>
             <nav aria-label={t("footer.discoverAria")} className="grid gap-2.5">
               {discoverLinks.map((item) => (
@@ -164,7 +164,7 @@ export function Footer() {
             </nav>
           </FooterColumn>
 
-          <section className="sm:hidden">
+          <section className="col-span-2 sm:hidden">
             <details className="group rounded-lg border border-[var(--border)] bg-white">
               <summary className="flex min-h-12 cursor-pointer select-none list-none items-center justify-between gap-3 px-4 text-sm font-bold uppercase text-[var(--brand-navy)] [&::-webkit-details-marker]:hidden">
                 <span>
@@ -187,7 +187,7 @@ export function Footer() {
             </details>
           </section>
 
-          <FooterColumn className="sm:col-span-2 lg:col-span-1" title={t("footer.contact")}>
+          <FooterColumn className="col-span-2 lg:col-span-1" title={t("footer.contact")}>
             <address className="grid gap-4 not-italic">
               <p className="inline-flex max-w-full cursor-default select-none items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--muted)]">
                 <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">

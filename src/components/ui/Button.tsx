@@ -30,15 +30,15 @@ export type ButtonProps = NativeButtonProps | LinkButtonProps;
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
+    "bg-[var(--brand-orange)] text-[#241c16] shadow-[var(--shadow-action)] hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
   secondary:
-    "border border-[rgba(20,33,61,0.1)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-card)]",
+    "border border-[rgba(20,33,61,0.1)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-card)]",
   ghost:
     "text-[var(--muted)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-navy)]",
   light:
-    "bg-white text-[var(--brand-navy)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-elevated)]",
+    "bg-white text-[var(--brand-navy)] shadow-[var(--shadow-card)] hover:bg-[var(--brand-orange-soft)] hover:shadow-[var(--shadow-elevated)]",
   premium:
-    "bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] ring-1 ring-[rgba(255,138,0,0.42)] hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
+    "bg-[var(--brand-orange)] text-[#241c16] shadow-[var(--shadow-action)] ring-1 ring-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-dark)] hover:shadow-[var(--shadow-action)]",
   plain: "",
 };
 
@@ -51,7 +51,7 @@ export function Button({
   const buttonClassName = cn(
     variant === "plain"
       ? ""
-      : "inline-flex min-h-11 max-w-full cursor-pointer select-none items-center justify-center rounded-[var(--radius-control)] px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-all duration-200 active:scale-[0.98] active:translate-y-px focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
+      : "inline-flex min-h-11 min-w-0 max-w-full cursor-pointer select-none items-center justify-center gap-2 whitespace-normal rounded-[var(--radius-control)] px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
     variantClasses[variant],
     className,
   );
@@ -62,21 +62,21 @@ export function Button({
 
     if (isExternalHref) {
       return (
-        <a className={buttonClassName} href={href} {...linkProps}>
+        <a className={buttonClassName} data-ui-button href={href} {...linkProps}>
           {children}
         </a>
       );
     }
 
     return (
-      <Link className={buttonClassName} href={href} {...linkProps}>
+      <Link className={buttonClassName} data-ui-button href={href} {...linkProps}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button className={buttonClassName} {...props}>
+    <button className={buttonClassName} data-ui-button {...props}>
       {children}
     </button>
   );

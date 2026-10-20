@@ -1,0 +1,666 @@
+{
+  "baseURL": "http://127.0.0.1:3021",
+  "widths": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "pages": [
+    {
+      "label": "home-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "providers-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "request-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "login-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-application-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "waitlist-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "kvkk-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "privacy-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "terms-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "cookies-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "not-found-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-320",
+      "viewport": 320,
+      "documentWidth": 320,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-375",
+      "viewport": 375,
+      "documentWidth": 375,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-430",
+      "viewport": 430,
+      "documentWidth": 430,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-768",
+      "viewport": 768,
+      "documentWidth": 768,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-1024",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "provider-profile-1440",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "search-results-390",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    },
+    {
+      "label": "home-390-text-150-percent",
+      "viewport": 390,
+      "documentWidth": 390,
+      "outside": [],
+      "clipped": []
+    }
+  ],
+  "interactions": [
+    "Category filters and all 10 category destinations",
+    "Mobile menu, Escape/focus return and active bottom tab",
+    "Mobile help stays available in the menu without covering service or payment controls",
+    "How it works anchor and accessible FAQ disclosure",
+    "Service search preserves query and optional district in existing directory flow",
+    "Request form loads with service preselection; no order/payment submitted",
+    "PWA standalone manifest and icons remain accessible",
+    "Cookie consent at 320px stays above bottom navigation and persists choice"
+  ],
+  "protectedRoutes": [
+    {
+      "route": "/account",
+      "redirect": "/login?next=%2Faccount"
+    },
+    {
+      "route": "/account/notifications",
+      "redirect": "/login?next=%2Faccount%2Fnotifications"
+    },
+    {
+      "route": "/dashboard",
+      "redirect": "/login?next=%2Fdashboard"
+    },
+    {
+      "route": "/dashboard/requests",
+      "redirect": "/login?next=%2Fdashboard%2Frequests"
+    },
+    {
+      "route": "/provider-dashboard",
+      "redirect": "/login?next=%2Fprovider-dashboard"
+    },
+    {
+      "route": "/provider-dashboard/requests",
+      "redirect": "/login?next=%2Fprovider-dashboard%2Frequests"
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "redirect": "/login?next=%2Fprovider-dashboard%2Fprofile"
+    },
+    {
+      "route": "/admin",
+      "redirect": "/login?next=%2Fadmin"
+    },
+    {
+      "route": "/admin/payments",
+      "redirect": "/login?next=%2Fadmin%2Fpayments"
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

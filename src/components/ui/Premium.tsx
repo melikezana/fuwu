@@ -122,13 +122,13 @@ export function PageHeader({
               {description}
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+          <div className="page-header-actions flex flex-col gap-3 sm:flex-row lg:justify-end">
             {badge ? <StatusBadge tone="warning">{badge}</StatusBadge> : null}
             {actions}
           </div>
         </div>
         {metrics?.length ? (
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+          <div className="page-header-metrics mt-7 grid gap-3 sm:grid-cols-3">
             {metrics.map((metric) => {
               const Icon = metric.icon ?? CheckCircle2;
 

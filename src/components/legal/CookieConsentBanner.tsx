@@ -26,7 +26,7 @@ export function CookieConsentBanner() {
 
   return (
     <div
-      className="sticky bottom-3 z-50 mx-3 mb-3 rounded-lg border border-[var(--border)] bg-white p-3 text-[var(--brand-navy)] shadow-[var(--shadow-elevated)] sm:mx-auto sm:w-[min(30rem,calc(100vw-3rem))] sm:p-4"
+      className="fixed bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom)+0.75rem)] left-3 right-3 z-[60] rounded-xl border border-[var(--border)] bg-white p-4 text-[var(--brand-navy)] shadow-[var(--shadow-elevated)] sm:left-6 sm:right-auto sm:w-[min(30rem,calc(100vw-3rem))] md:bottom-6"
       role="alert"
       aria-label="Çerez İzni"
     >

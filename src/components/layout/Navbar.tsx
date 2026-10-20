@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, ChevronDown, MapPin, Menu, UserRoundPlus, UsersRound, X } from "lucide-react";
+import { LifeBuoy, MapPin, Menu, UserRound, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes, type NavigationLink } from "@/lib/constants/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -38,7 +37,7 @@ const headerNavigationLinks: NavigationLink[] = [
   {
     href: appRoutes.trust,
     id: "trust",
-    label: "Güven",
+    label: "Neden FUWU?",
   },
   {
     href: "/#contact",
@@ -64,9 +63,6 @@ function getUserDisplayName(profile: CurrentUserProfile | null, fallback: string
   return profile?.full_name?.trim() || fallback;
 }
 
-function getAvatarInitial(displayName: string) {
-  return displayName.trim().charAt(0).toLocaleUpperCase("tr-TR") || "?";
-}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -80,14 +76,14 @@ export function Navbar() {
     () => getUserDisplayName(userProfile, t("nav.account")),
     [t, userProfile],
   );
-  const userAvatarInitial = useMemo(() => getAvatarInitial(userDisplayName), [userDisplayName]);
+
   const mobileNavigationLinks = useMemo(() => {
     const links: NavigationLink[] = [
       ...headerNavigationLinks,
       {
         href: appRoutes.providerApplication,
         id: "provider-application",
-        label: "Usta Ol",
+        label: "Hizmet Veren Ol",
       },
     ];
 
@@ -184,16 +180,19 @@ export function Navbar() {
       }
     }
 
-    function handleScroll() {
-      setIsMenuOpen(false);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+        navRef.current?.querySelector<HTMLButtonElement>("[aria-controls='mobile-navigation-menu']")?.focus();
+      }
     }
 
     document.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMenuOpen]);
 
@@ -222,199 +221,43 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[rgba(10,37,64,0.08)] bg-white/88 shadow-[0_10px_30px_-24px_rgba(10,37,64,0.35)] backdrop-blur-xl">
-      <Container className="max-w-[1536px] py-3 xl:py-0">
-        <nav
-          className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 xl:h-[64px]"
-          ref={navRef}
-        >
-          <Link
-            aria-label={t("nav.logo")}
-            className="inline-flex min-h-11 min-w-0 cursor-pointer items-center rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 xl:min-h-0"
-            href={appRoutes.home}
-            onClick={() => handleMenuLinkClick(appRoutes.home)}
-          >
+    <header className="site-header">
+      <Container className="site-header-container">
+        <nav aria-label="Ana navigasyon" className="site-header-nav" ref={navRef}>
+          <Link aria-label={t("nav.logo")} className="site-logo-link" href={appRoutes.home} onClick={() => handleMenuLinkClick(appRoutes.home)}>
             <FuwuLogo size="sm" />
           </Link>
-
-          <div className="hidden min-w-0 items-center justify-center gap-6 xl:flex">
-            {headerNavigationLinks.map((item) => {
-              const isActive = isActiveLink(item.href);
-
-              return (
-                <Link
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "relative inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap px-1 text-sm font-bold leading-5 text-[var(--brand-navy)] transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-center after:scale-x-0 after:rounded-full after:bg-[var(--brand-orange)] after:transition-transform hover:text-[var(--brand-orange-dark)] hover:after:scale-x-100 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
-                    isActive ? "after:scale-x-100" : undefined,
-                  )}
-                  href={item.href}
-                  key={item.id}
-                  onClick={() => setActiveHref(item.href)}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+          <div className="site-desktop-links">
+            {headerNavigationLinks.map((item) => (
+              <Link aria-current={isActiveLink(item.href) ? "page" : undefined} className={cn("site-nav-link", isActiveLink(item.href) && "is-active")} href={item.href} key={item.id} onClick={() => setActiveHref(item.href)}>{item.label}</Link>
+            ))}
           </div>
-
-          <div className="hidden min-w-0 shrink-0 items-center gap-2 xl:flex">
-            <Link
-              className="inline-flex h-10 min-h-10 items-center gap-2 rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,101,0,0.32)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              href={appRoutes.providers}
-            >
-              <MapPin aria-hidden="true" className="size-4" />
-              İstanbul
-              <ChevronDown aria-hidden="true" className="size-3.5" />
-            </Link>
-
-            {isAuthLoading ? (
-              <div aria-hidden="true" className="size-10 rounded-md bg-[var(--surface-soft)]" />
-            ) : userProfile ? (
-              <NotificationBell className="shrink-0" userId={userProfile.id} />
-            ) : (
-              <Link
-                aria-label="Bildirimleri görmek için giriş yap"
-                className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:border-[rgba(255,101,0,0.46)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                href={appRoutes.login}
-                title="Bildirimler"
-              >
-                <Bell className="size-5" aria-hidden="true" />
-                <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--brand-orange)]" />
+          <Link className="site-mobile-location" href={appRoutes.providers}><MapPin aria-hidden="true" className="size-3.5 shrink-0" />İstanbul</Link>
+          <div className="site-desktop-actions">
+            <Link className="site-provider-link" href={appRoutes.providerApplication} onClick={() => setActiveHref(appRoutes.providerApplication)}>Hizmet Veren Ol</Link>
+            {!isAuthLoading && userProfile ? <NotificationBell className="shrink-0" userId={userProfile.id} /> : null}
+            {isAuthLoading ? <span aria-hidden="true" className="site-account-placeholder" /> : (
+              <Link className="site-account-link" href={userProfile ? (userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account) : appRoutes.login} title={userProfile ? userDisplayName : undefined}>
+                <UserRound aria-hidden="true" className="size-4 shrink-0" /><span>{userProfile ? userDisplayName : "Giriş Yap"}</span>
               </Link>
             )}
-
-            <Button
-              aria-current={isActiveLink(appRoutes.providerApplication) ? "page" : undefined}
-              className="h-10 min-h-10 gap-2 whitespace-nowrap rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-4 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-0 hover:bg-[var(--brand-orange-soft)]"
-              href={appRoutes.providerApplication}
-              onClick={() => setActiveHref(appRoutes.providerApplication)}
-              variant="secondary"
-            >
-              <UserRoundPlus aria-hidden="true" className="size-4" />
-              Usta Ol
-            </Button>
-            <Button
-              aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
-              className="h-10 min-h-10 gap-2 whitespace-nowrap rounded-md px-4"
-              href={appRoutes.providers}
-              onClick={() => setActiveHref(appRoutes.providers)}
-            >
-              <UsersRound aria-hidden="true" className="size-4" />
-              Usta Bul
-            </Button>
-
-            {!isAuthLoading && userProfile ? (
-              <Button
-                aria-label={`${userDisplayName} profiline git`}
-                className="h-10 min-h-10 w-[9.25rem] min-w-0 shrink-0 justify-start gap-2 rounded-md border border-[rgba(10,37,64,0.1)] bg-white px-3 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-0 hover:bg-[var(--brand-orange-soft)]"
-                href={userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account}
-                onClick={() =>
-                  setActiveHref(
-                    userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account,
-                  )
-                }
-                title={userDisplayName}
-                variant="plain"
-              >
-                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-navy)] text-xs font-bold text-white">
-                  {userAvatarInitial}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-left">{userDisplayName}</span>
-              </Button>
-            ) : null}
           </div>
-
-          <div className="flex shrink-0 items-center gap-2 xl:hidden">
-            {!isAuthLoading && userProfile ? (
-              <NotificationBell panelAlign="right" userId={userProfile.id} />
-            ) : (
-              <Link
-                aria-label="Bildirimleri görmek için giriş yap"
-                className="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                href={appRoutes.login}
-              >
-                <Bell className="size-5" aria-hidden="true" />
-              </Link>
+          <div className="site-mobile-actions">
+            {!isAuthLoading && userProfile ? <NotificationBell panelAlign="right" userId={userProfile.id} /> : (
+              <Link aria-label="Hesabınıza giriş yapın" className="site-icon-button" href={appRoutes.login}><UserRound aria-hidden="true" className="size-5" /></Link>
             )}
-            <Button
-              aria-current={isActiveLink(appRoutes.providers) ? "page" : undefined}
-              className="h-11 min-h-11 gap-1.5 whitespace-nowrap rounded-md px-3 text-sm sm:px-4"
-              href={appRoutes.providers}
-              onClick={() => setActiveHref(appRoutes.providers)}
-            >
-              <UsersRound aria-hidden="true" className="size-4" />
-              Usta Bul
-            </Button>
-            <button
-              aria-controls="mobile-navigation-menu"
-              aria-expanded={isMenuOpen}
-              aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-              className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-[rgba(10,37,64,0.1)] bg-white text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
-              type="button"
-            >
-              {isMenuOpen ? (
-                <X aria-hidden="true" className="size-5" />
-              ) : (
-                <Menu aria-hidden="true" className="size-5" />
-              )}
+            <button aria-controls="mobile-navigation-menu" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")} className="site-icon-button" onClick={() => setIsMenuOpen((value) => !value)} type="button">
+              {isMenuOpen ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}
             </button>
           </div>
-
           {isMenuOpen ? (
-            <div
-              className="absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 max-h-[min(58vh,24rem)] overflow-y-auto rounded-lg border border-[rgba(10,37,64,0.1)] bg-white py-2 shadow-[var(--shadow-elevated)] xl:hidden"
-              id="mobile-navigation-menu"
-            >
-              <div className="grid gap-1 px-2">
-                <Link
-                  className="mb-1 flex min-h-11 items-center gap-2 rounded-md border border-[rgba(10,37,64,0.08)] bg-[var(--surface-soft)] px-3.5 py-2.5 text-sm font-bold text-[var(--brand-navy)]"
-                  href={appRoutes.providers}
-                  onClick={() => handleMenuLinkClick(appRoutes.providers)}
-                >
-                  <MapPin aria-hidden="true" className="size-4 text-[var(--brand-orange)]" />
-                  İstanbul
-                </Link>
-
-                {mobileNavigationLinks.map((item) => {
-                  const isActive = isActiveLink(item.href);
-                  const itemClassName = cn(
-                    "flex min-h-11 cursor-pointer select-none items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-bold leading-5 transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-1",
-                    isActive
-                      ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]"
-                      : "text-[var(--brand-navy)]",
-                  );
-
-                  if (item.href === "#logout") {
-                    return (
-                      <button
-                        className={itemClassName}
-                        key={item.id}
-                        onClick={handleLogout}
-                        type="button"
-                      >
-                        <span className="min-w-0 truncate">{item.label}</span>
-                      </button>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      aria-current={isActive ? "page" : undefined}
-                      className={itemClassName}
-                      href={item.href}
-                      key={item.id}
-                      onClick={() => handleMenuLinkClick(item.href)}
-                    >
-                      <span className="min-w-0 truncate">{item.label}</span>
-                      {isActive ? (
-                        <span className="h-2 w-2 rounded-full bg-[var(--brand-orange)]" />
-                      ) : null}
-                    </Link>
-                  );
-                })}
-              </div>
+            <div className="site-mobile-menu" id="mobile-navigation-menu">
+              {mobileNavigationLinks.map((item) => item.href === "#logout" ? (
+                <button className="site-menu-link" key={item.id} onClick={handleLogout} type="button">{item.label}</button>
+              ) : (
+                <Link aria-current={isActiveLink(item.href) ? "page" : undefined} className={cn("site-menu-link", isActiveLink(item.href) && "is-active")} href={item.href} key={item.id} onClick={() => handleMenuLinkClick(item.href)}>{item.label}</Link>
+              ))}
+              <button className="site-menu-link gap-2" onClick={() => { setIsMenuOpen(false); window.dispatchEvent(new Event("fuwu:open-support")); }} type="button"><LifeBuoy aria-hidden="true" className="size-4 shrink-0" />Yardım ve Destek</button>
             </div>
           ) : null}
         </nav>

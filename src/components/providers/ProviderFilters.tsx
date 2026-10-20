@@ -418,7 +418,7 @@ export function ProviderFilters({
         value={sortValue}
       />
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(210px,1.1fr)_minmax(190px,1fr)_minmax(220px,1fr)_auto_auto] lg:items-end">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-end xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
         <FilterField label={t("filters.service")}>
           <select
             className={selectedSelectClassName(Boolean(values?.category))}

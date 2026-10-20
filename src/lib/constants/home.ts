@@ -54,9 +54,9 @@ export const homeCopy = {
   },
   providers: {
     eyebrow: "Öne çıkan ustalar",
-    title: "Karar vermeyi kolaylaştıran profil kartları.",
+    title: "İhtiyacınıza uygun ustaları tanıyın.",
     description:
-      "Gerçek verisi olan profiller; uzmanlık, ilçe, puan, yorum ve doğrulama bilgileriyle listelenir.",
+      "Bölgenizde hizmet veren ustaların uzmanlıklarını ve profillerinde paylaştıkları bilgileri inceleyin.",
     emptyTitle: "Henüz yayında doğrulanmış usta bulunmuyor.",
     emptyDescription:
       "Canlı profiller onaylandığında burada görünür. Şimdilik hizmetini seçip talep oluşturabilirsin.",

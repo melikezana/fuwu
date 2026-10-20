@@ -12,9 +12,9 @@ import {
 import { getRequestFormInsights } from "@/services/requests";
 
 export const metadata: Metadata = {
-  title: "Hizmeti Satın Al",
+  title: "Hizmet Talebi Oluştur",
   description:
-    "Fuwu premium hizmet satın alma akışı servis, adres, zaman, özet ve ödeme adımlarıyla hazırlanır.",
+    "İhtiyacınız olan hizmeti seçin, adres ve tarih bilgilerinizi ekleyerek FUWU hizmet talebinizi oluşturun.",
 };
 
 export const dynamic = "force-dynamic";
@@ -88,18 +88,18 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
               <FuwuLogo size="lg" />
             </Link>
             <p className="mt-2 text-xs md:mt-7 md:text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-              {isProviderProfileCheckout ? "Provider checkout" : "Premium checkout"}
+              Randevunuzu planlayın
             </p>
             <h1 className="mt-1 md:mt-4 max-w-4xl text-2xl font-extrabold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl md:text-5xl">
               {isProviderProfileCheckout
                 ? `${initialProviderName || "Seçtiğin usta"} için randevunu planla.`
-                : "Hizmetini seç, randevunu planla, ödemeye geç."}
+                : "Hizmetinizi seçin, randevunuzu planlayın."}
             </h1>
             <RequestSlogan />
             <p className="mt-2 md:mt-5 max-w-3xl text-xs sm:text-base font-semibold leading-relaxed text-[var(--muted)] sm:leading-8">
               {isProviderProfileCheckout
-                ? "Profil üzerinden başladığın için servis seçimi tamamlandı; tarih, saat, ek hizmetler, adres, notlar, özet ve online ödeme adımlarıyla devam et."
-                : "Hizmeti seç, tarihi belirle, ödemeni güvenle tamamla — hepsi tek ekranda."}
+                ? "Seçtiğiniz usta için tarih, saat, adres ve iş detaylarını ekleyin. Özeti ve ödeme seçeneklerini kontrol ederek devam edin."
+                : "Hizmetinizi, adresinizi ve tarihinizi seçin. Özeti ve ödeme seçeneklerini kontrol ederek devam edin."}
             </p>
           </div>
           <div className="hidden md:grid gap-3 sm:grid-cols-3 lg:grid-cols-1">

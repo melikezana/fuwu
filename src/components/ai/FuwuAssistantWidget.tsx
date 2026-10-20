@@ -2,7 +2,7 @@
 
 import { Bot, LifeBuoy, Mail, Send, Sparkles, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FuwuAssistantPanel } from "./FuwuAssistantPanel";
 
@@ -160,6 +160,15 @@ export function FuwuAssistantWidget() {
   const [supportDraft, setSupportDraft] = useState<SupportDraft>({});
   const hasMobileContactBar = /^\/providers\/[^/]+/.test(pathname ?? "");
 
+  useEffect(() => {
+    function openSupport() {
+      setView("menu");
+      setIsOpen(true);
+    }
+    window.addEventListener("fuwu:open-support", openSupport);
+    return () => window.removeEventListener("fuwu:open-support", openSupport);
+  }, []);
+
   function closeWidget() {
     setIsOpen(false);
     window.setTimeout(() => setView("menu"), 180);
@@ -256,7 +265,7 @@ export function FuwuAssistantWidget() {
           <button
             aria-label="Fuwu Akıllı Asistan destek panelini aç"
             aria-expanded={isOpen}
-            className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--brand-navy)] px-4 text-white shadow-[var(--shadow-elevated)] transition-all hover:-translate-y-0.5 hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+            className="hidden min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--brand-navy)] px-4 text-white shadow-[var(--shadow-elevated)] transition-colors hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:inline-flex"
             onClick={() => setIsOpen(true)}
             type="button"
           >

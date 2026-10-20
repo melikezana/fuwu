@@ -3,6 +3,7 @@
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   CalendarDays,
   Camera,
@@ -24,7 +25,6 @@ import {
   createEmergencyRequestAction,
   createServiceRequestAction,
 } from "@/app/request/actions";
-import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Button } from "@/components/ui/Button";
 import { appRoutes } from "@/lib/constants/navigation";
 import { providerBudgetOptions, providerDistricts } from "@/lib/constants/providers";
@@ -34,6 +34,7 @@ import {
   type Service,
 } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
+import { getServicePhoto } from "@/lib/service-photos";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { trackMetaLead, trackRequestCreated } from "@/services/analytics";
@@ -158,24 +159,24 @@ const initialFormState: RequestFormState = {
 };
 
 const checkoutSteps: CheckoutStep[] = [
-  { id: "service", icon: ShoppingBag, kicker: "1", title: "Service" },
-  { id: "date", icon: CalendarDays, kicker: "2", title: "Date" },
-  { id: "time", icon: Clock3, kicker: "3", title: "Time" },
-  { id: "extras", icon: PackagePlus, kicker: "4", title: "Extra Services" },
-  { id: "address", icon: MapPin, kicker: "5", title: "Address" },
-  { id: "notes", icon: Camera, kicker: "6", title: "Notes & Photos" },
-  { id: "summary", icon: ReceiptText, kicker: "7", title: "Order Summary" },
-  { id: "payment", icon: CreditCard, kicker: "8", title: "Payment" },
+  { id: "service", icon: ShoppingBag, kicker: "1", title: "Hizmet" },
+  { id: "date", icon: CalendarDays, kicker: "2", title: "Tarih" },
+  { id: "time", icon: Clock3, kicker: "3", title: "Saat" },
+  { id: "extras", icon: PackagePlus, kicker: "4", title: "Ek Hizmetler" },
+  { id: "address", icon: MapPin, kicker: "5", title: "Adres" },
+  { id: "notes", icon: Camera, kicker: "6", title: "Not / Fotoğraf" },
+  { id: "summary", icon: ReceiptText, kicker: "7", title: "Özet" },
+  { id: "payment", icon: CreditCard, kicker: "8", title: "Ödeme" },
 ];
 
 const providerProfileCheckoutSteps: CheckoutStep[] = [
-  { id: "date", icon: CalendarDays, kicker: "1", title: "Date" },
-  { id: "time", icon: Clock3, kicker: "2", title: "Time" },
-  { id: "extras", icon: PackagePlus, kicker: "3", title: "Extras" },
-  { id: "address", icon: MapPin, kicker: "4", title: "Address" },
-  { id: "notes", icon: Camera, kicker: "5", title: "Notes / Photos" },
-  { id: "summary", icon: ReceiptText, kicker: "6", title: "Order Summary" },
-  { id: "payment", icon: CreditCard, kicker: "7", title: "Payment" },
+  { id: "date", icon: CalendarDays, kicker: "1", title: "Tarih" },
+  { id: "time", icon: Clock3, kicker: "2", title: "Saat" },
+  { id: "extras", icon: PackagePlus, kicker: "3", title: "Ek Hizmetler" },
+  { id: "address", icon: MapPin, kicker: "4", title: "Adres" },
+  { id: "notes", icon: Camera, kicker: "5", title: "Not / Fotoğraf" },
+  { id: "summary", icon: ReceiptText, kicker: "6", title: "Özet" },
+  { id: "payment", icon: CreditCard, kicker: "7", title: "Ödeme" },
 ];
 
 const urgencyOptions: Array<{
@@ -892,7 +893,7 @@ function OrderSummaryPanel({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-            Order Summary
+            Hizmet detayları
           </p>
           <h2 className="mt-2 text-2xl font-extrabold leading-tight text-[var(--brand-navy)]">
             Sipariş özeti
@@ -948,7 +949,7 @@ function OrderSummaryPanel({
         </div>
         <div className="flex items-end justify-between gap-3 border-t border-[rgba(10,37,64,0.12)] pt-4">
           <span className="text-sm font-bold uppercase tracking-normal text-[var(--brand-navy)]">
-            Total amount
+            Toplam tutar
           </span>
           <span className="text-3xl font-extrabold leading-none text-[var(--brand-navy)]">
             {formatPrice(total)}
@@ -1410,21 +1411,21 @@ export function RequestForm({
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_410px]">
         <div className="flex min-w-0 flex-col gap-5">
-          <div className="rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-5 shadow-[var(--shadow-elevated)] sm:p-6">
+          <div className="request-overview rounded-lg border border-[rgba(249,115,22,0.22)] bg-[var(--gradient-warm-surface)] p-5 shadow-[var(--shadow-elevated)] sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-2xl">
                 <p className="text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
-                  {isProviderProfileCheckout ? "Provider checkout" : "Premium checkout"}
+                  Hizmet talebi
                 </p>
                 <h2 className="mt-3 text-3xl font-extrabold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                   {isProviderProfileCheckout
-                    ? "Tarih seç, randevunu netleştir."
-                    : "Hizmeti satın al, randevunu netleştir."}
+                    ? "Randevu detaylarınızı tamamlayın."
+                    : "Hizmet detaylarınızı tamamlayın."}
                 </h2>
                 <p className="mt-3 text-base font-semibold leading-7 text-[var(--muted)]">
                   {isProviderProfileCheckout
                     ? `${initialProviderNameValue || "Seçtiğin usta"} için servis seçimini geçip doğrudan randevu ve ödeme adımlarına devam et.`
-                    : "Servisi, adresi, zamanı ve ödeme tercihini tek akışta tamamla."}
+                    : "Adımları tamamlayın, ödeme öncesinde özetinizi kontrol edin."}
                 </p>
               </div>
               <div className="rounded-lg bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(10,37,64,0.08)]">
@@ -1435,7 +1436,7 @@ export function RequestForm({
 
             {hasSmartMatchPrefill && !isProviderProfileCheckout ? (
               <p className="mt-4 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-                Hızlı Eşleşme seçimlerin checkout akışına eklendi.
+                Hizmet ve konum seçimleriniz forma eklendi.
               </p>
             ) : null}
 
@@ -1448,7 +1449,7 @@ export function RequestForm({
             <ol
               aria-label="Rezervasyon adımları"
               className={cn(
-                "mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4",
+                "request-progress mt-5 grid grid-cols-4 gap-2",
                 isProviderProfileCheckout ? "xl:grid-cols-7" : "xl:grid-cols-8",
               )}
             >
@@ -1460,6 +1461,7 @@ export function RequestForm({
                 return (
                   <li key={step.id}>
                     <button
+                      aria-current={isActive ? "step" : undefined}
                       className={cn(
                         "flex min-h-14 w-full items-center gap-2 rounded-md border px-3 text-left text-xs font-extrabold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2",
                         isActive
@@ -1615,7 +1617,7 @@ export function RequestForm({
                 return (
                   <label
                     className={cn(
-                      "flex h-full min-h-44 cursor-pointer flex-col rounded-lg border bg-white p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
+                      "request-service-option cursor-pointer rounded-lg border bg-white transition-colors duration-200 focus-within:ring-2 focus-within:ring-[var(--brand-orange)] focus-within:ring-offset-2",
                       isSelected
                         ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] shadow-[var(--shadow-action)] ring-2 ring-[rgba(255,138,0,0.16)]"
                         : "border-[var(--border)] hover:-translate-y-0.5 hover:border-[var(--brand-orange)] hover:shadow-[var(--shadow-card)]",
@@ -1632,16 +1634,16 @@ export function RequestForm({
                       type="radio"
                       value={value}
                     />
-                    <span className="inline-flex size-11 items-center justify-center rounded-md bg-white text-[var(--brand-orange-dark)] ring-1 ring-[rgba(13,20,36,0.08)]">
-                      <ServiceIcon className="size-5" name={service.iconName} />
+                    <span className="request-service-photo">
+                      <Image alt="" className="object-cover" fill sizes="(max-width: 767px) 64px, 220px" src={getServicePhoto(service.id).src} style={{ objectPosition: getServicePhoto(service.id).position }} />
                     </span>
-                    <span className="mt-4 text-base font-extrabold text-[var(--brand-navy)]">
+                    <span className="request-service-title text-base font-bold text-[var(--brand-navy)]">
                       {service.title}
                     </span>
-                    <span className="mt-1 text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
+                    <span className="request-service-category text-xs font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
                       {service.category}
                     </span>
-                    <span className="mt-3 line-clamp-2 text-xs font-semibold leading-5 text-[var(--muted)]">
+                    <span className="request-service-description text-xs font-medium leading-5 text-[var(--muted)]">
                       {service.description}
                     </span>
                   </label>
@@ -2320,7 +2322,7 @@ export function RequestForm({
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-              Total amount
+              Toplam tutar
             </p>
             <p className="truncate text-xl font-extrabold text-[var(--brand-navy)]">
               {formatPrice(orderTotal)}

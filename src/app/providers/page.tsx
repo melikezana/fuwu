@@ -278,17 +278,17 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   ].filter(Boolean).length;
 
   return (
-    <div className="premium-page-shell">
+    <div className="premium-page-shell providers-page">
       <PageHeader
         actions={
           <Link
             className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[rgba(20,33,61,0.1)] bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.request}
           >
-            Hizmeti Satın Al
+            Talep Oluştur
           </Link>
         }
-        badge={source === "supabase" ? "Canlı veri" : "Veri bağlantısı bekleniyor"}
+        badge={source === "supabase" ? "Yayındaki profiller" : "Bilgiye ulaşılamıyor"}
         breadcrumbs={
           <>
             <Link className="inline-flex min-h-11 items-center hover:text-[var(--brand-navy)] sm:min-h-0" href={appRoutes.home}>
@@ -299,14 +299,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           </>
         }
         description={
-          <>
-            <I18nText i18nKey="providers.hero.subtitle" />{" "}
-            {source === "supabase" ? (
-              <I18nText i18nKey="providers.hero.liveNote" />
-            ) : (
-              <I18nText i18nKey="providers.hero.fallbackNote" />
-            )}
-          </>
+          <I18nText i18nKey="providers.hero.subtitle" />
         }
         eyebrow={<I18nText i18nKey="providers.hero.eyebrow" />}
         metrics={[
@@ -356,11 +349,14 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
             }}
             resultCount={filteredProviders.length}
           />
-          <LazyVoiceCommandButton
-            categories={filterOptions.categories}
-            districts={filterOptions.districts}
-            providers={filteredProviders}
-          />
+          <details className="provider-voice-search">
+            <summary>Sesli arama kullan</summary>
+            <LazyVoiceCommandButton
+              categories={filterOptions.categories}
+              districts={filterOptions.districts}
+              providers={filteredProviders}
+            />
+          </details>
         </Container>
       </section>
 
