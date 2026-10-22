@@ -43,6 +43,7 @@ function getNotifIcon(event: string) {
 
 function getNotifLabel(event: string) {
   const map: Record<string, string> = {
+    commerce_order_updated: "Sipariş güncellemesi",
     new_service_request_match: "Yeni talep eşleşmesi",
     provider_approved: "Hesap onaylandı",
     service_request_accepted: "Talep kabul edildi",

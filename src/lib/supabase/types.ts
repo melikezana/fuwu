@@ -694,6 +694,7 @@ export type Database = {
       };
       payments: {
         Row: {
+          external_operation_state: string;
           id: string;
           request_id: string;
           amount: number | null;
@@ -724,6 +725,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          external_operation_state?: string;
           id?: string;
           request_id: string;
           amount?: number | null;
@@ -754,6 +756,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          external_operation_state?: string;
           id?: string;
           request_id?: string;
           amount?: number | null;
@@ -899,7 +902,7 @@ export type Database = {
           provider_id: string | null;
           request_id: string | null;
           entity_id: string | null;
-          entity_type: "service_request" | "provider_application" | "provider";
+          entity_type: "service_request" | "provider_application" | "provider" | "order";
           type: string;
           event: string;
           title: string;

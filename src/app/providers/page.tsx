@@ -13,6 +13,7 @@ import {
   toTurkishTitleCase,
 } from "@/lib/seo";
 import { getProviderDirectory } from "@/services/providers";
+import { getCommerceCatalog } from "@/services/commerce";
 
 export const dynamic = "force-dynamic";
 
@@ -231,7 +232,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const selectedHasProfileImage = getSearchParam(params?.profile_image);
   const selectedHasReviews = getSearchParam(params?.reviews);
   const selectedVerified = getSearchParam(params?.verified);
-  const providerDirectory = await getProviderDirectory({
+  const [providerDirectory, catalog] = await Promise.all([getProviderDirectory({
     availability: selectedAvailability,
     category: selectedCategory,
     district: selectedDistrict,
@@ -247,7 +248,12 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     hasProfileImage: selectedHasProfileImage,
     hasReviews: selectedHasReviews,
     verified: selectedVerified,
-  });
+  }), getCommerceCatalog()]);
+  const purchases: Record<string, { priceMinor: number; href: string; serviceName: string }> = {};
+  if (!catalog.unavailable) for (const offer of catalog.offers) {
+    const service = catalog.services.find(s => s.id === offer.service_id);
+    if (service && (!purchases[offer.provider_id] || offer.price_minor < purchases[offer.provider_id].priceMinor)) purchases[offer.provider_id] = { priceMinor: offer.price_minor, serviceName: service.name + (offer.variant_name ? ` · ${offer.variant_name}` : ""), href: `/services/${service.slug}?${new URLSearchParams({ provider: offer.provider_id, ...(selectedDistrict ? { district: selectedDistrict } : {}) })}` };
+  }
   const { filterOptions, providers: filteredProviders, source } = providerDirectory;
   const categoryDistrictEmptyState =
     selectedCategory && selectedDistrict && filteredProviders.length === 0
@@ -328,6 +334,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
 
       <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
         <ProviderList
+          purchases={purchases}
           isUnavailable={source !== "supabase"}
           categoryDistrictEmptyState={categoryDistrictEmptyState}
           hasActiveFilters={activeFilterCount > 0 || Boolean(selectedSort && selectedSort !== defaultProviderSort)}

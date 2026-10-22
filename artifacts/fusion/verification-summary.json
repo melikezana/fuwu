@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-22",
+  "commitAtStart": "aa24dd0",
+  "groups": [
+    {
+      "name": "Database / RLS / concurrency",
+      "passed": 40,
+      "failed": 0,
+      "evidence": "database-tests.json"
+    },
+    {
+      "name": "Payment / mocked processor HTTP",
+      "passed": 23,
+      "failed": 0,
+      "evidence": "payment-tests.json"
+    },
+    {
+      "name": "OAuth / mocked Auth HTTP + real SSR cookies",
+      "passed": 25,
+      "failed": 0,
+      "evidence": "auth-tests.json"
+    },
+    {
+      "name": "Actual Next.js guest application",
+      "passed": 9,
+      "failed": 0,
+      "evidence": "app-browser-tests.json"
+    },
+    {
+      "name": "React component fixture UI",
+      "passed": 10,
+      "failed": 0,
+      "evidence": "components/browser-tests.json"
+    }
+  ],
+  "external": {
+    "googleOAuth": "BLOCKED",
+    "iyzicoSandbox": "BLOCKED",
+    "authenticatedSupabaseE2E": "BLOCKED",
+    "physicalMobileSafari": "NOT_RUN"
+  },
+  "deployment": "NOT_PERFORMED",
+  "productionDatabaseChanges": "NOT_PERFORMED",
+  "build": "PASS",
+  "typescript": "PASS",
+  "lint": "PASS",
+  "playwrightPassed": 7,
+  "viewportWidths": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ]
+}

@@ -141,6 +141,9 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function signOut(): Promise<void> {
   const supabase = getAuthClient();
   const { error } = await supabase.auth.signOut();
+  if (typeof window !== "undefined") {
+    try { Object.keys(sessionStorage).filter(key => key.startsWith("fuwu:commerce:")).forEach(key => sessionStorage.removeItem(key)); } catch { /* Optional browser storage. */ }
+  }
   
   if (error) {
     warnAuthError("Supabase sign out failed.", error);
@@ -218,6 +221,7 @@ export async function signInWithGoogle(redirectTo: string) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
+      scopes: "openid email profile",
       redirectTo: sanitizeAuthRedirectUrl(redirectTo),
     },
   });

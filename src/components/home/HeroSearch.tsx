@@ -19,7 +19,7 @@ export function HeroSearch({ categories, districts }: HeroSearchProps) {
   }
   return (
     <form action={appRoutes.catalog} aria-label="Hizmet arama" className="home-search" onSubmit={handleSubmit} role="search">
-      <label className="home-search-label" htmlFor="home-service-search">Hangi hizmete ihtiyacınız var?</label>
+      <label className="home-search-label" htmlFor="home-service-search">Hangi hizmete ihtiyacın var?</label>
       <div className="home-search-row">
         <div className="home-search-input">
           <Search aria-hidden="true" className="size-5 shrink-0" />

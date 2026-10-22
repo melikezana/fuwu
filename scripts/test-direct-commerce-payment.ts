@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { writeFileSync, mkdirSync } from "node:fs";
-import { assertSandbox, sandboxPaymentUrl, verifyCommercePayment } from "../src/lib/commerce/payment";
+import { assertSandbox, isVerifiedSettlement, sandboxPaymentUrl, verifyCommercePayment } from "../src/lib/commerce/payment";
 import type { CommerceOrder } from "../src/lib/commerce/types";
 import type { RetrieveIyzicoCheckoutResponse } from "../src/services/payments/iyzico-checkout";
-import { retrieveIyzicoCheckoutFormResult } from "../src/services/payments/iyzico-checkout";
+import { initializeIyzicoCheckoutForm, retrieveIyzicoCheckoutFormResult } from "../src/services/payments/iyzico-checkout";
 import { verifyIyzicoWebhookSignature } from "../src/services/payments/iyzico-client";
 import crypto from "node:crypto";
 
@@ -19,6 +19,9 @@ check("Verified failed result is a failed payment", () => assert.equal(verify({ 
 for (const [field, value] of Object.entries({ status: "failure", token: "other", conversationId: "other", basketId: "other", currency: "USD", price: 1, paidPrice: 1, paymentId: "", fraudStatus: 0, paymentStatus: "PENDING", itemTransactions: [] })) check(`Reject tampered or non-final ${field}`, () => assert.throws(() => verify({ ...valid, [field]: value })));
 check("Reject mismatched provider payout", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId: order.id, price:850, subMerchantPrice:850 }] })));
 check("Reject mismatched item identity", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId:"other", price:850, subMerchantPrice:765 }] })));
+const settlement = { status:"success", paymentTransactionId:"test-item", currency:"TRY", price:850 };
+check("Payout approval requires successful matching external transaction", () => { assert.equal(isVerifiedSettlement(settlement,"test-item","release"),true);assert.equal(isVerifiedSettlement({...settlement,paymentTransactionId:"other"},"test-item","release"),false);assert.equal(isVerifiedSettlement({...settlement,status:"failure"},"test-item","release"),false); });
+check("Refund requires matching external transaction, full amount and TRY", () => { assert.equal(isVerifiedSettlement(settlement,"test-item","refund",85000),true);for(const result of [{...settlement,currency:"USD"},{...settlement,price:1},{...settlement,price:undefined},{...settlement,paymentTransactionId:undefined},{...settlement,status:"pending"}])assert.equal(isVerifiedSettlement(result,"test-item","refund",85000),false); });
 const priorEnv = { url: process.env.IYZICO_BASE_URL, api: process.env.IYZICO_API_KEY, secret: process.env.IYZICO_SECRET_KEY };
 process.env.IYZICO_API_KEY = "local-test-key"; process.env.IYZICO_SECRET_KEY = "local-test-secret";
 process.env.IYZICO_BASE_URL = "https://api.iyzipay.com";
@@ -29,6 +32,14 @@ check("Hosted checkout only accepts known sandbox HTTPS origins", () => { assert
 check("Webhook signature rejects unsigned payloads and accepts exact HMAC", () => { const payload = { iyziEventType:"CHECKOUT_FORM_AUTH", iyziPaymentId:"test", token:"test-token", paymentConversationId:"test-conversation", status:"SUCCESS" }; const signature=crypto.createHmac("sha256","local-test-secret").update("local-test-secretCHECKOUT_FORM_AUTHtesttest-tokentest-conversationSUCCESS").digest("hex"); assert.equal(verifyIyzicoWebhookSignature({payload,signature}),true);assert.equal(verifyIyzicoWebhookSignature({payload,signature:null}),false);assert.equal(verifyIyzicoWebhookSignature({payload:{...payload,status:"FAILURE"},signature}),false); });
 const priorFetch = globalThis.fetch;
 try {
+  globalThis.fetch = async (input, init) => {
+    assert.equal(input,"https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/initialize/auth/ecom");
+    const body=JSON.parse(String(init?.body));assert.equal(body.currency,"TRY");assert.equal(body.price,850);assert.equal(body.paidPrice,850);assert.equal(body.basketItems[0].subMerchantPrice,765);assert.match((init?.headers as Record<string,string>).Authorization,/^IYZWSv2 /);
+    return Response.json({status:"success",token:"test-token",paymentPageUrl:"https://sandbox-cpp.iyzipay.com/test"});
+  };
+  const address={address:"TEST Mahallesi Sokak No 10",city:"İstanbul",contactName:"TEST Müşteri",country:"Turkey",zipCode:"34000"};
+  const initialized=await initializeIyzicoCheckoutForm({basketId:order.id,conversationId:"test-conversation",price:850,paidPrice:850,basketItems:[{id:order.id,name:"TEST Musluk montajı",category1:"Ev hizmetleri",itemType:"VIRTUAL",price:850,subMerchantKey:"test-submerchant",subMerchantPrice:765}],billingAddress:address,shippingAddress:address,buyer:{id:"test-customer",name:"Test",surname:"Müşteri",email:"test@fuwu.test",identityNumber:"11111111111",registrationAddress:address.address,ip:"127.0.0.1",city:"İstanbul",country:"Turkey",zipCode:"34000"},callbackUrl:"https://staging.fuwu.test/api/commerce/payment-callback"});
+  check("Sandbox initialization preserves server amount, TRY and 10 percent split (mock HTTP)",()=>assert.equal(initialized.token,"test-token"));
   globalThis.fetch = async (input, init) => {
     assert.equal(input,"https://sandbox-api.iyzipay.com/payment/iyzipos/checkoutform/auth/ecom/detail");
     const headers = init?.headers as Record<string,string>;
@@ -42,7 +53,7 @@ try {
   globalThis.fetch=priorFetch;
   for(const [key,value] of Object.entries({IYZICO_BASE_URL:priorEnv.url,IYZICO_API_KEY:priorEnv.api,IYZICO_SECRET_KEY:priorEnv.secret})) { if(value===undefined)delete process.env[key];else process.env[key]=value; }
 }
-mkdirSync("artifacts/direct-commerce",{recursive:true});writeFileSync("artifacts/direct-commerce/payment-tests.json",JSON.stringify({mode:"mock processor HTTP; no real sandbox transaction",checks},null,2));console.log(`${checks.length} local payment checks passed.`);
+const output=process.env.COMMERCE_OUTPUT_DIR || "artifacts/direct-commerce";mkdirSync(output,{recursive:true});writeFileSync(output+"/payment-tests.json",JSON.stringify({mode:"mock processor HTTP; no real sandbox transaction",checks},null,2));console.log(`${checks.length} local payment checks passed.`);
 
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

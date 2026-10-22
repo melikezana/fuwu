@@ -20,6 +20,7 @@ import { getPublicAppSettings } from "@/services/admin/settings";
 import "@/styles/globals.css";
 import "@/styles/marketplace.css";
 import "@/styles/commerce.css";
+import "@/styles/fusion.css";
 
 const inter = localFont({
   display: "swap",

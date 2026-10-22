@@ -11,6 +11,8 @@ import { SERVICE_REQUEST_STATUSES, normalizeServiceRequestStatus } from "@/lib/c
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
+import Link from "next/link";
+import { todayIstanbul } from "@/lib/commerce/display";
 
 export const dynamic = "force-dynamic";
 
@@ -42,12 +44,12 @@ function formatDisplayDate(value: string) {
 }
 
 function getTodayStr() {
-  return new Date().toISOString().split("T")[0];
+  return todayIstanbul();
 }
 
 function getTomorrowStr() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
+  const date = new Date(`${todayIstanbul()}T12:00:00+03:00`);
+  date.setUTCDate(date.getUTCDate() + 1);
   return date.toISOString().split("T")[0];
 }
 
@@ -142,7 +144,7 @@ export default async function ProviderCalendarPage() {
       statusTone={statusBadge.tone}
       title="Takvim"
     >
-      {providerAccess.ok && <ProviderCommerceSummary providerId={providerAccess.profile.id} />}
+      {providerAccess.ok && <><Link className="commerce-button mb-6" href="/provider-dashboard/store">Çalışma Saatleri ve İzin Günlerini Düzenle</Link><ProviderCommerceSummary providerId={providerAccess.profile.id} /></>}
       {providerAccess.ok ? (
         <div className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-3">

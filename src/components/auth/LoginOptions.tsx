@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { validateLoginEmailInput, validateLoginPhoneInput, validateLoginOtpInput } from "@/lib/validations";
 import { signInWithEmailMagicLink, signInWithGoogle, signInWithPhoneOtp, verifyPhoneOtp } from "@/services/auth";
 import { useRouter } from "next/navigation";
+import { oauthErrors } from "@/lib/auth/oauth";
 
 type LoginOptionKey = "google" | "email";
 
@@ -111,7 +112,9 @@ export function LoginOptions() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
-  const feedback = urlError || (feedbackText ?? t(feedbackKey));
+  const callbackFeedback = urlError && Object.hasOwn(oauthErrors, urlError)
+    ? oauthErrors[urlError as keyof typeof oauthErrors] : null;
+  const feedback = feedbackText ?? callbackFeedback ?? t(feedbackKey);
 
   function setTranslatedFeedback(key: TranslationKey) {
     setFeedbackKey(key);

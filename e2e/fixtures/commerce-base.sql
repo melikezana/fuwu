@@ -6,7 +6,7 @@ create schema auth;
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
 grant usage on schema auth,public to anon,authenticated,service_role;
 grant execute on function auth.uid() to anon,authenticated,service_role;
-create table public.profiles(id uuid primary key, role text not null);
+create table public.profiles(id uuid primary key, role text not null, created_at timestamptz not null default now());
 create function public.current_user_is_admin() returns boolean language sql stable security definer as $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin') $$;
 create table public.service_categories(id uuid primary key,name text,slug text,is_active boolean default true);
 create table public.districts(id uuid primary key,name text,is_active boolean default true);
@@ -14,8 +14,9 @@ create table public.providers(id uuid primary key,user_id uuid references public
 create table public.reviews(id uuid primary key default gen_random_uuid(),provider_id uuid references public.providers(id),user_id uuid references public.profiles(id),rating smallint,comment text,unique(provider_id,user_id));
 create table public.service_requests(id uuid primary key default gen_random_uuid(),assigned_provider_id uuid,accepted_provider_id uuid,status text,preferred_date date,preferred_time time);
 create table public.app_settings(key text primary key,value text);
+create table public.payments(id uuid primary key default gen_random_uuid(),status text,iyzico_payment_transaction_id text);
 grant select on public.providers,public.districts,public.service_categories,public.reviews to anon,authenticated;
-insert into public.profiles values
+insert into public.profiles(id,role) values
 ('00000000-0000-4000-8000-000000000001','customer'),
 ('00000000-0000-4000-8000-000000000002','customer'),
 ('00000000-0000-4000-8000-000000000003','provider'),
@@ -32,3 +33,17 @@ insert into public.providers(id,user_id,name,category_id) values
 ('30000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000004','TEST Klima Ustası','10000000-0000-4000-8000-000000000002'),
 ('30000000-0000-4000-8000-000000000003',null,'TEST Sahipsiz Profil','10000000-0000-4000-8000-000000000001');
 insert into public.app_settings values('commission_rate','10');
+
+create table public.audit_logs(id uuid primary key default gen_random_uuid(),actor_user_id uuid references profiles(id),entity_type text not null,entity_id uuid,action text not null,metadata jsonb not null default '{}',created_at timestamptz not null default now());
+alter table public.audit_logs enable row level security;
+create policy audit_admin on public.audit_logs for select to authenticated using(public.current_user_is_admin());
+alter table public.profiles enable row level security;
+create policy profiles_read on public.profiles for select to authenticated using(id=auth.uid() or public.current_user_is_admin());
+create policy profiles_update on public.profiles for update to authenticated using(id=auth.uid() or public.current_user_is_admin());
+grant select,insert,update on public.profiles to authenticated;
+grant select on public.audit_logs to authenticated;
+create table public.notifications(id uuid primary key default gen_random_uuid(),user_id uuid not null references profiles(id),recipient_user_id uuid not null references profiles(id),actor_user_id uuid references profiles(id),provider_id uuid references providers(id),request_id uuid references service_requests(id),entity_id uuid,entity_type text not null,type text not null,event text not null,title text not null,body text not null,message text not null,metadata jsonb not null default '{}',is_read boolean not null default false,created_at timestamptz not null default now(),updated_at timestamptz not null default now(),constraint notifications_entity_type_check check(entity_type in ('service_request','provider_application','provider')));
+alter table public.notifications enable row level security;
+create policy notification_read on public.notifications for select to authenticated using(user_id=auth.uid() or recipient_user_id=auth.uid() or public.current_user_is_admin());
+create policy notification_update on public.notifications for update to authenticated using(user_id=auth.uid() or recipient_user_id=auth.uid());
+grant select,insert,update on public.notifications to authenticated;

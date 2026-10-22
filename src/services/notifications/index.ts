@@ -101,7 +101,7 @@ type NotificationPayload = {
   actor_user_id: string | null;
   body: string;
   entity_id: string | null;
-  entity_type: "service_request" | "provider_application" | "provider";
+  entity_type: "service_request" | "provider_application" | "provider" | "order";
   event: NotificationEvent;
   is_read: boolean;
   message: string;

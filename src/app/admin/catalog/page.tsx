@@ -6,6 +6,7 @@ import { getAdminAccess } from "@/services/admin";
 import { getAdminCatalog } from "@/services/admin/catalog";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { CatalogManager } from "./CatalogManager";
+import { CommerceCatalogManager } from "@/components/admin/CommerceCatalogManager";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
   description: "Fuwu hizmet kategorileri ve ilçe yönetimi.",
 };
 
-export default async function AdminCatalogPage() {
+export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string }> }) {
+  const params = await searchParams;
   const adminAccess = await getAdminAccess();
 
   if (!adminAccess.ok && adminAccess.reason === "missing-session") {
@@ -35,6 +37,8 @@ export default async function AdminCatalogPage() {
         error={error}
         title="Hizmet Kataloğu"
       >
+        {params.commerce && <p className="commerce-notice" role="status">{params.commerce === "saved" ? "Hizmet ürünü kaydedildi." : "Ürün kaydedilemedi. Alanları, mevcut teklifleri ve yetkileri kontrol edin."}</p>}
+        <CommerceCatalogManager />
         <div className="grid gap-6 lg:grid-cols-2">
           <CatalogManager
             addLabel="Yeni kategori adı"

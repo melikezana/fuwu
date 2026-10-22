@@ -10,7 +10,7 @@ export const seoConfig = {
   titleTemplate: "%s | Fuwu",
   defaultTitle: "Fuwu | Ev Hizmetleri Platformu",
   defaultDescription:
-    "İstanbul’da tesisatçı, elektrikçi, temizlik ve ev hizmeti ustalarını karşılaştır; telefon veya WhatsApp ile direkt iletişime geç.",
+    "İstanbul’da evin için hizmet seç, ustaları karşılaştır, uygun gün ve saatte satın al. Randevularını ve siparişlerini FUWU ile takip et.",
   ogImagePath: "/og/fuwu-og-placeholder.svg",
   locale: "tr_TR",
 } as const;

@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type AdminNavKey =
+  | "marketplace"
   | "dashboard"
   | "users"
   | "providers"
@@ -79,6 +80,7 @@ const adminNavItems: Array<{
   key: AdminNavKey;
   label: string;
 }> = [
+  { href: "/admin/marketplace", icon: CreditCard, key: "marketplace", label: "Marketplace" },
   {
     href: "/admin",
     icon: LayoutDashboard,
@@ -159,7 +161,7 @@ const adminNavItems: Array<{
   },
 ];
 
-export const adminQuickNavItems = adminNavItems.slice(1);
+export const adminQuickNavItems = adminNavItems.filter(item => item.key !== "dashboard");
 
 export const adminActionIcons = {
   activate: Power,

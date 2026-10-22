@@ -79,7 +79,7 @@ export const navigationLinks: NavigationLink[] = [
   },
   {
     id: "trust",
-    label: "Fuwu Güvencesi",
+    label: "Neden FUWU?",
     href: appRoutes.trust,
   },
   {
@@ -112,7 +112,7 @@ export const footerLinks: NavigationLink[] = [
   },
   {
     id: "trust",
-    label: "Fuwu Güvencesi",
+    label: "Neden FUWU?",
     href: appRoutes.trust,
   },
   {

@@ -6,6 +6,7 @@ import type { Database } from "@/lib/supabase/types";
 import { getServerAuthContext } from "@/services/auth/server";
 import { initializeIyzicoCheckoutForm } from "@/services/payments/iyzico-checkout";
 import { PAYMENT_STATUSES } from "@/services/payments/constants";
+import { sandboxPaymentUrl } from "@/lib/commerce/payment";
 
 type CheckoutSupabaseClient = SupabaseClient<Database>;
 const processedIyzicoPaymentStatuses = new Set<string>([
@@ -85,6 +86,7 @@ function normalizeIyzicoPrice(amount: number) {
 }
 
 function parseCommissionRate(value: string | null | undefined) {
+  if (!value?.trim()) return 0.1;
   const parsedValue = Number(value?.replace(",", ".") ?? "");
 
   if (!Number.isFinite(parsedValue)) {
@@ -197,7 +199,7 @@ export async function POST(request: NextRequest) {
 
   const { data: existingPayment, error: existingPaymentError } = await supabase
     .from("payments")
-    .select("id, status")
+    .select("id, status, external_operation_state")
     .eq("request_id", requestId)
     .maybeSingle();
 
@@ -205,7 +207,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "payment_lookup_failed" }, { status: 500 });
   }
 
-  if (existingPayment && processedIyzicoPaymentStatuses.has(existingPayment.status)) {
+  if (existingPayment && (processedIyzicoPaymentStatuses.has(existingPayment.status) || existingPayment.external_operation_state !== "NONE")) {
     return NextResponse.json({ error: "payment_already_processed" }, { status: 409 });
   }
 
@@ -268,6 +270,8 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  if (!checkoutResponse.token || !checkoutResponse.paymentPageUrl) return NextResponse.json({ error: "payment_session_missing" }, { status: 502 });
+  checkoutResponse.paymentPageUrl = sandboxPaymentUrl(checkoutResponse.paymentPageUrl);
   const paymentPayload = {
     amount: totalAmount,
     commission_amount: commissionAmount,

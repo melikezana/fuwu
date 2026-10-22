@@ -3,6 +3,7 @@ import type { Database } from "@/lib/supabase/types";
 import { isUuid } from "@/lib/utils/validation";
 import { AppError, AuthError, handleServiceError, ValidationError } from "@/lib/errors";
 import { writeAuditLog } from "@/services/audit";
+import { isVerifiedSettlement } from "@/lib/commerce/payment";
 import {
   generateUniqueCustomerVerificationCode,
   normalizeCustomerVerificationCode,
@@ -300,6 +301,8 @@ export async function confirmTrackedPaymentForRequest({
       updated_at: now,
     })
     .eq("request_id", requestId)
+    .in("payment_method", ["cash", "iban"])
+    .eq("status", PAYMENT_STATUSES.pendingConfirmation)
     .select("id")
     .maybeSingle();
 
@@ -481,15 +484,18 @@ async function releaseIyzicoEscrowPayment({
     });
   }
 
+  const { data: claimed, error: claimError } = await supabase.rpc("commerce_claim_legacy_settlement", { p_payment_id: payment.id, p_kind: "release" });
+  if (claimError || !claimed) throw new AppError("payment-operation-pending", { code: "payment-operation-pending", publicMessage: "Hak ediş işlemi beklemede veya kurulum gerekli. Destek ekibiyle kontrol edin.", statusCode: 409 });
   try {
     const { approveIyzicoPaymentItem } = await import(
       "@/services/payments/iyzico-marketplace"
     );
 
-    await approveIyzicoPaymentItem({
+    const approval = await approveIyzicoPaymentItem({
       conversationId: payment.iyzico_conversation_id,
       paymentTransactionId: payment.iyzico_payment_transaction_id,
     });
+    if (!isVerifiedSettlement(approval, payment.iyzico_payment_transaction_id, "release")) throw new Error("unverified_payout_approval");
   } catch (error) {
     await markIyzicoEscrowFailed({
       actorUserId,
@@ -514,6 +520,7 @@ async function releaseIyzicoEscrowPayment({
       confirmed_by: actorUserId,
       escrow_released_at: now,
       escrow_released_by: actorUserId,
+      external_operation_state: "RELEASED",
       status: PAYMENT_STATUSES.escrowReleased,
       updated_at: now,
     })

@@ -36,6 +36,7 @@ function getNotificationBody(notification: NotificationRecord) {
 }
 
 function getNotificationHref(notification: NotificationRecord) {
+  if (notification.entity_type === "order" && notification.entity_id) return `/orders/${notification.entity_id}`;
   if (notification.request_id) {
     return `${appRoutes.orderTracking}/${notification.request_id}`;
   }

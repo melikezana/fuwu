@@ -15,7 +15,11 @@ export function minorAmount(value: unknown) {
   if ((typeof value !== "string" && typeof value !== "number") || value === "" || !Number.isFinite(Number(value)) || Number(value) < 0) return null;
   return Math.round(Number(value) * 100);
 }
-export function verifyCommercePayment(result: RetrieveIyzicoCheckoutResponse, order: CommerceOrder, token: string, conversation: string) {
+export function isVerifiedSettlement(result: { status?: string; paymentTransactionId?: string; currency?: string; price?: unknown }, itemId: string, kind: "release" | "refund", totalMinor = 0) {
+  return Boolean(itemId) && result.status === "success" && result.paymentTransactionId === itemId &&
+    (kind === "release" || (totalMinor > 0 && result.currency === "TRY" && minorAmount(result.price) === totalMinor));
+}
+export function verifyCommercePayment(result: RetrieveIyzicoCheckoutResponse, order: Pick<CommerceOrder, "id" | "total_minor" | "provider_gross_minor">, token: string, conversation: string) {
   if (result.status !== "success" && result.paymentStatus !== "FAILURE") throw new Error("payment_verification_failed");
   if (result.token !== token || result.conversationId !== conversation || result.basketId !== order.id || result.currency !== "TRY" || minorAmount(result.price) !== order.total_minor || minorAmount(result.paidPrice) !== order.total_minor) throw new Error("payment_verification_failed");
   if (result.paymentStatus !== "SUCCESS" && result.paymentStatus !== "FAILURE") throw new Error("payment_not_final");

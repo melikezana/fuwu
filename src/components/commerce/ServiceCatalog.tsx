@@ -5,17 +5,17 @@ import { useState } from "react";
 import { ArrowRight, Clock3, Search, ShoppingBag } from "lucide-react";
 import { money } from "@/lib/commerce/display";
 import type { CatalogService, PublicOffer } from "@/lib/commerce/types";
-export function ServiceCatalog({ services, offers, unavailable, initialSearch = "", district = "" }: { services: CatalogService[]; offers: PublicOffer[]; unavailable: boolean; initialSearch?: string; district?: string }) {
+export function ServiceCatalog({ services, offers, unavailable, initialSearch = "", district = "", featured = false }: { services: CatalogService[]; offers: PublicOffer[]; unavailable: boolean; initialSearch?: string; district?: string; featured?: boolean }) {
   const [query, setQuery] = useState(initialSearch);
   const [filter, setFilter] = useState("all");
   const visible = services.filter(s => (!query || `${s.name} ${s.description} ${s.scope} ${s.exclusions}`.toLocaleLowerCase("tr").includes(query.toLocaleLowerCase("tr"))) && (filter === "all" || s.pricing_type === filter));
   const serviceHref = (slug: string) => `/services/${slug}${district ? `?district=${encodeURIComponent(district)}` : ""}`;
   return <>
-    <div className="commerce-catalog-tools"><label className="commerce-search"><Search size={20} aria-hidden /><span className="sr-only">Hizmet ara</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Eviniz için neye ihtiyacınız var?" type="search" /></label><Link className="commerce-text-link" href="/orders">Siparişlerim <ArrowRight size={16} aria-hidden /></Link></div>
-    <div className="commerce-filters" aria-label="Fiyatlandırma türü">{[["all", "Tüm hizmetler"], ["FIXED_PRICE", "Sabit fiyatlı"], ["VARIANT_BASED", "Paket seçimi"], ["DIAGNOSTIC_SERVICE", "Keşif ve arıza tespiti"]].map(([id, label]) => <button type="button" key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}</div>
+    {!featured && <><div className="commerce-catalog-tools"><label className="commerce-search"><Search size={20} aria-hidden /><span className="sr-only">Hizmet ara</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Eviniz için neye ihtiyacınız var?" type="search" /></label><Link className="commerce-text-link" href="/orders">Siparişlerim <ArrowRight size={16} aria-hidden /></Link></div>
+    <div className="commerce-filters" aria-label="Fiyatlandırma türü">{[["all", "Tüm hizmetler"], ["FIXED_PRICE", "Sabit fiyatlı"], ["VARIANT_BASED", "Paket seçimi"], ["DIAGNOSTIC_SERVICE", "Keşif ve arıza tespiti"]].map(([id, label]) => <button type="button" key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}</div></>}
     {unavailable && <p className="commerce-notice" role="status">Hizmet kataloğunun bağlantısı henüz hazır değil. Hizmet kapsamlarını inceleyebilirsiniz; fiyat ve randevu bilgisi doğrulanana kadar satın alma kapalıdır.</p>}
     <div className="commerce-service-grid">{visible.map(service => {
-      const available = offers.filter(o => o.service_id === service.id);
+      const available = unavailable ? [] : offers.filter(o => o.service_id === service.id);
       const min = available.length ? Math.min(...available.map(o => o.price_minor)) : null;
       const minDuration = available.length ? Math.min(...available.map(o => o.duration_minutes)) : null;
       return <article className="commerce-service-card" key={service.id}>

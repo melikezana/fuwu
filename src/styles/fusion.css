@@ -1,0 +1,38 @@
+/* FUWU Fusion: shared mobile-first account and operations surfaces. */
+.commerce-journey-heading h2{color:#fffaf3}.commerce-panel,.commerce-summary,.commerce-service-card,.commerce-order-card{border-radius:12px}
+.home-quick-services a{min-height:44px}
+.fusion-hero-actions,.fusion-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:20px 0}
+.fusion-photo-note{position:absolute;bottom:-25px;right:0;color:#67645f;font-size:11px;line-height:1.6}
+.fusion-booking-progress{margin-bottom:24px;min-width:0}
+.fusion-booking-progress ol{display:flex;flex-wrap:wrap;gap:10px 16px;list-style:none;padding:0;margin:0}
+.fusion-booking-progress li{display:flex;align-items:center;gap:7px;font-size:12px;line-height:1.6;color:#65615a}
+.fusion-booking-progress li>span{display:grid;place-items:center;flex-shrink:0;width:25px;height:25px;border:1px solid #d6d1c9;border-radius:50%;font-weight:700}
+.fusion-booking-progress [aria-current=step]{color:#24221e;font-weight:700}.fusion-booking-progress [aria-current=step]>span{background:#ff6500;border-color:#ff6500;color:#211a14}
+.fusion-booking-progress .is-done>span{background:#edf5ed;border-color:#477b45;color:#315d30}
+.fusion-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+.fusion-tabs a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid #dedbd3;border-radius:8px;background:white;color:#514d46;font-size:13px;line-height:1.5;font-weight:600;overflow-wrap:anywhere}
+.fusion-tabs a[aria-current]{background:#fff0e5;border-color:#bd5009;color:#853a08}
+.fusion-tabs a:hover{border-color:#bd5009}.fusion-section-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin:24px 0 16px}
+.fusion-section-heading h2{font-size:clamp(20px,2.5vw,27px);line-height:1.3;font-weight:700;color:#26231e;letter-spacing:-.03em}
+.fusion-metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px;margin:20px 0}
+.fusion-metric-grid article{display:flex;flex-direction:column;gap:10px;min-width:0;padding:20px;border:1px solid #e4dfd6;border-radius:10px;background:white}
+.fusion-metric-grid article>span{font-size:12px;line-height:1.7;color:#655f56}.fusion-metric-grid article>strong{font-size:clamp(24px,3vw,30px);line-height:1.3;font-weight:700;color:#29251e;overflow-wrap:anywhere;letter-spacing:-.03em}
+.fusion-marketplace-metrics{min-width:0;margin-bottom:32px}.fusion-marketplace-metrics .commerce-sandbox{margin:16px 0}
+.fusion-operation-list{display:grid;gap:16px}.fusion-operation-list .commerce-panel{min-width:0}.fusion-operation-list .fusion-section-heading{margin-top:0}
+.fusion-health{margin:20px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px}
+.fusion-health>div{display:flex;flex-direction:column;gap:4px;min-width:0;padding:10px 0;border-bottom:1px solid #eeebe4}
+.fusion-health dt{font-size:12px;color:#696158;line-height:1.7}.fusion-health dd{margin:0;font-size:14px;font-weight:600;line-height:1.7;overflow-wrap:anywhere}
+.fusion-pagination{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:12px;margin:24px 0;font-size:13px;color:#655f56}
+.fusion-pagination a{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid #dedbd3;border-radius:8px;background:white;color:#2b2822}
+.fusion-filter{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:20px 0}.fusion-filter .commerce-field{min-width:0;flex:1;margin:0}
+.fusion-two-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.fusion-two-columns>*{min-width:0}
+.fusion-form{display:grid;gap:16px;max-width:600px}.fusion-form>.commerce-field{margin:0}.fusion-form>.commerce-button{justify-self:start}
+.fusion-saved-address{border-bottom:1px solid #e4dfd6;padding:20px 0;font-size:14px;line-height:1.8;overflow-wrap:anywhere}.fusion-saved-address h3{font-size:16px;font-weight:700;margin-bottom:8px}.fusion-saved-address form{margin-top:12px}
+.fusion-customer-hub>.commerce-text-link{margin-top:24px}.fusion-actions form{min-width:0}.fusion-actions button{white-space:normal;overflow-wrap:anywhere}
+.fusion-catalog-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.fusion-catalog-fields>.commerce-field{margin:0}.fusion-catalog-fields .fusion-wide{grid-column:1/-1}
+.fusion-featured-services{max-width:1240px;margin:44px auto;padding:0 28px}.fusion-featured-services .fusion-section-heading p{color:#68635b;font-size:14px;line-height:1.8;margin-top:10px}
+.fusion-saved-address-select{margin-bottom:16px}
+.fusion-tabs a:focus-visible,.fusion-pagination a:focus-visible,.fusion-hero-actions a:focus-visible{outline:3px solid #8a3c07;outline-offset:4px}
+@media(max-width:767px){.fusion-two-columns,.fusion-health,.fusion-catalog-fields{grid-template-columns:1fr}.fusion-tabs{gap:7px}.fusion-tabs a{flex:1 1 calc(50% - 7px);padding:11px 10px;font-size:12px}.fusion-section-heading{align-items:start}.fusion-metric-grid{gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}.fusion-metric-grid article{padding:16px}.fusion-metric-grid article>strong{font-size:24px}.fusion-hero-actions{margin-bottom:20px}.fusion-hero-actions a{font-size:12px;flex:1;min-width:0;text-align:center}.fusion-booking-progress ol{gap:8px 12px}.fusion-booking-progress li{font-size:11px}.fusion-featured-services{margin:30px auto;padding:0 18px}.fusion-photo-note{font-size:10px;bottom:-22px}.fusion-filter .commerce-secondary{width:100%}}
+@media(max-width:359px){.fusion-metric-grid{grid-template-columns:1fr}.fusion-hero-actions{flex-direction:column;align-items:stretch}.fusion-actions>*{width:100%}.fusion-actions button{width:100%}}
+.fusion-provider-purchase{border-top:1px solid #e4dfd6;margin-top:16px;padding-top:16px;font-size:13px;line-height:1.8}.fusion-provider-purchase .commerce-button{width:100%;margin-top:12px}

@@ -267,11 +267,11 @@ export default async function ProviderEarningsPage() {
       title="Kazançlar"
     >
       {providerAccess.ok && <ProviderCommerceSummary providerId={providerAccess.profile.id} earnings />}
-      {providerAccess.ok ? (
+      <details className="commerce-panel"><summary className="min-h-11 cursor-pointer font-semibold">Önceki talep modeline ait istatistikler</summary><p className="commerce-help">Aşağıdaki geçmiş talep tutarları, yukarıdaki yeni marketplace test siparişlerinden ayrıdır.</p>{providerAccess.ok ? (
         statsResult.stats ? <ProviderEarningsContent stats={statsResult.stats} /> : <StatsLoadError />
       ) : (
         <ProviderDashboardRestrictedAreaEmptyState />
-      )}
+      )}</details>
     </ProviderDashboardShell>
   );
 }

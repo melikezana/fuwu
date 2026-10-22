@@ -2,6 +2,8 @@
 
 Doğrulama tarihi: **20 Ekim 2026**.
 
+22 Ekim 2026 Fusion kontrolünde mevcut WebP fotoğraflar ve kaynak kayıtları korundu; Pexels lisans sayfası yeniden okundu. Yeni stok fotoğraf eklenmedi. Ana sayfada fotoğrafların hizmet tanıtımı için kullanılan stok görüntüler olduğu görünür biçimde belirtilir.
+
 Tüm fotoğraflar Pexels üzerinden seçildi. [Pexels lisansı](https://www.pexels.com/license/) ve [ticari kullanım açıklaması](https://help.pexels.com/hc/en-us/articles/360042295174-What-is-the-license-of-the-photos-and-videos-on-Pexels), ticari web sitesi/uygulama kullanımına, indirmeye ve uyarlamaya izin veriyor. Atıf zorunlu değil; kaynaklar burada korunuyor. Lisansın kişi/marka desteği ima etmeme, görüntüleri olduğu gibi yeniden satmama ve stok platformu olarak yeniden dağıtmama koşulları geçerli.
 
 Bunlar hizmet kategorilerini anlatan temsili stok fotoğraflarıdır; FUWU çalışanı, kayıtlı usta, müşteri, doğrulama rozeti veya kullanıcı değerlendirmesi olarak sunulmaz. Fotoğraflardaki kişilere isim, puan veya kurgu profil eklenmedi. Kullanıcının referans ekran görüntüleri lisanslı fotoğraf yerine kullanılmadı.

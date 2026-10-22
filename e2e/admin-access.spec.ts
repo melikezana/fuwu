@@ -8,7 +8,7 @@ test.describe("admin access", () => {
     await loginWithEmailMagicLink(page);
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.getByRole("heading", { name: "Hesabım" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Merhaba,/ })).toBeVisible();
   });
 
   test("admin session can see dashboard shell", async ({ page }) => {

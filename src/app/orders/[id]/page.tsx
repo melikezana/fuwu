@@ -5,6 +5,7 @@ import { assertSandbox } from "@/lib/commerce/payment";
 import { isSupabaseServiceRoleConfigured } from "@/lib/supabase/serviceRole";
 import { isUuid } from "@/lib/utils/validation";
 import { OrderView } from "@/components/commerce/OrderView";
+import type { OrderFinance } from "@/lib/commerce/finance";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Sipariş Takibi | FUWU", robots: { index: false, follow: false } };
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,11 +16,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { data: order, error } = await supabase.from("orders").select("*").eq("id", id).maybeSingle();
   if (error) return <div className="commerce-page"><p role="alert" className="commerce-notice">Siparişe şu anda ulaşılamıyor. Lütfen yeniden deneyin.</p></div>;
   if (!order) notFound();
-  const [{ data: events }, { data: code }, { data: provider }] = await Promise.all([
+  const [{ data: events }, { data: code }, { data: provider }, { data: finance }, { data: review }] = await Promise.all([
     supabase.from("order_status_events").select("*").eq("order_id", id).order("created_at"),
     supabase.from("order_completion_codes").select("code").eq("order_id", id).maybeSingle(),
     supabase.from("providers").select("id").eq("id", order.provider_id).eq("user_id", user.id).maybeSingle(),
+    supabase.rpc("commerce_order_finance", { p_order_id: id }),
+    supabase.from("reviews").select("id").eq("provider_id", order.provider_id).eq("user_id", user.id).maybeSingle(),
   ]);
   let paymentReady = false; try { assertSandbox(); paymentReady = isSupabaseServiceRoleConfigured; } catch { /* Sandbox is explicitly unavailable. */ }
-  return <OrderView order={order} events={events ?? []} completionCode={code?.code ?? null} isProvider={Boolean(provider) && order.customer_id !== user.id} paymentReady={paymentReady} />;
+  return <OrderView order={order} events={events ?? []} completionCode={code?.code ?? null} isProvider={Boolean(provider) && order.customer_id !== user.id} readOnly={order.customer_id !== user.id && !provider} paymentReady={paymentReady} finance={finance as unknown as OrderFinance | null} hasReview={Boolean(review)} />;
 }

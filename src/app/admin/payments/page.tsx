@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Banknote, CreditCard, Landmark, RotateCcw, ShieldCheck } from "lucide-react";
 import { AdminPageShell } from "@/components/admin/AdminUI";
@@ -172,6 +173,7 @@ export default async function AdminPaymentsPage({
         error={error}
         title="Ödemeler & Finans"
       >
+        <section className="commerce-panel mb-6"><h2>Doğrudan satın alma ödemeleri</h2><p className="commerce-help">Yeni marketplace siparişlerinin test ödemeleri, iadeleri ve hak edişleri ayrı operasyon merkezindedir. Bu sayfanın devamı önceki hizmet taleplerinin ödeme kayıtlarını gösterir.</p><Link className="commerce-button" href="/admin/marketplace?view=payments">Marketplace Ödemelerini Aç</Link></section>
         <PaymentTrustPanel />
         <PaymentActionNotice code={paymentActionCode} />
 

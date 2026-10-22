@@ -5,6 +5,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database, Json } from "@/lib/supabase/types";
 import { createContentSecurityPolicyHeaderValue } from "@/lib/security/securityHeaders";
 import { writeAuditLog } from "@/services/audit";
+import { getRequestOrigin } from "@/lib/security/safeRedirect";
 
 const PROTECTED_PATHS = [
   "/admin",
@@ -150,11 +151,9 @@ function getAdminClaimFromRecord(
 function getAdminClaimFromJwt(accessToken: string): AdminClaimCheck {
   const claims = decodeJwtPayload(accessToken);
   const appMetadata = claims && isRecord(claims.app_metadata) ? claims.app_metadata : null;
-  const userMetadata = claims && isRecord(claims.user_metadata) ? claims.user_metadata : null;
   const claimSources: Array<[Record<string, unknown> | null, string]> = [
     [claims, "claims"],
     [appMetadata, "claims.app_metadata"],
-    [userMetadata, "claims.user_metadata"],
   ];
 
   for (const [record, source] of claimSources) {
@@ -208,14 +207,16 @@ async function writeUnauthorizedAdminAuditLog({
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const requestOrigin = getRequestOrigin(request);
   const securityContext = createRequestSecurityContext(request);
-  const response = nextWithSecurityHeaders(securityContext);
+  let response = nextWithSecurityHeaders(securityContext);
 
   const isProtected = PROTECTED_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 
-  if (!isProtected) {
+  const hasAuthCookie = request.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token"));
+  if (!isProtected && !hasAuthCookie) {
     return response;
   }
 
@@ -231,10 +232,15 @@ export async function middleware(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, cacheHeaders) {
+        for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
+        securityContext.requestHeaders.set("cookie", request.headers.get("cookie") ?? "");
+        response = nextWithSecurityHeaders(securityContext);
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options);
         }
+        for (const [name, value] of Object.entries(cacheHeaders ?? {})) response.headers.set(name, value);
+        response.headers.set("Cache-Control", "private, no-store");
       },
     },
   });
@@ -243,11 +249,19 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    const loginUrl = new URL("/login", request.nextUrl.origin);
-    loginUrl.searchParams.set("next", pathname);
-    return redirectWithSecurityHeaders(loginUrl, securityContext);
+  function sessionRedirect(url: URL) {
+    const redirect = redirectWithSecurityHeaders(url, securityContext);
+    for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+    redirect.headers.set("Cache-Control", "private, no-store");
+    return redirect;
   }
+
+  if (!user && isProtected) {
+    const loginUrl = new URL("/login", requestOrigin);
+    loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
+    return sessionRedirect(loginUrl);
+  }
+  if (!user) return response;
 
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
 
@@ -281,7 +295,7 @@ export async function middleware(request: NextRequest) {
       user,
     });
 
-    return redirectWithSecurityHeaders(new URL("/dashboard", request.nextUrl.origin), securityContext);
+    return sessionRedirect(new URL("/dashboard", requestOrigin));
   }
 
   const { data: isAdmin, error: adminRoleError } = await supabase.rpc(
@@ -296,7 +310,7 @@ export async function middleware(request: NextRequest) {
       user,
     });
 
-    return redirectWithSecurityHeaders(new URL("/dashboard", request.nextUrl.origin), securityContext);
+    return sessionRedirect(new URL("/dashboard", requestOrigin));
   }
 
   return response;

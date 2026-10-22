@@ -32,7 +32,7 @@ const paymentOptions: Array<{
   value: ServiceRequestPaymentPreference;
 }> = [
   {
-    description: "Ödeme emanet hesapta tutulur; kod doğrulanınca serbest bırakılır.",
+    description: "Ödeme sonucu kuruluş tarafından doğrulanır; sipariş durumunu hesabından takip edebilirsin.",
     label: "Online Ödeme",
     value: PAYMENT_PREFERENCES.onlineSoon,
   },
@@ -211,7 +211,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
                 aria-hidden
               />
               <p className="text-sm font-medium leading-6 text-[var(--muted)]">
-                Usta kabul edince müşteri doğrulama kodu hazırlanır. Ödeme kod doğrulanana kadar emanet hesapta kalır.
+                Müşteri hizmeti seçer, randevusunu planlar ve ödeme kuruluşuna yönlenir. Ödeme doğrulanınca sipariş kesinleşir.
               </p>
             </div>
           </section>

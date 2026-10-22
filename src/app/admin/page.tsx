@@ -45,6 +45,8 @@ import {
   normalizeServiceRequestStatus,
 } from "@/lib/constants/statuses";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
+import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
+import { getMarketplaceSummary } from "@/services/admin/marketplace";
 
 export const dynamic = "force-dynamic";
 
@@ -420,6 +422,7 @@ export default async function AdminDashboardPage() {
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
+  const marketplace = await getMarketplaceSummary();
 
   const overview = await getAdminOverviewMetrics();
   const reqAnalytics = await getRequestAnalytics();
@@ -432,10 +435,11 @@ export default async function AdminDashboardPage() {
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="dashboard"
-      description="Usta profilleri, başvurular ve hizmet talepleri için temel yönetim görünümü."
+      description="Sipariş, ödeme, komisyon ve usta operasyonlarını gerçek kayıtlarla takip edin."
       isConfigured={dashboard.isConfigured}
       title="Admin Paneli"
     >
+      <MarketplaceMetrics summary={marketplace} />
       {dashboard.error ? (
         <DashboardErrorState error={dashboard.error} />
       ) : (

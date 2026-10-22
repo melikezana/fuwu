@@ -6,6 +6,7 @@ type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 type AuditSupabaseClient = SupabaseClient<Database>;
 
 export type AuditAction =
+  | "commerce.operation_requested"
   | "admin.action_failed"
   | "ai_assistant.openai_failure"
   | "payment.confirmed"
@@ -40,6 +41,7 @@ export type AuditLogEvent = {
   actorUserId: string | null;
   entityId: string | null;
   entityType:
+    | "order"
     | "admin_action"
     | "ai_assistant"
     | "catalog"

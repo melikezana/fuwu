@@ -1,0 +1,73 @@
+{
+  "scope": "Read-only actual Next.js pages, guest session",
+  "widths": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "home at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "catalog at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "service at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "providers at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "login at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "Homepage service search",
+      "expected": "Catalogue receives the query",
+      "actual": "PASS"
+    },
+    {
+      "name": "Protected customer, provider and admin routes",
+      "expected": "Guests return to login with full next path",
+      "actual": "PASS"
+    },
+    {
+      "name": "Guest commerce mutations and unauthenticated cron",
+      "expected": "401",
+      "actual": "PASS"
+    },
+    {
+      "name": "Actual OAuth denial and malicious redirect",
+      "expected": "Actionable login error and safe internal next",
+      "actual": "PASS"
+    }
+  ],
+  "screenshots": [
+    "actual-home-390.png",
+    "actual-home-1440.png",
+    "actual-catalog-390.png",
+    "actual-catalog-1440.png",
+    "actual-service-390.png",
+    "actual-service-1440.png",
+    "actual-providers-390.png",
+    "actual-providers-1440.png",
+    "actual-login-390.png",
+    "actual-login-1440.png"
+  ],
+  "errors": [],
+  "failed": null
+}

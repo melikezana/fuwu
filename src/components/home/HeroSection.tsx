@@ -38,10 +38,10 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
         <div className="home-hero-grid">
           <div className="min-w-0">
             <p className="home-eyebrow"><MapPin aria-hidden="true" className="size-3.5" /> İstanbul’da evinize destek</p>
-            <h1 className="home-hero-title" id="home-title">Eviniz için ihtiyacınız olan tüm hizmetler <span>tek bir yerde.</span></h1>
-            <p className="home-hero-subtitle">Doğru usta, hızlı çözüm.</p>
-            <p className="home-hero-description">Hizmetini seç, fiyatı gör, uygun ustayla gün ve saatini planla. Siparişinin her adımı tek yerde.</p>
+            <h1 className="home-hero-title" id="home-title">Evin için ihtiyacın olan hizmet, <span>tam zamanında.</span></h1>
+            <p className="home-hero-description">Hizmetini seç, ustaları karşılaştır, sana uygun saatte satın al.</p>
             <HeroSearch categories={categories} districts={districts} />
+            <div className="fusion-hero-actions"><Link className="commerce-button" href="/services">Hizmetleri Keşfet <ArrowRight size={18} aria-hidden /></Link><Link className="commerce-secondary" href="/providers">Ustaları İncele <ArrowRight size={18} aria-hidden /></Link></div>
             <div aria-label="Sık aranan hizmetler" className="home-quick-services">
               <span>Sık aranan:</span>
               {quickServices.map((id) => {
@@ -54,6 +54,7 @@ export function HeroSection({ categories, districts }: HeroSectionProps) {
             <ServicePhoto className="home-photo-main" priority serviceId="cleaning" />
             <ServicePhoto className="home-photo-top" serviceId="painting" />
             <ServicePhoto className="home-photo-bottom" serviceId="plumbing" />
+            <span className="fusion-photo-note">Hizmetleri tanıtan stok fotoğraflar</span>
           </div>
         </div>
         <div className="home-benefits" aria-label="FUWU ile hizmet süreci">

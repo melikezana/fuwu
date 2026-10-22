@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
+import { checkApiRateLimit, getApiRateLimitHeaders, getRequestOrigin } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
@@ -31,7 +31,8 @@ export async function POST(request: NextRequest) {
     console.error("[Auth API] Sign out failed:", err);
   }
 
-  return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_SITE_URL ?? "https://fuwu-nine.vercel.app"), {
+  return NextResponse.redirect(new URL("/", getRequestOrigin(request)), {
     status: 303,
+    headers: { "Cache-Control": "private, no-store", "Clear-Site-Data": '"storage"' },
   });
 }

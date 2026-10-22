@@ -1,5 +1,5 @@
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
-import { assertSandbox, minorAmount } from "@/lib/commerce/payment";
+import { assertSandbox, isVerifiedSettlement } from "@/lib/commerce/payment";
 import { approveIyzicoPaymentItem, refundIyzicoPayment } from "@/services/payments/iyzico-marketplace";
 
 export async function processOrderSettlement(orderId: string, kind: "release" | "refund") {
@@ -14,8 +14,7 @@ export async function processOrderSettlement(orderId: string, kind: "release" | 
     const result = kind === "release"
       ? await approveIyzicoPaymentItem({ conversationId: `release-${orderId}`, paymentTransactionId: claim.item_transaction_id })
       : await refundIyzicoPayment({ conversationId: `refund-${orderId}`, paymentTransactionId: claim.item_transaction_id, price: claim.total_minor / 100 });
-    if (result.status !== "success" || result.paymentTransactionId !== claim.item_transaction_id) return;
-    if (kind === "refund" && (!("currency" in result) || result.currency !== "TRY" || !("price" in result) || minorAmount(result.price) !== claim.total_minor)) return;
+    if (!isVerifiedSettlement(result, claim.item_transaction_id, kind, claim.total_minor)) return;
     await db.rpc("commerce_finish_settlement", { p_order_id: orderId, p_kind: kind });
   } catch {
     // Preserve the durable claim and pending state for processor reconciliation.

@@ -14,6 +14,8 @@ import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { writeAuditLog } from "@/services/audit";
 import { PAYMENT_STATUSES } from "@/services/payments/constants";
 import { refundIyzicoPayment } from "@/services/payments/iyzico-marketplace";
+import { isVerifiedSettlement } from "@/lib/commerce/payment";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
@@ -385,14 +387,21 @@ export async function refundAdminIyzicoPayment(
     return { message: "İade tutarı için geçerli ödeme tutarı bulunamadı.", ok: false };
   }
 
+  const processorDb = createSupabaseServiceRoleClient();
+  if (!processorDb) return { message: "Ödeme sunucu yapılandırması eksik.", ok: false };
+  const { data: claimed, error: claimError } = await processorDb.rpc("commerce_claim_legacy_settlement", { p_payment_id: payment.id, p_kind: "refund" });
+  if (claimError || !claimed) return { message: "Bu ödeme için başka bir işlem var veya kurulum gerekli. Kuruluşla mutabakat yapın.", ok: false };
   try {
     const refundResponse = await refundIyzicoPayment({
       conversationId: payment.iyzico_conversation_id,
       paymentTransactionId: payment.iyzico_payment_transaction_id,
       price: normalizeRefundPrice(amount),
     });
+    if (!isVerifiedSettlement(refundResponse, payment.iyzico_payment_transaction_id, "refund", Math.round(amount * 100))) {
+      return { message: "İade sonucu doğrulanamadı. Ödeme kuruluşuyla mutabakat gerekiyor.", ok: false };
+    }
     const now = new Date().toISOString();
-    const { error: updateError } = await supabase
+    const { error: updateError } = await processorDb
       .from("payments")
       .update({
         escrow_refunded_at: now,
@@ -402,6 +411,7 @@ export async function refundAdminIyzicoPayment(
           refundResponse.paymentTransactionId ??
           null,
         status: PAYMENT_STATUSES.escrowRefunded,
+        external_operation_state: "REFUNDED",
         updated_at: now,
       })
       .eq("id", payment.id)

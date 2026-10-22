@@ -12,6 +12,8 @@ import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { getAdminAccess } from "@/services/admin";
 import { getAdminRevenueDashboard } from "@/services/admin/revenue";
 import { RevenueCharts } from "./RevenueCharts";
+import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
+import { getMarketplaceSummary } from "@/services/admin/marketplace";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +73,7 @@ export default async function AdminRevenuePage() {
   }
 
   const revenue = await getAdminRevenueDashboard();
+  const marketplace = await getMarketplaceSummary();
   const totalCommission = revenue.monthlyCommission.reduce(
     (sum, row) => sum + row.commissionRevenue,
     0,
@@ -95,6 +98,8 @@ export default async function AdminRevenuePage() {
         isConfigured={revenue.isConfigured}
         title="Gelir ve Büyüme"
       >
+        <MarketplaceMetrics summary={marketplace} />
+        <p className="commerce-notice">Aşağıdaki eski talep kayıtlarının ortam bilgisi bulunmuyor. Yeni marketplace sandbox işlemlerinden ayrıdır ve doğrulanmış muhasebe geliri olarak kullanılmamalıdır. GMV şirket geliri değildir.</p>
         <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
             label="12 Ay Komisyon"

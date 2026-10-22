@@ -11,6 +11,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { getServiceFilterValue } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import type { Provider } from "@/types/provider";
+import { money } from "@/lib/commerce/display";
 
 type ProviderCardProps = {
   provider: Provider;
@@ -18,9 +19,10 @@ type ProviderCardProps = {
   className?: string;
   featured?: boolean;
   galleryPreviewUrl?: string;
+  purchase?: { priceMinor: number; href: string; serviceName: string };
 };
 
-export function ProviderCard({ provider, actionsId, className, featured, galleryPreviewUrl }: ProviderCardProps) {
+export function ProviderCard({ provider, actionsId, className, featured, galleryPreviewUrl, purchase }: ProviderCardProps) {
   const searchParams = useSearchParams();
   const profileHref = `${appRoutes.providers}/${provider.id}`;
   const preview = galleryPreviewUrl || provider.galleryPreviewUrl;
@@ -54,6 +56,7 @@ export function ProviderCard({ provider, actionsId, className, featured, gallery
         <div className="min-w-0"><span className="market-price-label">{hasPrice ? "Belirtilen fiyat aralığı" : "Ustanın mağazası"}</span><strong className="market-price">{hasPrice ? provider.averagePrice : "Hizmetleri inceleyin"}</strong></div>
         <Button className="shrink-0" href={profileHref}>Profili Gör <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" /></Button>
       </div>
+      {purchase && <div className="fusion-provider-purchase"><p>{purchase.serviceName} · <strong>{money(purchase.priceMinor)}</strong></p><Link className="commerce-button" href={purchase.href}>Bu Ustayı Seç <ArrowUpRight size={17} aria-hidden /></Link></div>}
     </article>
   );
 }
