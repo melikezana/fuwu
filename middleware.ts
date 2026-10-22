@@ -13,6 +13,7 @@ const PROTECTED_PATHS = [
   "/account",
   "/dashboard",
   "/orders",
+  "/order-tracking",
 ];
 
 const APP_ROLE_VALUES = new Set(["admin", "customer", "provider"]);
@@ -39,7 +40,7 @@ function createNonce() {
 
 function createRequestSecurityContext(request: NextRequest): RequestSecurityContext {
   const nonce = createNonce();
-  const contentSecurityPolicy = createContentSecurityPolicyHeaderValue(nonce);
+  const contentSecurityPolicy = createContentSecurityPolicyHeaderValue(nonce, getRequestOrigin(request));
   const requestHeaders = new Headers(request.headers);
 
   requestHeaders.set("x-nonce", nonce);
@@ -224,7 +225,12 @@ export async function middleware(request: NextRequest) {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return response;
+    if (!isProtected) return response;
+    const loginUrl = new URL("/login", requestOrigin);
+    loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
+    const redirect = redirectWithSecurityHeaders(loginUrl, securityContext);
+    redirect.headers.set("Cache-Control", "private, no-store");
+    return redirect;
   }
 
   const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {

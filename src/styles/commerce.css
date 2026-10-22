@@ -1,8 +1,8 @@
 /* Direct service commerce: scoped controls and responsive reservation surfaces. */
-.commerce-page,.commerce-store{--commerce-ink:#252421;--commerce-muted:#66645e;--commerce-border:#e7e5df;--commerce-soft:#f7f6f2;--commerce-accent:#ff6500;--commerce-on-accent:#211a14;color:var(--commerce-ink)}
+.commerce-page,.commerce-store{--commerce-ink:#252421;--commerce-muted:#66645e;--commerce-border:#e7e5df;--commerce-soft:#f7f6f2;--commerce-accent:var(--brand-orange);--commerce-on-accent:#211a14;color:var(--commerce-ink)}
 .commerce-page{max-width:1240px;margin:auto;padding:44px 28px 64px;min-width:0}
 .commerce-page *,.commerce-store *{box-sizing:border-box;min-width:0}
-.commerce-page :is(button,input,select,textarea),.commerce-store :is(button,input,select,textarea){font:inherit}
+.commerce-page :is(button,input,select,textarea),.commerce-store :is(button,input,select,textarea){font-family:inherit}
 .commerce-page :is(button,a,input,select,textarea):focus-visible,.commerce-store :is(button,a,input,select,textarea):focus-visible{outline:3px solid #a74400;outline-offset:3px}
 .commerce-eyebrow{color:#99400b;font-size:11px;font-weight:700;letter-spacing:.13em;line-height:1.7}
 .commerce-page-header{margin-bottom:30px}
@@ -10,7 +10,7 @@
 .commerce-page-header h1 span{color:#7a776f}
 .commerce-page-header>p:last-child{color:var(--commerce-muted);line-height:1.75;font-size:15px;max-width:65ch}
 .commerce-button{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:48px;padding:13px 20px;background:var(--commerce-accent,#ff6500);color:var(--commerce-on-accent,#211a14);border:1px solid transparent;border-radius:12px;font-size:14px;font-weight:700;text-align:center;line-height:1.5;transition:background .18s,box-shadow .18s;cursor:pointer;text-decoration:none}
-.commerce-button:hover{background:#f47b24;box-shadow:0 3px 12px #bc520019}
+.commerce-button:hover{background:var(--brand-orange-dark);box-shadow:0 3px 12px #bc520019}
 .commerce-button:disabled{background:#e8e6e0;color:#76736b;cursor:not-allowed;box-shadow:none}
 .commerce-secondary{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 15px;border:1px solid var(--commerce-border,#e7e5df);border-radius:10px;font-size:13px;font-weight:600;background:white;cursor:pointer}
 .commerce-secondary:hover{border-color:#b0ada4}.commerce-secondary:disabled{opacity:.55;cursor:not-allowed}

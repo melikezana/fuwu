@@ -11,11 +11,15 @@ create function public.current_user_is_admin() returns boolean language sql stab
 create table public.service_categories(id uuid primary key,name text,slug text,is_active boolean default true);
 create table public.districts(id uuid primary key,name text,is_active boolean default true);
 create table public.providers(id uuid primary key,user_id uuid references public.profiles(id),name text,category_id uuid references public.service_categories(id),profile_image_url text,is_active boolean default true,is_approved boolean default true,availability text default 'müsait',iyzico_submerchant_status text default 'active',iyzico_submerchant_key text default 'sandbox-test',rating numeric default 0,review_count integer default 0);
-create table public.reviews(id uuid primary key default gen_random_uuid(),provider_id uuid references public.providers(id),user_id uuid references public.profiles(id),rating smallint,comment text,unique(provider_id,user_id));
-create table public.service_requests(id uuid primary key default gen_random_uuid(),assigned_provider_id uuid,accepted_provider_id uuid,status text,preferred_date date,preferred_time time);
+create table public.reviews(id uuid primary key default gen_random_uuid(),provider_id uuid references public.providers(id),user_id uuid references public.profiles(id),rating smallint,comment text,created_at timestamptz not null default now(),unique(provider_id,user_id));
+create table public.service_requests(id uuid primary key default gen_random_uuid(),assigned_provider_id uuid,accepted_provider_id uuid,status text,preferred_date date,preferred_time time,user_id uuid references profiles(id),updated_at timestamptz not null default now());
 create table public.app_settings(key text primary key,value text);
 create table public.payments(id uuid primary key default gen_random_uuid(),status text,iyzico_payment_transaction_id text);
 grant select on public.providers,public.districts,public.service_categories,public.reviews to anon,authenticated;
+alter table public.providers enable row level security;
+create policy fixture_provider_read on public.providers for select using(true);
+create policy fixture_provider_update on public.providers for update to authenticated using(user_id=auth.uid() or public.current_user_is_admin()) with check(user_id=auth.uid() or public.current_user_is_admin());
+grant update on public.providers to authenticated;
 insert into public.profiles(id,role) values
 ('00000000-0000-4000-8000-000000000001','customer'),
 ('00000000-0000-4000-8000-000000000002','customer'),

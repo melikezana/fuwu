@@ -1,0 +1,13 @@
+{
+  "scope": "Offline logic regression checks",
+  "checks": [
+    "Overdue uncompleted services stay active in both customer and provider state sets",
+    "Every supported order status belongs to exactly one tracking/history view",
+    "Hold expiry does not masquerade as server cancellation or completed service",
+    "Review validation rejects fractions, missing text, oversized comments and invalid scores",
+    "Reconciliation explains missing verification, incomplete initialization and expired checkout",
+    "IN_FLIGHT and missing item identity require reconciliation and never claim completion",
+    "Verified consistent payment has no false reconciliation alert",
+    "Local WebKit can load HTTP assets while remote origins retain strict CSP/HTTPS upgrades"
+  ]
+}

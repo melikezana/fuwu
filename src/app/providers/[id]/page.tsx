@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, CalendarDays, Clock3, Home, MapPin, MessageSquarePlus, Star, UserSearch } from "lucide-react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, CalendarDays, Home, MapPin, MessageSquarePlus, Star, UserSearch } from "lucide-react";
 import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { ProviderAvatar } from "@/components/providers/ProviderAvatar";
 import { ProviderProfileViewTracker } from "@/components/providers/ProviderAnalytics";
@@ -9,6 +9,7 @@ import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderGalleryGrid } from "@/components/providers/ProviderGalleryGrid";
 import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { ProviderPurchases } from "@/components/commerce/ProviderPurchases";
+import { ProviderSchedule } from "@/components/commerce/ProviderSchedule";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -19,7 +20,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderGallery } from "@/services/providers/gallery";
-import { getProviderReviews } from "@/services/reviews";
+import { getProviderReviews, getReviewEligibility } from "@/services/reviews";
 import { getAuthenticatedServerUserId } from "@/services/auth/server";
 
 export const dynamic = "force-dynamic";
@@ -164,6 +165,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
   const isOwnProvider =
     Boolean(authenticatedUserId) && authenticatedUserId === providerOwnerUserId;
   const hasReviews = reviewData.source === "supabase" && reviewData.summary.reviewCount > 0;
+  const eligibility = supabase && authenticatedUserId && !isOwnProvider ? await getReviewEligibility(provider.id, supabase) : [];
   const providerCheckoutHref = "#provider-services";
 
   return (
@@ -185,9 +187,9 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             <nav aria-label="Profil bölümleri" className="market-profile-sections"><a href="#about-provider">Hakkında</a><a href="#provider-services">Hizmetler</a>{galleryImages.length ? <a href="#portfolio">İş fotoğrafları</a> : null}<a href="#reviews">Değerlendirmeler</a></nav>
             <section className="market-profile-section" id="about-provider"><p className="market-eyebrow">USTAYI TANIYIN</p><h2>Hakkında</h2><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım açıklaması paylaşmadı. İhtiyacınızı hizmet talebinizde belirtebilirsiniz."}</p></section>
             <ProviderPurchases providerId={provider.id} />
-            <section className="market-profile-section"><h2>Hizmet bölgeleri ve çalışma düzeni</h2><div className="market-area-tags">{provider.serviceAreas.map((area) => <Link href={`${appRoutes.providers}?district=${encodeURIComponent(area)}`} key={area}><MapPin aria-hidden="true" className="size-4 shrink-0" />{area}</Link>)}</div><p className="market-help-text flex items-start gap-2"><Clock3 aria-hidden="true" className="mt-0.5 size-4 shrink-0" />{provider.workingHours || "Çalışma saatleri henüz paylaşılmadı. Talep oluştururken tercih ettiğiniz zamanı belirtin."}</p></section>
+            <section className="market-profile-section"><h2>Çalışma düzeni</h2><ProviderSchedule providerId={provider.id} /></section>
             {galleryImages.length ? <section className="market-profile-section" id="portfolio"><p className="market-eyebrow">USTANIN PAYLAŞTIKLARI</p><h2>İş fotoğrafları</h2><ProviderGalleryGrid images={galleryImages} providerName={provider.name} /></section> : isOwnProvider ? <section className="market-profile-section"><h2>İşlerinizi gösterin</h2><p className="market-help-text">Profilinize tamamladığınız işlerin fotoğraflarını ekleyin.</p><Button href={appRoutes.providerDashboardProfile} variant="secondary">Galeri Ekle</Button></section> : null}
-            <ProviderReviews isAuthenticated={Boolean(authenticatedUserId)} providerId={provider.id} reviews={reviewData.reviews} source={reviewData.source} summary={reviewData.summary} />
+            <ProviderReviews eligibility={eligibility} providerId={provider.id} reviews={reviewData.reviews} source={reviewData.source} summary={reviewData.summary} />
           </div>
           <aside className="market-profile-booking">
             <div className="market-booking-card"><p className="market-eyebrow">HİZMETİNİZİ PLANLAYIN</p><h2>Hizmetini seç,<br />randevunu planla.</h2><p className="market-help-text">Ustanın satışa açtığı hizmetleri, kapsamını ve kesin fiyatını inceleyin.</p><div className="market-booking-facts"><div><MapPin aria-hidden="true" className="size-5 shrink-0" /><span>{provider.district}</span></div><div><CalendarDays aria-hidden="true" className="size-5 shrink-0" /><span>Gerçek müsaitlik hizmet seçiminde gösterilir.</span></div></div><Button href={providerCheckoutHref} className="min-h-12 w-full">Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Button><p className="market-booking-note">Randevu, ödeme doğrulanınca kesinleşir.</p></div>

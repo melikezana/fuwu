@@ -1,0 +1,13 @@
+{
+  "scope": "Local real Next.js pages in mobile browser engine emulation, guest only; not physical Safari/Chrome OAuth E2E",
+  "engine": "webkit",
+  "checks": [
+    "home: portrait/landscape, no horizontal overflow",
+    "service: portrait/landscape, no horizontal overflow",
+    "login: portrait/landscape, no horizontal overflow",
+    "Protected account retains complete login return path",
+    "OAuth cancellation keeps the booking return path and origin"
+  ],
+  "errors": [],
+  "failed": null
+}

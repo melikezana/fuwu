@@ -1,0 +1,23 @@
+{
+  "scope": "Read-only public API schema detection, not verification of applied migration versions. No DB URL/service key or migration ledger access is available.",
+  "results": [
+    {
+      "label": "commerce schema",
+      "status": 404,
+      "code": "PGRST205",
+      "detail": "Could not find the table 'public.service_catalog' in the schema cache"
+    },
+    {
+      "label": "fusion operations schema",
+      "status": 404,
+      "code": "PGRST205",
+      "detail": "Could not find the table 'public.customer_addresses' in the schema cache"
+    },
+    {
+      "label": "review source columns",
+      "status": 400,
+      "code": "42703",
+      "detail": "column reviews.order_id does not exist"
+    }
+  ]
+}

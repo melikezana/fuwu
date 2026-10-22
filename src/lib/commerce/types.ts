@@ -25,6 +25,12 @@ export type CommerceTables = {
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
 };
 export type CommerceFunctions = {
+  commerce_admin_reconciliation: { Args: { p_page?: number }; Returns: Json };
+  public_provider_reviews: { Args: { p_provider_id: string }; Returns: Json };
+  review_eligible_sources: { Args: { p_provider_id: string }; Returns: Json };
+  submit_service_review: { Args: { p_provider_id: string; p_order_id: string | null; p_request_id: string | null; p_rating: number; p_comment: string }; Returns: string };
+  commerce_public_schedule: { Args: { p_provider_id: string }; Returns: Json };
+  commerce_provider_operations: { Args: { p_provider_id: string }; Returns: Json };
   commerce_order_finance: { Args: { p_order_id: string }; Returns: Json };
   commerce_provider_finance: { Args: { p_provider_id: string }; Returns: Json };
   commerce_admin_summary: { Args: Record<string, never>; Returns: Json };

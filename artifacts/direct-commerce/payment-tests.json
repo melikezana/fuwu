@@ -14,12 +14,16 @@
     "Reject tampered or non-final fraudStatus",
     "Reject tampered or non-final paymentStatus",
     "Reject tampered or non-final itemTransactions",
+    "Missing item transaction cannot become a paid order",
     "Reject mismatched provider payout",
     "Reject mismatched item identity",
+    "Payout approval requires successful matching external transaction",
+    "Refund requires matching external transaction, full amount and TRY",
     "Live payment endpoint is always disabled",
     "Sandbox configuration accepted",
     "Hosted checkout only accepts known sandbox HTTPS origins",
     "Webhook signature rejects unsigned payloads and accepts exact HMAC",
+    "Sandbox initialization preserves server amount, TRY and 10 percent split (mock HTTP)",
     "Server retrieves processor result using authenticated sandbox request (mock HTTP)"
   ]
 }

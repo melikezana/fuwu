@@ -174,6 +174,7 @@ export default async function AdminPaymentsPage({
         title="Ödemeler & Finans"
       >
         <section className="commerce-panel mb-6"><h2>Doğrudan satın alma ödemeleri</h2><p className="commerce-help">Yeni marketplace siparişlerinin test ödemeleri, iadeleri ve hak edişleri ayrı operasyon merkezindedir. Bu sayfanın devamı önceki hizmet taleplerinin ödeme kayıtlarını gösterir.</p><Link className="commerce-button" href="/admin/marketplace?view=payments">Marketplace Ödemelerini Aç</Link></section>
+        <details className="fusion-legacy" open={Boolean(paymentActionCode)}><summary>Önceki hizmet taleplerinin ödemeleri</summary><p className="commerce-help">Bu kayıtların ortam bilgisi doğrulanmadı. Marketplace sandbox GMV ve komisyonundan ayrıdır.</p>
         <PaymentTrustPanel />
         <PaymentActionNotice code={paymentActionCode} />
 
@@ -272,6 +273,7 @@ export default async function AdminPaymentsPage({
             </table>
           </div>
         )}
+        </details>
       </AdminPageShell>
     </AdminAccessGate>
   );

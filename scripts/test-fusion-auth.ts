@@ -49,7 +49,23 @@ async function main() {
     throw new Error("Unexpected mocked URL: " + url);
   };
   try {
-    const { middleware } = await import("../middleware");
+    const { proxy: middleware } = await import("../src/proxy");
+    await check("Active Next.js proxy applies local WebKit CSP without weakening remote CSP", async () => {
+      const local = await middleware(new NextRequest("http://127.0.0.1:3067/services/musluk-montaji", { headers: { host: "127.0.0.1:3067" } }));
+      assert.ok(!local.headers.get("content-security-policy")?.includes("upgrade-insecure-requests"));
+      const remote = await middleware(new NextRequest("https://www.fuwu.com.tr/services"));
+      assert.ok(remote.headers.get("content-security-policy")?.includes("upgrade-insecure-requests"));
+      assert.match(remote.headers.get("content-security-policy") || "", /'nonce-[^']+'/);
+    });
+    await check("Active Next.js proxy keeps legacy order tracking protected", async () => {
+      const response = await middleware(new NextRequest("https://www.fuwu.com.tr/order-tracking/fixture"));
+      assert.equal(new URL(response.headers.get("location")!).searchParams.get("next"), "/order-tracking/fixture");
+    });
+    await check("Protected proxy fails closed when Supabase configuration is absent", async () => {
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      try { const response = await middleware(new NextRequest("https://www.fuwu.com.tr/orders"));assert.equal(new URL(response.headers.get("location")!).pathname, "/login"); }
+      finally { process.env.NEXT_PUBLIC_SUPABASE_URL = "https://local.supabase.test"; process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "offline-mock-anon"; }
+    });
     await check("Refreshed SSR cookie reaches both response and downstream server request", async () => {
       const response = await middleware(new NextRequest("https://www.fuwu.com.tr/account?view=addresses", { headers: { cookie } }));
       assert.ok(refreshed > 0); assert.ok(response.cookies.getAll().some(c => c.name.startsWith("sb-local-auth-token") && c.value !== cookie));
@@ -72,7 +88,7 @@ async function main() {
     for (const [key, value] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: previous.url, NEXT_PUBLIC_SUPABASE_ANON_KEY: previous.anon, SUPABASE_SERVICE_ROLE_KEY: previous.service })) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
   }
   mkdirSync("artifacts/fusion", { recursive: true });
-  writeFileSync("artifacts/fusion/auth-tests.json", JSON.stringify({ scope: "Local mocked Auth HTTP + real Supabase SSR cookie handling; not Google/real-device E2E", checks }, null, 2));
+  writeFileSync("artifacts/fusion/auth-tests.json", JSON.stringify({ scope: "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E", checks }, null, 2));
   console.log(`${checks.length} local auth checks passed.`);
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -812,6 +812,8 @@ export type Database = {
       };
       reviews: {
         Row: {
+          order_id: string | null;
+          service_request_id: string | null;
           id: string;
           provider_id: string;
           user_id: string;
@@ -821,6 +823,8 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          order_id?: string | null;
+          service_request_id?: string | null;
           id?: string;
           provider_id: string;
           user_id: string;
@@ -830,6 +834,8 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          order_id?: string | null;
+          service_request_id?: string | null;
           id?: string;
           provider_id?: string;
           user_id?: string;

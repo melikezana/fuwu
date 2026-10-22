@@ -23,6 +23,6 @@ export function verifyCommercePayment(result: RetrieveIyzicoCheckoutResponse, or
   if (result.status !== "success" && result.paymentStatus !== "FAILURE") throw new Error("payment_verification_failed");
   if (result.token !== token || result.conversationId !== conversation || result.basketId !== order.id || result.currency !== "TRY" || minorAmount(result.price) !== order.total_minor || minorAmount(result.paidPrice) !== order.total_minor) throw new Error("payment_verification_failed");
   if (result.paymentStatus !== "SUCCESS" && result.paymentStatus !== "FAILURE") throw new Error("payment_not_final");
-  if (result.paymentStatus === "SUCCESS" && (!result.paymentId || result.fraudStatus !== 1 || result.itemTransactions?.length !== 1 || minorAmount(result.itemTransactions[0].subMerchantPrice) !== order.provider_gross_minor || minorAmount(result.itemTransactions[0].price) !== order.total_minor || result.itemTransactions[0].itemId !== order.id)) throw new Error("payment_verification_failed");
+  if (result.paymentStatus === "SUCCESS" && (!result.paymentId || result.fraudStatus !== 1 || result.itemTransactions?.length !== 1 || !result.itemTransactions[0].paymentTransactionId?.trim() || minorAmount(result.itemTransactions[0].subMerchantPrice) !== order.provider_gross_minor || minorAmount(result.itemTransactions[0].price) !== order.total_minor || result.itemTransactions[0].itemId !== order.id)) throw new Error("payment_verification_failed");
   return result.paymentStatus === "SUCCESS";
 }

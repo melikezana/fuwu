@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
     if (error) throw new Error("payment_persistence_failed");
     return NextResponse.json({ paymentPageUrl });
   } catch {
-    // No card data or full processor response is logged or stored.
-    await db.rpc("commerce_resolve_payment", { p_order_id: order.id, p_token: null, p_payment_id: null, p_success: false });
+    // A transport/persistence failure does not prove the external session failed.
+    // Keep the durable INITIALIZING claim for reconciliation; never issue another initializer.
     return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   }
 }

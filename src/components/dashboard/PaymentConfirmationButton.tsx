@@ -122,8 +122,8 @@ export function PaymentConfirmationButton({
       <Button
         className={
           isConfirmed
-            ? "w-full bg-[var(--trust-green)] text-white hover:bg-[var(--trust-green)] sm:w-fit"
-            : "w-full bg-[var(--trust-green)] text-white hover:bg-[var(--trust-green)] sm:w-fit"
+            ? "w-full sm:w-fit"
+            : "w-full sm:w-fit"
         }
         disabled={isPending || isConfirmed || !canSubmitCode}
         onClick={handleConfirm}

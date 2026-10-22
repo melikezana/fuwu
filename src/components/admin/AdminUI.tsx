@@ -80,7 +80,7 @@ const adminNavItems: Array<{
   key: AdminNavKey;
   label: string;
 }> = [
-  { href: "/admin/marketplace", icon: CreditCard, key: "marketplace", label: "Marketplace" },
+  { href: "/admin/marketplace", icon: CreditCard, key: "marketplace", label: "Sipariş Operasyonları" },
   {
     href: "/admin",
     icon: LayoutDashboard,
@@ -109,13 +109,13 @@ const adminNavItems: Array<{
     href: "/admin/service-requests",
     icon: FileText,
     key: "requests",
-    label: "Talepler",
+    label: "Önceki Talepler",
   },
   {
     href: "/admin/payments",
     icon: CreditCard,
     key: "payments",
-    label: "Ödemeler",
+    label: "Önceki Ödemeler",
   },
   {
     href: "/admin/revenue",
@@ -332,7 +332,7 @@ export function AdminActionButton({
 }: AdminActionButtonProps) {
   const enabledToneClasses = {
     approve:
-      "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)] hover:border-[rgba(23,116,95,0.42)] hover:bg-[#def2ea]",
+      "border-transparent bg-[var(--brand-orange)] text-[#241c16] hover:bg-[var(--brand-orange-dark)]",
     neutral:
       "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)]",
     reject: "border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100",

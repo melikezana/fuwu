@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source("../");
 
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
@@ -17,9 +17,10 @@
   --fuwu-text: #172033;
   --fuwu-muted: #687387;
   --fuwu-border: #e7e9ee;
-  --fuwu-success: #14966c;
+  --fuwu-success: #107452;
   --fuwu-warning: #d97706;
   --fuwu-danger: #c2413b;
+  --focus-ring: #8a3c07;
   --background: var(--fuwu-background);
   --foreground: var(--fuwu-text);
   --muted: var(--fuwu-muted);
@@ -194,15 +195,12 @@ label {
   cursor: default;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+@layer base {
+  button, input, textarea, select { font: inherit; }
 }
 
 :focus-visible {
-  outline: 2px solid var(--brand-orange);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 

@@ -51,7 +51,7 @@ export function Button({
   const buttonClassName = cn(
     variant === "plain"
       ? ""
-      : "inline-flex min-h-11 min-w-0 max-w-full cursor-pointer select-none items-center justify-center gap-2 whitespace-normal rounded-[var(--radius-control)] px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
+      : "inline-flex min-h-11 min-w-0 max-w-full cursor-pointer select-none items-center justify-center gap-2 whitespace-normal rounded-[var(--radius-control)] px-4 py-2.5 text-center text-sm font-semibold leading-5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 sm:px-5",
     variantClasses[variant],
     className,
   );

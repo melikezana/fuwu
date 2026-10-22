@@ -24,6 +24,7 @@
     "test:commerce:db": "node scripts/test-direct-commerce-db.mjs",
     "test:commerce:payment": "tsx scripts/test-direct-commerce-payment.ts",
     "test:fusion:auth": "tsx scripts/test-fusion-auth.ts",
+    "test:fusion:quality": "tsx scripts/test-fusion-quality.ts",
     "test:provider-validation": "tsx scripts/test-provider-validation.ts",
     "test:provider-matching": "tsx scripts/test-provider-matching.ts",
     "test:review-submission": "tsx scripts/test-review-submission.ts",

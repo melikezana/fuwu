@@ -1,15 +1,15 @@
 import { MessageSquareText, Star } from "lucide-react";
 import { ReviewForm } from "@/components/providers/ReviewForm";
 import { Button } from "@/components/ui/Button";
-import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import type {
   ProviderReview,
   ProviderReviewSource,
   ProviderReviewSummary,
+  ReviewEligibility,
 } from "@/services/reviews";
 
 type ProviderReviewsProps = {
-  isAuthenticated: boolean;
+  eligibility: ReviewEligibility[];
   providerId: string;
   reviews: ProviderReview[];
   source: ProviderReviewSource;
@@ -61,7 +61,7 @@ function RatingStars({ rating }: { rating: number }) {
 }
 
 export function ProviderReviews({
-  isAuthenticated,
+  eligibility,
   providerId,
   reviews,
   source,
@@ -81,22 +81,16 @@ export function ProviderReviews({
             Müşteri değerlendirmeleri
           </h2>
         </div>
-        {!isAuthenticated ? (
+        {eligibility.some(source => source.kind === "order") ? (
           <Button
             className="w-full sm:w-fit"
-            href={buildLoginRedirectUrl(`/providers/${providerId}#reviews`)}
+            href={`/orders/${eligibility.find(source => source.kind === "order")!.id}#order-review`}
             variant="secondary"
           >
-            Yorum yazmak için giriş yap
+            Tamamlanan hizmetini değerlendir
           </Button>
         ) : null}
       </div>
-
-      {isAuthenticated ? (
-        <div className="mt-5">
-          <ReviewForm providerId={providerId} />
-        </div>
-      ) : null}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
         <div className="rounded-md bg-[var(--surface-soft)] p-4">
@@ -150,7 +144,7 @@ export function ProviderReviews({
                     {formatReviewDate(review.createdAt)}
                   </time>
                 </div>
-                <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+                <p className="mt-3 whitespace-pre-wrap break-words text-sm font-normal leading-6 text-[var(--muted)]">
                   {review.comment}
                 </p>
               </article>
@@ -171,6 +165,12 @@ export function ProviderReviews({
           )}
         </div>
       </div>
+      {eligibility.filter(source => source.kind === "request").map(source => (
+        <details className="mt-5 rounded-lg border border-[var(--border)] p-4" key={source.id}>
+          <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-[var(--brand-navy)]">Tamamlanan önceki hizmetini değerlendir</summary>
+          <ReviewForm providerId={providerId} requestId={source.id} />
+        </details>
+      ))}
     </section>
   );
 }

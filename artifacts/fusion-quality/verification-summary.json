@@ -1,0 +1,69 @@
+{
+  "baselineCommit": "cc5ab27",
+  "status": "LOCAL_FIXES_VERIFIED_PRODUCTION_BLOCKED",
+  "checks": {
+    "lint": "PASS",
+    "typescript": "PASS",
+    "build": "PASS",
+    "diffWhitespace": "PASS",
+    "database": {
+      "count": 59,
+      "scope": "PostgreSQL, independent TCP sessions"
+    },
+    "payment": {
+      "count": 24,
+      "scope": "mock processor HTTP; no real sandbox transaction"
+    },
+    "auth": {
+      "count": 28,
+      "scope": "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E"
+    },
+    "logic": {
+      "count": 8
+    },
+    "actualPages": {
+      "groups": 12,
+      "widths": [
+        320,
+        375,
+        390,
+        430,
+        768,
+        1024,
+        1440
+      ],
+      "errors": []
+    },
+    "fixtures": {
+      "groups": 12,
+      "errors": []
+    },
+    "mobile": {
+      "webkit": {
+        "groups": 5,
+        "errors": []
+      },
+      "chromium": {
+        "groups": 5,
+        "errors": []
+      },
+      "scope": "Local real Next.js pages in mobile browser engine emulation, guest only; not physical Safari/Chrome OAuth E2E"
+    },
+    "playwright": {
+      "passed": 7,
+      "scope": "Existing guest redirect and CSP smoke tests"
+    }
+  },
+  "blocked": {
+    "reviewSubmission": "ECONNREFUSED localhost:54321; full Supabase unavailable",
+    "docker": "Docker Linux engine pipe missing",
+    "targetSchema": "Public API lacks service_catalog/customer_addresses and review source columns; ledger unverified",
+    "realOAuth": "Not run",
+    "realIyzicoSandbox": "Not run",
+    "physicalDevices": "Not run"
+  },
+  "partial": [
+    "Real review-photo upload/consent/moderation not implemented"
+  ],
+  "prohibitedOperationsPerformed": []
+}

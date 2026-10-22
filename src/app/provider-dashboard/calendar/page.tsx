@@ -138,7 +138,7 @@ export default async function ProviderCalendarPage() {
   return (
     <ProviderDashboardShell
       active="calendar"
-      description="Kabul ettiğin taleplerin tarih ve saat planını takip et."
+      description="Satın alınan hizmetlerin takvimini ve çalışma saatlerini yönet."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       statusLabel={statusBadge.label}
       statusTone={statusBadge.tone}
@@ -146,7 +146,7 @@ export default async function ProviderCalendarPage() {
     >
       {providerAccess.ok && <><Link className="commerce-button mb-6" href="/provider-dashboard/store">Çalışma Saatleri ve İzin Günlerini Düzenle</Link><ProviderCommerceSummary providerId={providerAccess.profile.id} /></>}
       {providerAccess.ok ? (
-        <div className="grid gap-6">
+        <details className="fusion-legacy"><summary>Önceki talep takvimi · geçmiş sistem</summary><div className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               { highlight: true, label: "Bugün", sub: "planlı iş", value: todayCount },
@@ -256,7 +256,7 @@ export default async function ProviderCalendarPage() {
               <CalendarEmptyState />
             )}
           </section>
-        </div>
+        </div></details>
       ) : (
         <ProviderDashboardRestrictedAreaEmptyState />
       )}

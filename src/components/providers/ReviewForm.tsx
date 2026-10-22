@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/Button";
 
 type ReviewFormProps = {
   providerId: string;
+  requestId: string;
 };
 
-export function ReviewForm({ providerId }: ReviewFormProps) {
+export function ReviewForm({ providerId, requestId }: ReviewFormProps) {
   const router = useRouter();
   const [comment, setComment] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
@@ -34,6 +35,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
       const result = await submitProviderReviewAction({
         comment,
         providerId,
+        requestId,
         rating,
       });
 
@@ -57,7 +59,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
 
   return (
     <form
-      className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 sm:p-5"
+      className="review-form rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 sm:p-5"
       onSubmit={handleSubmit}
     >
       <div>
@@ -78,7 +80,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
               <button
                 aria-label={`${value} yıldız`}
                 aria-pressed={rating === value}
-                className="rounded-md p-1.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                className="review-rating-button flex min-h-11 min-w-11 items-center justify-center rounded-md p-1.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                 disabled={isSubmitting || submitted}
                 key={value}
                 onBlur={() => setHoverRating(0)}
@@ -123,7 +125,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
           className={
             submitted
               ? "mt-3 rounded-md bg-[var(--trust-green-soft)] px-3 py-2 text-sm font-bold text-[var(--trust-green)]"
-              : "mt-3 rounded-md bg-[var(--brand-orange-soft)] px-3 py-2 text-sm font-bold text-[var(--brand-navy)]"
+              : "mt-3 rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-800"
           }
           role="status"
         >
@@ -132,7 +134,7 @@ export function ReviewForm({ providerId }: ReviewFormProps) {
       ) : null}
 
       <Button
-        className="mt-4 w-full bg-[var(--trust-green)] hover:bg-[var(--trust-green)] sm:w-fit"
+        className="mt-4 w-full sm:w-fit"
         disabled={isSubmitting || submitted}
         type="submit"
       >

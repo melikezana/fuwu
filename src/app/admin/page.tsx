@@ -440,12 +440,14 @@ export default async function AdminDashboardPage() {
       title="Admin Paneli"
     >
       <MarketplaceMetrics summary={marketplace} />
+      <details className="fusion-legacy"><summary>Önceki talep sistemi · ayrı operasyon ve istatistikler</summary><p className="commerce-help">Bu kayıtlar yeni siparişlerin GMV ve komisyon toplamına dahil değildir. Eski ödeme kayıtlarının ortamı doğrulanmadığından muhasebe geliri olarak kullanmayın.</p>
       {dashboard.error ? (
         <DashboardErrorState error={dashboard.error} />
       ) : (
         <DashboardSummaryCards summary={summary} />
       )}
 
+      </details>
       <section className="mt-6 rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -478,12 +480,14 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
+      <details className="fusion-legacy"><summary>Önceki talepler · analiz ve atama izleme</summary>
       {overview && <OperationalAlerts overview={overview} />}
       {overview && <OverviewMetrics overview={overview} />}
       {reqAnalytics && <RequestAnalyticsSection analytics={reqAnalytics} />}
       {provAnalytics && <ProviderAnalyticsSection analytics={provAnalytics} />}
       {assignments && <AssignmentMonitoringSection assignments={assignments} />}
       <ReassignmentLogsSection logsData={reassignmentLogs} />
+      </details>
       {auditLogs && <AuditLogsSection logsData={auditLogs} />}
       
       </AdminPageShell>

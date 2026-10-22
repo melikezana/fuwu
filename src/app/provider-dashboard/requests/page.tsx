@@ -152,7 +152,7 @@ function ProviderRequestActionButton({
 }) {
   const toneClassName =
     tone === "green"
-      ? "border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] text-[var(--trust-green)] hover:bg-[rgba(23,116,95,0.15)]"
+      ? "border-transparent bg-[var(--brand-orange)] text-[#241c16] hover:bg-[var(--brand-orange-dark)]"
       : tone === "red"
         ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
         : "border-[var(--border)] bg-white text-[var(--brand-navy)] hover:bg-[var(--surface-soft)]";

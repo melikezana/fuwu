@@ -45,7 +45,18 @@ type ReviewSupabaseClient = SupabaseClient<Database>;
 
 export type SubmitProviderReviewInput = ReviewInput & {
   providerId: string;
+  orderId?: string;
+  requestId?: string;
 };
+
+export type ReviewEligibility = { kind: "order" | "request"; id: string; label: string; completedAt: string };
+
+export async function getReviewEligibility(providerId: string, supabase: ReviewSupabaseClient): Promise<ReviewEligibility[]> {
+  if (!isUuid(providerId)) return [];
+  const { data, error } = await supabase.rpc("review_eligible_sources", { p_provider_id: providerId });
+  // An unavailable eligibility check must never open the form.
+  return error || !Array.isArray(data) ? [] : data as unknown as ReviewEligibility[];
+}
 
 export type SubmitProviderReviewResult = {
   id: string;
@@ -91,7 +102,7 @@ function mapSupabaseReview(record: SupabaseReviewRow): ProviderReview {
     id: record.id,
     providerId: record.provider_id,
     rating: normalizeRating(record.rating),
-    comment: sanitizeText(record.comment ?? "", 700) || "Yorum metni paylaşılmadı.",
+    comment: sanitizeText(record.comment ?? "", 1000) || "Yorum metni paylaşılmadı.",
     createdAt: record.created_at,
   };
 }
@@ -143,18 +154,14 @@ async function fetchProviderReviewsFromSupabase(
       return null;
     }
 
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("id, provider_id, rating, comment, created_at")
-      .eq("provider_id", providerId)
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.rpc("public_provider_reviews", { p_provider_id: providerId });
 
     if (error) {
       warnReviewFallback(error);
       return null;
     }
 
-    return ((data ?? []) as SupabaseReviewRow[]).map(mapSupabaseReview);
+    return ((data ?? []) as unknown as SupabaseReviewRow[]).map(mapSupabaseReview);
   } catch (error) {
     warnReviewFallback(error);
     return null;
@@ -227,37 +234,22 @@ export async function submitProviderReview(
 
   await assertProviderReviewRateLimit(supabase, user.id);
 
-  const { data: eligibleRequest, error: eligibilityError } = await supabase
-    .from("service_requests")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("assigned_provider_id", input.providerId)
-    .eq("status", "completed")
-    .limit(1)
-    .maybeSingle();
-
-  if (eligibilityError) {
-    throw handleServiceError(eligibilityError, {
-      logContext: "Review eligibility lookup failed.",
-      publicMessage: "Yorum uygunluğu şu anda kontrol edilemedi.",
-      tableName: "service_requests",
-    });
+  if ((input.orderId && !isUuid(input.orderId)) || (input.requestId && !isUuid(input.requestId))) {
+    throw new ValidationError("Invalid review source.", { publicMessage: "Hizmet kaydı geçerli değil." });
   }
-
-  if (!eligibleRequest) {
-    throw new AppError("review-not-eligible", {
-      code: "review-not-eligible",
-      publicMessage:
-        "Bu ustaya yorum yazabilmek için tamamlanmış bir hizmet talebin olmalı.",
-      statusCode: 403,
-    });
-  }
-
-  const { data: reviewId, error } = await supabase.rpc("submit_provider_review", {
+  // Older callers retain the legacy RPC; new callers always send an explicit source.
+  const result = input.orderId || input.requestId ? await supabase.rpc("submit_service_review", {
+    p_provider_id: input.providerId,
+    p_order_id: input.orderId ?? null,
+    p_request_id: input.requestId ?? null,
+    p_comment: validation.data.comment,
+    p_rating: validation.data.rating,
+  }) : await supabase.rpc("submit_provider_review", {
     p_comment: validation.data.comment,
     p_provider_id: input.providerId,
     p_rating: validation.data.rating,
   });
+  const { data: reviewId, error } = result;
 
   if (error) {
     const normalizedMessage = error.message.toLocaleLowerCase("en");
@@ -268,7 +260,7 @@ export async function submitProviderReview(
     ) {
       throw new ValidationError("Review already submitted.", {
         cause: error,
-        publicMessage: "Bu usta için daha önce yorum yazdın.",
+        publicMessage: "Bu hizmeti daha önce değerlendirdin.",
       });
     }
 
@@ -280,7 +272,7 @@ export async function submitProviderReview(
         cause: error,
         code: "review-not-eligible",
         publicMessage:
-          "Bu ustaya yorum yazabilmek için tamamlanmış bir hizmet talebin olmalı.",
+          "Yalnızca sana ait, tamamlanmış ve henüz değerlendirilmemiş hizmeti değerlendirebilirsin.",
         statusCode: 403,
       });
     }

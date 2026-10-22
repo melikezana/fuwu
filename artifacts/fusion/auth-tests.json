@@ -1,5 +1,5 @@
 {
-  "scope": "Local mocked Auth HTTP + real Supabase SSR cookie handling; not Google/real-device E2E",
+  "scope": "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E",
   "checks": [
     {
       "name": "Open redirect denied: \"https://evil.test\"",
@@ -103,6 +103,21 @@
     },
     {
       "name": "Profile failure is not reported as completed sign-in",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Active Next.js proxy applies local WebKit CSP without weakening remote CSP",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Active Next.js proxy keeps legacy order tracking protected",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Protected proxy fails closed when Supabase configuration is absent",
       "expected": "assertions pass",
       "actual": "PASS"
     },

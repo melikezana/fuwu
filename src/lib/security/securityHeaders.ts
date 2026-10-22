@@ -22,7 +22,14 @@ function compactContentSecurityPolicy(directives: string[]) {
   return directives.join("; ").replace(/\s{2,}/g, " ").trim();
 }
 
-export function createContentSecurityPolicyHeaderValue(nonce: string) {
+export function createContentSecurityPolicyHeaderValue(nonce: string, requestOrigin?: string) {
+  let isHttpLoopback = false;
+  if (requestOrigin) {
+    try {
+      const url = new URL(requestOrigin);
+      isHttpLoopback = url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+    } catch { /* Unknown origins retain the HTTPS upgrade policy. */ }
+  }
   const nonceSource = `'nonce-${nonce}'`;
   const contentSecurityPolicyDirectives = [
     "default-src 'self'",
@@ -36,7 +43,8 @@ export function createContentSecurityPolicyHeaderValue(nonce: string) {
     "form-action 'self' https://*.supabase.co https://accounts.google.com",
     "frame-src 'self' https://*.supabase.co https://accounts.google.com",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    // Safari also upgrades loopback assets; local HTTP has no TLS endpoint.
+    ...(isHttpLoopback ? [] : ["upgrade-insecure-requests"]),
   ];
 
   return compactContentSecurityPolicy(contentSecurityPolicyDirectives);

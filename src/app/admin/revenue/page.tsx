@@ -99,7 +99,7 @@ export default async function AdminRevenuePage() {
         title="Gelir ve Büyüme"
       >
         <MarketplaceMetrics summary={marketplace} />
-        <p className="commerce-notice">Aşağıdaki eski talep kayıtlarının ortam bilgisi bulunmuyor. Yeni marketplace sandbox işlemlerinden ayrıdır ve doğrulanmış muhasebe geliri olarak kullanılmamalıdır. GMV şirket geliri değildir.</p>
+        <details className="fusion-legacy"><summary>Önceki talep sisteminin gelir kayıtları</summary><p className="commerce-notice">Aşağıdaki eski talep kayıtlarının ortam bilgisi bulunmuyor. Yeni marketplace sandbox işlemlerinden ayrıdır ve doğrulanmış muhasebe geliri olarak kullanılmamalıdır. GMV şirket geliri değildir.</p>
         <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
             label="12 Ay Komisyon"
@@ -273,6 +273,7 @@ export default async function AdminRevenuePage() {
             </div>
           )}
         </AdminSection>
+        </details>
       </AdminPageShell>
     </AdminAccessGate>
   );

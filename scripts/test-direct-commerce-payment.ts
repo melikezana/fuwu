@@ -12,11 +12,12 @@ async function main() {
 const checks: string[] = [];
 function check(name: string, run: () => void) { run(); checks.push(name); console.log(`PASS ${name}`); }
 const order = { id: "40000000-0000-4000-8000-000000000001", total_minor: 85000, provider_gross_minor: 76500 } as CommerceOrder;
-const valid: RetrieveIyzicoCheckoutResponse = { status: "success", token: "test-token", conversationId: "test-conversation", basketId: order.id, currency: "TRY", price: "850.00", paidPrice: 850, paymentStatus: "SUCCESS", paymentId: "test-payment", fraudStatus: 1, itemTransactions: [{ itemId: order.id, price: 850, subMerchantPrice: 765 }] };
+const valid: RetrieveIyzicoCheckoutResponse = { status: "success", token: "test-token", conversationId: "test-conversation", basketId: order.id, currency: "TRY", price: "850.00", paidPrice: 850, paymentStatus: "SUCCESS", paymentId: "test-payment", fraudStatus: 1, itemTransactions: [{ itemId: order.id, price: 850, subMerchantPrice: 765, paymentTransactionId: "test-item" }] };
 const verify = (result: RetrieveIyzicoCheckoutResponse) => verifyCommercePayment(result, order, "test-token", "test-conversation");
 check("Verified matching result accepted", () => assert.equal(verify(valid), true));
 check("Verified failed result is a failed payment", () => assert.equal(verify({ ...valid, paymentStatus: "FAILURE" }), false));
 for (const [field, value] of Object.entries({ status: "failure", token: "other", conversationId: "other", basketId: "other", currency: "USD", price: 1, paidPrice: 1, paymentId: "", fraudStatus: 0, paymentStatus: "PENDING", itemTransactions: [] })) check(`Reject tampered or non-final ${field}`, () => assert.throws(() => verify({ ...valid, [field]: value })));
+check("Missing item transaction cannot become a paid order", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId: order.id, price: 850, subMerchantPrice: 765 }] })));
 check("Reject mismatched provider payout", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId: order.id, price:850, subMerchantPrice:850 }] })));
 check("Reject mismatched item identity", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId:"other", price:850, subMerchantPrice:765 }] })));
 const settlement = { status:"success", paymentTransactionId:"test-item", currency:"TRY", price:850 };

@@ -257,7 +257,7 @@ export default async function ProviderDashboardPage() {
   return (
     <ProviderDashboardShell
       active="overview"
-      description="Profil görünürlüğünü, temel durumları ve gelen talep alanını tek ekranda takip et."
+      description="Satın alınan hizmetleri, randevuları, mağazanı ve hak edişlerini takip et."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       statusLabel={statusBadge.label}
       statusTone={statusBadge.tone}
@@ -267,6 +267,8 @@ export default async function ProviderDashboardPage() {
         <div className="grid gap-6">
           <ProviderDashboardActiveNotice provider={providerAccess.profile} />
           <ProviderCommerceSummary providerId={providerAccess.profile.id} />
+          <ProviderCommerceSummary providerId={providerAccess.profile.id} earnings />
+          <details className="fusion-legacy"><summary>Önceki talep sistemi · geçmiş kayıtlar ve profil bilgileri</summary>
           <ProviderDashboardSummary
             assignedRequestCount={assignedRequests.length}
             provider={providerAccess.profile}
@@ -274,6 +276,7 @@ export default async function ProviderDashboardPage() {
             averageRating={stats?.averageRating ?? providerAccess.profile.rating}
           />
           <ProviderDashboardRecentRequests requests={assignedRequests} />
+          </details>
 
           {/* Hızlı erişim kartları */}
           <section>
