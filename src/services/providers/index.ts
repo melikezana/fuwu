@@ -10,13 +10,9 @@ import {
   getServiceDisplayLabel,
 } from "@/lib/constants/services";
 import {
-  getProviderById as getMockProviderById,
-  providerAvailabilityOptions,
-  providerAveragePrices,
   providerBudgetOptions,
   providerCategories,
   providerDistricts,
-  providers as mockProviders,
   type ProviderBudgetValue,
 } from "@/lib/constants/providers";
 import { handleServiceError } from "@/lib/errors";
@@ -329,7 +325,7 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
     districtId: record.district_id,
     district,
     rating: Number(record.rating ?? 0),
-    experience: `${experienceYears} yıl`,
+    experience: record.experience_years == null ? "" : `${experienceYears} yıl`,
     averagePriceMin: record.average_price_min,
     averagePriceMax: record.average_price_max,
     averagePrice: formatAveragePrice(record.average_price_min, record.average_price_max),
@@ -735,10 +731,10 @@ function buildFilterOptions(providers: Provider[]): ProviderFilterOptions {
 
 function buildFallbackFilterOptions(): ProviderFilterOptions {
   return {
-    availabilityOptions: [...providerAvailabilityOptions],
-    averagePrices: [...providerAveragePrices],
+    availabilityOptions: [],
+    averagePrices: [],
     budgetOptions: providerBudgetOptions.map((option) => option.value),
-    capabilities: getProviderFilterCapabilities(mockProviders),
+    capabilities: getProviderFilterCapabilities([]),
     categories: [...providerCategories],
     districts: [...providerDistricts],
   };
@@ -1121,7 +1117,7 @@ async function readProviders(filters: ProviderFilters = {}): Promise<ProviderRea
   }
 
   const fallbackResult: ProviderReadResult = {
-    providers: applyProviderFilters(mockProviders, filters),
+    providers: [],
     source: "fallback",
   };
   const response = createServiceSuccess(fallbackResult);
@@ -1194,10 +1190,6 @@ export async function getProviderById(id: string): Promise<Provider | undefined>
 
   if (result.status === "found") {
     return result.provider;
-  }
-
-  if (result.status === "error" && !result.supabaseConfigured) {
-    return getMockProviderById(id);
   }
 
   return undefined;

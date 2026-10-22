@@ -1,13 +1,15 @@
 "use client";
 
-import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSessionFormDraft } from "@/lib/hooks/useSessionFormDraft";
 import Image from "next/image";
 import {
   CalendarDays,
   Camera,
   CheckCircle2,
+  ChevronLeft,
   Clock3,
   CreditCard,
   MapPin,
@@ -15,8 +17,6 @@ import {
   ReceiptText,
   ShoppingBag,
   Sparkles,
-  Tag,
-  UploadCloud,
   UserRound,
   Wallet,
   type LucideIcon,
@@ -164,9 +164,9 @@ const checkoutSteps: CheckoutStep[] = [
   { id: "time", icon: Clock3, kicker: "3", title: "Saat" },
   { id: "extras", icon: PackagePlus, kicker: "4", title: "Ek Hizmetler" },
   { id: "address", icon: MapPin, kicker: "5", title: "Adres" },
-  { id: "notes", icon: Camera, kicker: "6", title: "Not / Fotoğraf" },
+  { id: "notes", icon: Camera, kicker: "6", title: "İş Detayı" },
   { id: "summary", icon: ReceiptText, kicker: "7", title: "Özet" },
-  { id: "payment", icon: CreditCard, kicker: "8", title: "Ödeme" },
+  { id: "payment", icon: CreditCard, kicker: "8", title: "Onay" },
 ];
 
 const providerProfileCheckoutSteps: CheckoutStep[] = [
@@ -174,9 +174,9 @@ const providerProfileCheckoutSteps: CheckoutStep[] = [
   { id: "time", icon: Clock3, kicker: "2", title: "Saat" },
   { id: "extras", icon: PackagePlus, kicker: "3", title: "Ek Hizmetler" },
   { id: "address", icon: MapPin, kicker: "4", title: "Adres" },
-  { id: "notes", icon: Camera, kicker: "5", title: "Not / Fotoğraf" },
+  { id: "notes", icon: Camera, kicker: "5", title: "İş Detayı" },
   { id: "summary", icon: ReceiptText, kicker: "6", title: "Özet" },
-  { id: "payment", icon: CreditCard, kicker: "7", title: "Ödeme" },
+  { id: "payment", icon: CreditCard, kicker: "7", title: "Onay" },
 ];
 
 const urgencyOptions: Array<{
@@ -210,7 +210,7 @@ const onlinePaymentOption: {
   value: ServiceRequestPaymentPreference;
 } = {
   description:
-    "Kartla online ödeme alınır; tutar doğrulama kodu girilene kadar emanet hesapta tutulur.",
+    "Bu formda kart bilgisi istenmez ve ödeme alınmaz. Desteklenen online ödeme seçeneği talep sonrası siparişinizden kontrol edilebilir.",
   label: "Online Ödeme",
   value: PAYMENT_PREFERENCES.onlineSoon,
 };
@@ -286,10 +286,7 @@ const subServiceOptionsByServiceId: Record<string, string[]> = {
   renovation: ["Küçük tadilat", "Banyo / mutfak", "Genel keşif"],
 };
 
-const couponDiscountRates: Record<string, number> = {
-  FUWU10: 0.1,
-  MERHABA10: 0.1,
-};
+
 
 const fieldBaseClassName =
   "premium-control mt-2 w-full min-w-0 px-4 py-3 text-sm font-semibold outline-none";
@@ -302,7 +299,7 @@ const stepCardClassName =
   "premium-reveal rounded-lg border bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 sm:p-6";
 const serviceRequestSuccessMessage = "Siparişiniz başarıyla alındı";
 const serviceRequestSubmitErrorMessage =
-  "Ödemeye geçilemedi. Lütfen tekrar deneyin.";
+  "Talep oluşturulamadı. Lütfen tekrar deneyin.";
 const emptyRequestFormInsights: RequestFormInsights = {
   averageResponseMinutesByCategory: {},
   providerCountByCategory: {},
@@ -693,16 +690,12 @@ function getCheckoutStepForField(field: RequestField): CheckoutStepId {
 }
 
 function buildCheckoutDescription({
-  couponCode,
-  photoNames,
   providerId,
   providerName,
   selectedExtras,
   selectedSubService,
   shortDescription,
 }: {
-  couponCode: string;
-  photoNames: string[];
   providerId?: string;
   providerName?: string;
   selectedExtras: CheckoutExtra[];
@@ -716,8 +709,6 @@ function buildCheckoutDescription({
     selectedExtras.length > 0
       ? `Ek hizmetler: ${selectedExtras.map((extra) => extra.label).join(", ")}`
       : "",
-    couponCode.trim() ? `Kupon: ${couponCode.trim()}` : "",
-    photoNames.length > 0 ? `Fotoğraf notu: ${photoNames.length} görsel seçildi.` : "",
   ].filter(Boolean);
 
   return [shortDescription.trim(), ...checkoutLines].filter(Boolean).join("\n");
@@ -806,6 +797,8 @@ function CheckoutStepCard({
           : "border-[rgba(10,37,64,0.08)]",
         className,
       )}
+      data-checkout-step={step.id}
+      id={`checkout-${step.id}`}
       onFocusCapture={onActivate}
     >
       <legend className="cursor-default select-none">
@@ -855,15 +848,11 @@ function SummaryLine({
 
 function OrderSummaryPanel({
   addressSummary,
-  couponCode,
-  couponDiscount,
-  couponFeedback,
   dateSummary,
   estimatedDuration,
   estimatedPrice,
   extrasSummary,
   isSubmitting,
-  onCouponChange,
   paymentSummary,
   selectedService,
   selectedSubService,
@@ -872,15 +861,11 @@ function OrderSummaryPanel({
   total,
 }: {
   addressSummary: string;
-  couponCode: string;
-  couponDiscount: number;
-  couponFeedback: string;
   dateSummary: string;
   estimatedDuration: string;
   estimatedPrice: number;
   extrasSummary: string;
   isSubmitting: boolean;
-  onCouponChange: (value: string) => void;
   paymentSummary: string;
   selectedService?: Service;
   selectedSubService: string;
@@ -916,40 +901,14 @@ function OrderSummaryPanel({
         <SummaryLine label="Ödeme" value={paymentSummary} />
       </dl>
 
-      <div className="mt-5">
-        <label className={labelClassName} htmlFor="couponCode">
-          Kupon kodu
-        </label>
-        <div className="relative">
-          <Tag
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--brand-orange-dark)]"
-          />
-          <input
-            className={`${fieldClassName} pl-10 uppercase`}
-            id="couponCode"
-            name="couponCode"
-            onChange={(event) => onCouponChange(event.target.value)}
-            placeholder="FUWU10"
-            type="text"
-            value={couponCode}
-          />
-        </div>
-        <p className={helperClassName}>{couponFeedback}</p>
-      </div>
-
       <div className="mt-5 space-y-3 rounded-lg bg-[var(--surface-soft)] p-4 ring-1 ring-[rgba(10,37,64,0.08)]">
         <div className="flex items-center justify-between gap-3 text-sm font-semibold text-[var(--muted)]">
           <span>Ara toplam</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex items-center justify-between gap-3 text-sm font-semibold text-[var(--muted)]">
-          <span>Kupon</span>
-          <span>{couponDiscount > 0 ? `-${formatPrice(couponDiscount)}` : "0 TL"}</span>
-        </div>
         <div className="flex items-end justify-between gap-3 border-t border-[rgba(10,37,64,0.12)] pt-4">
           <span className="text-sm font-bold uppercase tracking-normal text-[var(--brand-navy)]">
-            Toplam tutar
+            Tahmini toplam
           </span>
           <span className="text-3xl font-extrabold leading-none text-[var(--brand-navy)]">
             {formatPrice(total)}
@@ -963,10 +922,10 @@ function OrderSummaryPanel({
         type="submit"
         variant="premium"
       >
-        {isSubmitting ? "Ödeme hazırlanıyor..." : "Online Ödemeyi Tamamla"}
+        {isSubmitting ? "Talep oluşturuluyor..." : "Talebi Onayla"}
       </Button>
       <p className="mt-3 text-center text-xs font-semibold leading-5 text-[var(--muted)]">
-        Ödeme kaydı mevcut Fuwu sipariş güvenliğiyle tamamlanır.
+        Bu adımda ödeme alınmaz. Talep sonrası net fiyat ve desteklenen ödeme seçenekleri siparişinizde gösterilir.
       </p>
     </div>
   );
@@ -1012,9 +971,8 @@ export function RequestForm({
     hasProviderProfilePrefill ? "date" : "service",
   );
   const [selectedExtraIds, setSelectedExtraIds] = useState<CheckoutExtraId[]>([]);
+  const clearDraft = useSessionFormDraft(`fuwu:request-draft:${authenticatedUserId || "guest"}:${initialProviderIdValue}:${initialService || ""}:${initialDistrict || ""}`, formState, setFormState);
   const [selectedSubService, setSelectedSubService] = useState("");
-  const [couponCode, setCouponCode] = useState("");
-  const [photoNames, setPhotoNames] = useState<string[]>([]);
   const [errors, setErrors] = useState<RequestFormErrors>({});
   const [submittedRequest, setSubmittedRequest] = useState<SubmittedRequest | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -1098,10 +1056,7 @@ export function RequestForm({
     : roundToNearestTen(baseEstimate.price * getBudgetPriceMultiplier(formState.budgetTag));
   const extrasTotal = selectedExtras.reduce((total, extra) => total + extra.price, 0);
   const subtotal = estimatedServicePrice + extrasTotal;
-  const normalizedCouponCode = couponCode.trim().toLocaleUpperCase("tr");
-  const couponDiscountRate = couponDiscountRates[normalizedCouponCode] ?? 0;
-  const couponDiscount = roundToNearestTen(subtotal * couponDiscountRate);
-  const orderTotal = Math.max(0, subtotal - couponDiscount);
+  const orderTotal = subtotal;
   const estimatedDurationMinutes =
     baseEstimate.durationMinutes +
     selectedExtras.reduce((total, extra) => total + extra.durationMinutes, 0);
@@ -1119,12 +1074,7 @@ export function RequestForm({
       ? selectedExtras.map((extra) => extra.label).join(", ")
       : "Ek hizmet seçilmedi";
   const paymentSummary = getPaymentPreferenceLabel(formState.paymentPreference);
-  const couponFeedback =
-    couponCode.trim().length === 0
-      ? "Kuponun varsa toplam tutar anında güncellenir."
-      : couponDiscountRate > 0
-        ? "%10 indirim uygulandı."
-        : "Bu kupon için indirim bulunamadı.";
+
 
   useEffect(() => {
     if (!authenticatedUserId) {
@@ -1247,17 +1197,6 @@ export function RequestForm({
     setSubmitError(null);
   }
 
-  function handlePhotoSelection(event: ChangeEvent<HTMLInputElement>) {
-    setActiveStepId("notes");
-    const files = Array.from(event.target.files ?? [])
-      .slice(0, 6)
-      .map((file) => file.name);
-
-    setPhotoNames(files);
-    setSubmittedRequest(null);
-    setSubmitError(null);
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setActiveStepId("payment");
@@ -1265,9 +1204,7 @@ export function RequestForm({
     const enrichedFormState: RequestFormState = {
       ...formState,
       shortDescription: buildCheckoutDescription({
-        couponCode,
-        photoNames,
-        providerId: initialProviderIdValue,
+                    providerId: initialProviderIdValue,
         providerName: initialProviderNameValue,
         selectedExtras,
         selectedSubService: currentSubService,
@@ -1279,6 +1216,8 @@ export function RequestForm({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      const firstField = Object.keys(validationErrors)[0] as RequestField;
+      goToStep(getCheckoutStepForField(firstField));
       setSubmittedRequest(null);
       setSubmitError(null);
       return;
@@ -1308,6 +1247,7 @@ export function RequestForm({
       }
 
       const result = response.data;
+      clearDraft();
       trackRequestCreated({
         category: normalizedRequest.serviceCategory,
         district: normalizedRequest.district,
@@ -1327,6 +1267,29 @@ export function RequestForm({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function goToStep(stepId: CheckoutStepId) {
+    setActiveStepId(stepId);
+    window.requestAnimationFrame(() => {
+      const section = document.getElementById(`checkout-${stepId}`);
+      section?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+      const heading = section?.querySelector("legend");
+      if (heading instanceof HTMLElement) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    });
+  }
+
+  function continueToNextStep() {
+    const validationErrors = validateForm(normalizeForm(formState));
+    const stepErrors = Object.fromEntries(Object.entries(validationErrors).filter(([field]) => getCheckoutStepForField(field as RequestField) === activeStepId));
+    if (Object.keys(stepErrors).length) {
+      setErrors(current => ({ ...current, ...stepErrors }));
+      goToStep(activeStepId);
+      return;
+    }
+    const index = visibleCheckoutSteps.findIndex(step => step.id === activeStepId);
+    const next = visibleCheckoutSteps[index + 1];
+    if (next) goToStep(next.id);
   }
 
   function getFieldClassName(field: RequestField) {
@@ -1389,7 +1352,7 @@ export function RequestForm({
 
   return (
     <form
-      className="relative pb-28 lg:pb-0"
+      className="market-request-form relative pb-28 lg:pb-0"
       data-testid="request-form"
       noValidate
       onSubmit={handleSubmit}
@@ -1400,7 +1363,7 @@ export function RequestForm({
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={progressPercentage}
-        className="sticky top-0 z-30 mb-6 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-soft)] shadow-sm"
+        className="mb-6 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-soft)] shadow-sm"
         role="progressbar"
       >
         <div
@@ -1424,13 +1387,13 @@ export function RequestForm({
                 </h2>
                 <p className="mt-3 text-base font-semibold leading-7 text-[var(--muted)]">
                   {isProviderProfileCheckout
-                    ? `${initialProviderNameValue || "Seçtiğin usta"} için servis seçimini geçip doğrudan randevu ve ödeme adımlarına devam et.`
-                    : "Adımları tamamlayın, ödeme öncesinde özetinizi kontrol edin."}
+                    ? `${initialProviderNameValue || "Seçtiğin usta"} için servis seçimini geçip doğrudan randevu detaylarına devam edin.`
+                    : "Adımları tamamlayın, göndermeden önce özetinizi kontrol edin."}
                 </p>
               </div>
               <div className="rounded-lg bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(10,37,64,0.08)]">
                 <span className="text-[var(--brand-orange-dark)]">{formatPrice(orderTotal)}</span>
-                <span className="ml-2 text-[var(--muted)]">canlı toplam</span>
+                <span className="ml-2 text-[var(--muted)]">tahmini toplam</span>
               </div>
             </div>
 
@@ -1442,7 +1405,7 @@ export function RequestForm({
 
             {isProviderProfileCheckout ? (
               <p className="mt-4 rounded-md border border-[rgba(13,20,36,0.08)] bg-white px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-                {initialProviderNameValue || "Seçili usta"} profili üzerinden başladığın için hizmet seçimi tamamlandı.
+                Usta tercihiniz talebe eklenir. Atama ve randevu, uygunluk değerlendirildikten sonra kesinleşir.
               </p>
             ) : null}
 
@@ -1470,11 +1433,11 @@ export function RequestForm({
                             ? "border-[rgba(23,116,95,0.22)] bg-[var(--trust-green-soft)] text-[var(--trust-green)]"
                             : "border-[rgba(10,37,64,0.08)] bg-white text-[var(--muted)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-navy)]",
                       )}
-                      onClick={() => setActiveStepId(step.id)}
+                      onClick={() => goToStep(step.id)}
                       type="button"
                     >
                       <Icon aria-hidden="true" className="size-4 shrink-0" />
-                      <span className="min-w-0 truncate">{step.title}</span>
+                      <span className="min-w-0">{step.title}</span>
                     </button>
                   </li>
                 );
@@ -2064,44 +2027,7 @@ export function RequestForm({
                 <FieldError id="fullName-error" message={errors.fullName} />
               </div>
 
-              <div>
-                <label className={labelClassName} htmlFor="photoUploads">
-                  Fotoğraflar
-                </label>
-                <label
-                  className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[rgba(10,37,64,0.18)] bg-[#fffdf9] px-4 py-5 text-center transition-all duration-200 hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
-                  htmlFor="photoUploads"
-                >
-                  <UploadCloud aria-hidden="true" className="size-7 text-[var(--brand-orange-dark)]" />
-                  <span className="mt-3 text-sm font-extrabold text-[var(--brand-navy)]">
-                    Fotoğraf ekle
-                  </span>
-                  <span className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
-                    En fazla 6 görsel seçebilirsin.
-                  </span>
-                </label>
-                <input
-                  accept="image/*"
-                  className="sr-only"
-                  id="photoUploads"
-                  multiple
-                  onChange={handlePhotoSelection}
-                  type="file"
-                />
-                {photoNames.length > 0 ? (
-                  <div className="mt-3 grid gap-2">
-                    {photoNames.map((photoName) => (
-                      <div
-                        className="flex items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(10,37,64,0.08)]"
-                        key={photoName}
-                      >
-                        <Camera aria-hidden="true" className="size-4 text-[var(--brand-orange-dark)]" />
-                        <span className="min-w-0 truncate">{photoName}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-soft)] p-4"><p className="text-sm font-semibold">İşinizi tarif edin</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">İşin kapsamını, ölçüleri ve varsa dikkat edilmesi gerekenleri notlara ekleyin. Bu formda fotoğraf yükleme desteklenmiyor.</p></div>
             </div>
 
             <div className="mt-5">
@@ -2299,15 +2225,11 @@ export function RequestForm({
         <aside className="min-w-0 lg:sticky lg:top-24 lg:h-fit">
           <OrderSummaryPanel
             addressSummary={selectedAddressSummary}
-            couponCode={couponCode}
-            couponDiscount={couponDiscount}
-            couponFeedback={couponFeedback}
             dateSummary={selectedDateSummary}
             estimatedDuration={formatDuration(estimatedDurationMinutes)}
             estimatedPrice={estimatedServicePrice}
             extrasSummary={extrasSummary}
             isSubmitting={isSubmitting}
-            onCouponChange={setCouponCode}
             paymentSummary={paymentSummary}
             selectedService={selectedService}
             selectedSubService={currentSubService}
@@ -2318,23 +2240,34 @@ export function RequestForm({
         </aside>
       </div>
 
-      <div className="safe-area-bottom fixed inset-x-0 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-40 border-t border-[rgba(10,37,64,0.12)] bg-white/95 px-4 py-3 shadow-[0_-18px_40px_rgba(10,37,64,0.12)] backdrop-blur md:bottom-0 lg:hidden">
+      <div className="market-request-mobile-action safe-area-bottom fixed inset-x-0 bottom-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] z-40 border-t border-[rgba(10,37,64,0.12)] bg-white/95 px-4 py-3 shadow-[0_-18px_40px_rgba(10,37,64,0.12)] backdrop-blur md:bottom-0 lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-              Toplam tutar
+              Tahmini toplam
             </p>
             <p className="truncate text-xl font-extrabold text-[var(--brand-navy)]">
               {formatPrice(orderTotal)}
             </p>
           </div>
           <Button
+            aria-label="Önceki adıma dön"
+            className="min-h-11 min-w-11 shrink-0 !px-2"
+            disabled={activeStepIndex === 0 || isSubmitting}
+            onClick={() => goToStep(visibleCheckoutSteps[activeStepIndex - 1].id)}
+            type="button"
+            variant="secondary"
+          >
+            <ChevronLeft aria-hidden="true" className="size-5" />
+          </Button>
+          <Button
             className="min-h-12 shrink-0 rounded-lg px-5 text-sm font-extrabold"
             disabled={isSubmitting}
-            type="submit"
+            onClick={activeStepId === "payment" ? undefined : continueToNextStep}
+            type={activeStepId === "payment" ? "submit" : "button"}
             variant="premium"
           >
-            {isSubmitting ? "Hazırlanıyor..." : "Online Ödeme"}
+            {isSubmitting ? "Gönderiliyor..." : activeStepId === "payment" ? "Talebi Onayla" : "Devam Et"}
           </Button>
         </div>
       </div>

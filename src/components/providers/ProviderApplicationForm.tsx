@@ -4,6 +4,7 @@ import type { FormEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ChevronDown, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSessionFormDraft } from "@/lib/hooks/useSessionFormDraft";
 import { submitProviderApplicationAction } from "@/app/provider-application/actions";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -315,6 +316,7 @@ export function ProviderApplicationForm({
   const router = useRouter();
   const { t } = useI18n();
   const [formState, setFormState] = useState<ProviderApplicationFormState>(initialFormState);
+  const clearDraft = useSessionFormDraft(`fuwu:application-draft:${authenticatedUserId || "guest"}`, formState, setFormState);
   const [activeSection, setActiveSection] = useState<ProviderApplicationSectionId>("basic");
   const [errors, setErrors] = useState<ProviderFormErrors>({});
   const [formError, setFormError] = useState("");
@@ -503,6 +505,7 @@ export function ProviderApplicationForm({
       });
       trackMetaProviderApplicationSubmitted();
       setSubmittedApplication(submitResult.result);
+      clearDraft();
       setFormState(initialFormState);
       setProfileImageFile(null);
       setVerificationDocumentFile(null);

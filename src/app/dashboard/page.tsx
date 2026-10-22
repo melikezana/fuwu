@@ -343,7 +343,7 @@ export default async function CustomerDashboardPage() {
               </div>
             </div>
             <Button
-              href={appRoutes.request}
+              href={appRoutes.catalog}
               className="shrink-0 gap-2 min-h-[44px]"
             >
               <Plus className="size-4" />
@@ -376,7 +376,7 @@ export default async function CustomerDashboardPage() {
             description="Supabase bağlantısı aktif olduğunda talep geçmişin burada görünecek. Şimdilik talep oluşturabilir veya ustaları inceleyebilirsin."
             actions={
               <>
-                <Button href={appRoutes.request}>
+                <Button href={appRoutes.catalog}>
                   Hizmeti Satın Al
                 </Button>
                 <Button href={appRoutes.providers} variant="secondary">
@@ -389,10 +389,10 @@ export default async function CustomerDashboardPage() {
           <EmptyState
             icon={<FileText className="size-7 text-[var(--brand-orange)]" />}
             title="Henüz hiç talep yok"
-            description="İlk talebini oluştur, uygun ustayla eşleş. Tüm talepleriniz burada takip edilir."
+            description="Önceki talepleriniz burada saklanır. Yeni hizmet satın alımlarını Siparişlerim bölümünden takip edebilirsiniz."
             actions={
               <>
-                <Button href={appRoutes.request}>
+                <Button href={appRoutes.catalog}>
                   Hizmeti Satın Al
                 </Button>
                 <Button href={appRoutes.providers} variant="secondary">
@@ -441,7 +441,7 @@ export default async function CustomerDashboardPage() {
             Icon={Wrench}
           />
           <QuickLink
-            href={appRoutes.request}
+            href={appRoutes.catalog}
             label="Hizmeti Satın Al"
             desc="Hizmetini seç ve ödemeye ilerle"
             Icon={Plus}

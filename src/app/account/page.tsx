@@ -163,6 +163,7 @@ export default async function AccountPage() {
   return (
     <main className="premium-page-shell min-h-screen px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-2xl space-y-6">
+        <Link className="commerce-button w-full" href="/orders">Siparişlerim ve Randevularım</Link>
         <section className="premium-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
           {profile.avatar_url ? (
             <Image
@@ -201,9 +202,9 @@ export default async function AccountPage() {
         <section className="grid gap-3 sm:grid-cols-2">
           {[
             {
-              href: appRoutes.request,
-              label: "Yeni Talep",
-              sub: "Usta talep et",
+              href: appRoutes.catalog,
+              label: "Hizmetleri İncele",
+              sub: "Hizmetini satın al",
               icon: <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />,
             },
             {
@@ -242,7 +243,7 @@ export default async function AccountPage() {
             <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
               Taleplerim
             </h2>
-            <TextLink className="text-xs font-semibold" href={appRoutes.request}>
+            <TextLink className="text-xs font-semibold" href={appRoutes.catalog}>
               + Yeni
             </TextLink>
           </div>
@@ -250,11 +251,11 @@ export default async function AccountPage() {
           {requests.length === 0 ? (
             <div className="rounded-lg border border-dashed border-[var(--border)] bg-white px-6 py-10 text-center shadow-[var(--shadow-subtle)]">
               <p className="text-sm font-semibold text-[var(--brand-navy)]">Henüz talep oluşturmadın.</p>
-              <p className="text-xs text-[var(--muted)]">Hizmet ihtiyacını tarif et, uygun ustalarla eşleş.</p>
+              <p className="text-xs text-[var(--muted)]">Hizmetini seç, uygun usta ve randevuyla satın al.</p>
               <Button
-                href={appRoutes.request}
+                href={appRoutes.catalog}
               >
-                İlk Talebini Oluştur
+                Hizmetleri İncele
               </Button>
             </div>
           ) : (

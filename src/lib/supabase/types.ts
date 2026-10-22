@@ -1,3 +1,5 @@
+import type { CommerceTables, CommerceFunctions } from "@/lib/commerce/types";
+
 export type Json =
   | string
   | number
@@ -9,7 +11,7 @@ export type Json =
 // Replace this scaffold with generated Supabase CLI types after the database schema exists.
 export type Database = {
   public: {
-    Tables: {
+    Tables: CommerceTables & {
       profiles: {
         Row: {
           id: string;
@@ -1024,7 +1026,7 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: {
+    Functions: CommerceFunctions & {
       bind_provider_applications_to_current_user: {
         Args: Record<PropertyKey, never>;
         Returns: number;

@@ -65,7 +65,7 @@ test.describe("CTO launch verification", () => {
     skipUnlessLocalSupabase();
 
     await page.goto("/providers?category=cilingir&district=Adalar");
-    await expect(page.locator('select[name="category"]')).toHaveValue("Çilingir");
+    await expect(page.locator('select[name="category"]')).toHaveValue("cilingir");
     await expect(page.locator('select[name="district"]')).toHaveValue("Adalar");
     await expect(
       page.getByText("Bu bölgede henüz Çilingir ustası yok", { exact: true }),

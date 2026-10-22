@@ -1,0 +1,25 @@
+{
+  "checks": [
+    "Text search filters real providers and preserves the query",
+    "Mobile sorting applies through GET, retains search and returns focus on Escape",
+    "Price range uses real data, shows empty results and can be cleared",
+    "Real profile passes provider, service and district to request flow; no fabricated rating",
+    "Mobile next/back retain values, validate required fields, preserve drafts on reload and clear the simulated keyboard",
+    "Provider landing, application anchor and partial draft work at all seven required widths"
+  ],
+  "errors": [],
+  "screenshots": [
+    "filters-390.png",
+    "profile-390.png",
+    "profile-1440.png",
+    "request-390.png",
+    "request-1440.png",
+    "provider-application-390.png",
+    "provider-application-390-full.png",
+    "provider-application-1440.png",
+    "provider-application-1440-full.png",
+    "providers-1440.png",
+    "providers-390.png"
+  ],
+  "failure": null
+}

@@ -1,0 +1,39 @@
+import type { Json } from "@/lib/supabase/types";
+
+export type CatalogService = { id: string; category_id: string; slug: string; name: string; description: string; scope: string; exclusions: string; image_url: string; pricing_type: "FIXED_PRICE" | "VARIANT_BASED" | "DIAGNOSTIC_SERVICE"; is_active: boolean };
+export type ServiceVariant = { id: string; service_id: string; name: string; is_active: boolean };
+export type Offering = { id: string; provider_id: string; service_id: string; variant_id: string | null; price_minor: number; duration_minutes: number; district_ids: string[]; is_active: boolean; updated_at: string };
+export type PublicOffer = Pick<Offering, "id" | "provider_id" | "service_id" | "variant_id" | "price_minor" | "duration_minutes" | "district_ids"> & { variant_name: string | null; provider_name: string; profile_image_url: string | null; rating: number | null; review_count: number };
+export type Availability = { provider_id: string; weekday: number; starts_at: string; ends_at: string };
+export type TimeOff = { id: string; provider_id: string; day: string };
+export type Slot = { starts_at: string; ends_at: string };
+export type OrderStatus = "PENDING_PAYMENT" | "CONFIRMED" | "PROVIDER_ON_THE_WAY" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "PAYMENT_FAILED" | "REFUND_PENDING" | "REFUNDED" | "DISPUTED";
+export type CommerceOrder = { id: string; customer_id: string; provider_id: string; offering_id: string; service_name: string; variant_name: string | null; scope: string; provider_name: string; district_id: string; district_name: string; address: string; starts_at: string; ends_at: string; total_minor: number; commission_minor: number; provider_gross_minor: number; processor_fee_minor: number | null; currency: "TRY"; payment_status: "UNPAID" | "PAID" | "FAILED" | "REFUND_PENDING" | "REFUNDED"; status: OrderStatus; expires_at: string; idempotency_key: string; created_at: string; updated_at: string };
+export type PaymentTransaction = { id: string; order_id: string; conversation_id: string; checkout_token: string | null; payment_page_url: string | null; payment_id: string | null; item_transaction_id: string | null; payout_state: "NONE" | "IN_FLIGHT" | "RELEASED"; refund_state: "NONE" | "IN_FLIGHT" | "REFUNDED"; status: "INITIALIZING" | "AWAITING" | "SUCCEEDED" | "FAILED"; environment: "sandbox"; created_at: string; updated_at: string };
+export type OrderEvent = { id: string; order_id: string; status: OrderStatus; created_at: string };
+type Table<R> = { Row: R; Insert: Partial<R>; Update: Partial<R>; Relationships: [] };
+export type CommerceTables = {
+  service_catalog: Table<CatalogService>;
+  service_variants: Table<ServiceVariant>;
+  provider_service_offerings: Table<Offering>;
+  provider_availability: Table<Availability>;
+  provider_time_off: Table<TimeOff>;
+  orders: Table<CommerceOrder>;
+  payment_transactions: Table<PaymentTransaction>;
+  order_status_events: Table<OrderEvent>;
+  order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
+};
+export type CommerceFunctions = {
+  commerce_offers: { Args: { p_service_id?: string; p_district_id?: string; p_provider_id?: string }; Returns: Json };
+  commerce_slots: { Args: { p_offering_id: string; p_day: string; p_district_id: string }; Returns: Slot[] };
+  commerce_hold_order: { Args: { p_offering_id: string; p_starts_at: string; p_district_id: string; p_address: string; p_idempotency_key: string; p_expected_price_minor: number }; Returns: Json };
+  commerce_expire_holds: { Args: Record<string, never>; Returns: number };
+  commerce_begin_payment: { Args: { p_order_id: string }; Returns: Json };
+  commerce_attach_payment: { Args: { p_order_id: string; p_token: string; p_url: string }; Returns: undefined };
+  commerce_resolve_payment: { Args: { p_order_id: string; p_token: string | null; p_payment_id: string | null; p_success: boolean; p_fee_minor?: number; p_item_transaction_id?: string }; Returns: string };
+  commerce_claim_settlement: { Args: { p_order_id: string; p_kind: string }; Returns: Json };
+  commerce_finish_settlement: { Args: { p_order_id: string; p_kind: string }; Returns: undefined };
+  commerce_transition_order: { Args: { p_order_id: string; p_status: string; p_code?: string }; Returns: Json };
+  commerce_save_store: { Args: { p_provider_id: string; p_offerings: Json; p_hours: Json; p_days_off: Json }; Returns: undefined };
+  commerce_submit_review: { Args: { p_order_id: string; p_rating: number; p_comment: string }; Returns: string };
+};

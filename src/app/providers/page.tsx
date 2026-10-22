@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SlidersHorizontal, UsersRound } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { LazyVoiceCommandButton } from "@/components/accessibility/LazyVoiceCommandButton";
 import { Container } from "@/components/ui/Container";
-import { PageHeader } from "@/components/ui/Premium";
 import { ProviderFilters } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { appRoutes } from "@/lib/constants/navigation";
 import { defaultProviderSort } from "@/lib/provider-filters";
-import { I18nText } from "@/lib/i18n";
 import {
   createPageMetadata,
   getProviderListingLabel,
@@ -254,6 +252,8 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   const categoryDistrictEmptyState =
     selectedCategory && selectedDistrict && filteredProviders.length === 0
       ? {
+          category: selectedCategory,
+          district: selectedDistrict,
           requestHref: `${appRoutes.request}?${new URLSearchParams({
             district: selectedDistrict,
             service: selectedCategory,
@@ -279,52 +279,18 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
 
   return (
     <div className="premium-page-shell providers-page">
-      <PageHeader
-        actions={
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[rgba(20,33,61,0.1)] bg-white px-4 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5 hover:border-[rgba(249,115,22,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-            href={appRoutes.request}
-          >
-            Talep Oluştur
-          </Link>
-        }
-        badge={source === "supabase" ? "Yayındaki profiller" : "Bilgiye ulaşılamıyor"}
-        breadcrumbs={
-          <>
-            <Link className="inline-flex min-h-11 items-center hover:text-[var(--brand-navy)] sm:min-h-0" href={appRoutes.home}>
-              Ana sayfa
-            </Link>
-            <span>/</span>
-            <span className="text-[var(--brand-navy)]">Ustalar</span>
-          </>
-        }
-        description={
-          <I18nText i18nKey="providers.hero.subtitle" />
-        }
-        eyebrow={<I18nText i18nKey="providers.hero.eyebrow" />}
-        metrics={[
-          {
-            icon: UsersRound,
-            label: "Görünen profil",
-            value: filteredProviders.length,
-          },
-          {
-            icon: UsersRound,
-            label: "Toplam profil",
-            value: providerDirectory.totalCount,
-          },
-          {
-            icon: SlidersHorizontal,
-            label: "Aktif filtre",
-            value: activeFilterCount,
-          },
-        ]}
-        title={<I18nText i18nKey="providers.hero.title" />}
-      />
+      <section className="market-directory-header">
+        <Container className="max-w-7xl">
+          <nav aria-label="İçerik yolu" className="market-breadcrumb"><Link href={appRoutes.home}>Ana sayfa</Link><span>/</span><span>Usta Bul</span></nav>
+          <div className="market-directory-heading"><div><p className="market-eyebrow"><MapPin aria-hidden="true" className="size-4" />{selectedDistrict || "İstanbul"} · Ev hizmetleri</p><h1>İşinizi doğru ustaya bırakın.</h1><p>Uzmanlıkları inceleyin, profilleri karşılaştırın ve ihtiyacınıza uygun hizmeti talep edin.</p></div><Link className="market-outline-link" href={appRoutes.request}>İhtiyacınızı anlatın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
+          {source !== "supabase" ? <p className="market-data-notice" role="status">Usta listesi şu anda yüklenemiyor. Biraz sonra tekrar deneyebilir veya hizmet talebi oluşturabilirsiniz.</p> : null}
+        </Container>
+      </section>
 
       <section className="border-b border-[var(--border)] bg-white/70" id="provider-filters">
-        <Container className="max-w-7xl py-6 sm:py-8">
+        <Container className="max-w-7xl py-5 sm:py-6">
           <ProviderFilters
+            key={JSON.stringify(params ?? {})}
             availabilityOptions={filterOptions.availabilityOptions}
             averagePrices={filterOptions.averagePrices}
             capabilities={filterOptions.capabilities}
@@ -362,6 +328,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
 
       <Container className="max-w-7xl py-8 sm:py-10 lg:py-12" id="provider-results">
         <ProviderList
+          isUnavailable={source !== "supabase"}
           categoryDistrictEmptyState={categoryDistrictEmptyState}
           hasActiveFilters={activeFilterCount > 0 || Boolean(selectedSort && selectedSort !== defaultProviderSort)}
           providers={filteredProviders}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProviderCommerceSummary } from "@/components/commerce/ProviderCommerceSummary";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -265,6 +266,7 @@ export default async function ProviderDashboardPage() {
       {providerAccess.ok ? (
         <div className="grid gap-6">
           <ProviderDashboardActiveNotice provider={providerAccess.profile} />
+          <ProviderCommerceSummary providerId={providerAccess.profile.id} />
           <ProviderDashboardSummary
             assignedRequestCount={assignedRequests.length}
             provider={providerAccess.profile}

@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { assertSandbox } from "@/lib/commerce/payment";
 
 export type IyzicoLocale = "tr" | "en";
 
@@ -29,6 +30,7 @@ export class IyzicoIntegrationError extends Error {
 }
 
 function getIyzicoConfig(): IyzicoConfig {
+  assertSandbox();
   const apiKey = process.env.IYZICO_API_KEY?.trim();
   const secretKey = process.env.IYZICO_SECRET_KEY?.trim();
   const baseUrl =
@@ -75,10 +77,12 @@ function createAuthorizationHeader({
 }
 
 export async function iyzicoRequest<TResponse extends IyzicoApiResponse>({
+  allowFailure = false,
   body,
   method = "POST",
   path,
 }: {
+  allowFailure?: boolean;
   body: Record<string, unknown>;
   method?: "POST" | "PUT";
   path: string;
@@ -87,6 +91,7 @@ export async function iyzicoRequest<TResponse extends IyzicoApiResponse>({
   const bodyJson = JSON.stringify(body);
   const randomKey = createRandomKey();
   const response = await fetch(`${config.baseUrl}${path}`, {
+    signal: AbortSignal.timeout(20000),
     body: bodyJson,
     cache: "no-store",
     headers: {
@@ -115,7 +120,7 @@ export async function iyzicoRequest<TResponse extends IyzicoApiResponse>({
     });
   }
 
-  if (!response.ok || responseBody.status === "failure") {
+  if (!response.ok || (!allowFailure && responseBody.status === "failure")) {
     throw new IyzicoIntegrationError(
       responseBody.errorMessage || "iyzico request failed.",
       {

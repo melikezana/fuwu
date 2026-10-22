@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/commerce-expiry",
+      "schedule": "30 3 * * *"
+    },
+    {
       "path": "/api/cron/emergency-sla-sweep",
       "schedule": "0 3 * * *"
     },

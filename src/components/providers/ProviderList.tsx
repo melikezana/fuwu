@@ -3,16 +3,19 @@
 import { UserRoundSearch } from "lucide-react";
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/Button";
-import { PremiumCard } from "@/components/ui/Premium";
 import { appRoutes } from "@/lib/constants/navigation";
+import { getServiceDisplayLabel } from "@/lib/constants/services";
 import { useI18n } from "@/lib/i18n";
 import type { Provider } from "@/types/provider";
 import { ProviderCard } from "./ProviderCard";
 
 type ProviderListProps = {
   categoryDistrictEmptyState?: {
+    category: string;
+    district: string;
     requestHref: string;
   };
+  isUnavailable?: boolean;
   hasActiveFilters?: boolean;
   providers: Provider[];
   totalCount: number;
@@ -22,10 +25,14 @@ function ProviderEmptyState({
   hasActiveFilters = false,
   requestHref,
   testId,
+  title,
+  isUnavailable,
 }: {
   hasActiveFilters?: boolean;
   requestHref: string;
   testId?: string;
+  title?: string;
+  isUnavailable?: boolean;
 }) {
   return (
     <div
@@ -39,12 +46,12 @@ function ProviderEmptyState({
         />
       </div>
       <h3 className="text-xl font-bold text-[var(--brand-navy)]">
-        {hasActiveFilters ? "Bu ölçütlere uygun usta bulunamadı." : "Bu alanda henüz usta yok"}
+        {isUnavailable ? "Usta listesine ulaşılamıyor" : title || (hasActiveFilters ? "Bu ölçütlere uygun usta bulunamadı." : "Bu alanda henüz usta yok")}
       </h3>
       <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
-        {hasActiveFilters
+        {isUnavailable ? "Listeyi yüklemek için biraz sonra tekrar deneyin. İsterseniz ihtiyacınızı hizmet talebi olarak paylaşabilirsiniz." : hasActiveFilters
           ? "Filtreleri temizleyerek daha geniş bir listeye dönebilir veya ihtiyacını talep olarak bırakabilirsin."
-          : "İhtiyacını bırak, uygun usta müsait olduğunda seni bilgilendirelim."}
+          : "İhtiyacınızı ve konumunuzu paylaşarak hizmet talebi oluşturabilirsiniz."}
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         {hasActiveFilters ? (
@@ -53,7 +60,7 @@ function ProviderEmptyState({
           </Button>
         ) : null}
         <Button className="inline-flex" href={requestHref} variant="primary">
-          Hizmeti Satın Al
+          Hizmet Talep Et
         </Button>
       </div>
     </div>
@@ -65,11 +72,12 @@ export function ProviderList({
   hasActiveFilters = false,
   providers,
   totalCount,
+  isUnavailable = false,
 }: ProviderListProps) {
   const { t } = useI18n();
   const hasNoPublicProviders = totalCount === 0;
   const resultHeading =
-    hasNoPublicProviders
+    isUnavailable ? "Profiller şu anda yüklenemiyor" : hasNoPublicProviders
       ? t("providers.list.noPublic")
       : providers.length > 0
         ? providers.length === 1
@@ -87,17 +95,17 @@ export function ProviderList({
 
   return (
     <section>
-      <PremiumCard className="premium-reveal cursor-default select-none">
-        <p className="text-sm font-semibold uppercase text-[var(--brand-orange-dark)]">
+      <div className="market-result-heading">
+        <p className="market-eyebrow">
           {t("providers.list.eyebrow")}
         </p>
-        <h2 className="mt-2 text-2xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-3xl">
+        <h2 className="mt-2 text-xl font-semibold leading-tight text-[var(--brand-navy)] sm:text-2xl">
           {resultHeading}
         </h2>
         <p aria-live="polite" className="mt-2 text-sm font-medium leading-6 text-[var(--muted)]">
           {t("providers.list.description", { count: totalCount })}
         </p>
-      </PremiumCard>
+      </div>
 
       {providers.length > 0 ? (
         <div
@@ -114,6 +122,8 @@ export function ProviderList({
         </div>
       ) : (
         <ProviderEmptyState
+          isUnavailable={isUnavailable}
+          title={categoryDistrictEmptyState ? `Bu bölgede henüz ${getServiceDisplayLabel(categoryDistrictEmptyState.category)} ustası yok` : undefined}
           hasActiveFilters={hasActiveFilters && !hasNoPublicProviders}
           requestHref={categoryDistrictEmptyState?.requestHref ?? appRoutes.request}
           testId={

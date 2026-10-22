@@ -12,7 +12,7 @@ test.describe("auth-required form restoration", () => {
     await fillStandardLocksmithRequest(page);
     await page.getByTestId("request-form").locator('button[type="submit"]').click();
 
-    await expect(page).toHaveURL(/\/login\?next=\/request&restore=1/);
+    await expect(page).toHaveURL(url => url.pathname === "/login" && url.searchParams.get("next") === "/request" && url.searchParams.get("restore") === "1");
     const storedRequest = await page.evaluate(() =>
       window.sessionStorage.getItem("fuwu:pending-request-form"),
     );

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProviderCommerceSummary } from "@/components/commerce/ProviderCommerceSummary";
 import type { LucideIcon } from "lucide-react";
 import { BarChart3, CheckCircle2, Clock, Star, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import {
@@ -265,6 +266,7 @@ export default async function ProviderEarningsPage() {
       statusTone={statusBadge.tone}
       title="Kazançlar"
     >
+      {providerAccess.ok && <ProviderCommerceSummary providerId={providerAccess.profile.id} earnings />}
       {providerAccess.ok ? (
         statsResult.stats ? <ProviderEarningsContent stats={statsResult.stats} /> : <StatsLoadError />
       ) : (

@@ -12,6 +12,7 @@ Bunlar hizmet kategorilerini anlatan temsili stok fotoğraflarıdır; FUWU çal�
 | plumbing-work.webp | Tesisat bağlantısı üzerinde çalışan teknisyen | Bulat843 | [32588548 – Plumber Repairing Pipe with Wrench Indoors](https://www.pexels.com/photo/plumber-repairing-pipe-with-wrench-indoors-32588548/) |
 | electrical.webp | Elektrik panosunda çalışan elektrikçi | Fatih Yurtman | [17842832 – Electrician by Fuse Box](https://www.pexels.com/photo/electrician-by-fuse-box-17842832/) |
 | painting.webp | İç mekânda ruloyla çalışan boyacı | Antoni Shkraba | [5493655 – Man Painting a Wall](https://www.pexels.com/photo/man-painting-a-wall-5493655/) |
+| provider-painting.webp | Usta Ol ana görseli; 1100×950, 30.528 bayt WebP | Antoni Shkraba | [5493655 – Man Painting a Wall](https://www.pexels.com/photo/man-painting-a-wall-5493655/) |
 | climate.webp | Klima kontrolü yapan teknik servis çalışanı | José Andrés Pacheco Cortes | [5463575 – Man Checking an Air Conditioner](https://www.pexels.com/photo/man-checking-an-air-conditioner-5463575/) |
 | locksmith.webp | Kapı kolu/kilit mekanizmasını ayarlayan eller | cottonbro studio | [7220892 – A Person Holding Brown Doorknob](https://www.pexels.com/photo/a-person-holding-brown-doorknob-7220892/) |
 | furniture.webp | Ahşap mobilya montajı | Sóc Năng Động | [31755424 – Close-up of Hands Assembling Wooden Furniture](https://www.pexels.com/photo/close-up-of-hands-assembling-wooden-furniture-31755424/) |
@@ -27,4 +28,5 @@ Her kaynağın Pexels fotoğraf sayfasındaki ücretsiz lisans bilgisi kontrol e
 - Kategori görselleri en fazla 1.000/900 piksel genişlikte; hero temizliği 1.200 piksel.
 - next/image, doğru sizes, sabit en-boy oranı ve gecikmeli yükleme kullanılır; yalnızca ana hero fotoğrafı önceliklidir.
 - Kaynaklar ve yeniden üretim: node scripts/prepare-service-photos.mjs.
+- Usta Ol görseli bu çalışmada aynı lisanslı kaynaktan yeniden indirildi; `node scripts/prepare-provider-hero.mjs` ile ayrı bir WebP olarak optimize edildi. Kaynak ve Pexels lisansı 20 Ekim 2026’da yeniden kontrol edildi.
 - Yeniden üretim aracı yalnızca bu on fotoğrafın images.pexels.com adreslerinden indirme yapar; hesap veya API anahtarı kullanmaz.

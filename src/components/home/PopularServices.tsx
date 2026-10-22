@@ -33,7 +33,7 @@ export function PopularServices({ serviceCounts, services }: { serviceCounts: Re
         <div aria-live="polite" className="home-service-grid" id="home-service-grid">
           {visibleServices.map((service) => <CategoryCard key={service.id} providerCount={serviceCounts[service.id]} service={service} />)}
         </div>
-        <div className="home-request-strip"><div><strong>Hangi hizmeti seçeceğinizden emin değil misiniz?</strong><p>İhtiyacınızı anlatın, hizmet talebinizi netleştirin.</p></div><Link className="home-text-link" href={appRoutes.request}>Talep oluşturun <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
+        <div className="home-request-strip"><div><strong>Hangi hizmete ihtiyacınız var?</strong><p>Kapsamları inceleyin, fiyatlandırılmış hizmetinizi seçin.</p></div><Link className="home-text-link" href={appRoutes.catalog}>Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
       </Container>
     </section>
   );

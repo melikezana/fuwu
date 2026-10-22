@@ -1,0 +1,9 @@
+import type { CatalogService } from "./types";
+// Curated product definitions only. These carry no price, provider or availability.
+// Until migrations are applied, the catalog can explain scope but cannot sell.
+export const catalogPreviews: CatalogService[] = [
+  { id: "preview-plumbing", category_id: "", slug: "musluk-montaji", name: "Musluk montajı", description: "Yeni musluğunuz, ustasının elinde.", scope: "Bir adet standart lavabo veya mutfak musluğunun sökülmesi, montajı ve sızdırmazlık kontrolü.", exclusions: "Musluk ve yedek parçalar; tesisat hattı yenileme dahil değildir.", image_url: "/images/services/plumbing-work.webp", pricing_type: "FIXED_PRICE", is_active: true },
+  { id: "preview-climate", category_id: "", slug: "klima-bakimi", name: "Klima bakımı", description: "Mevsime hazır, daha ferah bir ev.", scope: "Seçilen sayıdaki ev tipi split klimanın filtre temizliği ve rutin bakım kontrolü.", exclusions: "Gaz dolumu, parça değişimi ve arıza onarımı dahil değildir.", image_url: "/images/services/climate.webp", pricing_type: "VARIANT_BASED", is_active: true },
+  { id: "preview-electrical", category_id: "", slug: "elektrik-ariza-tespiti", name: "Elektrik arıza tespiti", description: "Sorunun kaynağını birlikte bulalım.", scope: "Tek adreste elektrik arızasının yerinde incelenmesi ve yapılacak işin raporlanması.", exclusions: "Onarım, malzeme ve ek işçilik dahil değildir. Ek iş için ayrı onay gerekir.", image_url: "/images/services/electrical.webp", pricing_type: "DIAGNOSTIC_SERVICE", is_active: true },
+  { id: "preview-furniture", category_id: "", slug: "mobilya-montaji", name: "Mobilya montajı", description: "Kutudan çıkıp evinizin bir parçası olsun.", scope: "Bir adet standart çalışma masasının kurulum kılavuzuna göre montajı.", exclusions: "Duvara sabitleme, özel üretim, dolap ve eksik parça temini dahil değildir.", image_url: "/images/services/furniture.webp", pricing_type: "FIXED_PRICE", is_active: true },
+];

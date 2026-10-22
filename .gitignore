@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+artifacts/commerce-test-runtime/
 fuwu/
 
 # next.js

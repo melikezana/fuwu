@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProviderCommerceSummary } from "@/components/commerce/ProviderCommerceSummary";
 import { Calendar, Clock, MapPin, Phone } from "lucide-react";
 import {
   getProviderDashboardStatusBadgeView,
@@ -141,6 +142,7 @@ export default async function ProviderCalendarPage() {
       statusTone={statusBadge.tone}
       title="Takvim"
     >
+      {providerAccess.ok && <ProviderCommerceSummary providerId={providerAccess.profile.id} />}
       {providerAccess.ok ? (
         <div className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-3">

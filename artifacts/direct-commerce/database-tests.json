@@ -1,0 +1,31 @@
+{
+  "engine": "PostgreSQL, independent TCP sessions",
+  "checks": [
+    "Catalog has product definitions and no invented provider offerings",
+    "Only store owner can change offerings, including ownerless profile",
+    "Variant must belong to the offered service",
+    "Slots use Istanbul timezone, service duration and weekly hours",
+    "Wrong service region and past day expose no slots",
+    "Time off closes all slots",
+    "Inactive and unapproved providers cannot be purchased",
+    "Client price manipulation rejected before reservation",
+    "Two separate concurrent transactions: exactly one can reserve the same slot",
+    "Overlapping start times blocked, adjacent appointment stays available",
+    "10 percent commission stored separately in minor units",
+    "Legacy assignment cannot bypass a held commerce slot",
+    "Legacy reservation blocks its full day until duration is reconciled",
+    "RLS isolates customer, assigned provider, other provider and admin",
+    "Payment session has a single initializer and no public token access",
+    "Verified payment confirms once and duplicate callback is idempotent",
+    "Only assigned provider advances paid order, completion requires customer code",
+    "Only completed order owner can review; real rating aggregated",
+    "Completion payout has one durable external-operation claim",
+    "Hold idempotency returns the same order without extending expiry",
+    "Expired holds immediately stop blocking, before cron cleanup",
+    "Late paid callback becomes REFUND_PENDING and never steals a rebooked slot",
+    "Refund is only final after verified processor completion and cannot be claimed twice",
+    "Failed payment releases the slot",
+    "Expiry cleanup is restricted and idempotent"
+  ],
+  "failed": null
+}

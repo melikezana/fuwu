@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { CurrentUserProfile } from "@/types/auth";
 
 const headerNavigationLinks: NavigationLink[] = [
+  { href: appRoutes.orders, id: "orders", label: "Siparişlerim" },
   {
     href: appRoutes.home,
     id: "home",
@@ -27,7 +28,7 @@ const headerNavigationLinks: NavigationLink[] = [
   {
     href: appRoutes.providers,
     id: "providers",
-    label: "Ustalar",
+    label: "Usta Bul",
   },
   {
     href: appRoutes.howItWorks,

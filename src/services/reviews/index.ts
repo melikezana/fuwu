@@ -51,29 +51,6 @@ export type SubmitProviderReviewResult = {
   id: string;
 };
 
-const fallbackReviewTemplates = [
-  {
-    rating: 5,
-    comment: "Randevu saatine sadık kaldı, işi temiz ve planlı teslim etti.",
-    createdAt: "2026-04-18T09:15:00.000Z",
-  },
-  {
-    rating: 5,
-    comment: "Fiyatı baştan netleştirdi; iletişimi hızlı ve güven vericiydi.",
-    createdAt: "2026-03-29T14:30:00.000Z",
-  },
-  {
-    rating: 4,
-    comment: "Detayları sakin anlattı, küçük ek işleri de aynı randevuda çözdü.",
-    createdAt: "2026-03-11T11:05:00.000Z",
-  },
-  {
-    rating: 5,
-    comment: "Evin düzenine özen gösterdi ve işi beklediğimden hızlı bitirdi.",
-    createdAt: "2026-02-22T16:45:00.000Z",
-  },
-] satisfies Array<Pick<ProviderReview, "comment" | "rating"> & { createdAt: string }>;
-
 const providerReviewRateLimitMessage =
   "Kısa sürede çok sayıda yorum gönderdin. Lütfen biraz sonra tekrar dene.";
 
@@ -119,16 +96,6 @@ function mapSupabaseReview(record: SupabaseReviewRow): ProviderReview {
   };
 }
 
-function createFallbackReviews(providerId: string): ProviderReview[] {
-  return fallbackReviewTemplates.map((review, index) => ({
-    id: `${providerId}-fallback-review-${index + 1}`,
-    providerId,
-    rating: review.rating,
-    comment: review.comment,
-    createdAt: review.createdAt,
-  }));
-}
-
 function calculateReviewSummary(reviews: ProviderReview[]): ProviderReviewSummary {
   if (reviews.length === 0) {
     return {
@@ -147,13 +114,13 @@ function calculateReviewSummary(reviews: ProviderReview[]): ProviderReviewSummar
 
 function warnReviewFallback(error: unknown) {
   handleServiceError(error, {
-    logContext: "Review Supabase read failed. Falling back to static review data.",
+    logContext: "Review Supabase read failed. Returning unavailable review state.",
     publicMessage: "Yorumlar şu anda canlı veriden yüklenemedi.",
   });
 }
 
-function getFallbackProviderReviews(providerId: string): ProviderReviewsResult {
-  const reviews = createFallbackReviews(providerId);
+function getFallbackProviderReviews(): ProviderReviewsResult {
+  const reviews: ProviderReview[] = [];
 
   return {
     reviews,
@@ -205,7 +172,7 @@ export async function getProviderReviews(providerId: string): Promise<ProviderRe
     };
   }
 
-  return getFallbackProviderReviews(providerId);
+  return getFallbackProviderReviews();
 }
 
 async function assertProviderReviewRateLimit(

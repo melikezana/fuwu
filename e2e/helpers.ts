@@ -230,11 +230,11 @@ export async function fillStandardLocksmithRequest(page: Page) {
   await page.locator('input[name="urgencyLevel"][value="Bu hafta"]').check({ force: true });
   await page.locator('input[name="budgetTag"]').first().check({ force: true });
   await page.locator('input[name="paymentPreference"][value="online_soon"]').check({ force: true });
-  await page.locator('input[name="preferredDate"]').fill("2026-07-01");
+  const futureDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  await page.locator('input[name="preferredDate"]').fill(futureDate);
   await page.locator('select[name="preferredTimeRange"]').selectOption({ index: 1 });
   await page.locator('textarea[name="shortDescription"]').fill(`E2E çilingir talebi ${suffix}`);
   await page.locator('input[name="fullName"]').fill("E2E Müşteri");
-  await page.locator('input[name="phoneNumber"]').fill("+90 555 000 01 01");
 }
 
 export async function submitStandardLocksmithRequest(page: Page) {

@@ -8,18 +8,18 @@ import { servicePhotos } from "@/lib/service-photos";
 const steps = [
   { icon: Search, title: "Hizmetinizi seçin", description: "İhtiyacınızı arayın veya hizmet kategorilerinden birini seçin.", href: appRoutes.services, action: "Hizmetleri keşfedin" },
   { icon: UserRoundSearch, title: "Size uygun ustayı bulun", description: "Bölgenizdeki profilleri, sunulan hizmetleri ve mevcut fiyat bilgilerini karşılaştırın.", href: appRoutes.providers, action: "Ustaları inceleyin" },
-  { icon: CalendarDays, title: "Talebinizi oluşturun", description: "Tarih, adres ve iş detaylarını ekleyin. Talebinizin durumunu hesabınızdan takip edin.", href: appRoutes.request, action: "Talep oluşturun" },
+  { icon: CalendarDays, title: "Randevunuzu planlayın", description: "Müsait gün ve saati seçin, adresinizi ekleyin. Ödeme onayından sonra siparişinizi takip edin.", href: appRoutes.catalog, action: "Hizmetleri İncele" },
 ];
 const reasons = [
   { icon: ListChecks, title: "İhtiyacınız olan hizmetler bir arada", description: "Farklı işler için ayrı ayrı aramak yerine evinizin ihtiyaçlarını aynı yerden planlayın." },
   { icon: SlidersHorizontal, title: "Karar vermeden önce karşılaştırın", description: "Ustanın uzmanlığını, hizmet bölgesini ve varsa yorum, fiyat ve doğrulama bilgilerini inceleyin." },
-  { icon: ClipboardCheck, title: "Sürecin her adımını takip edin", description: "Oluşturduğunuz taleplere, randevu bilgilerine ve durum güncellemelerine hesabınızdan ulaşın." },
+  { icon: ClipboardCheck, title: "Sürecin her adımını takip edin", description: "Siparişlerinize, randevu bilgilerine ve durum güncellemelerine hesabınızdan ulaşın." },
 ];
 const questions = [
-  { title: "Nasıl hizmet talebi oluşturabilirim?", answer: "Hizmet Bul ile ihtiyacınıza uygun ustaları listeleyebilir veya Talep Oluştur ile doğrudan hizmet seçimine geçebilirsiniz. Hizmetinizi seçtikten sonra tarih, adres ve iş detaylarını ekleyerek özet ve ödeme adımlarına ilerleyebilirsiniz." },
+  { title: "Nasıl hizmet satın alabilirim?", answer: "Hizmetleri İncele ile katalogdan hizmetinizi seçin. Bölgenize hizmet veren ve fiyatı belli ustalardan birini seçip gerçek müsait gün ve saatleri görüntüleyin. Adres ve sipariş özetini kontrol ederek test ödemesine geçebilirsiniz." },
   { title: "Hangi bölgelerde hizmet bulabilirim?", answer: "FUWU’da İstanbul için hizmet arayabilirsiniz. Arama alanından ilçenizi seçerek o bölgede listelenen ustaları inceleyin. Uygunluk ve hizmet kapsamı, seçtiğiniz usta ve hizmete göre değişebilir." },
   { title: "Usta seçerken hangi bilgilere bakmalıyım?", answer: "Profildeki uzmanlık alanını, hizmet bölgesini, iş açıklamalarını, varsa iş fotoğraflarını, değerlendirmeleri ve doğrulama bilgilerini birlikte inceleyin. Yalnızca ilgili profilde mevcut olan bilgileri esas alın." },
-  { title: "Talebimi nereden takip edebilirim?", answer: "Hesabınıza giriş yaparak Taleplerim bölümünden hizmet talebinizin durumunu ve randevu bilgilerini görüntüleyebilirsiniz." },
+  { title: "Siparişimi nereden takip edebilirim?", answer: "Hesabınıza giriş yaparak Siparişlerim bölümünden satın aldığınız hizmetin durumunu ve randevu bilgilerini görüntüleyebilirsiniz." },
 ];
 
 export function HomePremiumPanels() {
@@ -29,7 +29,7 @@ export function HomePremiumPanels() {
         <Container className="home-container">
           <div className="home-section-heading">
             <div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">İhtiyaçtan çözüme, üç adım.</h2><p className="home-section-description">Evinizdeki işler gözünüzde büyümesin.</p></div>
-            <Link className="home-text-link" href={appRoutes.request}>Hemen başlayın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link>
+            <Link className="home-text-link" href={appRoutes.catalog}>Hemen başlayın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link>
           </div>
           <ol className="home-steps">
             {steps.map(({ icon: Icon, title, description, href, action }, index) => (
@@ -65,7 +65,7 @@ export function HomePremiumPanels() {
 
       <section className="home-section home-final" id="about">
         <Container className="home-container">
-          <div className="home-final-card"><div><p className="home-eyebrow">BEKLEYEN İŞLERİ BİRLİKTE ÇÖZELİM</p><h2>Evinizin ihtiyacı varsa,<br />FUWU burada.</h2><p>İlk adım, ihtiyacınız olan hizmeti seçmek.</p></div><Link className="home-primary-link" href={appRoutes.request}>Hizmet talebi oluşturun <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
+          <div className="home-final-card"><div><p className="home-eyebrow">BEKLEYEN İŞLERİ BİRLİKTE ÇÖZELİM</p><h2>Evinizin ihtiyacı varsa,<br />FUWU burada.</h2><p>İlk adım, ihtiyacınız olan hizmeti seçmek.</p></div><Link className="home-primary-link" href={appRoutes.catalog}>Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
           <div className="home-provider-invite"><div><strong>İşinizin ustası mısınız?</strong><p>Hizmetlerinizi FUWU’da sunmak için başvurun.</p></div><Link className="home-text-link" href={appRoutes.providerApplication}>Hizmet veren olun <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
         </Container>
       </section>

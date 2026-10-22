@@ -7,7 +7,7 @@ import { getServicePhoto } from "@/lib/service-photos";
 export function CategoryCard({ providerCount, service }: { providerCount?: number; service: Service }) {
   const photo = getServicePhoto(service.id);
   return (
-    <Link aria-label={service.title + " hizmetlerini inceleyin"} className="home-category-card" href={service.href}>
+    <Link aria-label={service.title + " hizmetlerini inceleyin"} className="home-category-card" href={`/services?category=${service.slug}`}>
       <div className="home-category-image"><Image alt={photo.alt} className="object-cover" fill sizes="(max-width: 639px) 46vw, (max-width: 1023px) 30vw, 230px" src={photo.src} style={{ objectPosition: photo.position }} /></div>
       <div className="home-category-content">
         <span className="home-category-title">{service.title}</span>

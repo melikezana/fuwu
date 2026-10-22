@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-21",
+  "commitPushDeploy": false,
+  "targetSupabaseMigrationApplied": false,
+  "lint": { "passed": true, "warnings": 0 },
+  "typescript": { "command": "npx tsc --noEmit", "passed": true },
+  "productionBuild": { "command": "npm run build", "passed": true },
+  "diffWhitespaceCheck": { "command": "git diff --check", "passed": true },
+  "existingProviderValidation": { "passed": true },
+  "database": { "passed": 25, "engine": "Local PostgreSQL 18 with independent TCP sessions", "scope": "New migration against isolated existing-table contract fixture", "report": "database-tests.json" },
+  "payment": { "passed": 20, "mode": "Mock processor HTTP and local verification fixtures; no actual sandbox charge", "report": "payment-tests.json" },
+  "browser": { "passedGroups": 6, "javascriptErrors": 0, "actualCatalogWidths": [320, 375, 390, 430, 768, 1440], "report": "browser-tests.json", "fixtureImagesPrefix": "fixture-", "actualApplicationImagesPrefix": "actual-" },
+  "unverified": [
+    "Real iyzico sandbox checkout, callback, Marketplace approve and refund: credentials unavailable",
+    "Full signed-in Next.js + Supabase Auth/PostgREST + iyzico E2E",
+    "Full historical migration chain on target PostgreSQL 17 staging",
+    "Deployed cron execution and physical iOS/Android devices"
+  ]
+}

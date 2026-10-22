@@ -1,0 +1,32 @@
+{
+  "checks": [
+    "Actual production pages at six widths, unavailable-data UI, protected pages, guest mutation denial and cron authorization",
+    "Real booking component with explicit fixture API: district, provider, slot, address and authoritative-price expectation payload",
+    "Variant updates price and duration in real booking component",
+    "Slot API failure and empty day disable purchase and show actionable feedback",
+    "Pending checkout, confirmed progress, provider completion and store component fixtures fit four widths; provider submits completion code",
+    "Store component saves selected price, service, region and working hours via fixture API"
+  ],
+  "screenshots": [
+    "actual-catalog-390.png",
+    "actual-catalog-390-viewport.png",
+    "actual-catalog-1440.png",
+    "actual-catalog-1440-viewport.png",
+    "actual-service-390.png",
+    "actual-service-390-viewport.png",
+    "fixture-booking-390.png",
+    "fixture-booking-390-viewport.png",
+    "fixture-booking-1440.png",
+    "fixture-booking-1440-viewport.png",
+    "fixture-pending-390.png",
+    "fixture-pending-390-viewport.png",
+    "fixture-confirmed-390.png",
+    "fixture-confirmed-390-viewport.png",
+    "fixture-provider-390.png",
+    "fixture-provider-390-viewport.png",
+    "fixture-store-390.png",
+    "fixture-store-390-viewport.png"
+  ],
+  "errors": [],
+  "failed": null
+}

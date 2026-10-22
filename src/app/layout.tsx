@@ -18,6 +18,8 @@ import { AppSplash } from "@/components/layout/AppSplash";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { getPublicAppSettings } from "@/services/admin/settings";
 import "@/styles/globals.css";
+import "@/styles/marketplace.css";
+import "@/styles/commerce.css";
 
 const inter = localFont({
   display: "swap",

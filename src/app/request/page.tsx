@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
 import { Container } from "@/components/ui/Container";
 import { RequestForm } from "@/components/request/RequestForm";
-import { RequestSlogan } from "@/components/request/RequestSlogan";
-import { appRoutes } from "@/lib/constants/navigation";
 import {
   getAuthenticatedServerUserId,
   getCurrentServerUserProfile,
@@ -75,18 +71,10 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
   const isProviderProfileCheckout = Boolean(initialProviderId && initialService);
 
   return (
-    <section className="premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
-      <FuwuWatermark className="-right-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
+    <section className="market-request-page premium-page-shell relative overflow-hidden border-b border-[var(--border)]">
       <Container className="relative min-h-[620px] py-5 sm:py-14 lg:py-16">
         <div className="mb-4 md:mb-8 grid min-w-0 cursor-default select-none gap-4 md:gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.42fr)] lg:items-end">
           <div className="min-w-0">
-            <Link
-              aria-label="Fuwu ana sayfasına git"
-              className="hidden md:inline-flex cursor-pointer rounded-lg bg-white px-5 py-4 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(20,33,61,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-              href={appRoutes.home}
-            >
-              <FuwuLogo size="lg" />
-            </Link>
             <p className="mt-2 text-xs md:mt-7 md:text-sm font-bold uppercase tracking-normal text-[var(--brand-orange-dark)]">
               Randevunuzu planlayın
             </p>
@@ -95,17 +83,16 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
                 ? `${initialProviderName || "Seçtiğin usta"} için randevunu planla.`
                 : "Hizmetinizi seçin, randevunuzu planlayın."}
             </h1>
-            <RequestSlogan />
             <p className="mt-2 md:mt-5 max-w-3xl text-xs sm:text-base font-semibold leading-relaxed text-[var(--muted)] sm:leading-8">
               {isProviderProfileCheckout
-                ? "Seçtiğiniz usta için tarih, saat, adres ve iş detaylarını ekleyin. Özeti ve ödeme seçeneklerini kontrol ederek devam edin."
-                : "Hizmetinizi, adresinizi ve tarihinizi seçin. Özeti ve ödeme seçeneklerini kontrol ederek devam edin."}
+                ? "Seçtiğiniz usta için tarih, saat, adres ve iş detaylarını ekleyin. Özeti kontrol ederek talebinizi gönderin. Bu adımda ödeme alınmaz."
+                : "Hizmetinizi, adresinizi ve tarihinizi seçin. Özeti kontrol ederek talebinizi gönderin. Bu adımda ödeme alınmaz."}
             </p>
           </div>
           <div className="hidden md:grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {(isProviderProfileCheckout
-              ? ["Tarihi seç", "Randevuyu netleştir", "Online ödeme"]
-              : ["Hizmeti seç", "Randevuyu netleştir", "Ödemeye geç"]
+              ? ["Tarihi seç", "Randevuyu netleştir", "Talebinizi onaylayın"]
+              : ["Hizmeti seç", "Randevuyu netleştir", "Talebinizi onaylayın"]
             ).map(
               (item, index) => (
                 <div
@@ -123,6 +110,7 @@ export default async function RequestPage({ searchParams }: RequestPageProps) {
         </div>
 
         <RequestForm
+          key={`${authenticatedUserId || "guest"}:${initialProviderId}:${initialService}:${initialDistrict}`}
           authenticatedUserId={authenticatedUserId}
           initialApproximateLocation={initialApproximateLocation}
           initialBudgetTag={initialBudgetTag}

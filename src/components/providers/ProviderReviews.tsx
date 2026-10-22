@@ -106,11 +106,11 @@ export function ProviderReviews({
                 Ortalama puan
               </p>
               <p className="mt-2 text-4xl font-bold leading-none text-[var(--brand-navy)]">
-                {formatRating(summary.averageRating)}
+                {summary.reviewCount > 0 ? formatRating(summary.averageRating) : "—"}
               </p>
             </div>
             <span className="rounded-md bg-white px-3 py-1.5 text-xs font-bold leading-5 text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.08)]">
-              {source === "supabase" ? "Canlı yorumlar" : "Örnek yorumlar"}
+              {source === "supabase" ? "Müşteri yorumları" : "Yorumlar yüklenemedi"}
             </span>
           </div>
           <div className="mt-4">
@@ -162,10 +162,10 @@ export function ProviderReviews({
                 aria-hidden
               />
               <p className="font-semibold text-[var(--brand-navy)]">
-                İlk değerlendirmeyi sen yaz
+                {source === "supabase" ? "Henüz değerlendirme yok" : "Değerlendirmelere ulaşılamıyor"}
               </p>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                Bu usta henüz değerlendirilmemiş.
+                {source === "supabase" ? "Tamamlanan hizmetinizin ardından deneyiminizi paylaşabilirsiniz." : "Yorumları görüntülemek için biraz sonra tekrar deneyin."}
               </p>
             </div>
           )}

@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/home/HeroSection";
+import { CommerceJourney } from "@/components/commerce/CommerceJourney";
 import { HomePremiumPanels } from "@/components/home/HomePremiumPanels";
 import { PopularServices } from "@/components/home/PopularServices";
 import { TrustedProviders } from "@/components/home/TrustedProviders";
@@ -38,6 +39,7 @@ export async function MarketplaceHome() {
   return (
     <div className="fuwu-home">
       <HeroSection categories={categories} districts={filterOptions.districts} />
+      <CommerceJourney />
       <PopularServices serviceCounts={serviceCounts} services={popularServices} />
       <HomePremiumPanels />
       {featuredProviders.length > 0 ? <TrustedProviders providers={featuredProviders} totalCount={liveProviders.length} /> : null}

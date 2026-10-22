@@ -11,6 +11,7 @@ const PROTECTED_PATHS = [
   "/provider-dashboard",
   "/account",
   "/dashboard",
+  "/orders",
 ];
 
 const APP_ROLE_VALUES = new Set(["admin", "customer", "provider"]);

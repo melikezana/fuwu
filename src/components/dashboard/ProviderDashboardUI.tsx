@@ -28,7 +28,9 @@ type ProviderDashboardNavKey =
   | "earnings"
   | "reviews"
   | "notifications"
-  | "calendar";
+  | "calendar"
+  | "store"
+  | "orders";
 
 type ProviderDashboardAccessReason =
   | "missing-session"
@@ -79,6 +81,8 @@ const providerNavItems: Array<{
   key: ProviderDashboardNavKey;
   label: string;
 }> = [
+  { href: "/provider-dashboard/store", icon: ClipboardList, key: "store", label: "Hizmet Mağazam" },
+  { href: "/provider-dashboard/orders", icon: Calendar, key: "orders", label: "Siparişlerim" },
   {
     href: appRoutes.providerDashboard,
     icon: LayoutDashboard,

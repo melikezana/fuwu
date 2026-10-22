@@ -54,6 +54,7 @@ export type InitializeIyzicoCheckoutResponse = IyzicoApiResponse & {
 };
 
 export type IyzicoPaymentItemTransaction = {
+  itemId?: string;
   paymentTransactionId?: string;
   price?: number | string;
   subMerchantKey?: string;
@@ -61,6 +62,9 @@ export type IyzicoPaymentItemTransaction = {
 };
 
 export type RetrieveIyzicoCheckoutResponse = IyzicoApiResponse & {
+  fraudStatus?: number;
+  iyziCommissionRateAmount?: number | string;
+  iyziCommissionFee?: number | string;
   basketId?: string;
   currency?: string;
   itemTransactions?: IyzicoPaymentItemTransaction[];
@@ -103,6 +107,7 @@ export function retrieveIyzicoCheckoutFormResult({
   token: string;
 }) {
   return iyzicoRequest<RetrieveIyzicoCheckoutResponse>({
+    allowFailure: true,
     body: {
       conversationId,
       locale: "tr",

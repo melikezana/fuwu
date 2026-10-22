@@ -1,0 +1,1 @@
+export default function Loading() { return <div className="commerce-page" aria-label="Sipariş yükleniyor" role="status"><div className="commerce-skeleton h-32" /><div className="commerce-skeleton h-96 mt-8" /></div>; }

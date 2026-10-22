@@ -1,0 +1,11 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerAuthContext } from "@/services/auth/server";
+import { isUuid } from "@/lib/utils/validation";
+export async function POST(request: NextRequest) {
+  const { user, supabase: db } = await getServerAuthContext();
+  if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const b = await request.json().catch(() => null);
+  if (!b || !isUuid(b.providerId ?? "") || !Array.isArray(b.offerings) || !Array.isArray(b.hours) || !Array.isArray(b.daysOff) || b.offerings.length > 100 || b.hours.length > 7 || b.daysOff.length > 100) return NextResponse.json({ error: "invalid_store" }, { status: 400 });
+  const { error } = await db.rpc("commerce_save_store", { p_provider_id: b.providerId, p_offerings: b.offerings, p_hours: b.hours, p_days_off: b.daysOff });
+  return NextResponse.json(error ? { error: "store_unavailable" } : { ok: true }, { status: error ? 409 : 200 });
+}

@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { FuwuLogo, FuwuWatermark } from "@/components/brand/FuwuLogo";
+import { ProviderJoinIntro, ProviderJoinDetails } from "@/components/providers/ProviderJoinIntro";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
 import { appRoutes } from "@/lib/constants/navigation";
-import { I18nText } from "@/lib/i18n";
 import { authAccessMessages } from "@/services/auth/constants";
 import {
   PROVIDER_APPLICATION_STATUSES,
@@ -172,44 +170,11 @@ export default async function ProviderApplicationPage() {
     providerAccess.ok;
 
   return (
-    <section className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(135deg,#ffffff_0%,#FFF7EC_44%,#F7F7F8_100%)]">
-      <FuwuWatermark className="-left-20 top-10 text-[10rem] opacity-[0.04] sm:text-[13rem]" />
-      <Container className="relative grid max-w-7xl gap-7 py-9 sm:py-12 lg:py-14 xl:grid-cols-[minmax(0,460px)_minmax(0,1fr)] xl:items-start xl:gap-10">
-        <div className="min-w-0 cursor-default select-none lg:max-w-[520px]">
-          <Link
-            aria-label="Fuwu ana sayfasına git"
-            className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-            href={appRoutes.home}
-          >
-            <FuwuLogo size="md" />
-          </Link>
-          <p className="mt-7 text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
-            <I18nText i18nKey="providerApplication.eyebrow" />
-          </p>
-          <h1 className="mt-4 max-w-[640px] text-3xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl lg:text-[2.5rem]">
-            <I18nText i18nKey="providerApplication.title" />
-          </h1>
-          <p className="mt-5 max-w-[680px] text-base font-medium leading-7 text-[var(--muted)] sm:text-lg sm:leading-8">
-            <I18nText i18nKey="providerApplication.subtitle" />
-          </p>
-          <div className="mt-6 cursor-default select-none rounded-lg border border-[rgba(255,138,0,0.28)] bg-white p-5 shadow-[var(--shadow-elevated)]">
-            <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
-              <I18nText i18nKey="providerApplication.trustTitle" />
-            </p>
-            <p className="mt-2 text-base font-semibold leading-7 text-[var(--brand-navy)]">
-              <I18nText i18nKey="providerApplication.trustDescription" />
-            </p>
-            <div className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 text-sm font-medium leading-6 text-[var(--muted)]">
-              <p>
-                <I18nText i18nKey="providerApplication.reassurance" />
-              </p>
-              <p>
-                <I18nText i18nKey="providerApplication.noPassword" />
-              </p>
-            </div>
-          </div>
-        </div>
-
+    <div className="market-join-page">
+      <ProviderJoinIntro />
+      <section className="market-application-section" id="provider-application-form">
+        <Container className="market-application-grid max-w-7xl">
+          <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI ATIN</p><h2>İşinizi tanıyalım.</h2><p>Bilgilerinizi tamamlayın. Başvurunuzun durumunu aynı hesapla giriş yaptığınızda görebilirsiniz.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunuzu oluşturun</strong><p>Uzmanlığınızı ve hizmet bölgenizi paylaşın.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip edin</strong><p>Başvurunuzun durumuna hesabınızdan ulaşın.</p></div></li><li><span>03</span><div><strong>Profilinizi tamamlayın</strong><p>Onaydan sonra profilinizi düzenleyin, gelen talepleri değerlendirin.</p></div></li></ol></div>
         {!providerAccess.ok && providerAccess.reason === "missing-session" ? (
           <div className="grid gap-5">
             <ProviderApplicationLoginRequiredCard />
@@ -243,7 +208,9 @@ export default async function ProviderApplicationPage() {
             />
           </div>
         )}
-      </Container>
-    </section>
+        </Container>
+      </section>
+      <ProviderJoinDetails />
+    </div>
   );
 }

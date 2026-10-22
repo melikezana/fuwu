@@ -347,16 +347,20 @@ export function ProviderFilters({
     setSortValue(event.target.value);
   };
   useEffect(() => {
-    if (!isFilterOpen) {
+    if (!isFilterOpen && !isSortOpen) {
       return;
     }
 
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     filterCloseButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
         setIsFilterOpen(false);
+        setIsSortOpen(false);
         return;
       }
 
@@ -385,8 +389,10 @@ export function ProviderFilters({
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
     };
-  }, [isFilterOpen]);
+  }, [isFilterOpen, isSortOpen]);
   const handleFilterSubmit = (event: FormEvent<HTMLFormElement>) => {
     const formData = new FormData(event.currentTarget);
 
@@ -406,7 +412,7 @@ export function ProviderFilters({
       action={appRoutes.providers}
       aria-label={t("filters.title")}
       className={cn(
-        "premium-card relative max-w-full cursor-default overflow-visible bg-white p-0 shadow-[0_22px_72px_rgba(10,37,64,0.10)]",
+        "market-filter-form relative max-w-full bg-white",
         compact ? "p-3 sm:p-4" : "p-5 sm:p-6",
       )}
       onSubmit={handleFilterSubmit}
@@ -418,7 +424,12 @@ export function ProviderFilters({
         value={sortValue}
       />
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-end xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+      {!isFilterOpen ? Object.entries({ rating: values?.rating, availability: values?.availability, verified: values?.verified, response_time: values?.responseTime, price_info: values?.hasPrice, profile_image: values?.hasProfileImage, portfolio: values?.hasPortfolio, reviews: values?.hasReviews, average_price_min: values?.minimumPrice, average_price_max: values?.maximumPrice }).map(([name, value]) => value ? <input key={name} name={name} type="hidden" value={value} /> : null) : null}
+      {values?.price ? <input name="price" type="hidden" value={values.price} /> : null}
+      <div className="market-filter-grid">
+        <FilterField label="Ne için usta arıyorsunuz?">
+          <input className="premium-control mt-2 h-[54px] w-full min-w-0 rounded-[14px] px-3.5 text-base" defaultValue={values?.query ?? ""} name="q" placeholder="Hizmet, uzmanlık veya usta adı" type="search" />
+        </FilterField>
         <FilterField label={t("filters.service")}>
           <select
             className={selectedSelectClassName(Boolean(values?.category))}
@@ -449,7 +460,7 @@ export function ProviderFilters({
           </select>
         </FilterField>
 
-        <div className="hidden lg:block">
+        <div className="market-desktop-sort hidden lg:block">
           <FilterField label="Sırala">
             <select className={selectedSelectClassName(sortValue !== defaultProviderSort)} onChange={handleSortChange} value={sortValue}>
               {sortOptions.map((option) => (
@@ -469,7 +480,7 @@ export function ProviderFilters({
           <FilterButtonContent activeFilterCount={activeFilterCount} />
         </button>
 
-        <Button className="h-[54px] min-h-[54px] w-full rounded-[14px] px-5 text-sm font-extrabold sm:col-span-2 lg:col-span-1 lg:min-w-[132px]" type="submit">
+        <Button className="market-filter-submit min-h-[54px] w-full rounded-[14px] px-5 text-sm font-extrabold" type="submit">
           Ustaları Göster
         </Button>
       </div>
@@ -524,7 +535,7 @@ export function ProviderFilters({
           <div
             aria-labelledby="provider-filter-panel-title"
             aria-modal="true"
-            className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col overflow-hidden rounded-t-[24px] bg-white shadow-[0_-28px_80px_rgba(10,37,64,0.22)] lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:max-h-none lg:w-[30rem] lg:rounded-l-[24px] lg:rounded-tr-none lg:border-l lg:border-[rgba(10,37,64,0.1)] lg:shadow-[0_24px_90px_rgba(10,37,64,0.20)]"
+            className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-[24px] bg-white shadow-[0_-28px_80px_rgba(10,37,64,0.22)] lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:max-h-none lg:w-[30rem] lg:rounded-l-[24px] lg:rounded-tr-none lg:border-l lg:border-[rgba(10,37,64,0.1)] lg:shadow-[0_24px_90px_rgba(10,37,64,0.20)]"
             ref={filterPanelRef}
             role="dialog"
           >
@@ -542,7 +553,7 @@ export function ProviderFilters({
                 </TextLink>
                 <button
                   aria-label="Filtre panelini kapat"
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                  className="inline-flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
                   onClick={() => setIsFilterOpen(false)}
                   ref={filterCloseButtonRef}
                   type="button"
@@ -586,6 +597,7 @@ export function ProviderFilters({
                       key={option.value}
                       label={option.label}
                       name="availability"
+                      type="radio"
                       value={option.value}
                     />
                   ))}
@@ -607,6 +619,7 @@ export function ProviderFilters({
                 </FilterSection>
               ) : null}
 
+              {effectiveCapabilities.hasPrice ? <FilterSection title="Fiyat aralığı (TL)"><div className="grid grid-cols-2 gap-3"><label className="text-sm">En az<input className="premium-control mt-2 w-full px-3 py-3" defaultValue={values?.minimumPrice} min="0" name="average_price_min" type="number" /></label><label className="text-sm">En fazla<input className="premium-control mt-2 w-full px-3 py-3" defaultValue={values?.maximumPrice} min="0" name="average_price_max" type="number" /></label></div></FilterSection> : null}
               {priceInfoOptions.length > 0 ? (
                 <FilterSection title="Fiyatlandırma">
                   {priceInfoOptions.map((option) => (
@@ -622,16 +635,6 @@ export function ProviderFilters({
                 </FilterSection>
               ) : null}
 
-              {values?.district ? (
-                <FilterSection title="Hizmet Bölgesi">
-                  <CheckboxOption
-                    defaultChecked
-                    label="Seçili ilçede hizmet verenler"
-                    name="district"
-                    value={values.district}
-                  />
-                </FilterSection>
-              ) : null}
 
               {effectiveCapabilities.hasProfileImage ||
               effectiveCapabilities.hasPortfolio ||
@@ -664,7 +667,7 @@ export function ProviderFilters({
                 </FilterSection>
               ) : null}
             </div>
-            <div className="absolute inset-x-0 bottom-0 shrink-0 border-t border-[var(--border)] bg-white/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur lg:static lg:hidden">
+            <div className="absolute inset-x-0 bottom-0 shrink-0 border-t border-[var(--border)] bg-white/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur lg:static">
               <Button className="h-[52px] min-h-[52px] w-full rounded-[14px] text-sm font-extrabold" type="submit">
                 {getSingularResultLabel(resultCount)}
               </Button>
@@ -674,21 +677,22 @@ export function ProviderFilters({
       ) : null}
 
       {isSortOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+      <div className="fixed inset-0 z-[80] lg:hidden">
           <button
             aria-label="Sıralama panelini kapat"
             className="absolute inset-0 bg-[rgba(10,37,64,0.45)]"
             onClick={() => setIsSortOpen(false)}
             type="button"
           />
-          <div className="absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[24px] bg-white shadow-[0_-28px_80px_rgba(10,37,64,0.22)]">
+          <div aria-labelledby="provider-sort-title" aria-modal="true" className="absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-[24px] bg-white shadow-[0_-28px_80px_rgba(10,37,64,0.22)]" ref={filterPanelRef} role="dialog">
             <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-[rgba(10,37,64,0.16)]" />
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-              <h2 className="text-base font-extrabold text-[var(--brand-navy)]">Sırala</h2>
+              <h2 className="text-base font-extrabold text-[var(--brand-navy)]" id="provider-sort-title">Sırala</h2>
               <button
                 aria-label="Sıralama panelini kapat"
-                className="inline-flex size-10 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)]"
+                className="inline-flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)]"
                 onClick={() => setIsSortOpen(false)}
+                ref={filterCloseButtonRef}
                 type="button"
               >
                 <X aria-hidden="true" className="size-4" />
@@ -709,7 +713,6 @@ export function ProviderFilters({
                     key={option.value}
                     onClick={() => {
                       setSortValue(option.value);
-                      setIsSortOpen(false);
                     }}
                     type="button"
                   >
@@ -718,6 +721,7 @@ export function ProviderFilters({
                   </button>
                 );
               })}
+              <Button className="mt-2 min-h-12 w-full" type="submit">Sıralamayı Uygula</Button>
             </div>
           </div>
         </div>
