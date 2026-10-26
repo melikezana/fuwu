@@ -6,6 +6,7 @@ type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 type AuditSupabaseClient = SupabaseClient<Database>;
 
 export type AuditAction =
+  | "operations.health_checked"
   | "commerce.operation_requested"
   | "admin.action_failed"
   | "ai_assistant.openai_failure"

@@ -1,4 +1,5 @@
 import type { OrderStatus } from "./types";
+export const paymentLabels = { UNPAID: "Ödenmedi", PAID: "Ödeme doğrulandı", FAILED: "Ödeme başarısız", REFUND_PENDING: "İade bekleniyor", REFUNDED: "İade doğrulandı" };
 export const money = (minor: number) => new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: minor % 100 ? 2 : 0 }).format(minor / 100);
 export const appointment = (date: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(date));
 export const slotTime = (date: string) => new Intl.DateTimeFormat("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(date));

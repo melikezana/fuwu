@@ -9,6 +9,9 @@ import {
   LayoutDashboard,
   UserRound,
   WalletCards,
+  CalendarDays,
+  Activity,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -85,16 +88,24 @@ const providerTabs: MobileTab[] = [
     match: [appRoutes.providerDashboardEarnings],
   },
   {
-    href: appRoutes.providerDashboardProfile,
-    icon: UserRound,
-    label: "Profil",
-    match: [appRoutes.providerDashboardProfile],
+    href: appRoutes.providerDashboardCalendar,
+    icon: CalendarDays,
+    label: "Takvim",
+    match: [appRoutes.providerDashboardCalendar],
   },
+];
+
+const adminTabs: MobileTab[] = [
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", match: ["/admin"] },
+  { href: "/admin/marketplace", icon: ClipboardList, label: "Siparişler", match: ["/admin/marketplace"] },
+  { href: "/admin/revenue", icon: WalletCards, label: "Gelir", match: ["/admin/revenue"] },
+  { href: "/admin/marketplace?view=health", icon: Activity, label: "Sağlık", match: [] },
+  { href: "/admin/audit", icon: ScrollText, label: "Audit Log", match: ["/admin/audit"] },
 ];
 
 function isRouteActive(pathname: string, tab: MobileTab) {
   return tab.match.some((href) => {
-    if (href === appRoutes.home || href === appRoutes.account || href === appRoutes.providerDashboard) {
+    if (href === "/admin" || href === appRoutes.home || href === appRoutes.account || href === appRoutes.providerDashboard) {
       return pathname === href;
     }
 
@@ -107,8 +118,8 @@ export function MobileBottomNav() {
   const [userProfile, setUserProfile] = useState<CurrentUserProfile | null>(null);
   const isAdminPath = pathname === appRoutes.adminDashboard || pathname.startsWith("/admin/");
   const tabs = useMemo(
-    () => (userProfile?.role === "provider" ? providerTabs : customerTabs),
-    [userProfile?.role],
+    () => (isAdminPath ? adminTabs : userProfile?.role === "provider" ? providerTabs : customerTabs),
+    [userProfile?.role, isAdminPath],
   );
 
   useEffect(() => {
@@ -151,10 +162,6 @@ export function MobileBottomNav() {
       subscription?.unsubscribe();
     };
   }, []);
-
-  if (isAdminPath) {
-    return null;
-  }
 
   return (
     <nav aria-label="Mobil alt sekme navigasyonu" className="mobile-tab-bar">

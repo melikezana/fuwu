@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import React, { useEffect, useRef, useState, type ReactNode } from "react";
+import React, { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type DialogProps = {
@@ -24,16 +24,32 @@ export function Dialog({
   const [dragY, setDragY] = useState(0);
   const touchStartY = useRef<number | null>(null);
   const isDragging = useRef(false);
+  const panel = useRef<HTMLDivElement>(null);
+  const dialogId = useId();
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    if (!isOpen) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => Array.from(panel.current?.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex="0"]') ?? []).filter(el => el.getClientRects().length > 0);
+    (focusable()[0] || panel.current)?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") { event.preventDefault(); closeRef.current(); }
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0], last = elements[elements.length - 1];
+      if (!first) { event.preventDefault(); panel.current?.focus(); }
+      else if (event.shiftKey && (document.activeElement === first || document.activeElement === panel.current)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
-
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = overflow;
+      document.removeEventListener("keydown", onKey);
+      previous?.focus();
     };
   }, [isOpen]);
 
@@ -78,8 +94,11 @@ export function Dialog({
 
       {/* Modal / Bottom Sheet Container */}
       <div
-        aria-describedby={description ? "dialog-description" : undefined}
-        aria-labelledby={title ? "dialog-title" : undefined}
+        ref={panel}
+        tabIndex={-1}
+        aria-label={title ? undefined : "İşlem penceresi"}
+        aria-describedby={description ? `${dialogId}-description` : undefined}
+        aria-labelledby={title ? `${dialogId}-title` : undefined}
         aria-modal="true"
         className={cn(
           "relative z-50 w-full bg-white shadow-2xl transition-transform duration-250 ease-out",
@@ -90,9 +109,6 @@ export function Dialog({
           className,
         )}
         onPointerDown={(e) => e.stopPropagation()}
-        onTouchEnd={handleTouchEnd}
-        onTouchMove={handleTouchMove}
-        onTouchStart={handleTouchStart}
         role="dialog"
         style={{
           transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
@@ -101,7 +117,10 @@ export function Dialog({
         {/* Mobile visual drag handle */}
         <div
           aria-hidden="true"
-          className="mx-auto -mt-1 mb-4 h-1 w-10 cursor-grab rounded-full bg-gray-300 active:cursor-grabbing md:hidden"
+          className="mx-auto -mt-1 mb-4 h-4 w-10 cursor-grab rounded-full bg-gray-300 active:cursor-grabbing md:hidden"
+          onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
+          onTouchStart={handleTouchStart}
         />
 
         {/* Header */}
@@ -110,7 +129,7 @@ export function Dialog({
             {title ? (
               <h2
                 className="text-lg font-extrabold text-[var(--brand-navy)]"
-                id="dialog-title"
+                id={`${dialogId}-title`}
               >
                 {title}
               </h2>
@@ -118,7 +137,7 @@ export function Dialog({
             {description ? (
               <p
                 className="mt-1 text-xs font-semibold text-[var(--muted)]"
-                id="dialog-description"
+                id={`${dialogId}-description`}
               >
                 {description}
               </p>
@@ -126,7 +145,7 @@ export function Dialog({
           </div>
           <button
             aria-label="Kapat"
-            className="inline-flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[var(--brand-navy)] transition-colors hover:bg-[var(--surface-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
             onClick={onClose}
             type="button"
           >

@@ -1,3 +1,4 @@
+import { getOrderCardDetails } from "@/services/commerce/order-cards";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarDays, CreditCard, Heart, MapPin, ShieldCheck, ShoppingBag, Star, UserRound } from "lucide-react";
@@ -22,7 +23,7 @@ export async function CustomerHub({ params }: { params: CustomerHubParams }) {
   ]);
   const unavailable = Boolean(upcoming.error || completed.error);
   const title = views.find(([id]) => id === view)![1];
-  return <div className="commerce-page fusion-customer-hub"><header className="commerce-page-header"><p className="commerce-eyebrow">FUWU · HİZMETLERİN TEK YERDE</p><h1>{view === "overview" ? `Merhaba, ${profile?.full_name?.split(" ")[0] || "hoş geldin"}` : title}</h1><p>Satın aldığın hizmetler, randevuların ve hesabın.</p></header><nav className="fusion-tabs" aria-label="Müşteri paneli">{views.map(([id, label]) => <Link key={id} aria-current={view === id ? "page" : undefined} href={`/account?view=${id}`}>{label}</Link>)}<Link href="/orders">Siparişlerim</Link><Link href="/account/notifications">Bildirimler</Link></nav>
+  return <div className="commerce-page fusion-customer-hub"><header className="commerce-page-header"><p className="commerce-eyebrow">MY FUWU · HİZMETLERİN TEK YERDE</p><h1>{view === "overview" ? `Merhaba, ${profile?.full_name?.split(" ")[0] || "hoş geldin"}` : title}</h1><p>Satın aldığın hizmetler, randevuların ve hesabın.</p></header><nav className="fusion-tabs" aria-label="Müşteri paneli">{views.map(([id, label]) => <Link key={id} aria-current={view === id ? "page" : undefined} href={`/account?view=${id}`}>{label}</Link>)}<Link href="/orders">Siparişlerim</Link><Link href="/account/notifications">Bildirimler</Link></nav>
     {params.result && <p role="status" className="commerce-notice">{params.result === "saved" ? "Bilgileriniz kaydedildi." : "Bilgiler kaydedilemedi. Alanları ve bağlantınızı kontrol ederek yeniden deneyin."}</p>}
     {view === "overview" && <><div className="fusion-metric-grid"><article><CalendarDays aria-hidden size={22} /><span>Aktif hizmet</span><strong>{unavailable ? "—" : upcoming.count ?? 0}</strong></article><article><ShoppingBag aria-hidden size={22} /><span>Tamamlanan hizmet</span><strong>{unavailable ? "—" : completed.count ?? 0}</strong></article></div>{unavailable && <p role="alert" className="commerce-notice">Sipariş bilgilerine şu anda ulaşılamıyor.</p>}<div className="fusion-section-heading"><h2>Takip ettiğin siparişler</h2><Link className="commerce-button" href="/services">Yeni Hizmet Seç</Link></div></>}
     {["overview", "upcoming", "active", "history"].includes(view) && <CustomerOrders userId={user.id} history={view === "history"} page={page} view={view} />}
@@ -51,7 +52,8 @@ async function CustomerOrders({ userId, history, page, view }: { userId: string;
   query = history ? query.in("status", historyStatuses) : query.in("status", view === "upcoming" ? ["CONFIRMED"] : view === "active" ? serviceActiveStatuses : trackingStatuses);
   if (view === "upcoming") query = query.gte("starts_at", new Date().toISOString());
   const { data, error, count } = await query;
-  return <><OrderList orders={data ?? []} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Hizmet sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 12 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →</Link>}</nav></>;
+  const details = error ? {} : await getOrderCardDetails(supabase!, data ?? []);
+  return <><OrderList orders={data ?? []} details={details} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Hizmet sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 12 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →</Link>}</nav></>;
 }
 async function CustomerAddresses({ userId }: { userId: string }) {
   const { supabase } = await getServerAuthContext();

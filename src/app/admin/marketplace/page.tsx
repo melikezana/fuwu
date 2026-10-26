@@ -12,6 +12,8 @@ import type { CommerceOrder } from "@/lib/commerce/types";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { reconciliationReasons } from "@/lib/commerce/reconciliation-state";
 import { marketplaceAction } from "./actions";
+import { OperationsHealth } from "@/components/admin/OperationsHealth";
+import { getOperationsHealth } from "@/services/health/operations";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Marketplace Operasyon Merkezi | FUWU", robots: { index: false, follow: false } };
@@ -25,6 +27,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   if (!access.ok) return <AdminAccessGate access={access} />;
   const { supabase } = await getServerAuthContext();
   const params = await searchParams;
+  const health = params.view === "health" ? await getOperationsHealth(supabase!) : null;
   const view = views.some(([id]) => id === params.view) ? params.view! : "orders";
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
   let query = supabase!.from("orders").select("*,payment_transactions(status,payout_state,refund_state,environment,created_at,item_transaction_id)", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1);
@@ -41,8 +44,8 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   return <AdminPageShell active="marketplace" title="Marketplace Operasyon Merkezi" description="Gerçek sipariş kayıtları, doğrulanan test ödemeleri ve operasyonel mutabakat.">
     <MarketplaceMetrics summary={summary} />
     <nav className="fusion-tabs" aria-label="Marketplace ekranları">{views.map(([id, label]) => <Link key={id} href={`?view=${id}`} aria-current={view === id ? "page" : undefined}>{label}</Link>)}<Link href="/admin/provider-applications">Usta Başvuruları</Link><Link href="/admin/verifications">Doğrulamalar</Link><Link href="/admin/catalog">Hizmet Kataloğu</Link><Link href="/admin/users">Kullanıcılar</Link><Link href="/admin/reviews">Değerlendirme Moderasyonu</Link><Link href="/admin/revenue">Analitik</Link><Link href="/admin/settings">Komisyon Ayarları</Link><Link href="/admin/audit">Güvenlik ve Audit Log</Link></nav>
-    {params.result && <p role="status" className="commerce-notice">{params.result === "requested" ? "İşlem talebi işlendi. Güncel ödeme, iade ve hak ediş sonucu aşağıdaki doğrulanmış kayıtlarda gösterilir." : params.result === "rate_limit" ? "Çok fazla işlem. Bir dakika sonra tekrar deneyin." : "İşlem doğrulanamadı. Kayıt ve kuruluş sonucu incelenmeli."}</p>}
-    {view === "health" ? <section className="commerce-panel"><h2>Entegrasyon durumu</h2><dl className="fusion-health">{[["Marketplace migration / RLS okuma", Boolean(summary)], ["Supabase sunucu yetkisi", Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)], ["iyzico sandbox anahtarları", Boolean(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY)], ["Rezervasyon temizlik cron anahtarı", Boolean(process.env.CRON_SECRET)]].map(([label, configured]) => <div key={String(label)}><dt>{label}</dt><dd>{configured ? "Yapılandırma mevcut" : "Kontrol / kurulum gerekli"}</dd></div>)}</dl><p className="commerce-help">Yapılandırmanın bulunması, dış servis testinin geçtiği anlamına gelmez. Anlık slot doğruluğu zamanlayıcıya bağlı değildir. IN_FLIGHT dış işlemler yeniden gönderilmez; iyzico kaydıyla mutabakat gerekir.</p><Link className="commerce-text-link" href="/admin/audit">Audit Log Kayıtlarını Aç →</Link></section> : <>
+    {params.result && <p role="status" className="commerce-notice">{params.result === "checked" ? "Kontrol sonuçları kaydedildi. Her kontrolün sonucunu ve zamanını aşağıdan inceleyin." : params.result === "requested" ? "İşlem talebi işlendi. Güncel ödeme, iade ve hak ediş sonucu aşağıdaki doğrulanmış kayıtlarda gösterilir." : params.result === "rate_limit" ? "Çok fazla işlem. Bir dakika sonra tekrar deneyin." : "İşlem doğrulanamadı. Kayıt ve kuruluş sonucu incelenmeli."}</p>}
+    {view === "health" ? <OperationsHealth health={health} reconciliationCount={summary?.reconciliation_count ?? null} configured={{ service: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY), payment: Boolean(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY), cron: Boolean(process.env.CRON_SECRET) }} /> : <>
       {view === "orders" && <form className="fusion-filter" method="get"><input type="hidden" name="view" value="orders" /><label className="commerce-field">Sipariş durumu<select name="status" defaultValue={params.status || ""}><option value="">Tüm durumlar</option>{Object.entries(orderLabels).map(([status, label]) => <option key={status} value={status}>{label}</option>)}</select></label><button className="commerce-secondary">Filtrele</button></form>}
       {result.error ? <p role="alert" className="commerce-notice">Sipariş ve ödeme kayıtları okunamadı. Migration ve RLS yetkilerini kontrol edin.</p> : !rows.length ? <section className="commerce-empty"><h2>Bu görünümde kayıt yok</h2><p>İlgili işlem oluştuğunda burada listelenir.</p></section> : <div className="fusion-operation-list">{rows.map(order => {
         const t = transaction(order);

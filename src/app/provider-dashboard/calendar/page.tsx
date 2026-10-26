@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProviderCommerceSummary } from "@/components/commerce/ProviderCommerceSummary";
+import { ProviderOrderCalendar } from "@/components/commerce/ProviderOrderCalendar";
 import { Calendar, Clock, MapPin, Phone } from "lucide-react";
 import {
   getProviderDashboardStatusBadgeView,
@@ -11,7 +11,7 @@ import { SERVICE_REQUEST_STATUSES, normalizeServiceRequestStatus } from "@/lib/c
 import { getServerAuthContext } from "@/services/auth/server";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
 import { getProviderAssignedRequests } from "@/services/requests";
-import Link from "next/link";
+
 import { todayIstanbul } from "@/lib/commerce/display";
 
 export const dynamic = "force-dynamic";
@@ -107,7 +107,8 @@ function groupJobsByDate(activeJobs: JobItem[]) {
   return grouped;
 }
 
-export default async function ProviderCalendarPage() {
+export default async function ProviderCalendarPage({ searchParams }: { searchParams: Promise<{ day?: string; page?: string }> }) {
+  const params = await searchParams;
   const [providerAccess, authContext] = await Promise.all([
     getProviderDashboardAccess(),
     getServerAuthContext(),
@@ -144,7 +145,7 @@ export default async function ProviderCalendarPage() {
       statusTone={statusBadge.tone}
       title="Takvim"
     >
-      {providerAccess.ok && <><Link className="commerce-button mb-6" href="/provider-dashboard/store">Çalışma Saatleri ve İzin Günlerini Düzenle</Link><ProviderCommerceSummary providerId={providerAccess.profile.id} /></>}
+      {providerAccess.ok && <ProviderOrderCalendar providerId={providerAccess.profile.id} params={params} />}
       {providerAccess.ok ? (
         <details className="fusion-legacy"><summary>Önceki talep takvimi · geçmiş sistem</summary><div className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-3">

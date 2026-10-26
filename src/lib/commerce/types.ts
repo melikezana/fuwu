@@ -1,7 +1,7 @@
 import type { Json } from "@/lib/supabase/types";
 
 export type CatalogService = { id: string; category_id: string; slug: string; name: string; description: string; scope: string; exclusions: string; image_url: string; pricing_type: "FIXED_PRICE" | "VARIANT_BASED" | "DIAGNOSTIC_SERVICE"; is_active: boolean };
-export type ServiceVariant = { id: string; service_id: string; name: string; is_active: boolean };
+export type ServiceVariant = { id: string; service_id: string; provider_id?: string | null; name: string; is_active: boolean };
 export type Offering = { id: string; provider_id: string; service_id: string; variant_id: string | null; price_minor: number; duration_minutes: number; district_ids: string[]; is_active: boolean; updated_at: string };
 export type PublicOffer = Pick<Offering, "id" | "provider_id" | "service_id" | "variant_id" | "price_minor" | "duration_minutes" | "district_ids"> & { variant_name: string | null; provider_name: string; profile_image_url: string | null; rating: number | null; review_count: number };
 export type Availability = { provider_id: string; weekday: number; starts_at: string; ends_at: string };
@@ -26,6 +26,9 @@ export type CommerceTables = {
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
 };
 export type CommerceFunctions = {
+  commerce_create_variant: { Args: { p_provider_id: string; p_service_id: string; p_name: string }; Returns: string };
+  commerce_record_health: { Args: { p_name: string; p_passed: boolean; p_detail: string }; Returns: undefined };
+  commerce_admin_health: { Args: Record<string, never>; Returns: Json };
   commerce_admin_reconciliation: { Args: { p_page?: number }; Returns: Json };
   public_provider_reviews: { Args: { p_provider_id: string }; Returns: Json };
   review_eligible_sources: { Args: { p_provider_id: string }; Returns: Json };
