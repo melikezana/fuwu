@@ -1,0 +1,43 @@
+{
+  "scope": "Actual React components with explicitly fictional data and mocked API; no real account or payment",
+  "checks": [
+    "chromium phase3-customer: five responsive widths",
+    "chromium phase3-calendar: five responsive widths",
+    "chromium phase3-health: five responsive widths",
+    "chromium phase3-store: five responsive widths",
+    "chromium admin: five responsive widths",
+    "chromium phase3-orders-error: five responsive widths",
+    "chromium phase3-orders-empty: five responsive widths",
+    "chromium: custom package, price, working hours and day off saved through mocked API",
+    "chromium: modal focus trap, Escape and focus restoration",
+    "chromium: large text and landscape",
+    "webkit phase3-customer: five responsive widths",
+    "webkit phase3-calendar: five responsive widths",
+    "webkit phase3-health: five responsive widths",
+    "webkit phase3-store: five responsive widths",
+    "webkit admin: five responsive widths",
+    "webkit phase3-orders-error: five responsive widths",
+    "webkit phase3-orders-empty: five responsive widths",
+    "webkit: custom package, price, working hours and day off saved through mocked API",
+    "webkit: modal focus trap, Escape and focus restoration",
+    "webkit: large text and landscape"
+  ],
+  "screenshots": [
+    "phase3-customer-375.png",
+    "phase3-customer-1440.png",
+    "phase3-calendar-375.png",
+    "phase3-calendar-1440.png",
+    "phase3-health-375.png",
+    "phase3-health-1440.png",
+    "phase3-store-375.png",
+    "phase3-store-1440.png",
+    "admin-375.png",
+    "admin-1440.png",
+    "phase3-orders-error-375.png",
+    "phase3-orders-error-1440.png",
+    "phase3-orders-empty-375.png",
+    "phase3-orders-empty-1440.png"
+  ],
+  "errors": [],
+  "failed": null
+}

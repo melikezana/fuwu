@@ -1,3 +1,4 @@
+import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
@@ -7,6 +8,8 @@ import { isUuid } from "@/lib/utils/validation";
 import type { PaymentTransaction } from "@/lib/commerce/types";
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, profile, supabase } = await getServerAuthContext();
   if (!user || !supabase) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const b = await request.json().catch(() => null);

@@ -14,7 +14,6 @@ import { MobileAppShell } from "@/components/layout/MobileAppShell";
 import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
-import { AppSplash } from "@/components/layout/AppSplash";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { getPublicAppSettings } from "@/services/admin/settings";
 import "@/styles/globals.css";
@@ -135,7 +134,6 @@ export default async function RootLayout({
           pixelId={metaPixelId}
         />
         <LocaleProvider>
-          <AppSplash />
           <Suspense fallback={null}>
             <PageViewTracker />
           </Suspense>
@@ -149,8 +147,9 @@ export default async function RootLayout({
               </div>
             ) : null}
             <AnnouncementBanner message={announcementBanner} />
+            <a className="skip-to-content" href="#main-content">İçeriğe geç</a>
             <Navbar />
-            <main className="premium-reveal flex-1">{children}</main>
+            <main className="flex-1" id="main-content" tabIndex={-1}>{children}</main>
             <Footer />
             <HelpButton />
           </MobileAppShell>

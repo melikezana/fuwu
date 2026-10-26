@@ -2,11 +2,11 @@ export function ProviderCardSkeleton() {
   return (
     <div className="premium-card flex flex-col gap-4 p-5 animate-pulse">
       <div className="flex justify-between items-start">
-        <div className="flex gap-3 items-center">
+        <div className="flex min-w-0 flex-1 gap-3 items-center">
           <div className="w-12 h-12 rounded-full bg-[rgba(20,33,61,0.1)]"></div>
-          <div className="flex flex-col gap-2">
-            <div className="h-5 w-32 bg-[rgba(20,33,61,0.1)] rounded-md"></div>
-            <div className="h-4 w-48 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="h-5 w-full max-w-32 bg-[rgba(20,33,61,0.1)] rounded-md"></div>
+            <div className="h-4 w-full max-w-48 bg-[rgba(20,33,61,0.08)] rounded-md"></div>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -34,3 +34,4 @@ export function SkeletonGrid({ count = 4 }: { count?: number }) {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import { phase3Checks } from "./phase3-db-checks.mjs";
 import assert from "node:assert/strict";
 import { reviewQualityChecks } from "./fusion-quality-db-checks.mjs";
 import fs from "node:fs/promises";
@@ -38,7 +39,9 @@ try {
   execFileSync(initdb,["-D",dataDir,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{ windowsHide:true,stdio:"pipe" });
   const log = await fs.open(path.join(dataDir,"server.log"),"a");
   server = spawn(postgres,["-D",dataDir,"-h","127.0.0.1","-p",String(port),"-F"],{ windowsHide:true,stdio:["ignore",log.fd,log.fd] });
-  for(let i=0;i<60;i++){try{root=await client();break;}catch{await delay(200);}}
+  let connectionError;
+  for(let i=0;i<60;i++){try{root=await client();break;}catch(error){connectionError=error;await delay(200);}}
+  if (!root) console.error("Local connection error:", connectionError?.code, connectionError?.message);
   assert.ok(root,"Local PostgreSQL must start");
   await root.query(await fs.readFile("e2e/fixtures/commerce-base.sql","utf8"));
   await root.query(await fs.readFile("supabase/migrations/20261021000100_direct_service_commerce.sql","utf8"));
@@ -46,6 +49,9 @@ try {
   const preservedReview = await scalar(root,"insert into reviews(provider_id,user_id,rating,comment,created_at) values($1,$2,4,'TEST pre-migration original review',now()-interval '3 days') returning id",[pid(3),uid(1)]);
   await root.query(await fs.readFile("supabase/migrations/20261022000200_fusion_quality_and_reviews.sql","utf8"));
   await root.query(await fs.readFile("supabase/migrations/20261026000100_customer_favorites.sql","utf8"));
+  await root.query(await fs.readFile("supabase/migrations/20261026000200_phase3_operations.sql","utf8"));
+  await root.query(await fs.readFile("supabase/migrations/20261026000300_provider_financial_privacy.sql","utf8"));
+  await root.query(await fs.readFile("supabase/migrations/20261026000400_review_submission_receipts.sql","utf8"));
   await check("Additive migration preserves existing review ID, text, score and missing source",async()=>{const row=(await root.query("select * from reviews where id=$1",[preservedReview])).rows[0];assert.equal(row.comment,'TEST pre-migration original review');assert.equal(row.rating,4);assert.equal(row.order_id,null);assert.equal(row.service_request_id,null);});
   const a=await client("authenticated",uid(1)), b=await client("authenticated",uid(2)), p=await client("authenticated",uid(3)), p2=await client("authenticated",uid(4)), admin=await client("authenticated",uid(5)), service=await client("service_role"), guest=await client("anon");
   await check("Favorites require authentication and cannot be written for another customer", async()=>{await assert.rejects(guest.query("select * from customer_favorite_providers"),/permission denied/);await assert.rejects(a.query("insert into customer_favorite_providers(customer_id,provider_id) values($1,$2)",[uid(2),pid(3)]),/row-level security/);});
@@ -111,6 +117,7 @@ try {
   await check("Role and commission changes create database audit evidence",async()=>{await admin.query("update profiles set role='provider' where id=$1",[uid(6)]);await root.query("update app_settings set value='10.0' where key='commission_rate'");assert.equal(await scalar(admin,"select count(*)::int from audit_logs where action='user.role_updated' and entity_id=$1",[uid(6)]),1);assert.equal(await scalar(admin,"select count(*)::int from audit_logs where action='settings.updated'"),1);});
   await check("Order retains included/excluded scope when catalogue changes",async()=>{const before=(await root.query("select scope,exclusions from orders where id=$1",[winner.id])).rows[0];await root.query("update service_catalog set scope='TEST New scope not retroactive',exclusions='TEST New exclusion not retroactive' where id=$1",[serviceId]);assert.deepEqual((await root.query("select scope,exclusions from orders where id=$1",[winner.id])).rows[0],before);});
   await reviewQualityChecks({ root, guest, a, b, p, p2, admin, service, winningClient, losingClient, winner, pid, uid, scalar, check, client });
+  await phase3Checks({ root, a, p, p2, admin, service, guest, pid, uid, scalar, check, winner, winningClient });
   console.log(`${report.checks.length} database checks passed.`);
 } catch(error){report.failed=String(error?.stack||error);console.error(report.failed);process.exitCode=1;}
 finally {for(const c of clients)await c.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",dataDir,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(out,"database-tests.json"),JSON.stringify(report,null,2));}

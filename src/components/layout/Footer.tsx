@@ -89,7 +89,7 @@ export function Footer() {
   const discoverLinks: FooterLink[] = [
     { label: t("cta.findProvider"), href: appRoutes.providers },
     { label: t("nav.services"), href: appRoutes.services },
-    { label: "Hizmet Satın Al", href: appRoutes.catalog },
+    { label: "Siparişlerim", href: appRoutes.orders },
     { label: t("cta.provider"), href: appRoutes.providerApplication },
   ];
   const companyLinks: FooterLink[] = [

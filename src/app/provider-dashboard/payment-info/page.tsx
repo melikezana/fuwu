@@ -205,13 +205,13 @@ export default async function ProviderPaymentInfoPage({
   return (
     <ProviderDashboardShell
       active="paymentInfo"
-      description="Online ödemelerde escrow sonrası payout alabilmek için iyzico pazaryeri bilgilerini tamamla."
+      description="Hizmet satışından hak ediş alabilmek için ödeme hesabı bilgilerini tamamla."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       statusLabel={statusBadge.label}
       statusTone={statusBadge.tone}
       title="Ödeme Bilgileri"
     >
-      {providerAccess.ok ? (
+      {providerAccess.ok && !providerAccess.profile.privateInfoAvailable ? <p role="alert" className="commerce-notice">Özel ödeme bilgilerine şu anda ulaşılamıyor. Bağlantı veya erişim kontrolü tamamlanana kadar bilgileri güncelleyemezsiniz.</p> : providerAccess.ok ? (
         <section className="premium-card p-5 sm:p-6">
           <div className="flex flex-col gap-5 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
@@ -219,10 +219,10 @@ export default async function ProviderPaymentInfoPage({
                 iyzico pazaryeri
               </p>
               <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
-                Payout hesabı
+                Ödeme hesabın
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
-                Online ödeme alan talepleri kabul etmek için alt üye işyeri kaydın aktif olmalı.
+                Hizmetlerini satışa açmak için ödeme hesabının kuruluş tarafından doğrulanması gerekir.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -252,7 +252,7 @@ export default async function ProviderPaymentInfoPage({
                 autoComplete="off"
                 defaultValue={providerAccess.profile.payoutIban}
                 helpText="TR ile başlayan kişisel veya şirket IBAN'ı."
-                label="Payout IBAN"
+                label="Banka IBAN"
                 name="payoutIban"
                 placeholder="TR000000000000000000000000"
               />
@@ -293,7 +293,7 @@ export default async function ProviderPaymentInfoPage({
                 <CreditCard className="h-5 w-5" aria-hidden />
               </div>
               <p className="mt-4 text-xs font-medium uppercase text-[var(--muted)]">
-                Payout durumu
+                Ödeme hesabı durumu
               </p>
               <p className="mt-2 text-lg font-bold leading-6 text-[var(--brand-navy)]">
                 {PROVIDER_IYZICO_SUBMERCHANT_STATUS_LABELS[
@@ -301,7 +301,7 @@ export default async function ProviderPaymentInfoPage({
                 ]}
               </p>
               <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                Durum aktif olmadan online ödeme alan talepler kabul edilemez.
+                Ödeme hesabın aktif olmadan hizmetlerin satın alınamaz.
               </p>
               <div className="mt-5 grid gap-3 border-t border-[var(--border)] pt-5">
                 <div className="rounded-md bg-white px-3 py-2">
@@ -317,7 +317,7 @@ export default async function ProviderPaymentInfoPage({
                     Güvenlik
                   </p>
                   <p className="mt-1 text-sm font-semibold leading-5 text-[var(--brand-navy)]">
-                    Tutar sunucuda talep fiyatından hesaplanır.
+                    Sipariş tutarı ve hizmet kapsamı satın alma sırasında kesinleşir.
                   </p>
                 </div>
                 <div className="flex items-start gap-2 rounded-md border border-[rgba(23,116,95,0.18)] bg-[var(--trust-green-soft)] px-3 py-2 text-[var(--trust-green)]">

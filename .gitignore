@@ -1,6 +1,8 @@
 # dependencies
 node_modules/
 artifacts/commerce-test-runtime/
+artifacts/phase3/browser-runtime/
+artifacts/phase3/vite-cache/
 fuwu/
 
 # next.js

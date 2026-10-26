@@ -26,6 +26,7 @@ export type CommerceTables = {
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
 };
 export type CommerceFunctions = {
+  commerce_provider_private: { Args: { p_provider_id: string }; Returns: Json };
   commerce_create_variant: { Args: { p_provider_id: string; p_service_id: string; p_name: string }; Returns: string };
   commerce_record_health: { Args: { p_name: string; p_passed: boolean; p_detail: string }; Returns: undefined };
   commerce_admin_health: { Args: Record<string, never>; Returns: Json };

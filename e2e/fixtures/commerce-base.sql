@@ -11,6 +11,7 @@ create function public.current_user_is_admin() returns boolean language sql stab
 create table public.service_categories(id uuid primary key,name text,slug text,is_active boolean default true);
 create table public.districts(id uuid primary key,name text,is_active boolean default true);
 create table public.providers(id uuid primary key,user_id uuid references public.profiles(id),name text,category_id uuid references public.service_categories(id),profile_image_url text,is_active boolean default true,is_approved boolean default true,availability text default 'müsait',iyzico_submerchant_status text default 'active',iyzico_submerchant_key text default 'sandbox-test',rating numeric default 0,review_count integer default 0);
+alter table public.providers add column payout_iban text,add column tax_identity_number text,add column tax_office text,add column legal_name text,add column payout_address text,add column iyzico_submerchant_conversation_id text;
 create table public.reviews(id uuid primary key default gen_random_uuid(),provider_id uuid references public.providers(id),user_id uuid references public.profiles(id),rating smallint,comment text,created_at timestamptz not null default now(),unique(provider_id,user_id));
 create table public.service_requests(id uuid primary key default gen_random_uuid(),assigned_provider_id uuid,accepted_provider_id uuid,status text,preferred_date date,preferred_time time,user_id uuid references profiles(id),updated_at timestamptz not null default now());
 create table public.app_settings(key text primary key,value text);

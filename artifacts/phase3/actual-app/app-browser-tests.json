@@ -1,0 +1,65 @@
+{
+  "scope": "Read-only actual Next.js pages, guest session",
+  "widths": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "Active Next.js proxy loopback CSP",
+      "expected": "Nonce CSP without local HTTPS asset upgrade",
+      "actual": "PASS"
+    },
+    {
+      "name": "home at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "catalog at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "service at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "providers at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "login at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    },
+    {
+      "name": "profile at all seven widths",
+      "expected": "No document or form overflow",
+      "actual": "PASS"
+    }
+  ],
+  "screenshots": [
+    "actual-home-390.png",
+    "actual-home-1440.png",
+    "actual-catalog-390.png",
+    "actual-catalog-1440.png",
+    "actual-service-390.png",
+    "actual-service-1440.png",
+    "actual-providers-390.png",
+    "actual-providers-1440.png",
+    "actual-login-390.png",
+    "actual-login-1440.png",
+    "actual-profile-390.png",
+    "actual-profile-1440.png"
+  ],
+  "errors": [],
+  "failed": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('heading', { level: 1 })\nExpected substring: \"Evinin her işi\"\nReceived string:    \"Evin için ihtiyacın olan hizmet, tek bir yerde.\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for getByRole('heading', { level: 1 })\n    13 × locator resolved to <h1 id=\"home-title\" class=\"home-hero-title\">…</h1>\n       - unexpected value \"Evin için ihtiyacın olan hizmet, tek bir yerde.\"\n\n    at captureRawStack (C:\\Users\\Melikezana\\Desktop\\FUWU\\node_modules\\playwright-core\\lib\\coreBundle.js:3130:17)\n    at callMatcherAsStep (C:\\Users\\Melikezana\\Desktop\\FUWU\\node_modules\\playwright\\lib\\matchers\\expect.js:12873:57)\n    at Object.toContainText (C:\\Users\\Melikezana\\Desktop\\FUWU\\node_modules\\playwright\\lib\\matchers\\expect.js:12863:23)\n    at C:\\Users\\Melikezana\\Desktop\\FUWU\\scripts\\verify-fusion-app.mjs:39:53"
+}

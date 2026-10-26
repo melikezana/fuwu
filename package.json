@@ -21,6 +21,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:assignment-race": "node scripts/test-admin-assignment-race.mjs",
     "test:customer-payment": "tsx scripts/test-customer-payment-confirmation.ts",
+    "test:phase3": "tsx scripts/test-phase3-operations.ts",
+    "test:phase3:browser": "node scripts/verify-phase3-ui.mjs",
     "test:commerce:db": "node scripts/test-direct-commerce-db.mjs",
     "test:commerce:payment": "tsx scripts/test-direct-commerce-payment.ts",
     "test:commerce:ux": "tsx scripts/test-premium-commerce.ts",

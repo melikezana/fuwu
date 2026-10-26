@@ -36,9 +36,9 @@ try {
     report.checks.push({name:`${name} at all seven widths`,expected:"No document or form overflow",actual:"PASS"});
   }
   await page.goto(base+"/",{waitUntil:"domcontentloaded"});
-  await expect(page.getByRole("heading",{level:1})).toContainText("tam zamanında");
-  await expect(page.getByRole("link",{name:"Hizmetleri Keşfet",exact:true})).toBeVisible();await expect(page.getByRole("link",{name:"Ustaları İncele",exact:true})).toBeVisible();
-  await page.getByLabel("Hangi hizmete ihtiyacın var?",{exact:true}).fill("musluk");await page.getByRole("button",{name:"Hizmet Bul",exact:true}).click();await page.waitForURL("**/services?**");assert.equal(new URL(page.url()).searchParams.get("q"),"musluk");
+  await expect(page.getByRole("heading",{level:1})).toContainText("Evinin her işi");
+  await expect(page.getByRole("link",{name:"Usta Bul",exact:false}).first()).toBeVisible();
+  await page.getByLabel("Hangi hizmete ihtiyacın var?",{exact:true}).fill("musluk");await page.getByRole("button",{name:"Hizmet Satın Al",exact:true}).click();await page.waitForURL("**/services?**");assert.equal(new URL(page.url()).searchParams.get("q"),"musluk");
   report.checks.push({name:"Homepage service search",expected:"Catalogue receives the query",actual:"PASS"});
   for(const route of ["/orders","/account?view=addresses","/dashboard","/provider-dashboard/store","/provider-dashboard/orders","/admin/marketplace?view=payments"]) {
     await page.goto(base+route,{waitUntil:"domcontentloaded"});await page.waitForURL("**/login?**");assert.equal(new URL(page.url()).searchParams.get("next"),route);

@@ -1,3 +1,4 @@
+import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
@@ -6,6 +7,8 @@ import { submitProviderReview } from "@/services/reviews";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const origin = request.headers.get("origin");
+  if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, supabase: db } = await getServerAuthContext();
   if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { id } = await params;

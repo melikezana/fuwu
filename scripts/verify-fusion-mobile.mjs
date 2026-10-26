@@ -7,9 +7,9 @@ import { chromium, webkit, devices } from "playwright";
 const base = process.env.FUSION_BASE_URL || "http://127.0.0.1:3067";
 assert.ok(["127.0.0.1", "localhost"].includes(new URL(base).hostname));
 const engine = process.env.FUSION_MOBILE_ENGINE === "webkit" ? "webkit" : "chromium";
-const out = path.resolve("artifacts/fusion-quality/mobile"); await fs.mkdir(out, { recursive: true });
+const out = path.resolve(process.env.FUSION_MOBILE_OUTPUT_DIR || "artifacts/fusion-quality/mobile"); await fs.mkdir(out, { recursive: true });
 const report = { scope: "Local real Next.js pages in mobile browser engine emulation, guest only; not physical Safari/Chrome OAuth E2E", engine, checks: [], errors: [], failed: null };
-const browser = await (engine === "webkit" ? webkit : chromium).launch();
+const browser = await (engine === "webkit" ? webkit : chromium).launch(process.env.FUSION_MOBILE_EXECUTABLE ? { executablePath: process.env.FUSION_MOBILE_EXECUTABLE } : {});
 const descriptor = devices[engine === "webkit" ? "iPhone 13" : "Pixel 7"];
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: descriptor.userAgent, isMobile: true, hasTouch: true, deviceScaleFactor: descriptor.deviceScaleFactor, reducedMotion: "reduce" });
 await context.addInitScript(() => { localStorage.setItem("fuwu:cookie-consent", "rejected"); sessionStorage.setItem("fuwu_splash_shown", "true"); });
@@ -24,7 +24,8 @@ try {
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${engine} ${name} fits ${width}`);
       if (name === "service" && width === 390) {
         const sizes = await page.locator(".commerce-field input,.commerce-field select,.commerce-field textarea").evaluateAll(nodes => nodes.map(node => parseFloat(getComputedStyle(node).fontSize)));
-        assert.ok(sizes.length > 0 && sizes.every(size => size >= 16), `Mobile booking controls avoid sub-16px text: ${JSON.stringify(sizes)}`);
+        if (sizes.length) assert.ok(sizes.every(size => size >= 16), `Mobile booking controls avoid sub-16px text: ${JSON.stringify(sizes)}`);
+        else { assert.ok(await page.locator(".commerce-notice").first().isVisible()); report.checks.push("Unavailable commerce schema: no purchasable booking controls, explicit notice"); }
       }
       if (width === 390 && name !== "home") await page.screenshot({ path: path.join(out, `${engine}-${name}-390.png`), fullPage: true });
     }

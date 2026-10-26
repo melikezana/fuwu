@@ -84,7 +84,7 @@ export function Dialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
+    <div className="fuwu-dialog fixed inset-0 z-[70] flex items-end justify-center md:items-center">
       {/* Backdrop */}
       <div
         aria-hidden="true"
@@ -103,7 +103,7 @@ export function Dialog({
         className={cn(
           "relative z-50 w-full bg-white shadow-2xl transition-transform duration-250 ease-out",
           // Mobile: Bottom sheet
-          "fixed inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl p-5",
+          "fixed inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-2xl p-5 pb-[max(1.25rem,var(--safe-bottom))]",
           // Desktop: Centered modal
           "md:static md:inset-auto md:max-w-lg md:rounded-xl md:p-6",
           className,

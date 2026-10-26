@@ -140,6 +140,11 @@
       "name": "Unauthenticated redirect preserves page and query for login resume",
       "expected": "assertions pass",
       "actual": "PASS"
+    },
+    {
+      "name": "Expired refresh token clears the session and preserves the login return path",
+      "expected": "assertions pass",
+      "actual": "PASS"
     }
   ]
 }

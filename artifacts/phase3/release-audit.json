@@ -1,0 +1,55 @@
+{
+  "production_ready": false,
+  "quality_checks": [
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "duration_seconds": 16,
+      "passed": true
+    },
+    {
+      "name": "typescript",
+      "exit_code": 0,
+      "duration_seconds": 15,
+      "passed": true
+    },
+    {
+      "name": "production-build",
+      "exit_code": 0,
+      "duration_seconds": 75,
+      "passed": true
+    }
+  ],
+  "sources_stable_during_build": true,
+  "source_captured_at": "2026-10-26T19:32:03.588Z",
+  "workspace_changed_at_delivery": [],
+  "pending_source_approvals": [
+    "financial field atomic audit trigger",
+    "admin review moderation RPC and direct DELETE privilege restriction"
+  ],
+  "release_blockers": [
+    "Target API commerce/review schema unavailable",
+    "Server payment/cron configuration missing",
+    "Real Google sign-in and iyzico transaction E2E not verified"
+  ],
+  "database": {
+    "checks": 70,
+    "failed": null,
+    "scope": "PostgreSQL, independent TCP sessions"
+  },
+  "component_browser": {
+    "checks": 20,
+    "failed": null,
+    "scope": "Actual React components with explicitly fictional data and mocked API; no real account or payment"
+  },
+  "runtime_http": {
+    "checks": 8,
+    "failed": null,
+    "scope": "Actual localhost production build, guest HTTP; no remote mutation or real account"
+  },
+  "external_readonly": {
+    "checks": 5,
+    "failed": null,
+    "scope": "Read-only external probes; not Google login or sandbox transaction E2E"
+  }
+}

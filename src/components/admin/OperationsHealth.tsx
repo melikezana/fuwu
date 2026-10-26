@@ -3,8 +3,7 @@ import { appointment } from "@/lib/commerce/display";
 import { evidenceState, probeLabels, type OperationsHealth as Health } from "@/lib/commerce/operations-health";
 import { checkOperationsHealth } from "@/app/admin/marketplace/health-actions";
 
-export function OperationsHealth({ health, reconciliationCount, configured }: { health: Health | null; reconciliationCount: number | null; configured: { service: boolean; payment: boolean; cron: boolean } }) {
-  const now = Date.now();
+export function OperationsHealth({ health, reconciliationCount, configured, now }: { now: number; health: Health | null; reconciliationCount: number | null; configured: { service: boolean; payment: boolean; cron: boolean } }) {
   return <section className="commerce-panel"><h2>Sistem sağlığı ve kontrol kanıtları</h2><p className="commerce-help">Sonuçlar son çalıştırılan kontrolü gösterir. Anahtar tanımı ve servis erişimi ayrı izlenir.</p>
     <dl className="fusion-health">{Object.entries(probeLabels).map(([name, label]) => {
       const evidence = health?.probes.find(p => p.name === name);

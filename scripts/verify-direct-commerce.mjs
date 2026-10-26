@@ -5,7 +5,7 @@ import { createServer } from "vite";
 import { chromium } from "playwright";
 const output=path.resolve(process.env.COMMERCE_OUTPUT_DIR || "artifacts/direct-commerce");await fs.mkdir(output,{recursive:true});
 const root=path.resolve("e2e/fixtures/commerce-ui");
-const server=await createServer({configFile:false,root,publicDir:path.resolve("public"),resolve:{alias:{"@/app/providers/[id]/actions":path.join(root,"review-action.ts"),"@":path.resolve("src"),"next/link":path.join(root,"next-link.tsx"),"next/image":path.join(root,"next-image.tsx"),"next/navigation":path.join(root,"next-navigation.ts")}},esbuild:{jsx:"automatic"},server:{host:"127.0.0.1",port:3037,strictPort:true,fs:{allow:[process.cwd()]}}});
+const server=await createServer({configFile:false,root,publicDir:path.resolve("public"),resolve:{alias:{"@/app/admin/marketplace/health-actions":path.join(root,"health-action.ts"),"@/app/providers/[id]/actions":path.join(root,"review-action.ts"),"@":path.resolve("src"),"next/link":path.join(root,"next-link.tsx"),"next/image":path.join(root,"next-image.tsx"),"next/navigation":path.join(root,"next-navigation.ts")}},esbuild:{jsx:"automatic"},server:{host:"127.0.0.1",port:3037,strictPort:true,fs:{allow:[process.cwd()]}}});
 await server.listen();
 const browser=await chromium.launch();
 const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:"reduce"});

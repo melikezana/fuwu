@@ -1,0 +1,7 @@
+{
+  "scope": "Existing local Supabase Auth/PostgREST review integration test",
+  "command": "npm run test:review-submission",
+  "target": "http://127.0.0.1:54321",
+  "exit_code": 1,
+  "result": "BLOCKED: ECONNREFUSED; no Auth service listening. Not counted as a passing integration test."
+}

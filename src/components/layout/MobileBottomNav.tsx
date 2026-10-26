@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Activity,
   ScrollText,
+  UserRoundSearch,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -42,10 +43,9 @@ const customerTabs: MobileTab[] = [
     match: [appRoutes.catalog],
   },
   {
-    center: true,
     href: appRoutes.providers,
-    icon: Search,
-    label: "Usta Bul",
+    icon: UserRoundSearch,
+    label: "Ustalar",
     match: [appRoutes.providers],
   },
   {
@@ -57,8 +57,8 @@ const customerTabs: MobileTab[] = [
   {
     href: appRoutes.account,
     icon: UserRound,
-    label: "Profil",
-    match: [appRoutes.account],
+    label: "Hesabım",
+    match: [appRoutes.account, appRoutes.login],
   },
 ];
 

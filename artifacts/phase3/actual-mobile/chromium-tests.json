@@ -1,0 +1,15 @@
+{
+  "scope": "Local real Next.js pages in mobile browser engine emulation, guest only; not physical Safari/Chrome OAuth E2E",
+  "engine": "chromium",
+  "checks": [
+    "home: portrait/landscape, no horizontal overflow",
+    "service: portrait/landscape, no horizontal overflow",
+    "login: portrait/landscape, no horizontal overflow",
+    "Protected account retains complete login return path",
+    "OAuth cancellation keeps the booking return path and origin"
+  ],
+  "errors": [],
+  "failed": null,
+  "validated_source_snapshot": "C:\\Users\\Melikezana\\.codex\\visualizations\\2026\\10\\26\\01a17981-a2bb-77a2-a293-d1d163f17f2e\\fuwu-validation-1793043122875",
+  "source_captured_at": "2026-10-26T19:32:03.588Z"
+}

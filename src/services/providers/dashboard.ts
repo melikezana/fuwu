@@ -64,6 +64,7 @@ export type ProviderIyzicoSubmerchantStatus =
   | "rejected";
 
 export type ProviderDashboardProfile = {
+  privateInfoAvailable?: boolean;
   averagePriceRange: string;
   availability: ProviderAvailabilityStatus;
   category: string;
@@ -153,14 +154,7 @@ const providerSelectQuery = `
   whatsapp,
   description,
   profile_image_url,
-  payout_iban,
-  tax_identity_number,
-  tax_office,
-  legal_name,
-  payout_address,
-  iyzico_submerchant_key,
   iyzico_submerchant_status,
-  iyzico_submerchant_conversation_id,
   average_price_min,
   average_price_max,
   rating,
@@ -511,9 +505,12 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  const profile = data
-    ? mapProviderDashboardRecord(data as unknown as ProviderDashboardRecord)
+  const privateResult = data ? await authContext.supabase.rpc("commerce_provider_private", { p_provider_id: data.id }) : null;
+  const safeRecord = data ? { ...data, ...(privateResult?.error ? {} : privateResult?.data as Record<string, unknown> ?? {}) } : null;
+  const profile = safeRecord
+    ? mapProviderDashboardRecord(safeRecord as unknown as ProviderDashboardRecord)
     : null;
+  if (profile) profile.privateInfoAvailable = Boolean(privateResult && !privateResult.error);
   const applicationResult = await getLatestProviderApplicationForCurrentUser(
     authContext.supabase,
     authContext.user.id,

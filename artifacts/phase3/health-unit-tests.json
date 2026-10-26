@@ -1,0 +1,11 @@
+{
+  "scope": "Mock HTTP and pure health evidence logic",
+  "checks": [
+    "Health probes use read-only endpoints; connectivity never claims a completed payment",
+    "Disabled Google and invalid sandbox response are failures despite configured environment",
+    "Network and invalid JSON failures are recorded without raw sensitive response data",
+    "Logout clears only Supabase session chunks and PKCE cookies",
+    "Missing configuration never certifies Google authentication",
+    "Health presentation distinguishes never tested, failed, stale and recent evidence"
+  ]
+}

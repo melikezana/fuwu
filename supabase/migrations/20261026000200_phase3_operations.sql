@@ -78,14 +78,16 @@ language plpgsql stable security definer set search_path='' as $$
 declare missing text[]:='{}'; item text;
 begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
- foreach item in array array['orders','payment_transactions','order_completion_codes','order_status_events','reviews','customer_addresses','provider_service_offerings','provider_availability','provider_time_off','operations_health_checks','audit_logs'] loop
+ foreach item in array array['orders','payment_transactions','order_completion_codes','order_status_events','reviews','review_submission_receipts','customer_addresses','provider_service_offerings','provider_availability','provider_time_off','operations_health_checks','audit_logs'] loop
    if not coalesce((select relrowsecurity from pg_class where oid=to_regclass('public.'||item)),false) then missing:=array_append(missing,item||': RLS'); end if;
  end loop;
- foreach item in array array['commerce_hold_order(uuid,timestamp with time zone,uuid,text,uuid,integer)','commerce_transition_order(uuid,text,text)','review_eligible_sources(uuid)','submit_service_review(uuid,uuid,uuid,smallint,text)','commerce_create_variant(uuid,uuid,text)','commerce_admin_reconciliation(integer)'] loop
+ foreach item in array array['commerce_hold_order(uuid,timestamp with time zone,uuid,text,uuid,integer)','commerce_transition_order(uuid,text,text)','review_eligible_sources(uuid)','submit_service_review(uuid,uuid,uuid,smallint,text)','commerce_create_variant(uuid,uuid,text)','commerce_provider_private(uuid)','commerce_admin_reconciliation(integer)'] loop
    if to_regprocedure('public.'||item) is null then missing:=array_append(missing,item); end if;
  end loop;
  if not exists(select 1 from pg_attribute where attrelid='public.reviews'::regclass and attname='order_id' and not attisdropped) then missing:=array_append(missing,'reviews.order_id'); end if;
  if not exists(select 1 from pg_indexes where schemaname='public' and indexname='reviews_order_once') then missing:=array_append(missing,'reviews_order_once'); end if;
+ if has_column_privilege('anon','public.providers','iyzico_submerchant_key','SELECT') or has_column_privilege('authenticated','public.providers','iyzico_submerchant_key','SELECT') then missing:=array_append(missing,'providers: private column access'); end if;
+ if has_table_privilege('authenticated','public.orders','UPDATE') then missing:=array_append(missing,'orders: direct client updates'); end if;
  return jsonb_build_object('checked_at',now(),'contract_ok',cardinality(missing)=0,'missing_contracts',missing,
    'audit_last_event_at',(select max(created_at) from public.audit_logs),
    'probes',(select coalesce(jsonb_agg(to_jsonb(h) order by name),'[]'::jsonb) from public.operations_health_checks h));
@@ -146,4 +148,18 @@ begin
 end $$;
 
 
+-- Price and schedule changes must leave atomic evidence, without private payloads.
+create function public.commerce_audit_store() returns trigger language plpgsql security definer set search_path='' as $$
+declare row_data jsonb:=case when TG_OP='DELETE' then to_jsonb(old) else to_jsonb(new) end;
+begin
+ insert into public.audit_logs(actor_user_id,entity_type,entity_id,action,metadata)
+ values(auth.uid(),'provider',(row_data->>'provider_id')::uuid,'provider.store_updated',jsonb_build_object('table',TG_TABLE_NAME,'operation',TG_OP,
+ 'price_minor',row_data->'price_minor','duration_minutes',row_data->'duration_minutes','is_active',row_data->'is_active'));
+ return new;
+end $$;
+create trigger phase3_offering_audit after insert or update on public.provider_service_offerings for each row execute function public.commerce_audit_store();
+create trigger phase3_variant_audit after insert or update on public.service_variants for each row when(new.provider_id is not null) execute function public.commerce_audit_store();
+create trigger phase3_hours_audit after insert or update or delete on public.provider_availability for each row execute function public.commerce_audit_store();
+create trigger phase3_time_off_audit after insert or update or delete on public.provider_time_off for each row execute function public.commerce_audit_store();
+revoke all on function public.commerce_audit_store() from public,anon,authenticated;
 commit;

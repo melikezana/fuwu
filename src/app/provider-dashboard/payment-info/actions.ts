@@ -10,6 +10,7 @@ import { getServerAuthContext } from "@/services/auth/server";
 import { writeAuditLog } from "@/services/audit";
 import { createIyzicoSubmerchant } from "@/services/payments/iyzico-submerchant";
 import { getProviderDashboardAccess } from "@/services/providers/dashboard";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 
 type ProviderUpdate = Database["public"]["Tables"]["providers"]["Update"];
 
@@ -91,7 +92,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     getServerAuthContext(),
   ]);
 
-  if (!providerAccess.ok || !authContext.supabase || !authContext.user) {
+  if (!providerAccess.ok || !authContext.supabase || !authContext.user || !providerAccess.profile.privateInfoAvailable || providerAccess.userId !== authContext.user.id) {
     redirectToPaymentInfoMessage("provider-not-authorized");
   }
 
@@ -118,6 +119,8 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     redirectToPaymentInfoMessage("payment-info-rate-limited");
   }
 
+  const paymentDb = createSupabaseServiceRoleClient();
+  if (!paymentDb) redirectToPaymentInfoMessage("payment-info-update-failed");
   const now = new Date().toISOString();
   const conversationId = `provider-${providerAccess.profile.id}-${Date.now()}`;
   const baseUpdatePayload: ProviderUpdate = {
@@ -130,7 +133,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     tax_office: input.taxOffice || null,
     updated_at: now,
   };
-  const { error: baseUpdateError } = await authContext.supabase
+  const { data: baseUpdated, error: baseUpdateError } = await paymentDb
     .from("providers")
     .update(baseUpdatePayload)
     .eq("id", providerAccess.profile.id)
@@ -138,7 +141,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     .select("id")
     .maybeSingle();
 
-  if (baseUpdateError) {
+  if (baseUpdateError || !baseUpdated) {
     console.error("[Fuwu] Provider payment info update failed.", {
       providerId: providerAccess.profile.id,
       error: baseUpdateError,
@@ -174,7 +177,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     redirectToPaymentInfoMessage("payment-info-iyzico-missing-key");
   }
 
-  const { error: keyUpdateError } = await authContext.supabase
+  const { data: keyUpdated, error: keyUpdateError } = await paymentDb
     .from("providers")
     .update({
       iyzico_submerchant_key: subMerchantKey,
@@ -186,7 +189,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     .select("id")
     .maybeSingle();
 
-  if (keyUpdateError) {
+  if (keyUpdateError || !keyUpdated) {
     console.error("[Fuwu] Provider iyzico submerchant key update failed.", {
       providerId: providerAccess.profile.id,
       error: keyUpdateError,
@@ -201,7 +204,6 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
       entityId: providerAccess.profile.id,
       entityType: "provider",
       metadata: {
-        conversationId,
         hasSubMerchantKey: Boolean(subMerchantKey),
         submerchantStatus: "pending_review",
       },

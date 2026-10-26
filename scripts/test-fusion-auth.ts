@@ -83,6 +83,12 @@ async function main() {
       const response = await middleware(new NextRequest("https://www.fuwu.com.tr/orders?status=pending"));
       assert.equal(new URL(response.headers.get("location")!).searchParams.get("next"), "/orders?status=pending");
     });
+    await check("Expired refresh token clears the session and preserves the login return path", async () => {
+      globalThis.fetch = async () => Response.json({ error: "invalid_grant", error_code: "refresh_token_not_found", msg: "Refresh token not found" }, { status: 400 });
+      const response = await middleware(new NextRequest("https://www.fuwu.com.tr/orders?view=active", { headers: { cookie } }));
+      assert.equal(new URL(response.headers.get("location")!).pathname,"/login");
+      assert.equal(new URL(response.headers.get("location")!).searchParams.get("next"),"/orders?view=active");
+    });
   } finally {
     globalThis.fetch = originalFetch;
     for (const [key, value] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: previous.url, NEXT_PUBLIC_SUPABASE_ANON_KEY: previous.anon, SUPABASE_SERVICE_ROLE_KEY: previous.service })) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }

@@ -1,20 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, ChevronDown, Headphones, Search, ShieldCheck, Star, UserRoundSearch, WalletCards } from "lucide-react";
+import { ArrowRight, CalendarDays, ChevronDown, ClipboardList, Headphones, Search, ShieldCheck, UserRoundSearch, WalletCards } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import { servicePhotos } from "@/lib/service-photos";
 
 const steps = [
-  { icon: Search, title: "Hizmetini seç", description: "İşin kapsamını ve dahil olanları gör.", href: appRoutes.services, action: "Hizmet Satın Al" },
-  { icon: UserRoundSearch, title: "Ustanı incele", description: "Profil, fiyat ve gerçek yorumları karşılaştır.", href: appRoutes.providers, action: "Ustayı İncele" },
-  { icon: CalendarDays, title: "Gün ve saat seç", description: "Sana uygun randevuyu ve adresini belirle.", href: appRoutes.catalog, action: "Randevu Planla" },
-  { icon: WalletCards, title: "Güvenli öde", description: "Tüm tutarları gör, ödeme adımına geç.", href: appRoutes.catalog, action: "Güvenli Ödeme" },
-  { icon: Star, title: "Deneyimini paylaş", description: "Tamamlanan hizmetini hesabından değerlendir.", href: appRoutes.orders, action: "Siparişlerim" },
+  { icon: Search, title: "Hizmetini seç", description: "Kapsamı ve dahil olan işleri incele.", href: appRoutes.services, action: "Hizmetleri Keşfet" },
+  { icon: UserRoundSearch, title: "Ustanı karşılaştır", description: "Profilleri, fiyatları ve gerçek yorumları gör.", href: appRoutes.providers, action: "Ustaları İncele" },
+  { icon: CalendarDays, title: "Gün ve saatini belirle", description: "Ustanın müsaitliğinden sana uygun randevuyu seç.", href: appRoutes.catalog, action: "Randevu Planla" },
+  { icon: WalletCards, title: "Ödeme adımına geç", description: "Toplamı kontrol et. Şu anda yalnızca test ödemesi yapılır.", href: appRoutes.catalog, action: "Hizmetleri İncele" },
+  { icon: ClipboardList, title: "Siparişini takip et", description: "Randevunu ve hizmetin durumunu hesabından izle.", href: appRoutes.orders, action: "Siparişlerim" },
 ];
 const reasons = [
   { icon: ShieldCheck, title: "Kimin geleceğini bil", description: "Ustanın profilini, gerçek müşteri yorumlarını ve tamamlanan doğrulamalarını görerek karar ver." },
-  { icon: WalletCards, title: "Ödeyeceğin tutar baştan belli", description: "Hizmet kapsamı, dahil olmayan işler ve toplam bedel ödeme öncesinde açıkça gösterilir. Kart bilgilerin FUWU’da saklanmaz." },
+  { icon: WalletCards, title: "Ödeyeceğin tutarı önceden gör", description: "Satışa açık hizmetlerde kapsamı, dahil olmayan işleri ve toplam bedeli randevunu onaylamadan incele. Ödemeler şu anda test ortamındadır." },
   { icon: Headphones, title: "Her adımda kontrol sende", description: "Siparişini takip et. Hizmet bittiğinde teslim kodunu paylaş; bir sorun varsa siparişinden destek incelemesi başlat." },
 ];
 const questions = [
@@ -30,7 +30,7 @@ export function HomePremiumPanels() {
       <section aria-labelledby="how-title" className="home-section home-how" id="how-it-works">
         <Container className="home-container">
           <div className="home-section-heading">
-            <div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">Birkaç dokunuş. Bir iş daha tamam.</h2><p className="home-section-description">Hizmetini seçmekten değerlendirmene kadar her şey tek yerde.</p></div>
+            <div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">Seç, planla, takip et.</h2><p className="home-section-description">Hizmetini seçmekten siparişini takip etmeye kadar her adım açık.</p></div>
             <Link className="home-text-link" href={appRoutes.catalog}>Hemen başlayın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link>
           </div>
           <ol className="home-steps">

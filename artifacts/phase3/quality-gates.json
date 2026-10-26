@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-26T19:33:51.651Z",
+  "checks": [
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "duration_seconds": 16,
+      "passed": true
+    },
+    {
+      "name": "typescript",
+      "exit_code": 0,
+      "duration_seconds": 15,
+      "passed": true
+    },
+    {
+      "name": "production-build",
+      "exit_code": 0,
+      "duration_seconds": 75,
+      "passed": true
+    }
+  ],
+  "sources_unchanged_during_checks": true,
+  "changed_during_checks": [],
+  "scope": "Immutable source copy to isolate concurrent workspace edits; shared installed dependencies and public assets",
+  "source_captured_at": "2026-10-26T19:32:03.588Z",
+  "snapshot": "C:\\Users\\Melikezana\\.codex\\visualizations\\2026\\10\\26\\01a17981-a2bb-77a2-a293-d1d163f17f2e\\fuwu-validation-1793043122875",
+  "workspace_changed_after_snapshot": [],
+  "workspace_compared_at_delivery": "2026-10-26T19:36:56.078368+00:00",
+  "workspace_changed_at_delivery": []
+}

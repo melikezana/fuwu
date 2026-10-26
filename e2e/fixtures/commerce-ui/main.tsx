@@ -11,6 +11,10 @@ import { MarketplaceMetrics } from "../../../src/components/admin/MarketplaceMet
 import { ProviderReviews } from "../../../src/components/providers/ProviderReviews";
 import { OrderList } from "../../../src/components/commerce/OrderList";
 import { FavoriteButton } from "../../../src/components/providers/FavoriteButton";
+import { CustomerSpotlight } from "../../../src/components/commerce/CustomerSpotlight";
+import { ProviderAgenda } from "../../../src/components/commerce/ProviderAgenda";
+import { OperationsHealth } from "../../../src/components/admin/OperationsHealth";
+import { Dialog } from "../../../src/components/ui/dialog";
 import type { MarketplaceSummary } from "../../../src/lib/commerce/finance";
 import "../../../src/styles/globals.css";
 import "../../../src/styles/marketplace.css";
@@ -32,7 +36,17 @@ const events=[{id:"1",order_id:order.id,status:order.status,created_at:order.cre
 const isVariant=query.get("variant")==="true";
 const summary: MarketplaceSummary = { environment:"sandbox",paid_count:2,overdue_count:1,scheduled_count:2,order_count:3,completed_count:1,daily_gmv_minor:170000,monthly_gmv_minor:170000,gmv_minor:170000,commission_minor:8500,pending_count:1,failed_count:0,refund_pending_count:1,refunded_minor:0,payout_pending_minor:76500,disputed_count:0,cancelled_count:0,average_minor:85000,reconciliation_count:1,active_providers:2,new_customers_month:2,repeat_customer_percent:0 };
 let content: React.ReactNode;
-if(screen==="favorites") content=<div className="commerce-page"><h1>TEST Favori ustalar</h1><FavoriteButton providerId={fid} providerName="TEST Usta" /><FavoriteButton providerId={fid} providerName="TEST İkinci Kart" /></div>;
+function DialogFixture() { const [open,setOpen]=React.useState(false); return <div className="commerce-page"><h1>Erişilebilir işlem penceresi</h1><button className="commerce-button" onClick={() => setOpen(true)}>Pencereyi Aç</button><Dialog isOpen={open} onClose={() => setOpen(false)} title="Sipariş işlemi" description="TEST işlem penceresi"><label className="commerce-field">İşlem notu<input /></label><button className="commerce-button" onClick={() => setOpen(false)}>İşlemi Bitir</button></Dialog></div>; }
+const late={...order,status:"IN_PROGRESS" as const,starts_at:new Date(Date.now()-10800000).toISOString(),ends_at:new Date(Date.now()-3600000).toISOString()};
+const complete={...order,id:"40000000-0000-4000-8000-000000000009",status:"COMPLETED" as const};
+if(screen==="phase3-customer") content=<div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">MY FUWU</p><h1>Hizmetlerin, kontrol altında.</h1></header><CustomerSpotlight upcoming={order} active={late} now={Date.now()} /><OrderList unavailable={false} orders={[late,complete]} details={{[complete.id]:{reviewEligible:true,rebookHref:"/services/musluk-montaji?provider="+fid+"&rebook="+complete.id}}} /></div>;
+else if(screen==="phase3-calendar") content=<div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">FUWU PARTNER</p><h1>İşini planla.</h1></header><ProviderAgenda day={appointmentDay} orders={[order]} overdueCount={1} unavailable={false} /></div>;
+else if(screen==="phase3-store") content=<div className="commerce-page"><h1>Hizmet Mağazam</h1><ProviderStore providerId={fid} services={[{...service,pricing_type:"VARIANT_BASED"}]} variants={variants} offerings={[]} hours={[]} daysOff={[]} districts={districts}/></div>;
+else if(screen==="phase3-health") content=<div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">FUWU CONTROL CENTER</p><h1>Sistem Sağlığı</h1></header><OperationsHealth now={Date.now()} reconciliationCount={2} configured={{service:true,payment:false,cron:true}} health={{checked_at:new Date().toISOString(),contract_ok:true,missing_contracts:[],audit_last_event_at:new Date().toISOString(),probes:[{name:"google",passed:true,detail:"Auth sağlayıcısı etkin; gerçek Google giriş testi ayrıca gerekli.",checked_at:new Date().toISOString(),last_success_at:new Date().toISOString()},{name:"cron",passed:false,detail:"Son cron çalışması başarısız.",checked_at:new Date().toISOString(),last_success_at:new Date(Date.now()-86400000).toISOString()}]}} /></div>;
+else if(screen==="phase3-dialog") content=<DialogFixture/>;
+else if(screen==="phase3-orders-error") content=<div className="commerce-page"><h1>Siparişlerim</h1><OrderList orders={[]} unavailable={true}/></div>;
+else if(screen==="phase3-orders-empty") content=<div className="commerce-page"><h1>Siparişlerim</h1><OrderList orders={[]} unavailable={false}/></div>;
+else if(screen==="favorites") content=<div className="commerce-page"><h1>TEST Favori ustalar</h1><FavoriteButton providerId={fid} providerName="TEST Usta" /><FavoriteButton providerId={fid} providerName="TEST İkinci Kart" /></div>;
 else if(screen==="admin") content=<div className="commerce-page"><header className="commerce-page-header"><h1>Marketplace Operasyon Merkezi</h1></header><MarketplaceMetrics summary={summary}/></div>;
 else if(screen==="catalog") content=<div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">TEST KATALOĞU</p><h1>Bir hizmet seç.<br/><span>Gerisini ustasına bırak.</span></h1></header><ServiceCatalog services={[service,...catalogPreviews.slice(1)]} offers={offers} unavailable={false}/></div>;
 else if(screen==="store") content=<div className="commerce-page"><header className="commerce-page-header"><h1>Hizmet Mağazam</h1></header><ProviderStore providerId={fid} services={[service]} variants={[]} offerings={[]} hours={[]} daysOff={[]} districts={districts}/></div>;
