@@ -73,9 +73,9 @@ test.describe("CSP nonce smoke", () => {
     await expect(page.getByRole("button", { name: /Google/i })).toBeVisible();
   });
 
-  test("request form loads without CSP console violations", async ({ page }) => {
-    await gotoAndExpectNoCspViolations(page, "/request");
-    await expect(page.getByTestId("request-form")).toBeVisible();
+  test("service purchase loads without CSP console violations", async ({ page }) => {
+    await gotoAndExpectNoCspViolations(page, "/services/musluk-montaji");
+    await expect(page.getByRole("heading", { level: 1, name: "Musluk montajı" })).toBeVisible();
   });
 
   test("AI assistant photo upload path has no CSP console violations", async ({ page }) => {

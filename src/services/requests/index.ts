@@ -163,13 +163,13 @@ export type {
 } from "@/types/request";
 
 export const serviceRequestLoginRequiredMessage =
-  "Talep oluşturmak için giriş yapmalısın.";
+  "Hizmet kaydı oluşturmak için giriş yapmalısın.";
 
 export const serviceRequestSubmitErrorMessage =
-  "Talep oluşturulamadı. Lütfen tekrar deneyin.";
+  "Hizmet kaydı oluşturulamadı. Lütfen tekrar deneyin.";
 
 const serviceRequestRateLimitMessage =
-  "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
+  "Kısa sürede çok sayıda hizmet kaydı oluşturdun. Lütfen biraz sonra tekrar dene.";
 
 const serviceRequestCreateRateLimit = {
   action: "service_request_create",

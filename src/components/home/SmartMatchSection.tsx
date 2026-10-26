@@ -174,7 +174,7 @@ export function SmartMatchSection({
             </h2>
           </div>
           <p className="max-w-[22rem] break-words text-sm font-medium leading-6 text-[var(--muted)] sm:max-w-md">
-            Hizmet, ilçe ve bütçe seç. Uygun ustanın profilini gör, Fuwu üzerinden talep oluştur.
+            Hizmet, ilçe ve bütçe seç. Uygun ustanın profilini gör, Fuwu üzerinden hizmet kaydı oluştur.
           </p>
         </div>
 

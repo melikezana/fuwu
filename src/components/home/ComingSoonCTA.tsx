@@ -12,16 +12,16 @@ export function ComingSoonCTA() {
               Hazır olduğunuzda
             </p>
             <h2 className="mt-3 text-3xl font-bold leading-tight tracking-normal text-[var(--brand-navy)] sm:text-4xl">
-              Hizmet talep edin veya doğrudan usta bulun.
+              Hizmetini seç, randevunu planla.
             </h2>
             <p className="mt-4 text-base leading-7 text-[var(--muted)]">
-              Tek net taleple başlayın ya da dizindeki profilleri filtreleyip telefon ve WhatsApp
-              ile hızlıca iletişime geçin.
+              Hizmetin kapsamını ve fiyatını gör, ustanı incele. Sana uygun gün ve saati seçerek
+              güvenli ödeme adımına geç.
             </p>
           </div>
 
           <div className="mt-7 flex flex-col gap-3 lg:mt-0 lg:items-end">
-            <Button href={appRoutes.request} className="w-full sm:w-fit">
+            <Button href={appRoutes.catalog} className="w-full sm:w-fit">
               {ctaLabels.request}
             </Button>
             <Button

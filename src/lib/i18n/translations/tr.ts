@@ -14,8 +14,8 @@ export const trTranslations = {
   "nav.openMenu": "Menüyü aç",
   "nav.closeMenu": "Menüyü kapat",
   "cta.findProvider": "Usta Bul",
-  "cta.request": "Hizmeti Satın Al",
-  "cta.provider": "Usta Ağına Katıl",
+  "cta.request": "Hizmet Satın Al",
+  "cta.provider": "Usta Ol",
   "cta.clearFilters": "Filtreleri temizle",
   "cta.reviewProfiles": "Tüm profilleri incele",
   "cta.viewAllProviders": "Tüm ustaları gör",
@@ -45,11 +45,11 @@ export const trTranslations = {
   "availability.today": "Bugün uygun",
   "availability.tomorrow": "Yarın uygun",
   "availability.weekend": "Hafta sonu uygun",
-  "home.hero.title": "Onaylı ustalar, güvenle eşleş.",
+  "home.hero.title": "Evinin her işi, usta ellerde.",
   "home.hero.subtitle":
-    "İhtiyacını paylaş, uygun ustaları karşılaştır ve doğrudan iletişime geç.",
+    "Doğru usta, net fiyat, seçtiğin gün ve saatte hizmet.",
   "home.hero.mobileSummary":
-    "İhtiyacını paylaş, uygun ustaları karşılaştır ve doğrudan iletişime geç.",
+    "Hizmetini seç, randevunu planla, güvenle satın al.",
   "home.hero.stats.available": "Müsait ustalar",
   "home.hero.stats.activeToday": "{count} müsait",
   "home.hero.stats.categoryCount": "{count} kategori",
@@ -59,27 +59,27 @@ export const trTranslations = {
   "home.hero.mockup.summary": "Puan, ilçe ve fiyat aralığını karşılaştır.",
   "home.hero.empty.title": "Henüz yayında usta bulunmuyor.",
   "home.hero.empty.description":
-    "İlk ustaları admin panelden ekleyebilir veya usta başvurularını onaylayabilirsin.",
+    "Hizmet kategorilerini inceleyerek evinin ihtiyaçlarını keşfet.",
   "home.services.eyebrow": "Hizmet kategorileri",
   "home.services.title": "İhtiyacın olan hizmeti seç",
-  "home.services.description": "Kategori seç, uygun ustaları karşılaştır ve doğrudan iletişime geç.",
+  "home.services.description": "Hizmeti seç, kapsamını gör ve sana uygun randevuyu planla.",
   "home.providers.eyebrow": "Usta keşfi",
   "home.providers.title": "Sana uygun ustalar",
   "home.providers.description":
-    "Puan, ilçe, ortalama fiyat, uygunluk ve telefon bilgisiyle hızlı karşılaştırma yap.",
+    "Uzmanlık, hizmet bölgesi, gerçek yorumlar ve fiyatları karşılaştır.",
   "home.how.eyebrow": "Nasıl çalışır?",
   "home.how.title": "Usta bulma akışı",
   "home.how.description":
-    "Üç adımda ihtiyacını netleştir, profilleri karşılaştır ve doğrudan iletişime geç.",
+    "Hizmetini ve ustanı seç. Gün ve saatini belirle, güvenli ödeme ile devam et.",
   "home.how.step1.title": "Hizmetini seç",
   "home.how.step1.description":
     "Kategori veya arama alanından ihtiyacını belirle, sonuçları hizmete göre daralt.",
   "home.how.step2.title": "Ustaları karşılaştır",
   "home.how.step2.description":
     "İlçe, fiyat aralığı, puan, deneyim ve uygunluk bilgisini aynı ekranda incele.",
-  "home.how.step3.title": "Direkt iletişime geç",
+  "home.how.step3.title": "Randevu Planla",
   "home.how.step3.description":
-    "Karar verdiğinde ustayı telefonla ara veya WhatsApp üzerinden hemen yaz.",
+    "Müsait gün ve saati seç, adresini ekle ve sipariş özetini kontrol et.",
   "home.about.eyebrow": "Hakkımızda",
   "home.about.title": "Güvenilir ustalar, anında karşında.",
   "home.about.description":
@@ -172,34 +172,34 @@ export const trTranslations = {
   "home.faq.eyebrow": "Sık Sorulan Sorular",
   "home.faq.title": "Başlamadan önce kısa cevaplar",
   "home.faq.description":
-    "Usta bulmadan, talep oluşturmadan veya usta ağına katılmadan önce bilmen gerekenler.",
+    "Hizmet satın almadan veya usta olarak katılmadan önce bilmen gerekenler.",
   "home.faq.note":
-    "Usta bulmak için hesap gerekmez. Hizmet talebi oluşturmak için giriş yapmalısın.",
-  "home.faq.canRequest.question": "Şimdi hizmet talep edebilir miyim?",
+    "Hizmetleri ve ustaları giriş yapmadan inceleyebilirsin. Satın alma için hesabına giriş yap.",
+  "home.faq.canRequest.question": "Nasıl hizmet satın alabilirim?",
   "home.faq.canRequest.answer":
-    "Hizmet talebi oluşturmak için giriş yapmalısın. Usta profillerini ise giriş yapmadan inceleyebilir, telefon veya WhatsApp ile iletişime geçebilirsin.",
+    "Hizmetini seç, fiyatı belli bir ustayı incele. Gün, saat ve adresini belirleyerek sipariş özetinden güvenli ödeme adımına geç.",
   "home.faq.providerChecks.question": "Ustalar kontrol ediliyor mu?",
   "home.faq.providerChecks.answer":
     "Fuwu, ustaları listelemeden önce hizmet uyumu, çalışma bölgesi, deneyim, ekipman ve hazırlık bilgilerini değerlendirir.",
-  "home.faq.payNow.question": "Şimdi ödeme yapmam gerekiyor mu?",
+  "home.faq.payNow.question": "Ne zaman ödeme yaparım?",
   "home.faq.payNow.answer":
-    "Hayır. Talep gönderirken ödeme alınmaz. Önce ihtiyaç netleşir; randevu kararı senden onay almadan ilerlemez.",
-  "home.faq.afterRequest.question": "Talep gönderdikten sonra ne olur?",
+    "Hizmet, usta, randevu ve adresini seçtikten sonra toplam tutarı görürsün. Randevun ödeme doğrulandığında kesinleşir. Şu anda yalnızca test ödemesi kullanılmaktadır.",
+  "home.faq.afterRequest.question": "Siparişimi nasıl takip ederim?",
   "home.faq.afterRequest.answer":
-    "Fuwu hizmet türünü, konumu, zamanlamayı ve notları net bir özete dönüştürür. Otomatik randevu oluşmaz.",
-  "home.faq.serviceRequest.question": "Hizmet talebi ne zaman gerekli?",
+    "Siparişlerim bölümünden randevu bilgilerine, ustanın durum güncellemelerine ve ödeme bilgilerine ulaşabilirsin.",
+  "home.faq.serviceRequest.question": "Satın alınabilir hizmet görünmüyorsa ne yapabilirim?",
   "home.faq.serviceRequest.answer":
-    "Dizinde uygun profili bulamadığında veya daha özel bir kapsamı açıklamak istediğinde hizmet talebi bırakabilirsin.",
-  "home.faq.urgent.question": "Talebim acilse ne yapmalıyım?",
+    "Diğer hizmetlere veya bölgelere göz atabilirsin. Fiyatı ve müsaitliği doğrulanmayan bir hizmet için ödeme alınmaz.",
+  "home.faq.urgent.question": "Bugün için randevu alabilir miyim?",
   "home.faq.urgent.answer":
-    "Talep formunda aciliyeti seç ve notu kısa, net, pratik tut. Açık bilgiler daha hızlı dönüş sağlar.",
-  "login.eyebrow": "Supabase ile giriş",
-  "login.title": "Şifresiz girişle Fuwu hesabına devam et.",
+    "Ustanı seçtikten sonra Bugün seçeneğine dokun. Uygun saat varsa seçerek ilerleyebilirsin; saatler gerçek çalışma takviminden hesaplanır.",
+  "login.eyebrow": "FUWU HESABIN",
+  "login.title": "Hoş geldin. Kaldığın yerden devam et.",
   "login.description":
-    "E-posta giriş bağlantısı veya Google hesabıyla gerçek Supabase oturumu açabilirsin. Şifre toplanmaz. Usta profillerini giriş yapmadan da incelemeye devam edebilirsin.",
-  "login.badge.compare": "Profil karşılaştırma",
-  "login.badge.contact": "Telefon ve WhatsApp",
-  "login.badge.guest": "Hesapsız erişim",
+    "Hizmetlerini satın al, randevularını planla ve siparişlerini tek yerden takip et.",
+  "login.badge.compare": "Ustayı İncele",
+  "login.badge.contact": "Güvenli Ödeme",
+  "login.badge.guest": "Hizmetleri Keşfet",
   "login.status.ready": "Google veya e-posta giriş bağlantısı ile şifresiz giriş yapabilirsin.",
   "login.status.unavailable":
     "Giriş sistemi şu anda kullanılamıyor. Ustaları giriş yapmadan inceleyebilirsin.",
@@ -209,7 +209,7 @@ export const trTranslations = {
   "login.status.googleError": "Google girişi şu anda açılamıyor. Lütfen tekrar dene.",
   "login.status.emailError": "Giriş bağlantısı şu anda gönderilemedi. Lütfen tekrar dene.",
   "login.google": "Google ile devam et",
-  "login.googleDescription": "Google sağlayıcısı aktifse güvenli giriş ekranına yönlendirilirsin.",
+  "login.googleDescription": "Google hesabınla güvenle giriş yap.",
   "login.email": "E-posta giriş bağlantısı gönder",
   "login.emailDescription": "Şifre olmadan e-postana giriş bağlantısı gönderilir.",
   "login.emailPlaceholder": "ornek@eposta.com",
@@ -226,13 +226,13 @@ export const trTranslations = {
   "providerApplication.eyebrow": "Usta ağına katıl",
   "providerApplication.title": "Profilini oluştur, Fuwu’da görünür ol.",
   "providerApplication.subtitle":
-    "Müşteriler sana doğrudan telefon veya WhatsApp üzerinden ulaşsın.",
+    "Hizmetlerini fiyatlandır, müsait saatlerini belirle ve siparişlerini tek yerden yönet.",
   "providerApplication.trustTitle": "Profesyonel görünürlük",
   "providerApplication.trustDescription":
     "Hizmet alanını, çalışma bölgeni ve iletişim bilgilerini netleştir; başvurun değerlendirme kuyruğuna güvenle alınır.",
   "providerApplication.reassurance":
     "Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.",
-  "providerApplication.noPassword": "Başvuru için hesap kurulumu, şifre veya ödeme bilgisi gerekmez.",
+  "providerApplication.noPassword": "Hesabına giriş yaparak başvurunu ve doğrulama durumunu takip et.",
   "providerApplication.formEyebrow": "Usta başvurusu",
   "providerApplication.formTitle": "Profilini oluştur, doğru müşteriye görünür ol.",
   "providerApplication.demoMode":
@@ -375,7 +375,7 @@ export const trTranslations = {
   "voice.readingLimited": "İlk 6 profil sesli okunuyor.",
   "voice.reading": "Profiller sesli okunuyor.",
   "footer.description":
-    "Fuwu, İstanbul’da hizmet arayan müşteriler ile güvenilir yerel ustaları aynı pazaryeri deneyiminde buluşturur. Hizmetini seç, profilleri karşılaştır ve doğrudan iletişime geç.",
+    "FUWU ile evinin ihtiyaçlarını tek yerden planla. Hizmetini seç, ustanı incele ve sana uygun randevuyu güvenle satın al.",
   "footer.discover": "Keşfet",
   "footer.company": "Fuwu",
   "footer.faq": "SSS",
@@ -398,7 +398,7 @@ export const trTranslations = {
   "footer.terms": "Kullanım Şartları",
   "footer.cookies": "Çerez Politikası",
   "footer.copyright": "© 2026 Fuwu Hizmet",
-  "footer.tagline": "Ustaya ulaşmanın en hızlı yolu.",
+  "footer.tagline": "Gerçek hizmet. Doğru usta. Güvenli satın alma.",
   "services.plumbing.title": "Tesisat",
   "services.plumbing.description":
     "Su kaçağı, musluk, gider, boru ve tesisat çözümleri.",

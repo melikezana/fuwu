@@ -4,7 +4,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 
 export const metadata: Metadata = {
   title: "Hizmeti Satın Al",
-  description: "Fuwu’da ihtiyacını belirle, konumunu belirt ve uygun ustaya ulaşmak için talep oluştur.",
+  description: "FUWU’da hizmetini seç, ustanı incele ve sana uygun gün ve saat için randevu planla.",
 };
 
 export default function WaitlistPage() {

@@ -10,12 +10,14 @@ import type { CommerceOrder, PublicOffer, ServiceVariant } from "../../../src/li
 import { MarketplaceMetrics } from "../../../src/components/admin/MarketplaceMetrics";
 import { ProviderReviews } from "../../../src/components/providers/ProviderReviews";
 import { OrderList } from "../../../src/components/commerce/OrderList";
+import { FavoriteButton } from "../../../src/components/providers/FavoriteButton";
 import type { MarketplaceSummary } from "../../../src/lib/commerce/finance";
 import "../../../src/styles/globals.css";
 import "../../../src/styles/marketplace.css";
 import "../../../src/styles/commerce.css";
 import "../../../src/styles/fusion.css";
 import "./preview.css";
+import "../../../src/styles/premium.css";
 const query = new URLSearchParams(location.search);
 const screen = query.get("screen") || "booking";
 const sid="10000000-0000-4000-8000-000000000001", fid="30000000-0000-4000-8000-000000000001", district="20000000-0000-4000-8000-000000000001";
@@ -30,7 +32,8 @@ const events=[{id:"1",order_id:order.id,status:order.status,created_at:order.cre
 const isVariant=query.get("variant")==="true";
 const summary: MarketplaceSummary = { environment:"sandbox",paid_count:2,overdue_count:1,scheduled_count:2,order_count:3,completed_count:1,daily_gmv_minor:170000,monthly_gmv_minor:170000,gmv_minor:170000,commission_minor:8500,pending_count:1,failed_count:0,refund_pending_count:1,refunded_minor:0,payout_pending_minor:76500,disputed_count:0,cancelled_count:0,average_minor:85000,reconciliation_count:1,active_providers:2,new_customers_month:2,repeat_customer_percent:0 };
 let content: React.ReactNode;
-if(screen==="admin") content=<div className="commerce-page"><header className="commerce-page-header"><h1>Marketplace Operasyon Merkezi</h1></header><MarketplaceMetrics summary={summary}/></div>;
+if(screen==="favorites") content=<div className="commerce-page"><h1>TEST Favori ustalar</h1><FavoriteButton providerId={fid} providerName="TEST Usta" /><FavoriteButton providerId={fid} providerName="TEST İkinci Kart" /></div>;
+else if(screen==="admin") content=<div className="commerce-page"><header className="commerce-page-header"><h1>Marketplace Operasyon Merkezi</h1></header><MarketplaceMetrics summary={summary}/></div>;
 else if(screen==="catalog") content=<div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">TEST KATALOĞU</p><h1>Bir hizmet seç.<br/><span>Gerisini ustasına bırak.</span></h1></header><ServiceCatalog services={[service,...catalogPreviews.slice(1)]} offers={offers} unavailable={false}/></div>;
 else if(screen==="store") content=<div className="commerce-page"><header className="commerce-page-header"><h1>Hizmet Mağazam</h1></header><ProviderStore providerId={fid} services={[service]} variants={[]} offerings={[]} hours={[]} daysOff={[]} districts={districts}/></div>;
 else if(screen==="booking") content=<ServiceBooking service={isVariant?{...service,...catalogPreviews[1],id:sid}:service} offers={isVariant?variantOffers:offers} variants={isVariant?variants:[]} districts={districts} unavailable={false} initialProvider={query.get("provider") || undefined} initialVariant={query.get("initialVariant") || undefined} initialDistrict={query.get("district") || undefined} initialRebook={query.get("rebook") || undefined} savedAddresses={query.get("saved") ? [{id:"saved-home",label:"Evim",district_id:district,address:"TEST Kayıtlı Ev Adresi Sokak 18 Daire 2"}] : []}/>;

@@ -21,6 +21,6 @@ export const features: Feature[] = [
     id: "low-risk-start",
     title: "Ödeme olmadan başla",
     description:
-      "Hesap oluşturmadan ve ödeme bilgisi girmeden talep oluşturabilirsin.",
+      "Hesap oluşturmadan ve ödeme bilgisi girmeden hizmet kaydı oluşturabilirsin.",
   },
 ];

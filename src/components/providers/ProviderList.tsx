@@ -61,7 +61,7 @@ function ProviderEmptyState({
           </Button>
         ) : null}
         <Button className="inline-flex" href={requestHref} variant="primary">
-          Hizmetleri İncele
+          Hizmet Satın Al
         </Button>
       </div>
     </div>
@@ -128,7 +128,7 @@ export function ProviderList({
           isUnavailable={isUnavailable}
           title={categoryDistrictEmptyState ? `Bu bölgede henüz ${getServiceDisplayLabel(categoryDistrictEmptyState.category)} ustası yok` : undefined}
           hasActiveFilters={hasActiveFilters && !hasNoPublicProviders}
-          requestHref={appRoutes.catalog}
+          requestHref={categoryDistrictEmptyState?.requestHref || appRoutes.catalog}
           testId={
             categoryDistrictEmptyState
               ? "provider-category-district-empty-state"

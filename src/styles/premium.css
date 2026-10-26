@@ -42,6 +42,8 @@
 .home-photo-main img { object-position: 40% 50% !important; }
 .home-hero-photo { border-radius: 20px; }
 .home-photo-caption { bottom: 20px; font-size: 15px; }
+.home-photo-main .home-photo-caption { bottom: 80px; }
+.home-photo-bottom .home-photo-caption { bottom: 70px; }
 .home-plan-card { position: absolute; z-index: 2; display: flex; align-items: center; gap: 12px; left: 22px; right: 22px; bottom: 0; padding: 18px; border: 1px solid var(--home-line); border-radius: 16px; background: white; box-shadow: 0 12px 30px #18223012; }
 .home-plan-card strong { font-size: 14px; font-weight: 700; }
 .home-plan-card p { margin-top: 4px; color: var(--home-muted); font-size: 11px; line-height: 1.6; }
@@ -97,6 +99,10 @@
 .booking-inline-edit { color: #943b00; font-size: 12px; font-weight: 600; min-height: 44px; padding: 8px; text-decoration: underline; text-underline-offset: 4px; }
 .booking-review-summary { margin-top: 24px; }
 .booking-review-summary > .commerce-eyebrow,.booking-review-summary > h2 { display: none; }
+.booking-review-summary dl { display: grid; gap: 14px; font-size: 13px; }
+.booking-review-summary dl > div { display: flex; justify-content: space-between; gap: 20px; }
+.booking-review-summary dt { color: var(--muted); }
+.booking-review-summary dd { max-width: 60%; text-align: right; font-weight: 600; }
 .booking-review-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-block: 18px; border-block: 1px solid var(--border); font-size: 13px; line-height: 1.8; }
 .booking-review-row p { margin-top: 8px; color: var(--muted); white-space: pre-line; }
 .booking-desktop-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 6px; }
@@ -105,6 +111,35 @@
 .booking-back-button { display: grid; place-items: center; min-width: 44px; min-height: 48px; border: 1px solid var(--border); border-radius: 12px; background: white; }
 .booking-sticky { gap: 10px; }
 .booking-sticky > div { flex: 1; }
+.favorite-control { position: relative; flex-shrink: 0; }
+.favorite-button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 50%; background: white; color: #6a7280; transition: color .18s,background .18s; }
+.favorite-button[aria-pressed=true] { color: #a94300; background: #fff2e8; border-color: #ffcba6; }
+.favorite-button:disabled { opacity: .5; cursor: wait; }
+.favorite-feedback { position: absolute; top: 50px; right: 0; z-index: 5; width: 200px; border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: white; box-shadow: var(--shadow-elevated); font-size: 12px; line-height: 1.7; }
+.favorite-provider-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.home-provider-grid,.home-review-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.home-review-card { padding: 24px; border: 1px solid var(--border); border-radius: 18px; }
+.home-review-rating { display: flex; align-items: center; gap: 8px; color: #a94300; font-size: 13px; font-weight: 700; }
+.home-review-card blockquote { margin-block: 20px; color: var(--foreground); font-size: 14px; line-height: 1.9; white-space: pre-line; }
+.home-review-card footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12px; }
+.home-review-card small { display: block; font-size: 11px; color: var(--muted); margin-top: 6px; }
+.home-review-card footer a { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; }
+.profile-trust-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.profile-trust-actions > .favorite-control { margin-top: 20px; }
+.operations-navigation { border: 1px solid var(--border); border-radius: 14px; background: white; padding: 0 16px; }
+.operations-navigation > summary { min-height: 52px; padding-block: 16px; cursor: pointer; font-size: 13px; font-weight: 650; }
+.operations-navigation[open] > nav { padding-bottom: 16px; }
+.premium-login { background: white; }
+.premium-login-visual { position: relative; min-height: 560px; border-radius: 24px; overflow: hidden; background: #eceff2; }
+.premium-login-visual > img { object-fit: cover; }
+.premium-login-visual::after { content: ""; position: absolute; inset: 30% 0 0; background: linear-gradient(transparent,#101828d9); }
+.premium-login-caption { position: absolute; bottom: 36px; left: 36px; right: 36px; z-index: 1; color: white; }
+.premium-login-caption h2 { color: white; font-size: 38px; line-height: 1.15; letter-spacing: -.045em; }
+.premium-login-caption p { font-size: 14px; line-height: 1.8; margin-top: 16px; color: #ffffffe6; }
+.premium-login-caption > span { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 18px; }
+.premium-login-intro { margin-bottom: 24px; }
+.premium-login-intro h1 { font-size: 32px; line-height: 1.2; letter-spacing: -.04em; margin-top: 8px; }
+.premium-login-intro > p:last-child { font-size: 14px; color: var(--muted); line-height: 1.8; margin-top: 12px; }
 :is(.home-secondary-actions a,.favorite-button):focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 4px; }
 @media (max-width: 1023px) {
   .home-hero-grid { gap: 28px; }
@@ -124,6 +159,15 @@
   .booking-scope summary { padding-inline: 12px; font-size: 12px; }
   .booking-scope summary > span { font-size: 10px; }
   .booking-live-summary,.booking-desktop-actions { display: none; }
+  .favorite-provider-grid { grid-template-columns: 1fr; }
+  .home-provider-grid,.home-review-grid { grid-template-columns: 1fr; }
+  .fusion-customer-hub > .fusion-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+  .fusion-customer-hub > .fusion-tabs a { flex: 0 0 auto; padding-inline: 14px; font-size: 12px; }
+  .provider-panel-navigation { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+  .provider-panel-navigation > a { flex-shrink: 0; white-space: nowrap; }
+  .premium-login-visual { display: none; }
+  .premium-login-intro h1 { font-size: 29px; }
+  .premium-login :is(input,select,textarea) { font-size: 16px; }
   .booking-step-heading h2 { scroll-margin-top: 84px; }
   .booking-sticky .commerce-button { font-size: 12px; padding-inline: 14px; }
   .booking-sticky strong { font-size: 16px; }
@@ -140,6 +184,8 @@
   .home-photo-main { grid-column: 1; grid-row: 1 / 3; }
   .home-hero-photo { border-radius: 14px; }
   .home-photo-caption { font-size: 12px; left: 12px; right: 12px; bottom: 17px; }
+  .home-photo-main .home-photo-caption { bottom: 65px; }
+  .home-photo-bottom .home-photo-caption { bottom: 58px; }
   .home-plan-card { left: 12px; right: 12px; padding: 12px; gap: 10px; border-radius: 14px; }
   .home-plan-card strong { font-size: 12px; }
   .home-plan-card p { font-size: 10px; }
@@ -147,7 +193,7 @@
   .home-plan-check { width: 26px; height: 26px; }
   .fusion-photo-note { bottom: -21px; }
   .home-benefits { grid-template-columns: repeat(2,minmax(0,1fr)); padding-block: 18px; gap: 16px 12px; }
-  .home-benefit { justify-content: flex-start; padding: 0; gap: 8px; }
+  .home-benefit { flex-direction: row; justify-content: flex-start; padding: 0; gap: 8px; text-align: left; }
   .home-benefit + .home-benefit { border: 0; }
   .home-benefit > span { font-size: 11px; }
   .home-section { padding-block: 38px; }
@@ -157,7 +203,8 @@
   .home-category-filters { margin-inline: -18px; padding-inline: 18px; }
   .home-steps { grid-template-columns: 1fr; gap: 12px; }
   .home-steps li { display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; padding: 16px; }
-  .home-step-top { grid-row: 1 / 4; margin: 0; display: block; }
+  .home-step-top { position: static; grid-column: 1; grid-row: 1 / 4; margin: 0; display: block; }
+  .home-steps li > :not(.home-step-top) { grid-column: 2; }
   .home-step-icon { width: 44px; height: 44px; }
   .home-step-number { display: none; }
   .home-steps h3 { margin: 0 0 4px; }

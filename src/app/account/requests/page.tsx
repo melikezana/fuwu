@@ -388,7 +388,7 @@ export default async function AccountRequestsPage({
         ) : (
           <section className="rounded-lg border border-dashed border-[rgba(255,138,0,0.38)] bg-white px-6 py-12 text-center">
             <h2 className="text-xl font-bold text-[var(--brand-navy)]">
-              Henüz talep oluşturmadın.
+              Henüz önceki hizmet kaydın yok.
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[var(--muted)]">
               İlk hizmet talebini oluşturduğunda detayları burada görünür.

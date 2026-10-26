@@ -23,6 +23,7 @@
     "test:customer-payment": "tsx scripts/test-customer-payment-confirmation.ts",
     "test:commerce:db": "node scripts/test-direct-commerce-db.mjs",
     "test:commerce:payment": "tsx scripts/test-direct-commerce-payment.ts",
+    "test:commerce:ux": "tsx scripts/test-premium-commerce.ts",
     "test:fusion:auth": "tsx scripts/test-fusion-auth.ts",
     "test:fusion:quality": "tsx scripts/test-fusion-quality.ts",
     "test:provider-validation": "tsx scripts/test-provider-validation.ts",

@@ -13,6 +13,7 @@ export type PaymentTransaction = { id: string; order_id: string; conversation_id
 export type OrderEvent = { id: string; order_id: string; status: OrderStatus; created_at: string };
 type Table<R> = { Row: R; Insert: Partial<R>; Update: Partial<R>; Relationships: [] };
 export type CommerceTables = {
+  customer_favorite_providers: Table<{ customer_id: string; provider_id: string; created_at: string }>;
   customer_addresses: Table<{ id: string; customer_id: string; label: string; district_id: string; address: string; created_at: string }>;
   service_catalog: Table<CatalogService>;
   service_variants: Table<ServiceVariant>;

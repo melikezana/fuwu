@@ -1,24 +1,12 @@
 import { expect, test } from "@playwright/test";
 import {
-  checkFirstInputByValue,
-  fillStandardLocksmithRequest,
-  loginWithEmailMagicLink,
-  skipUnlessLocalSupabase,
   uniqueE2EValue,
 } from "./helpers";
 
 test.describe("auth-required form restoration", () => {
-  test("guest request is preserved before login redirect", async ({ page }) => {
-    await fillStandardLocksmithRequest(page);
-    await page.getByTestId("request-form").locator('button[type="submit"]').click();
-
-    await expect(page).toHaveURL(url => url.pathname === "/login" && url.searchParams.get("next") === "/request" && url.searchParams.get("restore") === "1");
-    const storedRequest = await page.evaluate(() =>
-      window.sessionStorage.getItem("fuwu:pending-request-form"),
-    );
-
-    expect(storedRequest).toContain("E2E adres");
-    expect(storedRequest).toContain("serviceCategory");
+  test("guest account return retains selected view", async ({ page }) => {
+    await page.goto("/account?view=favorites");
+    await expect(page).toHaveURL(url => url.pathname === "/login" && url.searchParams.get("next") === "/account?view=favorites");
   });
 
   test("guest provider application preserves text but not file references", async ({
@@ -68,37 +56,9 @@ test.describe("auth-required form restoration", () => {
     expect(storedApplication).not.toContain("profileImagePath");
   });
 
-  test("authenticated request page restores pending fields", async ({ page }) => {
-    skipUnlessLocalSupabase();
-
-    await page.goto("/login");
-    await page.evaluate(() => {
-      window.sessionStorage.setItem(
-        "fuwu:pending-request-form",
-        JSON.stringify({
-          approximateLocation: "",
-          budgetTag: "standart",
-          serviceCategory: "Acil Hizmet - Çilingir",
-          district: "Kadıköy",
-          fullAddress: "Korunan test adresi",
-          offerAmount: "",
-          paymentPreference: "online_soon",
-          urgencyLevel: "Bu hafta",
-          urgencyType: "standard",
-          preferredDate: "2026-07-01",
-          preferredTimeRange: "Sabah (08:00 - 12:00)",
-          fullName: "Korunan Müşteri",
-          phoneNumber: "+90 555 700 00 02",
-          shortDescription: "Login sonrası geri yüklenecek talep",
-        }),
-      );
-    });
-    await loginWithEmailMagicLink(page);
-    await page.goto("/request");
-
-    await expect(page.getByText("Bilgileriniz korundu, devam edebilirsiniz.")).toBeVisible();
-    await expect(page.locator('input[name="fullAddress"]')).toHaveValue("Korunan test adresi");
-    await expect(page.locator('input[name="fullName"]')).toHaveValue("Korunan Müşteri");
-    await checkFirstInputByValue(page, 'input[name="serviceCategory"]', "çilingir");
+  test("legacy purchase link preserves the provider without opening the retired form", async ({ page }) => {
+    await page.goto("/request?provider_id=30000000-0000-4000-8000-000000000099");
+    await expect(page).toHaveURL(/\/providers\/30000000-0000-4000-8000-000000000099#provider-services$/);
+    await expect(page.getByTestId("request-form")).toHaveCount(0);
   });
 });

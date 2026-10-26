@@ -46,10 +46,10 @@ const emergencyRequestSubmitErrorMessage =
   "Acil talep şu anda oluşturulamadı. Lütfen bilgilerini kontrol edip tekrar dene.";
 
 const emergencyRequestLoginRequiredMessage =
-  "Talep oluşturmak için giriş yapmalısın.";
+  "Hizmet kaydı oluşturmak için giriş yapmalısın.";
 
 const emergencyRequestRateLimitMessage =
-  "Kısa sürede çok sayıda talep oluşturdun. Lütfen biraz sonra tekrar dene.";
+  "Kısa sürede çok sayıda hizmet kaydı oluşturdun. Lütfen biraz sonra tekrar dene.";
 
 const emergencyRequestCreateRateLimit = {
   action: "service_request_create",

@@ -9,6 +9,8 @@ import type { Provider } from "@/types/provider";
 import Link from "next/link";
 import { getCommerceCatalog } from "@/services/commerce";
 import { ServiceCatalog } from "@/components/commerce/ServiceCatalog";
+import { providerPurchaseLinks } from "@/lib/commerce/purchase-links";
+import { CustomerVoices } from "@/components/home/CustomerVoices";
 
 function getPopularServices(): Service[] {
   return homePopularServiceIds.flatMap((id) => {
@@ -43,7 +45,7 @@ export async function MarketplaceHome() {
       <HeroSection categories={categories} districts={filterOptions.districts} />
       {!catalog.unavailable && catalog.offers.length > 0 && <section className="fusion-featured-services"><div className="fusion-section-heading"><div><p className="commerce-eyebrow">USTALARIN HİZMET MAĞAZALARINDAN</p><h2>Kapsamı belli. Fiyatı açık.</h2><p>Fiyatlandırılmış hizmetleri karşılaştır, gerçek müsaitliğe göre planla.</p></div><Link className="commerce-text-link" href="/services">Tüm Hizmetleri Gör →</Link></div><ServiceCatalog featured services={catalog.services.filter(s => catalog.offers.some(o => o.service_id === s.id)).slice(0, 3)} offers={catalog.offers} unavailable={false} /></section>}
       <PopularServices serviceCounts={serviceCounts} services={popularServices} />
-      {featuredProviders.length > 0 ? <TrustedProviders providers={featuredProviders} totalCount={liveProviders.length} /> : null}
+      {featuredProviders.length > 0 ? <><TrustedProviders providers={featuredProviders} purchases={providerPurchaseLinks(catalog)} /><CustomerVoices providers={featuredProviders} /></> : null}
       <HomePremiumPanels />
     </div>
   );

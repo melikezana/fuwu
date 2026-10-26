@@ -11,6 +11,7 @@ import { ProviderReviews } from "@/components/providers/ProviderReviews";
 import { ProviderPurchases } from "@/components/commerce/ProviderPurchases";
 import { ProviderSchedule } from "@/components/commerce/ProviderSchedule";
 import { ProviderTrustBadges } from "@/components/providers/ProviderTrustBadges";
+import { FavoriteButton } from "@/components/providers/FavoriteButton";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { TextLink } from "@/components/ui/TextLink";
@@ -177,7 +178,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
           <div className="min-w-0">
             <header className="market-profile-header">
               <div className="market-profile-person"><ProviderAvatar provider={provider} variant="profile" className="rounded-full" /><div className="min-w-0"><p className="market-eyebrow">{provider.category}</p><h1>{provider.name}</h1><p className="market-profile-location"><MapPin aria-hidden="true" className="size-4 shrink-0" />{provider.district}, İstanbul</p></div></div>
-              <ProviderTrustBadges badges={provider.trustBadges} className="mt-5" />
+              <div className="profile-trust-actions"><ProviderTrustBadges badges={provider.trustBadges} className="mt-5" /><FavoriteButton providerId={provider.id} providerName={provider.name} /></div>
               <div className="market-profile-stats">
                 <div><Star aria-hidden="true" className="size-5" /><span><strong>{hasReviews ? reviewData.summary.averageRating.toLocaleString("tr-TR", { maximumFractionDigits: 1 }) : "Yeni değerlendirmelere açık"}</strong><small>{hasReviews ? `${reviewData.summary.reviewCount} müşteri değerlendirmesi` : "Henüz değerlendirme yok"}</small></span></div>
                 {provider.experience ? <div><BriefcaseBusiness aria-hidden="true" className="size-5" /><span><strong>{provider.experience} deneyim</strong><small>Ustanın paylaştığı bilgi</small></span></div> : null}
@@ -185,11 +186,12 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
               </div>
             </header>
             <nav aria-label="Profil bölümleri" className="market-profile-sections"><a href="#about-provider">Hakkında</a><a href="#provider-services">Hizmetler</a>{galleryImages.length ? <a href="#portfolio">İş fotoğrafları</a> : null}<a href="#reviews">Değerlendirmeler</a></nav>
-            <section className="market-profile-section" id="about-provider"><p className="market-eyebrow">USTAYI TANIYIN</p><h2>Hakkında</h2><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım açıklaması paylaşmadı. İhtiyacınızı hizmet talebinizde belirtebilirsiniz."}</p></section>
+            <section className="market-profile-section" id="about-provider"><p className="market-eyebrow">USTAYI TANIYIN</p><h2>Hakkında</h2><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım açıklaması paylaşmadı. Satın almadan önce hizmet kapsamını ve çalışma bölgelerini inceleyebilirsin."}</p></section>
             <ProviderPurchases providerId={provider.id} />
             <section className="market-profile-section"><h2>Çalışma düzeni</h2><ProviderSchedule providerId={provider.id} /></section>
             {galleryImages.length ? <section className="market-profile-section" id="portfolio"><p className="market-eyebrow">USTANIN PAYLAŞTIKLARI</p><h2>İş fotoğrafları</h2><ProviderGalleryGrid images={galleryImages} providerName={provider.name} /></section> : isOwnProvider ? <section className="market-profile-section"><h2>İşlerinizi gösterin</h2><p className="market-help-text">Profilinize tamamladığınız işlerin fotoğraflarını ekleyin.</p><Button href={appRoutes.providerDashboardProfile} variant="secondary">Galeri Ekle</Button></section> : null}
             <ProviderReviews eligibility={eligibility} providerId={provider.id} reviews={reviewData.reviews} source={reviewData.source} summary={reviewData.summary} />
+            <section className="market-profile-section"><h2>Randevu hakkında</h2><div className="home-faq-items"><details><summary>Bu ustayla nasıl randevu planlarım?</summary><p>Hizmetlerden birini seç, ilçeni belirt ve gerçek müsait saatlerden sana uygun olanı seç. Adresini ekleyip toplam bedeli kontrol et. Randevun ödeme doğrulandıktan sonra kesinleşir.</p></details><details><summary>Hizmette sorun yaşarsam ne yapabilirim?</summary><p>Sipariş detayındaki destek seçeneğinden inceleme başlatabilirsin. Hizmet tamamlanmadan teslim kodunu paylaşma. İptal ve iade durumunu aynı ekrandan takip edebilirsin.</p></details></div></section>
           </div>
           <aside className="market-profile-booking">
             <div className="market-booking-card"><p className="market-eyebrow">HİZMETİNİZİ PLANLAYIN</p><h2>Hizmetini seç,<br />randevunu planla.</h2><p className="market-help-text">Ustanın satışa açtığı hizmetleri, kapsamını ve kesin fiyatını inceleyin.</p><div className="market-booking-facts"><div><MapPin aria-hidden="true" className="size-5 shrink-0" /><span>{provider.district}</span></div><div><CalendarDays aria-hidden="true" className="size-5 shrink-0" /><span>Gerçek müsaitlik hizmet seçiminde gösterilir.</span></div></div><Button href={providerCheckoutHref} className="min-h-12 w-full">Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Button><p className="market-booking-note">Randevu, ödeme doğrulanınca kesinleşir.</p></div>

@@ -84,7 +84,7 @@ export function Navbar() {
       {
         href: appRoutes.providerApplication,
         id: "provider-application",
-        label: "Hizmet Veren Ol",
+        label: "Usta Ol",
       },
     ];
 
@@ -235,7 +235,7 @@ export function Navbar() {
           </div>
           <Link className="site-mobile-location" href={appRoutes.providers}><MapPin aria-hidden="true" className="size-3.5 shrink-0" />İstanbul</Link>
           <div className="site-desktop-actions">
-            <Link className="site-provider-link" href={appRoutes.providerApplication} onClick={() => setActiveHref(appRoutes.providerApplication)}>Hizmet Veren Ol</Link>
+            <Link className="site-provider-link" href={appRoutes.providerApplication} onClick={() => setActiveHref(appRoutes.providerApplication)}>Usta Ol</Link>
             {!isAuthLoading && userProfile ? <NotificationBell className="shrink-0" userId={userProfile.id} /> : null}
             {isAuthLoading ? <span aria-hidden="true" className="site-account-placeholder" /> : (
               <Link className="site-account-link" href={userProfile ? (userProfile.role === "admin" ? appRoutes.adminDashboard : appRoutes.account) : appRoutes.login} title={userProfile ? userDisplayName : undefined}>

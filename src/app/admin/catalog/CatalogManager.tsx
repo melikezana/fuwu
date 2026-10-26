@@ -177,7 +177,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
                     className={
                       item.isActive
                         ? "rounded-md border border-[var(--border)] px-2.5 py-1.5 text-xs font-semibold text-[var(--muted)] hover:bg-[var(--surface-soft)]"
-                        : "rounded-md border border-green-200 bg-green-50 px-2.5 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-100"
+                        : "rounded-md border border-orange-200 bg-orange-50 px-2.5 py-1.5 text-xs font-semibold text-orange-800 hover:bg-orange-100"
                     }
                     disabled={pending}
                     onClick={() =>

@@ -303,7 +303,7 @@ export function LoginOptions() {
           </label>
           <button
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-[#241c16] shadow-[var(--shadow-subtle)] transition-colors duration-200 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
             disabled={isEmailLoading}
             type="submit"
           >
@@ -341,7 +341,7 @@ export function LoginOptions() {
           </label>
           <button
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-navy)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-[#241c16] shadow-[var(--shadow-subtle)] transition-colors duration-200 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
             disabled={isPhoneLoading}
             type="submit"
           >

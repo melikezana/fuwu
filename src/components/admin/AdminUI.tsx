@@ -213,7 +213,7 @@ export function AdminPageShell({
             </div>
           </div>
 
-          <nav
+          <details className="operations-navigation"><summary>Yönetim bölümleri</summary><nav
             className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             aria-label="Admin menüsü"
           >
@@ -223,6 +223,7 @@ export function AdminPageShell({
 
               return (
                 <Link
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                 "inline-flex min-h-11 shrink-0 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold leading-5 shadow-[var(--shadow-subtle)] transition-all hover:-translate-y-0.5",
                     isActive
@@ -243,7 +244,7 @@ export function AdminPageShell({
                 </Link>
               );
             })}
-          </nav>
+          </nav></details>
         </div>
       </section>
 

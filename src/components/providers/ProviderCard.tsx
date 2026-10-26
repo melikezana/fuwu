@@ -12,6 +12,7 @@ import { getServiceFilterValue } from "@/lib/constants/services";
 import { cn } from "@/lib/utils";
 import type { Provider } from "@/types/provider";
 import { money } from "@/lib/commerce/display";
+import { FavoriteButton } from "./FavoriteButton";
 
 type ProviderCardProps = {
   provider: Provider;
@@ -46,6 +47,7 @@ export function ProviderCard({ provider, actionsId, className, featured, gallery
             {hasRating ? <><Star aria-hidden="true" className="size-3.5 fill-current" /><strong>{provider.rating.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}</strong><span>({provider.reviewCount} değerlendirme)</span></> : <span>Henüz değerlendirme yok</span>}
           </div>
         </div>
+        <FavoriteButton providerId={provider.id} providerName={provider.name} />
       </div>
       <ProviderTrustBadges badges={provider.trustBadges} className="market-provider-badges" limit={2} />
       <Link className="market-provider-location" href={filterHref("district", provider.district)}><MapPin aria-hidden="true" className="size-4 shrink-0" />{provider.serviceAreas.length ? provider.serviceAreas.join(" · ") : provider.district}</Link>
@@ -53,10 +55,10 @@ export function ProviderCard({ provider, actionsId, className, featured, gallery
       {preview ? <Link aria-label={`${provider.name} iş fotoğraflarını incele`} className="market-provider-work" href={`${profileHref}#portfolio`}><Image alt={`${provider.name} tarafından paylaşılan iş fotoğrafı`} className="object-cover" fill sizes="(max-width: 767px) 90vw, 400px" src={preview} /><span>İş fotoğraflarını incele <ArrowUpRight aria-hidden="true" className="size-4" /></span></Link> : null}
       {provider.availabilityStatus.label ? <p className="market-provider-availability"><Clock3 aria-hidden="true" className="size-3.5 shrink-0" />{provider.availabilityStatus.label}</p> : null}
       <div className="market-provider-footer" id={actionsId}>
-        <div className="min-w-0"><span className="market-price-label">{hasPrice ? "Belirtilen fiyat aralığı" : "Ustanın mağazası"}</span><strong className="market-price">{hasPrice ? provider.averagePrice : "Hizmetleri inceleyin"}</strong></div>
-        <Button className="shrink-0" href={profileHref}>Profili Gör <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" /></Button>
+        <div className="min-w-0"><span className="market-price-label">{purchase ? "Hizmet başlangıç fiyatı" : hasPrice ? "Ustanın belirttiği aralık" : "Ustanın mağazası"}</span><strong className="market-price">{purchase ? money(purchase.priceMinor) : hasPrice ? provider.averagePrice : "Hizmetleri incele"}</strong></div>
+        <Button className="shrink-0" variant="secondary" href={profileHref}>Ustayı İncele <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" /></Button>
       </div>
-      {purchase && <div className="fusion-provider-purchase"><p>{purchase.serviceName} · <strong>{money(purchase.priceMinor)}</strong></p><Link className="commerce-button" href={purchase.href}>Bu Ustayı Seç <ArrowUpRight size={17} aria-hidden /></Link></div>}
+      {purchase && <div className="fusion-provider-purchase"><p>{purchase.serviceName}</p><Link className="commerce-button" href={purchase.href}>Hizmet Satın Al <ArrowUpRight size={17} aria-hidden /></Link></div>}
     </article>
   );
 }

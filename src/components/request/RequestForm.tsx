@@ -299,7 +299,7 @@ const stepCardClassName =
   "premium-reveal rounded-lg border bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 sm:p-6";
 const serviceRequestSuccessMessage = "Siparişiniz başarıyla alındı";
 const serviceRequestSubmitErrorMessage =
-  "Talep oluşturulamadı. Lütfen tekrar deneyin.";
+  "Hizmet kaydı oluşturulamadı. Lütfen tekrar deneyin.";
 const emptyRequestFormInsights: RequestFormInsights = {
   averageResponseMinutesByCategory: {},
   providerCountByCategory: {},
@@ -922,7 +922,7 @@ function OrderSummaryPanel({
         type="submit"
         variant="premium"
       >
-        {isSubmitting ? "Talep oluşturuluyor..." : "Talebi Onayla"}
+        {isSubmitting ? "Hizmet kaydı oluşturuluyor..." : "Bilgileri Kaydet"}
       </Button>
       <p className="mt-3 text-center text-xs font-semibold leading-5 text-[var(--muted)]">
         Bu adımda ödeme alınmaz. Talep sonrası net fiyat ve desteklenen ödeme seçenekleri siparişinizde gösterilir.
@@ -2267,7 +2267,7 @@ export function RequestForm({
             type={activeStepId === "payment" ? "submit" : "button"}
             variant="premium"
           >
-            {isSubmitting ? "Gönderiliyor..." : activeStepId === "payment" ? "Talebi Onayla" : "Devam Et"}
+            {isSubmitting ? "Gönderiliyor..." : activeStepId === "payment" ? "Bilgileri Kaydet" : "Devam Et"}
           </Button>
         </div>
       </div>

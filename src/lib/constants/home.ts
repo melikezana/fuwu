@@ -59,7 +59,7 @@ export const homeCopy = {
       "Bölgenizde hizmet veren ustaların uzmanlıklarını ve profillerinde paylaştıkları bilgileri inceleyin.",
     emptyTitle: "Henüz yayında doğrulanmış usta bulunmuyor.",
     emptyDescription:
-      "Canlı profiller onaylandığında burada görünür. Şimdilik hizmetini seçip talep oluşturabilirsin.",
+      "Canlı profiller onaylandığında burada görünür. Şimdilik hizmetini seçip hizmet kaydı oluşturabilirsin.",
   },
   trust: {
     eyebrow: "Güven sistemi",

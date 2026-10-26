@@ -12,7 +12,7 @@ const sections: PolicySection[] = [
     title: "Veri sorumlusu ve kapsam",
     body: [
       "Bu metin, Fuwu hizmet pazaryeri deneyimini kullanan müşteriler, ziyaretçiler ve usta başvuru sahipleri için kişisel verilerin hangi amaçlarla işlendiğini açıklar.",
-      "Fuwu; kullanıcıların hizmet arama, usta profillerini inceleme, talep oluşturma ve usta başvurusu yapma süreçlerinde paylaştığı verileri yalnızca meşru ve sınırlı amaçlarla işlemeyi hedefler.",
+      "Fuwu; kullanıcıların hizmet arama, usta profillerini inceleme, randevu planlama ve hizmet satın alma ve usta başvurusu yapma süreçlerinde paylaştığı verileri yalnızca meşru ve sınırlı amaçlarla işlemeyi hedefler.",
     ],
   },
   {

@@ -46,7 +46,7 @@ export function PopularServicesSection() {
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
           {popularServices.map((service) => (
             <Link
-              aria-label={`${service.title} için talep oluştur`}
+              aria-label={`${service.title} için hizmet kaydı oluştur`}
               className="group block h-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-orange)] focus-visible:ring-offset-2"
               href={`${appRoutes.request}?service=${encodeURIComponent(service.title)}`}
               key={service.id}

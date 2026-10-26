@@ -59,10 +59,10 @@ function NotificationsEmptyState() {
         Henüz bildirim yok.
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[var(--muted)]">
-        Talep durumu, doğrulama kodu ve hesap güncellemeleri burada görünecek.
+        Sipariş durumu, doğrulama kodu ve hesap güncellemeleri burada görünecek.
       </p>
-      <Button className="mt-5" href={appRoutes.request}>
-        Talep Oluştur
+      <Button className="mt-5" href={appRoutes.catalog}>
+        Hizmet Satın Al
       </Button>
     </section>
   );

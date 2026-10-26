@@ -17,7 +17,7 @@ const sections: PolicySection[] = [
   {
     title: "Bilgilerin kullanımı",
     body: [
-      "Paylaşılan bilgiler; talep oluşturma, usta profillerini listeleme, başvuruları değerlendirme, destek taleplerini yanıtlamak ve güvenlik kontrolleri yapmak için kullanılabilir.",
+      "Paylaşılan bilgiler; randevu planlama ve hizmet satın alma, usta profillerini listeleme, başvuruları değerlendirme, destek taleplerini yanıtlamak ve güvenlik kontrolleri yapmak için kullanılabilir.",
       "Fuwu, kullanıcı iletişim bilgilerini izinsiz pazarlama amacıyla üçüncü kişilerle paylaşmamayı hedefler.",
     ],
   },

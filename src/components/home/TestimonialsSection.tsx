@@ -31,7 +31,7 @@ const launchSignals: LaunchSignal[] = [
     label: "Randevu öncesi",
     title: "Güvenli sonraki adım",
     description:
-      "Müşteriler hesap, ödeme veya otomatik randevu olmadan talep oluşturabilir.",
+      "Müşteriler hesap, ödeme veya otomatik randevu olmadan hizmet kaydı oluşturabilir.",
   },
   {
     id: "launch-priority",

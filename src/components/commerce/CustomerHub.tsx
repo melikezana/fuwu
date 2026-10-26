@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, MapPin, ShoppingBag, Star, UserRound } from "lucide-react";
+import { CalendarDays, CreditCard, Heart, MapPin, ShieldCheck, ShoppingBag, Star, UserRound } from "lucide-react";
+import { getProviderById } from "@/services/providers";
+import { ProviderCard } from "@/components/providers/ProviderCard";
 import { getServerAuthContext } from "@/services/auth/server";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { OrderList } from "./OrderList";
 import { saveCustomerDetails } from "@/app/account/actions";
 import { historyStatuses, serviceActiveStatuses, trackingStatuses } from "@/lib/commerce/order-state";
 
-const views = [["overview", "Ana Sayfa"], ["upcoming", "Yaklaşan Randevular"], ["active", "Devam Eden Hizmetler"], ["history", "Geçmiş Hizmetler"], ["reviews", "Değerlendirmelerim"], ["addresses", "Adreslerim"], ["settings", "Hesabım"], ["support", "Destek"]];
+const views = [["overview", "Genel Bakış"], ["upcoming", "Yaklaşan Randevular"], ["active", "Aktif Hizmetler"], ["history", "Geçmiş Hizmetler"], ["favorites", "Favori Ustalarım"], ["reviews", "Yorumlarım"], ["addresses", "Adreslerim"], ["payments", "Ödeme Yöntemleri"], ["settings", "Hesabım"], ["support", "Destek"]];
 export type CustomerHubParams = { view?: string; page?: string; result?: string };
 export async function CustomerHub({ params }: { params: CustomerHubParams }) {
-  const { user, supabase, profile } = await getServerAuthContext();
-  if (!user || !supabase) redirect(buildLoginRedirectUrl("/account"));
   const view = views.some(([id]) => id === params.view) ? params.view! : "overview";
+  const { user, supabase, profile } = await getServerAuthContext();
+  if (!user || !supabase) redirect(buildLoginRedirectUrl(`/account?view=${view}`));
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
   const [upcoming, completed] = await Promise.all([
     supabase.from("orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", serviceActiveStatuses),
@@ -26,10 +28,21 @@ export async function CustomerHub({ params }: { params: CustomerHubParams }) {
     {["overview", "upcoming", "active", "history"].includes(view) && <CustomerOrders userId={user.id} history={view === "history"} page={page} view={view} />}
     {view === "addresses" && <CustomerAddresses userId={user.id} />}
     {view === "reviews" && <CustomerReviews userId={user.id} page={page} />}
+    {view === "favorites" && <CustomerFavorites userId={user.id} page={page} />}
+    {view === "payments" && <section className="commerce-panel"><h2><CreditCard size={22} aria-hidden /> Güvenli Ödeme</h2><p className="commerce-help">Hizmet bedelini ve toplam tutarı sipariş özetinde görürsün. Kart bilgilerini ödeme kuruluşunun güvenli ekranında girersin; FUWU kart numaranı veya güvenlik kodunu saklamaz.</p><p className="commerce-help"><ShieldCheck size={18} aria-hidden /> Kayıtlı kart özelliği henüz sunulmuyor. Her siparişin ödeme ve iade durumunu sipariş detayından takip edebilirsin.</p><p className="commerce-sandbox">Şu an yalnızca iyzico test ortamı kullanılıyor; gerçek para tahsil edilmez.</p><Link className="commerce-button" href="/orders">Ödeme ve Siparişlerimi Gör</Link></section>}
     {view === "support" && <section className="commerce-panel"><h2>Siparişin için buradayız</h2><p className="commerce-help">Bir hizmetle ilgili sorun yaşadıysan sipariş detayından “Sipariş İçin Destek İste” seçeneğini kullan. Sipariş destek incelemesine alınır ve durumunu aynı ekrandan takip edebilirsin.</p><div className="fusion-actions"><Link className="commerce-button" href="/orders">Siparişimi Seç</Link><a className="commerce-secondary" href="mailto:fuwuhizmet@gmail.com">E-posta ile Destek</a></div><p className="commerce-help">İptal: randevu başlamadan ve usta yola çıkmadan sipariş detayından yapılır. Ödenen sipariş, kuruluş iadesi doğrulanana kadar beklemede kalır.</p></section>}
     {view === "settings" && <section className="commerce-panel"><h2><UserRound aria-hidden size={22} /> Hesap bilgilerin</h2><p className="commerce-help">Giriş hesabı: {user.email || "Telefon ile giriş"}</p><form action={saveCustomerDetails} className="fusion-form"><input type="hidden" name="action" value="profile" /><label className="commerce-field">Ad soyad<input name="fullName" autoComplete="name" minLength={2} maxLength={120} required defaultValue={profile?.full_name || ""} /></label><label className="commerce-field">Telefon<input name="phone" autoComplete="tel" type="tel" maxLength={20} defaultValue={profile?.phone || ""} /></label><button className="commerce-button">Bilgilerimi Kaydet</button></form><form action="/api/auth/logout" method="post"><button className="commerce-secondary mt-4">Güvenli Çıkış Yap</button></form></section>}
-    <Link className="commerce-text-link" href="/dashboard/requests">Önceki hizmet taleplerim →</Link>
+    <Link className="commerce-text-link" href="/dashboard/requests">Önceki hizmet kayıtlarım →</Link>
   </div>;
+}
+
+async function CustomerFavorites({ userId, page }: { userId: string; page: number }) {
+  const { supabase } = await getServerAuthContext();
+  const { data, error, count } = await supabase!.from("customer_favorite_providers").select("provider_id", { count: "exact" }).eq("customer_id", userId).order("created_at", { ascending: false }).range((page - 1) * 12, page * 12 - 1);
+  if (error) return <p role="alert" className="commerce-notice">Favori ustalarına şu anda ulaşılamıyor. Biraz sonra yeniden deneyebilirsin.</p>;
+  if (!data?.length) return <section className="commerce-empty"><Heart size={32} aria-hidden /><h2>İyi bir ustayı kaybetme.</h2><p>Usta kartındaki kalbe dokun. Kaydettiğin ustalar burada seni beklesin.</p><Link className="commerce-button" href="/providers">Usta Bul</Link></section>;
+  const providers = (await Promise.all(data.map(row => getProviderById(row.provider_id)))).filter((provider): provider is NonNullable<typeof provider> => provider != null);
+  return <><div className="favorite-provider-grid">{providers.map(provider => <ProviderCard key={provider.id} provider={provider} />)}</div>{providers.length < data.length && <p className="commerce-help">Bazı kayıtlı profiller şu anda görüntülenemiyor.</p>}<nav className="fusion-pagination" aria-label="Favori usta sayfaları">{page > 1 && <Link href={`?view=favorites&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 12 && <Link href={`?view=favorites&page=${page + 1}`}>Sonraki →</Link>}</nav></>;
 }
 
 async function CustomerOrders({ userId, history, page, view }: { userId: string; history: boolean; page: number; view: string }) {

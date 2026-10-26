@@ -42,7 +42,7 @@ const customerTabs: MobileTab[] = [
     center: true,
     href: appRoutes.providers,
     icon: Search,
-    label: "Ustaları Gör",
+    label: "Usta Bul",
     match: [appRoutes.providers],
   },
   {

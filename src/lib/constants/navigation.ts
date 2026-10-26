@@ -50,10 +50,10 @@ export function buildLoginRedirectUrl(nextPath: string) {
 
 export const ctaLabels = {
   findProvider: "Usta Bul",
-  login: "Giriş Yakında",
-  request: "Hizmeti Satın Al",
-  waitlist: "Hizmeti Satın Al",
-  provider: "Usta Ağına Katıl",
+  login: "Giriş Yap",
+  request: "Hizmet Satın Al",
+  waitlist: "Hizmet Satın Al",
+  provider: "Usta Ol",
 } as const;
 
 export const navigationLinks: NavigationLink[] = [

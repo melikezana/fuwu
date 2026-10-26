@@ -14,6 +14,7 @@ import {
 } from "@/lib/seo";
 import { getProviderDirectory } from "@/services/providers";
 import { getCommerceCatalog } from "@/services/commerce";
+import { providerPurchaseLinks } from "@/lib/commerce/purchase-links";
 
 export const dynamic = "force-dynamic";
 
@@ -249,20 +250,16 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     hasReviews: selectedHasReviews,
     verified: selectedVerified,
   }), getCommerceCatalog()]);
-  const purchases: Record<string, { priceMinor: number; href: string; serviceName: string }> = {};
-  if (!catalog.unavailable) for (const offer of catalog.offers) {
-    const service = catalog.services.find(s => s.id === offer.service_id);
-    if (service && (!purchases[offer.provider_id] || offer.price_minor < purchases[offer.provider_id].priceMinor)) purchases[offer.provider_id] = { priceMinor: offer.price_minor, serviceName: service.name + (offer.variant_name ? ` · ${offer.variant_name}` : ""), href: `/services/${service.slug}?${new URLSearchParams({ provider: offer.provider_id, ...(selectedDistrict ? { district: selectedDistrict } : {}) })}` };
-  }
+  const purchases = providerPurchaseLinks(catalog, selectedDistrict);
   const { filterOptions, providers: filteredProviders, source } = providerDirectory;
   const categoryDistrictEmptyState =
     selectedCategory && selectedDistrict && filteredProviders.length === 0
       ? {
           category: selectedCategory,
           district: selectedDistrict,
-          requestHref: `${appRoutes.request}?${new URLSearchParams({
+          requestHref: `${appRoutes.catalog}?${new URLSearchParams({
             district: selectedDistrict,
-            service: selectedCategory,
+            category: selectedCategory,
           }).toString()}`,
         }
       : undefined;
@@ -289,7 +286,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
         <Container className="max-w-7xl">
           <nav aria-label="İçerik yolu" className="market-breadcrumb"><Link href={appRoutes.home}>Ana sayfa</Link><span>/</span><span>Usta Bul</span></nav>
           <div className="market-directory-heading"><div><p className="market-eyebrow"><MapPin aria-hidden="true" className="size-4" />{selectedDistrict || "İstanbul"} · Ev hizmetleri</p><h1>İşinizi doğru ustaya bırakın.</h1><p>Uzmanlıkları inceleyin, profilleri karşılaştırın ve ihtiyacınıza uygun hizmeti talep edin.</p></div><Link className="market-outline-link" href={appRoutes.request}>İhtiyacınızı anlatın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
-          {source !== "supabase" ? <p className="market-data-notice" role="status">Usta listesi şu anda yüklenemiyor. Biraz sonra tekrar deneyebilir veya hizmet talebi oluşturabilirsiniz.</p> : null}
+          {source !== "supabase" ? <p className="market-data-notice" role="status">Usta listesi şu anda yüklenemiyor. Biraz sonra yeniden deneyebilir veya hizmet kataloğunu inceleyebilirsin.</p> : null}
         </Container>
       </section>
 

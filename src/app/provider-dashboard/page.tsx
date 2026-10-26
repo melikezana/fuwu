@@ -35,7 +35,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Usta Paneli",
-  description: "Fuwu onaylı ustaları için profil ve talep yönetimi temeli.",
+  description: "Fuwu onaylı ustaları için hizmet, takvim, sipariş ve kazanç yönetimi.",
 };
 
 function ProviderDashboardSummary({
@@ -69,7 +69,7 @@ function ProviderDashboardSummary({
       description: "Sana yönlendirilen işlerin güncel sayısı.",
       href: appRoutes.providerDashboardRequests,
       icon: providerDashboardIcons.inbox,
-      label: "Gelen Talepler",
+      label: "Önceki İşler",
       value: String(assignedRequestCount),
     },
     {

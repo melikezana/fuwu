@@ -105,7 +105,7 @@ const providerNavItems: Array<{
     href: appRoutes.providerDashboardRequests,
     icon: ClipboardList,
     key: "requests",
-    label: "Talepler",
+    label: "Önceki İşler",
   },
   {
     href: appRoutes.providerDashboardEarnings,
@@ -135,7 +135,7 @@ const providerNavItems: Array<{
 
 const providerDashboardOnboardingSubtitle =
 
-  "Başvurunu tamamladıktan sonra profilin incelenir. Onaylandığında gelen talepleri, profil görünürlüğünü ve müşteri iletişimlerini bu panelden yönetebilirsin.";
+  "Başvurunu tamamladıktan sonra profilin incelenir. Onaylandığında hizmetlerini, takvimini ve siparişlerini bu panelden yönetebilirsin.";
 
 const providerDashboardFeatureCards: Array<{
   description: string;
@@ -148,9 +148,9 @@ const providerDashboardFeatureCards: Array<{
     title: "Profil görünürlüğü",
   },
   {
-    description: "Sana yönlendirilen işleri ve talep durumlarını tek ekranda izle.",
+    description: "Hizmetlerini fiyatlandır, takvimini düzenle ve siparişlerini takip et.",
     icon: Inbox,
-    title: "Gelen talepler",
+    title: "Sipariş yönetimi",
   },
   {
     description: "Telefon, WhatsApp ve müşteri iletişim akışını düzenli tut.",
@@ -290,13 +290,14 @@ export function ProviderDashboardShell({
             </div>
           </div>
 
-          <nav className="mt-4 flex flex-wrap gap-2 pb-1 sm:mt-6" aria-label="Usta paneli menüsü">
+          <nav className="provider-panel-navigation mt-4 flex flex-wrap gap-2 pb-1 sm:mt-6" aria-label="Usta paneli menüsü">
             {providerNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
 
               return (
                 <Link
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold leading-5 transition-all hover:-translate-y-0.5",
                     isActive

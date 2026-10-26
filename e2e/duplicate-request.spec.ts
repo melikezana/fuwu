@@ -1,21 +1,11 @@
 import { expect, test } from "@playwright/test";
-import {
-  loginWithEmailMagicLink,
-  skipUnlessLocalSupabase,
-  submitStandardLocksmithRequest,
-} from "./helpers";
 
-test.describe("duplicate request guard", () => {
-  test("same active category and district shows duplicate message", async ({ page }) => {
-    skipUnlessLocalSupabase();
-
-    await loginWithEmailMagicLink(page);
-    await submitStandardLocksmithRequest(page);
-    await expect(page).toHaveURL(/\/order-tracking\/[0-9a-f-]{36}$/);
-
-    await submitStandardLocksmithRequest(page);
-    await expect(
-      page.getByRole("alert").filter({ hasText: /halihazırda|zaten/i }),
-    ).toBeVisible();
-  });
+test("opening a legacy buying link twice never submits a service request", async ({ page }) => {
+  const mutations: string[] = [];
+  page.on("request", request => { if (request.method() === "POST" && request.url().includes("/request")) mutations.push(request.url()); });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await page.goto("/request?service=tesisat");
+    await expect(page).toHaveURL(/\/services\?category=tesisat$/);
+  }
+  expect(mutations).toEqual([]);
 });

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ArrowRight, Clock3, Search, ShoppingBag } from "lucide-react";
 import { money } from "@/lib/commerce/display";
 import type { CatalogService, PublicOffer } from "@/lib/commerce/types";
-export function ServiceCatalog({ services, offers, unavailable, initialSearch = "", district = "", featured = false }: { services: CatalogService[]; offers: PublicOffer[]; unavailable: boolean; initialSearch?: string; district?: string; featured?: boolean }) {
+export function ServiceCatalog({ services, offers, unavailable, initialSearch = "", district = "", featured = false, category = "" }: { services: CatalogService[]; offers: PublicOffer[]; unavailable: boolean; initialSearch?: string; district?: string; featured?: boolean; category?: string }) {
   const [query, setQuery] = useState(initialSearch);
   const [filter, setFilter] = useState("all");
   const visible = services.filter(s => (!query || `${s.name} ${s.description} ${s.scope} ${s.exclusions}`.toLocaleLowerCase("tr").includes(query.toLocaleLowerCase("tr"))) && (filter === "all" || s.pricing_type === filter));
@@ -23,6 +23,6 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         <div className="commerce-service-body"><h2><Link href={serviceHref(service.slug)}>{service.name}</Link></h2><p>{service.description}</p><p className="commerce-service-scope">{service.scope}</p><div className="commerce-meta"><Clock3 size={15} aria-hidden />{minDuration ? `${minDuration} dk itibarıyla` : "Süre, usta fiyatlandırmasıyla açıklanır"}</div><div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(o => o.price_minor === min) ? "Hizmet bedeli" : "Başlangıç fiyatı"}</small><strong>{min == null ? "Henüz satışa açılmadı" : money(min)}</strong></div><span>{new Set(available.map(o => o.provider_id)).size} usta</span></div><Link className="commerce-button" href={serviceHref(service.slug)}>{min == null ? "Hizmeti İncele" : "Hizmeti Satın Al"}<ArrowRight size={17} aria-hidden /></Link></div>
       </article>;
     })}</div>
-    {!visible.length && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h2>Aradığınız hizmet bulunamadı</h2><p>Aramanızı değiştirin veya tüm hizmetleri inceleyin.</p><button className="commerce-secondary" onClick={() => { setQuery(""); setFilter("all"); }}>Aramayı Temizle</button><Link className="commerce-button" href="/services">Tüm Hizmetleri İncele</Link></div>}
+    {!visible.length && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h2>{category && !query ? "Bu kategoride satışa açık hizmet yok" : "Aradığınız hizmet bulunamadı"}</h2><p>Aramanı değiştirebilir, diğer hizmetleri veya bölgenizdeki usta profillerini inceleyebilirsin.</p>{query || filter !== "all" ? <button type="button" className="commerce-secondary" onClick={() => { setQuery(""); setFilter("all"); }}>Aramayı Temizle</button> : null}{category && <Link className="commerce-secondary" href={`/providers?${new URLSearchParams({ category, ...(district ? { district } : {}) })}`}>Bu Kategoride Usta Bul</Link>}<Link className="commerce-button" href="/services">Tüm Hizmetleri İncele</Link></div>}
   </>;
 }

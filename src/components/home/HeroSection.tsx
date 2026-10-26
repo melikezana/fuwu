@@ -25,8 +25,8 @@ function ServicePhoto({ serviceId, className = "", priority = false }: {
   return (
     <Link className={"home-hero-photo " + className} href={`/services?category=${service.slug}`}>
       <Image alt={photo.alt} className="object-cover" fill priority={priority}
-        sizes={priority ? "(max-width: 767px) 56vw, (max-width: 1023px) 48vw, 340px" : "(max-width: 767px) 38vw, 240px"}
-        src={serviceId === "cleaning" ? "/images/services/hero-cleaning.webp" : photo.src} style={{ objectPosition: photo.position }} />
+        sizes={priority ? "(max-width: 767px) 400px, 800px" : "(max-width: 767px) 50vw, 440px"}
+        src={photo.src} style={{ objectPosition: photo.position }} />
       <span className="home-photo-caption"><span>{service.title}</span><ArrowRight aria-hidden="true" className="size-4 shrink-0" /></span>
     </Link>
   );
