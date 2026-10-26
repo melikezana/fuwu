@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   if (!body || typeof body.providerId !== "string" || !isUuid(body.providerId) || typeof body.saved !== "boolean") {
     return NextResponse.json({ error: "invalid_selection" }, { status: 400, headers });
   }
-  // Read-then-insert is safe: the composite primary key makes repeat saves idempotent.
+  // The composite primary key makes repeated saves idempotent.
   const result = body.saved
     ? await supabase.from("customer_favorite_providers").insert({ customer_id: user.id, provider_id: body.providerId })
     : await supabase.from("customer_favorite_providers").delete().eq("customer_id", user.id).eq("provider_id", body.providerId);

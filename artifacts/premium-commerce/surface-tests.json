@@ -1,0 +1,36 @@
+{
+  "routes": [
+    "/",
+    "/providers",
+    "/services",
+    "/services?category=temizlik",
+    "/services/musluk-montaji",
+    "/login",
+    "/provider-application",
+    "/providers/30000000-0000-4000-8000-000000000099"
+  ],
+  "layouts": 58,
+  "protected": [
+    "/account?view=favorites",
+    "/account?view=payments",
+    "/orders",
+    "/provider-dashboard/orders",
+    "/provider-dashboard/store",
+    "/provider-dashboard/calendar",
+    "/admin",
+    "/admin/marketplace"
+  ],
+  "screenshots": [
+    "home-390.png",
+    "home-1440.png",
+    "providers-390.png",
+    "providers-1440.png",
+    "catalog-390.png",
+    "catalog-1440.png",
+    "service-390.png",
+    "service-1440.png",
+    "login-390.png",
+    "login-1440.png"
+  ],
+  "errors": []
+}

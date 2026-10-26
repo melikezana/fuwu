@@ -11,6 +11,9 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 }, redu
 const report = { routes: [], layouts: 0, protected: [], screenshots: [], errors: [] };
 await page.addInitScript(() => { localStorage.setItem("fuwu:cookie-consent", "rejected"); sessionStorage.setItem("fuwu_splash_shown", "true"); });
 page.on("pageerror", error => report.errors.push(error.message));
+page.on("console", message => {
+  if (/hydration|hydrated|Minified React error|server rendered HTML/i.test(message.text())) report.errors.push(message.text());
+});
 try {
   for (const [route, name] of [["/", "home"], ["/providers", "providers"], ["/services", "catalog"], ["/services?category=temizlik", "category-empty"], ["/services/musluk-montaji", "service"], ["/login", "login"], ["/provider-application", "join"], ["/providers/30000000-0000-4000-8000-000000000099", "profile-missing"]]) {
     await page.goto(base + route, { waitUntil: "domcontentloaded", timeout: 90000 });

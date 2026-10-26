@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-26",
+  "timezone": "Europe/Istanbul",
+  "lint": "passed",
+  "typescript": "passed",
+  "productionBuild": "passed",
+  "diffCheck": "passed",
+  "database": {
+    "passed": 63,
+    "failed": null,
+    "mode": "isolated PostgreSQL contract fixture, not remote Supabase"
+  },
+  "auth": {
+    "passed": 28,
+    "mode": "offline mocked Auth HTTP and SSR cookies"
+  },
+  "payments": {
+    "passed": 24,
+    "mode": "mock processor HTTP, not a real iyzico charge"
+  },
+  "logic": {
+    "passed": 8
+  },
+  "purchaseLinksAndDates": {
+    "groupsPassed": 3
+  },
+  "e2e": {
+    "passed": 15,
+    "skipped": 2,
+    "failed": 0,
+    "mode": "selected updated entry, restoration, CSP and role-redirect suite; dev server"
+  },
+  "componentBrowser": {
+    "groupsPassed": 14,
+    "errors": [],
+    "failed": null,
+    "mode": "actual application access checks plus explicitly labeled React API fixtures"
+  },
+  "productionSurfaces": {
+    "routes": 8,
+    "layouts": 58,
+    "protectedRoutes": 8,
+    "errors": []
+  },
+  "mobileProcessHeadings": "passed at 320 and 390px on production server",
+  "limitations": [
+    "remote migration not applied",
+    "real Google/SMS/iyzico integration not completed",
+    "authenticated full-panel E2E not completed",
+    "manual provider acceptance/rejection/rescheduling not added",
+    "saved-card feature not added",
+    "no deployment or push"
+  ]
+}
