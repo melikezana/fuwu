@@ -21,6 +21,7 @@ import "@/styles/globals.css";
 import "@/styles/marketplace.css";
 import "@/styles/commerce.css";
 import "@/styles/fusion.css";
+import "@/styles/premium.css";
 
 const inter = localFont({
   display: "swap",

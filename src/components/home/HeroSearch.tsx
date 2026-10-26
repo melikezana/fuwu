@@ -23,10 +23,10 @@ export function HeroSearch({ categories, districts }: HeroSearchProps) {
       <div className="home-search-row">
         <div className="home-search-input">
           <Search aria-hidden="true" className="size-5 shrink-0" />
-          <input autoComplete="off" id="home-service-search" list="home-service-options" name="q" placeholder="Arayın…" type="search" />
+          <input autoComplete="off" id="home-service-search" list="home-service-options" name="q" placeholder="Tesisat, montaj, temizlik…" type="search" />
           <datalist id="home-service-options">{categories.map((category) => <option key={category} value={category} />)}</datalist>
         </div>
-        <button className="home-search-submit" type="submit">Hizmet Bul <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></button>
+        <button className="home-search-submit" type="submit">Hizmet Satın Al <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></button>
       </div>
       <div className="home-search-meta"><div className="home-search-location">
         <MapPin aria-hidden="true" className="size-4 shrink-0" />

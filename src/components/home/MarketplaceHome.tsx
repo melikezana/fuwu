@@ -1,5 +1,4 @@
 import { HeroSection } from "@/components/home/HeroSection";
-import { CommerceJourney } from "@/components/commerce/CommerceJourney";
 import { HomePremiumPanels } from "@/components/home/HomePremiumPanels";
 import { PopularServices } from "@/components/home/PopularServices";
 import { TrustedProviders } from "@/components/home/TrustedProviders";
@@ -43,10 +42,9 @@ export async function MarketplaceHome() {
     <div className="fuwu-home">
       <HeroSection categories={categories} districts={filterOptions.districts} />
       {!catalog.unavailable && catalog.offers.length > 0 && <section className="fusion-featured-services"><div className="fusion-section-heading"><div><p className="commerce-eyebrow">USTALARIN HİZMET MAĞAZALARINDAN</p><h2>Kapsamı belli. Fiyatı açık.</h2><p>Fiyatlandırılmış hizmetleri karşılaştır, gerçek müsaitliğe göre planla.</p></div><Link className="commerce-text-link" href="/services">Tüm Hizmetleri Gör →</Link></div><ServiceCatalog featured services={catalog.services.filter(s => catalog.offers.some(o => o.service_id === s.id)).slice(0, 3)} offers={catalog.offers} unavailable={false} /></section>}
-      <CommerceJourney />
       <PopularServices serviceCounts={serviceCounts} services={popularServices} />
-      <HomePremiumPanels />
       {featuredProviders.length > 0 ? <TrustedProviders providers={featuredProviders} totalCount={liveProviders.length} /> : null}
+      <HomePremiumPanels />
     </div>
   );
 }
