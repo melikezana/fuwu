@@ -1,0 +1,772 @@
+{
+  "base": "http://127.0.0.1:3028",
+  "routes": [
+    "/",
+    "/services",
+    "/providers",
+    "/services/musluk-montaji",
+    "/login",
+    "/provider-application",
+    "/services?category=tesisat",
+    "/services?q=zzzzbulunmayan",
+    "/services?category=unknown-phase1",
+    "/gizlilik",
+    "/kullanim-sartlari"
+  ],
+  "layouts": [
+    {
+      "route": "/",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/services",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/providers",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/login",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/provider-application",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/services?category=tesisat",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/gizlilik",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 430,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 1024,
+      "passed": true
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "width": 1440,
+      "passed": true
+    }
+  ],
+  "checks": [
+    "11 production routes at all seven requested widths; no clipped controls or broken rendered images.",
+    "Exact brief copy, first-screen mobile CTA, search handoff, five customer tabs, five journey steps, 44px controls, no 3D/cartoon visuals, visible sandbox notice.",
+    "Catalog filter bottom sheet, focus trap/Escape/restore, persistent filters, empty-state recovery and unavailable-purchase suppression.",
+    "Mobile menu dismissal, safe-area padding, reduced motion, 150% text sizing and landscape layout.",
+    "Seven customer/provider/admin protected routes retain server-side login redirects.",
+    "Standalone manifest, orange theme, scope/start URL, PNG icons, Apple icon, safe-area viewport and user zoom.",
+    "43 unique internal links/fragments resolve; no browser runtime or hydration errors."
+  ],
+  "screenshots": [
+    "screenshots/after/home-390-viewport.png",
+    "screenshots/after/home-390.png",
+    "screenshots/after/home-1440-viewport.png",
+    "screenshots/after/home-1440.png",
+    "screenshots/after/catalog-390-viewport.png",
+    "screenshots/after/catalog-390.png",
+    "screenshots/after/catalog-1440-viewport.png",
+    "screenshots/after/catalog-1440.png",
+    "screenshots/after/providers-390-viewport.png",
+    "screenshots/after/providers-390.png",
+    "screenshots/after/providers-1440-viewport.png",
+    "screenshots/after/providers-1440.png",
+    "screenshots/after/service-390-viewport.png",
+    "screenshots/after/service-390.png",
+    "screenshots/after/service-1440-viewport.png",
+    "screenshots/after/service-1440.png",
+    "screenshots/after/login-390-viewport.png",
+    "screenshots/after/login-390.png",
+    "screenshots/after/login-1440-viewport.png",
+    "screenshots/after/login-1440.png",
+    "screenshots/after/join-390-viewport.png",
+    "screenshots/after/join-390.png",
+    "screenshots/after/join-1440-viewport.png",
+    "screenshots/after/join-1440.png",
+    "screenshots/after/catalog-filter-sheet-390.png",
+    "screenshots/after/home-text-150-percent-390.png",
+    "screenshots/after/home-landscape-844.png"
+  ],
+  "links": [
+    {
+      "href": "/",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/#how-it-works",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/orders",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/provider-application",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/login",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services?category=tesisat",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services?category=klima-beyaz-esya",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services?category=elektrik-hizmeti",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services?category=mobilya-montaj",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers/4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=elektrik-hizmeti",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?district=%C5%9Ei%C5%9Fli",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers/8a0fd4ad-4b34-4089-8737-3cebc64e4295",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=cilingir",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?district=Be%C5%9Fikta%C5%9F",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers/78bc496a-7f93-43fb-8748-33b5d6cde252",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=mobilya-montaj",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?district=Sar%C4%B1yer",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/#contact",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/#trust",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/#faq",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/kvkk",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/gizlilik",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/kullanim-sartlari",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/cerez-politikasi",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/account",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services/musluk-montaji",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services/klima-bakimi",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services/elektrik-ariza-tespiti",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/services/mobilya-montaji",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/request",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers/ec711057-c9a3-4a03-9737-4f560e3c39cb",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=tesisat",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/login?next=%2Fprovider-application",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=temizlik",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=boya-badana",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=klima-beyaz-esya",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=nakliye-yardimi",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=havuz-bahce-bakimi",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=ev-tadilati",
+      "status": 200,
+      "anchor": true
+    },
+    {
+      "href": "/providers?category=unknown-phase1",
+      "status": 200,
+      "anchor": true
+    }
+  ],
+  "brokenImages": [],
+  "runtimeErrors": [],
+  "performance": [
+    {
+      "route": "/",
+      "lcp": 2704,
+      "cls": 0.00008615680823915421,
+      "ttfb": 27.699999999953434,
+      "jsTransferBytes": 351975
+    },
+    {
+      "route": "/services",
+      "lcp": 1296,
+      "cls": 0.00008722656249999998,
+      "ttfb": 51.300000000046566,
+      "jsTransferBytes": 3773
+    },
+    {
+      "route": "/providers",
+      "lcp": 1196,
+      "cls": 0.00008689236111111111,
+      "ttfb": 60,
+      "jsTransferBytes": 19241
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "lcp": 548,
+      "cls": 0.00008689236111111111,
+      "ttfb": 24.5,
+      "jsTransferBytes": 10864
+    },
+    {
+      "route": "/login",
+      "lcp": 2304,
+      "cls": 0.00008689236111111111,
+      "ttfb": 68.80000000004657,
+      "jsTransferBytes": 19091
+    },
+    {
+      "route": "/provider-application",
+      "lcp": 1492,
+      "cls": 0.00008689236111111111,
+      "ttfb": 91.80000000004657,
+      "jsTransferBytes": 9833
+    },
+    {
+      "route": "/services?category=tesisat",
+      "lcp": 1460,
+      "cls": 0.00008722656249999998,
+      "ttfb": 100.5,
+      "jsTransferBytes": 600
+    },
+    {
+      "route": "/services?q=zzzzbulunmayan",
+      "lcp": 464,
+      "cls": 0.00008722656249999998,
+      "ttfb": 13.599999999860302,
+      "jsTransferBytes": 600
+    },
+    {
+      "route": "/services?category=unknown-phase1",
+      "lcp": 580,
+      "cls": 0.00008722656249999998,
+      "ttfb": 20,
+      "jsTransferBytes": 600
+    },
+    {
+      "route": "/gizlilik",
+      "lcp": 124,
+      "cls": 0.00008689236111111111,
+      "ttfb": 22.5,
+      "jsTransferBytes": 1151
+    },
+    {
+      "route": "/kullanim-sartlari",
+      "lcp": 116,
+      "cls": 0.00008689236111111111,
+      "ttfb": 35.199999999953434,
+      "jsTransferBytes": 1151
+    }
+  ],
+  "pwa": {
+    "manifest": {
+      "id": "/",
+      "scope": "/",
+      "lang": "tr",
+      "dir": "ltr",
+      "description": "Ev hizmetlerini keşfet, ustaları karşılaştır ve randevunu planla.",
+      "background_color": "#ffffff",
+      "display": "standalone",
+      "icons": [
+        {
+          "purpose": "any",
+          "sizes": "192x192",
+          "src": "/icons/fuwu-icon-192.png",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "sizes": "512x512",
+          "src": "/icons/fuwu-icon-512.png",
+          "type": "image/png"
+        }
+      ],
+      "name": "FUWU - Ev Hizmetleri",
+      "short_name": "FUWU",
+      "start_url": "/",
+      "theme_color": "#ff6500"
+    },
+    "viewport": "width=device-width, initial-scale=1, viewport-fit=cover",
+    "appleIcon": "/icons/fuwu-icon-180.png",
+    "serviceWorkerRegistrations": 0
+  },
+  "failed": null
+}

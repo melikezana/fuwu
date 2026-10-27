@@ -1,0 +1,64 @@
+[
+  {
+    "time": 476.4000000001397,
+    "value": 0.00006247145664544753,
+    "sources": [
+      {
+        "tag": "DIV",
+        "class": "site-desktop-links",
+        "text": "Ana SayfaHizmetlerUstalarNasıl Çalışır?Siparişlerim",
+        "previous": {
+          "x": 231.265625,
+          "y": 18,
+          "width": 887.609375,
+          "height": 44,
+          "top": 18,
+          "right": 1118.875,
+          "bottom": 62,
+          "left": 231.265625
+        },
+        "current": {
+          "x": 227.96875,
+          "y": 18,
+          "width": 892.953125,
+          "height": 44,
+          "top": 18,
+          "right": 1120.921875,
+          "bottom": 62,
+          "left": 227.96875
+        }
+      }
+    ]
+  },
+  {
+    "time": 1197.5,
+    "value": 0.193,
+    "sources": [
+      {
+        "tag": "FOOTER",
+        "class": "border-t border-[var(--border)] bg-[var(--background)] text-[var(--brand-navy)]",
+        "text": "FUWUHİZMETFUWU ile evinin ihtiyaçlarını tek yerden planla. Hizmetini seç, ustanı incele ve sana uygu",
+        "previous": {
+          "x": 0,
+          "y": 807,
+          "width": 1440,
+          "height": 193,
+          "top": 807,
+          "right": 1440,
+          "bottom": 1000,
+          "left": 0
+        },
+        "current": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      }
+    ]
+  }
+]

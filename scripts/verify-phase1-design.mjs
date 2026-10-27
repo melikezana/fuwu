@@ -25,7 +25,7 @@ page.on("console", message => { if (/hydration|hydrated|Minified React error|ser
 async function goto(route) { await page.goto(base + route, { waitUntil: "domcontentloaded" }); await page.locator("h1").first().waitFor(); await page.evaluate(() => document.fonts.ready); }
 async function settle() { await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))); }
 async function shot(name, fullPage = false) { await page.screenshot({ path: path.join(shots, `${name}.png`), fullPage }); report.screenshots.push(`screenshots/after/${name}.png`); }
-async function loadImages() { await page.evaluate(async () => { for (let y=0; y<document.body.scrollHeight; y+=innerHeight) { scrollTo(0,y); await new Promise(resolve=>setTimeout(resolve,65)); } scrollTo(0,0); await Promise.all([...document.images].map(image=>image.decode().catch(()=>{}))); }); }
+async function loadImages() { await page.evaluate(async () => { for (let y=0; y<document.body.scrollHeight; y+=innerHeight) { scrollTo(0,y); await new Promise(resolve=>setTimeout(resolve,65)); } scrollTo(0,0); await Promise.all([...document.images].filter(image=>image.getClientRects().length>0).map(image=>Promise.race([image.decode().catch(()=>{}),new Promise(resolve=>setTimeout(resolve,5000))]))); }); }
 
 try {
   for (const [route, name] of [["/", "home"], ["/services", "catalog"], ["/providers", "providers"], ["/services/musluk-montaji", "service"], ["/login", "login"], ["/provider-application", "join"], ["/services?category=tesisat", "category"], ["/services?q=zzzzbulunmayan", "search-empty"], ["/services?category=unknown-phase1", "category-missing"], ["/gizlilik", "privacy"], ["/kullanim-sartlari", "terms"]]) {
@@ -47,7 +47,7 @@ try {
       }
     }
     await loadImages();
-    const broken = await page.locator("img").evaluateAll(images => images.filter(image=>!image.complete || image.naturalWidth === 0).map(image=>image.currentSrc || image.src));
+    const broken = await page.locator("img").evaluateAll(images => images.filter(image=>image.getClientRects().length>0 && (!image.complete || image.naturalWidth === 0)).map(image=>image.currentSrc || image.src));
     report.brokenImages.push(...broken.map(src=>({route,src})));
     const localLinks = await page.locator("a[href]").evaluateAll(anchors => anchors.map(anchor=>anchor.getAttribute("href")).filter(href=>href?.startsWith("/") && !href.startsWith("//") && !/^\/(api|auth)\//.test(href)));
     localLinks.forEach(href=>links.add(href));
@@ -78,7 +78,7 @@ try {
   report.checks.push("Exact brief copy, first-screen mobile CTA, search handoff, five customer tabs, five journey steps, 44px controls, no 3D/cartoon visuals, visible sandbox notice.");
 
   await goto("/services");
-  const filterButton = page.getByRole("button",{name:/Filtrele/});
+  const filterButton = page.locator(".catalog-mobile-filter-button");
   await filterButton.click();
   const dialog = page.getByRole("dialog",{name:"Hizmetleri filtrele"});
   await dialog.waitFor();

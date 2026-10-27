@@ -20,6 +20,20 @@ for (const [field, value] of Object.entries({ status: "failure", token: "other",
 check("Missing item transaction cannot become a paid order", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId: order.id, price: 850, subMerchantPrice: 765 }] })));
 check("Reject mismatched provider payout", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId: order.id, price:850, subMerchantPrice:850 }] })));
 check("Reject mismatched item identity", () => assert.throws(() => verify({ ...valid, itemTransactions: [{ itemId:"other", price:850, subMerchantPrice:765 }] })));
+check("Reject API failure even when the body says payment FAILURE", () => assert.throws(() => verify({ ...valid, status: "failure", paymentStatus: "FAILURE" })));
+check("Reject fractional kurus, exponent and whitespace money values", () => {
+  for (const price of ["850.001", "8.5e2", " 850", "850 ", "+850"]) assert.throws(() => verify({ ...valid, price }));
+});
+check("Duplicate retrieval must match persisted payment and item identities", () => {
+  assert.equal(verifyCommercePayment(valid, order, "test-token", "test-conversation", { paymentId: "test-payment", itemTransactionId: "test-item" }), true);
+  for (const expected of [{ paymentId: "different" }, { itemTransactionId: "different" }]) assert.throws(() => verifyCommercePayment(valid, order, "test-token", "test-conversation", expected));
+});
+check("Marketplace destination matches the initializer submerchant snapshot", () => {
+  const matching = { ...valid, itemTransactions: [{ ...valid.itemTransactions![0], subMerchantKey: "snapshot-key" }] };
+  assert.equal(verifyCommercePayment(matching, order, "test-token", "test-conversation", { submerchantKey: "snapshot-key" }), true);
+  assert.throws(() => verifyCommercePayment(matching, order, "test-token", "test-conversation", { submerchantKey: "different-key" }));
+  assert.throws(() => verifyCommercePayment(valid, order, "test-token", "test-conversation", { submerchantKey: "snapshot-key" }));
+});
 const settlement = { status:"success", paymentTransactionId:"test-item", currency:"TRY", price:850 };
 check("Payout approval requires successful matching external transaction", () => { assert.equal(isVerifiedSettlement(settlement,"test-item","release"),true);assert.equal(isVerifiedSettlement({...settlement,paymentTransactionId:"other"},"test-item","release"),false);assert.equal(isVerifiedSettlement({...settlement,status:"failure"},"test-item","release"),false); });
 check("Refund requires matching external transaction, full amount and TRY", () => { assert.equal(isVerifiedSettlement(settlement,"test-item","refund",85000),true);for(const result of [{...settlement,currency:"USD"},{...settlement,price:1},{...settlement,price:undefined},{...settlement,paymentTransactionId:undefined},{...settlement,status:"pending"}])assert.equal(isVerifiedSettlement(result,"test-item","refund",85000),false); });

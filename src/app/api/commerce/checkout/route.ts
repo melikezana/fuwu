@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
     const result = await initializeIyzicoCheckoutForm({
       basketId: order.id, conversationId: transaction.conversation_id,
       price: order.total_minor / 100, paidPrice: order.total_minor / 100,
-      basketItems: [{ id: order.id, name: order.service_name, category1: "Ev hizmetleri", itemType: "VIRTUAL", price: order.total_minor / 100, subMerchantKey: provider.iyzico_submerchant_key, subMerchantPrice: order.provider_gross_minor / 100 }],
+      basketItems: [{ id: order.id, name: order.service_name, category1: "Ev hizmetleri", itemType: "VIRTUAL", price: order.total_minor / 100, subMerchantKey: transaction.submerchant_key || provider.iyzico_submerchant_key, subMerchantPrice: order.provider_gross_minor / 100 }],
       billingAddress: address, shippingAddress: address,
       buyer: { id: user.id, name: nameParts[0], surname: nameParts.slice(1).join(" ") || "Müşteri", email: user.email || "test@fuwu.test", identityNumber: process.env.IYZICO_TEST_BUYER_IDENTITY_NUMBER || "11111111111", registrationAddress: order.address, ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1", city: "İstanbul", country: "Turkey", zipCode: "34000", gsmNumber: profile?.phone || undefined },
       callbackUrl: new URL("/api/commerce/payment-callback", siteUrl).toString(),
     });
-    if (!result.token || !result.paymentPageUrl) throw new Error("payment_session_missing");
+    if (result.status !== "success" || result.conversationId !== transaction.conversation_id || !result.token?.trim() || !result.paymentPageUrl) throw new Error("payment_session_missing");
     const paymentPageUrl = sandboxPaymentUrl(result.paymentPageUrl);
     const { error } = await db.rpc("commerce_attach_payment", { p_order_id: order.id, p_token: result.token, p_url: paymentPageUrl });
     if (error) throw new Error("payment_persistence_failed");

@@ -1,0 +1,47 @@
+{
+  "completedDate": "2026-10-28",
+  "repository": "C:/Users/Melikezana/Desktop/FUWU",
+  "typescript": {
+    "passed": true,
+    "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "date": "2026-10-26",
+    "alsoVerifiedByProductionBuild": "2026-10-28"
+  },
+  "lint": {
+    "passed": true,
+    "command": "npm run lint",
+    "date": "2026-10-26",
+    "changedSourcesAndScriptsVerified": "2026-10-28"
+  },
+  "productionBuild": {
+    "passed": true,
+    "command": "npm run build",
+    "date": "2026-10-28"
+  },
+  "catalogRegression": {
+    "passed": true,
+    "groups": 5
+  },
+  "productionPlaywright": {
+    "passed": true,
+    "routes": 11,
+    "layouts": 77,
+    "links": 43,
+    "screenshots": 27,
+    "runtimeErrors": 0,
+    "brokenImages": 0
+  },
+  "commerceComponentFixtures": {
+    "passed": true,
+    "groups": 13,
+    "screenshots": 40,
+    "realPaymentsOrOrdersCreated": false
+  },
+  "remainingLimits": [
+    "Local catalog unavailable: scope preview only, purchasing disabled.",
+    "Sandbox payments only.",
+    "No service worker/offline mode.",
+    "No physical iOS/Android install or real-account end-to-end verification."
+  ],
+  "noCommitPushOrDeploymentPerformedByThisWork": true
+}

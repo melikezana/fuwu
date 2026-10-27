@@ -1,0 +1,681 @@
+[
+  {
+    "route": "/",
+    "width": 320,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [
+      {
+        "text": "Montaj & yenileme",
+        "class": ""
+      },
+      {
+        "text": "Taşıma",
+        "class": ""
+      }
+    ],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 1691.453125,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 763.328125,
+        "width": 206
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 3423.203125,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 5987.5,
+        "width": 160
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 8129.96875,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 375,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [
+      {
+        "text": "Montaj & yenileme",
+        "class": ""
+      },
+      {
+        "text": "Taşıma",
+        "class": ""
+      }
+    ],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 929.59375,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 393.59375,
+        "width": 301
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 2369.21875,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 4168.84375,
+        "width": 251
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 5374.5,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [
+      {
+        "text": "Taşıma",
+        "class": ""
+      }
+    ],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 933.0625,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 397.0625,
+        "width": 316
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 2400.421875,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 4200.046875,
+        "width": 266
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 5361.515625,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 430,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [
+      {
+        "text": "Taşıma",
+        "class": ""
+      }
+    ],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 942.3125,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 406.3125,
+        "width": 356
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 2452.484375,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 4252.109375,
+        "width": 306
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 5369.890625,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 768,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 750.953125,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 473.953125,
+        "width": 296
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 2173.96875,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 3470.78125,
+        "width": 103
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 4388.03125,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 1024,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 758.796875,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 481.796875,
+        "width": 398
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 1594.75,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 2858.46875,
+        "width": 103
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 3462.421875,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "title": "Evinin her işi,usta ellerde.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [
+      {
+        "text": "Elektrik1 usta",
+        "href": "/services?category=elektrik-hizmeti"
+      },
+      {
+        "text": "Tesisat1 usta",
+        "href": "/services?category=tesisat"
+      },
+      {
+        "text": "TemizlikHizmeti inceleyin",
+        "href": "/services?category=temizlik"
+      },
+      {
+        "text": "Boya BadanaHizmeti inceleyin",
+        "href": "/services?category=boya-badana"
+      },
+      {
+        "text": "Beyaz EşyaHizmeti inceleyin",
+        "href": "/services?category=klima-beyaz-esya"
+      },
+      {
+        "text": "Çilingir1 usta",
+        "href": "/services?category=cilingir"
+      },
+      {
+        "text": "Mobilya Montajı1 usta",
+        "href": "/services?category=mobilya-montaj"
+      },
+      {
+        "text": "NakliyeHizmeti inceleyin",
+        "href": "/services?category=nakliye-yardimi"
+      },
+      {
+        "text": "Havuz ve Bahçe BakımıHizmeti inceleyin",
+        "href": "/services?category=havuz-bahce-bakimi"
+      },
+      {
+        "text": "Ev TadilatıHizmeti inceleyin",
+        "href": "/services?category=ev-tadilati"
+      }
+    ],
+    "canvasCount": 0,
+    "heroHeight": 799.359375,
+    "cta": [
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 530.359375,
+        "width": 526
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 1706.703125,
+        "width": 121.71875
+      },
+      {
+        "text": "Hizmet Satın Al",
+        "top": 2873.984375,
+        "width": 103
+      },
+      {
+        "text": "Hizmet Satın Al ",
+        "top": 3492.921875,
+        "width": 172.328125
+      }
+    ]
+  },
+  {
+    "route": "/services",
+    "width": 320,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 375,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 390,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 430,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 768,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 1024,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/services",
+    "width": 1440,
+    "title": "Bir hizmet seç.Gerisini ustasına bırak.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 320,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 375,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 390,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 430,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 768,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 1024,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  },
+  {
+    "route": "/providers",
+    "width": 1440,
+    "title": "İşinizi doğru ustaya bırakın.",
+    "overflow": false,
+    "offenders": [],
+    "categories": [],
+    "canvasCount": 0,
+    "cta": []
+  }
+]

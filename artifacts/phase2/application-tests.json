@@ -1,0 +1,17 @@
+{
+  "mode": "Actual local production application, no API mocks, no configured staging backend or payment credentials",
+  "checks": [
+    "Actual catalog and service page fit seven widths; missing backend is shown as unavailable without inventing providers/prices/slots.",
+    "Actual APIs deny guest writes, cross-origin order creation and unauthorized cron; payment callback fails closed without sandbox credentials.",
+    "Actual availability route rejects impossible calendar dates, invalid UUIDs and unbounded day ranges.",
+    "Actual protected pages require login and OAuth callback rejects an external return path."
+  ],
+  "screenshots": [
+    "actual-catalog-390.png",
+    "actual-catalog-1440.png",
+    "actual-unavailable-service-390.png",
+    "actual-unavailable-service-1440.png"
+  ],
+  "errors": [],
+  "failed": null
+}

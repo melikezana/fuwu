@@ -1,0 +1,45 @@
+{
+  "method": "Local production, fresh browser context per route, fixed viewport, no resize/scroll, no CPU/network throttling; lab samples, not field Core Web Vitals.",
+  "measurements": [
+    {
+      "route": "/",
+      "width": 390,
+      "lcp": 1084,
+      "cls": 0.00008615680823915421,
+      "element": "H1",
+      "ttfb": 41.9000000001397,
+      "jsTransferBytes": 351975,
+      "imageTransferBytes": 45060
+    },
+    {
+      "route": "/services",
+      "width": 390,
+      "lcp": 572,
+      "cls": 0.00008615680823915421,
+      "element": "IMG",
+      "ttfb": 18.899999999906868,
+      "jsTransferBytes": 341793,
+      "imageTransferBytes": 63208
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "lcp": 1008,
+      "cls": 0.00015451509452160493,
+      "element": "H1",
+      "ttfb": 39.300000000046566,
+      "jsTransferBytes": 351975,
+      "imageTransferBytes": 88164
+    },
+    {
+      "route": "/services",
+      "width": 1440,
+      "lcp": 1092,
+      "cls": 0.00015025767385223762,
+      "element": "IMG",
+      "ttfb": 47.89999999990687,
+      "jsTransferBytes": 341793,
+      "imageTransferBytes": 69970
+    }
+  ]
+}

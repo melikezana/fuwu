@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-28",
+  "timezone": "Europe/Istanbul",
+  "sourceHead": "de0ec9598c1d3a8c19095f21828480fa2f48b895",
+  "changedFiles": 20,
+  "build": "PASS",
+  "typescript": "PASS",
+  "fullEslint": "PASS",
+  "databaseChecks": 74,
+  "mockPaymentChecks": 28,
+  "mockAuthChecks": 29,
+  "phase1Groups": 5,
+  "purchaseUxGroups": 3,
+  "commerceRegressionGroups": 13,
+  "phase2BrowserGroups": 10,
+  "actualApplicationGroups": 4,
+  "realIyzicoSandbox": "BLOCKED: no sandbox API/secret credentials",
+  "realGoogleCheckout": "BLOCKED / NOT RUN",
+  "remoteMigrations": "NOT RUN",
+  "deployment": "NOT RUN"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": false,
+  "status": "PASS",
+  "sha256Matches": 20,
+  "source": "C:\\Users\\Melikezana\\Desktop\\FUWU",
+  "push": false,
+  "changedFiles": 20,
+  "deployment": false,
+  "head": "de0ec9598c1d3a8c19095f21828480fa2f48b895",
+  "remoteMigration": false,
+  "preservedPhase1Files": 5
+}

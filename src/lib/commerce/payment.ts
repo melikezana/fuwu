@@ -17,12 +17,15 @@ export function minorAmount(value: unknown) {
 }
 export function isVerifiedSettlement(result: { status?: string; paymentTransactionId?: string; currency?: string; price?: unknown }, itemId: string, kind: "release" | "refund", totalMinor = 0) {
   return Boolean(itemId) && result.status === "success" && result.paymentTransactionId === itemId &&
-    (kind === "release" || (totalMinor > 0 && result.currency === "TRY" && minorAmount(result.price) === totalMinor));
+    (kind === "release" || (totalMinor > 0 && result.currency === "TRY" && matchesMoney(result.price, totalMinor)));
 }
-export function verifyCommercePayment(result: RetrieveIyzicoCheckoutResponse, order: Pick<CommerceOrder, "id" | "total_minor" | "provider_gross_minor">, token: string, conversation: string) {
-  if (result.status !== "success" && result.paymentStatus !== "FAILURE") throw new Error("payment_verification_failed");
-  if (result.token !== token || result.conversationId !== conversation || result.basketId !== order.id || result.currency !== "TRY" || minorAmount(result.price) !== order.total_minor || minorAmount(result.paidPrice) !== order.total_minor) throw new Error("payment_verification_failed");
+function matchesMoney(value: unknown, minor: number) {
+  return (typeof value === "string" || typeof value === "number") && /^\d+(?:\.\d{1,2}0*)?$/.test(String(value)) && minorAmount(value) === minor;
+}
+export function verifyCommercePayment(result: RetrieveIyzicoCheckoutResponse, order: Pick<CommerceOrder, "id" | "total_minor" | "provider_gross_minor">, token: string, conversation: string, expected?: { paymentId?: string | null; itemTransactionId?: string | null; submerchantKey?: string | null }) {
+  if (result.status !== "success") throw new Error("payment_verification_failed");
+  if (result.token !== token || result.conversationId !== conversation || result.basketId !== order.id || result.currency !== "TRY" || !matchesMoney(result.price, order.total_minor) || !matchesMoney(result.paidPrice, order.total_minor)) throw new Error("payment_verification_failed");
   if (result.paymentStatus !== "SUCCESS" && result.paymentStatus !== "FAILURE") throw new Error("payment_not_final");
-  if (result.paymentStatus === "SUCCESS" && (!result.paymentId || result.fraudStatus !== 1 || result.itemTransactions?.length !== 1 || !result.itemTransactions[0].paymentTransactionId?.trim() || minorAmount(result.itemTransactions[0].subMerchantPrice) !== order.provider_gross_minor || minorAmount(result.itemTransactions[0].price) !== order.total_minor || result.itemTransactions[0].itemId !== order.id)) throw new Error("payment_verification_failed");
+  if (result.paymentStatus === "SUCCESS" && (!result.paymentId?.trim() || result.fraudStatus !== 1 || result.itemTransactions?.length !== 1 || !result.itemTransactions[0].paymentTransactionId?.trim() || !matchesMoney(result.itemTransactions[0].subMerchantPrice, order.provider_gross_minor) || !matchesMoney(result.itemTransactions[0].price, order.total_minor) || result.itemTransactions[0].itemId !== order.id || (expected?.paymentId && result.paymentId !== expected.paymentId) || (expected?.itemTransactionId && result.itemTransactions[0].paymentTransactionId !== expected.itemTransactionId) || (expected?.submerchantKey && result.itemTransactions[0].subMerchantKey !== expected.submerchantKey))) throw new Error("payment_verification_failed");
   return result.paymentStatus === "SUCCESS";
 }

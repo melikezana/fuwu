@@ -13,7 +13,7 @@ export async function reconcileCommercePayment(db: SupabaseClient<Database>, tra
   const { data: order, error } = await db.from("orders").select("*").eq("id", transaction.order_id).single();
   if (error || !order) throw new Error("order_not_found");
   const result = await retrieveIyzicoCheckoutFormResult({ token: transaction.checkout_token, conversationId: transaction.conversation_id });
-  const success = verifyCommercePayment(result, order, transaction.checkout_token, transaction.conversation_id);
+  const success = verifyCommercePayment(result, order, transaction.checkout_token, transaction.conversation_id, { paymentId: transaction.payment_id, itemTransactionId: transaction.item_transaction_id, submerchantKey: transaction.submerchant_key });
   const rateFee = minorAmount(result.iyziCommissionRateAmount);
   const fixedFee = minorAmount(result.iyziCommissionFee);
   const { data: status, error: resolveError } = await db.rpc("commerce_resolve_payment", {

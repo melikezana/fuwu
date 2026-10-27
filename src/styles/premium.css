@@ -58,6 +58,9 @@
 .booking-desktop-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 6px; }
 .booking-desktop-actions > .commerce-button { margin-left: auto; min-width: 180px; }
 .booking-live-summary { align-self: start; }
+.commerce-offer-availability { grid-column: 1 / -1; }
+.commerce-offer-availability button { min-height: 44px; }
+.booking-review > h3:not(:first-child) { margin-top: 20px; }
 .booking-back-button { display: grid; place-items: center; min-width: 44px; min-height: 48px; border: 1px solid var(--border); border-radius: 12px; background: white; }
 .booking-sticky { gap: 10px; }
 .booking-sticky > div { flex: 1; }
