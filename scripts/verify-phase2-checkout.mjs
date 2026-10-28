@@ -22,8 +22,14 @@ const district = "20000000-0000-4000-8000-000000000001";
 const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 const nextDay = new Date(`${today}T12:00:00+03:00`); nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 const tomorrow = nextDay.toISOString().slice(0, 10);
-let mode = "open", orderBody, checkoutBody;
+let mode = "open", feeBps = 0, orderBody, checkoutBody;
 const slot = day => ({ starts_at: `${day}T11:00:00+03:00`, ends_at: `${day}T12:00:00+03:00` });
+await page.route("**/api/commerce/quote?**", route => {
+  if (mode === "pricing-error") return route.fulfill({ status: 503, json: { error: "pricing_unavailable" } });
+  const id = new URL(route.request().url()).searchParams.get("offering");
+  const price = id === "10000000-0000-4000-8000-000000000003" ? 170000 : id === "70000000-0000-4000-8000-000000000001" ? 105000 : id === "70000000-0000-4000-8000-000000000002" ? 190000 : 85000;
+  return route.fulfill({ json: { quote: { service_price_minor: price, customer_fee_minor: Math.round(price * feeBps / 10000), total_minor: price + Math.round(price * feeBps / 10000), commission_minor: Math.round(price / 10), provider_gross_minor: price - Math.round(price / 10), provider_commission_bps: 1000, customer_fee_bps: feeBps, terms_version: "fuwu-fees-v1" } } });
+});
 await page.route("**/api/commerce/slots?**", route => {
   const params = new URL(route.request().url()).searchParams;
   if (mode === "error") return route.fulfill({ status: 503, json: { error: "store_unavailable" } });
@@ -32,6 +38,7 @@ await page.route("**/api/commerce/slots?**", route => {
 });
 await page.route("**/api/commerce/orders", route => {
   orderBody = route.request().postDataJSON();
+  if (mode === "fee-change") { feeBps = 1000; return route.fulfill({ status: 409, json: { error: "fee_changed" } }); }
   return route.fulfill(mode === "guest" ? { status: 401, json: { error: "unauthorized" } } : { status: 201, json: { order: { id: "phase2-fixture-order" } } });
 });
 await page.route("**/api/commerce/checkout", route => { checkoutBody = route.request().postDataJSON(); return route.fulfill(mode === "checkout-success" ? { json: { paymentPageUrl: "https://sandbox-cpp.iyzipay.com/phase2-fixture" } } : { status: 503, json: { error: "sandbox_unavailable" } }); });
@@ -76,6 +83,7 @@ try {
   await reset(); await summary();
   await expect(page.getByRole("heading", { name: "Malzeme ve ek işçilik / dahil olmayanlar" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "İptal ve iade", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "kullanım, iptal ve iade koşullarını" })).toHaveCSS("text-decoration-line", "underline");
   for (const width of [320, 375, 390, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
@@ -128,6 +136,22 @@ try {
   await expect(page.locator(".commerce-sticky").getByRole("button", { name: "Ödemeye Geç", exact: true })).toBeDisabled();
   await expect(page.getByRole("link", { name: "Yeni Gün ve Saat Seç" })).toBeVisible(); await shot("hold-expired-390-FIXTURE");
   report.checks.push("Expired hold disables payment and offers a fresh booking without inventing a new server status.");
+  mode = "open"; feeBps = 500; await reset(); await summary();
+  const pay = () => page.locator(".booking-sticky").getByRole("button", { name: "Ödemeye Geç", exact: true });
+  await expect(pay()).toBeDisabled();
+  const consent = page.getByRole("checkbox", { name: /FUWU platform ücretini/ });
+  await expect(consent).not.toBeChecked(); await consent.check(); await expect(pay()).toBeEnabled();
+  await expect(page.locator(".booking-review-summary")).toContainText("892,5");
+  await shot("customer-fee-consent-390-FIXTURE"); await pay().click();
+  assert.equal(orderBody.expectedTotalMinor, 89250); assert.equal(orderBody.feeConsent, true); assert.equal(orderBody.termsVersion, "fuwu-fees-v1");
+  report.checks.push("5% platform fee is separate from the service price, total is 892.50 TRY, unchecked explicit consent blocks payment and exact total/version reach the order request (mock APIs).");
+  mode = "fee-change"; feeBps = 500; await reset(); await summary(); await consent.check(); await pay().click();
+  await expect(page.getByRole("alert")).toContainText("Platform ücreti güncellendi");
+  await expect(page.locator(".booking-review-summary")).toContainText("935"); await expect(consent).not.toBeChecked(); await expect(pay()).toBeDisabled();
+  report.checks.push("Server fee-change conflict refreshes the displayed quote and clears consent before another attempt.");
+  mode = "pricing-error"; await reset(); await summary(); await expect(pay()).toBeDisabled();
+  await expect(page.getByRole("alert").first()).toContainText("Toplam ücret doğrulanamadı");
+  report.checks.push("Quote connection failure never silently charges a zero fee or enables payment.");
   assert.deepEqual(report.errors, []);
 } catch (error) { report.failed = String(error.stack || error); await shot("phase2-failure"); process.exitCode = 1; }
 finally { await fs.writeFile(path.join(out, "browser-tests.json"), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2)); await browser.close(); await server.close(); }

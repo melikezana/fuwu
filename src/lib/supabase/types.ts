@@ -48,6 +48,12 @@ export type Database = {
           name: string;
           slug: string;
           description: string | null;
+          is_visible?: boolean;
+          is_featured?: boolean;
+          sort_order?: number;
+          icon_name?: import("@/lib/constants/services").ServiceIconName | null;
+          provider_commission_bps?: number | null;
+          customer_fee_bps?: number | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -57,6 +63,12 @@ export type Database = {
           name: string;
           slug: string;
           description?: string | null;
+          is_visible?: boolean;
+          is_featured?: boolean;
+          sort_order?: number;
+          icon_name?: import("@/lib/constants/services").ServiceIconName | null;
+          provider_commission_bps?: number | null;
+          customer_fee_bps?: number | null;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -66,6 +78,12 @@ export type Database = {
           name?: string;
           slug?: string;
           description?: string | null;
+          is_visible?: boolean;
+          is_featured?: boolean;
+          sort_order?: number;
+          icon_name?: import("@/lib/constants/services").ServiceIconName | null;
+          provider_commission_bps?: number | null;
+          customer_fee_bps?: number | null;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;

@@ -1,0 +1,25 @@
+{
+  "mode": "Actual local app + read-only anonymous public backend; no writes or API mocks",
+  "checks": [
+    "Six real pages fit 320, 375, 390, 430, 768, 1024 and 1440px without horizontal page overflow.",
+    "All 11 real active categories survive missing commerce schema; Halı Yıkama, Bahçe and Havuz stay separate, mobile grid has two columns and category links work.",
+    "Five mobile customer tabs meet 44px height, header is clear, reduced-motion/landscape/200% text fit. Simulated visualViewport keyboard event hides and restores bottom navigation; physical iOS/Android keyboard is untested.",
+    "Actual APIs reject guest/cross-origin writes and malformed quote IDs; unavailable pricing fails closed. Customer, provider and admin routes require login. PWA manifest is standalone Turkish."
+  ],
+  "screenshots": [
+    "home-390.png",
+    "home-1440.png",
+    "services-390.png",
+    "services-1440.png",
+    "services-musluk-montaji-390.png",
+    "services-musluk-montaji-1440.png",
+    "providers-390.png",
+    "providers-1440.png",
+    "provider-application-390.png",
+    "provider-application-1440.png",
+    "kullanim-sartlari-390.png",
+    "kullanim-sartlari-1440.png"
+  ],
+  "errors": [],
+  "failed": null
+}

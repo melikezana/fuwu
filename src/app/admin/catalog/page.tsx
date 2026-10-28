@@ -7,6 +7,7 @@ import { getAdminCatalog } from "@/services/admin/catalog";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { CatalogManager } from "./CatalogManager";
 import { CommerceCatalogManager } from "@/components/admin/CommerceCatalogManager";
+import { CategoryPresentationManager } from "@/components/admin/CategoryPresentationManager";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
   description: "Fuwu hizmet kategorileri ve ilçe yönetimi.",
 };
 
-export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string }> }) {
+export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string; category?: string }> }) {
   const params = await searchParams;
   const adminAccess = await getAdminAccess();
 
@@ -37,7 +38,9 @@ export default async function AdminCatalogPage({ searchParams }: { searchParams:
         error={error}
         title="Hizmet Kataloğu"
       >
-        {params.commerce && <p className="commerce-notice" role="status">{params.commerce === "saved" ? "Hizmet ürünü kaydedildi." : "Ürün kaydedilemedi. Alanları, mevcut teklifleri ve yetkileri kontrol edin."}</p>}
+        {params.commerce && <p className="commerce-notice" role="status">{params.commerce === "saved" ? "Hizmet ürünü kaydedildi." : "Ürün kaydedilemedi. Alanları, mevcut satış kayıtlarını ve yetkileri kontrol edin."}</p>}
+        {params.category && <p className="commerce-notice" role="status">{params.category === "saved" ? "Kategori düzeni kaydedildi." : "Kategori kaydedilemedi. URL adını, yetkileri ve migration durumunu kontrol edin."}</p>}
+        <CategoryPresentationManager categories={categories} />
         <CommerceCatalogManager />
         <div className="grid gap-6 lg:grid-cols-2">
           <CatalogManager

@@ -32,3 +32,7 @@ Her kaynağın Pexels fotoğraf sayfasındaki ücretsiz lisans bilgisi kontrol e
 - Kaynaklar ve yeniden üretim: node scripts/prepare-service-photos.mjs.
 - Usta Ol görseli bu çalışmada aynı lisanslı kaynaktan yeniden indirildi; `node scripts/prepare-provider-hero.mjs` ile ayrı bir WebP olarak optimize edildi. Kaynak ve Pexels lisansı 20 Ekim 2026’da yeniden kontrol edildi.
 - Yeniden üretim aracı yalnızca bu on fotoğrafın images.pexels.com adreslerinden indirme yapar; hesap veya API anahtarı kullanmaz.
+
+## 28 Ekim 2026 · FUWU 3.0
+
+Yeni stok fotoğraf indirilmedi. Mevcut kaynaklar ve orijinal FUWU logosu korundu. Pexels lisans sayfası yeniden okundu; web/uygulama kullanımı ve görsel uyarlama izinleri ile kişi/marka desteği ima etmeme şartı kontrol edildi. `hero-plumbing.webp`, aynı 32588548 numaralı tesisat fotoğrafının mevcut kırpılmış türevidir. Fotoğraf eşlemesi olmayan kullanıcı kategorileri için başka mesleğe ait fotoğraf yerine kategori ikonu gösterilir. Fotoğraflar kayıtlı FUWU ustası veya değerlendirmesi olarak sunulmaz.

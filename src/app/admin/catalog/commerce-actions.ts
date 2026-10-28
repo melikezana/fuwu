@@ -19,3 +19,16 @@ export async function saveCommerceService(form: FormData) {
   revalidatePath("/services"); revalidatePath("/admin/catalog"); revalidatePath("/");
   redirect(`/admin/catalog?commerce=${error ? "failed" : "saved"}`);
 }
+
+export async function saveCategoryPresentation(form: FormData) {
+  const { user, profile, supabase } = await getServerAuthContext();
+  if (!user || !supabase || !hasAdminRole(profile)) throw new Error("forbidden");
+  const rate = await checkRateLimitWithRedis({ action: "admin:category.presentation", userId: user.id, supabase, limit: 30, windowMs: 60_000 });
+  if (!rate.allowed) redirect("/admin/catalog?category=failed");
+  const id = String(form.get("id") ?? "");
+  const order = Number(form.get("sort_order"));
+  if (!isUuid(id) || !Number.isInteger(order) || order < 0 || order > 10000) redirect("/admin/catalog?category=failed");
+  const { error } = await supabase.rpc("commerce_admin_save_category", { p_id: id, p_name: String(form.get("name") ?? "").trim().slice(0, 60), p_slug: String(form.get("slug") ?? "").trim().slice(0, 100), p_visible: form.get("is_visible") === "on", p_featured: form.get("is_featured") === "on", p_sort: order, p_icon: String(form.get("icon_name") ?? "") });
+  revalidatePath("/"); revalidatePath("/services"); revalidatePath("/admin/catalog");
+  redirect(`/admin/catalog?category=${error ? "failed" : "saved"}`);
+}

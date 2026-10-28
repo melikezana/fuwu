@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminPageShell } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
+import { MarketplaceInsights } from "@/components/admin/MarketplaceInsights";
 import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
 import { getAdminAccess } from "@/services/admin";
 import { getMarketplaceSummary } from "@/services/admin/marketplace";
@@ -43,6 +44,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   const pageHref = (p: number) => `/admin/marketplace?${new URLSearchParams({ view, page: String(p), ...(params.status ? { status: params.status } : {}) })}`;
   return <AdminPageShell active="marketplace" title="Marketplace Operasyon Merkezi" description="Gerçek sipariş kayıtları, doğrulanan test ödemeleri ve operasyonel mutabakat.">
     <MarketplaceMetrics summary={summary} />
+    <MarketplaceInsights />
     <nav className="fusion-tabs" aria-label="Marketplace ekranları">{views.map(([id, label]) => <Link key={id} href={`?view=${id}`} aria-current={view === id ? "page" : undefined}>{label}</Link>)}<Link href="/admin/provider-applications">Usta Başvuruları</Link><Link href="/admin/verifications">Doğrulamalar</Link><Link href="/admin/catalog">Hizmet Kataloğu</Link><Link href="/admin/users">Kullanıcılar</Link><Link href="/admin/reviews">Değerlendirme Moderasyonu</Link><Link href="/admin/revenue">Analitik</Link><Link href="/admin/settings">Komisyon Ayarları</Link><Link href="/admin/audit">Güvenlik ve Audit Log</Link></nav>
     {params.result && <p role="status" className="commerce-notice">{params.result === "checked" ? "Kontrol sonuçları kaydedildi. Her kontrolün sonucunu ve zamanını aşağıdan inceleyin." : params.result === "requested" ? "İşlem talebi işlendi. Güncel ödeme, iade ve hak ediş sonucu aşağıdaki doğrulanmış kayıtlarda gösterilir." : params.result === "rate_limit" ? "Çok fazla işlem. Bir dakika sonra tekrar deneyin." : "İşlem doğrulanamadı. Kayıt ve kuruluş sonucu incelenmeli."}</p>}
     {view === "health" ? <OperationsHealth now={new Date().getTime()} health={health} reconciliationCount={summary?.reconciliation_count ?? null} configured={{ service: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY), payment: Boolean(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY), cron: Boolean(process.env.CRON_SECRET) }} /> : <>

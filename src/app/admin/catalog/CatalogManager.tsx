@@ -39,7 +39,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
   }
 
   return (
-    <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
+    <section className="catalog-admin-list rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
       <h2 className="mb-4 text-lg font-bold text-[var(--brand-navy)]">{title}</h2>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -47,6 +47,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
           className="flex-1 rounded-md border border-[var(--border)] px-3 py-2 text-sm text-[var(--brand-navy)] outline-none"
           disabled={pending}
           onChange={(event) => setNewName(event.target.value)}
+          aria-label={addLabel}
           placeholder={addLabel}
           value={newName}
         />
@@ -80,6 +81,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
           <li className="flex flex-wrap items-center justify-between gap-2 py-2.5" key={item.id}>
             {editingId === item.id ? (
               <input
+                aria-label={`${item.name} yeni adı`}
                 autoFocus
                 className="flex-1 rounded-md border border-[var(--border)] px-2 py-1 text-sm"
                 disabled={pending}
@@ -117,7 +119,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
                     }
                     type="button"
                   >
-                    <Check className="h-3.5 w-3.5" aria-hidden />
+                    <Check className="h-3.5 w-3.5" aria-hidden /><span className="sr-only">Adı kaydet</span>
                   </button>
                   <button
                     className="rounded-md border border-[var(--border)] px-2.5 py-1.5 text-xs"
@@ -125,7 +127,7 @@ export function CatalogManager({ addLabel, items, table, title }: CatalogManager
                     onClick={() => setEditingId(null)}
                     type="button"
                   >
-                    <X className="h-3.5 w-3.5" aria-hidden />
+                    <X className="h-3.5 w-3.5" aria-hidden /><span className="sr-only">Vazgeç</span>
                   </button>
                 </>
               ) : deletingId === item.id ? (

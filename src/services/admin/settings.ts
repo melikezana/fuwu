@@ -5,6 +5,7 @@ import { sanitizeText } from "@/lib/validations";
 import { writeAuditLog } from "@/services/audit";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { percentToBps } from "@/lib/commerce/pricing";
 
 // app_settings tablosu üretilmiş tiplerde yok; bu servis için gevşek tiplenmiş
 // bir istemci kullanıyoruz (sorgular bu dosyayla sınırlı ve kontrol altında).
@@ -21,6 +22,7 @@ export type SettingDef = {
 
 export const SETTING_DEFS: SettingDef[] = [
   { default: "10", key: "commission_rate", label: "Komisyon Oranı (%)", type: "number" },
+  { default: "0", key: "customer_fee_rate", label: "Müşteri platform ücreti (%) · Yeni test siparişlerine uygulanır", type: "number" },
   { default: "", key: "support_phone", label: "Destek Telefonu", type: "text" },
   { default: "", key: "support_email", label: "Destek E-posta", type: "text" },
   { default: "", key: "announcement_banner", label: "Duyuru Bandı (site üstü mesaj)", type: "text" },
@@ -154,6 +156,10 @@ export async function saveAdminSettings(
   const g = await gate();
   if (!g.ok || !g.supabase) {
     return { message: "Bu işlem için admin yetkisi gerekli.", ok: false };
+  }
+
+  if (["commission_rate", "customer_fee_rate"].some(key => percentToBps(input[key] ?? "") === null)) {
+    return { message: "Ücret oranı 0–100 arasında, en fazla iki ondalık basamaklı olmalı.", ok: false };
   }
 
   const rateLimit = await checkRateLimitWithRedis({

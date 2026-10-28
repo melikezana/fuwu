@@ -35,7 +35,7 @@ export default async function AdminSettingsPage() {
         error={error}
         title="Ayarlar"
       >
-        <SettingsForm defs={SETTING_DEFS} values={values} />
+        {!error && <SettingsForm defs={SETTING_DEFS} values={values} />}
       </AdminPageShell>
     </AdminAccessGate>
   );

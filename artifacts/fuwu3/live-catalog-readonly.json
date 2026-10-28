@@ -1,0 +1,79 @@
+{
+  "mode": "READ ONLY anonymous production catalog inspection; no writes",
+  "categories": [
+    {
+      "id": "99b10c4e-0f57-48a4-86cc-71435a7df792",
+      "name": "Tesisat",
+      "slug": "tesisat",
+      "is_active": true
+    },
+    {
+      "id": "4af57758-da73-4aa4-a692-89ade7872b03",
+      "name": "Elektrik Hizmeti",
+      "slug": "elektrik-hizmeti",
+      "is_active": true
+    },
+    {
+      "id": "f5ec050b-de56-497e-a4de-51fbab9bec45",
+      "name": "Temizlik",
+      "slug": "temizlik",
+      "is_active": true
+    },
+    {
+      "id": "0942f5da-103c-43bc-9a79-3f7276770812",
+      "name": "Halı Yıkama",
+      "slug": "hali-yikama",
+      "is_active": true
+    },
+    {
+      "id": "86f2d09c-6f58-47d0-a863-3d59120e89e8",
+      "name": "Klima & Beyaz Eşya",
+      "slug": "klima-beyaz-esya",
+      "is_active": true
+    },
+    {
+      "id": "963a2c68-9b02-4066-a0a3-c30294634a15",
+      "name": "Mobilya Montaj",
+      "slug": "mobilya-montaj",
+      "is_active": true
+    },
+    {
+      "id": "036dd200-effb-4584-a236-a35fa7ed6e35",
+      "name": "Boya Badana",
+      "slug": "boya-badana",
+      "is_active": true
+    },
+    {
+      "id": "521c415f-15ed-41f6-ab67-27066751fa3e",
+      "name": "Nakliye Yardımı",
+      "slug": "nakliye-yardimi",
+      "is_active": true
+    },
+    {
+      "id": "2d9939c9-7e7c-469d-b81f-671845954e93",
+      "name": "Çilingir",
+      "slug": "cilingir",
+      "is_active": true
+    },
+    {
+      "id": "62a52822-727e-4acc-8bf5-c695585ca599",
+      "name": "Bahçe Bakımı",
+      "slug": "bahce-bakimi",
+      "is_active": true
+    },
+    {
+      "id": "df7012d8-686f-4a29-917c-23593b4c646a",
+      "name": "Havuz Bakımı",
+      "slug": "havuz-bakimi",
+      "is_active": true
+    }
+  ],
+  "services": {
+    "error": "PGRST205",
+    "message": "Could not find the table 'public.service_catalog' in the schema cache"
+  },
+  "offerCount": {
+    "error": "PGRST202",
+    "message": "Could not find the function public.commerce_offers without parameters in the schema cache"
+  }
+}

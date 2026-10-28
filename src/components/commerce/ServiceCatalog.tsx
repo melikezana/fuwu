@@ -58,7 +58,7 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         <div className="catalog-sheet-actions"><button className="commerce-secondary" onClick={resetFilters} type="button">Temizle</button><button className="commerce-button" onClick={() => setFiltersOpen(false)} type="button">{visible.length} hizmeti göster <ArrowRight size={17} aria-hidden /></button></div>
       </Dialog>
     </>}
-    {unavailable && <div className="catalog-connection-notice" role="status"><Info size={20} aria-hidden /><div><strong>Şu anda katalog önizlemesini görüyorsun.</strong><p>Fiyat ve randevu bilgileri doğrulanamıyor. Hizmet kapsamını inceleyebilirsin; satın alma kapalı.</p><button onClick={() => window.location.reload()} type="button">Bağlantıyı yeniden dene <ArrowRight size={15} aria-hidden /></button></div></div>}
+    {unavailable && <div className="catalog-connection-notice" role="alert"><Info size={20} aria-hidden /><div><strong>Hizmet kataloğuna şu anda tam olarak ulaşılamıyor.</strong><p>Fiyat ve randevu bilgileri doğrulanamıyor. Okunabilen kayıtlar korunuyor; satın alma kapalı.</p><button onClick={() => window.location.reload()} type="button">Bağlantıyı yeniden dene <ArrowRight size={15} aria-hidden /></button></div></div>}
     <div className="commerce-service-grid">{visible.map(service => {
       const available = offersForService(availableOffers, service.id, districtId);
       const min = available.length ? Math.min(...available.map(offer => offer.price_minor)) : null;
@@ -73,6 +73,6 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         </div>
       </article>;
     })}</div>
-    {!visible.length && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h3>{category && !query ? "Bu kategoride uygun hizmet yok" : "Aradığın hizmet bulunamadı"}</h3><p>Aramanı değiştirebilir veya diğer hizmetleri inceleyebilirsin.</p>{query || activeFilterCount ? <button type="button" className="commerce-secondary" onClick={() => { setQuery(""); resetFilters(); }}>Arama ve Filtreleri Temizle</button> : null}{category && <Link className="commerce-secondary" href={`/providers?${new URLSearchParams({ category, ...(district ? { district } : {}) })}`}>Bu Kategoride Usta Bul</Link>}<Link className="commerce-button" href="/services">Tüm Hizmetleri Gör</Link></div>}
+    {!visible.length && !unavailable && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h3>{category && !query ? "Bu kategoride hizmetler hazırlanıyor." : "Aradığın hizmet bulunamadı"}</h3><p>Aramanı değiştirebilir veya diğer hizmetleri inceleyebilirsin.</p>{query || activeFilterCount ? <button type="button" className="commerce-secondary" onClick={() => { setQuery(""); resetFilters(); }}>Arama ve Filtreleri Temizle</button> : null}{category && <Link className="commerce-secondary" href={`/providers?${new URLSearchParams({ category, ...(district ? { district } : {}) })}`}>Bu Kategoride Usta Bul</Link>}<Link className="commerce-button" href="/services">Tüm Hizmetleri Gör</Link></div>}
   </>;
 }

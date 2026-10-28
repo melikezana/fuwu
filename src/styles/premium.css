@@ -352,3 +352,30 @@
   .catalog-mobile-filter-button { margin-left: auto; }
 }
 
+
+/* FUWU 3: categories, readable Turkish and accessible management controls. */
+.catalog-all-categories { margin: 24px 0 36px; }
+.commerce-panel, .commerce-summary, .commerce-order-card, .fusion-saved-address, .fusion-tabs a,
+.fusion-actions button, .operations-agenda-list article, .commerce-warning { overflow-wrap: normal; word-break: normal; min-width: 0; }
+.fusion-metric-grid article>strong { overflow-wrap: normal; font-size: clamp(20px, 2.4vw, 30px); }
+.commerce-page :is(h1,h2,h3,p,dt,dd,label,button,a) { overflow-wrap: normal; word-break: normal; hyphens: none; }
+.booking-fee-consent { align-items: flex-start; margin-top: 18px; line-height: 1.7; }
+.booking-fee-consent input { margin-top: 5px; flex-shrink: 0; }
+.booking-review > p.commerce-help { display: block; }
+.commerce-help a { color: var(--fuwu-accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+.commerce-summary dl>div { flex-wrap: wrap; gap: 6px 14px; }
+.commerce-summary dd { min-width: 0; }
+.catalog-admin-list button, .catalog-admin-list input { min-height: 44px; }
+.catalog-admin-list button:focus-visible, .catalog-admin-list input:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+@media(max-width: 767px) {
+ .catalog-all-categories { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+ .home-category-title { font-size: 14px; }
+ .home-category-detail { font-size: 12px; }
+ .home-category-description { font-size: 12px; }
+}
+
+.home-category-placeholder { display:flex; align-items:center; justify-content:center; height:100%; min-height:100px; background:var(--brand-orange-soft); color:var(--fuwu-accent-ink); }
+.fuwu-insight-list { display:grid; gap:12px; padding:0; list-style:none; margin:16px 0 24px; }
+.fuwu-insight-list li { display:grid; gap:4px; padding-bottom:12px; border-bottom:1px solid var(--border); font-size:14px; }
+.fuwu-insight-list li>span { color:var(--muted); }
+.fusion-tabs button[aria-pressed="true"] { background:var(--brand-orange-soft); border-color:var(--fuwu-accent-ink); color:var(--fuwu-accent-ink); }

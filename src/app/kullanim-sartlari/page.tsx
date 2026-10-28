@@ -10,8 +10,8 @@ const sections: PolicySection[] = [
   {
     title: "Hizmetin niteliği",
     body: [
-      "Fuwu ile yerel hizmet sağlayıcı profillerini incele ve doğrudan iletişim kur.",
-      "Usta profillerindeki fiyat aralıkları ve uygunluk bilgileri bilgilendirme amaçlıdır; nihai kapsam, fiyat ve randevu kullanıcı ile hizmet sağlayıcı arasında netleşir.",
+      "FUWU’da hizmetini ve paketini seç, ustaları karşılaştır, müsait gün ve saatini belirle. Satın aldığın hizmetin kapsamı, adresi ve toplam bedeli sipariş özetinde gösterilir.",
+      "Bir kategorinin görünmesi, o kategoride satın alınabilir hizmet bulunduğu anlamına gelmez. Satın alma için aktif hizmet kaydı ve uygun randevu gerekir.",
     ],
   },
   {
@@ -29,10 +29,18 @@ const sections: PolicySection[] = [
     ],
   },
   {
-    title: "Sorumluluk sınırları",
+    title: "Test ödemesi ve ücretler",
     body: [
-      "Fuwu, kullanıcı ile hizmet sağlayıcı arasındaki doğrudan iletişim ve saha hizmeti sürecinde tarafların kendi beyan ve davranışlarından sorumlu olmadığını belirtir.",
-      "Uyuşmazlıklarda kullanıcıların yazılı iletişim kayıtlarını ve hizmet kapsamını açık tutması önerilir.",
+      "Ödemeler şu anda yalnızca iyzico sandbox ortamında denenir. Gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
+      "Müşteri platform ücreti varsa hizmet bedelinden ayrı gösterilir. Toplam ödeme öncesinde açıklanır ve ek ücret için ayrıca onayın istenir. Usta komisyonu hizmet bedeli üzerinden hesaplanır. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
+    ],
+  },
+  {
+    title: "İptal, iade ve destek",
+    body: [
+      "Randevu başlamadan ve usta yola çıkmadan sipariş detayından iptal isteyebilirsin. Test ortamındaki tam iade, müşteri platform ücretini de içerir. Ödeme kuruluşundan doğrulanmadan iade tamamlandı olarak gösterilmez.",
+      "Devam eden veya tamamlanan hizmette sorun yaşarsan sipariş detayındaki destek eylemini kullan. Değerlendirme yalnızca tamamladığın ve doğrulanan hizmet için yapılabilir.",
+      "Canlı satışa geçilmeden önce şirket bilgileri, ön bilgilendirme, mesafeli sözleşme, cayma hakkı, vergi ve belge düzeni ayrıca tamamlanıp doğrulanmalıdır. Bu ekran test ortamındaki işleyişi açıklar.",
     ],
   },
 ];
@@ -45,7 +53,7 @@ export default function TermsPage() {
       sections={sections}
       title="Kullanım Şartları"
       titleKey="policy.terms.title"
-      updatedAt="15 Mayıs 2026"
+      updatedAt="28 Ekim 2026"
     />
   );
 }

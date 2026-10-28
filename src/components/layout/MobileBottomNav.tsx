@@ -63,44 +63,19 @@ const customerTabs: MobileTab[] = [
 ];
 
 const providerTabs: MobileTab[] = [
-  {
-    href: appRoutes.providerDashboard,
-    icon: LayoutDashboard,
-    label: "Genel Bakış",
-    match: [appRoutes.providerDashboard],
-  },
-  {
-    href: "/provider-dashboard/orders",
-    icon: ClipboardList,
-    label: "Siparişler",
-    match: ["/provider-dashboard/orders", "/orders"],
-  },
-  {
-    href: "/provider-dashboard/store",
-    icon: ClipboardList,
-    label: "Mağazam",
-    match: ["/provider-dashboard/store"],
-  },
-  {
-    href: appRoutes.providerDashboardEarnings,
-    icon: WalletCards,
-    label: "Kazançlar",
-    match: [appRoutes.providerDashboardEarnings],
-  },
-  {
-    href: appRoutes.providerDashboardCalendar,
-    icon: CalendarDays,
-    label: "Takvim",
-    match: [appRoutes.providerDashboardCalendar],
-  },
+  { href: appRoutes.providerDashboard, icon: LayoutDashboard, label: "Genel Bakış", match: [appRoutes.providerDashboard] },
+  { href: "/provider-dashboard/orders", icon: ClipboardList, label: "Siparişler", match: ["/provider-dashboard/orders", "/orders"] },
+  { href: appRoutes.providerDashboardCalendar, icon: CalendarDays, label: "Takvim", match: [appRoutes.providerDashboardCalendar] },
+  { href: appRoutes.providerDashboardEarnings, icon: WalletCards, label: "Kazançlar", match: [appRoutes.providerDashboardEarnings] },
+  { href: appRoutes.providerDashboardProfile, icon: UserRound, label: "Profil", match: [appRoutes.providerDashboardProfile] },
 ];
 
 const adminTabs: MobileTab[] = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", match: ["/admin"] },
+  { href: "/admin", icon: LayoutDashboard, label: "Genel Bakış", match: ["/admin"] },
   { href: "/admin/marketplace", icon: ClipboardList, label: "Siparişler", match: ["/admin/marketplace"] },
   { href: "/admin/revenue", icon: WalletCards, label: "Gelir", match: ["/admin/revenue"] },
   { href: "/admin/marketplace?view=health", icon: Activity, label: "Sağlık", match: [] },
-  { href: "/admin/audit", icon: ScrollText, label: "Audit Log", match: ["/admin/audit"] },
+  { href: "/admin/audit", icon: ScrollText, label: "İşlem Kaydı", match: ["/admin/audit"] },
 ];
 
 function isRouteActive(pathname: string, tab: MobileTab) {

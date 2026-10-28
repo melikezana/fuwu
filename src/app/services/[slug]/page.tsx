@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getCommerceCatalog } from "@/services/commerce";
-import { catalogPreviews } from "@/lib/commerce/previews";
 import { ServiceBooking } from "@/components/commerce/ServiceBooking";
 import { getServerAuthContext } from "@/services/auth/server";
 export const dynamic = "force-dynamic";
 export default async function ServicePage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ provider?: string; district?: string; variant?: string; rebook?: string }> }) {
   const [catalog, { slug }, query] = await Promise.all([getCommerceCatalog(), params, searchParams]);
-  const service = (catalog.unavailable ? catalogPreviews : catalog.services).find(s => s.slug === slug);
+  const service = catalog.services.find(s => s.slug === slug);
+  if (!service && catalog.unavailable) return <div className="commerce-page"><section className="commerce-panel"><h1>Hizmete şu anda ulaşılamıyor</h1><p role="alert" className="commerce-notice">Katalog bağlantısı kurulamadı. Hizmet, fiyat ve randevu bilgileri doğrulanana kadar satın alma kapalı.</p><Link className="commerce-button" href={`/services/${encodeURIComponent(slug)}`}>Yeniden Dene</Link><Link className="commerce-secondary" href="/services">Tüm Hizmetleri Gör</Link></section></div>;
   if (!service) notFound();
   const { user, supabase } = await getServerAuthContext();
   const addresses = user && supabase ? await supabase.from("customer_addresses").select("id,label,district_id,address").eq("customer_id", user.id).limit(100) : null;

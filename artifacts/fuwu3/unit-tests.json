@@ -1,0 +1,8 @@
+{
+  "mode": "Pure unit tests, synthetic payment response; no external integration",
+  "checks": [
+    "11 real category definitions survive commerce failure; hidden rows stay hidden, admin labels/order win, empty data never invents four products.",
+    "Integer money arithmetic, half-up rounding, 10%/5% split, default 0%, one-percent boundary and invalid/negative fees validated.",
+    "Payment verifier accepts the exact two-sided sandbox split and rejects underpayment or changed submerchant share (synthetic processor response)."
+  ]
+}

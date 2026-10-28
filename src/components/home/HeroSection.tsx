@@ -6,6 +6,7 @@ import { ServiceIcon } from "@/components/home/ServiceIcon";
 import { Container } from "@/components/ui/Container";
 import type { CatalogNavigationItem } from "@/lib/commerce/catalog-navigation";
 import { servicePhotos } from "@/lib/service-photos";
+import { featuredCategories } from "@/lib/commerce/catalog-navigation";
 
 const photos = [
   { id: "plumbing", title: "Tesisat", className: "home-photo-main" },
@@ -26,11 +27,12 @@ export function HeroSection({ categories, districts }: { categories: CatalogNavi
         <div className="home-hero-grid">
           <div className="home-hero-content">
             <p className="home-eyebrow"><MapPin aria-hidden size={14} /> İSTANBUL’DA, EVİN İÇİN</p>
-            <h1 className="home-hero-title" id="home-title">Evin için ihtiyacın olan hizmet, <span>tek bir yerde.</span></h1>
-            <p className="home-hero-description">Hizmetini seç, ustaları karşılaştır, sana uygun gün ve saatte satın al.</p>
+            <h1 className="home-hero-title" id="home-title">Evin için ne gerekiyorsa, <span>FUWU’da.</span></h1>
+            <p className="home-hero-description">Ustanı seç, fiyatını gör, zamanını belirle. Gerisini kolayca hallet.</p>
             <HeroSearch categories={categories.map(category => category.title)} districts={districts} />
             {categories.length > 0 && <nav aria-label="Hızlı kategori seçimi" className="home-quick-categories">
-              {categories.slice(0, 4).map(category => <Link href={category.href} key={category.slug}><ServiceIcon name={category.iconName} className="size-4 shrink-0" /><span>{category.title}</span><ArrowUpRight size={14} aria-hidden /></Link>)}
+              {featuredCategories(categories).map(category => <Link href={category.href} key={category.slug}><ServiceIcon name={category.iconName} className="size-4 shrink-0" /><span>{category.title}</span><ArrowUpRight size={14} aria-hidden /></Link>)}
+              <Link href="/services">Tüm Hizmetleri Gör <ArrowUpRight size={14} aria-hidden /></Link>
             </nav>}
           </div>
           <figure className="home-photo-composition">

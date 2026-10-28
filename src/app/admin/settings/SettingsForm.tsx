@@ -59,6 +59,9 @@ export function SettingsForm({ defs, values }: SettingsFormProps) {
                   inputMode={def.type === "number" ? "decimal" : undefined}
                   onChange={(event) => setValue(def.key, event.target.value)}
                   type={def.type === "number" ? "number" : "text"}
+                  min={def.type === "number" ? 0 : undefined}
+                  max={def.type === "number" ? 100 : undefined}
+                  step={def.type === "number" ? "0.01" : undefined}
                   value={state[def.key] ?? ""}
                 />
               </label>

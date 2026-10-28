@@ -1,0 +1,15 @@
+{
+  "mode": "Real admin/provider React components, synthetic summary and mocked capacity HTTP. Role security is tested separately in PostgreSQL.",
+  "checks": [
+    "Three admin views switch accessibly; service GMV, customer charge and fees remain separate, missing accounting/CAC are explicit and seven viewport widths fit.",
+    "Provider capacity rejects zero, saves the chosen value with clear confirmation, clears the unset state and exposes request failure; mobile and desktop layouts fit."
+  ],
+  "screenshots": [
+    "admin-finance-390-FIXTURE.png",
+    "admin-finance-1440-FIXTURE.png",
+    "provider-store-capacity-390-FIXTURE.png",
+    "provider-store-capacity-1440-FIXTURE.png"
+  ],
+  "errors": [],
+  "failed": null
+}

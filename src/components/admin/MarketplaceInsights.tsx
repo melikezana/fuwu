@@ -1,0 +1,12 @@
+import { getServerAuthContext } from "@/services/auth/server";
+import { hasAdminRole } from "@/services/auth/constants";
+
+type Insights = { categories: { id: string; name: string; paid_orders: number; offering_providers: number }[]; districts: { name: string; paid_orders: number; completed_orders: number; completion_percent: number }[]; repeat_services: { name: string; customers: number; repeat_customers: number }[] };
+export async function MarketplaceInsights() {
+  const { supabase, user, profile } = await getServerAuthContext();
+  if (!supabase || !user || !hasAdminRole(profile)) return null;
+  const { data, error } = await supabase.rpc("commerce_ceo_insights", {});
+  if (error || !data) return <section className="commerce-panel"><h2>Kategori ve bölge performansı</h2><p className="commerce-notice" role="status">Karar verileri okunamadı. Bağlantı, yetki ve FUWU 3.0 migration durumunu kontrol edin.</p></section>;
+  const report = data as unknown as Insights;
+  return <section className="commerce-panel"><h2>Kategori ve bölge performansı</h2><p className="commerce-sandbox">Sandbox kayıtları · Satın alma sayısı başarılı test tahsilatlarına dayanır.</p><div className="fusion-catalog-fields"><div><h3>Kategoriler ve usta arzı</h3><ul className="fuwu-insight-list">{report.categories.map(row => <li key={row.id}><strong>{row.name}</strong><span>{row.paid_orders} test siparişi · {row.offering_providers} aktif hizmet sunan usta</span>{row.offering_providers === 0 && <span className="commerce-warning">Bu kategoride hizmetler hazırlanıyor.</span>}</li>)}</ul></div><div><h3>İlçelerde tamamlanma</h3>{report.districts.length === 0 ? <p>Henüz ödenmiş sipariş yok.</p> : <ul className="fuwu-insight-list">{report.districts.map(row => <li key={row.name}><strong>{row.name} · %{row.completion_percent}</strong><span>{row.completed_orders} tamamlanan / {row.paid_orders} ödenmiş sipariş</span></li>)}</ul>}<h3>Tekrar satın alınan hizmetler</h3>{report.repeat_services.length === 0 ? <p>Henüz tamamlanan hizmet yok.</p> : <ul className="fuwu-insight-list">{report.repeat_services.map(row => <li key={row.name}><strong>{row.name}</strong><span>{row.customers} müşteriden {row.repeat_customers} kişi tekrar satın aldı.</span></li>)}</ul>}</div></div><p className="commerce-help">Ücretin dönüşüme etkisi ve adım bazında terk ölçümü için izinli oturum ve deney verisi henüz yok. Usta arzı aktif hizmet kayıtlarına dayanır; randevu müsaitliği satın alırken ayrıca doğrulanır.</p></section>;
+}

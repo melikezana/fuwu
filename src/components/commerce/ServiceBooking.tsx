@@ -13,6 +13,7 @@ import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { BookingProgress } from "./BookingProgress";
 import { OfferAvailability } from "./OfferAvailability";
 import { sandboxPaymentUrl } from "@/lib/commerce/payment";
+import { calculatePrice, type PriceQuote } from "@/lib/commerce/pricing";
 
 type BookingProps = {
   service: CatalogService; offers: PublicOffer[]; variants: ServiceVariant[];
@@ -41,14 +42,33 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   const [needsLogin, setNeedsLogin] = useState(false);
   const eligible = unavailable ? [] : offers.filter(o => (!form.districtId || o.district_ids.includes(form.districtId)) && (service.pricing_type !== "VARIANT_BASED" || o.variant_id === form.variantId));
   const selected = eligible.find(o => o.id === form.offeringId);
+  const [pricing, setPricing] = useState<{ id: string; quote: PriceQuote | null; error: boolean }>({ id: "", quote: null, error: false });
+  const [consentKey, setConsentKey] = useState("");
+  const quote = selected && pricing.id === selected.id ? pricing.quote : null;
+  const quoteKey = quote && selected ? `${selected.id}:${quote.total_minor}:${quote.customer_fee_bps}:${quote.terms_version}` : "";
+  const consent = Boolean(quoteKey && consentKey === quoteKey);
   const key = selected && form.day && form.districtId ? `${selected.id}|${form.day}|${form.districtId}|${retry}` : "";
   const loading = Boolean(key && key !== result.key);
   const slots = key === result.key ? result.slots : [];
   const validSlot = slots.some(s => s.starts_at === form.startsAt);
   const validAddress = form.address.trim().length >= 10 && form.address.length <= 1000;
-  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress : Boolean(selected && validSlot && validAddress);
+  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress : Boolean(selected && validSlot && validAddress && quote && (quote.customer_fee_minor === 0 || consent));
   const maxDate = new Date(`${todayIstanbul()}T12:00:00+03:00`); maxDate.setUTCDate(maxDate.getUTCDate() + 30);
   const quickKey = selected && form.districtId ? `${selected.id}|${form.districtId}|${todayIstanbul()}|${retry}` : "";
+
+  useEffect(() => {
+    if (!selected) return;
+    const controller = new AbortController();
+    fetch(`/api/commerce/quote?${new URLSearchParams({ offering: selected.id })}`, { signal: controller.signal, cache: "no-store" })
+      .then(async response => { if (!response.ok) throw new Error("pricing_unavailable"); return response.json(); })
+      .then(body => {
+        const q = body.quote as PriceQuote;
+        const expected = calculatePrice(selected.price_minor, q.provider_commission_bps, q.customer_fee_bps);
+        if (Object.keys(expected).some(key => expected[key as keyof PriceQuote] !== q[key as keyof PriceQuote])) throw new Error("invalid_price");
+        if (!controller.signal.aborted) setPricing({ id: selected.id, quote: q, error: false });
+      }).catch(() => { if (!controller.signal.aborted) setPricing({ id: selected.id, quote: null, error: true }); });
+    return () => controller.abort();
+  }, [selected, retry]);
 
   useEffect(() => {
     if (!quickKey) return;
@@ -83,17 +103,17 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
       if (field === "variantId" || field === "districtId") next.offeringId = offers.find(o => o.provider_id === f.preferredProviderId && (service.pricing_type !== "VARIANT_BASED" || o.variant_id === next.variantId) && (!next.districtId || o.district_ids.includes(next.districtId)))?.id || "";
       return next;
     });
-    setError("");
+    setError(""); setConsentKey("");
   }
   async function reserve(e: React.FormEvent) {
     e.preventDefault();
     if (step < 3) { if (canContinue) go(step + 1); return; }
-    if (!selected || !validSlot || !validAddress || busy) return;
+    if (!selected || !validSlot || !validAddress || !quote || (quote.customer_fee_minor > 0 && !consent) || busy) return;
     setBusy(true); setError(""); setNeedsLogin(false);
     const idempotencyKey = form.idempotencyKey || crypto.randomUUID();
     setForm(f => ({ ...f, idempotencyKey }));
     try {
-      const response = await fetch("/api/commerce/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ offeringId: selected.id, districtId: form.districtId, startsAt: form.startsAt, address: form.address.trim(), expectedPriceMinor: selected.price_minor, idempotencyKey }) });
+      const response = await fetch("/api/commerce/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ offeringId: selected.id, districtId: form.districtId, startsAt: form.startsAt, address: form.address.trim(), expectedPriceMinor: selected.price_minor, expectedTotalMinor: quote.total_minor, feeConsent: consent, termsVersion: quote.terms_version, idempotencyKey }) });
       const body = await response.json();
       if (response.status === 401) {
         // Flush synchronously before leaving the tab; never put the address in the URL.
@@ -110,7 +130,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
         const url = sandboxPaymentUrl(payment.paymentPageUrl);
         clearDraft(); window.location.assign(url);
       } catch { clearDraft(); router.push(`/orders/${body.order.id}`); }
-    } catch (e) { setError(commerceError(String(e))); } finally { setBusy(false); }
+    } catch (e) { setError(commerceError(String(e))); if (String(e).includes("fee_changed") || String(e).includes("price_changed")) { setPricing({ id: "", quote: null, error: false }); setConsentKey(""); setRetry(r => r + 1); } } finally { setBusy(false); }
   }
 
   const summary = <>
@@ -121,9 +141,10 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
       <div><dt>İlçe</dt><dd>{districts.find(d => d.id === form.districtId)?.name || "İlçe seç"}</dd></div>
       <div><dt>Hizmet süresi</dt><dd>{selected ? `${selected.duration_minutes} dakika` : "Usta seçimiyle belli olur"}</dd></div>
       <div><dt>Hizmet bedeli</dt><dd>{selected ? money(selected.price_minor) : "Usta seçimiyle belli olur"}</dd></div>
-      <div><dt>Ek ücretler</dt><dd>{selected ? money(0) : "—"}</dd></div>
+      <div><dt>FUWU platform ücreti{quote ? ` (%${quote.customer_fee_bps / 100})` : ""}</dt><dd>{quote ? money(quote.customer_fee_minor) : selected ? "Hesaplanıyor" : "—"}</dd></div>
     </dl>
-    <div className="commerce-summary-total"><span>Toplam</span><strong>{selected ? money(selected.price_minor) : "—"}</strong></div>
+    <div className="commerce-summary-total"><span>Toplam</span><strong>{quote ? money(quote.total_minor) : "—"}</strong></div>
+    {selected && pricing.id === selected.id && pricing.error && <p role="alert" className="commerce-error">Toplam ücret doğrulanamadı. <button type="button" className="booking-inline-edit" onClick={() => setRetry(r => r + 1)}>Yeniden dene</button></p>}
     <p className="commerce-help"><ShieldCheck size={17} aria-hidden /> Fiyat ve müsaitlik, devam ettiğinde tekrar doğrulanır.</p>
     <p className="commerce-sandbox">Test ortamı · Gerçek para tahsil edilmez.</p>
   </>;
@@ -164,12 +185,12 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
           <label className="commerce-field">Mahalle, sokak, bina ve daire<textarea autoComplete="street-address" required minLength={10} maxLength={1000} rows={4} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value, idempotencyKey: "" }))} placeholder="Mahalle, sokak, bina no, kat ve daire" aria-describedby="booking-address-help" /></label>
           <p className="commerce-help" id="booking-address-help">En az 10 karakter yaz. Giriş tarifi ve varsa kapı bilgilerini de ekleyebilirsin.</p>
         </section>}
-        {step === 3 && <section className="commerce-panel booking-review"><h3><Check size={20} aria-hidden /> Son bir kontrol</h3><div className="booking-review-summary">{summary}</div><div className="booking-review-row"><div><strong>Hizmet adresi</strong><p>{form.address}</p></div><button className="booking-inline-edit" type="button" onClick={() => go(2)}>Düzenle</button></div><h3>Hizmete dahil</h3><p className="commerce-help">{service.scope}</p><h3>Malzeme ve ek işçilik / dahil olmayanlar</h3><p className="commerce-help">{service.exclusions || "Yalnızca yukarıdaki kapsam satın alınır."} Kapsam dışı malzeme veya işçilik bu ödemeye dahil değildir; onayın olmadan ek ücret alınmaz.</p>{service.pricing_type === "DIAGNOSTIC_SERVICE" && <p className="commerce-notice">Bu bedel keşif ve arıza tespiti içindir. Onarım ve parçalar bu pakete dahil değildir.</p>}<h3>İptal ve iade</h3><p className="commerce-help">Randevu başlamadan, usta yola çıkmamışken sipariş detayından iptal edebilirsin. İade, ödeme kuruluşundan doğrulanana kadar beklemede görünür.</p><p className="commerce-help">Randevun ödeme için 10 dakika ayrılır. Güvenli ödeme onayından sonra kesinleşir. Kart bilgilerin iyzico ekranına girilir.</p>{!loading && (!selected || !validSlot) && <p className="commerce-warning" role="status">Seçimin artık uygun değil. Ustanı ve güncel saatleri tekrar kontrol et.</p>}<button className="booking-inline-edit" type="button" onClick={() => go(selected ? 1 : 0)}>Usta ve saati kontrol et</button></section>}
+        {step === 3 && <section className="commerce-panel booking-review"><h3><Check size={20} aria-hidden /> Son bir kontrol</h3><div className="booking-review-summary">{summary}</div><div className="booking-review-row"><div><strong>Hizmet adresi</strong><p>{form.address}</p></div><button className="booking-inline-edit" type="button" onClick={() => go(2)}>Düzenle</button></div><h3>Hizmete dahil</h3><p className="commerce-help">{service.scope}</p><h3>Malzeme ve ek işçilik / dahil olmayanlar</h3><p className="commerce-help">{service.exclusions || "Yalnızca yukarıdaki kapsam satın alınır."} Kapsam dışı malzeme veya işçilik bu ödemeye dahil değildir; onayın olmadan ek ücret alınmaz.</p>{service.pricing_type === "DIAGNOSTIC_SERVICE" && <p className="commerce-notice">Bu bedel keşif ve arıza tespiti içindir. Onarım ve parçalar bu pakete dahil değildir.</p>}<h3>İptal ve iade</h3><p className="commerce-help">Randevu başlamadan, usta yola çıkmamışken sipariş detayından iptal edebilirsin. İade, ödeme kuruluşundan doğrulanana kadar beklemede görünür.</p><p className="commerce-help">Ayrıntılar için <Link href="/kullanim-sartlari" target="_blank" rel="noopener">kullanım, iptal ve iade koşullarını</Link> inceleyebilirsin. Randevun ödeme için 10 dakika ayrılır. Güvenli ödeme onayından sonra kesinleşir. Kart bilgilerin iyzico ekranına girilir.</p>{!loading && (!selected || !validSlot) && <p className="commerce-warning" role="status">Seçimin artık uygun değil. Ustanı ve güncel saatleri tekrar kontrol et.</p>}<button className="booking-inline-edit" type="button" onClick={() => go(selected ? 1 : 0)}>Usta ve saati kontrol et</button>{quote && quote.customer_fee_minor > 0 && <label className="commerce-checkbox booking-fee-consent"><input type="checkbox" checked={consent} onChange={event => setConsentKey(event.target.checked ? quoteKey : "")} />{money(quote.customer_fee_minor)} FUWU platform ücretini ve toplam {money(quote.total_minor)} test ödemesini onaylıyorum. İptalde bu ücret de tam iadeye dahildir.</label>}</section>}
         {error && <p role="alert" className="commerce-error">{error}</p>}
         {needsLogin && <Link className="commerce-secondary" href={buildLoginRedirectUrl(resumePath)}>Google ile Giriş Yap ve Devam Et</Link>}
         <div className="booking-desktop-actions">{step > 0 && <button className="commerce-secondary" type="button" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={17} aria-hidden /> Geri</button>}<button className="commerce-button" disabled={!canContinue || busy} type="submit">{busy ? "Ödeme hazırlanıyor…" : step === 3 ? "Ödemeye Geç" : "Devam Et"}<ArrowRight size={18} aria-hidden /></button></div>
       </form>
     </div><aside className="commerce-summary booking-live-summary">{summary}{step > 0 && <button type="button" className="commerce-text-link" disabled={busy} onClick={() => go(0)}>Seçimlerimi düzenle</button>}</aside></div>
-    <div className="commerce-sticky booking-sticky">{step > 0 && <button className="booking-back-button" type="button" aria-label="Önceki adım" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={20} aria-hidden /></button>}<div><small>Toplam</small><strong>{selected ? money(selected.price_minor) : "Ustanı seç"}</strong></div><button className="commerce-button" type="submit" form="commerce-booking" disabled={!canContinue || busy}>{busy ? "Hazırlanıyor…" : step === 3 ? "Ödemeye Geç" : "Devam Et"}<ArrowRight size={17} aria-hidden /></button></div>
+    <div className="commerce-sticky booking-sticky">{step > 0 && <button className="booking-back-button" type="button" aria-label="Önceki adım" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={20} aria-hidden /></button>}<div><small>Toplam</small><strong>{quote ? money(quote.total_minor) : selected ? "Hesaplanıyor" : "Ustanı seç"}</strong></div><button className="commerce-button" type="submit" form="commerce-booking" disabled={!canContinue || busy}>{busy ? "Hazırlanıyor…" : step === 3 ? "Ödemeye Geç" : "Devam Et"}<ArrowRight size={17} aria-hidden /></button></div>
   </div>;
 }

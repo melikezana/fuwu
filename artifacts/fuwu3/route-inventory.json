@@ -1,0 +1,785 @@
+{
+  "mode": "Static route inventory; bindings and review signals are leads, not execution proof",
+  "routes": [
+    {
+      "file": "src/app/account/applications/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getBudgetTagLabel",
+        "getPaymentPreferenceLabel",
+        "getAccountTrackingData",
+        "getRequestStatusLabel",
+        "getBudgetLabel",
+        "getApplicationStatusClassName",
+        "getTag"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/account/notifications/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getServerAuthContext",
+        "getNotificationsForUser",
+        "getNotificationBody",
+        "getNotificationHref"
+      ],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/account/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/account/requests/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getPublicErrorMessage",
+        "getBudgetTagLabel",
+        "getPaymentPreferenceLabel",
+        "getPaymentRecordsByRequestIds",
+        "getServerAuthContext",
+        "getSearchParam",
+        "getRelationName",
+        "getAssignedProviderName",
+        "getStatusLabel",
+        "getBudgetLabel",
+        "getUserRequests",
+        ".from(\"service_requests\")"
+      ],
+      "reviewSignals": 10
+    },
+    {
+      "file": "src/app/admin/audit/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminAuditLogs"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/admin/catalog/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminCatalog"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/admin/marketplace/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getMarketplaceSummary",
+        "getServerAuthContext",
+        "getOperationsHealth",
+        ".from(\"orders\")",
+        ".rpc(\"commerce_admin_reconciliation\"",
+        "getTime"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/admin/notifications/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminUsers",
+        "getAdminNotifications"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/admin/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminDashboardSummary",
+        "getAdminOverviewMetrics",
+        "getRequestAnalytics",
+        "getProviderAnalytics",
+        "getAssignmentMonitoring",
+        "getRequestReassignmentLogs",
+        "getLatestAuditLogs",
+        "getMarketplaceSummary",
+        "getReassignmentLogTone"
+      ],
+      "reviewSignals": 11
+    },
+    {
+      "file": "src/app/admin/payments/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminPayments",
+        "getSearchParamValue",
+        "getPaymentStatusLabel",
+        "getPaymentStatusTone"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/admin/provider-applications/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminProviderApplications",
+        "getFormApplicationId",
+        "getFormStatusFilter",
+        "getSearchParamValue",
+        "getApplicationActionFeedback",
+        "getApplicationStatusFilter",
+        "getApplicationStatus"
+      ],
+      "reviewSignals": 12
+    },
+    {
+      "file": "src/app/admin/providers/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getProviderAvailabilityLabel",
+        "getProviderAvailabilityTone",
+        "getAdminAccess",
+        "getAdminProviders",
+        "getFormProviderId",
+        "getFormProviderStatusAction",
+        "getFormString",
+        "getFormBoolean",
+        "getSearchParamValue",
+        "getProviderActionFeedback",
+        "getWorkingHoursFormValue",
+        "getProviderUpdateFormId",
+        "getPriceInputDefaultValue"
+      ],
+      "reviewSignals": 17
+    },
+    {
+      "file": "src/app/admin/revenue/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminRevenueDashboard",
+        "getMarketplaceSummary"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/admin/reviews/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminReviews"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/admin/service-requests/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminServiceRequests",
+        "getAllowedServiceRequestTransitions",
+        "getBudgetTagLabel",
+        "getPaymentPreferenceLabel",
+        "getPaymentStatusLabel",
+        "getFormRequestId",
+        "getFormRequestStatus",
+        "getSearchParamValue",
+        "getRequestActionFeedback",
+        "getRequestResponseDateText",
+        "getRequestAddressText",
+        "getBudgetOfferText",
+        "getParts",
+        "getTag",
+        "getUrgencyView",
+        "getRequestStatusView"
+      ],
+      "reviewSignals": 17
+    },
+    {
+      "file": "src/app/admin/settings/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminSettings"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/admin/users/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminUsers"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/admin/users/[id]/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminUserDetail"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/admin/verifications/page.tsx",
+      "kind": "admin",
+      "bindings": [
+        "getAdminAccess",
+        "getAdminVerificationDocuments"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/api/account/favorites/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getServerAuthContext",
+        "getRequestOrigin",
+        ".from(\"customer_favorite_providers\")"
+      ],
+      "reviewSignals": 13
+    },
+    {
+      "file": "src/app/api/ai-assistant/analyze/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getCachedAssistantResponse",
+        "getApiRateLimitHeaders",
+        "getUser",
+        "getStringValue",
+        "getNumberValue",
+        "getHeaderValue",
+        "getSafeRequestId",
+        "getNestedErrorRecord",
+        "getErrorName",
+        "getErrorMessage",
+        "getHttpStatus",
+        "getOpenAiErrorCode",
+        "getOpenAiErrorType",
+        "getErrorRequestId",
+        "getErrorStack",
+        "getAssistantErrorLogPayload",
+        "getTrackedOpenAiFailureCode",
+        "getAssistantFailureStatus",
+        "getCacheKey",
+        ".from(\"ai_conversations\")",
+        ".from(\"ai_messages\")",
+        ".from(\"ai_analyses\")"
+      ],
+      "reviewSignals": 98
+    },
+    {
+      "file": "src/app/api/auth/logout/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getApiRateLimitHeaders",
+        "getRequestOrigin",
+        "getAll"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/api/auth/user/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getApiRateLimitHeaders",
+        "getAuthUserMetadataName",
+        "getUser",
+        ".from(\"profiles\")"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/api/commerce/checkout/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getRequestOrigin",
+        "getServerAuthContext",
+        ".from(\"orders\")",
+        ".from(\"providers\")",
+        ".rpc(\"commerce_begin_payment\"",
+        ".rpc(\"commerce_attach_payment\""
+      ],
+      "reviewSignals": 17
+    },
+    {
+      "file": "src/app/api/commerce/orders/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getRequestOrigin",
+        "getServerAuthContext",
+        ".rpc(\"commerce_hold_order_priced\""
+      ],
+      "reviewSignals": 9
+    },
+    {
+      "file": "src/app/api/commerce/orders/[id]/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getRequestOrigin",
+        "getServerAuthContext",
+        "getPublicErrorMessage",
+        ".from(\"orders\")",
+        ".rpc(\"commerce_transition_order\""
+      ],
+      "reviewSignals": 17
+    },
+    {
+      "file": "src/app/api/commerce/payment-callback/route.ts",
+      "kind": "api",
+      "bindings": [
+        ".from(\"payment_transactions\")"
+      ],
+      "reviewSignals": 10
+    },
+    {
+      "file": "src/app/api/commerce/quote/route.ts",
+      "kind": "api",
+      "bindings": [
+        ".rpc(\"commerce_quote\""
+      ],
+      "reviewSignals": 10
+    },
+    {
+      "file": "src/app/api/commerce/slots/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getTime",
+        "getUTCDate",
+        ".rpc(\"commerce_slots\""
+      ],
+      "reviewSignals": 17
+    },
+    {
+      "file": "src/app/api/commerce/store/capacity/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getRequestOrigin",
+        "getServerAuthContext",
+        ".rpc(\"commerce_set_daily_limit\""
+      ],
+      "reviewSignals": 8
+    },
+    {
+      "file": "src/app/api/commerce/store/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getRequestOrigin",
+        "getServerAuthContext",
+        ".rpc(\"commerce_save_store\""
+      ],
+      "reviewSignals": 8
+    },
+    {
+      "file": "src/app/api/commerce/store/variants/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getServerAuthContext",
+        "getRequestOrigin",
+        ".rpc(\"commerce_create_variant\""
+      ],
+      "reviewSignals": 9
+    },
+    {
+      "file": "src/app/api/cron/ai-assistant-health-check/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getCronAuthorizationError",
+        "getLookbackCutoffIso",
+        "getSlackWebhookUrl",
+        ".from(\"audit_logs\")"
+      ],
+      "reviewSignals": 6
+    },
+    {
+      "file": "src/app/api/cron/commerce-expiry/route.ts",
+      "kind": "api",
+      "bindings": [
+        ".rpc(\"commerce_expire_holds\"",
+        ".rpc(\"commerce_record_health\""
+      ],
+      "reviewSignals": 12
+    },
+    {
+      "file": "src/app/api/cron/emergency-sla-sweep/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getMatchedProviders",
+        "getRequestCode",
+        "getEmergencySlaCutoffIso",
+        "getCronAuthorizationError",
+        "getReassignmentContext",
+        ".from(\"request_reassignment_log\")",
+        "getNotificationRecipients",
+        ".from(\"providers\")",
+        ".from(\"service_requests\")",
+        "getCurrentEmergencyAssignment"
+      ],
+      "reviewSignals": 29
+    },
+    {
+      "file": "src/app/api/payments/iyzico/checkout/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getServerAuthContext",
+        "getRelation",
+        "getRequestIp",
+        "getSiteUrl",
+        "getCommissionRate",
+        ".from(\"app_settings\")",
+        "getCheckoutIdentityNumber",
+        "getCheckoutRequest",
+        ".from(\"service_requests\")",
+        ".from(\"payments\")"
+      ],
+      "reviewSignals": 16
+    },
+    {
+      "file": "src/app/api/payments/iyzico/webhook/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getString",
+        "getPaymentByConversationId",
+        ".from(\"payments\")",
+        "getPaymentByIyzicoPaymentId",
+        "getFirstTransactionId",
+        ".from(\"payment_transactions\")"
+      ],
+      "reviewSignals": 24
+    },
+    {
+      "file": "src/app/api/support/messages/route.ts",
+      "kind": "api",
+      "bindings": [
+        "getApiRateLimitHeaders",
+        "getUser",
+        ".from(\"support_messages\")"
+      ],
+      "reviewSignals": 9
+    },
+    {
+      "file": "src/app/auth/callback/route.ts",
+      "kind": "customer/public",
+      "bindings": [
+        "getRequestOrigin",
+        "getSafeRedirectUrl",
+        "getUser"
+      ],
+      "reviewSignals": 12
+    },
+    {
+      "file": "src/app/cerez-politikasi/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/dashboard/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/dashboard/requests/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/gizlilik/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/kullanim-sartlari/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/kvkk/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/login/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/order-tracking/[id]/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getPaymentPreferenceLabel",
+        "getPaymentRecordsByRequestIds",
+        "getServerAuthContext",
+        "getUnreadRequestMessageCount",
+        "getRelationName",
+        "getAssignedProviderContact",
+        "getAssignedProviderName",
+        "getTimelineItems",
+        "getOrderTrackingData",
+        ".from(\"service_requests\")"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/orders/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getServerAuthContext",
+        "getOrderCardDetails",
+        ".from(\"orders\")"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/orders/[id]/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getServerAuthContext",
+        "getReviewEligibility",
+        "getCommerceCatalog",
+        ".from(\"orders\")",
+        ".from(\"order_status_events\")",
+        ".from(\"order_completion_codes\")",
+        ".from(\"providers\")",
+        ".rpc(\"commerce_order_finance\"",
+        ".from(\"reviews\")"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/provider-application/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getProviderDashboardAccess",
+        "getProviderApplicationFormOptions"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/provider-dashboard/calendar/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderDashboardAccess",
+        "getProviderAssignedRequests",
+        "getTodayStr",
+        "getTomorrowStr",
+        "getUTCDate",
+        "getActiveJobs"
+      ],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/provider-dashboard/earnings/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderDashboardAccess",
+        "getProviderStats",
+        "getProviderMonthlyStats"
+      ],
+      "reviewSignals": 6
+    },
+    {
+      "file": "src/app/provider-dashboard/messages/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getUnreadRequestMessageCounts",
+        "getProviderDashboardAccess",
+        "getProviderAssignedRequests",
+        "getRequestStatusLabel"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/provider-dashboard/notifications/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderDashboardAccess",
+        "getNotifIcon",
+        "getNotifLabel",
+        "getLiveNotifications",
+        ".from(\"notifications\")"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/provider-dashboard/orders/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getServerAuthContext",
+        ".from(\"providers\")",
+        ".from(\"orders\")",
+        "getUTCDate",
+        ".rpc(\"commerce_provider_finance\""
+      ],
+      "reviewSignals": 8
+    },
+    {
+      "file": "src/app/provider-dashboard/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderAvailabilityLabel",
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderDashboardAccess",
+        "getProviderAssignedRequests",
+        "getProviderStats",
+        "getRequestStatusLabel"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/provider-dashboard/payment-info/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getProviderDashboardAccess",
+        "getSearchParamValue",
+        "getPaymentInfoFeedback",
+        "getSubmerchantStatusTone"
+      ],
+      "reviewSignals": 20
+    },
+    {
+      "file": "src/app/provider-dashboard/profile/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getProviderAvailabilityLabel",
+        "getProviderGallery",
+        "getProviderDashboardAccess",
+        "getSearchParamValue",
+        "getAvailabilityFeedback"
+      ],
+      "reviewSignals": 9
+    },
+    {
+      "file": "src/app/provider-dashboard/requests/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderAvailabilityLabel",
+        "getProviderDashboardAccess",
+        "getUnreadRequestMessageCounts",
+        "getProviderAssignedRequests",
+        "getBudgetTagLabel",
+        "getPaymentPreferenceLabel",
+        "getSearchParamValue",
+        "getProviderRequestLocation",
+        "getProviderBudgetOfferText",
+        "getTag"
+      ],
+      "reviewSignals": 10
+    },
+    {
+      "file": "src/app/provider-dashboard/reviews/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getProviderDashboardStatusBadgeView",
+        "getServerAuthContext",
+        "getProviderDashboardAccess",
+        "getProviderReviews"
+      ],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/provider-dashboard/store/page.tsx",
+      "kind": "provider",
+      "bindings": [
+        "getServerAuthContext",
+        "getCommerceCatalog",
+        ".from(\"providers\")",
+        ".from(\"provider_service_offerings\")",
+        ".from(\"provider_availability\")",
+        ".from(\"provider_time_off\")"
+      ],
+      "reviewSignals": 4
+    },
+    {
+      "file": "src/app/providers/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getProviderListingLabel",
+        "getProviderDirectory",
+        "getCommerceCatalog",
+        "getSearchParam"
+      ],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/providers/[id]/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getProviderProfessionLabel",
+        "getProviderById",
+        "getProvidersByCategory",
+        "getProviderGallery",
+        "getProviderReviews",
+        "getReviewEligibility",
+        "getAuthenticatedServerUserId",
+        "getProviderOwnerUserId",
+        ".from(\"providers\")"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/request/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    },
+    {
+      "file": "src/app/services/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getCommerceCatalog",
+        "getCatalogNavigation",
+        "getServiceForValue"
+      ],
+      "reviewSignals": 2
+    },
+    {
+      "file": "src/app/services/[slug]/page.tsx",
+      "kind": "customer/public",
+      "bindings": [
+        "getCommerceCatalog",
+        "getServerAuthContext",
+        ".from(\"customer_addresses\")"
+      ],
+      "reviewSignals": 3
+    },
+    {
+      "file": "src/app/waitlist/page.tsx",
+      "kind": "customer/public",
+      "bindings": [],
+      "reviewSignals": 0
+    }
+  ]
+}

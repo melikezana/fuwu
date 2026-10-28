@@ -8,7 +8,7 @@ export type Availability = { provider_id: string; weekday: number; starts_at: st
 export type TimeOff = { id: string; provider_id: string; day: string };
 export type Slot = { starts_at: string; ends_at: string };
 export type OrderStatus = "PENDING_PAYMENT" | "CONFIRMED" | "PROVIDER_ON_THE_WAY" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "PAYMENT_FAILED" | "REFUND_PENDING" | "REFUNDED" | "DISPUTED";
-export type CommerceOrder = { id: string; customer_id: string; provider_id: string; offering_id: string; service_name: string; variant_name: string | null; scope: string; exclusions?: string; provider_name: string; district_id: string; district_name: string; address: string; starts_at: string; ends_at: string; total_minor: number; commission_minor: number; provider_gross_minor: number; processor_fee_minor: number | null; currency: "TRY"; payment_status: "UNPAID" | "PAID" | "FAILED" | "REFUND_PENDING" | "REFUNDED"; status: OrderStatus; expires_at: string; idempotency_key: string; created_at: string; updated_at: string };
+export type CommerceOrder = { service_price_minor?: number | null; customer_fee_minor?: number | null; provider_commission_bps?: number | null; customer_fee_bps?: number | null; fee_consent_at?: string | null; fee_terms_version?: string | null; provider_processor_fee_minor?: number | null; id: string; customer_id: string; provider_id: string; offering_id: string; service_name: string; variant_name: string | null; scope: string; exclusions?: string; provider_name: string; district_id: string; district_name: string; address: string; starts_at: string; ends_at: string; total_minor: number; commission_minor: number; provider_gross_minor: number; processor_fee_minor: number | null; currency: "TRY"; payment_status: "UNPAID" | "PAID" | "FAILED" | "REFUND_PENDING" | "REFUNDED"; status: OrderStatus; expires_at: string; idempotency_key: string; created_at: string; updated_at: string };
 export type PaymentTransaction = { id: string; order_id: string; conversation_id: string; submerchant_key?: string | null; checkout_token: string | null; payment_page_url: string | null; payment_id: string | null; item_transaction_id: string | null; payout_state: "NONE" | "IN_FLIGHT" | "RELEASED"; refund_state: "NONE" | "IN_FLIGHT" | "REFUNDED"; status: "INITIALIZING" | "AWAITING" | "SUCCEEDED" | "FAILED"; environment: "sandbox"; created_at: string; updated_at: string };
 export type OrderEvent = { id: string; order_id: string; status: OrderStatus; created_at: string };
 type Table<R> = { Row: R; Insert: Partial<R>; Update: Partial<R>; Relationships: [] };
@@ -26,6 +26,12 @@ export type CommerceTables = {
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
 };
 export type CommerceFunctions = {
+  commerce_ceo_insights: { Args: Record<string, never>; Returns: Json };
+  commerce_quote: { Args: { p_offering_id: string }; Returns: Json };
+  commerce_admin_save_category: { Args: { p_id: string; p_name: string; p_slug: string; p_visible: boolean; p_featured: boolean; p_sort: number; p_icon: string }; Returns: undefined };
+  commerce_set_daily_limit: { Args: { p_provider_id: string; p_limit: number }; Returns: undefined };
+  commerce_hold_order_priced: { Args: { p_offering_id: string; p_starts_at: string; p_district_id: string; p_address: string; p_idempotency_key: string; p_expected_price_minor: number; p_expected_total_minor: number; p_fee_consent: boolean; p_terms_version: string }; Returns: Json };
+
   commerce_provider_private: { Args: { p_provider_id: string }; Returns: Json };
   commerce_create_variant: { Args: { p_provider_id: string; p_service_id: string; p_name: string }; Returns: string };
   commerce_record_health: { Args: { p_name: string; p_passed: boolean; p_detail: string }; Returns: undefined };

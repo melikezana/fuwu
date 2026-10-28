@@ -15,6 +15,10 @@ export type CatalogItem = {
   isActive: boolean;
   name: string;
   slug: string;
+  isVisible?: boolean;
+  isFeatured?: boolean;
+  sortOrder?: number;
+  iconName?: string | null;
 };
 
 export type AdminCatalogData = {
@@ -65,7 +69,7 @@ export async function getAdminCatalog(): Promise<AdminCatalogData> {
 
   try {
     const [categoriesResult, districtsResult] = await Promise.all([
-      g.supabase.from("service_categories").select("id, name, slug, is_active").order("name"),
+      g.supabase.from("service_categories").select("*").order("name"),
       g.supabase.from("districts").select("id, name, slug, is_active").order("name"),
     ]);
 
@@ -86,7 +90,7 @@ export async function getAdminCatalog(): Promise<AdminCatalogData> {
     });
 
     return {
-      categories: (categoriesResult.data ?? []).map(mapItem),
+      categories: (categoriesResult.data ?? []).map(row => ({ ...mapItem(row), isVisible: row.is_visible, isFeatured: row.is_featured, sortOrder: row.sort_order, iconName: row.icon_name })),
       districts: (districtsResult.data ?? []).map(mapItem),
       error: null,
       isConfigured: true,

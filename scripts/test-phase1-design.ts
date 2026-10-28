@@ -22,9 +22,9 @@ assert.equal(getCatalogNavigation({ categories: [], services: [service], offers:
 checks.push("An inactive service cannot make a category purchasable; an empty live catalog does not invent categories.");
 
 const preview = getCatalogNavigation({ categories, services: [service], offers: [offer], unavailable: true });
-assert.equal(preview.length, 4);
+assert.equal(preview.length, 2);
 assert.ok(preview.every(category => category.preview && category.offerCount === 0));
-checks.push("Connection failure displays only the four existing scope previews with no purchasable offers.");
+checks.push("Connection failure preserves the real categories and never invents fallback products or prices.");
 
 assert.ok(matchesCatalogQuery(service, "  TESİSAT  ", "Tesisat"));
 assert.ok(matchesCatalogQuery(service, "SIZDIRMAZLIK musluk"));
