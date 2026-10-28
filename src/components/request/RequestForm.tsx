@@ -4,7 +4,6 @@ import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionFormDraft } from "@/lib/hooks/useSessionFormDraft";
-import Image from "next/image";
 import {
   CalendarDays,
   Camera,
@@ -34,7 +33,7 @@ import {
   type Service,
 } from "@/lib/constants/services";
 import { getPublicErrorMessage } from "@/lib/errors";
-import { getServicePhoto } from "@/lib/service-photos";
+import { ServicePhoto } from "@/components/ui/ServicePhoto";
 import { cn } from "@/lib/utils";
 import { validateServiceRequestInput } from "@/lib/validations";
 import { trackMetaLead, trackRequestCreated } from "@/services/analytics";
@@ -1598,7 +1597,7 @@ export function RequestForm({
                       value={value}
                     />
                     <span className="request-service-photo">
-                      <Image alt="" className="object-cover" fill sizes="(max-width: 767px) 64px, 220px" src={getServicePhoto(service.id).src} style={{ objectPosition: getServicePhoto(service.id).position }} />
+                      <ServicePhoto keys={[service.slug, service.id]} label={service.title} sizes="(max-width: 767px) 64px, 220px" />
                     </span>
                     <span className="request-service-title text-base font-bold text-[var(--brand-navy)]">
                       {service.title}

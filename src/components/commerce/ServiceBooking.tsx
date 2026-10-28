@@ -14,6 +14,7 @@ import { BookingProgress } from "./BookingProgress";
 import { OfferAvailability } from "./OfferAvailability";
 import { sandboxPaymentUrl } from "@/lib/commerce/payment";
 import { calculatePrice, type PriceQuote } from "@/lib/commerce/pricing";
+import { ServicePhoto } from "@/components/ui/ServicePhoto";
 
 type BookingProps = {
   service: CatalogService; offers: PublicOffer[]; variants: ServiceVariant[];
@@ -152,7 +153,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   return <div className="commerce-page commerce-booking-page">
     <BookingProgress current={[1, 2, 3, 4][step]} />
     <Link className="commerce-back" href="/services"><ArrowLeft size={17} aria-hidden /> Hizmetlere dön</Link>
-    <div className="booking-service-heading"><div className="booking-service-thumb"><Image src={service.image_url} alt={`${service.name} hizmetini tanıtan fotoğraf`} fill priority sizes="80px" /></div><div><p className="commerce-eyebrow">EVİN İÇİN BİR İŞ DAHA HALLOLSUN</p><h1>{service.name}</h1><p>{service.description}</p></div></div>
+    <div className="booking-service-heading"><div className="booking-service-thumb"><ServicePhoto keys={[service.slug]} src={service.image_url} label={service.name} preload sizes="80px" /></div><div><p className="commerce-eyebrow">HİZMETİ SATIN AL</p><h1>{service.name}</h1><p>{service.description}</p></div></div>
     <details className="booking-scope"><summary>Hizmet kapsamını gör <span>{service.pricing_type === "DIAGNOSTIC_SERVICE" ? "Yerinde tespit" : service.pricing_type === "VARIANT_BASED" ? "Paket seçimi" : "Sabit fiyat"}</span></summary><div><h2><Check size={16} aria-hidden /> Hizmete dahil</h2><p>{service.scope}</p><h2>Dahil olmayanlar</h2><p>{service.exclusions}</p></div></details>
     {unavailable && <p className="commerce-notice" role="status">Bu hizmet şu anda satın alınamıyor. Hizmet kapsamını inceleyebilir, diğer hizmetlere göz atabilirsin.</p>}
     <div className="commerce-booking-layout"><div>

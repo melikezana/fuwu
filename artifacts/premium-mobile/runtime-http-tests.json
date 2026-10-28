@@ -1,0 +1,14 @@
+{
+  "scope": "Actual localhost production build, guest HTTP; no remote mutation or real account",
+  "checks": [
+    "orders: guest 401 and foreign origin 403",
+    "orders/40000000-0000-4000-8000-000000000001: guest 401 and foreign origin 403",
+    "checkout: guest 401 and foreign origin 403",
+    "store: guest 401 and foreign origin 403",
+    "store/variants: guest 401 and foreign origin 403",
+    "Logout expires session/PKCE chunks, preserves unrelated cookies, returns 303 and rejects foreign origin",
+    "Customer, provider and admin routes retain safe login return paths",
+    "Cron rejects unauthorized invocation"
+  ],
+  "failed": null
+}

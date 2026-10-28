@@ -1,0 +1,101 @@
+{
+  "buildId": "7hyh7jW60kPit3-U6T2Ea",
+  "checkedAt": "2026-10-28T22:43:13.839Z",
+  "productionBuild": "PASS",
+  "typescript": "PASS: tsc --noEmit, exit 0",
+  "lint": {
+    "files": 419,
+    "errors": 0,
+    "warnings": 0
+  },
+  "public": {
+    "pages": 8,
+    "widths": 8,
+    "errors": [],
+    "automatedWCAGViolations": 0,
+    "firstCategoryY": 518.09375,
+    "search": true,
+    "pwa": true,
+    "keyboard": true
+  },
+  "components": {
+    "screens": 10,
+    "widths": 8,
+    "checks": 13,
+    "automatedWCAGViolations": 0
+  },
+  "checkout": {
+    "checks": 13,
+    "widths": 8,
+    "scope": "Real React components; fixture catalog, HTTP and OAuth navigation. No iyzico or Google transaction."
+  },
+  "database": 86,
+  "payment": 28,
+  "auth": 29,
+  "feeCategoryGroups": 3,
+  "runtimeGuards": 8,
+  "middlewareTests": 4,
+  "turbopack": {
+    "mode": "Actual default Next dev / Turbopack; warm compile retry after initial 120s cold navigation timeout",
+    "passed": true,
+    "errors": [],
+    "heading": "Evinin işi,FUWU'nun işi.",
+    "menu": true
+  },
+  "monitoringScope": "PASS: unconfigured browser only; configured browser and all servers preserve SDK",
+  "performance": [
+    {
+      "route": "/",
+      "mode": "mobile",
+      "performance": 0.74,
+      "accessibility": 1,
+      "lcp_ms": 6436.875,
+      "cls": 0.0001060445708168351,
+      "tbt_ms": 198,
+      "fcp_ms": 1213.75,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/services",
+      "mode": "mobile",
+      "performance": 0.73,
+      "accessibility": 1,
+      "lcp_ms": 6178.792500000001,
+      "cls": 0.0001060445708168351,
+      "tbt_ms": 243.67249999999945,
+      "fcp_ms": 1216.655,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/",
+      "mode": "desktop",
+      "performance": 0.95,
+      "accessibility": 1,
+      "lcp_ms": 1514.1015000000004,
+      "cls": 0.00017539715551054527,
+      "tbt_ms": 0,
+      "fcp_ms": 336.467,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    }
+  ],
+  "blocked": [
+    "real Supabase commerce schema and authenticated panels",
+    "real Google OAuth session",
+    "real iyzico sandbox transaction",
+    "field INP"
+  ],
+  "limits": [
+    "mobile lab LCP exceeds target",
+    "Lighthouse slow-load warnings; results may be incomplete",
+    "manual screen-reader and physical-device checks remain"
+  ]
+}

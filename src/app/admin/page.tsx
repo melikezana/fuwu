@@ -46,7 +46,7 @@ import {
 } from "@/lib/constants/statuses";
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
-import { getMarketplaceSummary } from "@/services/admin/marketplace";
+import { getMarketplaceSummary, getCeoDailySnapshot } from "@/services/admin/marketplace";
 
 export const dynamic = "force-dynamic";
 
@@ -409,7 +409,7 @@ function AuditLogsSection({ logsData }: { logsData: AuditLogsData }) {
   );
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ legacy?: string }> }) {
   const adminAccess = await getAdminAccess();
 
   if (!adminAccess.ok && adminAccess.reason === "missing-session") {
@@ -422,24 +422,27 @@ export default async function AdminDashboardPage() {
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
-  const marketplace = await getMarketplaceSummary();
+  const [marketplace, today] = await Promise.all([getMarketplaceSummary(), getCeoDailySnapshot()]);
 
-  const overview = await getAdminOverviewMetrics();
-  const reqAnalytics = await getRequestAnalytics();
-  const provAnalytics = await getProviderAnalytics();
-  const assignments = await getAssignmentMonitoring();
-  const reassignmentLogs = await getRequestReassignmentLogs();
-  const auditLogs = await getLatestAuditLogs();
+  const includeLegacy = (await searchParams).legacy === "1";
+  const [overview, reqAnalytics, provAnalytics, assignments, reassignmentLogs, auditLogs] = await Promise.all([
+    includeLegacy ? getAdminOverviewMetrics() : null,
+    includeLegacy ? getRequestAnalytics() : null,
+    includeLegacy ? getProviderAnalytics() : null,
+    includeLegacy ? getAssignmentMonitoring() : null,
+    includeLegacy ? getRequestReassignmentLogs() : null,
+    includeLegacy ? getLatestAuditLogs() : null,
+  ]);
 
   return (
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="dashboard"
-      description="Sipariş, ödeme, komisyon ve usta operasyonlarını gerçek kayıtlarla takip edin."
+      description="Siparişler, ödemeler ve bekleyen işlemler."
       isConfigured={dashboard.isConfigured}
-      title="Admin Paneli"
+      title="FUWU Yönetim Merkezi"
     >
-      <MarketplaceMetrics summary={marketplace} />
+      <MarketplaceMetrics summary={marketplace} today={today} />
       <details className="fusion-legacy"><summary>Önceki talep sistemi · ayrı operasyon ve istatistikler</summary><p className="commerce-help">Bu kayıtlar yeni siparişlerin GMV ve komisyon toplamına dahil değildir. Eski ödeme kayıtlarının ortamı doğrulanmadığından muhasebe geliri olarak kullanmayın.</p>
       {dashboard.error ? (
         <DashboardErrorState error={dashboard.error} />
@@ -480,15 +483,16 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
-      <details className="fusion-legacy"><summary>Önceki talepler · analiz ve atama izleme</summary>
+      <details className="fusion-legacy" id="legacy-operations" open={includeLegacy}><summary>Önceki talepler · analiz ve atama izleme</summary>
+      {!includeLegacy && <Link className="commerce-secondary" href="/admin?legacy=1#legacy-operations">Geçmiş Analizleri Yükle</Link>}
       {overview && <OperationalAlerts overview={overview} />}
       {overview && <OverviewMetrics overview={overview} />}
       {reqAnalytics && <RequestAnalyticsSection analytics={reqAnalytics} />}
       {provAnalytics && <ProviderAnalyticsSection analytics={provAnalytics} />}
       {assignments && <AssignmentMonitoringSection assignments={assignments} />}
-      <ReassignmentLogsSection logsData={reassignmentLogs} />
+      {reassignmentLogs && <ReassignmentLogsSection logsData={reassignmentLogs} />}
       </details>
-      {auditLogs && <AuditLogsSection logsData={auditLogs} />}
+      {auditLogs && <details className="fusion-legacy"><summary>Son işlem kayıtları</summary><AuditLogsSection logsData={auditLogs} /></details>}
       
       </AdminPageShell>
     </AdminAccessGate>

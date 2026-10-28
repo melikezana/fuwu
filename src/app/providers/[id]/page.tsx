@@ -23,6 +23,9 @@ import { getProviderById, getProvidersByCategory } from "@/services/providers";
 import { getProviderGallery } from "@/services/providers/gallery";
 import { getProviderReviews, getReviewEligibility } from "@/services/reviews";
 import { getAuthenticatedServerUserId } from "@/services/auth/server";
+import { getCommerceCatalog } from "@/services/commerce";
+import { providerPurchaseLinks } from "@/lib/commerce/purchase-links";
+import { money } from "@/lib/commerce/display";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +103,7 @@ function ProviderNotFoundState() {
             Usta bulunamadı
           </h1>
           <p className="relative mt-3 text-base font-normal leading-7 text-[var(--muted)]">
-            Aradığınız profile ulaşılamadı.
+            Aradığın profile ulaşılamadı.
           </p>
           <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button className="w-full sm:w-fit" href={appRoutes.providers}>
@@ -150,12 +153,14 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     authenticatedUserId,
     galleryImages,
     providerOwnerUserId,
+    catalog,
   ] = await Promise.all([
     getProvidersByCategory(provider.category),
     getProviderReviews(provider.id),
     getAuthenticatedServerUserId(),
     supabase ? getProviderGallery(provider.id, supabase) : Promise.resolve([]),
     supabase ? getProviderOwnerUserId(provider.id, supabase) : Promise.resolve(null),
+    getCommerceCatalog(),
   ]);
   const relatedProviders = providers
     .filter(
@@ -167,7 +172,8 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
     Boolean(authenticatedUserId) && authenticatedUserId === providerOwnerUserId;
   const hasReviews = reviewData.source === "supabase" && reviewData.summary.reviewCount > 0;
   const eligibility = supabase && authenticatedUserId && !isOwnProvider ? await getReviewEligibility(provider.id, supabase) : [];
-  const providerCheckoutHref = "#provider-services";
+  const purchase = providerPurchaseLinks(catalog)[provider.id];
+  const providerCheckoutHref = purchase?.href ?? "#provider-services";
 
   return (
     <div className="market-profile-page">
@@ -185,22 +191,22 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
                 {provider.completedJobs > 0 ? <div><CalendarDays aria-hidden="true" className="size-5" /><span><strong>{provider.completedJobs} tamamlanan iş</strong><small>FUWU üzerindeki hizmetler</small></span></div> : null}
               </div>
             </header>
-            <nav aria-label="Profil bölümleri" className="market-profile-sections"><a href="#about-provider">Hakkında</a><a href="#provider-services">Hizmetler</a>{galleryImages.length ? <a href="#portfolio">İş fotoğrafları</a> : null}<a href="#reviews">Değerlendirmeler</a></nav>
-            <section className="market-profile-section" id="about-provider"><p className="market-eyebrow">USTAYI TANIYIN</p><h2>Hakkında</h2><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım açıklaması paylaşmadı. Satın almadan önce hizmet kapsamını ve çalışma bölgelerini inceleyebilirsin."}</p></section>
-            <ProviderPurchases providerId={provider.id} />
+            <nav aria-label="Profil bölümleri" className="market-profile-sections"><a href="#provider-services">Hizmetler</a><a href="#reviews">Yorumlar</a><a href="#about-provider">Hakkında</a>{galleryImages.length ? <a href="#portfolio">İş fotoğrafları</a> : null}</nav>
+            <ProviderPurchases providerId={provider.id} catalog={catalog} />
             <section className="market-profile-section"><h2>Çalışma düzeni</h2><ProviderSchedule providerId={provider.id} /></section>
-            {galleryImages.length ? <section className="market-profile-section" id="portfolio"><p className="market-eyebrow">USTANIN PAYLAŞTIKLARI</p><h2>İş fotoğrafları</h2><ProviderGalleryGrid images={galleryImages} providerName={provider.name} /></section> : isOwnProvider ? <section className="market-profile-section"><h2>İşlerinizi gösterin</h2><p className="market-help-text">Profilinize tamamladığınız işlerin fotoğraflarını ekleyin.</p><Button href={appRoutes.providerDashboardProfile} variant="secondary">Galeri Ekle</Button></section> : null}
+            <details className="market-profile-section" id="about-provider"><summary>Usta hakkında</summary><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım paylaşmadı."}</p></details>
+            {galleryImages.length ? <section className="market-profile-section" id="portfolio"><p className="market-eyebrow">USTANIN PAYLAŞTIKLARI</p><h2>İş fotoğrafları</h2><ProviderGalleryGrid images={galleryImages} providerName={provider.name} /></section> : isOwnProvider ? <section className="market-profile-section"><h2>İşlerini göster</h2><p className="market-help-text">Tamamladığın işlerin fotoğraflarını ekle.</p><Button href={appRoutes.providerDashboardProfile} variant="secondary">Galeri Ekle</Button></section> : null}
             <ProviderReviews eligibility={eligibility} providerId={provider.id} reviews={reviewData.reviews} source={reviewData.source} summary={reviewData.summary} />
             <section className="market-profile-section"><h2>Randevu hakkında</h2><div className="home-faq-items"><details><summary>Bu ustayla nasıl randevu planlarım?</summary><p>Hizmetlerden birini seç, ilçeni belirt ve gerçek müsait saatlerden sana uygun olanı seç. Adresini ekleyip toplam bedeli kontrol et. Randevun ödeme doğrulandıktan sonra kesinleşir.</p></details><details><summary>Hizmette sorun yaşarsam ne yapabilirim?</summary><p>Sipariş detayındaki destek seçeneğinden inceleme başlatabilirsin. Hizmet tamamlanmadan teslim kodunu paylaşma. İptal ve iade durumunu aynı ekrandan takip edebilirsin.</p></details></div></section>
           </div>
           <aside className="market-profile-booking">
-            <div className="market-booking-card"><p className="market-eyebrow">HİZMETİNİZİ PLANLAYIN</p><h2>Hizmetini seç,<br />randevunu planla.</h2><p className="market-help-text">Ustanın satışa açtığı hizmetleri, kapsamını ve kesin fiyatını inceleyin.</p><div className="market-booking-facts"><div><MapPin aria-hidden="true" className="size-5 shrink-0" /><span>{provider.district}</span></div><div><CalendarDays aria-hidden="true" className="size-5 shrink-0" /><span>Gerçek müsaitlik hizmet seçiminde gösterilir.</span></div></div><Button href={providerCheckoutHref} className="min-h-12 w-full">Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Button><p className="market-booking-note">Randevu, ödeme doğrulanınca kesinleşir.</p></div>
-            <p className="market-profile-guidance">Karar vermeden önce hizmet kapsamını ve profil bilgilerini inceleyin. Doğrulama rozetleri yalnızca belirtilen kontrolleri ifade eder.</p>
+            <div className="market-booking-card"><p className="market-eyebrow">RANDEVUNU PLANLA</p><h2>Hizmetini seç,<br />randevunu planla.</h2><p className="market-help-text">Kapsamı, fiyatı ve uygun saatleri gör.</p><div className="market-booking-facts"><div><MapPin aria-hidden="true" className="size-5 shrink-0" /><span>{provider.district}</span></div><div><CalendarDays aria-hidden="true" className="size-5 shrink-0" /><span>Gerçek müsaitlik hizmet seçiminde gösterilir.</span></div></div><Button href={providerCheckoutHref} className="min-h-12 w-full">Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Button><p className="market-booking-note">Randevu, ödeme doğrulanınca kesinleşir.</p></div>
+            <p className="market-profile-guidance">Karar vermeden önce kapsamı ve profili incele. Doğrulama rozetleri yalnızca belirtilen kontrolleri ifade eder.</p>
           </aside>
         </div>
         {relatedProviders.length ? <section className="market-related"><p className="market-eyebrow">DİĞER SEÇENEKLER</p><h2>Aynı alanda hizmet veren ustalar</h2><div className="mt-6 grid gap-5 md:grid-cols-2">{relatedProviders.map((relatedProvider) => <ProviderCard key={relatedProvider.id} provider={relatedProvider} />)}</div></section> : null}
       </Container>
-      <div className="market-mobile-action"><div className="min-w-0"><small>Ustanın mağazası</small><strong>Fiyat ve randevu</strong></div><Button href={providerCheckoutHref}><MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />Hizmetleri İncele</Button></div>
+      <div className="market-mobile-action"><div className="min-w-0"><small>{purchase ? "Başlangıç fiyatı" : "Ustanın mağazası"}</small><strong>{purchase ? money(purchase.priceMinor) : "Hizmetler"}</strong></div><Button href={providerCheckoutHref}><MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />{purchase ? "Hizmeti Satın Al" : "Hizmetleri Gör"}</Button></div>
     </div>
   );
 }

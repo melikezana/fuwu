@@ -196,7 +196,7 @@ export function getProviderDashboardStatusBadge(
   isActiveProvider = false,
 ): { label: string; tone: ProviderDashboardStatusTone } {
   if (isActiveProvider || applicationStatus === "approved") {
-    return { label: "Usta hesabınız aktif", tone: "green" };
+    return { label: "Usta hesabın aktif", tone: "green" };
   }
 
   if (applicationStatus === "pending") {
@@ -269,7 +269,7 @@ export function ProviderDashboardShell({
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
-                Fuwu Usta Paneli
+                FUWU PARTNER
               </p>
               <h1 className="mt-1 text-2xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                 {title}

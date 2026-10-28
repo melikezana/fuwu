@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import { recommendedSecurityHeaders } from "./src/lib/security/securityHeaders";
 
 const localSupabaseImagePatterns: NonNullable<
@@ -22,6 +23,17 @@ const localSupabaseImagePatterns: NonNullable<
     : [];
 
 const nextConfig: NextConfig = {
+  // Unconfigured monitoring should not ship the SDK to every customer phone.
+  // The browser condition never substitutes the server/Edge SDK.
+  turbopack: process.env.NEXT_PUBLIC_SENTRY_DSN ? {} : {
+    resolveAlias: { "@sentry/nextjs": { browser: "./src/lib/logger/sentry-disabled.ts" } },
+  },
+  webpack(config, { isServer }) {
+    if (!isServer && !process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      config.resolve.alias["@sentry/nextjs$"] = path.resolve("src/lib/logger/sentry-disabled.ts");
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

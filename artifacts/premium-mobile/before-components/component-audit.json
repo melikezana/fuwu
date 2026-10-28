@@ -1,0 +1,28 @@
+{
+  "scope": "Actual React components in an isolated fixture. Fictional data are labelled on every screenshot. No authenticated app, Google or iyzico E2E claim.",
+  "before": true,
+  "checks": [
+    "admin: 2 widths fit",
+    "phase3-customer: 2 widths fit",
+    "phase3-calendar: 2 widths fit",
+    "phase3-store: 2 widths fit",
+    "booking: 2 widths fit",
+    "provider: 2 widths fit"
+  ],
+  "screenshots": [
+    "admin-390-FIXTURE.png",
+    "admin-1440-FIXTURE.png",
+    "phase3-customer-390-FIXTURE.png",
+    "phase3-customer-1440-FIXTURE.png",
+    "phase3-calendar-390-FIXTURE.png",
+    "phase3-calendar-1440-FIXTURE.png",
+    "phase3-store-390-FIXTURE.png",
+    "phase3-store-1440-FIXTURE.png",
+    "booking-390-FIXTURE.png",
+    "booking-1440-FIXTURE.png",
+    "provider-390-FIXTURE.png",
+    "provider-1440-FIXTURE.png"
+  ],
+  "accessibility": [],
+  "errors": []
+}

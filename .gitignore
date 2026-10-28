@@ -3,6 +3,8 @@ node_modules/
 artifacts/commerce-test-runtime/
 artifacts/phase3/browser-runtime/
 artifacts/phase3/vite-cache/
+artifacts/premium-mobile/vite-audit-cache/
+artifacts/premium-mobile/lighthouse-runtime/
 fuwu/
 
 # next.js

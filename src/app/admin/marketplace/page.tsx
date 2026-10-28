@@ -15,10 +15,11 @@ import { reconciliationReasons } from "@/lib/commerce/reconciliation-state";
 import { marketplaceAction } from "./actions";
 import { OperationsHealth } from "@/components/admin/OperationsHealth";
 import { getOperationsHealth } from "@/services/health/operations";
+import { serviceActiveStatuses } from "@/lib/commerce/order-state";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Marketplace Operasyon Merkezi | FUWU", robots: { index: false, follow: false } };
-const views = [["orders", "Siparişler"], ["payments", "Ödemeler"], ["reconciliation", "Mutabakat Gerektirenler"], ["refunds", "İadeler"], ["payouts", "Hak Edişler"], ["disputes", "Uyuşmazlıklar"], ["health", "Sistem Sağlığı"]];
+const views = [["orders", "Siparişler"], ["payments", "Ödemeler"], ["reconciliation", "Ödeme Mutabakatı"], ["overdue", "Geciken İşler"], ["refunds", "İadeler"], ["payouts", "Hak Edişler"], ["disputes", "Uyuşmazlıklar"], ["health", "Sistem Sağlığı"]];
 type Transaction = { status: string; payout_state: string; refund_state: string; environment: string; created_at: string; item_transaction_id?: string | null; has_item_transaction?: boolean };
 type AdminOrder = CommerceOrder & { payment_transactions: Transaction | Transaction[] | null };
 
@@ -35,6 +36,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   if (view === "refunds") query = query.in("payment_status", ["REFUND_PENDING", "REFUNDED"]);
   else if (view === "disputes") query = query.eq("status", "DISPUTED");
   else if (view === "payouts") query = query.eq("status", "COMPLETED");
+  else if (view === "overdue") query = query.in("status", serviceActiveStatuses).lt("ends_at", new Date().toISOString());
   if (view === "orders" && params.status && Object.hasOwn(orderLabels, params.status)) query = query.eq("status", params.status as CommerceOrder["status"]);
   const [summary, queried, reconciliation] = await Promise.all([getMarketplaceSummary(), view === "reconciliation" ? Promise.resolve(null) : query, view === "reconciliation" ? supabase!.rpc("commerce_admin_reconciliation", { p_page: page }) : Promise.resolve(null)]);
   const queue = reconciliation?.data as unknown as { orders: AdminOrder[]; count: number } | null;
@@ -43,8 +45,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   const transaction = (o: AdminOrder) => Array.isArray(o.payment_transactions) ? o.payment_transactions[0] : o.payment_transactions;
   const pageHref = (p: number) => `/admin/marketplace?${new URLSearchParams({ view, page: String(p), ...(params.status ? { status: params.status } : {}) })}`;
   return <AdminPageShell active="marketplace" title="Marketplace Operasyon Merkezi" description="Gerçek sipariş kayıtları, doğrulanan test ödemeleri ve operasyonel mutabakat.">
-    <MarketplaceMetrics summary={summary} />
-    <MarketplaceInsights />
+    <details className="commerce-panel"><summary>Finans ve büyüme özeti</summary><MarketplaceMetrics summary={summary} /><MarketplaceInsights /></details>
     <nav className="fusion-tabs" aria-label="Marketplace ekranları">{views.map(([id, label]) => <Link key={id} href={`?view=${id}`} aria-current={view === id ? "page" : undefined}>{label}</Link>)}<Link href="/admin/provider-applications">Usta Başvuruları</Link><Link href="/admin/verifications">Doğrulamalar</Link><Link href="/admin/catalog">Hizmet Kataloğu</Link><Link href="/admin/users">Kullanıcılar</Link><Link href="/admin/reviews">Değerlendirme Moderasyonu</Link><Link href="/admin/revenue">Analitik</Link><Link href="/admin/settings">Komisyon Ayarları</Link><Link href="/admin/audit">Güvenlik ve Audit Log</Link></nav>
     {params.result && <p role="status" className="commerce-notice">{params.result === "checked" ? "Kontrol sonuçları kaydedildi. Her kontrolün sonucunu ve zamanını aşağıdan inceleyin." : params.result === "requested" ? "İşlem talebi işlendi. Güncel ödeme, iade ve hak ediş sonucu aşağıdaki doğrulanmış kayıtlarda gösterilir." : params.result === "rate_limit" ? "Çok fazla işlem. Bir dakika sonra tekrar deneyin." : "İşlem doğrulanamadı. Kayıt ve kuruluş sonucu incelenmeli."}</p>}
     {view === "health" ? <OperationsHealth now={new Date().getTime()} health={health} reconciliationCount={summary?.reconciliation_count ?? null} configured={{ service: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY), payment: Boolean(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY), cron: Boolean(process.env.CRON_SECRET) }} /> : <>

@@ -1,76 +1,33 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, ChevronDown, ClipboardList, Headphones, Search, ShieldCheck, UserRoundSearch, WalletCards } from "lucide-react";
+import { ArrowRight, CalendarDays, Headphones, Search, ShieldCheck, WalletCards } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { appRoutes } from "@/lib/constants/navigation";
-import { servicePhotos } from "@/lib/service-photos";
 
 const steps = [
-  { icon: Search, title: "Hizmetini seç", description: "Kapsamı ve dahil olan işleri incele.", href: appRoutes.services, action: "Hizmetleri Keşfet" },
-  { icon: UserRoundSearch, title: "Ustanı karşılaştır", description: "Profilleri, fiyatları ve gerçek yorumları gör.", href: appRoutes.providers, action: "Ustaları İncele" },
-  { icon: CalendarDays, title: "Gün ve saatini belirle", description: "Ustanın müsaitliğinden sana uygun randevuyu seç.", href: appRoutes.catalog, action: "Randevu Planla" },
-  { icon: WalletCards, title: "Ödeme adımına geç", description: "Toplamı kontrol et. Şu anda yalnızca test ödemesi yapılır.", href: appRoutes.catalog, action: "Hizmetleri İncele" },
-  { icon: ClipboardList, title: "Siparişini takip et", description: "Randevunu ve hizmetin durumunu hesabından izle.", href: appRoutes.orders, action: "Siparişlerim" },
+  { icon: Search, title: "Hizmetini ve ustanı seç", description: "Kapsamı, fiyatı ve profilleri karşılaştır." },
+  { icon: CalendarDays, title: "Randevunu planla", description: "Uygun saati seç, adresini ekle." },
+  { icon: WalletCards, title: "Öde, siparişini takip et", description: "Toplamı gör, ödeme kuruluşunda öde." },
 ];
 const reasons = [
-  { icon: ShieldCheck, title: "Kimin geleceğini bil", description: "Ustanın profilini, gerçek müşteri yorumlarını ve tamamlanan doğrulamalarını görerek karar ver." },
-  { icon: WalletCards, title: "Ödeyeceğin tutarı önceden gör", description: "Satışa açık hizmetlerde kapsamı, dahil olmayan işleri ve toplam bedeli randevunu onaylamadan incele. Ödemeler şu anda test ortamındadır." },
-  { icon: Headphones, title: "Her adımda kontrol sende", description: "Siparişini takip et. Hizmet bittiğinde teslim kodunu paylaş; bir sorun varsa siparişinden destek incelemesi başlat." },
-];
-const questions = [
-  { title: "Nasıl hizmet satın alabilirim?", answer: "Hizmetleri İncele ile katalogdan hizmetinizi seçin. Bölgenize hizmet veren ve fiyatı belli ustalardan birini seçip gerçek müsait gün ve saatleri görüntüleyin. Adres ve sipariş özetini kontrol ederek test ödemesine geçebilirsiniz." },
-  { title: "Hangi bölgelerde hizmet bulabilirim?", answer: "FUWU’da İstanbul için hizmet arayabilirsiniz. Arama alanından ilçenizi seçerek o bölgede listelenen ustaları inceleyin. Uygunluk ve hizmet kapsamı, seçtiğiniz usta ve hizmete göre değişebilir." },
-  { title: "Usta seçerken hangi bilgilere bakmalıyım?", answer: "Profildeki uzmanlık alanını, hizmet bölgesini, iş açıklamalarını, varsa iş fotoğraflarını, değerlendirmeleri ve doğrulama bilgilerini birlikte inceleyin. Yalnızca ilgili profilde mevcut olan bilgileri esas alın." },
-  { title: "Siparişimi nereden takip edebilirim?", answer: "Hesabınıza giriş yaparak Siparişlerim bölümünden satın aldığınız hizmetin durumunu ve randevu bilgilerini görüntüleyebilirsiniz." },
+  { icon: ShieldCheck, title: "Ustanı tanı", description: "Profil ve gerçek yorumlarla karar ver." },
+  { icon: WalletCards, title: "Fiyatı bil", description: "Kapsamı ve toplamı ödemeden önce gör." },
+  { icon: Headphones, title: "Desteğe ulaş", description: "Bir sorun varsa siparişinden destek iste." },
 ];
 
 export function HomePremiumPanels() {
-  return (
-    <>
-      <section aria-labelledby="how-title" className="home-section home-how" id="how-it-works">
-        <Container className="home-container">
-          <div className="home-section-heading">
-            <div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">Seç, planla, takip et.</h2><p className="home-section-description">Hizmetini seçmekten siparişini takip etmeye kadar her adım açık.</p></div>
-            <Link className="home-text-link" href={appRoutes.catalog}>Hemen başlayın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link>
-          </div>
-          <ol className="home-steps">
-            {steps.map(({ icon: Icon, title, description, href, action }, index) => (
-              <li key={title}><div className="home-step-top"><span className="home-step-icon"><Icon aria-hidden="true" className="size-6" /></span><span className="home-step-number">0{index + 1}</span></div><h3>{title}</h3><p>{description}</p><Link className="home-text-link" href={href}>{action}<ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></li>
-            ))}
-          </ol>
-        </Container>
-      </section>
+  return <>
+    <section aria-labelledby="how-title" className="home-section home-how" id="how-it-works">
+      <Container className="home-container">
+        <div className="home-section-heading"><div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">Seç. Planla. Satın al.</h2></div></div>
+        <ol className="home-steps">{steps.map(({ icon: Icon, title, description }, index) => <li key={title}><div className="home-step-top"><span className="home-step-icon"><Icon aria-hidden size={24} /></span><span className="home-step-number">0{index + 1}</span></div><h3>{title}</h3><p>{description}</p></li>)}</ol>
+        <p className="home-payment-note">Şu anda yalnızca iyzico test ödemesi yapılır. Gerçek tahsilat yoktur.</p>
+      </Container>
+    </section>
+    <section aria-labelledby="trust-title" className="home-section home-trust-compact" id="trust">
+      <Container className="home-container"><div className="home-section-heading"><h2 className="home-section-title" id="trust-title">İçin rahat olsun.</h2></div><div className="home-trust-messages">{reasons.map(({ icon: Icon, title, description }) => <div className="home-reason" key={title}><span><Icon aria-hidden size={22} /></span><div><h3>{title}</h3><p>{description}</p></div></div>)}</div></Container>
+    </section>
+  </>;
+}
 
-      <section aria-labelledby="trust-title" className="home-section" id="trust">
-        <Container className="home-container">
-          <div className="home-trust-grid">
-            <div className="home-trust-photo">
-              <Image alt={servicePhotos["furniture-assembly"].alt} className="object-cover" fill sizes="(max-width: 767px) 92vw, 540px" src={servicePhotos["furniture-assembly"].src} />
-              <div className="home-trust-photo-caption"><span>Her iş, özen ister.</span><p>Eviniz için doğru desteği bulun.</p></div>
-            </div>
-            <div className="home-trust-content">
-              <p className="home-eyebrow">NEDEN FUWU?</p>
-              <h2 className="home-section-title" id="trust-title">Eviniz için iyi bir karar.<br />Her adımda kontrol sizde.</h2>
-              <div className="home-reasons">{reasons.map(({ icon: Icon, title, description }) => <div className="home-reason" key={title}><span><Icon aria-hidden="true" className="size-5" /></span><div><h3>{title}</h3><p>{description}</p></div></div>)}</div>
-              <Link className="home-primary-link" href={appRoutes.catalog}>Hizmet Satın Al <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      <section aria-labelledby="faq-title" className="home-section home-faq" id="faq">
-        <Container className="home-container home-faq-grid">
-          <div><p className="home-eyebrow">AKLINIZDA SORU KALMASIN</p><h2 className="home-section-title" id="faq-title">Size nasıl yardımcı olabiliriz?</h2><p className="home-section-description">Hizmet aramaya başlamadan önce bilmek isteyebilecekleriniz.</p><Link className="home-text-link" href="/#contact">Bize ulaşın <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
-          <div className="home-faq-items">{questions.map(({ title, answer }) => <details key={title}><summary><span>{title}</span><ChevronDown aria-hidden="true" className="size-5 shrink-0" /></summary><p>{answer}</p></details>)}</div>
-        </Container>
-      </section>
-
-      <section className="home-section home-final" id="about">
-        <Container className="home-container">
-          <div className="home-final-card"><div><p className="home-eyebrow">BEKLEYEN İŞLERİ BİRLİKTE ÇÖZELİM</p><h2>Evinizin ihtiyacı varsa,<br />FUWU burada.</h2><p>İlk adım, ihtiyacınız olan hizmeti seçmek.</p></div><Link className="home-primary-link" href={appRoutes.catalog}>Hizmetleri İncele <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
-          <div className="home-provider-invite"><div><strong>İşinizin ustası mısınız?</strong><p>Hizmetlerinizi FUWU’da sunmak için başvurun.</p></div><Link className="home-text-link" href={appRoutes.providerApplication}>Hizmet veren olun <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
-        </Container>
-      </section>
-    </>
-  );
+export function HomeProviderInvite() {
+  return <section className="home-section home-invite-section" id="about"><Container className="home-container"><div className="home-provider-invite"><div><p className="home-eyebrow">FUWU PARTNER</p><h2>Ustalığın işe dönüşsün.</h2><p>Hizmetlerini sun, takvimini ve kazancını yönet.</p></div><Link className="home-primary-link" href="/provider-application">Usta Ol <ArrowRight aria-hidden size={18} /></Link></div><details className="home-compact-faq" id="faq"><summary>Satın alma ve destek hakkında</summary><div><h3>Randevum ne zaman kesinleşir?</h3><p>Ödeme kuruluşundan başarılı sonuç doğrulandığında.</p><h3>İptal veya iade nasıl yapılır?</h3><p>Randevu başlamadan ve usta yola çıkmadan sipariş detayından iptal edebilirsin. İade, ödeme kuruluşundan doğrulanana kadar beklemede görünür.</p><h3>Destek nasıl alırım?</h3><p>Sipariş detayından destek isteyebilir veya <Link href="/#contact">bize ulaşabilirsin.</Link></p></div></details></Container></section>;
 }

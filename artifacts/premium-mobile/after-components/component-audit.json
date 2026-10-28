@@ -1,0 +1,101 @@
+{
+  "scope": "Actual React components in an isolated fixture. Fictional data are labelled on every screenshot. No authenticated app, Google or iyzico E2E claim.",
+  "before": false,
+  "checks": [
+    "admin: 8 widths fit",
+    "phase3-customer: 8 widths fit",
+    "provider-overview: 8 widths fit",
+    "provider-finance: 8 widths fit",
+    "phase3-calendar: 8 widths fit",
+    "phase3-store: 8 widths fit",
+    "catalog: 8 widths fit",
+    "provider: 8 widths fit",
+    "customer-orders: 8 widths fit",
+    "photo-error: 8 widths fit",
+    "Customer has three primary account links, collapsible secondary links and rebook carries provider identity without stale price/time.",
+    "Provider nearest-order and calendar links retain correct destinations; verified 2.50 TRY deduction yields 762.50 TRY, unknown deduction never exposes a net amount.",
+    "CEO opens on daily overview, attention links point to the real queues and zero counts produce no alarms; broken unknown service image uses a neutral fallback."
+  ],
+  "screenshots": [
+    "admin-390-FIXTURE.png",
+    "admin-1440-FIXTURE.png",
+    "phase3-customer-390-FIXTURE.png",
+    "phase3-customer-1440-FIXTURE.png",
+    "provider-overview-390-FIXTURE.png",
+    "provider-overview-1440-FIXTURE.png",
+    "provider-finance-390-FIXTURE.png",
+    "provider-finance-1440-FIXTURE.png",
+    "phase3-calendar-390-FIXTURE.png",
+    "phase3-calendar-1440-FIXTURE.png",
+    "phase3-store-390-FIXTURE.png",
+    "phase3-store-1440-FIXTURE.png",
+    "catalog-390-FIXTURE.png",
+    "catalog-1440-FIXTURE.png",
+    "provider-390-FIXTURE.png",
+    "provider-1440-FIXTURE.png",
+    "customer-orders-390-FIXTURE.png",
+    "customer-orders-1440-FIXTURE.png",
+    "photo-error-390-FIXTURE.png",
+    "photo-error-1440-FIXTURE.png"
+  ],
+  "accessibility": [
+    {
+      "screen": "admin",
+      "violations": [],
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "screen": "phase3-customer",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "provider-overview",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "provider-finance",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "phase3-calendar",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "phase3-store",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "catalog",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "screen": "provider",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "screen": "customer-orders",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "screen": "photo-error",
+      "violations": [],
+      "incomplete": []
+    }
+  ],
+  "errors": []
+}

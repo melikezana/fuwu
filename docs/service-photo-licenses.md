@@ -1,5 +1,37 @@
 # FUWU hizmet fotoğrafları ve lisans kaydı
 
+## 29 Ekim 2026 · Mobil deneyim düzeltmesi
+
+[Pexels lisansı](https://www.pexels.com/license/) 29 Ekim 2026'da yeniden okundu. Ücretsiz ticari kullanım, indirme ve uyarlama izni doğrulandı. Kişi veya marka desteği ima edilmez; fotoğraflar gerçek FUWU ustası, müşteri, portföy veya tamamlanmış sipariş olarak sunulmaz.
+
+| Yeni yerel WebP | Fotoğrafçı | Kaynak ve lisans | Optimize dosya |
+| --- | --- | --- | --- |
+| `appliance.webp` | Bulat843 | [34734504 – Technician Repairing Home Appliance Indoors](https://www.pexels.com/photo/technician-repairing-home-appliance-indoors-34734504/), Pexels / Free to use | 100.006 bayt, en fazla 900 px genişlik |
+| `pool.webp` | Ana Lourenco | [21327976 – Man Cleaning Swimming Pool](https://www.pexels.com/photo/man-cleaning-swimming-pool-21327976/), Pexels / Free to use | 135.318 bayt, en fazla 900 px genişlik |
+| `carpet.webp` | Khunkorn Laowisit | [5233260 – Brushing a Carpet with Soap](https://www.pexels.com/photo/brushing-a-carpet-with-soap-5233260/), Pexels / Free to use | 114.978 bayt, en fazla 900 px genişlik |
+
+Üç fotoğraf indirme sonrasında birlikte görsel olarak incelendi: beyaz eşya onarımı, havuz temizliği ve deterjan/fırça ile halı temizliği ayrı eşlenir. Yeniden üretim: `node scripts/prepare-service-photos.mjs --missing`. Araç yalnızca listelenen Pexels görüntü adreslerinden indirir; API anahtarı veya oturum kullanmaz. Kaynak JPG yerine optimize WebP saklanır. Next Image kullanım alanına göre responsive `srcset` üretir.
+
+### Gerçek katalogda okunan 11 aktif kategori
+
+| Kategori slug | Dosya |
+| --- | --- |
+| `bahce-bakimi` | `garden.webp` |
+| `boya-badana` | `painting.webp` |
+| `cilingir` | `locksmith.webp` |
+| `elektrik-hizmeti` | `electrical.webp` |
+| `hali-yikama` | `carpet.webp` |
+| `havuz-bakimi` | `pool.webp` |
+| `klima-beyaz-esya` | `appliance.webp` |
+| `mobilya-montaj` | `furniture.webp` |
+| `nakliye-yardimi` | `moving.webp` |
+| `temizlik` | `cleaning.webp` |
+| `tesisat` | `plumbing-work.webp` |
+
+`klima-bakimi` alt hizmeti `climate.webp` ile eşlenir. `ev-tadilati` ve `tamirat` için mevcut lisanslı `renovation.webp` saklanır. Hizmet slug'ı kategori kimliğinden önce aranır. Bilinmeyen meslek tadilat fotoğrafı almaz; tanımlı fotoğraf da yüklenemiyorsa nötr, metin etiketli ikon gösterilir. Bu, aşağıdaki eski tarihli genel yedek davranışını geçersiz kılar.
+
+Kullanılmayan 21 `Meshy_AI_` dosyası (22.757.816 bayt) ve erişilmeyen varlık bileşenleri kaldırıldı. Orijinal FUWU logosu ile `public/reference/fuwu-target-design.jpg` korundu. Kaynak taramasında kullanılmayan `@react-three/drei`, `@react-three/fiber`, `three` ve `gsap` bağımlılıkları kaldırıldı. Önceki lisans kayıtları aşağıda kaynak geçmişi olarak korunur.
+
 Doğrulama tarihi: **20 Ekim 2026**.
 
 22 Ekim 2026 Fusion kontrolünde mevcut WebP fotoğraflar ve kaynak kayıtları korundu; Pexels lisans sayfası yeniden okundu. Yeni stok fotoğraf eklenmedi. Ana sayfada fotoğrafların hizmet tanıtımı için kullanılan stok görüntüler olduğu görünür biçimde belirtilir.

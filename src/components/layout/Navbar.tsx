@@ -219,7 +219,7 @@ export function Navbar() {
     <header className="site-header">
       <Container className="site-header-container">
         <nav aria-label="Ana navigasyon" className="site-header-nav" ref={navRef}>
-          <Link aria-label={t("nav.logo")} className="site-logo-link" href={appRoutes.home} onClick={() => handleMenuLinkClick(appRoutes.home)}>
+          <Link className="site-logo-link" href={appRoutes.home} onClick={() => handleMenuLinkClick(appRoutes.home)}>
             <FuwuLogo size="sm" />
           </Link>
           <div className="site-desktop-links">
@@ -227,7 +227,7 @@ export function Navbar() {
               <Link aria-current={isActiveLink(item.href) ? "page" : undefined} className={cn("site-nav-link", isActiveLink(item.href) && "is-active")} href={item.href} key={item.id} onClick={() => setActiveHref(item.href)}>{item.label}</Link>
             ))}
           </div>
-          <Link className="site-mobile-location" href={appRoutes.providers}><MapPin aria-hidden="true" className="size-3.5 shrink-0" />İstanbul</Link>
+          <Link className="site-mobile-location" href="/#home-district" aria-label="İstanbul ilçeni seç"><MapPin aria-hidden="true" className="size-3.5 shrink-0" />İstanbul</Link>
           <div className="site-desktop-actions">
             <Link className="site-provider-link" href={appRoutes.providerApplication} onClick={() => setActiveHref(appRoutes.providerApplication)}>Usta Ol</Link>
             {!isAuthLoading && userProfile ? <NotificationBell className="shrink-0" userId={userProfile.id} /> : null}
@@ -239,7 +239,7 @@ export function Navbar() {
           </div>
           <div className="site-mobile-actions">
             {!isAuthLoading && userProfile ? <NotificationBell panelAlign="right" userId={userProfile.id} /> : (
-              <Link aria-label="Hesabınıza giriş yapın" className="site-icon-button" href={appRoutes.login}><UserRound aria-hidden="true" className="size-5" /></Link>
+              <Link aria-label="Hesabına giriş yap" className="site-icon-button" href={appRoutes.login}><UserRound aria-hidden="true" className="size-5" /><span className="site-account-text">Giriş</span></Link>
             )}
             <button aria-controls="mobile-navigation-menu" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")} className="site-icon-button" onClick={() => setIsMenuOpen((value) => !value)} type="button">
               {isMenuOpen ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}

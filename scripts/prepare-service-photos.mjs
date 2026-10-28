@@ -8,10 +8,12 @@ const photos = [
   ["electrical", 17842832], ["painting", 5493655], ["climate", 5463575],
   ["locksmith", 7220892], ["furniture", 31755424], ["moving", 7464687],
   ["garden", 13834298], ["renovation", 8961401],
+  ["appliance", 34734504], ["pool", 21327976], ["carpet", 5233260],
 ];
 await fs.mkdir(destination, { recursive: true });
 const results = [];
 for (const [name, id] of photos) {
+  if (process.argv.includes("--missing") && await fs.stat(path.join(destination, name + ".webp")).then(() => true).catch(() => false)) continue;
   const url = "https://images.pexels.com/photos/" + id + "/pexels-photo-" + id + ".jpeg?auto=compress&cs=tinysrgb&w=1600";
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok || !response.headers.get("content-type")?.startsWith("image/")) {

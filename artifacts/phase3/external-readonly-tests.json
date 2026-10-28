@@ -1,6 +1,6 @@
 {
   "scope": "Read-only external probes; not Google login or sandbox transaction E2E",
-  "checked_at": "2026-10-26T18:53:24.876Z",
+  "checked_at": "2026-10-28T21:34:18.903Z",
   "configuration": {
     "supabase": true,
     "server_key": false,
@@ -9,11 +9,11 @@
   },
   "checks": [
     {
-      "name": "review sources",
-      "http_status": 400,
+      "name": "commerce schema",
+      "http_status": 404,
       "passed": false,
-      "code": "42703",
-      "detail": "column reviews.order_id does not exist"
+      "code": "PGRST205",
+      "detail": "Could not find the table 'public.service_catalog' in the schema cache"
     },
     {
       "name": "provider variants",
@@ -21,13 +21,6 @@
       "passed": false,
       "code": "PGRST205",
       "detail": "Could not find the table 'public.service_variants' in the schema cache"
-    },
-    {
-      "name": "commerce schema",
-      "http_status": 404,
-      "passed": false,
-      "code": "PGRST205",
-      "detail": "Could not find the table 'public.service_catalog' in the schema cache"
     },
     {
       "name": "Google provider settings",
@@ -38,10 +31,17 @@
       "detail": "Read-only request completed"
     },
     {
-      "name": "iyzico sandbox connectivity",
+      "name": "review sources",
+      "http_status": 400,
       "passed": false,
-      "error": "TypeError",
-      "cause": "UND_ERR_CONNECT_TIMEOUT"
+      "code": "42703",
+      "detail": "column reviews.order_id does not exist"
+    },
+    {
+      "name": "iyzico sandbox connectivity",
+      "http_status": 200,
+      "passed": true,
+      "detail": "Public API ping; does not validate credentials, submerchant, payment, refund or payout"
     }
   ]
 }

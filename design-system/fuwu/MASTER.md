@@ -8,7 +8,7 @@ Gerçek hizmet, doğru usta, net kapsam ve güvenli satın alma. Kategori → hi
 
 - Beyaz zemin `#FFFFFF`, açık gri yüzey `#F6F7F9`, ana metin `#182230`, ikincil metin `#626B78`.
 - FUWU turuncusu `#FF6500`; turuncu düğmede koyu yazı. Küçük turuncu metinde daha koyu `#A94300`.
-- Yerel Inter: gövde 400/500, başlık 700/800. Gövde mobilde 14–16px, formlarda 16px. Etiketler 11–13px; yalnızca ikincil içerik.
+- Yerel Inter: gövde 400/500, başlık 700/800. Ana gövde ve formlar 1rem (varsayılan 16px). Etiketler 11–13px; yalnızca ikincil içerik.
 - Kontrol radius 12px; kart 18px; panel 20px. 4/8px ritmi. Gölgeler hafif; dekoratif hareket yok.
 - Lucide ikonları. Fotoğraflar `public/images/services` altında WebP; stok görüntüler gerçek usta kimliği veya iş portföyü olarak sunulmaz.
 
@@ -25,7 +25,7 @@ Gerçek hizmet, doğru usta, net kapsam ve güvenli satın alma. Kategori → hi
 
 ## Etkileşim
 
-En az 44px dokunma hedefi; görünür klavye odağı; seçili durumlarda metin ve `aria-pressed/aria-current`; form alanlarında kalıcı etiket. Mobil filtreler odak yöneten modal; panel menüleri yatay ray/açılır menü. Alt aksiyonlar alt navigasyon, klavye ve safe-area payını korur. Hızlı günler Türkiye saatine göre üretilir. Yükleme, boş veri ve bağlantı hatası ayrı durumlardır.
+Ana kontrollerde en az 48px dokunma hedefi; görünür klavye odağı; seçili durumlarda metin ve `aria-pressed/aria-current`; form alanlarında kalıcı etiket. Mobil filtreler odak yöneten modal; panel menüleri yatay ray/açılır menü. Alt aksiyonlar alt navigasyon, klavye ve safe-area payını korur. Hızlı günler Türkiye saatine göre üretilir. Yükleme, boş veri ve bağlantı hatası ayrı durumlardır.
 
 ## Dil ve doğruluk
 

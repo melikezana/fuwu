@@ -1,0 +1,48 @@
+{
+  "method": "Local production build, Lighthouse lab measurements; mobile default simulated throttling, desktop 1440px with settings recorded in raw report. Public read-only backend and sandbox notice preserved. These are not field Core Web Vitals.",
+  "INP": "BLOCKED: no real-user session sample; Lighthouse TBT is not INP.",
+  "measurements": [
+    {
+      "route": "/",
+      "mode": "mobile",
+      "performance": 0.55,
+      "accessibility": 0.95,
+      "lcp_ms": 7627.97425,
+      "cls": 0.000106,
+      "tbt_ms": 755.9067499999992,
+      "fcp_ms": 1307.8135,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/services",
+      "mode": "mobile",
+      "performance": 0.73,
+      "accessibility": 0.98,
+      "lcp_ms": 6967.1,
+      "cls": 0.000106,
+      "tbt_ms": 203,
+      "fcp_ms": 1214.2,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/",
+      "mode": "desktop",
+      "performance": 0.97,
+      "accessibility": 1,
+      "lcp_ms": 1278.9690000000007,
+      "cls": 0.000175,
+      "tbt_ms": 15,
+      "fcp_ms": 334.358,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    }
+  ]
+}

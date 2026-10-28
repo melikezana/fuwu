@@ -13,6 +13,7 @@ await server.listen();
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
 const page = await context.newPage();
+page.setDefaultTimeout(15000);
 page.setDefaultNavigationTimeout(120000);
 const report = { mode: "Real React components; fixture catalog, HTTP and OAuth navigation. No iyzico or Google transaction.", checks: [], screenshots: [], errors: [], failed: null };
 page.on("pageerror", error => report.errors.push(error.message));
@@ -84,7 +85,7 @@ try {
   await expect(page.getByRole("heading", { name: "Malzeme ve ek işçilik / dahil olmayanlar" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "İptal ve iade", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "kullanım, iptal ve iade koşullarını" })).toHaveCSS("text-decoration-line", "underline");
-  for (const width of [320, 375, 390, 430, 768, 1024, 1440]) {
+  for (const width of [320, 360, 375, 390, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     const visible = [];
@@ -93,7 +94,7 @@ try {
     const bounds = await visible[0].boundingBox(); assert.ok(bounds.height >= 44);
     if ([390, 1440].includes(width)) await shot(`checkout-${width}-FIXTURE`);
   }
-  report.checks.push("Checkout scope, exclusions, address, duration, total, cancellation/refund terms and one visible payment CTA fit seven viewport widths.");
+  report.checks.push("Checkout scope, exclusions, address, duration, total, cancellation/refund terms and one visible payment CTA fit eight viewport widths.");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator(".booking-sticky").getByRole("button", { name: "Ödemeye Geç", exact: true }).click();
   await expect(page).toHaveURL(/#\/orders\/phase2-fixture-order/);

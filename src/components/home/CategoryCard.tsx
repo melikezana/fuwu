@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { getServicePhoto, servicePhotos } from "@/lib/service-photos";
+import { ServicePhoto } from "@/components/ui/ServicePhoto";
 import { ServiceIcon } from "@/components/home/ServiceIcon";
 import type { CatalogNavigationItem } from "@/lib/commerce/catalog-navigation";
 
@@ -18,12 +17,11 @@ const descriptions: Record<string, string> = {
   renovation: "Tamirat ve ev yenileme işleri",
 };
 
-export function CategoryCard({ service }: { service: CatalogNavigationItem }) {
-  const photo = getServicePhoto(service.id);
+export function CategoryCard({ service, preload = false }: { service: CatalogNavigationItem; preload?: boolean }) {
   const separateDescription = service.slug === "havuz-bakimi" ? "Havuz temizliği ve rutin bakım" : service.slug === "bahce-bakimi" ? "Bitki bakımı ve bahçe düzenleme" : null;
   return (
-    <Link aria-label={`${service.title}: ${service.offerCount ? "hizmetleri incele" : "kapsamı incele, satın alma kapalı"}`} className="home-category-card" href={service.href}>
-      <div className="home-category-image">{Object.hasOwn(servicePhotos, service.id) ? <Image alt={photo.alt} className="object-cover" fill sizes="(max-width: 639px) 46vw, (max-width: 1023px) 30vw, 290px" src={photo.src} style={{ objectPosition: photo.position }} /> : <div className="home-category-placeholder"><ServiceIcon name={service.iconName} className="size-12" /></div>}</div>
+    <Link className="home-category-card" href={service.href}>
+      <div className="home-category-image"><ServicePhoto keys={[service.slug, service.id]} label={service.title} preload={preload} sizes="(max-width: 359px) 100px, (max-width: 639px) 46vw, (max-width: 1023px) 30vw, 290px" /></div>
       <div className="home-category-content">
         <h3 className="home-category-title"><ServiceIcon name={service.iconName} className="size-4 shrink-0" />{service.title}</h3>
         <p className="home-category-description">{separateDescription ?? descriptions[service.id] ?? service.description}</p>

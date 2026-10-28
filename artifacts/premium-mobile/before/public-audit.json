@@ -1,0 +1,235 @@
+{
+  "phase": "before",
+  "mode": "Actual Next.js app; public backend read only; no mocked catalog",
+  "pages": [
+    {
+      "route": "/",
+      "heading": [
+        "Evin için ne gerekiyorsa, FUWU’da."
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services",
+      "heading": [
+        "Evin için ne yapalım?"
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services?category=hali-yikama",
+      "heading": [
+        "Halı Yıkama"
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/providers",
+      "heading": [
+        "İşinizi doğru ustaya bırakın."
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "heading": [
+        "Hizmete şu anda ulaşılamıyor"
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/provider-application",
+      "heading": [
+        "Uzmanlığını daha fazla müşteriye ulaştır."
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/login",
+      "heading": [
+        "Hoş geldin. Kaldığın yerden devam et."
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/providers/4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+      "heading": [
+        "Ali doğan"
+      ],
+      "widths": [
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    }
+  ],
+  "errors": [],
+  "blocked": [
+    {
+      "route": "/account",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/orders",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard/calendar",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard/earnings",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/admin",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/admin/marketplace",
+      "status": 307,
+      "location": "/login"
+    }
+  ],
+  "categories": [
+    {
+      "title": "Bahçe Bakımı",
+      "href": "/services?category=bahce-bakimi",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&w=3840&q=75"
+    },
+    {
+      "title": "Boya Badana",
+      "href": "/services?category=boya-badana",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fpainting.webp&w=3840&q=75"
+    },
+    {
+      "title": "Çilingir",
+      "href": "/services?category=cilingir",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Flocksmith.webp&w=3840&q=75"
+    },
+    {
+      "title": "Elektrik Hizmeti",
+      "href": "/services?category=elektrik-hizmeti",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Felectrical.webp&w=3840&q=75"
+    },
+    {
+      "title": "Halı Yıkama",
+      "href": "/services?category=hali-yikama"
+    },
+    {
+      "title": "Havuz Bakımı",
+      "href": "/services?category=havuz-bakimi"
+    },
+    {
+      "title": "Klima & Beyaz Eşya",
+      "href": "/services?category=klima-beyaz-esya",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fclimate.webp&w=3840&q=75"
+    },
+    {
+      "title": "Mobilya Montaj",
+      "href": "/services?category=mobilya-montaj",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Ffurniture.webp&w=3840&q=75"
+    },
+    {
+      "title": "Nakliye Yardımı",
+      "href": "/services?category=nakliye-yardimi",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fmoving.webp&w=3840&q=75"
+    },
+    {
+      "title": "Temizlik",
+      "href": "/services?category=temizlik",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fcleaning.webp&w=3840&q=75"
+    },
+    {
+      "title": "Tesisat",
+      "href": "/services?category=tesisat",
+      "image": "/_next/image?url=%2Fimages%2Fservices%2Fplumbing-work.webp&w=3840&q=75"
+    }
+  ]
+}

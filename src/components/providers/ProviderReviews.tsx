@@ -42,6 +42,7 @@ function RatingStars({ rating }: { rating: number }) {
 
   return (
     <span
+      role="img"
       aria-label={`${formatRating(rating)} puan`}
       className="inline-flex items-center gap-1"
     >

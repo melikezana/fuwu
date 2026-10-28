@@ -171,37 +171,6 @@ function ProviderDashboardRecentRequests({
   );
 }
 
-function ProviderDashboardActiveNotice({
-  provider,
-}: {
-  provider: ProviderDashboardProfile;
-}) {
-  if (!provider.isApproved) {
-    return null;
-  }
-
-  return (
-    <section
-      className="rounded-lg border border-[rgba(23,116,95,0.24)] bg-[var(--trust-green-soft)] p-5 text-[var(--trust-green)] shadow-[var(--shadow-card)]"
-      role="status"
-    >
-      <p className="text-xs font-medium uppercase">
-        Onay tamamlandı
-      </p>
-      <h2 className="mt-2 text-2xl font-bold leading-tight">
-        Usta hesabınız aktif
-      </h2>
-      <p className="mt-2 max-w-2xl text-sm font-bold leading-6">
-        Profil, Talepler, Kazançlar, Değerlendirmeler, Bildirimler ve Takvim
-        alanlarını kullanarak usta hesabını yönetebilirsin.
-        {provider.isActive
-          ? " Profilin onaylı ve yayına hazır."
-          : " Profilin onaylı, ancak yayın durumu pasif."}
-      </p>
-    </section>
-  );
-}
-
 // Hızlı erişim kartları
 const quickAccessCards = [
   {
@@ -257,17 +226,15 @@ export default async function ProviderDashboardPage() {
   return (
     <ProviderDashboardShell
       active="overview"
-      description="Satın alınan hizmetleri, randevuları, mağazanı ve hak edişlerini takip et."
+      description="Randevuların, siparişlerin ve kazancın."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       statusLabel={statusBadge.label}
       statusTone={statusBadge.tone}
-      title="Usta Paneli"
+      title="Bugünkü işlerin."
     >
       {providerAccess.ok ? (
         <div className="grid gap-6">
-          <ProviderDashboardActiveNotice provider={providerAccess.profile} />
           <ProviderCommerceSummary providerId={providerAccess.profile.id} />
-          <ProviderCommerceSummary providerId={providerAccess.profile.id} earnings />
           <details className="fusion-legacy"><summary>Önceki talep sistemi · geçmiş kayıtlar ve profil bilgileri</summary>
           <ProviderDashboardSummary
             assignedRequestCount={assignedRequests.length}

@@ -161,7 +161,7 @@ const adminNavItems: Array<{
   },
 ];
 
-export const adminQuickNavItems = adminNavItems.filter(item => item.key !== "dashboard");
+export const adminQuickNavItems = adminNavItems.filter(item => ["marketplace", "providers", "applications", "catalog"].includes(item.key));
 
 export const adminActionIcons = {
   activate: Power,

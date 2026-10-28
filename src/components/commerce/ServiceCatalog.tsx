@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, Clock3, Info, Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
+import { ServicePhoto } from "@/components/ui/ServicePhoto";
 import { getServiceForValue } from "@/lib/constants/services";
 import { matchesCatalogQuery, offersForService, previewCategoryFor, type CatalogCategory } from "@/lib/commerce/catalog-navigation";
 import { money } from "@/lib/commerce/display";
@@ -22,11 +22,6 @@ function CatalogFilters({ filter, onFilter, saleOnly, onSaleOnly }: { filter: st
     <fieldset className="catalog-pricing-filters"><legend>Hizmet türü</legend><div className="commerce-filters">{pricingFilters.map(([id, label]) => <button type="button" key={id} aria-pressed={filter === id} onClick={() => onFilter(id)}>{label}</button>)}</div></fieldset>
     <label className="catalog-sale-filter"><input checked={saleOnly} onChange={event => onSaleOnly(event.target.checked)} type="checkbox" />Yalnızca satışa açık hizmetler</label>
   </>;
-}
-
-function CatalogPhoto({ service, featured }: { service: CatalogService; featured: boolean }) {
-  const [failed, setFailed] = useState(false);
-  return <Image src={failed || !service.image_url ? "/images/services/renovation.webp" : service.image_url} onError={() => setFailed(true)} alt={`${service.name} hizmetini tanıtan temsili fotoğraf`} fill sizes={featured ? "(max-width: 767px) 92vw, 380px" : "(max-width: 639px) 92vw, (max-width: 1023px) 45vw, 380px"} />;
 }
 
 export function ServiceCatalog({ services, offers, unavailable, initialSearch = "", district = "", districtId = "", featured = false, category = "", categories = [] }: {
@@ -64,9 +59,9 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
       const min = available.length ? Math.min(...available.map(offer => offer.price_minor)) : null;
       const duration = available.length ? Math.min(...available.map(offer => offer.duration_minutes)) : null;
       return <article className="commerce-service-card" key={service.id}>
-        <Link href={serviceHref(service.slug)} className="commerce-service-photo"><CatalogPhoto service={service} featured={featured} /><span className="commerce-photo-label">{service.pricing_type === "DIAGNOSTIC_SERVICE" ? "Yerinde tespit" : service.pricing_type === "VARIANT_BASED" ? "Paketini seç" : "Kapsamı belli hizmet"}</span></Link>
+        <Link href={serviceHref(service.slug)} className="commerce-service-photo"><ServicePhoto keys={[service.slug, categories.find(item => item.id === service.category_id)?.slug]} src={service.image_url} label={service.name} sizes={featured ? "(max-width: 767px) 92vw, 380px" : "(max-width: 639px) 92vw, (max-width: 1023px) 45vw, 380px"} /><span className="commerce-photo-label">{service.pricing_type === "DIAGNOSTIC_SERVICE" ? "Yerinde tespit" : service.pricing_type === "VARIANT_BASED" ? "Paketini seç" : "Sabit kapsam"}</span></Link>
         <div className="commerce-service-body">
-          <h3><Link href={serviceHref(service.slug)}>{service.name}</Link></h3><p>{service.description}</p><p className="commerce-service-scope">{service.scope}</p>
+          <h3><Link href={serviceHref(service.slug)}>{service.name}</Link></h3><p>{service.description}</p><details className="catalog-scope"><summary>Hizmet kapsamı</summary><p>{service.scope}</p>{service.exclusions && <p><strong>Dahil olmayanlar:</strong> {service.exclusions}</p>}</details>
           {duration != null && <div className="commerce-meta"><Clock3 size={15} aria-hidden />{duration} dk itibarıyla</div>}
           <div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(offer => offer.price_minor === min) ? "Hizmet bedeli" : "Başlangıç fiyatı"}</small><strong>{min == null ? district && !unavailable ? "Bu ilçede satışa açık değil" : "Henüz satışa açılmadı" : money(min)}</strong></div>{available.length > 0 && <span>{new Set(available.map(offer => offer.provider_id)).size} usta</span>}</div>
           <Link className={min == null ? "commerce-secondary" : "commerce-button"} href={serviceHref(service.slug)}>{min == null ? "Kapsamı İncele" : "Usta ve Randevu Seç"}<ArrowRight size={17} aria-hidden /></Link>

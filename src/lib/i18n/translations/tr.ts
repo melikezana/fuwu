@@ -2,7 +2,7 @@ export const trTranslations = {
   "language.select": "Dil seç",
   "language.options": "Dil seçenekleri",
   "language.status.active": "{language} içerik gösteriliyor.",
-  "nav.logo": "Fuwu ana sayfasına git",
+  "nav.logo": "FUWU HİZMET · Ana sayfaya git",
   "nav.services": "Hizmetler",
   "nav.providers": "Usta Bul",
   "nav.about": "Hakkımızda",

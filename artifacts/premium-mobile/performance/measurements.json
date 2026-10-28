@@ -1,0 +1,51 @@
+{
+  "buildId": "7hyh7jW60kPit3-U6T2Ea",
+  "measuredAt": "2026-10-28T22:38:02.463Z",
+  "method": "Local production build, Microsoft Edge / Chromium, Lighthouse lab measurements; mobile default simulated throttling, desktop 1440px with settings recorded in raw report. Public read-only backend and sandbox notice preserved. These are not field Core Web Vitals.",
+  "INP": "BLOCKED: no real-user session sample; Lighthouse TBT is not INP.",
+  "measurements": [
+    {
+      "route": "/",
+      "mode": "mobile",
+      "performance": 0.74,
+      "accessibility": 1,
+      "lcp_ms": 6436.875,
+      "cls": 0.0001060445708168351,
+      "tbt_ms": 198,
+      "fcp_ms": 1213.75,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/services",
+      "mode": "mobile",
+      "performance": 0.73,
+      "accessibility": 1,
+      "lcp_ms": 6178.792500000001,
+      "cls": 0.0001060445708168351,
+      "tbt_ms": 243.67249999999945,
+      "fcp_ms": 1216.655,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/",
+      "mode": "desktop",
+      "performance": 0.95,
+      "accessibility": 1,
+      "lcp_ms": 1514.1015000000004,
+      "cls": 0.00017539715551054527,
+      "tbt_ms": 0,
+      "fcp_ms": 336.467,
+      "errors": null,
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    }
+  ],
+  "failure": null
+}
