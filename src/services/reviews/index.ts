@@ -161,7 +161,8 @@ async function fetchProviderReviewsFromSupabase(
       return null;
     }
 
-    return ((data ?? []) as unknown as SupabaseReviewRow[]).map(mapSupabaseReview);
+    // Older RPCs and sandbox records cannot become customer social proof.
+    return ((data ?? []) as unknown as (SupabaseReviewRow & { verified_live?: boolean })[]).filter(row => row.verified_live === true).map(mapSupabaseReview);
   } catch (error) {
     warnReviewFallback(error);
     return null;

@@ -47,12 +47,12 @@ function ProviderEmptyState({
         />
       </div>
       <h3 className="text-xl font-bold text-[var(--brand-navy)]">
-        {isUnavailable ? "Usta listesine ulaşılamıyor" : title || (hasActiveFilters ? "Bu ölçütlere uygun usta bulunamadı." : "Bu alanda henüz usta yok")}
+        {isUnavailable ? "Usta listesine ulaşılamıyor" : title || (hasActiveFilters ? "Bu ölçütlere uygun usta bulunamadı." : "Usta ağımızı kuruyoruz.")}
       </h3>
       <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
         {isUnavailable ? "Ustalar yüklenemedi. Tekrar dene veya hizmetleri incele." : hasActiveFilters
           ? "Filtreleri temizleyerek diğer ustaları ve satın alınabilir hizmetleri inceleyebilirsin."
-          : "Satışa açık hizmetleri katalogdan inceleyebilirsin."}
+          : "Alanında uzman hizmet verenleri FUWU'ya davet ediyoruz."}
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         {hasActiveFilters ? (
@@ -60,8 +60,8 @@ function ProviderEmptyState({
             Filtreleri Temizle
           </Button>
         ) : null}
-        <Button className="inline-flex" href={requestHref} variant="primary">
-          Hizmeti Satın Al
+        <Button className="inline-flex" href={isUnavailable || hasActiveFilters ? requestHref : appRoutes.providerApplication} variant="primary">
+          {isUnavailable || hasActiveFilters ? "Hizmetleri Keşfet" : "Usta Ol"}
         </Button>
       </div>
     </div>

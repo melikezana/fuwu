@@ -22,7 +22,7 @@ export function getCatalogNavigation(catalog: {
   offers: PublicOffer[];
   unavailable: boolean;
 }): CatalogNavigationItem[] {
-  const categories = catalog.categories.filter(category => category.is_active !== false && category.is_visible !== false);
+  const categories = catalog.categories.filter(category => category.is_active !== false);
   const services = catalog.services.filter(service => service.is_active);
 
   return categories.map(category => {
@@ -48,8 +48,10 @@ export function getCatalogNavigation(catalog: {
   }).sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title, "tr"));
 }
 
-export function featuredCategories(items: CatalogNavigationItem[], limit = 6) {
-  return items.filter(item => item.featured !== false).slice(0, limit);
+export function featuredCategories(items: CatalogNavigationItem[], limit = 8) {
+  const priority = ["tesisat", "elektrik-hizmeti", "temizlik", "boya-badana", "mobilya-montaj", "klima-beyaz-esya", "hali-yikama", "cilingir"];
+  const rank = (slug: string) => priority.includes(slug) ? priority.indexOf(slug) : priority.length;
+  return [...items].sort((a,b) => rank(a.slug)-rank(b.slug) || (a.sortOrder ?? 0)-(b.sortOrder ?? 0)).slice(0,limit);
 }
 
 export function matchesCatalogQuery(service: CatalogService, query: string, categoryName = "") {

@@ -6,9 +6,16 @@ import {getServerAuthContext} from "@/services/auth/server";
 import {POST} from "@/app/api/commerce/orders/route";
 const auth=vi.mocked(getServerAuthContext);
 const request=(data:unknown)=>new NextRequest("https://fuwu.test/api/commerce/orders",{method:"POST",headers:{origin:"https://fuwu.test","content-type":"application/json"},body:JSON.stringify(data)});
-beforeEach(()=>auth.mockResolvedValue({user:null,profile:null,supabase:null,error:null,isConfigured:true}));
+beforeEach(()=>{ vi.stubEnv("FUWU_SANDBOX_CHECKOUT_ENABLED", "true"); auth.mockResolvedValue({user:null,profile:null,supabase:null,error:null,isConfigured:true}); });
 describe("real order API with stubbed Auth/RPC (RLS tested in real SQL separately)",()=>{
   it("rejects a missing session before any purchase mutation",async()=>{expect((await POST(request({}))).status).toBe(401);});
+  it("keeps checkout closed by default even for an authenticated customer",async()=>{
+    vi.stubEnv("FUWU_SANDBOX_CHECKOUT_ENABLED", "false");
+    const rpc=vi.fn();
+    auth.mockResolvedValue({user:{id:"fixture-user"},supabase:{rpc},profile:{role:"customer"},error:null,isConfigured:true} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    const result=await POST(request({}));
+    expect(result.status).toBe(503);expect((await result.json()).message).toBe("Online satın alma henüz açılmadı.");expect(rpc).not.toHaveBeenCalled();
+  });
   it("rejects malformed UUID/timestamp before RPC and maps cross-owner denial",async()=>{
     const rpc=vi.fn().mockResolvedValue({data:null,error:{code:"42501",message:"forbidden"}});
     auth.mockResolvedValue({user:{id:"fixture-user"},supabase:{rpc},profile:{role:"customer"},error:null,isConfigured:true} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);

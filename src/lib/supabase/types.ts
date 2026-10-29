@@ -1062,7 +1062,12 @@ export type Database = {
     Functions: CommerceFunctions & {
       provider_publication_gate: { Args: Record<string, never>; Returns: Json };
       admin_provider_quality_queue: { Args: Record<string, never>; Returns: Json };
-      review_provider_publication: { Args: { p_provider_id: string; p_fingerprint: string; p_status: string; p_note: string; p_verification_reference?: string | null }; Returns: undefined };
+      review_provider_publication: { Args: { p_provider_id: string; p_fingerprint: string; p_status: string; p_note: string; p_verification_reference?: string | null; p_record_kind?: string }; Returns: undefined };
+      launch_interest_health: { Args: Record<string, never>; Returns: Json };
+      save_launch_interest: { Args: { p_district_id?: string | null; p_category_id?: string | null; p_consent: boolean; p_version: string }; Returns: string };
+      withdraw_launch_interest: { Args: Record<string, never>; Returns: boolean };
+      clear_legacy_announcement: { Args: { p_expected: string }; Returns: boolean };
+      admin_prelaunch_snapshot: { Args: Record<string, never>; Returns: Json };
       bind_provider_applications_to_current_user: {
         Args: Record<PropertyKey, never>;
         Returns: number;

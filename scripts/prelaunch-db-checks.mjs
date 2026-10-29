@@ -1,0 +1,85 @@
+import assert from 'node:assert/strict';
+
+// Runs only on the disposable, complete-schema PostgreSQL created by the migration runner.
+export async function prelaunchChecks(db,checks){
+  const customer='ab000000-0000-4000-8000-000000000001';
+  const other='ab000000-0000-4000-8000-000000000002';
+  const admin='ab000000-0000-4000-8000-000000000003';
+  const provider='ab000000-0000-4000-8000-000000000004';
+  const seed='00000000-0000-4000-8000-000000000001';
+  const scalar=async(sql,values=[])=>Object.values((await db.query(sql,values)).rows[0])[0];
+  const as=async(role,id)=>{await db.query('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claim.role',$2,false)",[id||'',role]);await db.query(`set role ${role}`);};
+  await db.query('begin');
+  const rejects=async(sql,values,pattern)=>{await db.query('savepoint expected_failure');try{await assert.rejects(db.query(sql,values),pattern);}finally{await db.query('rollback to savepoint expected_failure');await db.query('release savepoint expected_failure');}};
+  try{
+    await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'TEST-customer@example.invalid',now()),($2,'TEST-other@example.invalid',null),($3,'TEST-admin@example.invalid',now())",[customer,other,admin]);
+    await db.query("update profiles set role='admin' where id=$1",[admin]);
+    const category=await scalar("select id from service_categories where is_active order by id limit 1");
+    const district=await scalar("insert into districts(name,slug) values('TEST İlçe','test-prelaunch-district') returning id");
+    await db.query("insert into providers(id,name,category_id,district_id,phone,description,is_active,is_approved) values($1,'TEST locally classified provider',$3,$4,'+905550000001','TEST isolated provider content for editorial review.',true,true),($2,'TEST reserved seed ID',$3,$4,'+905550000002','TEST reserved seed content for quarantine regression.',true,true)",[provider,seed,category,district]);
+    await as('anon');
+    assert.equal((await scalar('select launch_interest_health()')).available,false);
+    await rejects('select admin_prelaunch_snapshot()',[],/forbidden|permission denied/);
+    await rejects('select * from launch_interest',[],/permission denied/);
+    assert.equal(await scalar('select provider_is_published($1)',[provider]),false);
+    checks.push('Prelaunch: anonymous interest access and admin aggregates denied; new providers unpublished by default');
+    await as('authenticated',customer);
+    await rejects("select save_launch_interest(null,null,true,'prelaunch-2026-10-30')",[],/interest_closed/);
+    await as('service_role');
+    await db.query("update app_settings set value='true' where key='launch_interest_enabled'");
+    await as('authenticated',other);
+    await rejects("select save_launch_interest(null,null,true,'prelaunch-2026-10-30')",[],/verified_email_required/);
+    await as('authenticated',customer);
+    await rejects("select save_launch_interest(null,null,false,'prelaunch-2026-10-30')",[],/consent_required/);
+    await rejects("select save_launch_interest(null,null,true,'old')",[],/consent_required/);
+    const entry=await scalar("select save_launch_interest($1,$2,true,'prelaunch-2026-10-30')",[district,category]);
+    assert.equal(await scalar("select save_launch_interest($1,$2,true,'prelaunch-2026-10-30')",[district,category]),entry);
+    assert.equal(Number(await scalar('select count(*) from launch_interest')),1);
+    await rejects("update launch_interest set email='spoofed@example.invalid'",[],/permission denied/);
+    await as('authenticated',other);
+    assert.equal(Number(await scalar('select count(*) from launch_interest')),0);
+    await scalar('select withdraw_launch_interest()');
+    await as('authenticated',customer);
+    assert.equal((await db.query('select withdrawn_at from launch_interest')).rows[0].withdrawn_at,null);
+    await scalar('select withdraw_launch_interest()');
+    await scalar('select withdraw_launch_interest()');
+    await as('authenticated',admin);
+    assert.equal((await scalar('select admin_prelaunch_snapshot()')).interest,0);
+    await as('service_role');
+    assert.equal(Number(await scalar("select count(*) from launch_interest_consent_events where event='withdrawn'")),1);
+    checks.push('Prelaunch: verified email, versioned consent, real persistence, deduplication, RLS and idempotent withdrawal');
+    await as('authenticated',customer);
+    for(let i=0;i<3;i++)await scalar("select save_launch_interest(null,null,true,'prelaunch-2026-10-30')");
+    await rejects("select save_launch_interest(null,null,true,'prelaunch-2026-10-30')",[],/rate_limited/);
+    checks.push('Prelaunch: persistent five-per-hour limit blocks repeated consent submissions');
+    await as('authenticated',admin);
+    const fp=(await scalar('select admin_provider_quality_queue()')).find(row=>row.id===provider).fingerprint;
+    // The admin queue is a JSON RPC; only the exact current fingerprint is accepted.
+    await rejects("select review_provider_publication($1,$2,'approved','TEST source inspection',null,'test')",[provider,fp],/real_provider_required/);
+    await scalar("select review_provider_publication($1,$2,'approved','TEST source inspection',null,'real')",[provider,fp]);
+    const seedFp=(await scalar('select admin_provider_quality_queue()')).find(row=>row.id===seed).fingerprint;
+    await rejects("select review_provider_publication($1,$2,'approved','TEST seed cannot publish',null,'real')",[seed,seedFp],/real_provider_required/);
+    await as('anon');
+    const gate=await scalar('select provider_publication_gate()');
+    assert.equal(gate.find(row=>row.id===provider).record_kind,'real');
+    assert.equal(gate.find(row=>row.id===provider).review_count,0);
+    assert.equal(gate.some(row=>row.id===seed),false);
+    assert.deepEqual(await scalar('select public_provider_reviews($1)',[provider]),[]);
+    checks.push('Prelaunch: classification required; reserved seed cannot publish; sandbox reviews never become social proof');
+    await as('authenticated',admin);
+    await scalar("select review_provider_publication($1,$2,'hidden','TEST publication withdrawn',null,'test')",[provider,fp]);
+    await as('anon');assert.equal(await scalar('select provider_is_published($1)',[provider]),false);
+    await as('service_role');
+    await db.query("insert into app_settings(key,value) values('announcement_banner','GELİŞTİRİYORUZ'),('maintenance_mode','true') on conflict(key) do update set value=excluded.value");
+    const maintenance=await scalar("select value from app_settings where key='maintenance_mode'");
+    await as('authenticated',customer);
+    await rejects("select clear_legacy_announcement('GELİŞTİRİYORUZ')",[],/forbidden/);
+    await as('authenticated',admin);
+    assert.equal(await scalar("select clear_legacy_announcement('old GELİŞTİRİYORUZ')"),false);
+    assert.equal(await scalar("select clear_legacy_announcement('GELİŞTİRİYORUZ')"),true);
+    await as('service_role');
+    assert.equal(await scalar("select value from app_settings where key='maintenance_mode'"),maintenance);
+    assert.ok(Number(await scalar("select count(*) from audit_logs where action='settings.legacy_announcement_cleared'"))>0);
+    checks.push('Prelaunch: compare-and-clear announcement is admin-only, audited and leaves maintenance unchanged');
+  }finally{await db.query('reset role');await db.query('rollback');await db.query("select set_config('request.jwt.claim.sub','',false)");}
+}

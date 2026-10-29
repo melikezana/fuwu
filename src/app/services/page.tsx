@@ -26,7 +26,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
     <nav className="catalog-category-nav" aria-label="Hizmet kategorileri"><Link href={categoryHref()} aria-current={!requestedCategory ? "page" : undefined}>Tüm hizmetler</Link>{navigation.map(item => <Link key={item.slug} href={categoryHref(item.slug)} aria-current={categorySlug === item.slug ? "page" : undefined}>{item.title}</Link>)}</nav>
     {!requestedCategory && navigation.length > 0 && <section aria-label="Tüm hizmet kategorileri" className="home-service-grid catalog-all-categories"><h2 className="sr-only">Hizmet kategorileri</h2>{navigation.map(item => <CategoryCard key={item.slug} service={{ ...item, href: categoryHref(item.slug) }} />)}</section>}
     <ServiceCatalog key={`${requestedCategory}|${params.q ?? ""}|${params.district ?? ""}`} category={categorySlug} categories={catalog.categories} services={services} offers={catalog.offers} unavailable={catalog.unavailable} initialSearch={params.q} district={params.district} districtId={params.district ? district?.id ?? "unknown-district" : ""} />
-    <p className="catalog-payment-note">Ödemeler iyzico test ortamında gerçekleşir. Gerçek tahsilat yapılmaz.</p>
+    <p className="catalog-payment-note">Online satın alma henüz açılmadı. <Link href="/waitlist">Açılıştan haberdar ol</Link></p>
     <CommerceJourney />
   </div>;
 }

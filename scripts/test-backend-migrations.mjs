@@ -6,6 +6,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import net from "node:net";
 import assert from "node:assert/strict";
 import { securitySchemaChecks } from "./security-schema-checks.mjs";
+import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
 
 // No env file or remote URL is read. Bind only loopback, always stop our own cluster.
 const runtime = path.resolve("artifacts/commerce-test-runtime");
@@ -62,6 +63,7 @@ try {
   report.checks.push("Actual legacy schema denies browser token access and fabricated online payments");
   const schema=await db.query("select c.relname,pg_get_constraintdef(k.oid) definition from pg_constraint k join pg_class c on c.oid=k.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' order by c.relname,k.conname");
   await securitySchemaChecks(db, report.checks);
+  await prelaunchChecks(db, report.checks);
   await fs.writeFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
   console.log(`PASS ${files.length} migrations, ${report.scenario}, ${report.checks.length} checks`);
 } catch (e) { report.failure ??= { code:e.code??null,message:e.message }; console.error(JSON.stringify(report.failure));process.exitCode=1; }

@@ -6,6 +6,7 @@ import { writeAuditLog } from "@/services/audit";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { percentToBps } from "@/lib/commerce/pricing";
+import { publicAnnouncement } from "@/lib/prelaunch";
 
 // app_settings tablosu üretilmiş tiplerde yok; bu servis için gevşek tiplenmiş
 // bir istemci kullanıyoruz (sorgular bu dosyayla sınırlı ve kontrol altında).
@@ -27,6 +28,13 @@ export const SETTING_DEFS: SettingDef[] = [
   { default: "", key: "support_email", label: "Destek E-posta", type: "text" },
   { default: "", key: "announcement_banner", label: "Duyuru Bandı (site üstü mesaj)", type: "text" },
   { default: "false", key: "maintenance_mode", label: "Bakım Modu", type: "boolean" },
+  { default: "Şirketleşme bekleniyor", key: "launch_company_status", label: "Şirketleşme durumu · manuel", type: "text" },
+  { default: "Canlı ödeme kapalı", key: "launch_payment_status", label: "Ödeme durumu · bilgi amaçlı", type: "text" },
+  { default: "", key: "launch_iyzico_evidence", label: "iyzico sandbox · tarihli test kanıtı", type: "text" },
+  { default: "", key: "launch_google_evidence", label: "Google OAuth · tarihli test kanıtı", type: "text" },
+  { default: "", key: "launch_migration_evidence", label: "Staging migration · tarihli test kanıtı", type: "text" },
+  { default: "", key: "launch_security_blockers", label: "Açık güvenlik / test engelleri", type: "text" },
+  { default: "false", key: "launch_interest_enabled", label: "Açılış kaydı · KVKK ve operasyon hazırlığı tamamlandı", type: "boolean" },
 ];
 
 const KNOWN_KEYS = new Set(SETTING_DEFS.map((definition) => definition.key));
@@ -64,7 +72,7 @@ export async function getPublicAppSettings(): Promise<PublicAppSettings> {
     }
 
     return {
-      announcementBanner: map.announcement_banner?.trim() ?? "",
+      announcementBanner: publicAnnouncement(map.announcement_banner ?? ""),
       maintenanceMode: map.maintenance_mode === "true",
     };
   } catch {

@@ -66,11 +66,23 @@
     "20261026000400_review_submission_receipts.sql",
     "20261028000100_phase2_checkout_consistency.sql",
     "20261028000200_fuwu3_catalog_and_fees.sql",
-    "20261029000100_backend_reliability.sql"
+    "20261029000100_backend_reliability.sql",
+    "20261029000200_atomic_rate_limit.sql",
+    "20261029000300_provider_publication_quality.sql",
+    "20261030000100_prelaunch_trust_and_interest.sql"
   ],
   "checks": [
     "Complete migration chain and critical relation RLS",
-    "Actual legacy schema denies browser token access and fabricated online payments"
+    "Actual legacy schema denies browser token access and fabricated online payments",
+    "Security schema: actual signup trigger ignores user_metadata role escalation",
+    "Security schema: real profile ACL/trigger and admin RPC reject customer",
+    "Security schema: private verification document actual RLS permits owner, denies other user/path spoofing",
+    "Security schema: anonymous document access denied; private bucket MIME/size configuration verified (not Storage HTTP)",
+    "Prelaunch: anonymous interest access and admin aggregates denied; new providers unpublished by default",
+    "Prelaunch: verified email, versioned consent, real persistence, deduplication, RLS and idempotent withdrawal",
+    "Prelaunch: persistent five-per-hour limit blocks repeated consent submissions",
+    "Prelaunch: classification required; reserved seed cannot publish; sandbox reviews never become social proof",
+    "Prelaunch: compare-and-clear announcement is admin-only, audited and leaves maintenance unchanged"
   ],
   "failure": null
 }

@@ -14,7 +14,7 @@ const readDiscovery = unstable_cache(async () => {
     }
   };
   const [categories, districts] = await Promise.all([read("service_categories", "*"), read("districts", "id,name")]);
-  return { categories: (categories as CatalogCategory[]).filter(c => c.is_visible !== false), districts: districts as { id: string; name: string }[], unavailable: false };
+  return { categories: categories as CatalogCategory[], districts: districts as { id: string; name: string }[], unavailable: false };
 }, ["public-discovery-v1"], { revalidate: 60 });
 // Public discovery is identical for every visitor. Price, slots, publication and payments stay fresh.
 export async function getPublicDiscovery() {

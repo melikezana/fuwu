@@ -263,6 +263,7 @@ export function AdminAccessNotice({
   error?: string | null;
   isConfigured: boolean;
 }) {
+  if (isConfigured && !error) return null;
   return (
     <div className="premium-card mb-6 p-4">
       <div className="flex gap-3">

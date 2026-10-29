@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isRealPublishedProvider } from "@/lib/providers/provenance";
 import type { PublicOffer } from "@/lib/commerce/types";
 import type { CatalogCategory } from "@/lib/commerce/catalog-navigation";
 
@@ -27,7 +28,7 @@ export async function getCommerceCatalog() {
   const visibleCategories = (categories.data ?? []).filter(category => category.is_visible !== false);
   const visibleServices = (services.data ?? []).filter(service => visibleCategories.some(category => category.id === service.category_id));
   const unavailable = Boolean(services.error || variants.error || districts.error || offers.error || categories.error || publication.error || !Array.isArray(publication.data));
-  const approvedIds = new Set(Array.isArray(publication.data) ? (publication.data as { id: string }[]).map(p => p.id) : []);
-  return { services: visibleServices, variants: variants.data ?? [], districts: districts.data ?? [], categories: visibleCategories,
-    offers: unavailable ? [] : ((offers.data ?? []) as unknown as PublicOffer[]).filter(offer => approvedIds.has(offer.provider_id)), unavailable };
+  const approvedIds = new Set(Array.isArray(publication.data) ? (publication.data as { id: string; record_kind?: string }[]).filter(isRealPublishedProvider).map(p => p.id) : []);
+  return { services: visibleServices, variants: variants.data ?? [], districts: districts.data ?? [], categories: categories.data ?? [],
+    offers: unavailable ? [] : ((offers.data ?? []) as unknown as PublicOffer[]).filter(offer => approvedIds.has(offer.provider_id)).map(offer => ({ ...offer, rating: null, review_count: 0 })), unavailable };
 }

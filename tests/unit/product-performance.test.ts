@@ -20,7 +20,8 @@ describe("P1 mobile discovery and payload regression", () => {
     const pending = getPublicDiscovery();
     expect(started).toEqual(["categories", "districts"]);
     resolves.forEach(resolve => resolve());
-    expect(await pending).toMatchObject({ unavailable: false, categories: [{ id: "c" }], districts: [{ id: "d" }] });
+    // Active discovery is independent of the separate purchase visibility setting.
+    expect(await pending).toMatchObject({ unavailable: false, categories: [{ id: "c" }, { id: "hidden" }], districts: [{ id: "d" }] });
     expect(fetch).toHaveBeenCalledTimes(2);
   });
   it("shows unavailable discovery instead of inventing categories on backend errors", async () => {

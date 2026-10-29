@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { Save } from "lucide-react";
 import type { SettingDef } from "@/services/admin/settings";
-import { saveSettingsAction } from "./actions";
+import { saveSettingsAction, clearLegacyAnnouncementAction } from "./actions";
+import { publicAnnouncement } from "@/lib/prelaunch";
 
 type SettingsFormProps = {
   defs: SettingDef[];
@@ -37,6 +38,7 @@ export function SettingsForm({ defs, values }: SettingsFormProps) {
   return (
     <section className="max-w-2xl rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)]">
       <div className="flex flex-col gap-5">
+        {state.announcement_banner?.trim() && !publicAnnouncement(state.announcement_banner) && <div className="commerce-notice"><p>Eski geliştirme duyurusu kamuya gösterilmiyor.</p><button className="commerce-secondary mt-3" type="button" disabled={pending} onClick={() => startTransition(async () => { const result = await clearLegacyAnnouncementAction(state.announcement_banner); setFeedback({ ok: result.ok, text: result.message }); if (result.ok) setValue("announcement_banner", ""); })}>Eski Duyuruyu Temizle</button></div>}
         {defs.map((def) => (
           <div key={def.key}>
             {def.type === "boolean" ? (

@@ -206,7 +206,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
         </div>
         {relatedProviders.length ? <section className="market-related"><p className="market-eyebrow">DİĞER SEÇENEKLER</p><h2>Aynı alanda hizmet veren ustalar</h2><div className="mt-6 grid gap-5 md:grid-cols-2">{relatedProviders.map((relatedProvider) => <ProviderCard key={relatedProvider.id} provider={relatedProvider} />)}</div></section> : null}
       </Container>
-      <div className="market-mobile-action"><div className="min-w-0"><small>{purchase ? "Başlangıç fiyatı" : "Ustanın mağazası"}</small><strong>{purchase ? money(purchase.priceMinor) : "Hizmetler"}</strong></div><Button href={providerCheckoutHref}><MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />{purchase ? "Hizmeti Satın Al" : "Hizmetleri Gör"}</Button></div>
+      <div className="market-mobile-action"><div className="min-w-0"><small>{purchase ? "Başlangıç fiyatı" : "Ustanın mağazası"}</small><strong>{purchase ? money(purchase.priceMinor) : "Hizmetler"}</strong></div><Button href={providerCheckoutHref}><MessageSquarePlus aria-hidden="true" className="size-4 shrink-0" />{purchase ? "Hizmeti İncele" : "Hizmetleri Keşfet"}</Button></div>
     </div>
   );
 }

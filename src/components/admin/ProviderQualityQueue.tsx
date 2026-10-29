@@ -17,6 +17,7 @@ export function ProviderQualityQueue({ rows, unavailable, action, feedback }: { 
         <p className="commerce-help">Kayıtlı deneyim: {row.experience_years == null ? "Bilinmiyor" : `${row.experience_years} yıl · ustanın beyanı`}. Yorum kaydı: {row.actual_review_count ?? "Bilinmiyor"}.</p>
         {row.review_note && <p className="commerce-help">Son karar notu: {row.review_note}</p>}
         <form action={action} className="quality-form">
+          <label className="commerce-field">Kayıt kaynağı<select name="recordKind" defaultValue={row.record_kind ?? "unclassified"}><option value="unclassified">Kaynak henüz doğrulanmadı</option><option value="real">Gerçek usta · kaynağını inceledim</option><option value="test">Test / demo · kamuya kapalı</option></select></label>
           <input type="hidden" name="providerId" value={row.id} /><input type="hidden" name="fingerprint" value={row.fingerprint} />
           <label className="commerce-field">İnceleme kararı<select aria-label="İnceleme kararı" name="status" defaultValue="changes_requested"><option value="changes_requested">Düzeltme iste</option><option value="approved">İçeriği inceledim, yayına onayla</option><option value="hidden">Yayını durdur</option><option value="pending_review">İnceleme kuyruğunda tut</option></select></label>
           <label className="commerce-field">Karar gerekçesi<textarea name="note" required minLength={10} maxLength={1000} rows={3} placeholder="İncelediğin bilgileri ve karar gerekçeni yaz." /></label>

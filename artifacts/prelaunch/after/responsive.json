@@ -1,0 +1,201 @@
+{
+  "scope": "Local Next.js + isolated catalogue fixtures; no live integration proof",
+  "phase": "after",
+  "widths": [
+    {
+      "path": "/",
+      "width": 320,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 360,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 375,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 390,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 430,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 768,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 1024,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "overflow": false,
+      "categories": 8
+    },
+    {
+      "path": "/services",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/services",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/services",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/services",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/providers",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/providers",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/providers",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/providers",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/waitlist",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/waitlist",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/waitlist",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/waitlist",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin (isolated authenticated UI fixture)",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "Legacy banner suppressed; honest provider empty state; all active fixture categories; category links; unauthorized admin redirected; checkout closed; unavailable waitlist disabled",
+    "Readiness dashboard rendered using synthetic admin session and empty metrics; this is UI evidence, not hosted Auth/RLS proof",
+    "Authenticated withdrawal remains available while new registrations are closed; actual Server Action exercised against local RPC fixture"
+  ],
+  "errors": [],
+  "status": "PASS"
+}

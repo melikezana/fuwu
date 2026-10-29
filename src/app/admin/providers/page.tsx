@@ -64,12 +64,12 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     tone: "error",
   },
   "provider-activated": {
-    body: "Usta kaydı aktif hale getirildi. Kayıt onaylıysa public listelerde görünür.",
+    body: "Usta kaydı aktif hale getirildi. Kamuya açılması için ayrıca gerçek usta sınıflandırması ve yayın onayı gerekir.",
     title: "Usta aktifleştirildi",
     tone: "success",
   },
   "provider-approved": {
-    body: "Usta kaydı aktif ve onaylı hale getirildi; public listelerde yayınlanır.",
+    body: "Usta kaydı aktif ve onaylı hale getirildi; yayın incelemesi tamamlandığında kamuya açılır.",
     title: "Usta onaylandı",
     tone: "success",
   },
@@ -129,7 +129,7 @@ const providerActionMessages: Record<string, ProviderActionFeedback> = {
     tone: "success",
   },
   "provider-verified": {
-    body: "Usta Fuwu Onaylı olarak işaretlendi ve public güven rozeti hazırlandı.",
+    body: "Usta Fuwu Onaylı olarak işaretlendi ve rozet için başvuru ve belge kanıtı ayrıca doğrulanır.",
     title: "Usta doğrulandı",
     tone: "success",
   },

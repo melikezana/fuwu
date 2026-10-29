@@ -9,6 +9,7 @@ export const commerceRequestId = () => requests.getStore() ?? randomUUID();
 
 const errors: Record<string, [number, string]> = {
   unauthorized: [401, "Devam etmek için giriş yap."],
+  online_purchase_closed: [503, "Online satın alma henüz açılmadı."],
   forbidden: [403, "Bu işlem için yetkin yok."],
   transition_forbidden: [403, "Bu işlem için yetkin yok."],
   order_not_found: [404, "Sipariş bulunamadı."],

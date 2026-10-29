@@ -1,8 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { isRealPublishedProvider } from "@/lib/providers/provenance";
 import {
-  LEGACY_SERVICE_REQUEST_STATUSES,
   normalizeProviderAvailabilityStatus,
-  SERVICE_REQUEST_STATUSES,
   type ProviderAvailabilityStatus,
 } from "@/lib/constants/statuses";
 import {
@@ -56,9 +55,10 @@ export type {
 } from "@/types/provider";
 
 type SupabaseProviderRow = Database["public"]["Tables"]["providers"]["Row"];
-type PublicationRecord = { id: string; rating: number | null; review_count: number; verified: boolean; identity_verified: boolean };
+type PublicationRecord = { id: string; record_kind?: string; rating: number | null; review_count: number; verified: boolean; identity_verified: boolean; phone_verified?: boolean };
 function applyPublication(record: SupabaseProviderRecord, approval: PublicationRecord): SupabaseProviderRecord {
-  return { ...record, rating: approval.rating ?? 0, review_count: approval.review_count, is_verified: approval.verified, identity_verified: approval.identity_verified };
+  // A legacy phone_verified flag alone is not evidence of completed verification.
+  return { ...record, rating: approval.rating ?? 0, review_count: approval.review_count, is_verified: approval.verified, identity_verified: approval.identity_verified, phone_verified: approval.phone_verified === true };
 }
 
 type SupabaseNamedRelation = {
@@ -922,7 +922,7 @@ async function fetchProvidersFromSupabase(
       supabase.rpc("provider_publication_gate", {}),
     ]);
     if (publication.error || !Array.isArray(publication.data)) return null;
-    const approved = new Map((publication.data as unknown as PublicationRecord[]).map(row => [row.id, row]));
+    const approved = new Map((publication.data as unknown as PublicationRecord[]).filter(isRealPublishedProvider).map(row => [row.id, row]));
 
     if (categoryIds?.length === 0 || districtIds?.length === 0) {
       return [];
@@ -1077,7 +1077,7 @@ async function fetchProviderByIdFromSupabase(
 
     const publication = await supabase.rpc("provider_publication_gate", {});
     if (publication.error || !Array.isArray(publication.data)) return { status: "error", supabaseConfigured: true };
-    const approval = (publication.data as unknown as PublicationRecord[]).find(row => row.id === id);
+    const approval = (publication.data as unknown as PublicationRecord[]).find(row => row.id === id && isRealPublishedProvider(row));
     if (!approval) return { status: "not-found" };
     let { data, error } = await supabase
       .from("providers")
@@ -1223,6 +1223,7 @@ export async function getMarketplaceTrustMetrics(
 ): Promise<MarketplaceTrustMetrics> {
   const fallbackMetrics: MarketplaceTrustMetrics = {
     ...fallbacks,
+    activeProviders: 0,
     completedRequests: 0,
     source: "fallback",
   };
@@ -1239,12 +1240,7 @@ export async function getMarketplaceTrustMetrics(
       districtsResult,
       completedRequestsResult,
     ] = await Promise.allSettled([
-      supabase
-        .from("providers")
-        .select("id, service_categories!inner(id)", { count: "exact", head: true })
-        .eq("is_active", true)
-        .eq("is_approved", true)
-        .eq("service_categories.is_active", true),
+      supabase.rpc("provider_publication_gate", {}),
       supabase
         .from("service_categories")
         .select("id", { count: "exact", head: true })
@@ -1253,13 +1249,7 @@ export async function getMarketplaceTrustMetrics(
         .from("districts")
         .select("id", { count: "exact", head: true })
         .eq("is_active", true),
-      supabase
-        .from("service_requests")
-        .select("id", { count: "exact", head: true })
-        .in("status", [
-          SERVICE_REQUEST_STATUSES.completed,
-          LEGACY_SERVICE_REQUEST_STATUSES.tamamlandi,
-        ]),
+      Promise.resolve({ count: 0, error: null }),
     ]);
 
     const readCount = <T extends { count: number | null; error: unknown }>(
@@ -1271,7 +1261,7 @@ export async function getMarketplaceTrustMetrics(
         : fallback;
 
     return {
-      activeProviders: readCount(activeProvidersResult, fallbacks.activeProviders),
+      activeProviders: activeProvidersResult.status === "fulfilled" && !activeProvidersResult.value.error && Array.isArray(activeProvidersResult.value.data) ? (activeProvidersResult.value.data as { id: string; record_kind?: string }[]).filter(isRealPublishedProvider).length : 0,
       completedRequests: readCount(completedRequestsResult, 0),
       districts: readCount(districtsResult, fallbacks.districts),
       serviceCategories: readCount(serviceCategoriesResult, fallbacks.serviceCategories),

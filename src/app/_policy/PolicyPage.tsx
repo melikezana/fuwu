@@ -5,6 +5,7 @@ import { appRoutes } from "@/lib/constants/navigation";
 import { I18nText, type TranslationKey } from "@/lib/i18n";
 
 export type PolicySection = {
+  id?: string;
   title: string;
   body: string[];
 };
@@ -60,6 +61,7 @@ export function PolicyPage({
             <section
               className="cursor-default select-none rounded-lg bg-white p-5 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-6"
               key={section.title}
+              id={section.id}
             >
               <h2 className="text-2xl font-bold leading-tight text-[var(--brand-navy)]">
                 {section.title}

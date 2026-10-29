@@ -4,11 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
 import { isAppointmentTimestamp } from "@/lib/commerce/validation";
+import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, supabase: db } = await getServerAuthContext();
   if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!sandboxCheckoutEnabled()) return NextResponse.json({ error: "online_purchase_closed" }, { status: 503 });
   const b = await request.json().catch(() => null);
   if (!b || !isUuid(b.offeringId ?? "") || !isUuid(b.districtId ?? "") || !isUuid(b.idempotencyKey ?? "") || typeof b.address !== "string" || b.address.length > 1000 || !Number.isSafeInteger(b.expectedPriceMinor) || !isAppointmentTimestamp(b.startsAt)) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const total = b.expectedTotalMinor ?? b.expectedPriceMinor;

@@ -188,6 +188,11 @@ const sectionSteps: Record<ProviderApplicationSectionId, string> = {
   experience: "03",
   contact: "04",
 };
+const sectionOrder: ProviderApplicationSectionId[] = ["basic", "service", "experience", "contact"];
+const sectionFields: Record<ProviderApplicationSectionId, ProviderField[]> = {
+  basic: ["fullName"], service: ["categoryId", "districtId"],
+  experience: ["experienceYears", "introduction", "hasEquipment", "availability", "portfolioUrl"], contact: ["phone"],
+};
 
 function normalizeReferenceLink(value: string) {
   const trimmedValue = value.trim();
@@ -252,6 +257,7 @@ function FormSection({
   description,
   id,
   setActiveSection,
+  onContinue,
   title,
 }: {
   activeSection: ProviderApplicationSectionId;
@@ -259,6 +265,7 @@ function FormSection({
   description: string;
   id: ProviderApplicationSectionId;
   setActiveSection: (section: ProviderApplicationSectionId) => void;
+  onContinue: (section: ProviderApplicationSectionId) => void;
   title: string;
 }) {
   const isOpen = activeSection === id;
@@ -301,7 +308,7 @@ function FormSection({
           <span>{description}</span>
         </p>
       ) : null}
-      <div className={cn("mt-5 gap-5", isOpen ? "grid" : "hidden md:grid")}>{children}</div>
+      <div className={cn("mt-5 gap-5", isOpen ? "grid" : "hidden md:grid")}>{children}{id !== "contact" && <button type="button" className="commerce-button md:hidden" onClick={() => onContinue(id)}>Devam Et</button>}</div>
     </fieldset>
   );
 }
@@ -329,6 +336,15 @@ export function ProviderApplicationForm({
     null,
   );
   const lookupsReady = isConfigured && categories.length > 0 && districts.length > 0;
+  function advanceSection(section: ProviderApplicationSectionId) {
+    const allErrors = validateForm(normalizeForm(formState));
+    const fields = sectionFields[section];
+    const errorsInStep = Object.fromEntries(Object.entries(allErrors).filter(([key]) => fields.includes(key as ProviderField)));
+    setErrors(errorsInStep);
+    if (Object.keys(errorsInStep).length) return;
+    const next = sectionOrder[sectionOrder.indexOf(section) + 1];
+    if (next) setActiveSection(next);
+  }
 
   useEffect(() => {
     if (!authenticatedUserId) {
@@ -400,6 +416,9 @@ export function ProviderApplicationForm({
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      const first = sectionOrder.find(section => sectionFields[section].some(field => validationErrors[field]));
+      if (first) setActiveSection(first);
+      requestAnimationFrame(() => requestAnimationFrame(() => formElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()));
       setFormError("");
       setSubmittedApplication(null);
       return;
@@ -650,6 +669,7 @@ export function ProviderApplicationForm({
           description={t("providerApplication.section.basicDescription")}
           id="basic"
           setActiveSection={setActiveSection}
+          onContinue={advanceSection}
           title={t("providerApplication.section.basic")}
         >
           <div>
@@ -683,6 +703,7 @@ export function ProviderApplicationForm({
           description={t("providerApplication.section.serviceDescription")}
           id="service"
           setActiveSection={setActiveSection}
+          onContinue={advanceSection}
           title={t("providerApplication.section.service")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
@@ -753,6 +774,7 @@ export function ProviderApplicationForm({
           description={t("providerApplication.section.experienceDescription")}
           id="experience"
           setActiveSection={setActiveSection}
+          onContinue={advanceSection}
           title={t("providerApplication.section.experience")}
         >
           <div className="grid gap-5 lg:grid-cols-2">
@@ -942,6 +964,7 @@ export function ProviderApplicationForm({
           description={t("providerApplication.section.contactDescription")}
           id="contact"
           setActiveSection={setActiveSection}
+          onContinue={advanceSection}
           title={t("providerApplication.section.contact")}
         >
           <div>

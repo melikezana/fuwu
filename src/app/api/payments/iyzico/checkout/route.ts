@@ -9,6 +9,7 @@ import { initializeIyzicoCheckoutForm } from "@/services/payments/iyzico-checkou
 import { PAYMENT_STATUSES } from "@/services/payments/constants";
 import { sandboxPaymentUrl } from "@/lib/commerce/payment";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
+import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 
 type CheckoutSupabaseClient = SupabaseClient<Database>;
 const processedIyzicoPaymentStatuses = new Set<string>([
@@ -180,6 +181,7 @@ async function handlePOST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  if (!sandboxCheckoutEnabled()) return NextResponse.json({ error: "online_purchase_closed" }, { status: 503 });
   if (!authContext.profile) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   const supabase = createSupabaseServiceRoleClient();
   if (!supabase) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });

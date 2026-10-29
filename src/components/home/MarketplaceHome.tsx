@@ -47,5 +47,5 @@ async function FeaturedHomeServices({ catalogPromise }: { catalogPromise: Return
 async function FeaturedHomeProviders({ directory, catalog: catalogPromise }: { directory: ReturnType<typeof getProviderDirectory>; catalog: ReturnType<typeof getCommerceCatalog> }) {
   const [{ allProviders }, catalog] = await Promise.all([directory, catalogPromise]);
   const providers = getFeaturedProviders(allProviders.filter(provider => provider.source === "supabase"));
-  return providers.length ? <TrustedProviders providers={providers} purchases={providerPurchaseLinks(catalog)} /> : null;
+  return <TrustedProviders providers={providers} purchases={providerPurchaseLinks(catalog)} />;
 }

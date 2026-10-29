@@ -55,3 +55,6 @@ storybook-static
 .env*
 
 /artifacts/security-testing/coverage/
+/artifacts/prelaunch/private/
+/artifacts/prelaunch/runtime-before/
+/artifacts/prelaunch/baseline.zip

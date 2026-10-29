@@ -328,6 +328,86 @@
     "definition": "NOT NULL updated_at"
   },
   {
+    "relname": "launch_interest",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id)"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL consent_at"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL consent_version"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id)"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL email"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "UNIQUE (user_id)"
+  },
+  {
+    "relname": "launch_interest",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "CHECK ((event = ANY (ARRAY['granted'::text, 'withdrawn'::text])))"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "NOT NULL event"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "FOREIGN KEY (interest_id) REFERENCES launch_interest(id)"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "NOT NULL interest_id"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "launch_interest_consent_events",
+    "definition": "NOT NULL version"
+  },
+  {
     "relname": "notifications",
     "definition": "FOREIGN KEY (actor_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
   },
@@ -982,6 +1062,46 @@
   {
     "relname": "provider_gallery_images",
     "definition": "NOT NULL storage_path"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "NOT NULL fingerprint"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "PRIMARY KEY (provider_id)"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "CHECK ((record_kind = ANY (ARRAY['unclassified'::text, 'real'::text, 'test'::text])))"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "NOT NULL record_kind"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "CHECK ((status = ANY (ARRAY['pending_review'::text, 'approved'::text, 'changes_requested'::text, 'hidden'::text])))"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "provider_publication_reviews",
+    "definition": "NOT NULL updated_at"
   },
   {
     "relname": "provider_service_offerings",

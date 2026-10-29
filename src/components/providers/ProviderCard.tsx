@@ -58,7 +58,7 @@ export function ProviderCard({ provider, actionsId, className, featured, gallery
         <div className="min-w-0"><span className="market-price-label">{purchase ? "Hizmet başlangıç fiyatı" : hasPrice ? "Ustanın belirttiği aralık" : "Ustanın mağazası"}</span><strong className="market-price">{purchase ? money(purchase.priceMinor) : hasPrice ? provider.averagePrice : "Hizmetleri incele"}</strong></div>
         <Button className="shrink-0" variant="secondary" href={profileHref}>Profili Gör <ArrowUpRight aria-hidden="true" className="size-4 shrink-0" /></Button>
       </div>
-      {purchase && <div className="fusion-provider-purchase"><p>{purchase.serviceName}</p><Link className="commerce-button" href={purchase.href}>Hizmeti Satın Al <ArrowUpRight size={17} aria-hidden /></Link></div>}
+      {purchase && <div className="fusion-provider-purchase"><p>{purchase.serviceName}</p><Link className="commerce-button" href={purchase.href}>Hizmeti İncele <ArrowUpRight size={17} aria-hidden /></Link></div>}
     </article>
   );
 }

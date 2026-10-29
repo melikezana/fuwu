@@ -29,9 +29,16 @@ const sections: PolicySection[] = [
     ],
   },
   {
+    title: "FUWU Partner modeli",
+    body: [
+      "Başvuru ve teklif gönderme ücreti alınmaz. Standart hizmetler, kapsamı ve fiyatı belli paketler olarak sunulur. Usta hizmet fiyatını, çalışma bölgelerini ve takvimindeki müsait saatleri yönetir.",
+      "Başlangıç usta komisyon ayarı %10, müşteri platform ücreti varsayılanı %0'dır. İşlemde geçerli oranlar, ödeme kuruluşu kesintileri ve net kazanç ilgili işlem kayıtlarında ayrı gösterilir. Başvuru veya onay, iş ve kazanç garantisi sağlamaz.",
+    ],
+  },
+  {
     title: "Test ödemesi ve ücretler",
     body: [
-      "Ödemeler şu anda yalnızca iyzico sandbox ortamında denenir. Gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
+      "Online satın alma henüz açılmadı. Yetkili test oturumlarında yalnızca iyzico sandbox kullanılır; gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
       "Müşteri platform ücreti varsa hizmet bedelinden ayrı gösterilir. Toplam ödeme öncesinde açıklanır ve ek ücret için ayrıca onayın istenir. Usta komisyonu hizmet bedeli üzerinden hesaplanır. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
     ],
   },
@@ -53,7 +60,7 @@ export default function TermsPage() {
       sections={sections}
       title="Kullanım Şartları"
       titleKey="policy.terms.title"
-      updatedAt="28 Ekim 2026"
+      updatedAt="30 Ekim 2026"
     />
   );
 }

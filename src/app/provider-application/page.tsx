@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Usta Ağına Katıl",
   description:
-    "Fuwu'da görünür olmak, doğru müşterilerden telefon ve WhatsApp ile talep almak için usta başvurusu yap.",
+    "FUWU Partner ile hizmetlerini sun, takvimini yönet ve kazancını takip et.",
 };
 
 function ProviderApplicationStatusCard({
@@ -174,7 +174,7 @@ export default async function ProviderApplicationPage() {
       <ProviderJoinIntro />
       <section className="market-application-section" id="provider-application-form">
         <Container className="market-application-grid max-w-7xl">
-          <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI ATIN</p><h2>İşinizi tanıyalım.</h2><p>Bilgilerinizi tamamlayın. Başvurunuzun durumunu aynı hesapla giriş yaptığınızda görebilirsiniz.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunuzu oluşturun</strong><p>Uzmanlığınızı ve hizmet bölgenizi paylaşın.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip edin</strong><p>Başvurunuzun durumuna hesabınızdan ulaşın.</p></div></li><li><span>03</span><div><strong>Profilinizi tamamlayın</strong><p>Onaydan sonra profilinizi düzenleyin, gelen talepleri değerlendirin.</p></div></li></ol></div>
+          <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI ATIN</p><h2>İşinizi tanıyalım.</h2><p>Başvurunu tamamla, durumunu hesabından takip et.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunuzu oluşturun</strong><p>Uzmanlığınızı ve hizmet bölgenizi paylaşın.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip edin</strong><p>Başvurunuzun durumuna hesabınızdan ulaşın.</p></div></li><li><span>03</span><div><strong>Profilinizi tamamlayın</strong><p>Onaydan sonra hizmet paketinizi ve takviminizi hazırlayın.</p></div></li></ol></div>
         {!providerAccess.ok && providerAccess.reason === "missing-session" ? (
           <div className="grid gap-5">
             <ProviderApplicationLoginRequiredCard />
@@ -210,7 +210,7 @@ export default async function ProviderApplicationPage() {
         )}
         </Container>
       </section>
-      <ProviderJoinDetails />
+      <ProviderJoinDetails categories={formOptions.categories} />
     </div>
   );
 }

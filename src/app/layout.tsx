@@ -5,8 +5,7 @@ import { Suspense } from "react";
 import { Wrench } from "lucide-react";
 import { MetaPixelScript } from "@/components/analytics/MetaPixelScript";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ConsentAnalytics } from "@/components/analytics/ConsentAnalytics";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
@@ -155,11 +154,11 @@ export default async function RootLayout({
             <Footer />
             <HelpButton />
           </MobileAppShell>
-          <Suspense fallback={null}>
+          {analyticsEnabled && <Suspense fallback={null}>
             <CookieConsentBanner />
-          </Suspense>
+          </Suspense>}
         </LocaleProvider>
-        {analyticsEnabled && <><Analytics /><SpeedInsights /></>}
+        <ConsentAnalytics enabled={analyticsEnabled} />
       </body>
     </html>
   );

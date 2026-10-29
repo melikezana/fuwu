@@ -47,6 +47,9 @@ import {
 import { appRoutes, buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
 import { getMarketplaceSummary, getCeoDailySnapshot } from "@/services/admin/marketplace";
+import { getPrelaunchSnapshot } from "@/services/admin/prelaunch";
+import { PrelaunchDashboard } from "@/components/admin/PrelaunchDashboard";
+import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 
 export const dynamic = "force-dynamic";
 
@@ -422,7 +425,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
-  const [marketplace, today] = await Promise.all([getMarketplaceSummary(), getCeoDailySnapshot()]);
+  const [marketplace, today, prelaunch] = await Promise.all([sandboxCheckoutEnabled() ? getMarketplaceSummary() : Promise.resolve(null), sandboxCheckoutEnabled() ? getCeoDailySnapshot() : Promise.resolve(null), getPrelaunchSnapshot()]);
 
   const includeLegacy = (await searchParams).legacy === "1";
   const [overview, reqAnalytics, provAnalytics, assignments, reassignmentLogs, auditLogs] = await Promise.all([
@@ -438,11 +441,12 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="dashboard"
-      description="Siparişler, ödemeler ve bekleyen işlemler."
+      description="Gerçek usta ağı, müşteri ilgisi ve lansman hazırlığı."
       isConfigured={dashboard.isConfigured}
-      title="FUWU Yönetim Merkezi"
+      title="FUWU bugün ne durumda?"
     >
-      <MarketplaceMetrics summary={marketplace} today={today} />
+      <PrelaunchDashboard snapshot={prelaunch} />
+      {marketplace && today && <details className="fusion-legacy"><summary>Sandbox sipariş operasyonu</summary><MarketplaceMetrics summary={marketplace} today={today} /></details>}
       <details className="fusion-legacy"><summary>Önceki talep sistemi · ayrı operasyon ve istatistikler</summary><p className="commerce-help">Bu kayıtlar yeni siparişlerin GMV ve komisyon toplamına dahil değildir. Eski ödeme kayıtlarının ortamı doğrulanmadığından muhasebe geliri olarak kullanmayın.</p>
       {dashboard.error ? (
         <DashboardErrorState error={dashboard.error} />
