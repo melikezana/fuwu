@@ -53,3 +53,5 @@ tsconfig.tsbuildinfo
 storybook-static
 
 .env*
+
+/artifacts/security-testing/coverage/
