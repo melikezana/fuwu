@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   backend-quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       NEXT_PUBLIC_SUPABASE_URL: ""
@@ -29,7 +29,22 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: PostgreSQL 17 binaries for disposable loopback clusters
-        run: sudo apt-get update && sudo apt-get install -y postgresql-17
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error --location \
+            --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          . /etc/os-release
+          printf 'Types: deb\nURIs: https://apt.postgresql.org/pub/repos/apt\nSuites: %s-pgdg\nComponents: main\nSigned-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n' "$VERSION_CODENAME" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.sources >/dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-17
+          test -x "$TEST_POSTGRES_BIN/initdb"
+          "$TEST_POSTGRES_BIN/postgres" --version
       - run: npm run typecheck
       - run: npm run check:lint
       - run: npm run test:unit
