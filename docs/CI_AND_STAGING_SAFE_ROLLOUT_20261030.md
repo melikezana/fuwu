@@ -15,10 +15,11 @@
 4. Gerekirse production'dan anonimleştirilmiş ve hassas verileri çıkarılmış fixture'lar kullan. Gerçek müşteri, ödeme bilgisi, OAuth sırrı, belge veya adres taşınmasın.
 5. Satın alma akışındaki mevcut tablo/RPC/trigger/RLS/Storage uyumluluğunu doğrula; eşzamanlı slot, komisyon, iade, OAuth callback, yayın kontrolü ve yorum testlerini çalıştır.
 6. Sahte usta kaydı temizlik planını yalnızca doğrulanmış ID/ilişki dökümüyle hazırla. Silme veya karantina için ayrı açık onay iste.
-7. Staging'de `npm run test:release`, ilgili entegrasyon ve Playwright testlerini çalıştır; gerçek Google OAuth ve iyzico sandbox testlerini PASS olarak ancak gerçek uçtan uca kanıt varsa işaretle.
+7. Staging'de ödeme DIŞI kontrol paketini çalıştır: katalog, gerçek usta yayın kuralları, başvuru, izinli açılış kaydı, Google OAuth (erişim varsa), RLS, admin yetkisi, responsive E2E, birim testler ve build. Ödeme mocklarının geçmesini gerçek işlem başarısı sayma. İyzico ve gerçek ödeme, şirketleşme ve ayrı ticari açılış fazının kapsamındadır.
 
 ## Yayın kapısı
-- CI kalite ve E2E kontrolleri geçmeden, staging farkları kapanmadan, gerçek dış servis testleri bitmeden ve hukuki/şirketleşme hazırlığı tamamlanmadan **NO-GO**.
+- **Ön lansman yayını (ödeme kapalı):** CI kalite, katalog/başvuru/ön kayıt E2E, RLS ve staging şema uyumu başarılı olmalı. Şirketleşme veya iyzico canlı ödeme onayı bu ön lansman için zorunlu değildir; canlı satış kesinlikle kapalı kalır.
+- **Canlı satış yayını:** Şirketleşme, ödeme kuruluşu onayı, gerçek sandbox ödeme doğrulaması, yasal/sözleşmesel kontroller ve ek release gate tamamlanmadan **NO-GO**.
 - Herhangi bir migration veya deployment production'a uygulanmadan önce değişiklik listesi, yedek/geri dönüş planı ve onay ayrı ayrı alınacak.
 - `FUWU_SANDBOX_CHECKOUT_ENABLED` varsayılanı kapalı kalacak; canlı iyzico tahsilatı etkinleştirilmeyecek.
 
