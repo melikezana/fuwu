@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   local-supabase-e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
 
     steps:
@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - uses: supabase/setup-cli@v2
