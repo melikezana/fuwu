@@ -1,30 +1,16 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { loadTestEnvironment } from "./testing/environment.mjs";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { confirmPaymentByCustomer } from "@/services/payments";
 
-const root = process.cwd();
 const runId = `${Date.now()}-${Math.floor(Math.random() * 10_000)}`;
 const password = "LocalPaymentTest-2026!";
 
 function loadEnvFile(fileName: string) {
-  const path = join(root, fileName);
-
-  if (!existsSync(path)) {
-    return;
-  }
-
-  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
-    const trimmedLine = line.trim();
-
-    if (!trimmedLine || trimmedLine.startsWith("#") || !trimmedLine.includes("=")) {
-      continue;
-    }
-
-    const [key, ...valueParts] = trimmedLine.split("=");
-    process.env[key] ??= valueParts.join("=").trim().replace(/^["']|["']$/g, "");
-  }
+  void fileName;
+  const {env,safety}=loadTestEnvironment();
+  if(!safety.ready) throw new Error('BLOCKED: isolated test Supabase required');
+  Object.assign(process.env,env);
 }
 
 function getRequiredEnv(name: string) {

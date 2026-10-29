@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 import { logWarn } from "@/lib/logger";
 import type { Database } from "./types";
+import { supabaseFetch } from "./fetch";
 
 export type SupabaseServerConfig = {
   url: string;
@@ -33,7 +34,7 @@ export function getSupabaseServerConfig(): SupabaseServerConfig | null {
   };
 }
 
-export async function createClient(): Promise<SupabaseClient<Database> | null> {
+export async function createClient(origin?: string): Promise<SupabaseClient<Database> | null> {
   const config = getSupabaseServerConfig();
 
   if (!config) {
@@ -43,6 +44,8 @@ export async function createClient(): Promise<SupabaseClient<Database> | null> {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(config.url, config.anonKey, {
+    global: { fetch: supabaseFetch },
+    cookieOptions: { sameSite: "lax", secure: origin ? new URL(origin).protocol === "https:" : process.env.NODE_ENV === "production" },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -52,8 +55,8 @@ export async function createClient(): Promise<SupabaseClient<Database> | null> {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
           });
-        } catch (error) {
-          console.warn("[Supabase Server Client] Failed to set cookies:", error);
+        } catch {
+          logWarn("Supabase cookie write deferred to session middleware.");
           // Server Components cannot write cookies. Auth/proxy wiring will handle this later.
         }
       },

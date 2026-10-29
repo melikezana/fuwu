@@ -1,0 +1,8 @@
+{
+  "scope": "Actual OrderView with fictional order, mock HTTP, and mock router refresh; not real role E2E.",
+  "checks": [
+    "Order support failure preserves the order and re-enables retry; successful mock retry sends DISPUTED and refreshes once.",
+    "Customer cancellation sends CANCELLED through the existing endpoint (mock)."
+  ],
+  "errors": []
+}

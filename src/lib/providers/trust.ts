@@ -220,7 +220,7 @@ export function getProviderTrustBadges({
 }): ProviderTrustBadge[] {
   const badges: ProviderTrustBadge[] = [];
 
-  if (isVerified) {
+  if (isVerified && identityVerified) {
     badges.push({
       id: "fuwu-approved",
       label: "Doğrulanmış Usta",

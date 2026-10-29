@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "sourceHash": "5f220e2fc9a2ad2f1d7461cd22ca0e55044775eeff186c16abb7a67a14e33a29",
+  "startedAt": "2026-10-29T20:52:53.244Z",
+  "completedAt": "2026-10-29T20:54:09.973Z",
+  "executed": true,
+  "passed": 230,
+  "failed": 0,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "migrations-clean",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "migrations-upgrade",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "commerce-db-clean",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "commerce-db-upgrade",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  ]
+}

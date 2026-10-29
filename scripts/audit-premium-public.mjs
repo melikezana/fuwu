@@ -9,9 +9,9 @@ const require = createRequire(import.meta.url);
 const axeSource = await fs.readFile(require.resolve('axe-core'),'utf8');
 const base = process.env.PREMIUM_BASE_URL || 'http://127.0.0.1:3029';
 assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname));
-const out = path.resolve('artifacts/premium-mobile', phase);
+const out = path.resolve(process.env.PRODUCT_QA_OUTPUT || 'artifacts/premium-mobile', phase);
 await fs.mkdir(out, { recursive: true });
-const browser = await chromium.launch();
+const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await context.addInitScript(() => localStorage.setItem('fuwu:cookie-consent', 'rejected'));
 const page = await context.newPage();
@@ -78,9 +78,18 @@ try {
     const manifest=await (await page.request.get(base+'/manifest.webmanifest')).json();assert.equal(manifest.display,'standalone');assert.equal(manifest.lang,'tr');
     for(const icon of manifest.icons)assert.equal((await page.request.get(new URL(icon.src,base).href)).status(),200);
     report.pwaVerified=true;
+    const blockedContext=await browser.newContext({viewport:{width:390,height:844},colorScheme:'dark',reducedMotion:'reduce'});
+    await blockedContext.addInitScript(()=>{for(const key of ['getItem','setItem'])Object.defineProperty(Storage.prototype,key,{value(){throw new DOMException('TEST storage unavailable','SecurityError');}});});
+    const blockedPage=await blockedContext.newPage();const storageErrors=[];blockedPage.on('pageerror',e=>storageErrors.push(e.message));
+    await blockedPage.goto(base,{waitUntil:'domcontentloaded'});
+    await blockedPage.getByRole('button',{name:'Reddet',exact:true}).click();
+    await expectVisibleHeading(blockedPage);
+    assert.equal(await blockedPage.getByRole('button',{name:'Reddet',exact:true}).count(),0);
+    assert.deepEqual(storageErrors,[]);report.blockedStorageAndDarkPreference=true;await blockedContext.close();
     assert.ok(report.pages.every(p=>p.widths.every(w=>w.overflow<=1)&&!p.brokenImages.length));
     assert.deepEqual(report.errors,[]);
     assert.deepEqual(report.accessibility.flatMap(a=>a.violations),[],'Public WCAG automated violations');
   }
 } catch (e) { report.failure = String(e.stack); process.exitCode = 1; }
 finally { await fs.writeFile(path.join(out, 'public-audit.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report)); await browser.close(); }
+async function expectVisibleHeading(target) {await target.locator('#home-title').waitFor({state:'visible'});}

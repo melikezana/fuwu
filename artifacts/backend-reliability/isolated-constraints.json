@@ -1,0 +1,1754 @@
+[
+  {
+    "relname": "ai_analyses",
+    "definition": "NOT NULL analysis_json"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "NOT NULL conversation_id"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "FOREIGN KEY (message_id) REFERENCES ai_messages(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "ai_analyses",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "ai_conversations",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL conversation_id"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL message"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "CHECK ((role = ANY (ARRAY['user'::text, 'assistant'::text])))"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL role"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "ai_messages",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "app_settings",
+    "definition": "NOT NULL key"
+  },
+  {
+    "relname": "app_settings",
+    "definition": "PRIMARY KEY (key)"
+  },
+  {
+    "relname": "app_settings",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "app_settings",
+    "definition": "NOT NULL value"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "NOT NULL action"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "FOREIGN KEY (actor_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "NOT NULL entity_type"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "NOT NULL metadata"
+  },
+  {
+    "relname": "audit_logs",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "CHECK ((failure_class = ANY (ARRAY['processor_timeout'::text, 'processor_rejected'::text, 'processor_unverified'::text, 'processor_transport'::text, 'persistence_failed'::text, 'historical_in_flight'::text])))"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "CHECK ((kind = ANY (ARRAY['release'::text, 'refund'::text])))"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL kind"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "UNIQUE (operation_reference)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL operation_reference"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "UNIQUE (order_id, kind)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL order_id"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "CHECK (((length(review_evidence_reference) >= 3) AND (length(review_evidence_reference) <= 100)))"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "CHECK ((state = ANY (ARRAY['IN_FLIGHT'::text, 'MANUAL_REVIEW'::text, 'VERIFIED'::text, 'COMPLETED'::text])))"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL state"
+  },
+  {
+    "relname": "commerce_settlement_operations",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "CHECK (((length(btrim(address)) >= 10) AND (length(btrim(address)) <= 1000)))"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL address"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "FOREIGN KEY (customer_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL customer_id"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id)"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL district_id"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "CHECK (((length(btrim(label)) >= 1) AND (length(btrim(label)) <= 60)))"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "NOT NULL label"
+  },
+  {
+    "relname": "customer_addresses",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "FOREIGN KEY (customer_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "NOT NULL customer_id"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "PRIMARY KEY (customer_id, provider_id)"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "customer_favorite_providers",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "districts",
+    "definition": "UNIQUE (city, name)"
+  },
+  {
+    "relname": "districts",
+    "definition": "CHECK ((btrim(city) <> ''::text))"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL city"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "districts",
+    "definition": "CHECK ((btrim(name) <> ''::text))"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "districts",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "districts",
+    "definition": "CHECK ((btrim(slug) <> ''::text))"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL slug"
+  },
+  {
+    "relname": "districts",
+    "definition": "UNIQUE (slug)"
+  },
+  {
+    "relname": "districts",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "notifications",
+    "definition": "FOREIGN KEY (actor_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((btrim(body) <> ''::text))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL body"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((entity_type = ANY (ARRAY['service_request'::text, 'provider_application'::text, 'provider'::text, 'order'::text])))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL entity_type"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((btrim(event) <> ''::text))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL event"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL is_read"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((btrim(message) <> ''::text))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL message"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL metadata"
+  },
+  {
+    "relname": "notifications",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "notifications",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "notifications",
+    "definition": "FOREIGN KEY (recipient_user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL recipient_user_id"
+  },
+  {
+    "relname": "notifications",
+    "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((btrim(title) <> ''::text))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL title"
+  },
+  {
+    "relname": "notifications",
+    "definition": "CHECK ((btrim(type) <> ''::text))"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL type"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "notifications",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "notifications",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "NOT NULL checked_at"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "CHECK ((length(detail) <= 500))"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "NOT NULL detail"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "CHECK ((name = ANY (ARRAY['supabase'::text, 'schema'::text, 'google'::text, 'iyzico'::text, 'cron'::text, 'audit'::text])))"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "NOT NULL passed"
+  },
+  {
+    "relname": "operations_health_checks",
+    "definition": "PRIMARY KEY (name)"
+  },
+  {
+    "relname": "order_completion_codes",
+    "definition": "NOT NULL code"
+  },
+  {
+    "relname": "order_completion_codes",
+    "definition": "NOT NULL failed_attempts"
+  },
+  {
+    "relname": "order_completion_codes",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "order_completion_codes",
+    "definition": "NOT NULL order_id"
+  },
+  {
+    "relname": "order_completion_codes",
+    "definition": "PRIMARY KEY (order_id)"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "NOT NULL order_id"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "order_status_events",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK (((commission_minor >= 0) AND (provider_gross_minor >= 0) AND (((service_price_minor IS NULL) AND (customer_fee_minor IS NULL) AND (provider_commission_bps IS NULL) AND (customer_fee_bps IS NULL) AND ((commission_minor + provider_gross_minor) = total_minor)) OR ((service_price_minor IS NOT NULL) AND (customer_fee_minor IS NOT NULL) AND (provider_commission_bps IS NOT NULL) AND (customer_fee_bps IS NOT NULL) AND (service_price_minor > 0) AND (customer_fee_minor >= 0) AND ((provider_commission_bps >= 0) AND (provider_commission_bps <= 10000)) AND ((customer_fee_bps >= 0) AND (customer_fee_bps <= 10000)) AND ((service_price_minor + customer_fee_minor) = total_minor) AND ((commission_minor + provider_gross_minor) = service_price_minor) AND ((commission_minor)::numeric = round((((service_price_minor)::numeric * (provider_commission_bps)::numeric) / (10000)::numeric))) AND ((customer_fee_minor)::numeric = round((((service_price_minor)::numeric * (customer_fee_bps)::numeric) / (10000)::numeric))) AND (fee_terms_version IS NOT NULL) AND (fee_terms_version = 'fuwu-fees-v1'::text) AND ((customer_fee_minor = 0) OR (fee_consent_at IS NOT NULL))))))"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK (((length(btrim(address)) >= 10) AND (length(btrim(address)) <= 1000)))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL address"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((ends_at > starts_at))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL commission_minor"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((currency = 'TRY'::text))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL currency"
+  },
+  {
+    "relname": "orders",
+    "definition": "FOREIGN KEY (customer_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "orders",
+    "definition": "UNIQUE (customer_id, idempotency_key)"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL customer_id"
+  },
+  {
+    "relname": "orders",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id)"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL district_id"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL district_name"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL ends_at"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL exclusions"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL expires_at"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL idempotency_key"
+  },
+  {
+    "relname": "orders",
+    "definition": "FOREIGN KEY (offering_id) REFERENCES provider_service_offerings(id)"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL offering_id"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((payment_status = ANY (ARRAY['UNPAID'::text, 'PAID'::text, 'FAILED'::text, 'REFUND_PENDING'::text, 'REFUNDED'::text])))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL payment_status"
+  },
+  {
+    "relname": "orders",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL provider_gross_minor"
+  },
+  {
+    "relname": "orders",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL provider_name"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((provider_processor_fee_minor >= 0))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL scope"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL service_name"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL starts_at"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((status = ANY (ARRAY['PENDING_PAYMENT'::text, 'CONFIRMED'::text, 'PROVIDER_ON_THE_WAY'::text, 'IN_PROGRESS'::text, 'COMPLETED'::text, 'CANCELLED'::text, 'PAYMENT_FAILED'::text, 'REFUND_PENDING'::text, 'REFUNDED'::text, 'DISPUTED'::text])))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "orders",
+    "definition": "CHECK ((total_minor > 0))"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL total_minor"
+  },
+  {
+    "relname": "orders",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "UNIQUE (checkout_token)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "UNIQUE (conversation_id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL conversation_id"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "CHECK ((environment = 'sandbox'::text))"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL environment"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "UNIQUE (item_transaction_id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "UNIQUE (order_id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL order_id"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "UNIQUE (payment_id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "CHECK ((payout_state = ANY (ARRAY['NONE'::text, 'IN_FLIGHT'::text, 'RELEASED'::text])))"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL payout_state"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "CHECK ((refund_state = ANY (ARRAY['NONE'::text, 'IN_FLIGHT'::text, 'REFUNDED'::text])))"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL refund_state"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "CHECK ((status = ANY (ARRAY['INITIALIZING'::text, 'AWAITING'::text, 'SUCCEEDED'::text, 'FAILED'::text])))"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "payment_transactions",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK (((amount IS NULL) OR (amount >= (0)::numeric)))"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK ((checkout_initialization_state = ANY (ARRAY['NONE'::text, 'IN_FLIGHT'::text, 'ATTACHED'::text])))"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL checkout_initialization_state"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK (((commission_amount IS NULL) OR (commission_amount >= (0)::numeric)))"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK (((commission_rate IS NULL) OR ((commission_rate >= (0)::numeric) AND (commission_rate <= (1)::numeric))))"
+  },
+  {
+    "relname": "payments",
+    "definition": "FOREIGN KEY (confirmed_by) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "payments",
+    "definition": "FOREIGN KEY (escrow_released_by) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK ((external_operation_state = ANY (ARRAY['NONE'::text, 'RELEASE_IN_FLIGHT'::text, 'REFUND_IN_FLIGHT'::text, 'RELEASED'::text, 'REFUNDED'::text])))"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL external_operation_state"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK ((payment_method = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text, 'iyzico'::text])))"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL payment_method"
+  },
+  {
+    "relname": "payments",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK (((provider_payout_amount IS NULL) OR (provider_payout_amount >= (0)::numeric)))"
+  },
+  {
+    "relname": "payments",
+    "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL request_id"
+  },
+  {
+    "relname": "payments",
+    "definition": "UNIQUE (request_id)"
+  },
+  {
+    "relname": "payments",
+    "definition": "CHECK ((status = ANY (ARRAY['pending_confirmation'::text, 'confirmed'::text, 'escrow_held'::text, 'escrow_released'::text, 'escrow_failed'::text, 'escrow_refunded'::text])))"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "payments",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "profiles",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "profiles",
+    "definition": "CHECK (((full_name IS NULL) OR (btrim(full_name) <> ''::text)))"
+  },
+  {
+    "relname": "profiles",
+    "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "profiles",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "profiles",
+    "definition": "CHECK (((phone IS NULL) OR (btrim(phone) <> ''::text)))"
+  },
+  {
+    "relname": "profiles",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "profiles",
+    "definition": "CHECK ((role = ANY (ARRAY['customer'::text, 'provider'::text, 'admin'::text])))"
+  },
+  {
+    "relname": "profiles",
+    "definition": "NOT NULL role"
+  },
+  {
+    "relname": "profiles",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL category_id"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL district_id"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "CHECK ((experience_years >= 0))"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL experience_years"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "CHECK ((btrim(full_name) <> ''::text))"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL full_name"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL has_equipment"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "CHECK ((btrim(phone) <> ''::text))"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL phone"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "provider_applications",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "CHECK ((ends_at > starts_at))"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "NOT NULL ends_at"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "PRIMARY KEY (provider_id, weekday)"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "NOT NULL starts_at"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "CHECK (((weekday >= 0) AND (weekday <= 6)))"
+  },
+  {
+    "relname": "provider_availability",
+    "definition": "NOT NULL weekday"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL display_order"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL public_url"
+  },
+  {
+    "relname": "provider_gallery_images",
+    "definition": "NOT NULL storage_path"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "CHECK ((cardinality(district_ids) > 0))"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL district_ids"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "CHECK ((((duration_minutes >= 15) AND (duration_minutes <= 480)) AND ((duration_minutes % 15) = 0)))"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL duration_minutes"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "CHECK (((price_minor >= 100) AND (price_minor <= 100000000)))"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL price_minor"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "UNIQUE NULLS NOT DISTINCT (provider_id, service_id, variant_id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "FOREIGN KEY (service_id) REFERENCES service_catalog(id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL service_id"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "FOREIGN KEY (variant_id) REFERENCES service_variants(id)"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "NOT NULL day"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "UNIQUE (provider_id, day)"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "provider_time_off",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((availability = ANY (ARRAY['müsait'::text, 'yoğun'::text, 'çevrimdışı'::text])))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL availability"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((average_price_max IS NULL) OR (average_price_max >= (0)::numeric)))"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((average_price_min IS NULL) OR (average_price_min >= (0)::numeric)))"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((average_price_min IS NULL) OR (average_price_max IS NULL) OR (average_price_max >= average_price_min)))"
+  },
+  {
+    "relname": "providers",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL category_id"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((daily_order_limit >= 1) AND (daily_order_limit <= 30)))"
+  },
+  {
+    "relname": "providers",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL district_id"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((experience_years >= 0))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL experience_years"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL identity_verified"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL is_approved"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL is_verified"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((iyzico_submerchant_status = ANY (ARRAY['missing'::text, 'pending_review'::text, 'active'::text, 'rejected'::text])))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL iyzico_submerchant_status"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((btrim(name) <> ''::text))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((btrim(phone) <> ''::text))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL phone"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL phone_verified"
+  },
+  {
+    "relname": "providers",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((profile_completion_score IS NULL) OR ((profile_completion_score >= 0) AND (profile_completion_score <= 100))))"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((rating >= (0)::numeric) AND (rating <= (5)::numeric)))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL rating"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((response_time_minutes IS NULL) OR ((response_time_minutes >= 1) AND (response_time_minutes <= 1440))))"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((review_count >= 0))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL review_count"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "providers",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK ((working_hours = ANY (ARRAY['09:00-18:00'::text, '09:00-22:00'::text, '7/24'::text])))"
+  },
+  {
+    "relname": "providers",
+    "definition": "NOT NULL working_hours"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL action"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "CHECK ((count >= 0))"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL count"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "UNIQUE (user_id, action, window_start)"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "rate_limits",
+    "definition": "NOT NULL window_start"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "CHECK ((char_length(message) <= 2000))"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "CHECK ((btrim(message) <> ''::text))"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL message"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL request_id"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "FOREIGN KEY (sender_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL sender_id"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "CHECK ((sender_role = ANY (ARRAY['customer'::text, 'provider'::text])))"
+  },
+  {
+    "relname": "request_messages",
+    "definition": "NOT NULL sender_role"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL is_dry_run"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL metadata"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "FOREIGN KEY (new_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "FOREIGN KEY (previous_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "CHECK ((reason = ANY (ARRAY['sla_breach_dry_run'::text, 'no_eligible_provider_dry_run'::text, 'sla_breach_reassigned'::text, 'no_eligible_provider'::text, 'max_reassignment_limit_reached'::text])))"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL reason"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "request_reassignment_log",
+    "definition": "NOT NULL request_id"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "CHECK ((num_nonnulls(order_id, service_request_id) = 1))"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "UNIQUE (order_id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "FOREIGN KEY (service_request_id) REFERENCES service_requests(id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "UNIQUE (service_request_id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "NOT NULL submitted_at"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "review_submission_receipts",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "reviews",
+    "definition": "CHECK ((num_nonnulls(order_id, service_request_id) <= 1))"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "reviews",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "reviews",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "reviews",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "reviews",
+    "definition": "CHECK (((rating >= 1) AND (rating <= 5)))"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL rating"
+  },
+  {
+    "relname": "reviews",
+    "definition": "FOREIGN KEY (service_request_id) REFERENCES service_requests(id)"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "reviews",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "reviews",
+    "definition": "NOT NULL user_id"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id)"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL category_id"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL description"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL exclusions"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL image_url"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "CHECK (((length(name) >= 3) AND (length(name) <= 120)))"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "CHECK ((pricing_type = ANY (ARRAY['FIXED_PRICE'::text, 'VARIANT_BASED'::text, 'DIAGNOSTIC_SERVICE'::text])))"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL pricing_type"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL scope"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "UNIQUE (slug)"
+  },
+  {
+    "relname": "service_catalog",
+    "definition": "NOT NULL slug"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK (((customer_fee_bps >= 0) AND (customer_fee_bps <= 10000)))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK ((icon_name = ANY (ARRAY['air-conditioner'::text, 'appliance'::text, 'bolt'::text, 'broom'::text, 'calendar-check'::text, 'box'::text, 'faucet'::text, 'furniture-tool'::text, 'graduation-cap'::text, 'home'::text, 'key'::text, 'paint-roller'::text, 'pipe'::text, 'rug'::text, 'sparkles'::text, 'leaf'::text, 'droplets'::text, 'truck'::text, 'wrench'::text])))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL is_featured"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL is_visible"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK ((btrim(name) <> ''::text))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "UNIQUE (name)"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK (((provider_commission_bps >= 0) AND (provider_commission_bps <= 10000)))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK ((btrim(slug) <> ''::text))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL slug"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "UNIQUE (slug)"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "CHECK (((sort_order >= 0) AND (sort_order <= 10000)))"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL sort_order"
+  },
+  {
+    "relname": "service_categories",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "FOREIGN KEY (accepted_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK ((btrim(address) <> ''::text))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL address"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "FOREIGN KEY (assigned_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK (((budget_tag IS NULL) OR (budget_tag = ANY (ARRAY['ekonomik'::text, 'standart'::text, 'premium'::text, 'acil-hizmet'::text, 'acil'::text]))))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL category_id"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL district_id"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK (((emergency_status IS NULL) OR (emergency_status = ANY (ARRAY['pending'::text, 'assigned'::text, 'accepted'::text, 'rejected'::text, 'on_the_way'::text, 'completed'::text, 'cancelled'::text]))))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK (((offered_price IS NULL) OR (offered_price >= (0)::numeric)))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text, 'iyzico'::text]))))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK (((payment_preference IS NULL) OR (payment_preference = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text, 'iyzico'::text]))))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'assigned'::text, 'accepted'::text, 'rejected'::text, 'in_progress'::text, 'completed'::text, 'cancelled'::text])))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK ((urgency = ANY (ARRAY['low'::text, 'normal'::text, 'high'::text, 'urgent'::text, 'acil'::text])))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL urgency"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "CHECK ((urgency_type = ANY (ARRAY['standard'::text, 'emergency'::text])))"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "NOT NULL urgency_type"
+  },
+  {
+    "relname": "service_requests",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "NOT NULL is_active"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "NOT NULL name"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "UNIQUE NULLS NOT DISTINCT (service_id, provider_id, name)"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "FOREIGN KEY (service_id) REFERENCES service_catalog(id)"
+  },
+  {
+    "relname": "service_variants",
+    "definition": "NOT NULL service_id"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL email"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL message"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "CHECK ((status = ANY (ARRAY['new'::text, 'read'::text, 'resolved'::text])))"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL subject"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "NOT NULL updated_at"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  }
+]

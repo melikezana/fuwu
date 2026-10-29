@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from "react";
 import { appRoutes } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { SessionProfileProvider } from "@/components/auth/SessionProfileProvider";
 
 import { PageTransition } from "./PageTransition";
 
@@ -41,7 +42,7 @@ export function MobileAppShell({ children }: MobileAppShellProps) {
   }, []);
 
   return (
-    <div
+    <SessionProfileProvider><div
       className={cn(
         "flex min-h-screen flex-col",
         !isAdminPath &&
@@ -52,6 +53,6 @@ export function MobileAppShell({ children }: MobileAppShellProps) {
         {children}
       </PageTransition>
       <MobileBottomNav />
-    </div>
+    </div></SessionProfileProvider>
   );
 }

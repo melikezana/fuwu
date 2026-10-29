@@ -1,16 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { expect, type Page, test } from "@playwright/test";
+import { loadTestEnvironment } from "../scripts/testing/environment.mjs";
 
-const isLocalSupabaseUrl = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/^https?:\/\/(127\.0\.0\.1|localhost)/),
-);
-const allowsRemoteTestProject = process.env.E2E_ALLOW_REMOTE_SUPABASE_TESTS === "true";
-
-export const hasLocalSupabaseE2E = Boolean(
-  (isLocalSupabaseUrl || allowsRemoteTestProject) &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+export const hasLocalSupabaseE2E = loadTestEnvironment().safety.ready;
 
 export function skipUnlessLocalSupabase() {
   test.skip(!hasLocalSupabaseE2E, "Local Supabase test env is not configured.");
@@ -25,8 +17,10 @@ export function uniqueE2EEmail(prefix: string) {
 }
 
 type TestUserRole = "admin" | "customer" | "provider";
+const createdTestUsers = new Map<string, string>();
 
 export function getTestAdminClient() {
+  if (!loadTestEnvironment().safety.ready) throw new Error("BLOCKED: isolated Supabase test target required");
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -43,21 +37,10 @@ export function getTestAdminClient() {
 }
 
 export async function ensureTestUserRole(email: string, role: TestUserRole) {
+  if (!/^[a-z0-9._+-]+@fuwu\.test$/i.test(email)) throw new Error("BLOCKED: only synthetic fuwu.test identities are allowed");
   const admin = getTestAdminClient();
-  const { data: listedUsers, error: listError } = await admin.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
-  });
-
-  if (listError) {
-    throw listError;
-  }
-
-  let user = listedUsers.users.find(
-    (candidate) => candidate.email?.toLocaleLowerCase("en") === email.toLocaleLowerCase("en"),
-  );
-
-  if (!user) {
+  let userId = createdTestUsers.get(email);
+  if (!userId) {
     const { data, error } = await admin.auth.admin.createUser({
       email,
       email_confirm: true,
@@ -70,7 +53,8 @@ export async function ensureTestUserRole(email: string, role: TestUserRole) {
       throw error;
     }
 
-    user = data.user;
+    userId = data.user.id;
+    createdTestUsers.set(email, userId);
   }
 
   const { error: profileError } = await admin
@@ -79,13 +63,13 @@ export async function ensureTestUserRole(email: string, role: TestUserRole) {
       full_name: `E2E ${role}`,
       role,
     })
-    .eq("id", user.id);
+    .eq("id", userId);
 
   if (profileError) {
     throw profileError;
   }
 
-  return user.id;
+  return userId;
 }
 
 async function findLatestMagicLink(page: Page, email: string, requestedAt: number) {
@@ -168,6 +152,7 @@ export async function loginWithEmailMagicLink(
     )
     .not.toBe("");
 
+  expect(new URL(magicLink).origin).toBe(new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin);
   const verificationResponse = await page.request.get(magicLink, {
     maxRedirects: 0,
   });
@@ -175,6 +160,7 @@ export async function loginWithEmailMagicLink(
 
   expect([302, 303]).toContain(verificationResponse.status());
   expect(callbackUrl).toContain("/auth/callback");
+  expect(new URL(callbackUrl).origin).toBe(new URL(page.url()).origin);
 
   await page.goto(callbackUrl, { waitUntil: "domcontentloaded" });
   await expectAuthenticated(page);

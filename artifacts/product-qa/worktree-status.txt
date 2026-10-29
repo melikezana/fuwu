@@ -1,0 +1,127 @@
+ M .github/workflows/e2e.yml
+ M .gitignore
+ M docs/FUWU_PREMIUM_MOBILE_UX_FINAL_AUDIT.md
+ M docs/FUWU_PRODUCTION_READINESS_REPORT.md
+ M e2e/fixtures/commerce-base.sql
+ M e2e/fixtures/commerce-ui/main.tsx
+ M e2e/helpers.ts
+ M middleware.ts
+ M next-env.d.ts
+ M package-lock.json
+ M package.json
+ M playwright.config.ts
+ M scripts/audit-premium-components.mjs
+ M scripts/audit-premium-public.mjs
+ M scripts/fuwu3-db-checks.mjs
+ M scripts/test-admin-assignment-race.mjs
+ M scripts/test-customer-payment-confirmation.ts
+ M scripts/test-direct-commerce-db.mjs
+ M scripts/test-fusion-auth.ts
+ M scripts/test-provider-matching.ts
+ M scripts/test-review-submission.ts
+ M scripts/verify-direct-commerce.mjs
+ M scripts/verify-phase2-checkout.mjs
+ M src/app/admin/marketplace/actions.ts
+ M src/app/admin/providers/page.tsx
+ M src/app/api/account/favorites/route.ts
+ M src/app/api/ai-assistant/analyze/route.ts
+ M src/app/api/auth/logout/route.ts
+ M src/app/api/auth/user/route.ts
+ M src/app/api/commerce/checkout/route.ts
+ M src/app/api/commerce/orders/[id]/route.ts
+ M src/app/api/commerce/orders/route.ts
+ M src/app/api/commerce/payment-callback/route.ts
+ M src/app/api/commerce/quote/route.ts
+ M src/app/api/commerce/slots/route.ts
+ M src/app/api/commerce/store/capacity/route.ts
+ M src/app/api/commerce/store/route.ts
+ M src/app/api/commerce/store/variants/route.ts
+ M src/app/api/cron/commerce-expiry/route.ts
+ M src/app/api/payments/iyzico/checkout/route.ts
+ M src/app/api/payments/iyzico/webhook/route.ts
+ M src/app/api/support/messages/route.ts
+ M src/app/auth/callback/route.ts
+ M src/app/layout.tsx
+ M src/components/home/CategoryCard.tsx
+ M src/components/home/MarketplaceHome.tsx
+ M src/components/home/PopularServices.tsx
+ M src/components/layout/MobileAppShell.tsx
+ M src/components/layout/MobileBottomNav.tsx
+ M src/components/layout/Navbar.tsx
+ M src/components/legal/CookieConsentBanner.tsx
+ M src/fonts/Inter-Bold.woff2
+ M src/fonts/Inter-ExtraBold.woff2
+ M src/fonts/Inter-Medium.woff2
+ M src/fonts/Inter-Regular.woff2
+ M src/fonts/Inter-SemiBold.woff2
+ M src/lib/commerce/payment.ts
+ M src/lib/commerce/types.ts
+ M src/lib/errors/backend.ts
+ M src/lib/errors/errorHandler.ts
+ M src/lib/providers/trust.ts
+ M src/lib/security/rateLimit.ts
+ M src/lib/supabase/client.ts
+ M src/lib/supabase/server.ts
+ M src/lib/supabase/serviceRole.ts
+ M src/lib/supabase/types.ts
+ M src/lib/validations/imageMagicBytes.ts
+ M src/services/admin/operations.ts
+ M src/services/audit/index.ts
+ M src/services/auth/profiles.ts
+ M src/services/commerce/index.ts
+ M src/services/commerce/reconciliation.ts
+ M src/services/commerce/settlement.ts
+ M src/services/payments/index.ts
+ M src/services/payments/iyzico-client.ts
+ M src/services/providers/index.ts
+ M src/services/storage/providerVerificationDocuments.ts
+ M src/styles/mobile-experience.css
+?? .github/workflows/quality.yml
+?? artifacts/backend-reliability/
+?? artifacts/product-qa/
+?? artifacts/security-audit-initial.json
+?? artifacts/security-testing-audit.json
+?? artifacts/security-testing/
+?? config/
+?? docs/FUWU_BACKEND_RELIABILITY_REPORT.md
+?? docs/FUWU_FINAL_PRODUCT_QA.md
+?? docs/FUWU_SECURITY_AND_TEST_REPORT.md
+?? e2e/commerce.spec.ts
+?? e2e/fixtures/backend-upgrade.sql
+?? e2e/fixtures/commerce-ui/session-client.ts
+?? e2e/fixtures/supabase-platform.sql
+?? scripts/audit-backend-readonly.mjs
+?? scripts/audit-product-profiles.ts
+?? scripts/backend-reliability-db-checks.mjs
+?? scripts/check-security.mjs
+?? scripts/measure-product-qa.mjs
+?? scripts/product-publication-db-checks.mjs
+?? scripts/product-qa-runtime.mjs
+?? scripts/release-gate.mjs
+?? scripts/run-check.mjs
+?? scripts/run-commerce-e2e.mjs
+?? scripts/security-db-checks.mjs
+?? scripts/security-schema-checks.mjs
+?? scripts/subset-product-fonts.py
+?? scripts/test-backend-http.mjs
+?? scripts/test-backend-migrations.mjs
+?? scripts/test-backend-reliability.ts
+?? scripts/testing/
+?? scripts/verify-product-session.mjs
+?? src/app/admin/providers/quality-actions.ts
+?? src/components/admin/ProviderQualityQueue.tsx
+?? src/components/auth/SessionProfileProvider.tsx
+?? src/lib/commerce/api.ts
+?? src/lib/commerce/validation.ts
+?? src/lib/providers/quality.ts
+?? src/lib/security/requestBoundary.ts
+?? src/lib/supabase/fetch.ts
+?? src/services/admin/provider-quality.ts
+?? src/services/commerce/discovery.ts
+?? supabase/checks/
+?? supabase/migrations/20261029000100_backend_reliability.sql
+?? supabase/migrations/20261029000200_atomic_rate_limit.sql
+?? supabase/migrations/20261029000300_provider_publication_quality.sql
+?? tests/
+?? vitest.security.config.ts
+?? vitest.unit.config.ts

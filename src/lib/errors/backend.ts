@@ -39,16 +39,12 @@ function getSupabaseErrorDetails(error: unknown) {
 
   return {
     code: typeof error.code === "string" ? error.code : undefined,
-    details: typeof error.details === "string" ? error.details : undefined,
-    hint: typeof error.hint === "string" ? error.hint : undefined,
-    message: typeof error.message === "string" ? error.message : undefined,
   };
 }
 
 function getErrorSummary(error: unknown) {
   if (error instanceof Error) {
     return {
-      message: error.message,
       name: error.name,
     };
   }

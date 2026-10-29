@@ -15,11 +15,11 @@ import {
   UserRoundSearch,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { appRoutes } from "@/lib/constants/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSessionProfile } from "@/components/auth/SessionProfileProvider";
 import { cn } from "@/lib/utils";
-import type { CurrentUserProfile } from "@/types/auth";
+
 
 type MobileTab = {
   center?: boolean;
@@ -90,53 +90,14 @@ function isRouteActive(pathname: string, tab: MobileTab) {
 
 export function MobileBottomNav() {
   const pathname = usePathname() ?? appRoutes.home;
-  const [userProfile, setUserProfile] = useState<CurrentUserProfile | null>(null);
+  const { profile: userProfile } = useSessionProfile();
   const isAdminPath = pathname === appRoutes.adminDashboard || pathname.startsWith("/admin/");
   const tabs = useMemo(
     () => (isAdminPath ? adminTabs : userProfile?.role === "provider" ? providerTabs : customerTabs),
     [userProfile?.role, isAdminPath],
   );
 
-  useEffect(() => {
-    let mounted = true;
-    const supabase = createClient();
 
-    async function loadAuth() {
-      try {
-        const response = await fetch("/api/auth/user", { cache: "no-store" });
-        const data = response.ok ? await response.json() : null;
-
-        if (mounted) {
-          setUserProfile(data?.authenticated && data.profile ? data.profile : null);
-        }
-      } catch {
-        if (mounted) {
-          setUserProfile(null);
-        }
-      }
-    }
-
-    void loadAuth();
-
-    const {
-      data: { subscription },
-    } =
-      supabase?.auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_OUT") {
-          setUserProfile(null);
-          return;
-        }
-
-        if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-          void loadAuth();
-        }
-      }) ?? { data: { subscription: null } };
-
-    return () => {
-      mounted = false;
-      subscription?.unsubscribe();
-    };
-  }, []);
 
   return (
     <nav aria-label="Mobil alt sekme navigasyonu" className="mobile-tab-bar">

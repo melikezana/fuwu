@@ -10,7 +10,7 @@ await fs.mkdir(out, { recursive: true });
 const root = path.resolve("e2e/fixtures/commerce-ui");
 const server = await createServer({ configFile: false, root, publicDir: path.resolve("public"), resolve: { alias: { "@/app/admin/marketplace/health-actions": path.join(root, "health-action.ts"), "@/app/providers/[id]/actions": path.join(root, "review-action.ts"), "@": path.resolve("src"), "next/link": path.join(root, "next-link.tsx"), "next/image": path.join(root, "next-image.tsx"), "next/navigation": path.join(root, "next-navigation.ts") } }, esbuild: { jsx: "automatic" }, server: { host: "127.0.0.1", port: 3041, strictPort: true, fs: { allow: [process.cwd()] } } });
 await server.listen();
-const browser = await chromium.launch();
+const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
 const page = await context.newPage();
 page.setDefaultTimeout(15000);
@@ -92,6 +92,7 @@ try {
     for (const button of await page.getByRole("button", { name: "Ödemeye Geç", exact: true }).all()) if (await button.isVisible()) visible.push(button);
     assert.equal(visible.length, 1, `One primary payment CTA at ${width}`);
     const bounds = await visible[0].boundingBox(); assert.ok(bounds.height >= 44);
+    if (width < 768) { const back = await page.locator('.booking-back-button').boundingBox(); assert.ok(back.width >= 44 && back.height >= 44, `Accessible back target at ${width}`); }
     if ([390, 1440].includes(width)) await shot(`checkout-${width}-FIXTURE`);
   }
   report.checks.push("Checkout scope, exclusions, address, duration, total, cancellation/refund terms and one visible payment CTA fit eight viewport widths.");

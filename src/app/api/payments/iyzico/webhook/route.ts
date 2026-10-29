@@ -1,3 +1,4 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
@@ -7,6 +8,7 @@ import { verifyIyzicoWebhookSignature } from "@/services/payments/iyzico-client"
 import { retrieveIyzicoCheckoutFormResult } from "@/services/payments/iyzico-checkout";
 import { assertSandbox, minorAmount, verifyCommercePayment } from "@/lib/commerce/payment";
 import { reconcileCommercePayment } from "@/services/commerce/reconciliation";
+import { logWarn } from "@/lib/logger";
 
 type WebhookSupabaseClient = SupabaseClient<Database>;
 const terminalEscrowStatuses = new Set<string>([
@@ -25,6 +27,7 @@ type PaymentRecord = {
   iyzico_checkout_token: string | null;
   iyzico_conversation_id: string | null;
   iyzico_payment_id: string | null;
+  iyzico_submerchant_key_snapshot: string | null;
   status: string;
 };
 
@@ -63,7 +66,7 @@ async function getPaymentByConversationId(
 ) {
   const { data, error } = await supabase
     .from("payments")
-    .select("id, request_id, amount, provider_payout_amount, status, iyzico_conversation_id, iyzico_checkout_token, iyzico_payment_id")
+    .select("id, request_id, amount, provider_payout_amount, status, iyzico_conversation_id, iyzico_checkout_token, iyzico_payment_id, iyzico_submerchant_key_snapshot")
     .eq("iyzico_conversation_id", conversationId)
     .maybeSingle();
 
@@ -80,7 +83,7 @@ async function getPaymentByIyzicoPaymentId(
 ) {
   const { data, error } = await supabase
     .from("payments")
-    .select("id, request_id, amount, provider_payout_amount, status, iyzico_conversation_id, iyzico_checkout_token, iyzico_payment_id")
+    .select("id, request_id, amount, provider_payout_amount, status, iyzico_conversation_id, iyzico_checkout_token, iyzico_payment_id, iyzico_submerchant_key_snapshot")
     .eq("iyzico_payment_id", paymentId)
     .maybeSingle();
 
@@ -102,13 +105,11 @@ function getFirstTransactionId(
 async function retrieveCheckoutDetail({
   conversationId,
   payment,
-  payload,
 }: {
   conversationId: string;
   payment: PaymentRecord;
-  payload: WebhookPayload;
 }) {
-  const token = getString(payload.token) || payment.iyzico_checkout_token;
+  const token = payment.iyzico_checkout_token;
 
   if (!token) {
     return null;
@@ -119,24 +120,21 @@ async function retrieveCheckoutDetail({
       conversationId,
       token,
     });
-  } catch (error) {
-    console.error("[Fuwu] iyzico checkout detail retrieve failed.", {
+  } catch {
+    logWarn("iyzico checkout detail retrieve failed.", {
       conversationId,
-      error,
+      classification: "processor_transport",
     });
     return null;
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try { assertSandbox(); } catch { return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 }); }
   let payload: WebhookPayload;
   try { payload = await parseWebhookPayload(request); } catch { return NextResponse.json({ error: "invalid_payload" }, { status: 400 }); }
   const isBrowserCallback = (request.headers.get("content-type") || "").includes("application/x-www-form-urlencoded") && !request.headers.has("x-iyz-signature-v3");
-  const signature =
-    request.headers.get("x-iyz-signature-v3") ??
-    request.headers.get("x-iyz-signature-v2") ??
-    request.headers.get("x-iyz-signature");
+  const signature = request.headers.get("x-iyz-signature-v3");
 
   if (!isBrowserCallback && !verifyIyzicoWebhookSignature({ payload, signature })) {
     return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
@@ -168,7 +166,7 @@ export async function POST(request: NextRequest) {
   if (conversationId.startsWith("order-")) {
     const { data: transaction } = await supabase.from("payment_transactions").select("*").eq("conversation_id", conversationId).maybeSingle();
     if (!transaction) return NextResponse.json({ error: "payment_not_found" }, { status: 404 });
-    try { await reconcileCommercePayment(supabase, transaction); return NextResponse.json({ ok: true }); }
+    try { await reconcileCommercePayment(supabase, transaction, { conversationId, paymentId: payloadPaymentId, token: getString(payload.token) }); return NextResponse.json({ ok: true }); }
     catch { return NextResponse.json({ error: "payment_verification_failed" }, { status: 502 }); }
   }
 
@@ -177,6 +175,7 @@ export async function POST(request: NextRequest) {
     : null;
 
   if (existingByPaymentId && isTerminalEscrowStatus(existingByPaymentId.status)) {
+    if (existingByPaymentId.iyzico_conversation_id !== conversationId) return NextResponse.json({ error: "payment_verification_failed" }, { status: 502 });
     return NextResponse.json({ ok: true, idempotent: true });
   }
 
@@ -186,23 +185,26 @@ export async function POST(request: NextRequest) {
   if (!payment) {
     return NextResponse.json({ error: "payment_not_found" }, { status: 404 });
   }
+  if (payment.iyzico_conversation_id !== conversationId || (getString(payload.token) && getString(payload.token) !== payment.iyzico_checkout_token)) return NextResponse.json({ error: "payment_verification_failed" }, { status: 502 });
 
-  const detail = await retrieveCheckoutDetail({ conversationId, payment, payload });
+  const detail = await retrieveCheckoutDetail({ conversationId, payment });
   let verifiedSuccess: boolean;
   try {
     if (!detail || !payment.iyzico_checkout_token || minorAmount(payment.amount) == null || minorAmount(payment.provider_payout_amount) == null) throw new Error("missing_payment_snapshot");
-    verifiedSuccess = verifyCommercePayment(detail, { id: payment.request_id, total_minor: minorAmount(payment.amount)!, provider_gross_minor: minorAmount(payment.provider_payout_amount)! }, payment.iyzico_checkout_token, payment.iyzico_conversation_id || conversationId);
+    verifiedSuccess = verifyCommercePayment(detail, { id: payment.request_id, total_minor: minorAmount(payment.amount)!, provider_gross_minor: minorAmount(payment.provider_payout_amount)! }, payment.iyzico_checkout_token, payment.iyzico_conversation_id || conversationId, { paymentId: payment.iyzico_payment_id, submerchantKey: payment.iyzico_submerchant_key_snapshot });
     if (payloadPaymentId && payloadPaymentId !== detail.paymentId) throw new Error("payment_id_mismatch");
   } catch { return NextResponse.json({ error: "payment_verification_failed" }, { status: 502 }); }
   if (!verifiedSuccess) {
-    await supabase
+    const { error: failureError } = await supabase
       .from("payments")
       .update({
         escrow_failed_at: new Date().toISOString(),
         status: PAYMENT_STATUSES.escrowFailed,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", payment.id);
+      .eq("id", payment.id).in("status", [PAYMENT_STATUSES.pendingConfirmation, PAYMENT_STATUSES.escrowFailed]);
+
+    if (failureError) return NextResponse.json({ error: "payment_update_failed" }, { status: 503 });
 
     return NextResponse.json({ ok: true });
   }
@@ -238,3 +240,5 @@ export async function POST(request: NextRequest) {
 
   return isBrowserCallback ? NextResponse.redirect(new URL("/account/requests", process.env.NEXT_PUBLIC_SITE_URL || request.url), 303) : NextResponse.json({ ok: true });
 }
+
+export const POST = withCommerceApi(handlePOST);

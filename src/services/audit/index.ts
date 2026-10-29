@@ -1,6 +1,7 @@
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import { logBackendError } from "@/lib/errors/backend";
 import type { Database, Json } from "@/lib/supabase/types";
+import { supabaseFetch } from "@/lib/supabase/fetch";
 
 type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 type AuditSupabaseClient = SupabaseClient<Database>;
@@ -67,6 +68,7 @@ function createAuditServiceRoleClient() {
   }
 
   return createSupabaseClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+    global: { fetch: supabaseFetch },
     auth: {
       autoRefreshToken: false,
       persistSession: false,

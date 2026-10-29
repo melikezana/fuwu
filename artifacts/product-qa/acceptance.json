@@ -1,0 +1,133 @@
+{
+  "completedAt": "2026-10-29T21:09:42.397Z",
+  "sourceHash": "5f220e2fc9a2ad2f1d7461cd22ca0e55044775eeff186c16abb7a67a14e33a29",
+  "additionalAssetHashes": {
+    "src/styles/mobile-experience.css": "599cebef04902f08a448140463e71c1b8bfa7ab30dc401fd7bf555adaa264e37",
+    "src/fonts/Inter-Regular.woff2": "78a21cffbca62e9ba4d4e1544a12c0a21533e6ef0aa0d7f9340783c668af0ac3",
+    "src/fonts/Inter-Medium.woff2": "6619e01fc757ac65407ece75a9b9db1c58c863f1b6999de9f040cb06baa4c3c5",
+    "src/fonts/Inter-SemiBold.woff2": "ca113412572e2def67a68de717f6a4768f11101c7a2445d301ab2b599010518e",
+    "src/fonts/Inter-Bold.woff2": "e439e4314f4ce781f070321404111b55646a26e4c86a3925db2d29596d650013",
+    "src/fonts/Inter-ExtraBold.woff2": "715f5872de215bbb3faf815869720a5769fab4bd4bc3f940cc6cb20ef9f73f66"
+  },
+  "decision": "NO_GO",
+  "checks": {
+    "unit": {
+      "status": "PASS",
+      "passed": 90,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:57:51.098Z",
+      "sourceMatches": true
+    },
+    "coverage": {
+      "status": "PASS",
+      "passed": 90,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:54:17.214Z",
+      "sourceMatches": true
+    },
+    "integration": {
+      "status": "PASS",
+      "passed": 230,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:54:09.973Z",
+      "sourceMatches": true
+    },
+    "security": {
+      "status": "PASS",
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:54:57.272Z",
+      "sourceMatches": true
+    },
+    "typecheck": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:54:36.207Z",
+      "sourceMatches": true
+    },
+    "lint": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:56:43.485Z",
+      "sourceMatches": true
+    },
+    "build": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:55:52.043Z",
+      "sourceMatches": true
+    },
+    "http": {
+      "status": "PASS",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:55:56.258Z",
+      "sourceMatches": true
+    },
+    "mock": {
+      "status": "PASS",
+      "passed": 77,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:58:01.865Z",
+      "sourceMatches": true
+    },
+    "commerce-e2e": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "completedAt": "2026-10-29T20:54:59.082Z",
+      "sourceMatches": true
+    }
+  },
+  "publicApp": {
+    "pages": 7,
+    "failure": null
+  },
+  "panels": {
+    "checks": 16,
+    "failure": null
+  },
+  "performance": {
+    "scope": "LOCAL production, Lighthouse simulated mobile; all runs have collector timeout warnings; not field CWV",
+    "buildId": "5viElv3j6jEGkf9qKD_zj",
+    "homeBeforeMedianMs": 6572.370874999999,
+    "homeAfterMedianMs": 3986.925,
+    "acceptance": {
+      "lcpTargetMs": 2500,
+      "clsTarget": 0.1,
+      "allLcpPass": false,
+      "allClsPass": true,
+      "inp": "UNAVAILABLE: no real-user data"
+    }
+  },
+  "blocked": [
+    "Remote commerce schema/ledger mismatch",
+    "Real Google OAuth account E2E",
+    "Real iyzico sandbox merchant/payment/refund E2E",
+    "Healthy isolated Supabase Auth/DB E2E",
+    "Staging publication rollout and human review",
+    "Mobile LCP <= 2500ms",
+    "PostgreSQL 17 and real Supabase platform acceptance"
+  ],
+  "productionMutations": false,
+  "commitPushDeployment": false,
+  "support": {
+    "checks": 2,
+    "failure": null,
+    "scope": "Actual OrderView with fictional order, mock HTTP, and mock router refresh; not real role E2E."
+  },
+  "sourceHashUnchanged": true
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "Offline mocked processor HTTP and Supabase RPC; not a real sandbox transaction",
+  "checks": [
+    "Verified refund completes once; repeated request sends no second external refund",
+    "Unverified refund amount stays pending and cannot retry",
+    "Unverified refund currency stays pending and cannot retry",
+    "Unverified refund item stays pending and cannot retry",
+    "Unverified refund conversation stays pending and cannot retry",
+    "Timeout after dispatch remains manual review and does not repeat the external side effect",
+    "Processor rejection is classified without completing a refund",
+    "Verified response with failed DB finalization recovers without another processor call",
+    "Audit outage preserves the original IN_FLIGHT claim and never finishes or repeats",
+    "Claim error fails before a processor operation",
+    "Direct webhook signature cannot authorize an unsigned HPP token",
+    "API hides raw DB details and correlates every error and success",
+    "Payment reconciliation pending never calls the payment-state RPC",
+    "Payment reconciliation amount never calls the payment-state RPC",
+    "Payment reconciliation merchant never calls the payment-state RPC",
+    "Payment reconciliation timeout never calls the payment-state RPC",
+    "Signed notification payment identity must match server retrieval",
+    "Verified final success alone reaches the payment-state RPC",
+    "Verified final failure alone reaches the payment-state RPC",
+    "SQL diagnostic values never appear in service logs"
+  ]
+}

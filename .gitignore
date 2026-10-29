@@ -1,10 +1,14 @@
 # dependencies
 node_modules/
 artifacts/commerce-test-runtime/
+artifacts/security-testing/tmp/
+artifacts/security-testing/storybook-static/
 artifacts/phase3/browser-runtime/
 artifacts/phase3/vite-cache/
 artifacts/premium-mobile/vite-audit-cache/
 artifacts/premium-mobile/lighthouse-runtime/
+artifacts/product-qa/font-runtime/
+artifacts/product-qa/support-vite-cache/
 fuwu/
 
 # next.js

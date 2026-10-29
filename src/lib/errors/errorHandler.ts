@@ -40,11 +40,11 @@ function isSupabaseLikeError(error: unknown): error is SupabaseLikeError {
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
-    return error.message;
+    return error.name;
   }
 
   if (isSupabaseLikeError(error) && typeof error.message === "string") {
-    return error.message;
+    return "database_failure";
   }
 
   return "Unknown service error.";
@@ -53,14 +53,11 @@ function getErrorMessage(error: unknown) {
 function getSupabaseLogPayload(error: SupabaseLikeError) {
   return {
     code: typeof error.code === "string" ? error.code : undefined,
-    details: typeof error.details === "string" ? error.details : undefined,
-    hint: typeof error.hint === "string" ? error.hint : undefined,
-    message: typeof error.message === "string" ? error.message : undefined,
     status: typeof error.status === "number" ? error.status : undefined,
   };
 }
 
-function captureCriticalError(error: unknown, appError: AppError) {
+function captureCriticalError(appError: AppError) {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return;
   }
@@ -69,7 +66,8 @@ function captureCriticalError(error: unknown, appError: AppError) {
     return;
   }
 
-  Sentry.captureException(error instanceof Error ? error : appError, {
+  // Raw exceptions and their causes can contain SQL values, addresses or payment tokens.
+  Sentry.captureException(new Error("Service operation failed."), {
     tags: {
       appErrorCode: appError.code,
       appErrorName: appError.name,
@@ -88,7 +86,7 @@ export function handleServiceError(
       code: error.code,
       statusCode: error.statusCode,
     });
-    captureCriticalError(error, error);
+    captureCriticalError(error);
     return error;
   }
 
@@ -112,7 +110,7 @@ export function handleServiceError(
       },
     );
 
-    captureCriticalError(error, databaseError);
+    captureCriticalError(databaseError);
     return databaseError;
   }
 
@@ -127,7 +125,7 @@ export function handleServiceError(
     statusCode: options.statusCode ?? 500,
   });
 
-  captureCriticalError(error, appError);
+  captureCriticalError(appError);
   return appError;
 }
 

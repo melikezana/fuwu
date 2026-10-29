@@ -74,6 +74,7 @@ async function main() {
     await check("Public service page also refreshes an existing session", async () => {
       const response = await middleware(new NextRequest("https://www.fuwu.com.tr/services/musluk-montaji", { headers: { cookie } }));
       assert.ok(response.cookies.getAll().length > 0);
+      for (const value of response.cookies.getAll()) { assert.equal(value.secure, true); assert.equal(value.sameSite, "lax"); }
     });
     await check("User-editable admin metadata grants no admin access; redirect retains renewed cookies", async () => {
       const response = await middleware(new NextRequest("https://www.fuwu.com.tr/admin/marketplace", { headers: { cookie } }));
@@ -93,8 +94,9 @@ async function main() {
     globalThis.fetch = originalFetch;
     for (const [key, value] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: previous.url, NEXT_PUBLIC_SUPABASE_ANON_KEY: previous.anon, SUPABASE_SERVICE_ROLE_KEY: previous.service })) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
   }
-  mkdirSync("artifacts/fusion", { recursive: true });
-  writeFileSync("artifacts/fusion/auth-tests.json", JSON.stringify({ scope: "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E", checks }, null, 2));
+  const output = process.env.AUTH_OUTPUT_DIR || "artifacts/fusion";
+  mkdirSync(output, { recursive: true });
+  writeFileSync(output + "/auth-tests.json", JSON.stringify({ scope: "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E", checks }, null, 2));
   console.log(`${checks.length} local auth checks passed.`);
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

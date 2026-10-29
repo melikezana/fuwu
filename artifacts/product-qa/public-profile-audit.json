@@ -1,0 +1,74 @@
+{
+  "at": "2026-10-29T17:56:49.397Z",
+  "scope": "Remote public anonymous GET only, no data changes. Identifiers/review signals only; no names, descriptions, contact information or secrets saved.",
+  "scanned": 4,
+  "flagged": [
+    {
+      "providerId": "4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+      "reasons": [
+        "repeated_text",
+        "verification_claim"
+      ]
+    },
+    {
+      "providerId": "78bc496a-7f93-43fb-8748-33b5d6cde252",
+      "reasons": [
+        "verification_claim"
+      ]
+    },
+    {
+      "providerId": "8a0fd4ad-4b34-4089-8737-3cebc64e4295",
+      "reasons": [
+        "verification_claim"
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "resource": "providers",
+      "status": 200,
+      "ms": 295
+    },
+    {
+      "resource": "rpc/public_provider_reviews",
+      "status": 404,
+      "ms": 234
+    },
+    {
+      "resource": "reviews",
+      "status": 200,
+      "ms": 249
+    },
+    {
+      "resource": "rpc/public_provider_reviews",
+      "status": 404,
+      "ms": 227
+    },
+    {
+      "resource": "reviews",
+      "status": 200,
+      "ms": 214
+    },
+    {
+      "resource": "rpc/public_provider_reviews",
+      "status": 404,
+      "ms": 222
+    },
+    {
+      "resource": "reviews",
+      "status": 200,
+      "ms": 227
+    },
+    {
+      "resource": "rpc/public_provider_reviews",
+      "status": 404,
+      "ms": 221
+    },
+    {
+      "resource": "reviews",
+      "status": 200,
+      "ms": 213
+    }
+  ],
+  "incomplete": true
+}

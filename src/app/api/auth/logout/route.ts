@@ -1,9 +1,11 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { checkApiRateLimit, getApiRateLimitHeaders, getRequestOrigin } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseSessionCookie } from "@/lib/auth/session-cookies";
+import { logWarn } from "@/lib/logger";
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const rateLimit = await checkApiRateLimit(request, {
@@ -15,6 +17,7 @@ export async function POST(request: NextRequest) {
   if (!rateLimit.allowed) {
     return NextResponse.json(
       {
+        error: "rate_limit",
         message: "Çok fazla çıkış isteği gönderildi. Lütfen biraz sonra tekrar deneyin.",
       },
       {
@@ -30,8 +33,8 @@ export async function POST(request: NextRequest) {
     if (supabase) {
       await supabase.auth.signOut();
     }
-  } catch (err) {
-    console.error("[Auth API] Sign out failed:", err);
+  } catch {
+    logWarn("Remote sign-out could not be verified; local session cleared.");
   }
 
   const response = NextResponse.redirect(new URL("/", getRequestOrigin(request)), {
@@ -44,3 +47,5 @@ export async function POST(request: NextRequest) {
   }
   return response;
 }
+
+export const POST = withCommerceApi(handlePOST);

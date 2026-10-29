@@ -1,0 +1,53 @@
+name: Security and backend quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  backend-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ""
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ""
+      SUPABASE_SERVICE_ROLE_KEY: ""
+      IYZICO_API_KEY: ""
+      IYZICO_SECRET_KEY: ""
+      TEST_POSTGRES_BIN: /usr/lib/postgresql/17/bin
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: PostgreSQL 17 binaries for disposable loopback clusters
+        run: sudo apt-get update && sudo apt-get install -y postgresql-17
+      - run: npm run typecheck
+      - run: npm run check:lint
+      - run: npm run test:unit
+      - run: npm run test:unit:coverage
+      - run: npm run test:integration
+      - run: npm run test:mock
+      - run: npm run test:security
+      - run: npm run check:build
+      - name: Upload actual check evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-and-test-evidence
+          path: |
+            artifacts/security-testing/*-result.json
+            artifacts/security-testing/*.log
+            artifacts/security-testing/dependency-audit.json
+            artifacts/security-testing/coverage/
+            artifacts/security-testing/db-clean/database-tests.json
+            artifacts/security-testing/db-upgrade/database-tests.json
+            artifacts/security-testing/migration-*.json

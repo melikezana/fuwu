@@ -7,13 +7,15 @@ import { processOrderSettlement } from "./settlement";
 
 // Shared by the browser callback, signed webhook and admin reconciliation.
 // The server's persisted token and immutable order amounts are authoritative.
-export async function reconcileCommercePayment(db: SupabaseClient<Database>, transaction: PaymentTransaction) {
+export async function reconcileCommercePayment(db: SupabaseClient<Database>, transaction: PaymentTransaction, notification?: { conversationId: string; paymentId: string; token: string }) {
   assertSandbox();
   if (!transaction.checkout_token || transaction.environment !== "sandbox") throw new Error("payment_session_missing");
+  if (notification && (notification.conversationId !== transaction.conversation_id || (notification.token && notification.token !== transaction.checkout_token))) throw new Error("payment_identity_mismatch");
   const { data: order, error } = await db.from("orders").select("*").eq("id", transaction.order_id).single();
   if (error || !order) throw new Error("order_not_found");
   const result = await retrieveIyzicoCheckoutFormResult({ token: transaction.checkout_token, conversationId: transaction.conversation_id });
   const success = verifyCommercePayment(result, order, transaction.checkout_token, transaction.conversation_id, { paymentId: transaction.payment_id, itemTransactionId: transaction.item_transaction_id, submerchantKey: transaction.submerchant_key });
+  if (notification?.paymentId && result.paymentId !== notification.paymentId) throw new Error("payment_identity_mismatch");
   const rateFee = minorAmount(result.iyziCommissionRateAmount);
   const fixedFee = minorAmount(result.iyziCommissionFee);
   const { data: status, error: resolveError } = await db.rpc("commerce_resolve_payment", {

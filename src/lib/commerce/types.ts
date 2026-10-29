@@ -26,6 +26,11 @@ export type CommerceTables = {
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
 };
 export type CommerceFunctions = {
+  consume_user_rate_limit: { Args: { p_action: string; p_limit: number; p_window_ms: number }; Returns: Json };
+  commerce_record_settlement_result: { Args: { p_order_id: string; p_kind: string; p_operation_reference: string; p_outcome: string; p_failure_class?: string; p_request_id?: string; p_item_transaction_id?: string; p_conversation_id?: string; p_amount_minor?: number; p_currency?: string }; Returns: undefined };
+  commerce_admin_settlement_queue: { Args: Record<string, never>; Returns: Json };
+  commerce_admin_legacy_checkout_queue: { Args: Record<string, never>; Returns: Json };
+  commerce_review_settlement: { Args: { p_operation_reference: string; p_evidence_reference: string }; Returns: undefined };
   commerce_ceo_insights: { Args: Record<string, never>; Returns: Json };
   commerce_quote: { Args: { p_offering_id: string }; Returns: Json };
   commerce_admin_save_category: { Args: { p_id: string; p_name: string; p_slug: string; p_visible: boolean; p_featured: boolean; p_sort: number; p_icon: string }; Returns: undefined };

@@ -1,0 +1,27 @@
+[
+  {
+    "file": "src\\fonts\\Inter-Bold.woff2",
+    "before": 114840,
+    "after": 21984
+  },
+  {
+    "file": "src\\fonts\\Inter-ExtraBold.woff2",
+    "before": 114856,
+    "after": 22020
+  },
+  {
+    "file": "src\\fonts\\Inter-Medium.woff2",
+    "before": 114348,
+    "after": 22052
+  },
+  {
+    "file": "src\\fonts\\Inter-Regular.woff2",
+    "before": 111268,
+    "after": 21604
+  },
+  {
+    "file": "src\\fonts\\Inter-SemiBold.woff2",
+    "before": 114812,
+    "after": 22124
+  }
+]

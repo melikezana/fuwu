@@ -1,3 +1,4 @@
+import { commerceDatabaseError, withCommerceApi } from "@/lib/commerce/api";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -6,7 +7,7 @@ import { processOrderSettlement } from "@/services/commerce/settlement";
 import { submitProviderReview } from "@/services/reviews";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handlePOST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, supabase: db } = await getServerAuthContext();
@@ -36,5 +37,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (result.data.status === "COMPLETED") await processOrderSettlement(id, "release");
     if (result.data.status === "REFUND_PENDING") await processOrderSettlement(id, "refund");
   }
-  return NextResponse.json(result.error || rpcError ? { error: result.error?.message ?? rpcError } : { ok: true }, { status: result.error || rpcError ? 409 : 200 });
+  return NextResponse.json(result.error || rpcError ? { error: result.error ? commerceDatabaseError(result.error) : rpcError } : { ok: true }, { status: result.error || rpcError ? 409 : 200 });
 }
+
+export const POST = withCommerceApi(handlePOST);

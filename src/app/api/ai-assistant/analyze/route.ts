@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   assistantAnalysisJsonSchema,
   parseAssistantAnalysis,
@@ -20,6 +20,7 @@ import type { Json } from "@/lib/supabase/types";
 import { detectImageMagicByteMimeType } from "@/lib/validations/imageMagicBytes";
 import { sanitizeText } from "@/lib/validations";
 import { writeAuditLog } from "@/services/audit";
+import { assertSameOrigin, boundRequestBody, RequestBoundaryError } from "@/lib/security/requestBoundary";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -804,6 +805,13 @@ async function persistAssistantExchange(
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    assertSameOrigin(request);
+    const bytes=await boundRequestBody(request,maxImageBytes+256*1024);
+    request=new NextRequest(request.url,{method:request.method,headers:request.headers,body:bytes});
+  } catch(error) {
+    return assistantJson({message:"İstek kabul edilmedi."},{status:error instanceof RequestBoundaryError?error.status:400});
+  }
   const rateLimit = await checkApiRateLimit(request, aiAssistantRateLimitConfig);
 
   if (!rateLimit.allowed) {

@@ -1,5 +1,7 @@
 # FUWU 3.0 — Production hazırlık durumu
 
+> **29 Ekim 2026 güncellemesi:** Karar hâlâ **NO-GO**. Son kabul kanıtları ve kalan engeller [FUWU_FINAL_PRODUCT_QA.md](FUWU_FINAL_PRODUCT_QA.md) içindedir. Önceki çalışmalar korundu. Güncel temiz/yükseltme commerce koşuları **108/109**, tüm migration/DB yürütmeleri **230 kontrol**, unit **90**, güvenlik **28**, offline ödeme/Auth **77**, gerçek localhost HTTP **20**. Bunlar gerçek Google veya iyzico sandbox E2E başarısı değildir. Production'a yazılmadı; commit/push/deployment yapılmadı. Aşağıdaki 28 Ekim kaydı tarihsel faz kaydıdır.
+
 **Karar: PRODUCTION-READY DEĞİL.** Tarih: 28 Ekim 2026. Yerel kod, migration, testler ve inceleme kanıtları hazır; aşağıdaki dış kurulum ve doğrulama engelleri açık.
 
 ## Kritik engeller

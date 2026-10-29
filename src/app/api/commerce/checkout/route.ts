@@ -1,3 +1,4 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -7,14 +8,16 @@ import { initializeIyzicoCheckoutForm } from "@/services/payments/iyzico-checkou
 import { isUuid } from "@/lib/utils/validation";
 import type { PaymentTransaction } from "@/lib/commerce/types";
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, profile, supabase } = await getServerAuthContext();
   if (!user || !supabase) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const b = await request.json().catch(() => null);
   if (!isUuid(b?.orderId ?? "")) return NextResponse.json({ error: "invalid_order" }, { status: 400 });
-  const { data: order } = await supabase.from("orders").select("*").eq("id", b.orderId).eq("customer_id", user.id).maybeSingle();
+  if (!profile) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
+  const { data: order, error: orderError } = await supabase.from("orders").select("*").eq("id", b.orderId).eq("customer_id", user.id).maybeSingle();
+  if (orderError) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   if (!order) return NextResponse.json({ error: "order_not_found" }, { status: 404 });
   // The immutable, server-priced order snapshot is the only source of amounts.
   let db;
@@ -23,7 +26,7 @@ export async function POST(request: NextRequest) {
   const { data: provider } = await db.from("providers").select("iyzico_submerchant_key,iyzico_submerchant_status,is_active,is_approved").eq("id", order.provider_id).maybeSingle();
   if (!provider?.iyzico_submerchant_key || provider.iyzico_submerchant_status !== "active" || !provider.is_active || !provider.is_approved) return NextResponse.json({ error: "offering_unavailable" }, { status: 409 });
   const { data: claim, error: claimError } = await db.rpc("commerce_begin_payment", { p_order_id: order.id });
-  if (claimError) return NextResponse.json({ error: "hold_expired" }, { status: 409 });
+  if (claimError) return NextResponse.json({ error: ["hold_expired", "offering_unavailable"].includes(claimError.message) ? claimError.message : "sandbox_unavailable" }, { status: ["hold_expired", "offering_unavailable"].includes(claimError.message) ? 409 : 503 });
   const transaction = claim as unknown as PaymentTransaction & { claimed: boolean };
   if (!transaction.claimed) {
     if (transaction.status === "AWAITING" && transaction.payment_page_url) return NextResponse.json({ paymentPageUrl: sandboxPaymentUrl(transaction.payment_page_url) });
@@ -53,3 +56,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   }
 }
+
+export const POST = withCommerceApi(handlePOST);

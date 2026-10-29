@@ -1,0 +1,2 @@
+{"route":"/","status":"PASS","elapsed_ms":484,"loadEvent":470.69999998807907,"pending":["/api/auth/user","/services","/providers","/orders","/icons/fuwu-icon-192.png","/account"]}
+{"route":"/services","status":"PASS","elapsed_ms":317,"loadEvent":298.89999997615814,"pending":["/api/auth/user","/_next/image","/_next/image","/_next/image","/_next/image","/_next/image"]}

@@ -397,11 +397,11 @@ export async function refundAdminIyzicoPayment(
       paymentTransactionId: payment.iyzico_payment_transaction_id,
       price: normalizeRefundPrice(amount),
     });
-    if (!isVerifiedSettlement(refundResponse, payment.iyzico_payment_transaction_id, "refund", Math.round(amount * 100))) {
+    if (!isVerifiedSettlement(refundResponse, payment.iyzico_payment_transaction_id, "refund", Math.round(amount * 100), payment.iyzico_conversation_id)) {
       return { message: "İade sonucu doğrulanamadı. Ödeme kuruluşuyla mutabakat gerekiyor.", ok: false };
     }
     const now = new Date().toISOString();
-    const { error: updateError } = await processorDb
+    const { data: updatedPayment, error: updateError } = await processorDb
       .from("payments")
       .update({
         escrow_refunded_at: now,
@@ -415,9 +415,9 @@ export async function refundAdminIyzicoPayment(
         updated_at: now,
       })
       .eq("id", payment.id)
-      .eq("status", PAYMENT_STATUSES.escrowHeld);
+      .eq("status", PAYMENT_STATUSES.escrowHeld).eq("external_operation_state", "REFUND_IN_FLIGHT").select("id").maybeSingle();
 
-    if (updateError) {
+    if (updateError || !updatedPayment) {
       handleServiceError(updateError, { logContext: "refundAdminIyzicoPayment update" });
       return { message: "İade alındı ancak ödeme kaydı güncellenemedi.", ok: false };
     }

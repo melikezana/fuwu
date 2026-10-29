@@ -1,8 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { logWarn } from "@/lib/logger";
 import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isValidEmail, sanitizeEmail, sanitizeText } from "@/lib/validations";
+import { assertSameOrigin, boundRequestBody, RequestBoundaryError } from "@/lib/security/requestBoundary";
 
 type SupportMessageClient = {
   auth: {
@@ -30,6 +31,13 @@ function supportJson(body: Record<string, unknown>, init?: ResponseInit) {
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    assertSameOrigin(request);
+    const bytes=await boundRequestBody(request);
+    request=new NextRequest(request.url,{method:request.method,headers:request.headers,body:bytes});
+  } catch(error) {
+    return supportJson({message:"İstek kabul edilmedi."},{status:error instanceof RequestBoundaryError?error.status:400});
+  }
   const rateLimit = await checkApiRateLimit(request, {
     action: "api.support.messages",
     limit: 8,

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { handleServiceError } from "@/lib/errors";
 import type { Database } from "@/lib/supabase/types";
+import { detectImageMagicByteMimeType } from "@/lib/validations/imageMagicBytes";
 
 export const PROVIDER_VERIFICATION_DOCUMENTS_BUCKET =
   "provider-verification-documents";
@@ -39,20 +40,13 @@ function getFileExtension(fileName: string): VerificationDocumentExtension | nul
   return null;
 }
 
-function getContentType(file: File, extension: VerificationDocumentExtension) {
-  if (acceptedMimeTypes.includes(file.type as (typeof acceptedMimeTypes)[number])) {
-    return file.type;
-  }
-
-  if (extension === "pdf") {
-    return "application/pdf";
-  }
-
-  if (extension === "png") {
-    return "image/png";
-  }
-
-  return "image/jpeg";
+export async function verificationDocumentContentType(file: File) {
+  try {
+    const bytes=new Uint8Array(await file.slice(0,12).arrayBuffer());
+    if(new TextDecoder().decode(bytes.slice(0,5)) === "%PDF-") return "application/pdf";
+    const image=detectImageMagicByteMimeType(bytes);
+    return image === "image/png" || image === "image/jpeg" ? image : null;
+  } catch { return null; }
 }
 
 function createVerificationDocumentPath(
@@ -82,6 +76,8 @@ export function validateProviderVerificationDocumentFile(file: File | null) {
     return "Belge PDF, JPG, JPEG veya PNG formatında olmalı.";
   }
 
+  if (file.size === 0) return "Belge boş olamaz.";
+
   if (file.size > PROVIDER_VERIFICATION_DOCUMENT_MAX_SIZE_BYTES) {
     return "Belge en fazla 5 MB olabilir.";
   }
@@ -110,6 +106,9 @@ export async function uploadProviderVerificationDocument(
     };
   }
 
+  const verifiedContentType=await verificationDocumentContentType(file);
+  if(!verifiedContentType) return {status:"skipped",path:null,message:"Belge içeriği PDF, JPEG veya PNG olmalı."};
+
   try {
     const {
       data: { user },
@@ -130,7 +129,7 @@ export async function uploadProviderVerificationDocument(
       .from(PROVIDER_VERIFICATION_DOCUMENTS_BUCKET)
       .upload(path, file, {
         cacheControl: "3600",
-        contentType: getContentType(file, extension),
+        contentType: verifiedContentType,
         upsert: false,
       });
 

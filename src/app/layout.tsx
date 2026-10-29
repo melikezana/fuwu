@@ -24,7 +24,8 @@ import "@/styles/premium.css";
 import "@/styles/mobile-experience.css";
 
 const inter = localFont({
-  display: "swap",
+  display: "optional",
+  preload: false,
   src: [
     {
       path: "../fonts/Inter-Regular.woff2",
@@ -158,8 +159,7 @@ export default async function RootLayout({
             <CookieConsentBanner />
           </Suspense>
         </LocaleProvider>
-        <Analytics />
-        <SpeedInsights />
+        {analyticsEnabled && <><Analytics /><SpeedInsights /></>}
       </body>
     </html>
   );

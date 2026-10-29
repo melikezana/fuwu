@@ -1,7 +1,8 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/validation";
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
   if (!isUuid(p.get("offering") ?? "") || !isUuid(p.get("district") ?? "") || !/^\d{4}-\d{2}-\d{2}$/.test(p.get("day") ?? "")) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const day = p.get("day")!;
@@ -25,3 +26,5 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(error ? { error: "store_unavailable" } : { slots: data }, { status: error ? 503 : 200, headers: { "Cache-Control": "no-store" } });
   } catch { return NextResponse.json({ error: "store_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } }); }
 }
+
+export const GET = withCommerceApi(handleGET);

@@ -3,7 +3,7 @@ import type { RetrieveIyzicoCheckoutResponse } from "@/services/payments/iyzico-
 
 export function assertSandbox() {
   const url = new URL(process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com");
-  if (url.origin !== "https://sandbox-api.iyzipay.com" || url.pathname !== "/" || url.username || url.password) throw new Error("sandbox_unavailable");
+  if (url.origin !== "https://sandbox-api.iyzipay.com" || url.pathname !== "/" || url.search || url.hash || url.username || url.password) throw new Error("sandbox_unavailable");
   if (!process.env.IYZICO_API_KEY?.trim() || !process.env.IYZICO_SECRET_KEY?.trim()) throw new Error("sandbox_unavailable");
 }
 export function sandboxPaymentUrl(value: string) {
@@ -15,8 +15,9 @@ export function minorAmount(value: unknown) {
   if ((typeof value !== "string" && typeof value !== "number") || value === "" || !Number.isFinite(Number(value)) || Number(value) < 0) return null;
   return Math.round(Number(value) * 100);
 }
-export function isVerifiedSettlement(result: { status?: string; paymentTransactionId?: string; currency?: string; price?: unknown }, itemId: string, kind: "release" | "refund", totalMinor = 0) {
+export function isVerifiedSettlement(result: { status?: string; conversationId?: string; paymentTransactionId?: string; currency?: string; price?: unknown }, itemId: string, kind: "release" | "refund", totalMinor = 0, operationReference?: string) {
   return Boolean(itemId) && result.status === "success" && result.paymentTransactionId === itemId &&
+    (!operationReference || result.conversationId === operationReference) &&
     (kind === "release" || (totalMinor > 0 && result.currency === "TRY" && matchesMoney(result.price, totalMinor)));
 }
 function matchesMoney(value: unknown, minor: number) {

@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "sourceHash": "5f220e2fc9a2ad2f1d7461cd22ca0e55044775eeff186c16abb7a67a14e33a29",
+  "startedAt": "2026-10-29T20:57:52.887Z",
+  "completedAt": "2026-10-29T20:58:01.865Z",
+  "executed": true,
+  "passed": 77,
+  "failed": 0,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "fault-injection",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "legacy-payment-regression",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "legacy-auth-regression",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  ]
+}

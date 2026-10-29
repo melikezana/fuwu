@@ -1,8 +1,9 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/validation";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("offering") ?? "";
   if (!isUuid(id)) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const db = await createSupabaseServerClient();
@@ -12,3 +13,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(error || !data ? { error: "pricing_unavailable" } : { quote: data }, { status: error || !data ? 503 : 200, headers: { "Cache-Control": "no-store" } });
   } catch { return NextResponse.json({ error: "pricing_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } }); }
 }
+
+export const GET = withCommerceApi(handleGET);

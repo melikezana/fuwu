@@ -1,3 +1,4 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -9,7 +10,7 @@ function authJson(body: Record<string, unknown>, init?: ResponseInit) {
   return response;
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const rateLimit = await checkApiRateLimit(request, {
     action: "api.auth.user",
     limit: 60,
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
     return authJson(
       {
         authenticated: false,
+        error: "rate_limit",
         message: "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.",
       },
       {
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
-      return authJson({ authenticated: false }, { status: 401 });
+      return authJson({ authenticated: false, error: "service_unavailable" }, { status: 503 });
     }
 
     const {
@@ -42,14 +44,15 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (error || !user) {
-      return authJson({ authenticated: false }, { status: 401 });
+      return authJson({ authenticated: false, error: "unauthorized" }, { status: 401 });
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("id, full_name, phone, role")
       .eq("id", user.id)
       .maybeSingle();
+    if (profileError) return authJson({ authenticated: false, error: "service_unavailable" }, { status: 503 });
 
     const displayName =
       profile?.full_name?.trim() ||
@@ -70,8 +73,9 @@ export async function GET(request: NextRequest) {
         role: profile?.role ?? "customer",
       },
     });
-  } catch (err) {
-    console.error("[Auth API] Session check failed:", err);
-    return authJson({ authenticated: false }, { status: 500 });
+  } catch {
+    return authJson({ authenticated: false, error: "service_unavailable" }, { status: 503 });
   }
 }
+
+export const GET = withCommerceApi(handleGET);

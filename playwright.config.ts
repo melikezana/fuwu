@@ -1,79 +1,25 @@
 import { defineConfig, devices } from "@playwright/test";
-import fs from "node:fs";
-import path from "node:path";
+import { loadTestEnvironment, isLoopbackUrl } from "./scripts/testing/environment.mjs";
 
-function loadEnvFile(fileName: string) {
-  const filePath = path.join(__dirname, fileName);
-
-  if (!fs.existsSync(filePath)) {
-    return {};
-  }
-
-  return Object.fromEntries(
-    fs
-      .readFileSync(filePath, "utf8")
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith("#") && line.includes("="))
-      .map((line) => {
-        const [key, ...valueParts] = line.split("=");
-        return [key, valueParts.join("=")];
-      }),
-  );
-}
-
-const testEnv = {
-  ...loadEnvFile(".env"),
-  ...loadEnvFile(".env.local"),
-  ...loadEnvFile(".env.test"),
-};
-const port = process.env.PORT ?? "3000";
-const baseURL =
-  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
-const shouldStartWebServer =
-  process.env.PLAYWRIGHT_SKIP_WEBSERVER !== "true";
-
-Object.entries(testEnv).forEach(([key, value]) => {
-  process.env[key] ??= value;
-});
-
-const supabaseUrl =
-  testEnv.NEXT_PUBLIC_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey =
-  testEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const { env, safety } = loadTestEnvironment();
+Object.assign(process.env, env);
+const port = process.env.PORT || (process.env.PLAYWRIGHT_BASE_URL ? new URL(process.env.PLAYWRIGHT_BASE_URL).port : "") || "3109";
+if (!/^\d{2,5}$/.test(port) || Number(port) > 65535) throw new Error("Invalid test port");
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`;
+if (!isLoopbackUrl(baseURL)) throw new Error("BLOCKED: E2E app target must be loopback");
+// An existing developer server might be connected to production.
+if (process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true") throw new Error("BLOCKED: E2E requires its own isolated server");
+console.log(`E2E Auth/DB: ${safety.ready ? "test target validated" : safety.reason}`);
 
 export default defineConfig({
-  expect: {
-    timeout: 10_000,
+  expect: { timeout: 10_000 }, fullyParallel: false, retries: process.env.CI ? 1 : 0,
+  testDir: "./e2e", timeout: 60_000, workers: 1,
+  reporter: [["list"], ["json", { outputFile: "artifacts/security-testing/e2e.json" }]],
+  use: { baseURL, trace: "off", screenshot: "off", video: "off" },
+  webServer: {
+    command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
+    env: { ...env, NEXT_PUBLIC_SITE_URL: baseURL, PORT: port },
+    reuseExistingServer: false, timeout: 180_000, url: baseURL,
   },
-  fullyParallel: false,
-  retries: process.env.CI ? 1 : 0,
-  testDir: "./e2e",
-  timeout: 60_000,
-  workers: 1,
-  use: {
-    baseURL,
-    trace: "on-first-retry",
-  },
-  webServer: shouldStartWebServer
-    ? {
-        command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
-        env: {
-          ...testEnv,
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
-          NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
-          NODE_ENV: "test",
-          PORT: port,
-        },
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-        url: `http://127.0.0.1:${port}`,
-      }
-    : undefined,
-  projects: [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-  ],
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

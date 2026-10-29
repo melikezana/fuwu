@@ -1,3 +1,4 @@
+import { finishVerified } from "./backend-reliability-db-checks.mjs";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 
@@ -80,7 +81,7 @@ export async function fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pi
     await a.query("select commerce_transition_order($1,'DISPUTED',null)", [order.id]);
     await admin.query("select commerce_admin_request_refund($1)", [order.id]);
     const claim = await scalar(service, "select commerce_claim_settlement($1,'refund')", [order.id]); assert.equal(claim.total_minor, 210000);
-    await service.query("select commerce_finish_settlement($1,'refund')", [order.id]);
+    await finishVerified(service,order.id,"refund");
     const after = await scalar(admin, "select commerce_admin_summary()");
     assert.equal(after.refunded_minor - before.refunded_minor, 210000); assert.equal(before.platform_gross_minor - after.platform_gross_minor, 30000);
     const own = await scalar(p, "select commerce_provider_finance($1)", [pid(1)]); assert.ok(own.refunded_service_minor >= 200000); assert.ok(own.unconfirmed_provider_fee_count >= 0);

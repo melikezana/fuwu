@@ -1,9 +1,10 @@
+import { commerceDatabaseError, withCommerceApi } from "@/lib/commerce/api";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, supabase } = await getServerAuthContext();
@@ -13,5 +14,7 @@ export async function POST(request: NextRequest) {
   const rate = await checkRateLimitWithRedis({ action: "provider:variant", userId: user.id, supabase, limit: 10, windowMs: 60000 });
   if (!rate.allowed) return NextResponse.json({ error: "rate_limit" }, { status: 429 });
   const { data, error } = await supabase.rpc("commerce_create_variant", { p_provider_id: b.providerId, p_service_id: b.serviceId, p_name: b.name.trim() });
-  return NextResponse.json(error ? { error: "variant_unavailable" } : { id: data }, { status: error ? 409 : 201 });
+  return NextResponse.json(error ? { error: commerceDatabaseError(error) } : { id: data }, { status: error ? 409 : 201 });
 }
+
+export const POST = withCommerceApi(handlePOST);

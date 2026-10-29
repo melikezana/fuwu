@@ -9,7 +9,8 @@ export function CookieConsentBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem("fuwu:cookie-consent");
+    let consent: string | null = null;
+    try { consent = localStorage.getItem("fuwu:cookie-consent"); } catch { /* Storage can be disabled; the page and consent controls remain usable. */ }
     if (!consent) {
       const timer = setTimeout(() => setIsVisible(true), 0);
       return () => clearTimeout(timer);
@@ -17,7 +18,7 @@ export function CookieConsentBanner() {
   }, []);
 
   const handleConsent = (choice: "accepted" | "rejected") => {
-    localStorage.setItem("fuwu:cookie-consent", choice);
+    try { localStorage.setItem("fuwu:cookie-consent", choice); } catch { /* No persisted consent means analytics remain disabled. */ }
     window.dispatchEvent(new CustomEvent("fuwuConsentChanged"));
     setIsVisible(false);
   };

@@ -27,12 +27,11 @@ async function bindLegacyProviderApplications(
     if (error) {
       logWarn("Auth callback provider application binding failed.", {
         code: error.code,
-        message: error.message,
       });
     }
-  } catch (error) {
+  } catch {
     logWarn("Auth callback provider application binding threw.", {
-      error,
+      code: "binding_unavailable",
     });
   }
 }
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest) {
   const redirectUrl = getSafeRedirectUrl(request);
   let failure: OAuthErrorCode | null = request.nextUrl.searchParams.has("error") || !code ? "oauth_denied" : null;
   if (!failure && code) {
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient(getRequestOrigin(request));
     if (!supabase) failure = "oauth_unavailable";
     else {
       let verifiedUser: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"] = null;

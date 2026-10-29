@@ -1,0 +1,28 @@
+{
+  "status": "FAIL",
+  "sourceHash": "39cae53174900150314ebef4ae96fcb98bfa6a09a91311b83101286b90b9cd65",
+  "startedAt": "2026-10-29T16:56:49.791Z",
+  "completedAt": "2026-10-29T17:01:18.207Z",
+  "executed": true,
+  "passed": 1,
+  "failed": 1,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "security",
+      "status": "FAIL",
+      "exitCode": 1
+    },
+    {
+      "name": "static-security",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "dependency-audit",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  ]
+}

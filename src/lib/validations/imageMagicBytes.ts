@@ -91,13 +91,13 @@ export async function validateImageMagicBytes(file: File): Promise<string | null
     const bytes = await readImageHeaderBytes(file);
 
     if (!bytes) {
-      return null;
+      return IMAGE_MAGIC_BYTE_INVALID_MESSAGE;
     }
 
     return detectImageMagicByteMimeType(bytes)
       ? null
       : IMAGE_MAGIC_BYTE_INVALID_MESSAGE;
   } catch {
-    return null;
+    return IMAGE_MAGIC_BYTE_INVALID_MESSAGE;
   }
 }

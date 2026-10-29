@@ -38,7 +38,9 @@ export function createClient(): SupabaseClient<Database> | null {
     return null;
   }
 
-  return createBrowserClient<Database>(config.url, config.anonKey);
+  return createBrowserClient<Database>(config.url, config.anonKey, {
+    cookieOptions: { sameSite: "lax", secure: typeof window !== "undefined" ? window.location.protocol === "https:" : process.env.NODE_ENV === "production" },
+  });
 }
 
 export const createSupabaseBrowserClient = createClient;

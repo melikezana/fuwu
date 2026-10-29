@@ -1,0 +1,150 @@
+{
+  "scope": "Active Next.js 16 proxy + mocked Auth HTTP + real Supabase SSR cookies; not Google/real-device E2E",
+  "checks": [
+    {
+      "name": "Open redirect denied: \"https://evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"//evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/\\\\evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/\\t/evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/\\n/evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/%2f%2fevil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/%5cevil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/%09/evil.test\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"javascript:alert(1)\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Open redirect denied: \"/%invalid\"",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Callback stays on its initiating origin: https://www.fuwu.com.tr",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Callback stays on its initiating origin: https://fuwu.com.tr",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Callback stays on its initiating origin: https://fuwu-preview.vercel.app",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Callback stays on its initiating origin: http://localhost:3000",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Safe next retains service selection parameters",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Loopback OAuth callback retains 127.0.0.1 cookie origin without trusting arbitrary Host",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "PKCE exchange and verified user precede profile creation",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Expired/invalid PKCE code never creates a profile",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Missing verified user cannot continue checkout",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Auth network failure returns an actionable error",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Profile failure is not reported as completed sign-in",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Active Next.js proxy applies local WebKit CSP without weakening remote CSP",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Active Next.js proxy keeps legacy order tracking protected",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Protected proxy fails closed when Supabase configuration is absent",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Refreshed SSR cookie reaches both response and downstream server request",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Public service page also refreshes an existing session",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "User-editable admin metadata grants no admin access; redirect retains renewed cookies",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Unauthenticated redirect preserves page and query for login resume",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    },
+    {
+      "name": "Expired refresh token clears the session and preserves the login return path",
+      "expected": "assertions pass",
+      "actual": "PASS"
+    }
+  ]
+}

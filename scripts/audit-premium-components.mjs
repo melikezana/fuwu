@@ -8,11 +8,11 @@ import { chromium } from 'playwright';
 import { expect } from '@playwright/test';
 const require = createRequire(import.meta.url);
 const before = process.argv.includes('--before');
-const out = path.resolve('artifacts/premium-mobile', before ? 'before-components' : 'after-components');
+const out = path.resolve(process.env.PRODUCT_QA_OUTPUT || 'artifacts/premium-mobile', before ? 'before-components' : 'after-components');
 await fs.mkdir(out, { recursive: true });
 const root = path.resolve('e2e/fixtures/commerce-ui');
 const original = new Map();
-const server = await createServer({ configFile: false, root, cacheDir: path.resolve('artifacts/premium-mobile/vite-audit-cache'), publicDir: path.resolve('public'), plugins: before ? [{name:'original-committed-components',enforce:'pre',transform(code,id) {
+const server = await createServer({ configFile: false, root, cacheDir: path.resolve('artifacts/premium-mobile/vite-audit-cache'), publicDir: path.resolve('public'), plugins: before && process.env.QA_BASELINE_CURRENT !== 'true' ? [{name:'original-committed-components',enforce:'pre',transform(code,id) {
   const file = path.relative(process.cwd(),id.split('?')[0]).replaceAll('\\','/');
   if(file==='src/styles/mobile-experience.css') return '';
   if(!/^(src\/|e2e\/fixtures\/commerce-ui\/main.tsx)/.test(file)||!file.endsWith('.tsx')) return;
@@ -20,7 +20,7 @@ const server = await createServer({ configFile: false, root, cacheDir: path.reso
   return original.get(file) || undefined;
 }}] : [], resolve: { alias: { '@/app/admin/marketplace/health-actions':path.join(root,'health-action.ts'), '@/app/providers/[id]/actions':path.join(root,'review-action.ts'), '@':path.resolve('src'), 'next/link':path.join(root,'next-link.tsx'), 'next/image':path.join(root,'next-image.tsx'), 'next/navigation':path.join(root,'next-navigation.ts') } }, esbuild:{jsx:'automatic'},server:{host:'127.0.0.1',port:3053,strictPort:true,fs:{allow:[process.cwd()]}} });
 await server.listen();
-const browser = await chromium.launch();
+const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
 const page = await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
 page.setDefaultNavigationTimeout(120000);
 page.setDefaultTimeout(15000);
@@ -29,7 +29,7 @@ page.on('pageerror',e=>report.errors.push(e.message));
 const base='http://127.0.0.1:3053';
 async function open(screen) {await page.goto(`${base}/?screen=${screen}`,{waitUntil:'domcontentloaded'});await page.locator('h1').first().waitFor({timeout:60000});}
 try {
-  for (const screen of (before ? ['admin','phase3-customer','phase3-calendar','phase3-store','booking','provider'] : ['admin','phase3-customer','provider-overview','provider-finance','phase3-calendar','phase3-store','catalog','provider','customer-orders','photo-error'])) {
+  for (const screen of (before ? ['admin','phase3-customer','phase3-calendar','phase3-store','booking','provider'] : ['admin','admin-unavailable','profile-quality','phase3-customer','provider-overview','provider-finance','phase3-calendar','phase3-store','catalog','provider','customer-orders','photo-error'])) {
     await open(screen);
     for(const width of (before ? [390,1440] : [320,360,375,390,430,768,1024,1440])) {
       await page.setViewportSize({width,height:900});
@@ -45,6 +45,21 @@ try {
     report.checks.push(`${screen}: ${before?2:8} widths fit`);
   }
   if(!before) {
+    await open('profile-quality');
+    await expect(page.getByText('Anlamsız karakter veya kelime tekrarı',{exact:true})).toBeVisible();
+    await expect(page.getByText('Puan veya yorum sayısı kayıtlarla uyuşmuyor',{exact:true})).toBeVisible();
+    const note = page.getByLabel('Karar gerekçesi');
+    await note.fill('kısa'); assert.equal(await note.evaluate(n=>n.checkValidity()),false);
+    await note.fill('TEST manuel inceleme gerekçesi');
+    await page.getByLabel('İnceleme kararı',{exact:true}).selectOption('hidden');
+    await page.getByRole('button',{name:'İnceleme kararını kaydet'}).click();
+    await open('profile-quality&unavailable=true');
+    await expect(page.getByText(/İncelenecek profil sayısı bilinmiyor/)).toBeVisible();
+    await expect(page.getByText('0 profil inceleme bekliyor',{exact:false})).toHaveCount(0);
+    await open('admin-unavailable');
+    await expect(page.getByText(/Marketplace verileri okunamadı/)).toBeVisible();
+    assert.equal(await page.locator('.fusion-metric-grid strong').count(),0);
+    report.checks.push('Quality review renders original content and reasons, requires a decision note, and unknown queue/admin data never become zero metrics. Fixture submit only; database authorization tested separately.');
     await open('phase3-customer');
     const nav=page.getByRole('navigation',{name:'Müşteri paneli'});
     assert.equal(await nav.locator('.customer-primary-links a').count(),3);

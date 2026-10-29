@@ -1,0 +1,446 @@
+{
+  "phase": "after",
+  "mode": "Actual Next.js app; public backend read only; no mocked catalog",
+  "pages": [
+    {
+      "route": "/",
+      "heading": [
+        "Evinin işi,FUWU'nun işi."
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services",
+      "heading": [
+        "Evin için ne yapalım?"
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services?category=hali-yikama",
+      "heading": [
+        "Halı Yıkama"
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/providers",
+      "heading": [
+        "Ustanı tanı. Kararını ver."
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "heading": [
+        "Hizmete şu anda ulaşılamıyor"
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/provider-application",
+      "heading": [
+        "Ustalığın işe dönüşsün."
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/login",
+      "heading": [
+        "Hoş geldin. Kaldığın yerden devam et."
+      ],
+      "widths": [
+        {
+          "width": 320,
+          "overflow": 0
+        },
+        {
+          "width": 360,
+          "overflow": 0
+        },
+        {
+          "width": 375,
+          "overflow": 0
+        },
+        {
+          "width": 390,
+          "overflow": 0
+        },
+        {
+          "width": 430,
+          "overflow": 0
+        },
+        {
+          "width": 768,
+          "overflow": 0
+        },
+        {
+          "width": 1024,
+          "overflow": 0
+        },
+        {
+          "width": 1440,
+          "overflow": 0
+        }
+      ],
+      "brokenImages": []
+    }
+  ],
+  "errors": [],
+  "accessibility": [
+    {
+      "route": "/",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/services",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/services?category=hali-yikama",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/providers",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/provider-application",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "route": "/login",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    }
+  ],
+  "blocked": [
+    "No public provider profile was returned.",
+    {
+      "route": "/account",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/orders",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard/calendar",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/provider-dashboard/earnings",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/admin",
+      "status": 307,
+      "location": "/login"
+    },
+    {
+      "route": "/admin/marketplace",
+      "status": 307,
+      "location": "/login"
+    }
+  ],
+  "categories": [
+    {
+      "title": "Bahçe Bakımı",
+      "href": "/services?category=bahce-bakimi",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&w=3840&q=75"
+    },
+    {
+      "title": "Boya Badana",
+      "href": "/services?category=boya-badana",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fpainting.webp&w=3840&q=75"
+    },
+    {
+      "title": "Çilingir",
+      "href": "/services?category=cilingir",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Flocksmith.webp&w=3840&q=75"
+    },
+    {
+      "title": "Elektrik Hizmeti",
+      "href": "/services?category=elektrik-hizmeti",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Felectrical.webp&w=3840&q=75"
+    },
+    {
+      "title": "Halı Yıkama",
+      "href": "/services?category=hali-yikama",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fcarpet.webp&w=3840&q=75"
+    },
+    {
+      "title": "Havuz Bakımı",
+      "href": "/services?category=havuz-bakimi",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fpool.webp&w=3840&q=75"
+    },
+    {
+      "title": "Klima & Beyaz Eşya",
+      "href": "/services?category=klima-beyaz-esya",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fappliance.webp&w=3840&q=75"
+    },
+    {
+      "title": "Mobilya Montaj",
+      "href": "/services?category=mobilya-montaj",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Ffurniture.webp&w=3840&q=75"
+    },
+    {
+      "title": "Nakliye Yardımı",
+      "href": "/services?category=nakliye-yardimi",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fmoving.webp&w=3840&q=75"
+    },
+    {
+      "title": "Temizlik",
+      "href": "/services?category=temizlik",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fcleaning.webp&w=3840&q=75"
+    },
+    {
+      "title": "Tesisat",
+      "href": "/services?category=tesisat",
+      "image": "http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fplumbing-work.webp&w=3840&q=75"
+    }
+  ],
+  "firstCategoryY": 518.09375,
+  "searchVerified": true,
+  "keyboardDialogVerified": true,
+  "landscapeAnd200PercentText": true,
+  "pwaVerified": true,
+  "blockedStorageAndDarkPreference": true
+}

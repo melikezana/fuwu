@@ -1,5 +1,7 @@
 # FUWU · Premium mobil deneyim denetimi
 
+> **Phase 3 son kontrolü:** Güncel rol akışları, profil kalite/yayın onayı, önce/sonra ekranları, yeni performans ölçümleri ve yayın kararı [FUWU_FINAL_PRODUCT_QA.md](FUWU_FINAL_PRODUCT_QA.md) raporundadır. Aşağıdaki ölçüm ve test sayıları önceki koşunun tarihsel sonuçlarıdır. Yeni ölçümler de yerel production derlemesidir; canlı Core Web Vitals değildir. Gerçek hesap/ödeme kabulü ve uzak şema engelleri açık kaldığından production onayı verilmedi.
+
 **Tarih:** 29 Ekim 2026 · Europe/Istanbul  
 **Kapsam:** Mevcut Next.js projesinde doğrudan frontend düzeltmeleri, gerçek fotoğraflar, yerel production derlemesi ve tarayıcı doğrulaması.  
 **Yayın durumu:** Production'a hazır olarak onaylanmadı. Bağlı Supabase'teki ticaret şeması ve harici test kimlik bilgileri eksik. Commit, push, deployment, canlı ödeme veya production migration yapılmadı.

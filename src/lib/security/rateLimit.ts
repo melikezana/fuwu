@@ -99,65 +99,17 @@ export async function checkDatabaseRateLimit({
 }: DatabaseRateLimitOptions): Promise<RateLimitResult> {
   const safeAction = getSafeAction(action);
   const windowStart = getWindowStart(now, windowMs);
-  const windowStartIso = new Date(windowStart).toISOString();
   const resetAt = windowStart + windowMs;
 
   try {
-    const { data: currentBucket, error: lookupError } = await supabase
-      .from("rate_limits")
-      .select("id, count")
-      .eq("user_id", userId)
-      .eq("action", safeAction)
-      .eq("window_start", windowStartIso)
-      .maybeSingle();
-
-    if (lookupError) {
-      throw lookupError;
-    }
-
-    const currentCount = Number(currentBucket?.count ?? 0);
-
-    if (currentCount >= limit) {
-      return {
-        allowed: false,
-        limit,
-        remaining: 0,
-        resetAt,
-      };
-    }
-
-    const nextCount = currentCount + 1;
-    const writeResult = currentBucket?.id
-      ? await supabase
-          .from("rate_limits")
-          .update({
-            count: nextCount,
-            updated_at: new Date(now).toISOString(),
-          })
-          .eq("id", currentBucket.id)
-      : await supabase.from("rate_limits").insert({
-          action: safeAction,
-          count: nextCount,
-          user_id: userId,
-          window_start: windowStartIso,
-        });
-
-    if (writeResult.error) {
-      throw writeResult.error;
-    }
-
-    return {
-      allowed: true,
-      limit,
-      remaining: Math.max(0, limit - nextCount),
-      resetAt,
-    };
-  } catch (error) {
-    console.error("[Fuwu] Persistent rate limit check failed; using local fallback.", {
-      action: safeAction,
-      error,
-      userId,
-    });
+    const {data,error}=await supabase.rpc("consume_user_rate_limit", {p_action:safeAction,p_limit:limit,p_window_ms:windowMs}).abortSignal(AbortSignal.timeout(2000));
+    if(error || !data || typeof data!=="object" || Array.isArray(data)) throw new Error("rate_limit_unavailable");
+    const result=data as Record<string,unknown>;
+    if(typeof result.allowed!=="boolean" || result.limit!==limit || !Number.isSafeInteger(result.remaining) || !Number.isSafeInteger(result.resetAt)) throw new Error("rate_limit_unavailable");
+    return {allowed:result.allowed,limit,remaining:result.remaining as number,resetAt:result.resetAt as number};
+  } catch {
+    console.error("[Fuwu] Persistent rate limit unavailable.", {action:safeAction});
+    if(process.env.NODE_ENV === "production") return {allowed:false,limit,remaining:0,resetAt};
 
     return checkRateLimit({
       key: `${safeAction}:${userId}`,

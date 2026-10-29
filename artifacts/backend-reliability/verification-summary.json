@@ -1,0 +1,80 @@
+{
+  "checked_at": "2026-10-29T16:13:08.514Z",
+  "status": "LOCAL_VALIDATED_EXTERNAL_BLOCKED",
+  "baseline_commit": "e9c812f7a5e6369953d1650ed0c3eba4eb161128",
+  "database_engine": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit",
+  "configured_supabase_major_version": 17,
+  "results": {
+    "migration_clean": {
+      "passed": true,
+      "migrations": 64,
+      "checks": 2
+    },
+    "migration_populated_upgrade": {
+      "passed": true,
+      "migrations": 64,
+      "checks": 3
+    },
+    "commerce_clean": {
+      "passed": true,
+      "checks": 95
+    },
+    "commerce_upgrade": {
+      "passed": true,
+      "checks": 96
+    },
+    "offline_fault_injection": {
+      "passed": true,
+      "checks": 20
+    },
+    "offline_payment": {
+      "passed": true,
+      "checks": 28
+    },
+    "offline_auth": {
+      "passed": true,
+      "checks": 29
+    },
+    "local_production_http": {
+      "passed": true,
+      "checks": 16
+    },
+    "static_checks": [
+      {
+        "name": "typescript",
+        "exit_code": 0,
+        "passed": true
+      },
+      {
+        "name": "eslint",
+        "exit_code": 0,
+        "passed": true,
+        "files": 37
+      },
+      {
+        "name": "git_diff_check",
+        "exit_code": 0,
+        "passed": true
+      }
+    ],
+    "build": {
+      "scope": "Local Next webpack production build with Supabase forced to loopback port 1 and no payment keys; not a deployment",
+      "passed": true,
+      "build_id": "f4BKks7bwVpyavXpf8NwK",
+      "typescript_in_build": "PASS",
+      "static_pages": 27
+    }
+  },
+  "blocked": [
+    "Connected Supabase has missing commerce relations/columns and an incompatible existing orders table; schema/ledger access unavailable",
+    "Hosted staging and PostgreSQL 17 / real Supabase platform validation",
+    "Verified staging/production deployment project mapping",
+    "Real Google OAuth login and checkout resume",
+    "Real iyzico sandbox checkout, refund and payout approval",
+    "Legacy authenticated checkout/refund E2E and backup restore rehearsal"
+  ],
+  "production_database_mutated": false,
+  "real_payment_created": false,
+  "git_push": false,
+  "deployment": false
+}

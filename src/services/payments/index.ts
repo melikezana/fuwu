@@ -97,7 +97,7 @@ function warnPaymentTrackingError(context: string, error: unknown) {
 
   console.warn("[Fuwu] Payment tracking failed.", {
     context,
-    error,
+    classification: "payment_tracking_unavailable",
   });
 }
 
@@ -411,15 +411,13 @@ async function markIyzicoEscrowFailed({
   payment: PaymentReleaseRecord;
   supabase: PaymentSupabaseClient;
 }) {
-  const errorMessage =
-    error instanceof Error ? error.message : "iyzico escrow release failed.";
+  const errorMessage = error instanceof Error && error.name === "TimeoutError" ? "processor_timeout" : "processor_result_unverified";
   const now = new Date().toISOString();
 
   await supabase
     .from("payments")
     .update({
       escrow_failed_at: now,
-      status: PAYMENT_STATUSES.escrowFailed,
       updated_at: now,
     })
     .eq("id", payment.id);
@@ -495,7 +493,7 @@ async function releaseIyzicoEscrowPayment({
       conversationId: payment.iyzico_conversation_id,
       paymentTransactionId: payment.iyzico_payment_transaction_id,
     });
-    if (!isVerifiedSettlement(approval, payment.iyzico_payment_transaction_id, "release")) throw new Error("unverified_payout_approval");
+    if (!isVerifiedSettlement(approval, payment.iyzico_payment_transaction_id, "release", 0, payment.iyzico_conversation_id)) throw new Error("unverified_payout_approval");
   } catch (error) {
     await markIyzicoEscrowFailed({
       actorUserId,

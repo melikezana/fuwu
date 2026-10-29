@@ -1,0 +1,126 @@
+{
+  "scope": "Real localhost production HTTP guards with unavailable integrations; not authenticated purchase/OAuth/payment E2E",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/api/commerce/slots",
+      "status": 400,
+      "passed": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/commerce/quote?offering=40000000-0000-4000-8000-000000000001",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/orders",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/checkout",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/orders/40000000-0000-4000-8000-000000000001",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/store",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/store/capacity",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/store/variants",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/payment-callback",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/iyzico/checkout",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/iyzico/webhook",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/user",
+      "status": 503,
+      "passed": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/account/favorites",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/cron/commerce-expiry",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/orders",
+      "status": 403,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": 403,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/orders",
+      "status": 413,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/commerce/payment-callback",
+      "status": 413,
+      "passed": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/support/messages",
+      "status": 413,
+      "passed": true
+    },
+    {
+      "method": "GET",
+      "path": "/login CSP",
+      "status": 200,
+      "passed": true
+    }
+  ],
+  "failure": null
+}

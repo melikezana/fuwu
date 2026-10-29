@@ -1,0 +1,435 @@
+{
+  "stage": "after",
+  "buildId": "tbviubiLg4qDpBp1Efpqz",
+  "at": "2026-10-29T17:58:26.333Z",
+  "scope": "LOCAL production build, anonymous remote Supabase reads only. Lighthouse mobile simulated throttling. Not live deployment/field CWV. No RUM INP sample.",
+  "runs": [
+    {
+      "route": "/",
+      "run": 1,
+      "performance": 0.87,
+      "accessibility": 1,
+      "lcp_ms": 3999.991,
+      "cls": 0,
+      "tbt_ms": 51.5,
+      "ttfb_ms": 23,
+      "bytes": 559869,
+      "lcpBreakdown": {
+        "type": "list",
+        "items": [
+          {
+            "type": "table",
+            "headings": [
+              {
+                "key": "label",
+                "valueType": "text",
+                "label": "Subpart"
+              },
+              {
+                "key": "duration",
+                "valueType": "ms",
+                "label": "Duration"
+              }
+            ],
+            "items": [
+              {
+                "subpart": "timeToFirstByte",
+                "label": "Time to first byte",
+                "duration": 29.269
+              },
+              {
+                "subpart": "resourceLoadDelay",
+                "label": "Resource load delay",
+                "duration": 38.818
+              },
+              {
+                "subpart": "resourceLoadDuration",
+                "label": "Resource load duration",
+                "duration": 4.466
+              },
+              {
+                "subpart": "elementRenderDelay",
+                "label": "Element render delay",
+                "duration": 109.221
+              }
+            ]
+          },
+          {
+            "type": "node",
+            "lhId": "page-0-IMG",
+            "path": "1,HTML,1,BODY,3,DIV,0,DIV,2,MAIN,1,DIV,1,SECTION,0,DIV,1,DIV,0,A,0,DIV,0,IMG",
+            "selector": "div.home-service-grid > a.home-category-card > div.home-category-image > img",
+            "boundingRect": {
+              "top": 521,
+              "bottom": 635,
+              "left": 17,
+              "right": 199,
+              "width": 182,
+              "height": 114
+            },
+            "snippet": "<img alt=\"Bahçedeki bitkilerin bakımını yapan bahçıvan\" fetchpriority=\"high\" decoding=\"async\" data-nimg=\"fill\" style=\"position: absolute; height: 100%; width: 100%; inset: 0px;\" sizes=\"(max-width: 359px) 100px, (max-width: 639px) 46vw, (max-width: 1023px) 30v…\" srcset=\"/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w=256&amp;q=75 256w, /_nex…\" src=\"http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w…\">",
+            "nodeLabel": "Bahçedeki bitkilerin bakımını yapan bahçıvan"
+          }
+        ]
+      },
+      "renderBlocking": {
+        "type": "table",
+        "headings": [
+          {
+            "key": "url",
+            "valueType": "url",
+            "label": "URL"
+          },
+          {
+            "key": "totalBytes",
+            "valueType": "bytes",
+            "label": "Transfer Size"
+          },
+          {
+            "key": "wastedMs",
+            "valueType": "timespanMs",
+            "label": "Duration"
+          }
+        ],
+        "items": []
+      },
+      "unusedJs": [
+        {
+          "url": "/_next/static/chunks/3794-997c63ca8b1d68d1.js",
+          "bytes": 67195,
+          "wasted": 23372
+        },
+        {
+          "url": "/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bytes": 64118,
+          "wasted": 21546
+        }
+      ],
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/",
+      "run": 2,
+      "performance": 0.87,
+      "accessibility": 1,
+      "lcp_ms": 4016.007050000001,
+      "cls": 0,
+      "tbt_ms": 49,
+      "ttfb_ms": 15,
+      "bytes": 563554,
+      "lcpBreakdown": {
+        "type": "list",
+        "items": [
+          {
+            "type": "table",
+            "headings": [
+              {
+                "key": "label",
+                "valueType": "text",
+                "label": "Subpart"
+              },
+              {
+                "key": "duration",
+                "valueType": "ms",
+                "label": "Duration"
+              }
+            ],
+            "items": [
+              {
+                "subpart": "timeToFirstByte",
+                "label": "Time to first byte",
+                "duration": 17.002
+              },
+              {
+                "subpart": "resourceLoadDelay",
+                "label": "Resource load delay",
+                "duration": 22.092
+              },
+              {
+                "subpart": "resourceLoadDuration",
+                "label": "Resource load duration",
+                "duration": 4.807
+              },
+              {
+                "subpart": "elementRenderDelay",
+                "label": "Element render delay",
+                "duration": 68.502
+              }
+            ]
+          },
+          {
+            "type": "node",
+            "lhId": "page-0-IMG",
+            "path": "1,HTML,1,BODY,3,DIV,0,DIV,2,MAIN,1,DIV,1,SECTION,0,DIV,1,DIV,0,A,0,DIV,0,IMG",
+            "selector": "div.home-service-grid > a.home-category-card > div.home-category-image > img",
+            "boundingRect": {
+              "top": 521,
+              "bottom": 635,
+              "left": 17,
+              "right": 199,
+              "width": 182,
+              "height": 114
+            },
+            "snippet": "<img alt=\"Bahçedeki bitkilerin bakımını yapan bahçıvan\" fetchpriority=\"high\" decoding=\"async\" data-nimg=\"fill\" style=\"position: absolute; height: 100%; width: 100%; inset: 0px;\" sizes=\"(max-width: 359px) 100px, (max-width: 639px) 46vw, (max-width: 1023px) 30v…\" srcset=\"/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w=256&amp;q=75 256w, /_nex…\" src=\"http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w…\">",
+            "nodeLabel": "Bahçedeki bitkilerin bakımını yapan bahçıvan"
+          }
+        ]
+      },
+      "renderBlocking": {
+        "type": "table",
+        "headings": [
+          {
+            "key": "url",
+            "valueType": "url",
+            "label": "URL"
+          },
+          {
+            "key": "totalBytes",
+            "valueType": "bytes",
+            "label": "Transfer Size"
+          },
+          {
+            "key": "wastedMs",
+            "valueType": "timespanMs",
+            "label": "Duration"
+          }
+        ],
+        "items": []
+      },
+      "unusedJs": [
+        {
+          "url": "/_next/static/chunks/3794-997c63ca8b1d68d1.js",
+          "bytes": 67195,
+          "wasted": 23372
+        },
+        {
+          "url": "/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bytes": 64118,
+          "wasted": 21593
+        }
+      ],
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/",
+      "run": 3,
+      "performance": 0.87,
+      "accessibility": 1,
+      "lcp_ms": 3996.5756999999994,
+      "cls": 0,
+      "tbt_ms": 18.5,
+      "ttfb_ms": 16,
+      "bytes": 563042,
+      "lcpBreakdown": {
+        "type": "list",
+        "items": [
+          {
+            "type": "table",
+            "headings": [
+              {
+                "key": "label",
+                "valueType": "text",
+                "label": "Subpart"
+              },
+              {
+                "key": "duration",
+                "valueType": "ms",
+                "label": "Duration"
+              }
+            ],
+            "items": [
+              {
+                "subpart": "timeToFirstByte",
+                "label": "Time to first byte",
+                "duration": 17.615
+              },
+              {
+                "subpart": "resourceLoadDelay",
+                "label": "Resource load delay",
+                "duration": 13.467
+              },
+              {
+                "subpart": "resourceLoadDuration",
+                "label": "Resource load duration",
+                "duration": 4.975
+              },
+              {
+                "subpart": "elementRenderDelay",
+                "label": "Element render delay",
+                "duration": 71.792
+              }
+            ]
+          },
+          {
+            "type": "node",
+            "lhId": "page-0-IMG",
+            "path": "1,HTML,1,BODY,3,DIV,0,DIV,2,MAIN,1,DIV,1,SECTION,0,DIV,1,DIV,0,A,0,DIV,0,IMG",
+            "selector": "div.home-service-grid > a.home-category-card > div.home-category-image > img",
+            "boundingRect": {
+              "top": 521,
+              "bottom": 635,
+              "left": 17,
+              "right": 199,
+              "width": 182,
+              "height": 114
+            },
+            "snippet": "<img alt=\"Bahçedeki bitkilerin bakımını yapan bahçıvan\" fetchpriority=\"high\" decoding=\"async\" data-nimg=\"fill\" style=\"position: absolute; height: 100%; width: 100%; inset: 0px;\" sizes=\"(max-width: 359px) 100px, (max-width: 639px) 46vw, (max-width: 1023px) 30v…\" srcset=\"/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w=256&amp;q=75 256w, /_nex…\" src=\"http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w…\">",
+            "nodeLabel": "Bahçedeki bitkilerin bakımını yapan bahçıvan"
+          }
+        ]
+      },
+      "renderBlocking": {
+        "type": "table",
+        "headings": [
+          {
+            "key": "url",
+            "valueType": "url",
+            "label": "URL"
+          },
+          {
+            "key": "totalBytes",
+            "valueType": "bytes",
+            "label": "Transfer Size"
+          },
+          {
+            "key": "wastedMs",
+            "valueType": "timespanMs",
+            "label": "Duration"
+          }
+        ],
+        "items": []
+      },
+      "unusedJs": [
+        {
+          "url": "/_next/static/chunks/3794-997c63ca8b1d68d1.js",
+          "bytes": 67195,
+          "wasted": 23372
+        },
+        {
+          "url": "/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bytes": 64118,
+          "wasted": 21593
+        }
+      ],
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    },
+    {
+      "route": "/services",
+      "run": 1,
+      "performance": 0.84,
+      "accessibility": 1,
+      "lcp_ms": 4448.539750000001,
+      "cls": 0,
+      "tbt_ms": 38,
+      "ttfb_ms": 11,
+      "bytes": 632607,
+      "lcpBreakdown": {
+        "type": "list",
+        "items": [
+          {
+            "type": "table",
+            "headings": [
+              {
+                "key": "label",
+                "valueType": "text",
+                "label": "Subpart"
+              },
+              {
+                "key": "duration",
+                "valueType": "ms",
+                "label": "Duration"
+              }
+            ],
+            "items": [
+              {
+                "subpart": "timeToFirstByte",
+                "label": "Time to first byte",
+                "duration": 12.716
+              },
+              {
+                "subpart": "resourceLoadDelay",
+                "label": "Resource load delay",
+                "duration": 639.364
+              },
+              {
+                "subpart": "resourceLoadDuration",
+                "label": "Resource load duration",
+                "duration": 6.133
+              },
+              {
+                "subpart": "elementRenderDelay",
+                "label": "Element render delay",
+                "duration": 13.43
+              }
+            ]
+          },
+          {
+            "type": "node",
+            "lhId": "page-0-IMG",
+            "path": "1,HTML,1,BODY,3,DIV,0,DIV,2,MAIN,2,DIV,2,SECTION,1,A,0,DIV,0,IMG",
+            "selector": "section.home-service-grid > a.home-category-card > div.home-category-image > img",
+            "boundingRect": {
+              "top": 546,
+              "bottom": 659,
+              "left": 19,
+              "right": 199,
+              "width": 180,
+              "height": 113
+            },
+            "snippet": "<img alt=\"Bahçedeki bitkilerin bakımını yapan bahçıvan\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" sizes=\"(max-width: 359px) 100px, (max-width: 639px) 46vw, (max-width: 1023px) 30v…\" srcset=\"/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w=256&amp;q=75 256w, /_nex…\" src=\"http://127.0.0.1:3117/_next/image?url=%2Fimages%2Fservices%2Fgarden.webp&amp;w…\" style=\"position: absolute; height: 100%; width: 100%; inset: 0px;\">",
+            "nodeLabel": "Bahçedeki bitkilerin bakımını yapan bahçıvan"
+          }
+        ]
+      },
+      "renderBlocking": {
+        "type": "table",
+        "headings": [
+          {
+            "key": "url",
+            "valueType": "url",
+            "label": "URL"
+          },
+          {
+            "key": "totalBytes",
+            "valueType": "bytes",
+            "label": "Transfer Size"
+          },
+          {
+            "key": "wastedMs",
+            "valueType": "timespanMs",
+            "label": "Duration"
+          }
+        ],
+        "items": []
+      },
+      "unusedJs": [
+        {
+          "url": "/_next/static/chunks/3794-997c63ca8b1d68d1.js",
+          "bytes": 67195,
+          "wasted": 23775
+        },
+        {
+          "url": "/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bytes": 64118,
+          "wasted": 20939
+        }
+      ],
+      "warnings": [
+        "The page loaded too slowly to finish within the time limit. Results may be incomplete."
+      ]
+    }
+  ],
+  "acceptance": {
+    "lcpTargetMs": 2500,
+    "clsTarget": 0.1,
+    "allLcpPass": false,
+    "allClsPass": true,
+    "inp": "UNAVAILABLE: no real-user data"
+  }
+}

@@ -27,8 +27,8 @@ export async function marketplaceAction(form: FormData) {
       await processOrderSettlement(orderId, "refund");
       ok = true; // Request accepted, NOT a claim that the external refund succeeded.
     } else if (action === "release") {
-      await processOrderSettlement(orderId, "release");
-      ok = true;
+      const settlement = await processOrderSettlement(orderId, "release");
+      ok = settlement.state === "completed";
     } else {
       const db = createSupabaseServiceRoleClient();
       if (!db) throw new Error("sandbox_unavailable");
@@ -36,6 +36,10 @@ export async function marketplaceAction(form: FormData) {
       if (!transaction) throw new Error("payment_not_found");
       await reconcileCommercePayment(db, transaction);
       ok = true;
+      // A verified settlement may need only its local finalization after a DB outage.
+      // IN_FLIGHT/MANUAL_REVIEW claims never dispatch another external operation.
+      if (transaction.payout_state === "IN_FLIGHT") ok = (await processOrderSettlement(orderId, "release", db)).state === "completed";
+      if (transaction.refund_state === "IN_FLIGHT") ok = (await processOrderSettlement(orderId, "refund", db)).state === "completed";
     }
   } catch { /* Processor failure never becomes a successful payment. */ }
   await writeAuditLog({ action: "commerce.operation_requested", actorUserId: user.id, entityType: "order", entityId: orderId, metadata: { operation: action, requestAccepted: ok, environment: "sandbox" } }, supabase);

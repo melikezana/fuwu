@@ -6,6 +6,7 @@ import type { Database, Json } from "@/lib/supabase/types";
 import { createContentSecurityPolicyHeaderValue } from "@/lib/security/securityHeaders";
 import { writeAuditLog } from "@/services/audit";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
+import { supabaseFetch } from "@/lib/supabase/fetch";
 
 const PROTECTED_PATHS = [
   "/admin",
@@ -234,6 +235,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
+    global: { fetch: supabaseFetch },
+    cookieOptions: { sameSite: "lax", secure: requestOrigin.startsWith("https:") },
     cookies: {
       getAll() {
         return request.cookies.getAll();

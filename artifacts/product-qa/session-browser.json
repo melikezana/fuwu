@@ -1,0 +1,8 @@
+{
+  "scope": "Actual session provider and navigation components, explicitly mocked HTTP and Auth event emitter; not Google/real-role E2E.",
+  "checks": [
+    "Two consumers plus navigation share a verified profile (two requests for the development StrictMode mount pair); logout and cross-tab token updates change role navigation.",
+    "A failed optional SDK chunk retains the profile verified by the server API."
+  ],
+  "errors": []
+}

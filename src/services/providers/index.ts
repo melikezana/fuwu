@@ -32,6 +32,7 @@ import {
 } from "@/lib/provider-filters";
 import type { Database } from "@/lib/supabase/types";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
+import { supabaseFetch } from "@/lib/supabase/fetch";
 import {
   isProviderPriceRangeRelevantToBudget,
   mapBudgetTagToPriceRange,
@@ -55,6 +56,10 @@ export type {
 } from "@/types/provider";
 
 type SupabaseProviderRow = Database["public"]["Tables"]["providers"]["Row"];
+type PublicationRecord = { id: string; rating: number | null; review_count: number; verified: boolean; identity_verified: boolean };
+function applyPublication(record: SupabaseProviderRecord, approval: PublicationRecord): SupabaseProviderRecord {
+  return { ...record, rating: approval.rating ?? 0, review_count: approval.review_count, is_verified: approval.verified, identity_verified: approval.identity_verified };
+}
 
 type SupabaseNamedRelation = {
   is_active?: boolean | null;
@@ -202,6 +207,7 @@ function createProvidersSupabaseClient(): SupabaseClient<Database> | null {
   }
 
   return createClient<Database>(config.url, config.anonKey, {
+    global: { fetch: supabaseFetch },
     auth: {
       autoRefreshToken: false,
       detectSessionInUrl: false,
@@ -910,10 +916,13 @@ async function fetchProvidersFromSupabase(
       return null;
     }
 
-    const [categoryIds, districtIds] = await Promise.all([
+    const [categoryIds, districtIds, publication] = await Promise.all([
       fetchMatchingCategoryIds(supabase, filters.category),
       fetchMatchingDistrictIds(supabase, filters.district),
+      supabase.rpc("provider_publication_gate", {}),
     ]);
+    if (publication.error || !Array.isArray(publication.data)) return null;
+    const approved = new Map((publication.data as unknown as PublicationRecord[]).map(row => [row.id, row]));
 
     if (categoryIds?.length === 0 || districtIds?.length === 0) {
       return [];
@@ -1039,6 +1048,8 @@ async function fetchProvidersFromSupabase(
     }
 
     const providers = ((data ?? []) as unknown as SupabaseProviderRecord[])
+      .filter(record => approved.has(record.id))
+      .map(record => applyPublication(record, approved.get(record.id)!))
       .map((record, index) => mapSupabaseProvider(record, index))
       .filter(isProvider);
 
@@ -1064,6 +1075,10 @@ async function fetchProviderByIdFromSupabase(
       return { status: "error", supabaseConfigured: false };
     }
 
+    const publication = await supabase.rpc("provider_publication_gate", {});
+    if (publication.error || !Array.isArray(publication.data)) return { status: "error", supabaseConfigured: true };
+    const approval = (publication.data as unknown as PublicationRecord[]).find(row => row.id === id);
+    if (!approval) return { status: "not-found" };
     let { data, error } = await supabase
       .from("providers")
       .select(providerSelectQuery)
@@ -1093,7 +1108,7 @@ async function fetchProviderByIdFromSupabase(
       return { status: "not-found" };
     }
 
-    const provider = mapSupabaseProvider(data as unknown as SupabaseProviderRecord);
+    const provider = mapSupabaseProvider(applyPublication(data as unknown as SupabaseProviderRecord, approval));
 
     return provider ? { status: "found", provider } : { status: "not-found" };
   } catch (error) {

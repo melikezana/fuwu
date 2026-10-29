@@ -5,13 +5,15 @@ import { LifeBuoy, MapPin, Menu, UserRound, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
+import dynamic from "next/dynamic";
+const NotificationBell = dynamic(() => import("@/components/notifications/NotificationBell").then(m => m.NotificationBell));
 import { Container } from "@/components/ui/Container";
 import { appRoutes, type NavigationLink } from "@/lib/constants/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSessionProfile } from "@/components/auth/SessionProfileProvider";
+import type { CurrentUserProfile } from "@/types/auth";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import type { CurrentUserProfile } from "@/types/auth";
+
 
 const headerNavigationLinks: NavigationLink[] = [
   {
@@ -64,8 +66,7 @@ export function Navbar() {
   const { t } = useI18n();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState("");
-  const [userProfile, setUserProfile] = useState<CurrentUserProfile | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { profile: userProfile, loading: isAuthLoading } = useSessionProfile();
   const navRef = useRef<HTMLElement>(null);
   const userDisplayName = useMemo(
     () => getUserDisplayName(userProfile, t("nav.account")),
@@ -106,52 +107,7 @@ export function Navbar() {
     return links;
   }, [isAuthLoading, t, userDisplayName, userProfile]);
 
-  useEffect(() => {
-    let mounted = true;
-    const supabase = createClient();
 
-    async function loadAuth() {
-      try {
-        const response = await fetch("/api/auth/user", { cache: "no-store" });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.authenticated && data.profile) {
-            if (mounted) setUserProfile(data.profile);
-          } else if (mounted) {
-            setUserProfile(null);
-          }
-        } else if (mounted) {
-          setUserProfile(null);
-        }
-      } catch {
-        if (mounted) setUserProfile(null);
-      } finally {
-        if (mounted) setIsAuthLoading(false);
-      }
-    }
-
-    void loadAuth();
-    const {
-      data: { subscription },
-    } =
-      supabase?.auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_OUT") {
-          setUserProfile(null);
-          setIsAuthLoading(false);
-          return;
-        }
-
-        if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-          setIsAuthLoading(true);
-          void loadAuth();
-        }
-      }) ?? { data: { subscription: null } };
-
-    return () => {
-      mounted = false;
-      subscription?.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     function updateActiveHref() {
@@ -202,11 +158,11 @@ export function Navbar() {
   async function handleLogout() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      const { createClient } = await import("@/lib/supabase/client");
       await createClient()?.auth.signOut();
     } catch {
       // Session refresh handles any transient logout issue.
     }
-    setUserProfile(null);
     window.location.reload();
   }
 

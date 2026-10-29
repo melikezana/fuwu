@@ -1,3 +1,4 @@
+import { withCommerceApi } from "@/lib/commerce/api";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
@@ -6,14 +7,14 @@ import { getRequestOrigin } from "@/lib/security/safeRedirect";
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "private, no-store" };
 
-export async function GET() {
+async function handleGET() {
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) return NextResponse.json({ error: "unauthorized" }, { status: 401, headers });
   const { data, error } = await supabase.from("customer_favorite_providers").select("provider_id").eq("customer_id", user.id);
   return NextResponse.json(error ? { error: "favorites_unavailable" } : { ids: data.map(row => row.provider_id) }, { status: error ? 503 : 200, headers });
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403, headers });
   const { user, supabase } = await getServerAuthContext();
@@ -29,3 +30,6 @@ export async function POST(request: NextRequest) {
   const failed = result.error && !(body.saved && result.error.code === "23505");
   return NextResponse.json(failed ? { error: "favorites_unavailable" } : { saved: body.saved }, { status: failed ? 503 : 200, headers });
 }
+
+export const GET = withCommerceApi(handleGET);
+export const POST = withCommerceApi(handlePOST);

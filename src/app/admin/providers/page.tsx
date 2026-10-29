@@ -13,6 +13,9 @@ import {
   adminActionIcons,
 } from "@/components/admin/AdminUI";
 import { AdminAccessGate } from "@/components/admin/AdminAccessGate";
+import { ProviderQualityQueue } from "@/components/admin/ProviderQualityQueue";
+import { getProviderQualityQueue } from "@/services/admin/provider-quality";
+import { reviewProviderQuality } from "./quality-actions";
 import {
   getProviderAvailabilityLabel,
   getProviderAvailabilityTone,
@@ -681,9 +684,10 @@ export default async function AdminProvidersPage({
     return <AdminAccessGate access={adminAccess} />;
   }
 
-  const [result, resolvedSearchParams] = await Promise.all([
+  const [result, resolvedSearchParams, quality] = await Promise.all([
     getAdminProviders(),
-    searchParams ?? Promise.resolve({}),
+    searchParams ?? Promise.resolve({} as SearchParams),
+    getProviderQualityQueue(),
   ]);
   const actionFeedback = getProviderActionFeedback(resolvedSearchParams);
 
@@ -698,6 +702,7 @@ export default async function AdminProvidersPage({
       title="Ustalar"
     >
       <ProviderActionNotice feedback={actionFeedback} />
+      <ProviderQualityQueue {...quality} action={reviewProviderQuality} feedback={typeof resolvedSearchParams.quality === "string" ? resolvedSearchParams.quality : undefined} />
       {result.rows.length === 0 ? (
         <AdminEmptyState title="Henüz usta kaydı yok">
           Supabase üzerinde usta kaydı oluştuğunda ad, kategori, ilçe, iletişim,

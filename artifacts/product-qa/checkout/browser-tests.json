@@ -1,0 +1,32 @@
+{
+  "mode": "Real React components; fixture catalog, HTTP and OAuth navigation. No iyzico or Google transaction.",
+  "checks": [
+    "Provider deep link survives region edits; an unavailable provider is never silently replaced.",
+    "Provider availability comes from HTTP slots; Today stays hidden when empty, Tomorrow is shown only after a successful slot response.",
+    "Two providers expose different prices; switching packages retains the explicitly chosen provider and updates its price/duration.",
+    "Checkout scope, exclusions, address, duration, total, cancellation/refund terms and one visible payment CTA fit eight viewport widths.",
+    "One final click creates the hold and starts the existing checkout API; initialization failure preserves access to the same order.",
+    "Successful mocked checkout redirects to the validated sandbox host; the sandbox page itself is intercepted test HTML.",
+    "Guest login navigation restores the summary, service/provider/package/date/time/address draft; a newly unavailable slot blocks payment after reload.",
+    "Disabled session storage prevents the login redirect and keeps selections visible, with an actionable error.",
+    "Slot API failure disables purchase and hides unverified quick days.",
+    "Expired hold disables payment and offers a fresh booking without inventing a new server status.",
+    "5% platform fee is separate from the service price, total is 892.50 TRY, unchecked explicit consent blocks payment and exact total/version reach the order request (mock APIs).",
+    "Server fee-change conflict refreshes the displayed quote and clears consent before another attempt.",
+    "Quote connection failure never silently charges a zero fee or enables payment."
+  ],
+  "screenshots": [
+    "checkout-390-FIXTURE.png",
+    "checkout-390-FIXTURE-viewport.png",
+    "checkout-1440-FIXTURE.png",
+    "checkout-1440-FIXTURE-viewport.png",
+    "oauth-stale-slot-390-FIXTURE.png",
+    "oauth-stale-slot-390-FIXTURE-viewport.png",
+    "hold-expired-390-FIXTURE.png",
+    "hold-expired-390-FIXTURE-viewport.png",
+    "customer-fee-consent-390-FIXTURE.png",
+    "customer-fee-consent-390-FIXTURE-viewport.png"
+  ],
+  "errors": [],
+  "failed": null
+}

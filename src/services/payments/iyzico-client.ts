@@ -122,9 +122,10 @@ export async function iyzicoRequest<TResponse extends IyzicoApiResponse>({
 
   if (!response.ok || (!allowFailure && responseBody.status === "failure")) {
     throw new IyzicoIntegrationError(
-      responseBody.errorMessage || "iyzico request failed.",
+      "iyzico request failed.",
       {
         errorCode: responseBody.errorCode,
+        processorFailure: responseBody.status === "failure",
         errorGroup: responseBody.errorGroup,
         path,
         status: response.status,
@@ -144,7 +145,7 @@ export function verifyIyzicoWebhookSignature({
 }) {
   const secretKey = process.env.IYZICO_SECRET_KEY?.trim();
 
-  if (!secretKey || !signature) {
+  if (!secretKey || !signature || !/^[a-f0-9]{64}$/i.test(signature)) {
     return false;
   }
 
@@ -154,13 +155,13 @@ export function verifyIyzicoWebhookSignature({
   const paymentId = String(payload.paymentId ?? "");
   const iyziPaymentId = String(payload.iyziPaymentId ?? "");
   const token = String(payload.token ?? "");
-  const candidates = [
-    eventType && paymentId && paymentConversationId && status
-      ? `${secretKey}${eventType}${paymentId}${paymentConversationId}${status}`
-      : "",
-    eventType && iyziPaymentId && token && paymentConversationId && status
-      ? `${secretKey}${eventType}${iyziPaymentId}${token}${paymentConversationId}${status}`
-      : "",
+  // An HPP notification must sign its token. Never accept the direct signature as
+  // a fallback for an HPP payload with an otherwise unsigned/replaced token.
+  const candidates = [token
+    ? eventType && iyziPaymentId && paymentConversationId && status
+      ? `${secretKey}${eventType}${iyziPaymentId}${token}${paymentConversationId}${status}` : ""
+    : eventType && paymentId && paymentConversationId && status
+      ? `${secretKey}${eventType}${paymentId}${paymentConversationId}${status}` : ""
   ].filter(Boolean);
 
   return candidates.some((candidate) => {

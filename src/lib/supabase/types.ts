@@ -713,6 +713,8 @@ export type Database = {
       payments: {
         Row: {
           external_operation_state: string;
+          checkout_initialization_state: string;
+          iyzico_submerchant_key_snapshot: string | null;
           id: string;
           request_id: string;
           amount: number | null;
@@ -744,6 +746,8 @@ export type Database = {
         };
         Insert: {
           external_operation_state?: string;
+          checkout_initialization_state?: string;
+          iyzico_submerchant_key_snapshot?: string | null;
           id?: string;
           request_id: string;
           amount?: number | null;
@@ -775,6 +779,8 @@ export type Database = {
         };
         Update: {
           external_operation_state?: string;
+          checkout_initialization_state?: string;
+          iyzico_submerchant_key_snapshot?: string | null;
           id?: string;
           request_id?: string;
           amount?: number | null;
@@ -1054,6 +1060,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: CommerceFunctions & {
+      provider_publication_gate: { Args: Record<string, never>; Returns: Json };
+      admin_provider_quality_queue: { Args: Record<string, never>; Returns: Json };
+      review_provider_publication: { Args: { p_provider_id: string; p_fingerprint: string; p_status: string; p_note: string; p_verification_reference?: string | null }; Returns: undefined };
       bind_provider_applications_to_current_user: {
         Args: Record<PropertyKey, never>;
         Returns: number;

@@ -1,0 +1,60 @@
+{
+  "status": "BLOCKED",
+  "gates": [
+    {
+      "name": "typecheck",
+      "status": "PASS"
+    },
+    {
+      "name": "lint",
+      "status": "PASS"
+    },
+    {
+      "name": "unit",
+      "status": "PASS"
+    },
+    {
+      "name": "coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "integration",
+      "status": "PASS"
+    },
+    {
+      "name": "security",
+      "status": "PASS"
+    },
+    {
+      "name": "build",
+      "status": "PASS"
+    },
+    {
+      "name": "commerce-e2e",
+      "status": "BLOCKED",
+      "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; see environment policy. No write test ran."
+    },
+    {
+      "name": "google-oauth",
+      "status": "BLOCKED",
+      "reason": "No current execution evidence"
+    },
+    {
+      "name": "iyzico-sandbox",
+      "status": "BLOCKED",
+      "reason": "No current execution evidence"
+    },
+    {
+      "name": "staging-schema",
+      "status": "BLOCKED",
+      "reason": "No current execution evidence"
+    },
+    {
+      "name": "p0-review",
+      "status": "BLOCKED",
+      "reason": "No current execution evidence"
+    }
+  ],
+  "evaluatedAt": "2026-10-29T20:58:03.353Z",
+  "scope": "Evidence validation only; no deployment, DB mutation or processor call"
+}

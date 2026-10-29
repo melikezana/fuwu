@@ -1,3 +1,4 @@
+import { finishVerified, reliabilityChecks } from "./backend-reliability-db-checks.mjs";
 import { fuwu3Checks } from "./fuwu3-db-checks.mjs";
 import { phase3Checks } from "./phase3-db-checks.mjs";
 import { phase2CheckoutChecks } from "./phase2-checkout-db-checks.mjs";
@@ -5,7 +6,9 @@ import assert from "node:assert/strict";
 import { reviewQualityChecks } from "./fusion-quality-db-checks.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createRequire } from "node:module";
+import { postgresRuntime } from "./testing/postgres.mjs";
+import { securityDatabaseChecks } from "./security-db-checks.mjs";
+import { publicationChecks } from "./product-publication-db-checks.mjs";
 import { execFileSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import net from "node:net";
@@ -13,9 +16,8 @@ import crypto from "node:crypto";
 
 // A disposable local PostgreSQL cluster. No project environment file or remote URL is read.
 const runtime = path.resolve("artifacts/commerce-test-runtime");
-const requireTest = createRequire(path.join(runtime, "package.json"));
-const { initdb, postgres, pg_ctl } = requireTest("@embedded-postgres/windows-x64");
-const { Client } = requireTest("pg");
+await fs.mkdir(runtime, { recursive: true });
+const { initdb, postgres, pg_ctl, Client } = postgresRuntime();
 const dataDir = path.join(runtime, `db-${Date.now()}`);
 assert.ok(dataDir.startsWith(runtime + path.sep));
 const report = { engine: "PostgreSQL, independent TCP sessions", checks: [], failed: null };
@@ -56,6 +58,8 @@ try {
   await root.query(await fs.readFile("supabase/migrations/20261026000400_review_submission_receipts.sql","utf8"));
   await root.query(await fs.readFile("supabase/migrations/20261028000100_phase2_checkout_consistency.sql","utf8"));
   if (process.env.FUWU3_UPGRADE_TEST !== "true") await root.query(await fs.readFile("supabase/migrations/20261028000200_fuwu3_catalog_and_fees.sql","utf8"));
+  if (process.env.FUWU3_UPGRADE_TEST !== "true") await root.query(await fs.readFile("supabase/migrations/20261029000100_backend_reliability.sql","utf8"));
+  if (process.env.FUWU3_UPGRADE_TEST !== "true") await root.query(await fs.readFile("supabase/migrations/20261029000200_atomic_rate_limit.sql","utf8"));
   await check("Additive migration preserves existing review ID, text, score and missing source",async()=>{const row=(await root.query("select * from reviews where id=$1",[preservedReview])).rows[0];assert.equal(row.comment,'TEST pre-migration original review');assert.equal(row.rating,4);assert.equal(row.order_id,null);assert.equal(row.service_request_id,null);});
   const a=await client("authenticated",uid(1)), b=await client("authenticated",uid(2)), p=await client("authenticated",uid(3)), p2=await client("authenticated",uid(4)), admin=await client("authenticated",uid(5)), service=await client("service_role"), guest=await client("anon");
   await check("Favorites require authentication and cannot be written for another customer", async()=>{await assert.rejects(guest.query("select * from customer_favorite_providers"),/permission denied/);await assert.rejects(a.query("insert into customer_favorite_providers(customer_id,provider_id) values($1,$2)",[uid(2),pid(3)]),/row-level security/);});
@@ -95,14 +99,14 @@ try {
   await check("Verified payment confirms once and duplicate callback is idempotent",async()=>{assert.equal(await scalar(service,"select commerce_resolve_payment($1,'token-success','test-payment-1',true,250,'test-item-1')",[winner.id]),'CONFIRMED');const count=await scalar(root,"select count(*)::int from order_status_events where order_id=$1",[winner.id]);await service.query("select commerce_resolve_payment($1,'token-success','test-payment-1',true,250,'test-item-1')",[winner.id]);assert.equal(await scalar(root,"select count(*)::int from order_status_events where order_id=$1",[winner.id]),count);await service.query("select commerce_resolve_payment($1,'token-success',null,false)",[winner.id]);assert.equal(await scalar(root,"select status from orders where id=$1",[winner.id]),'CONFIRMED');});
   await check("Only assigned provider advances paid order, completion requires customer code",async()=>{await assert.rejects(winningClient.query("select commerce_transition_order($1,'PROVIDER_ON_THE_WAY')",[winner.id]),/transition_forbidden/);await p.query("select commerce_transition_order($1,'PROVIDER_ON_THE_WAY')",[winner.id]);await p.query("select commerce_transition_order($1,'IN_PROGRESS')",[winner.id]);assert.equal((await scalar(p,"select commerce_transition_order($1,'COMPLETED','000000')",[winner.id])).error,'invalid_completion_code');const code=await scalar(winningClient,"select code from order_completion_codes where order_id=$1",[winner.id]);await p.query("select commerce_transition_order($1,'COMPLETED',$2)",[winner.id,code]);assert.equal(await scalar(root,"select status from orders where id=$1",[winner.id]),'COMPLETED');});
   await check("Only completed order owner can review; real rating aggregated",async()=>{await assert.rejects(losingClient.query("select commerce_submit_review($1,5::smallint,'TEST review text')",[winner.id]),/review-not-eligible/);await winningClient.query("select commerce_submit_review($1,5::smallint,'TEST gerçek hizmet değerlendirmesi')",[winner.id]);assert.equal(Number(await scalar(root,"select rating from providers where id=$1",[pid(1)])),5);await assert.rejects(winningClient.query("select commerce_submit_review($1,5::smallint,'TEST repeated review')",[winner.id]),/review-already-submitted/);});
-  await check("Completion payout has one durable external-operation claim",async()=>{const first=await scalar(service,"select commerce_claim_settlement($1,'release')",[winner.id]);assert.equal(first.claimed,true);assert.equal((await scalar(service,"select commerce_claim_settlement($1,'release')",[winner.id])).claimed,false);await service.query("select commerce_finish_settlement($1,'release')",[winner.id]);assert.equal(await scalar(root,"select payout_state from payment_transactions where order_id=$1",[winner.id]),'RELEASED');});
+  await check("Completion payout has one durable external-operation claim",async()=>{const first=await scalar(service,"select commerce_claim_settlement($1,'release')",[winner.id]);assert.equal(first.claimed,true);assert.equal((await scalar(service,"select commerce_claim_settlement($1,'release')",[winner.id])).claimed,false);if(process.env.FUWU3_UPGRADE_TEST === "true") await service.query("select commerce_finish_settlement($1,'release')",[winner.id]); else await finishVerified(service,winner.id,"release");assert.equal(await scalar(root,"select payout_state from payment_transactions where order_id=$1",[winner.id]),'RELEASED');});
   const pending=await hold(a,new Date(new Date(start).getTime()+2*3600000));
   await check("Hold idempotency returns the same order without extending expiry",async()=>{const again=await hold(a,pending.starts_at,85000,pending.idempotency_key);assert.equal(again.id,pending.id);assert.equal(again.expires_at,pending.expires_at);});
   await service.query("select commerce_begin_payment($1)",[pending.id]);await service.query("select commerce_attach_payment($1,'token-late','https://sandbox-cpp.iyzipay.com/test')",[pending.id]);
   await check("Expired holds immediately stop blocking, before cron cleanup",async()=>{await root.query("update orders set expires_at=now()-interval '1 minute' where id=$1",[pending.id]);assert.ok((await slots(guest)).some(s=>new Date(s.starts_at).getTime()===Date.parse(pending.starts_at)));});
   const replacement=await hold(b,pending.starts_at);
   await check("Late paid callback becomes REFUND_PENDING and never steals a rebooked slot",async()=>{assert.equal(await scalar(service,"select commerce_resolve_payment($1,'token-late','test-late-payment',true,null,'test-item-late')",[pending.id]),'REFUND_PENDING');assert.equal(await scalar(root,"select status from orders where id=$1",[replacement.id]),'PENDING_PAYMENT');});
-  await check("Refund is only final after verified processor completion and cannot be claimed twice",async()=>{assert.equal((await scalar(service,"select commerce_claim_settlement($1,'refund')",[pending.id])).claimed,true);assert.equal((await scalar(service,"select commerce_claim_settlement($1,'refund')",[pending.id])).claimed,false);assert.equal(await scalar(root,"select status from orders where id=$1",[pending.id]),'REFUND_PENDING');await service.query("select commerce_finish_settlement($1,'refund')",[pending.id]);assert.equal(await scalar(root,"select status from orders where id=$1",[pending.id]),'REFUNDED');});
+  await check("Refund is only final after verified processor completion and cannot be claimed twice",async()=>{assert.equal((await scalar(service,"select commerce_claim_settlement($1,'refund')",[pending.id])).claimed,true);assert.equal((await scalar(service,"select commerce_claim_settlement($1,'refund')",[pending.id])).claimed,false);assert.equal(await scalar(root,"select status from orders where id=$1",[pending.id]),'REFUND_PENDING');if(process.env.FUWU3_UPGRADE_TEST === "true") await service.query("select commerce_finish_settlement($1,'refund')",[pending.id]); else await finishVerified(service,pending.id,"refund");assert.equal(await scalar(root,"select status from orders where id=$1",[pending.id]),'REFUNDED');});
   await check("Failed payment releases the slot",async()=>{await service.query("select commerce_begin_payment($1)",[replacement.id]);await service.query("select commerce_attach_payment($1,'token-fail','https://sandbox-cpp.iyzipay.com/test')",[replacement.id]);await service.query("select commerce_resolve_payment($1,'token-fail',null,false)",[replacement.id]);assert.equal(await scalar(root,"select status from orders where id=$1",[replacement.id]),'PAYMENT_FAILED');assert.ok((await slots(guest)).some(s=>Date.parse(s.starts_at)===Date.parse(replacement.starts_at)));});
   await check("Expiry cleanup is restricted and idempotent",async()=>{const expiring=await hold(a,new Date(new Date(start).getTime()+4*3600000));await root.query("update orders set expires_at=now()-interval '1 minute' where id=$1",[expiring.id]);await assert.rejects(a.query("select commerce_expire_holds()"),/permission denied/);assert.equal(await scalar(service,"select commerce_expire_holds()"),1);assert.equal(await scalar(service,"select commerce_expire_holds()"),0);});
   await check("Admin finance RPC rejects customers, providers and guests",async()=>{await assert.rejects(scalar(a,"select commerce_admin_summary()"),/forbidden/);await assert.rejects(scalar(p,"select commerce_admin_summary()"),/forbidden/);await assert.rejects(scalar(guest,"select commerce_admin_summary()"),/permission denied/);});
@@ -126,12 +130,17 @@ try {
   if (process.env.FUWU3_UPGRADE_TEST === "true") {
     const historical = (await root.query("select id,total_minor,commission_minor,provider_gross_minor,starts_at,ends_at from orders order by id")).rows;
     await root.query(await fs.readFile("supabase/migrations/20261028000200_fuwu3_catalog_and_fees.sql","utf8"));
+    await root.query(await fs.readFile("supabase/migrations/20261029000100_backend_reliability.sql","utf8"));
+    await root.query(await fs.readFile("supabase/migrations/20261029000200_atomic_rate_limit.sql","utf8"));
     await check("FUWU3 upgrade: all existing order identities, appointment times and price snapshots survive migration unchanged", async () => {
       assert.deepEqual((await root.query("select id,total_minor,commission_minor,provider_gross_minor,starts_at,ends_at from orders order by id")).rows, historical);
       assert.equal(await scalar(root,"select count(*)::int from orders where service_price_minor is not null or customer_fee_minor is not null"),0);
     });
   }
   await fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pid, scalar, check });
+  await reliabilityChecks({root,a,b,p,admin,service,guest,scalar,check,winner});
+  await securityDatabaseChecks({root,a,b,p,p2,admin,service,guest,scalar,check,client,uid,pid,winner});
+  await publicationChecks({root,a,p,admin,guest,pid,scalar,check});
   console.log(`${report.checks.length} database checks passed.`);
 } catch(error){report.failed=String(error?.stack||error);console.error(report.failed);process.exitCode=1;}
 finally {for(const c of clients)await c.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",dataDir,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(out,"database-tests.json"),JSON.stringify(report,null,2));}

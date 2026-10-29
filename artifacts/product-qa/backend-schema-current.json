@@ -1,0 +1,102 @@
+{
+  "checked_at": "2026-10-29T20:49:31.269Z",
+  "scope": "Read-only anonymous schema/settings probes; zero rows. No migration ledger, PII, payment, login or mutation.",
+  "environments": [
+    {
+      "file": ".env.local",
+      "supabase": {
+        "host": "bjhyisomjadirdchruix.supabase.co",
+        "project_ref": "bjhyisomjadirdchruix"
+      },
+      "server_key_present": false,
+      "iyzico_keys_present": false
+    },
+    {
+      "file": ".env.test",
+      "supabase": {
+        "host": "127.0.0.1",
+        "project_ref": null
+      },
+      "server_key_present": true,
+      "iyzico_keys_present": false
+    },
+    {
+      "file": ".env.staging",
+      "supabase": null,
+      "server_key_present": false,
+      "iyzico_keys_present": false
+    },
+    {
+      "file": ".env.production",
+      "supabase": null,
+      "server_key_present": false,
+      "iyzico_keys_present": false
+    },
+    {
+      "file": ".vercel/.env.preview.local",
+      "supabase": null,
+      "server_key_present": false,
+      "iyzico_keys_present": false
+    },
+    {
+      "file": ".vercel/.env.production.local",
+      "supabase": null,
+      "server_key_present": false,
+      "iyzico_keys_present": false
+    }
+  ],
+  "deployment_mapping": "BLOCKED unless a verified staging/production config is available; local config does not prove deployed identity",
+  "checks": [
+    {
+      "name": "category_visibility",
+      "http_status": 400,
+      "code": "42703"
+    },
+    {
+      "name": "favorites",
+      "http_status": 404,
+      "code": "PGRST205"
+    },
+    {
+      "name": "google_settings",
+      "http_status": 200,
+      "code": null,
+      "google_enabled": true
+    },
+    {
+      "name": "orders",
+      "http_status": 400,
+      "code": "42703"
+    },
+    {
+      "name": "orders_commerce_contract",
+      "http_status": 400,
+      "code": "42703"
+    },
+    {
+      "name": "orders_identity",
+      "http_status": 200,
+      "code": null
+    },
+    {
+      "name": "review_sources",
+      "http_status": 400,
+      "code": "42703"
+    },
+    {
+      "name": "service_catalog",
+      "http_status": 404,
+      "code": "PGRST205"
+    },
+    {
+      "name": "service_variants",
+      "http_status": 404,
+      "code": "PGRST205"
+    }
+  ],
+  "schema_metadata": {
+    "http_status": 401,
+    "tables": {},
+    "rpc_names": []
+  }
+}

@@ -1,5 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { loadTestEnvironment } from "./testing/environment.mjs";
 import {
   createClient,
   type RealtimeChannel,
@@ -10,27 +9,14 @@ import { matchAndNotifyEligibleProviders } from "@/services/matching";
 import { getProviderAssignedRequests } from "@/services/requests";
 import type { Database } from "@/lib/supabase/types";
 
-const root = process.cwd();
 const password = "LocalLaunchTest-2026!";
 const runId = `${Date.now()}-${Math.floor(Math.random() * 10_000)}`;
 
 function loadEnvFile(fileName: string) {
-  const path = join(root, fileName);
-
-  if (!existsSync(path)) {
-    return;
-  }
-
-  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
-    const trimmedLine = line.trim();
-
-    if (!trimmedLine || trimmedLine.startsWith("#") || !trimmedLine.includes("=")) {
-      continue;
-    }
-
-    const [key, ...valueParts] = trimmedLine.split("=");
-    process.env[key] ??= valueParts.join("=").trim().replace(/^["']|["']$/g, "");
-  }
+  void fileName;
+  const {env,safety}=loadTestEnvironment();
+  if(!safety.ready) throw new Error('BLOCKED: isolated test Supabase required');
+  Object.assign(process.env,env);
 }
 
 function getRequiredEnv(name: string) {
@@ -69,8 +55,7 @@ async function main() {
   loadEnvFile(".env");
 
   const supabaseUrl =
-    process.env.SUPABASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
     "http://127.0.0.1:54321";
   const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost)/.test(supabaseUrl);
 

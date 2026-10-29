@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "sourceHash": "4be79107c2e5ae3d0870d2fabe4af779f2838cfcd4cc9b1924113ddfa413e792",
+  "startedAt": "2026-10-29T16:49:58.614Z",
+  "completedAt": "2026-10-29T16:53:54.058Z",
+  "executed": true,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "storybook",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  ]
+}

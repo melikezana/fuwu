@@ -1,38 +1,18 @@
+import { loadTestEnvironment } from "./testing/environment.mjs";
 import { createClient } from "@supabase/supabase-js";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 
-const root = process.cwd();
 
 function loadEnvFile(fileName) {
-  const path = join(root, fileName);
-
-  if (!existsSync(path)) {
-    return;
-  }
-
-  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
-    const trimmed = line.trim();
-
-    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) {
-      continue;
-    }
-
-    const separatorIndex = trimmed.indexOf("=");
-    const key = trimmed.slice(0, separatorIndex).trim();
-
-    process.env[key] ??= trimmed
-      .slice(separatorIndex + 1)
-      .trim()
-      .replace(/^["']|["']$/g, "");
-  }
+  void fileName;
+  const {env,safety}=loadTestEnvironment();
+  if(!safety.ready) throw new Error('BLOCKED: isolated test Supabase required');
+  Object.assign(process.env,env);
 }
 
 loadEnvFile(".env.local");
 loadEnvFile(".env");
 
 const supabaseUrl =
-  process.env.SUPABASE_URL?.trim() ||
   process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 

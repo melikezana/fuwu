@@ -16,16 +16,18 @@ export async function getCommerceCatalog() {
       if (result.data.length < 500) return { data: categoryRows, error: null };
     }
   };
-  const [services, variants, districts, offers, categories] = await Promise.all([
+  const [services, variants, districts, offers, categories, publication] = await Promise.all([
     db.from("service_catalog").select("*").eq("is_active", true).order("name").abortSignal(signal),
     db.from("service_variants").select("*").eq("is_active", true).abortSignal(signal),
     db.from("districts").select("id,name").eq("is_active", true).order("name").abortSignal(signal),
     db.rpc("commerce_offers", {}).abortSignal(signal),
     readCategories(),
+    db.rpc("provider_publication_gate", {}).abortSignal(signal),
   ]);
   const visibleCategories = (categories.data ?? []).filter(category => category.is_visible !== false);
   const visibleServices = (services.data ?? []).filter(service => visibleCategories.some(category => category.id === service.category_id));
-  const unavailable = Boolean(services.error || variants.error || districts.error || offers.error || categories.error);
+  const unavailable = Boolean(services.error || variants.error || districts.error || offers.error || categories.error || publication.error || !Array.isArray(publication.data));
+  const approvedIds = new Set(Array.isArray(publication.data) ? (publication.data as { id: string }[]).map(p => p.id) : []);
   return { services: visibleServices, variants: variants.data ?? [], districts: districts.data ?? [], categories: visibleCategories,
-    offers: unavailable ? [] : (offers.data ?? []) as unknown as PublicOffer[], unavailable };
+    offers: unavailable ? [] : ((offers.data ?? []) as unknown as PublicOffer[]).filter(offer => approvedIds.has(offer.provider_id)), unavailable };
 }

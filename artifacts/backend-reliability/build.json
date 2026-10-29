@@ -1,0 +1,7 @@
+{
+  "scope": "Local Next webpack production build with Supabase forced to loopback port 1 and no payment keys; not a deployment",
+  "passed": true,
+  "build_id": "f4BKks7bwVpyavXpf8NwK",
+  "typescript_in_build": "PASS",
+  "static_pages": 27
+}

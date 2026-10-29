@@ -72,40 +72,12 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - name: Run 15 Playwright launch tests
+      - name: Run isolated Playwright tests
         shell: bash
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
-          PLAYWRIGHT_SKIP_WEBSERVER: "true"
         run: |
           set -euo pipefail
-
-          npm run dev -- --hostname 127.0.0.1 --port 3000 > .next-ci.log 2>&1 &
-          dev_server_pid=$!
-
-          cleanup() {
-            kill "$dev_server_pid" 2>/dev/null || true
-            wait "$dev_server_pid" 2>/dev/null || true
-          }
-          trap cleanup EXIT
-
-          for attempt in {1..60}; do
-            if curl --fail --silent --show-error http://127.0.0.1:3000/ > /dev/null; then
-              break
-            fi
-
-            if ! kill -0 "$dev_server_pid" 2>/dev/null; then
-              cat .next-ci.log
-              exit 1
-            fi
-
-            if [[ "$attempt" == "60" ]]; then
-              cat .next-ci.log
-              exit 1
-            fi
-
-            sleep 2
-          done
 
           npx playwright test --reporter=github
 

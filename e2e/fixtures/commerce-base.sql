@@ -7,15 +7,21 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 grant usage on schema auth,public to anon,authenticated,service_role;
 grant execute on function auth.uid() to anon,authenticated,service_role;
 create table public.profiles(id uuid primary key, role text not null, created_at timestamptz not null default now());
+create table public.rate_limits(id uuid primary key default gen_random_uuid(),user_id uuid not null references public.profiles(id),action text not null,count integer not null default 0,window_start timestamptz not null,updated_at timestamptz default now(),unique(user_id,action,window_start));
+alter table public.rate_limits enable row level security;
 create function public.current_user_is_admin() returns boolean language sql stable security definer as $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin') $$;
 create table public.service_categories(id uuid primary key,name text,slug text,is_active boolean default true);
 create table public.districts(id uuid primary key,name text,is_active boolean default true);
 create table public.providers(id uuid primary key,user_id uuid references public.profiles(id),name text,category_id uuid references public.service_categories(id),profile_image_url text,is_active boolean default true,is_approved boolean default true,availability text default 'müsait',iyzico_submerchant_status text default 'active',iyzico_submerchant_key text default 'sandbox-test',rating numeric default 0,review_count integer default 0);
+-- Editorial fields mirror the real provider schema for publication regression tests.
+alter table public.providers add column description text, add column district_id uuid references public.districts(id) default '20000000-0000-4000-8000-000000000001', add column experience_years integer, add column is_verified boolean not null default false, add column identity_verified boolean not null default false, add column phone_verified boolean not null default false;
 alter table public.providers add column payout_iban text,add column tax_identity_number text,add column tax_office text,add column legal_name text,add column payout_address text,add column iyzico_submerchant_conversation_id text;
 create table public.reviews(id uuid primary key default gen_random_uuid(),provider_id uuid references public.providers(id),user_id uuid references public.profiles(id),rating smallint,comment text,created_at timestamptz not null default now(),unique(provider_id,user_id));
+create table public.provider_applications(id uuid primary key default gen_random_uuid(),user_id uuid references public.profiles(id),status text not null default 'pending',verification_document_path text);
 create table public.service_requests(id uuid primary key default gen_random_uuid(),assigned_provider_id uuid,accepted_provider_id uuid,status text,preferred_date date,preferred_time time,user_id uuid references profiles(id),updated_at timestamptz not null default now());
 create table public.app_settings(key text primary key,value text);
-create table public.payments(id uuid primary key default gen_random_uuid(),status text,iyzico_payment_transaction_id text);
+create table public.payments(id uuid primary key default gen_random_uuid(),request_id uuid,status text,iyzico_payment_transaction_id text,iyzico_checkout_token text,iyzico_conversation_id text,updated_at timestamptz default now());
+grant all on public.payments to service_role;
 grant select on public.providers,public.districts,public.service_categories,public.reviews to anon,authenticated;
 alter table public.providers enable row level security;
 create policy fixture_provider_read on public.providers for select using(true);

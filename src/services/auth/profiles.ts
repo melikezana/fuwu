@@ -81,7 +81,7 @@ function hasSupabaseErrorCode(error: unknown, code: string) {
 }
 
 function logProfileSupabaseError(context: string, error: unknown) {
-  console.error(`[Fuwu] ${context}`, getSupabaseDebugPayload(error));
+  logInfo(context, { code: getSupabaseDebugPayload(error).code });
 }
 
 function getProfileDetailsPatch(
