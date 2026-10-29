@@ -58,6 +58,7 @@ export async function getPublicAppSettings(): Promise<PublicAppSettings> {
     const endpoint = `${url.replace(/\/+$/, "")}/rest/v1/app_settings?select=key,value&key=in.(announcement_banner,maintenance_mode)`;
     const response = await fetch(endpoint, {
       cache: "no-store",
+      signal: AbortSignal.timeout(5000),
       headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
 
