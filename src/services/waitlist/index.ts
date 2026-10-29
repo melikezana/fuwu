@@ -5,9 +5,15 @@ import { isUuid } from "@/lib/utils/validation";
 export async function getWaitlistContext() {
   const { supabase, user } = await getServerAuthContext();
   if (!supabase) return { available: false, email: "", authenticated: false };
-  const { data, error } = await supabase.rpc("launch_interest_health", {}).abortSignal(AbortSignal.timeout(5000));
-  const available = !error && Boolean(data && typeof data === "object" && !Array.isArray(data) && data.available === true && data.version === 1);
-  return { available, email: user?.email ?? "", authenticated: Boolean(user && user.email_confirmed_at) };
+  // A transient RPC/network failure must not crash the public prelaunch page.
+  // Keep verified-account state so a user can still attempt to revoke consent.
+  const context = { available: false, email: user?.email ?? "", authenticated: Boolean(user && user.email_confirmed_at) };
+  try {
+    const { data, error } = await supabase.rpc("launch_interest_health", {}).abortSignal(AbortSignal.timeout(5000));
+    return { ...context, available: !error && Boolean(data && typeof data === "object" && !Array.isArray(data) && data.available === true && data.version === 1) };
+  } catch {
+    return context;
+  }
 }
 
 export async function saveWaitlistPreference(input: { districtId: string; categoryId: string; consent: boolean; version: string; website: string }) {
