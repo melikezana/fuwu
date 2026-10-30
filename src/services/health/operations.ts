@@ -1,6 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import type { OperationsHealth, ProbeResult } from "@/lib/commerce/operations-health";
+import { probeLabels } from "@/lib/commerce/operations-health";
+
+function validHealth(value: unknown): value is OperationsHealth {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  const timestamp = (value: unknown) => typeof value === "string" && Number.isFinite(Date.parse(value));
+  return timestamp(row.checked_at) && typeof row.contract_ok === "boolean" &&
+    (row.audit_last_event_at === null || timestamp(row.audit_last_event_at)) &&
+    Array.isArray(row.missing_contracts) && row.missing_contracts.every(item => typeof item === "string") &&
+    Array.isArray(row.probes) && row.probes.every(probe => probe && typeof probe === "object" &&
+      Object.hasOwn(probeLabels, probe.name) && typeof probe.passed === "boolean" && typeof probe.detail === "string" &&
+      timestamp(probe.checked_at) && (probe.last_success_at === null || timestamp(probe.last_success_at)));
+}
 
 // Read-only external probes. Connectivity and OAuth enablement do not certify a purchase or Google login.
 export async function probeExternalServices(): Promise<ProbeResult[]> {
@@ -27,6 +40,8 @@ export async function probeExternalServices(): Promise<ProbeResult[]> {
 }
 
 export async function getOperationsHealth(db: SupabaseClient<Database>): Promise<OperationsHealth | null> {
-  const { data, error } = await db.rpc("commerce_admin_health", {}).abortSignal(AbortSignal.timeout(8000));
-  return error || !data ? null : data as unknown as OperationsHealth;
+  try {
+    const { data, error } = await db.rpc("commerce_admin_health", {}).abortSignal(AbortSignal.timeout(8000));
+    return error || !validHealth(data) ? null : data;
+  } catch { return null; }
 }

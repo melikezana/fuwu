@@ -15,7 +15,6 @@ type MobileAppShellProps = {
 
 export function MobileAppShell({ children }: MobileAppShellProps) {
   const pathname = usePathname() ?? appRoutes.home;
-  const isAdminPath = pathname === appRoutes.adminDashboard || pathname.startsWith("/admin/");
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -45,8 +44,7 @@ export function MobileAppShell({ children }: MobileAppShellProps) {
     <SessionProfileProvider><div
       className={cn(
         "flex min-h-screen flex-col",
-        !isAdminPath &&
-          "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] md:pb-0",
+        "pb-[calc(var(--mobile-bottom-nav-height)+var(--safe-bottom))] md:pb-0",
       )}
     >
       <PageTransition key={pathname} className="flex flex-1 flex-col">

@@ -1,11 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/services/auth/server",()=>({getServerAuthContext:vi.fn()}));
 import { getServerAuthContext } from "@/services/auth/server";
-import { saveWaitlistPreference, withdrawWaitlistPreference } from "@/services/waitlist";
+import { getWaitlistContext, saveWaitlistPreference, withdrawWaitlistPreference } from "@/services/waitlist";
 const auth=vi.mocked(getServerAuthContext);
 const input={districtId:'',categoryId:'',consent:true,version:'prelaunch-2026-10-30',website:''};
 beforeEach(()=>{auth.mockReset();});
 describe('real interest persistence boundary',()=>{
+  it('keeps verified consent management available when health transport fails',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockRejectedValue(new Error('network unavailable'))}));
+    auth.mockResolvedValue({user:{id:'test',email:'customer@example.invalid',email_confirmed_at:'2026-10-30'},supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    expect(await getWaitlistContext()).toEqual({available:false,email:'customer@example.invalid',authenticated:true});
+  });
+  it('does not enable registration for an incompatible health version',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockResolvedValue({data:{available:true,version:999},error:null})}));
+    auth.mockResolvedValue({user:null,supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    expect((await getWaitlistContext()).available).toBe(false);
+  });
+  it('does not claim save or withdrawal success after a transport rejection',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockRejectedValue(new Error('private database details'))}));
+    auth.mockResolvedValue({user:{id:'test',email_confirmed_at:'2026-10-30'},supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    for (const result of [await saveWaitlistPreference(input),await withdrawWaitlistPreference()]) {
+      expect(result.ok).toBe(false);expect(result.message).not.toContain('private database details');
+    }
+  });
   it('does not call storage for spam, malformed preferences or missing consent',async()=>{
     for(const change of [{website:'spam'},{consent:false},{districtId:'invalid'},{version:'old'}])expect((await saveWaitlistPreference({...input,...change})).ok).toBe(false);
     expect(auth).not.toHaveBeenCalled();

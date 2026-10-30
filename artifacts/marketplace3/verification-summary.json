@@ -1,0 +1,107 @@
+{
+  "completedAt": "2026-10-30T19:04:29.454Z",
+  "status": "LOCAL_PASS_HOSTED_BLOCKED",
+  "baseCommit": "68df0ebfb889f6d2f60406366709d939aead4597",
+  "sourceHash": "9a1e9fc720dd389798b7c8d8115eef7f4497b7ce7c6415762f1733dc1c9dce20",
+  "unit": {
+    "passed": 125,
+    "failed": 0,
+    "skipped": 0
+  },
+  "security": {
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0
+  },
+  "migrations": [
+    {
+      "name": "migration-chain",
+      "migrations": 70,
+      "groups": 19,
+      "engine": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    },
+    {
+      "name": "migration-upgrade",
+      "migrations": 70,
+      "groups": 20,
+      "engine": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    },
+    {
+      "name": "migration-production-upgrade",
+      "migrations": 70,
+      "groups": 20,
+      "engine": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    }
+  ],
+  "commerce": [
+    {
+      "name": "commerce-clean",
+      "checks": 108
+    },
+    {
+      "name": "commerce-upgrade",
+      "checks": 109
+    }
+  ],
+  "ui": {
+    "runtime": "production",
+    "authentication": "synthetic fixtures; not Supabase Auth acceptance",
+    "publicSamples": 56,
+    "adminPartnerSamples": 104,
+    "totalSamples": 160,
+    "widths": [
+      320,
+      360,
+      375,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "browserExceptions": 0,
+    "horizontalOverflow": 0,
+    "axeMobileScans": 19,
+    "seriousCriticalViolations": 0
+  },
+  "dependencyAdvisories": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "checks": [
+    {
+      "name": "lint",
+      "status": "PASS"
+    },
+    {
+      "name": "static-security",
+      "status": "PASS"
+    },
+    {
+      "name": "typecheck",
+      "status": "PASS"
+    },
+    {
+      "name": "build",
+      "status": "PASS"
+    }
+  ],
+  "diffCheck": "PASS",
+  "payment": "Live payments and customer checkout remain disabled",
+  "productionMigrationsApplied": 0,
+  "productionDataMutations": 0,
+  "gitCommits": 0,
+  "gitPushes": 0,
+  "deployments": 0,
+  "blocked": [
+    "Hosted staging creation rejected: 2 active free project limit",
+    "Real Supabase Auth/Storage E2E: no staging and local Docker unavailable",
+    "Real Google OAuth flow not executed",
+    "24 repository migrations absent from production; explicit rollout remains pending",
+    "New source not pushed; GitHub CI rerun pending"
+  ]
+}

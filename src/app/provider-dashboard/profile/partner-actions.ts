@@ -5,6 +5,7 @@ import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { uploadProviderVerificationDocument } from "@/services/storage/providerVerificationDocuments";
 type Result = { ok: boolean; message: string };
 export async function savePartnerProfile(_: Result, form: FormData): Promise<Result> {
+ try {
  const { supabase, user } = await getServerAuthContext();
  if (!supabase || !user) return { ok: false, message: "Profilini güncellemek için giriş yap." };
  const name = String(form.get("name") ?? "").trim(), description = String(form.get("description") ?? "").trim();
@@ -18,8 +19,12 @@ export async function savePartnerProfile(_: Result, form: FormData): Promise<Res
  for (const path of ["/provider-dashboard", "/provider-dashboard/profile", "/admin/providers", "/providers"]) revalidatePath(path);
  revalidatePath("/providers/[id]", "page");
  return { ok: true, message: "Profilin kaydedildi. Yayın için yeniden incelenecek." };
+ } catch {
+  return { ok: false, message: "Profil sonucu doğrulanamadı. Bilgilerini kontrol edip yeniden dene." };
+ }
 }
 export async function attachPartnerDocument(_: Result, form: FormData): Promise<Result> {
+ try {
  const { supabase, user } = await getServerAuthContext();
  if (!supabase || !user) return { ok: false, message: "Belge eklemek için giriş yap." };
  const file = form.get("document");
@@ -34,4 +39,7 @@ export async function attachPartnerDocument(_: Result, form: FormData): Promise<
  if (error) return { ok: false, message: "Belge özel alana yüklendi, ancak başvuruyla eşleştirilemedi. Destek ekibiyle iletişime geç." };
  for (const path of ["/provider-dashboard", "/provider-dashboard/profile", "/admin/providers", "/admin/verifications"]) revalidatePath(path);
  return { ok: true, message: "Belgen alındı. Yetkili incelemesinden sonra doğrulama durumu güncellenecek." };
+ } catch {
+  return { ok: false, message: "Belge işlemi doğrulanamadı. Başvuru durumunu kontrol edip yeniden dene." };
+ }
 }

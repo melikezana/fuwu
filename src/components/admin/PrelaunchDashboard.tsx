@@ -1,18 +1,28 @@
 import Link from "next/link";
+import { AlertTriangle, ArrowUpRight, LockKeyhole } from "lucide-react";
 import type { PrelaunchSnapshot } from "@/services/admin/prelaunch";
+import { CapacityOverview } from "./CapacityOverview";
+
 export function PrelaunchDashboard({ snapshot }: { snapshot: PrelaunchSnapshot | null }) {
-  if (!snapshot) return <section className="commerce-panel"><h2>Hazırlık verileri okunamadı.</h2><p role="status">Şema veya yetkiler doğrulanamadı. Usta ve müşteri sayısı bilinmiyor; lansman hazırlığı doğrulanmadı.</p><Link className="commerce-secondary" href="/admin/settings">Ayarları İncele</Link></section>;
-  const {network,settings}=snapshot;
-  const districts = [...new Set(snapshot.pilot.map(row => row.district))];
-  const metrics=[...typeof snapshot.pending_applications === 'number' ? [['Bekleyen başvurular',snapshot.pending_applications] as const] : [], ...typeof snapshot.active_categories === 'number' ? [['Aktif kategoriler',snapshot.active_categories] as const] : [], ...typeof snapshot.review_required === 'number' ? [['İnceleme gereken profil',snapshot.review_required] as const] : [],['İncelenen gerçek başvuru',network.applications],['Yayın incelemesi bekleyen',network.pending],['Kaynağı incelenecek profil',network.unclassified],['Yayındaki gerçek usta',network.published],['Belge kanıtı doğrulanan',network.verified],['Hizmet paketi hazır',network.stores],['Takvimi açık',network.calendars]] as const;
+  if (!snapshot) return <section className="commerce-panel control-unavailable" role="alert"><h2>Hazırlık verileri okunamadı.</h2><p>Bağlantı, şema veya yetkiler doğrulanamadı. Usta ve müşteri sayısı bilinmiyor.</p><Link className="commerce-secondary" href="/admin/marketplace?view=health">Sistem Sağlığını İncele</Link></section>;
+  const { network, settings, readiness } = snapshot;
+  const metrics = [
+    { label: "Bekleyen gerçek başvuru", value: readiness?.pending_real_applications, href: "/admin/provider-applications?status=pending" },
+    { label: "Yayın kararına hazır", value: readiness?.ready, href: "/admin/providers?filter=pending" },
+    { label: "Yayındaki gerçek usta", value: network.published, href: "/admin/providers?filter=published" },
+    { label: "Eksik profil ve mağaza", value: readiness?.incomplete, href: "/admin/providers?filter=incomplete" },
+    { label: "Doğrulama gereken usta", value: readiness?.missing_verification, href: "/admin/providers?filter=verification" },
+    { label: "İzinli müşteri ön kaydı", value: snapshot.interest, href: "/admin/interest" },
+  ];
   return <div className="prelaunch-dashboard">
-    <section className="commerce-panel"><h2>Usta Ağı</h2><div className="prelaunch-metrics">{metrics.map(([label,value])=><article key={label}><span>{label}</span><strong>{value}</strong></article>)}</div><p className="commerce-help">Gerçek olarak incelenen kayıtlar sayılır. Yeni başvurular inceleme kuyruğundadır.</p><div className="prelaunch-actions"><Link className="commerce-secondary" href="/admin/provider-applications">Başvuruları İncele</Link><Link className="commerce-secondary" href="/admin/providers?filter=pending">Yayın Kararları</Link><Link className="commerce-text-link" href="/admin/audit">Karar Geçmişi</Link></div></section>
-    <section className="commerce-panel"><h2>Müşteri İlgisi</h2><div className="prelaunch-metrics"><article><span>İzinli açılış kaydı</span><strong>{snapshot.interest}</strong></article></div><p className="commerce-help">Geri çekilen izinler sayılmaz. Kategori görüntüleme, başvuru dönüşümü ve terk oranları için doğrulanmış ölçüm verisi henüz yok.</p></section>
-    <section className="commerce-panel"><h2>Lansman Hazırlığı</h2><dl className="prelaunch-readiness"><div><dt>Şirketleşme · manuel durum</dt><dd>{settings.launch_company_status || 'Durum girilmedi'}</dd></div><div><dt>Ödeme · manuel durum</dt><dd>{settings.launch_payment_status || 'Canlı ödeme kapalı'}</dd></div>{[['iyzico sandbox','launch_iyzico_evidence'],['Google OAuth','launch_google_evidence'],['Staging migration','launch_migration_evidence']].map(([label,key])=><div key={key}><dt>{label}</dt><dd>{settings[key] ? `İncelenecek kanıt: ${settings[key]}` : 'Test kanıtı girilmedi'}</dd></div>)}<div><dt>Kritik engeller</dt><dd>{settings.launch_security_blockers || 'Güvenlik değerlendirmesi girilmedi'}</dd></div></dl><p className="commerce-help">Manuel durum ve kanıt referansı ödeme açmaz; “Hazır” onayı değildir.</p><Link className="commerce-secondary" href="/admin/settings">Durumu Güncelle</Link></section>
-    <section className="commerce-panel"><h2>Pilot hazırlığı</h2><p className="commerce-help">Kadıköy, Üsküdar ve Ataşehir. Aktif kategorilerdeki gerçek kayıtlar; satış otomatik açılmaz.</p><div className="prelaunch-pilot-regions">{districts.map(district => {
-      const rows = snapshot.pilot.filter(row => row.district === district);
-      const gaps = rows.filter(row => row.stores === 0 || row.calendars === 0).length;
-      return <details className="prelaunch-pilot-region" key={district}><summary><strong>{district}</strong><span>{rows.length} kategori · {gaps} kategoride arz hazırlığı eksik</span></summary><div className="prelaunch-pilot">{rows.map(row => <article key={row.category_id}><h3>{row.category}</h3><dl><div><dt>İncelenen başvuru</dt><dd>{row.applications}</dd></div><div><dt>Yayındaki usta</dt><dd>{row.published}</dd></div><div><dt>Belgesi doğrulanan</dt><dd>{row.verified}</dd></div><div><dt>Hizmet paketi</dt><dd>{row.stores}</dd></div><div><dt>Açık takvim</dt><dd>{row.calendars}</dd></div><div><dt>İzinli ilgi kaydı</dt><dd>{row.interest}</dd></div></dl><p className="commerce-help">{row.stores === 0 || row.calendars === 0 ? 'Arz hazırlığı eksik' : 'Paket ve takvim mevcut; operasyon incelemesi gerekli'}</p></article>)}</div></details>;
-    })}</div>{!snapshot.pilot.length&&<p>Pilot bölge ve kategori eşleşmeleri doğrulanamadı.</p>}</section>
+    <section aria-label="Pazaryeri özeti" className="control-overview-metrics">{metrics.map(metric => <Link href={metric.href} key={metric.label}><span>{metric.label}<ArrowUpRight size={18} aria-hidden /></span><strong>{metric.value === undefined ? "Bilinmiyor" : metric.value.toLocaleString("tr-TR")}</strong></Link>)}</section>
+    {!readiness && <p className="commerce-notice" role="status">Hazırlık ölçümleri için güncel migration gerekiyor. Bilinmeyen değerler sıfır gösterilmez.</p>}
+    <section className="control-system-notice" aria-labelledby="control-system-title"><AlertTriangle size={23} aria-hidden /><div><h2 id="control-system-title">Sistem ve güvenlik takibi</h2><p>{settings.launch_security_blockers || "Güncel güvenlik ve staging doğrulama kanıtlarını kontrol et."}</p><Link className="control-review-link" href="/admin/marketplace?view=health">Sistem Sağlığını İncele <ArrowUpRight size={16} aria-hidden /></Link></div></section>
+    <CapacityOverview rows={snapshot.capacity ?? snapshot.pilot} pilotOnly={!snapshot.capacity} />
+    <details className="commerce-panel control-launch-details"><summary>Lansman hazırlığı ve kayıt kaynakları</summary>
+      <p className="control-payment-closed"><LockKeyhole size={18} aria-hidden /> Canlı ödeme kapalı. Online satın alma henüz açılmadı.</p>
+      <dl className="prelaunch-readiness"><div><dt>Şirketleşme · manuel durum</dt><dd>{settings.launch_company_status || "Durum girilmedi"}</dd></div><div><dt>Kaynağı incelenecek profil</dt><dd>{network.unclassified}</dd></div><div><dt>İnceleme kuyruğundaki tüm başvurular</dt><dd>{snapshot.pending_applications ?? "Bilinmiyor"}</dd></div>{[["Google OAuth", "launch_google_evidence"], ["Staging migration", "launch_migration_evidence"]].map(([label, key]) => <div key={key}><dt>{label}</dt><dd>{settings[key] ? `İncelenecek kanıt: ${settings[key]}` : "Test kanıtı girilmedi"}</dd></div>)}</dl>
+      <p className="commerce-help">Test ve kaynağı doğrulanmamış profiller gerçek usta metriklerine katılmaz. Geri çekilen iletişim izinleri ön kayıt sayısına katılmaz. Manuel notlar bir testin geçtiğini göstermez.</p><Link className="commerce-secondary" href="/admin/settings">Hazırlık Notlarını Yönet</Link>
+    </details>
   </div>;
 }

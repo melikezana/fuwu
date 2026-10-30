@@ -4,6 +4,7 @@ import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
+import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 async function handlePOST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
@@ -11,7 +12,14 @@ async function handlePOST(request: NextRequest) {
   if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const b = await request.json().catch(() => null);
   if (!b || !isUuid(b.providerId ?? "") || !Array.isArray(b.offerings) || !Array.isArray(b.hours) || !Array.isArray(b.daysOff) || b.offerings.length > 100 || b.hours.length > 7 || b.daysOff.length > 100) return NextResponse.json({ error: "invalid_store" }, { status: 400 });
-  const { error } = await db.rpc("commerce_save_store", { p_provider_id: b.providerId, p_offerings: b.offerings, p_hours: b.hours, p_days_off: b.daysOff });
+  if (b.mode !== undefined && !["store", "calendar"].includes(b.mode)) return NextResponse.json({ error: "invalid_store" }, { status: 400 });
+  const rate = await checkRateLimitWithRedis({ action: "provider:store", limit: 20, windowMs: 60000, supabase: db, userId: user.id });
+  if (!rate.allowed) return NextResponse.json({ error: "rate_limit" }, { status: 429 });
+  const { error } = b.mode === "calendar"
+    ? await db.rpc("partner_save_calendar", { p_provider_id: b.providerId, p_hours: b.hours, p_days_off: b.daysOff })
+    : b.mode === "store"
+      ? await db.rpc("partner_save_services", { p_provider_id: b.providerId, p_offerings: b.offerings })
+      : await db.rpc("commerce_save_store", { p_provider_id: b.providerId, p_offerings: b.offerings, p_hours: b.hours, p_days_off: b.daysOff });
   if (error) console.error("[FUWU] Partner store save failed", { providerId: b.providerId, code: error.code });
   if (!error) { for (const path of ["/", "/providers", "/services", "/admin/providers", "/provider-dashboard"]) revalidatePath(path); revalidatePath("/providers/[id]", "page"); }
   return NextResponse.json(error ? { error: commerceDatabaseError(error) } : { ok: true }, { status: error ? 409 : 200 });

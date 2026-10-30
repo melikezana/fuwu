@@ -1,0 +1,25 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "after",
+  "widths": [
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [],
+  "errors": [],
+  "status": "PASS_UI_FIXTURES_ONLY",
+  "accessibility": [
+    {
+      "route": "/provider-dashboard/profile",
+      "violations": []
+    }
+  ]
+}

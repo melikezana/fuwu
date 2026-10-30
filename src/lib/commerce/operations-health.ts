@@ -7,5 +7,7 @@ export const probeLabels: Record<ProbeName, string> = { supabase: "Supabase eri�
 export function evidenceState(evidence: HealthEvidence | undefined, now: number, maxAgeHours = 24) {
   if (!evidence) return "Kontrol edilmedi";
   if (!evidence.passed) return "Son kontrol başarısız";
-  return now - Date.parse(evidence.checked_at) > maxAgeHours * 3600000 ? "Kontrol güncel değil" : "Kontrol başarılı";
+  const checked = Date.parse(evidence.checked_at);
+  if (!Number.isFinite(checked) || checked > now + 60000) return "Kontrol tarihi doğrulanamadı";
+  return now - checked > maxAgeHours * 3600000 ? "Kontrol güncel değil" : "Kontrol başarılı";
 }

@@ -143,7 +143,7 @@ export function ProfileImageUploader({
     <div className="w-full max-w-[8.75rem] shrink-0">
       <div className="relative mx-auto size-24">
         <button
-          aria-label="Profil fotoğrafı seç"
+          aria-label={`${initials} · ${providerName}: Profil fotoğrafı seç`}
           className="group relative size-24 overflow-hidden rounded-full bg-[var(--brand-navy)] text-white shadow-[var(--shadow-card)] ring-2 ring-white transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
           disabled={isUploading}
           onClick={() => inputRef.current?.click()}
@@ -159,7 +159,7 @@ export function ProfileImageUploader({
               unoptimized={imageUrl.startsWith("blob:")}
             />
           ) : (
-            <span className="flex size-full items-center justify-center text-3xl font-bold tracking-normal">
+            <span aria-hidden className="flex size-full items-center justify-center text-3xl font-bold tracking-normal">
               {initials}
             </span>
           )}
@@ -179,7 +179,7 @@ export function ProfileImageUploader({
 
         <button
           aria-label="Profil fotoğrafını değiştir"
-          className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-[var(--shadow-action)] ring-2 ring-white transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70"
+          className="absolute -bottom-1 -right-1 flex size-11 items-center justify-center rounded-full bg-[var(--brand-orange-dark)] text-white shadow-[var(--shadow-action)] ring-2 ring-white transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70"
           disabled={isUploading}
           onClick={() => inputRef.current?.click()}
           type="button"
@@ -189,6 +189,7 @@ export function ProfileImageUploader({
 
         <input
           accept={PROVIDER_IMAGE_ACCEPT}
+          aria-label="Profil fotoğrafı dosyası"
           className="sr-only"
           disabled={isUploading}
           name="profileImage"

@@ -1,0 +1,294 @@
+{
+  "checkedAt": "2026-10-30T18:10:09.814Z",
+  "scope": "Read-only GitHub and Supabase metadata; no customer rows, credentials or production mutations",
+  "mainSha": "68df0ebfb889f6d2f60406366709d939aead4597",
+  "initialWorktree": "clean",
+  "openPr": {
+    "number": 1,
+    "draft": true,
+    "headSha": "f62acea30db260f4b3b3237adc52ca6b498444a5",
+    "url": "https://github.com/melikezana/fuwu/pull/1",
+    "quality": "success",
+    "e2e": "failure",
+    "e2eFailedStep": "check:backend:db; provider_gallery_images absent from the old fixed metadata list"
+  },
+  "mainCI": [
+    {
+      "name": "backend-quality",
+      "result": "failure",
+      "failedStep": "PostgreSQL 17 binaries installation"
+    },
+    {
+      "name": "local-supabase-e2e",
+      "result": "failure",
+      "failedStep": "npm ci"
+    }
+  ],
+  "project": "bjhyisomjadirdchruix",
+  "postgres": "17.6",
+  "appliedMigrations": [
+    {
+      "version": "20260605000000",
+      "name": "initial_schema"
+    },
+    {
+      "version": "20260605000100",
+      "name": "provider_applications_schema_fix"
+    },
+    {
+      "version": "20260605000200",
+      "name": "add_emergency_flow_fields"
+    },
+    {
+      "version": "20260605000300",
+      "name": "emergency_service_flow"
+    },
+    {
+      "version": "20260605000400",
+      "name": "emergency_tag_flow_fields"
+    },
+    {
+      "version": "20260605000500",
+      "name": "live_backend_repair"
+    },
+    {
+      "version": "20260605000600",
+      "name": "istanbul_district_expansion"
+    },
+    {
+      "version": "20260605000700",
+      "name": "emergency_request_rls_hardening"
+    },
+    {
+      "version": "20260605000800",
+      "name": "provider_trust_layer"
+    },
+    {
+      "version": "20260605000900",
+      "name": "core_flow_reliability"
+    },
+    {
+      "version": "20260605001000",
+      "name": "provider_application_user_access"
+    },
+    {
+      "version": "20260605001100",
+      "name": "service_requests"
+    },
+    {
+      "version": "20260605001200",
+      "name": "provider_applications_public_submit"
+    },
+    {
+      "version": "20260605001300",
+      "name": "provider_application_status_visibility"
+    },
+    {
+      "version": "20260605001400",
+      "name": "provider_application_user_persistence"
+    },
+    {
+      "version": "20260605001500",
+      "name": "provider_application_profile_rls_fix"
+    },
+    {
+      "version": "20260605001600",
+      "name": "provider_application_user_binding_rpc"
+    },
+    {
+      "version": "20260605001700",
+      "name": "provider_application_admin_action_hardening"
+    },
+    {
+      "version": "20260605001800",
+      "name": "provider_admin_update_policy"
+    },
+    {
+      "version": "20260605001900",
+      "name": "complete_customer_request_flow"
+    },
+    {
+      "version": "20260605002000",
+      "name": "admin_service_request_assignment"
+    },
+    {
+      "version": "20260605002100",
+      "name": "provider_request_accept_reject"
+    },
+    {
+      "version": "20260605002200",
+      "name": "backend_hardening_status_audit_rls"
+    },
+    {
+      "version": "20260605002300",
+      "name": "rate_limits_security_audit"
+    },
+    {
+      "version": "20260605002400",
+      "name": "add_locksmith_service_category"
+    },
+    {
+      "version": "20260605002500",
+      "name": "payments_tracking"
+    },
+    {
+      "version": "20260605002600",
+      "name": "consolidate_lookup_rls_notifications"
+    },
+    {
+      "version": "20260605002700",
+      "name": "provider_application_login_binding_rpc"
+    },
+    {
+      "version": "20260605002800",
+      "name": "backend_health_catalog_rpc"
+    },
+    {
+      "version": "20260605002900",
+      "name": "audit_logs_indexes_retention"
+    },
+    {
+      "version": "20260605003000",
+      "name": "notifications_read_update_policy"
+    },
+    {
+      "version": "20260605003100",
+      "name": "service_requests_nullable_seed_user"
+    },
+    {
+      "version": "20260605003200",
+      "name": "provider_images_storage_bucket"
+    },
+    {
+      "version": "20260605003300",
+      "name": "provider_verification_documents"
+    },
+    {
+      "version": "20260621000100",
+      "name": "provider_match_notifications"
+    },
+    {
+      "version": "20260622000100",
+      "name": "backend_production_hardening"
+    },
+    {
+      "version": "20260622000200",
+      "name": "explicit_api_role_grants"
+    },
+    {
+      "version": "20260622000300",
+      "name": "customer_review_submission"
+    },
+    {
+      "version": "20260622000400",
+      "name": "customer_payment_confirmation"
+    },
+    {
+      "version": "20260625000000",
+      "name": "add_profiles_avatar_url"
+    },
+    {
+      "version": "20260628000100",
+      "name": "add_missing_service_categories"
+    },
+    {
+      "version": "20260704000100",
+      "name": "add_provider_profile_image_path"
+    },
+    {
+      "version": "20260706000100",
+      "name": "provider_gallery"
+    },
+    {
+      "version": "20260706000200",
+      "name": "add_provider_gallery_preview_url"
+    },
+    {
+      "version": "20260815000100",
+      "name": "request_messages"
+    },
+    {
+      "version": "20260816000100",
+      "name": "service_requests_assigned_at"
+    }
+  ],
+  "missingRequiredRpcs": [
+    "admin_provider_action",
+    "admin_provider_directory",
+    "admin_provider_detail",
+    "consume_user_rate_limit",
+    "launch_interest_health",
+    "save_launch_interest"
+  ],
+  "publicTables": 20,
+  "publicTablesWithRls": 20,
+  "advisories": [
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "count": 3,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+      "functions": [
+        "set_updated_at",
+        "enforce_payout_preconditions",
+        "set_service_request_assigned_at"
+      ]
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 9,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "functions": [
+        "check_gallery_limit",
+        "current_user_is_admin",
+        "handle_new_user",
+        "notify_eligible_providers_for_request",
+        "profile_role_is_unchanged",
+        "provider_owner_protected_fields_are_unchanged",
+        "provider_publication_flags_are_unchanged",
+        "review_provider_is_unchanged",
+        "service_request_assignment_fields_are_unchanged"
+      ]
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 11,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "functions": [
+        "bind_provider_applications_to_current_user",
+        "check_gallery_limit",
+        "current_user_is_admin",
+        "handle_new_user",
+        "notify_eligible_providers_for_request",
+        "profile_role_is_unchanged",
+        "provider_owner_protected_fields_are_unchanged",
+        "provider_publication_flags_are_unchanged",
+        "review_provider_is_unchanged",
+        "service_request_assignment_fields_are_unchanged",
+        "submit_provider_review"
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "functions": []
+    }
+  ],
+  "stagingAvailable": false,
+  "googleOAuthE2E": "BLOCKED: staging quota limit and local Docker daemon unavailable",
+  "storageHttpE2E": "BLOCKED: staging quota limit and local Docker daemon unavailable",
+  "localDocker": "daemon unavailable",
+  "stagingCreation": {
+    "authorizedOrganization": "zqccsfafuefspcwvyhor",
+    "requestedName": "fuwu-staging",
+    "result": "BLOCKED",
+    "reason": "Organization owner has reached the 2 active free project limit; no project was created and no existing project was paused or upgraded."
+  },
+  "localCheckoutFlag": "unset; default closed",
+  "productionCommissionRate": "10",
+  "productionCustomerFeeSetting": "not present; application/migration default 0"
+}

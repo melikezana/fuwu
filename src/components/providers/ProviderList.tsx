@@ -105,7 +105,7 @@ export function ProviderList({
           {resultHeading}
         </h2>
         <p aria-live="polite" className="mt-2 text-sm font-medium leading-6 text-[var(--muted)]">
-          {t("providers.list.description", { count: totalCount })}
+          {isUnavailable ? "Bağlantı yeniden doğrulandığında profilleri inceleyebilirsin." : hasNoPublicProviders ? "Gerçek ustalar inceleme tamamlandıkça burada yer alacak." : "Hizmet kapsamlarını ve fiyatları incele, sana uygun ustayı tanı."}
         </p>
       </div>
 

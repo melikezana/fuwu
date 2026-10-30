@@ -26,7 +26,7 @@ let server, db;
 try {
   execFileSync(initdb,["-D",data,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{windowsHide:true,stdio:"pipe"});
   const log = await fs.open(path.join(data,"server.log"),"a");
-  server = spawn(postgres,["-D",data,"-h","127.0.0.1","-p",String(port),"-F","-c","wal_level=logical"],{windowsHide:true,stdio:["ignore",log.fd,log.fd]});
+  server = spawn(postgres,["-D",data,"-h","127.0.0.1","-p",String(port),"-F","-c","unix_socket_directories=","-c","wal_level=logical"],{windowsHide:true,stdio:["ignore",log.fd,log.fd]});
   let lastConnectionError; for (let i=0;i<150;i++) { const c=new Client({host:"127.0.0.1",port,user:"postgres",database:"postgres",password:"isolated-local-only",connectionTimeoutMillis:1000}); try {await c.connect();db=c;break;}catch(e){lastConnectionError=e.message;await c.end().catch(()=>{});await delay(200);} }
   assert.ok(db,"isolated PostgreSQL must start: "+lastConnectionError);
   report.version=(await db.query("select version() v")).rows[0].v;

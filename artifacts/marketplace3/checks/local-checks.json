@@ -1,0 +1,33 @@
+{
+  "scope": "Current main, offline checks only; no deployment, database writes or payment processor calls",
+  "sourceHash": "252bd62df33db80c06bd80c8c4aed5995840710f4f5d7f42f248e2a3b2049d13",
+  "startedAt": "2026-10-30T18:29:18.199Z",
+  "node": "v24.19.0",
+  "checks": [
+    {
+      "name": "typecheck",
+      "status": "PASS",
+      "exitCode": 0,
+      "error": null,
+      "startedAt": "2026-10-30T18:29:18.201Z",
+      "completedAt": "2026-10-30T18:30:15.739Z"
+    },
+    {
+      "name": "lint",
+      "status": "PASS",
+      "exitCode": 0,
+      "error": null,
+      "startedAt": "2026-10-30T18:30:15.739Z",
+      "completedAt": "2026-10-30T18:30:47.584Z"
+    },
+    {
+      "name": "static-security",
+      "status": "PASS",
+      "exitCode": 0,
+      "error": null,
+      "startedAt": "2026-10-30T18:30:47.585Z",
+      "completedAt": "2026-10-30T18:30:47.893Z"
+    }
+  ],
+  "completedAt": "2026-10-30T18:30:47.894Z"
+}

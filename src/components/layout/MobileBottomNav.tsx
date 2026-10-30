@@ -72,7 +72,7 @@ const adminTabs: MobileTab[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Genel Bakış", match: ["/admin"] },
   { href: "/admin/providers", icon: UserRoundSearch, label: "Ustalar", match: ["/admin/providers"] },
   { href: "/admin/provider-applications", icon: ClipboardList, label: "Başvurular", match: ["/admin/provider-applications"] },
-  { href: "/admin/marketplace?view=health", icon: Activity, label: "Sağlık", match: [] },
+  { href: "/admin/marketplace?view=health", icon: Activity, label: "Sağlık", match: ["/admin/marketplace"] },
   { href: "/admin/audit", icon: ScrollText, label: "İşlem Kaydı", match: ["/admin/audit"] },
 ];
 

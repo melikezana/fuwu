@@ -307,7 +307,7 @@ export function GalleryManager({
             {!image.isPending ? (
               <button
                 aria-label="Görseli sil"
-                className="absolute right-2 top-2 flex size-9 items-center justify-center rounded-full bg-red-600 text-white opacity-0 shadow-[var(--shadow-card)] ring-2 ring-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 group-hover:opacity-100 disabled:cursor-wait disabled:opacity-80"
+                className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full bg-red-600 text-white opacity-100 shadow-[var(--shadow-card)] ring-2 ring-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus-visible:opacity-100 disabled:cursor-wait disabled:opacity-80"
                 disabled={image.isDeleting}
                 onClick={() => void handleDelete(image)}
                 type="button"
@@ -342,6 +342,7 @@ export function GalleryManager({
 
       <input
         accept={PROVIDER_GALLERY_ACCEPT}
+        aria-label="İş fotoğrafı dosyası"
         className="sr-only"
         name="galleryImage"
         onChange={handleFileChange}

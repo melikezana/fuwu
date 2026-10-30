@@ -195,7 +195,7 @@ export function Navbar() {
           </div>
           <div className="site-mobile-actions">
             {!isAuthLoading && userProfile ? <NotificationBell panelAlign="right" userId={userProfile.id} /> : (
-              <Link aria-label="Hesabına giriş yap" className="site-icon-button" href={appRoutes.login}><UserRound aria-hidden="true" className="size-5" /><span className="site-account-text">Giriş</span></Link>
+              <Link aria-label="Giriş yap" className="site-icon-button site-account-button" href={appRoutes.login}><UserRound aria-hidden="true" className="size-5" /><span className="site-account-text">Giriş</span></Link>
             )}
             <button aria-controls="mobile-navigation-menu" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")} className="site-icon-button" onClick={() => setIsMenuOpen((value) => !value)} type="button">
               {isMenuOpen ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}

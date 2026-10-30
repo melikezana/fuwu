@@ -28,7 +28,7 @@
   --surface-soft: var(--fuwu-surface-soft);
   --border: var(--fuwu-border);
   --brand-orange: var(--fuwu-orange);
-  --brand-orange-dark: var(--fuwu-orange-hover);
+  --brand-orange-dark: #b84400;
   --brand-orange-soft: var(--fuwu-orange-soft);
   --brand-navy: var(--fuwu-navy);
   --brand-navy-deep: var(--fuwu-navy-deep);

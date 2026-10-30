@@ -1066,6 +1066,8 @@ export type Database = {
       admin_provider_detail: { Args: { p_provider_id: string }; Returns: Json };
       admin_provider_action: { Args: { p_provider_id: string; p_action: string; p_reason: string; p_expected_version: string; p_request_id: string; p_fingerprint?: string | null; p_verification_reference?: string | null; p_record_kind?: string | null; p_details?: Json }; Returns: Json };
       provider_partner_readiness: { Args: { p_provider_id: string }; Returns: Json };
+      partner_save_services: { Args: { p_provider_id: string; p_offerings: Json }; Returns: undefined };
+      partner_save_calendar: { Args: { p_provider_id: string; p_hours: Json; p_days_off: Json }; Returns: undefined };
       provider_publication_gate: { Args: Record<string, never>; Returns: Json };
       admin_provider_quality_queue: { Args: Record<string, never>; Returns: Json };
       review_provider_publication: { Args: { p_provider_id: string; p_fingerprint: string; p_status: string; p_note: string; p_verification_reference?: string | null; p_record_kind?: string }; Returns: undefined };

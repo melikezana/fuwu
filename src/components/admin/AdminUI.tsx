@@ -217,7 +217,7 @@ export function AdminPageShell({
             </div>
           </div>
 
-          <details className="operations-navigation" open><summary>Yönetim bölümleri</summary><nav
+          <details className="operations-navigation"><summary>Yönetim bölümleri</summary><nav
             className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             aria-label="Admin menüsü"
           >
@@ -252,10 +252,10 @@ export function AdminPageShell({
         </div>
       </section>
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <AdminAccessNotice error={error} isConfigured={isConfigured} />
         {children}
-      </main>
+      </div>
     </div>
   );
 }

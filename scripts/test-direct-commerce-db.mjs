@@ -42,7 +42,7 @@ try {
   console.log("Initializing isolated PostgreSQL test cluster...");
   execFileSync(initdb,["-D",dataDir,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{ windowsHide:true,stdio:"pipe" });
   const log = await fs.open(path.join(dataDir,"server.log"),"a");
-  server = spawn(postgres,["-D",dataDir,"-h","127.0.0.1","-p",String(port),"-F"],{ windowsHide:true,stdio:["ignore",log.fd,log.fd] });
+  server = spawn(postgres,["-D",dataDir,"-h","127.0.0.1","-p",String(port),"-F","-c","unix_socket_directories="],{ windowsHide:true,stdio:["ignore",log.fd,log.fd] });
   let connectionError;
   for(let i=0;i<60;i++){try{root=await client();break;}catch(error){connectionError=error;await delay(200);}}
   if (!root) console.error("Local connection error:", connectionError?.code, connectionError?.message);

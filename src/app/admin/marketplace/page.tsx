@@ -30,6 +30,9 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   const { supabase } = await getServerAuthContext();
   const params = await searchParams;
   const health = params.view === "health" ? await getOperationsHealth(supabase!) : null;
+  if (params.view === "health") return <AdminPageShell active="health" title="Sistem Sağlığı" description="Bağlantıları, güvenlik kontrollerini ve tarihli test kanıtlarını izle.">
+    <OperationsHealth now={new Date().getTime()} health={health} reconciliationCount={null} configured={{ service: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY), payment: Boolean(process.env.IYZICO_API_KEY && process.env.IYZICO_SECRET_KEY), cron: Boolean(process.env.CRON_SECRET) }} />
+  </AdminPageShell>;
   const view = views.some(([id]) => id === params.view) ? params.view! : "orders";
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
   let query = supabase!.from("orders").select("*,payment_transactions(status,payout_state,refund_state,environment,created_at,item_transaction_id)", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1);

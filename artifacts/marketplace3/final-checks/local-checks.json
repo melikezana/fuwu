@@ -1,0 +1,25 @@
+{
+  "scope": "Current main, offline checks only; no deployment, database writes or payment processor calls",
+  "sourceHash": "2740ed1cd1ad5f2611c1770a0ff5b25c93b258f50082052b92061e2b61940a46",
+  "startedAt": "2026-10-30T18:54:56.066Z",
+  "node": "v24.19.0",
+  "checks": [
+    {
+      "name": "lint",
+      "status": "PASS",
+      "exitCode": 0,
+      "error": null,
+      "startedAt": "2026-10-30T18:54:56.067Z",
+      "completedAt": "2026-10-30T18:55:10.292Z"
+    },
+    {
+      "name": "static-security",
+      "status": "PASS",
+      "exitCode": 0,
+      "error": null,
+      "startedAt": "2026-10-30T18:55:10.292Z",
+      "completedAt": "2026-10-30T18:55:10.588Z"
+    }
+  ],
+  "completedAt": "2026-10-30T18:55:10.588Z"
+}
