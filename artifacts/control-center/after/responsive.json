@@ -1,0 +1,223 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "after",
+  "widths": [
+    {
+      "path": "/admin/providers",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "Actual Server Action POST, confirmation names provider, reason required, pending lock, double-click produces one fixture RPC, committed fixture readback updates badge, visible success notice",
+    "Missing schema shows explicit blocker; never renders empty count",
+    "Partner home, service/scope, calendar, private document form and profile form render; calendar sends real app POST to synthetic RPC; four mobile navigation tabs"
+  ],
+  "errors": [],
+  "status": "PASS_UI_FIXTURES_ONLY"
+}

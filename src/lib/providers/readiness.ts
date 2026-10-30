@@ -1,0 +1,14 @@
+export type PartnerReadiness = {
+ status: "pending_review" | "approved" | "changes_requested" | "hidden";
+ published: boolean; record_kind: string; active: boolean; approved: boolean;
+ identity_verified: boolean; phone_verified: boolean; professional_verified: boolean;
+ description: string | null; phone: string | null; photo: string | null; category_id: string | null; district_id: string | null;
+ service_count: number; calendar_days: number; districts: string[]; has_document: boolean;
+};
+export const readinessStages = ["Başvuru Alındı", "Profil Hazırlanıyor", "Doğrulama Tamamlandı", "Yayına Hazır"] as const;
+export function assessPartnerReadiness(input: PartnerReadiness) {
+ const missing = [!input.photo && "Profil fotoğrafı", !input.phone?.trim() && "Telefon", !input.category_id && "Uzmanlık", !input.district_id && "İlçe", (input.description?.trim().length ?? 0) < 30 && "Hizmet açıklaması", input.service_count < 1 && "Hizmetler", input.calendar_days < 1 && "Çalışma takvimi"].filter(Boolean) as string[];
+ const verified = input.identity_verified && input.phone_verified;
+ const ready = missing.length === 0 && verified && input.published && input.active && input.approved;
+ return { missing, completion: Math.round((7 - missing.length) / 7 * 100), verified, ready, stage: ready ? 4 : verified ? 3 : 2 };
+}

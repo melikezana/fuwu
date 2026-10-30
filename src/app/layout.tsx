@@ -21,6 +21,7 @@ import "@/styles/commerce.css";
 import "@/styles/fusion.css";
 import "@/styles/premium.css";
 import "@/styles/mobile-experience.css";
+import "@/styles/control-center.css";
 
 const inter = localFont({
   display: "optional",

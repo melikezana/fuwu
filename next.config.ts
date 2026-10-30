@@ -23,6 +23,7 @@ const localSupabaseImagePatterns: NonNullable<
     : [];
 
 const nextConfig: NextConfig = {
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   // Unconfigured monitoring should not ship the SDK to every customer phone.
   // The browser condition never substitutes the server/Edge SDK.
   turbopack: process.env.NEXT_PUBLIC_SENTRY_DSN ? {} : {

@@ -1060,6 +1060,12 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: CommerceFunctions & {
+      partner_save_profile: { Args: { p_provider_id: string; p_name: string; p_description: string }; Returns: undefined };
+      partner_attach_document: { Args: { p_application_id: string; p_path: string }; Returns: undefined };
+      admin_provider_directory: { Args: { p_search?: string; p_filter?: string; p_page?: number; p_size?: number; p_provider_id?: string | null }; Returns: Json };
+      admin_provider_detail: { Args: { p_provider_id: string }; Returns: Json };
+      admin_provider_action: { Args: { p_provider_id: string; p_action: string; p_reason: string; p_expected_version: string; p_request_id: string; p_fingerprint?: string | null; p_verification_reference?: string | null; p_record_kind?: string | null; p_details?: Json }; Returns: Json };
+      provider_partner_readiness: { Args: { p_provider_id: string }; Returns: Json };
       provider_publication_gate: { Args: Record<string, never>; Returns: Json };
       admin_provider_quality_queue: { Args: Record<string, never>; Returns: Json };
       review_provider_publication: { Args: { p_provider_id: string; p_fingerprint: string; p_status: string; p_note: string; p_verification_reference?: string | null; p_record_kind?: string }; Returns: undefined };
@@ -1067,6 +1073,7 @@ export type Database = {
       save_launch_interest: { Args: { p_district_id?: string | null; p_category_id?: string | null; p_consent: boolean; p_version: string }; Returns: string };
       withdraw_launch_interest: { Args: Record<string, never>; Returns: boolean };
       clear_legacy_announcement: { Args: { p_expected: string }; Returns: boolean };
+      admin_control_snapshot: { Args: Record<string, never>; Returns: Json };
       admin_prelaunch_snapshot: { Args: Record<string, never>; Returns: Json };
       bind_provider_applications_to_current_user: {
         Args: Record<PropertyKey, never>;

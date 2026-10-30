@@ -8,7 +8,6 @@ import {
   Home,
   LayoutDashboard,
   UserRound,
-  WalletCards,
   CalendarDays,
   Activity,
   ScrollText,
@@ -63,17 +62,16 @@ const customerTabs: MobileTab[] = [
 ];
 
 const providerTabs: MobileTab[] = [
-  { href: appRoutes.providerDashboard, icon: LayoutDashboard, label: "Genel Bakış", match: [appRoutes.providerDashboard] },
-  { href: "/provider-dashboard/orders", icon: ClipboardList, label: "Siparişler", match: ["/provider-dashboard/orders", "/orders"] },
-  { href: appRoutes.providerDashboardCalendar, icon: CalendarDays, label: "Takvim", match: [appRoutes.providerDashboardCalendar] },
-  { href: appRoutes.providerDashboardEarnings, icon: WalletCards, label: "Kazançlar", match: [appRoutes.providerDashboardEarnings] },
-  { href: appRoutes.providerDashboardProfile, icon: UserRound, label: "Profil", match: [appRoutes.providerDashboardProfile] },
+ { href: appRoutes.providerDashboard, icon: Home, label: "Ana Sayfa", match: [appRoutes.providerDashboard] },
+ { href: "/provider-dashboard/store", icon: ClipboardList, label: "Hizmetlerim", match: ["/provider-dashboard/store"] },
+ { href: appRoutes.providerDashboardCalendar, icon: CalendarDays, label: "Takvim", match: [appRoutes.providerDashboardCalendar] },
+ { href: appRoutes.providerDashboardProfile, icon: UserRound, label: "Profilim", match: [appRoutes.providerDashboardProfile] },
 ];
 
 const adminTabs: MobileTab[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Genel Bakış", match: ["/admin"] },
-  { href: "/admin/marketplace", icon: ClipboardList, label: "Siparişler", match: ["/admin/marketplace"] },
-  { href: "/admin/revenue", icon: WalletCards, label: "Gelir", match: ["/admin/revenue"] },
+  { href: "/admin/providers", icon: UserRoundSearch, label: "Ustalar", match: ["/admin/providers"] },
+  { href: "/admin/provider-applications", icon: ClipboardList, label: "Başvurular", match: ["/admin/provider-applications"] },
   { href: "/admin/marketplace?view=health", icon: Activity, label: "Sağlık", match: [] },
   { href: "/admin/audit", icon: ScrollText, label: "İşlem Kaydı", match: ["/admin/audit"] },
 ];
@@ -92,16 +90,17 @@ export function MobileBottomNav() {
   const pathname = usePathname() ?? appRoutes.home;
   const { profile: userProfile } = useSessionProfile();
   const isAdminPath = pathname === appRoutes.adminDashboard || pathname.startsWith("/admin/");
+  const isProviderPath = pathname === appRoutes.providerDashboard || pathname.startsWith("/provider-dashboard/");
   const tabs = useMemo(
-    () => (isAdminPath ? adminTabs : userProfile?.role === "provider" ? providerTabs : customerTabs),
-    [userProfile?.role, isAdminPath],
+    () => (isAdminPath ? adminTabs : (isProviderPath || userProfile?.role === "provider") ? providerTabs : customerTabs),
+    [userProfile?.role, isAdminPath, isProviderPath],
   );
 
 
 
   return (
     <nav aria-label="Mobil alt sekme navigasyonu" className="mobile-tab-bar">
-      <div className="mobile-tabs">
+      <div className="mobile-tabs" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = isRouteActive(pathname, tab);

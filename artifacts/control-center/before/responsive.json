@@ -1,0 +1,79 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "before",
+  "widths": [
+    {
+      "path": "/admin/providers",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [],
+  "errors": [],
+  "status": "PASS_UI_FIXTURES_ONLY"
+}

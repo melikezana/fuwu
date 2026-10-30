@@ -6,6 +6,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import net from "node:net";
 import assert from "node:assert/strict";
 import { securitySchemaChecks } from "./security-schema-checks.mjs";
+import { compareProviderSchema } from "./compare-provider-schema.mjs";
+import { providerControlChecks, providerControlRace } from "./provider-control-db-checks.mjs";
 import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
 
 // No env file or remote URL is read. Bind only loopback, always stop our own cluster.
@@ -18,27 +20,37 @@ await fs.mkdir(output, { recursive: true });
 const listener = net.createServer(); await new Promise(r => listener.listen(0,"127.0.0.1",r));
 const port = listener.address().port; await new Promise(r => listener.close(r));
 const upgrade = process.argv.includes("--upgrade");
-const report = { scope: "All repository migrations on disposable PostgreSQL; platform DDL shim, not hosted staging/Auth/Storage E2E", scenario: upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
+const productionUpgrade = process.argv.includes("--production-upgrade");
+const report = { scope: "All repository migrations on disposable PostgreSQL; platform DDL shim, not hosted staging/Auth/Storage E2E", scenario: productionUpgrade ? "observed_production_versions_upgrade" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
 let server, db;
 try {
   execFileSync(initdb,["-D",data,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{windowsHide:true,stdio:"pipe"});
   const log = await fs.open(path.join(data,"server.log"),"a");
   server = spawn(postgres,["-D",data,"-h","127.0.0.1","-p",String(port),"-F","-c","wal_level=logical"],{windowsHide:true,stdio:["ignore",log.fd,log.fd]});
-  for (let i=0;i<80;i++) { const c=new Client({host:"127.0.0.1",port,user:"postgres",database:"postgres"}); try {await c.connect();db=c;break;}catch{await c.end().catch(()=>{});await delay(200);} }
-  assert.ok(db,"isolated PostgreSQL must start");
+  let lastConnectionError; for (let i=0;i<150;i++) { const c=new Client({host:"127.0.0.1",port,user:"postgres",database:"postgres",password:"isolated-local-only",connectionTimeoutMillis:1000}); try {await c.connect();db=c;break;}catch(e){lastConnectionError=e.message;await c.end().catch(()=>{});await delay(200);} }
+  assert.ok(db,"isolated PostgreSQL must start: "+lastConnectionError);
   report.version=(await db.query("select version() v")).rows[0].v;
   await db.query(await fs.readFile("e2e/fixtures/supabase-platform.sql","utf8"));
   const files=(await fs.readdir("supabase/migrations")).filter(f=>/^\d+.*\.sql$/.test(f)).sort();
+  const applied=productionUpgrade ? new Set(JSON.parse(await fs.readFile('artifacts/control-center/production-readonly.json','utf8')).appliedMigrations.map(m=>m.version)) : new Set();
+  const planned=productionUpgrade ? [...files.filter(f=>applied.has(f.split('_')[0])),...files.filter(f=>!applied.has(f.split('_')[0]))] : files;
   let current;
   let snapshot;
+  let legacySnapshot;
+  const legacyTables=['profiles','providers','provider_applications','reviews','service_requests','payments'];
+  const legacyRows=async()=>Object.fromEntries(await Promise.all(legacyTables.map(async table=>[table,(await db.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows.map(r=>r.row)])));
   const preserved=async()=>{
     const tables=['orders','reviews','payment_transactions','providers','service_categories'];
     const result={};
     for(const table of tables) result[table]=(await db.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows;
     return result;
   };
-  for (const file of files) {
+  for (const file of planned) {
     current=file;
+    if (productionUpgrade && !legacySnapshot && !applied.has(file.split('_')[0])) {
+      await db.query(await fs.readFile('e2e/fixtures/provider-production-upgrade.sql','utf8'));
+      legacySnapshot=await legacyRows();
+    }
     if (upgrade && file === '20261029000100_backend_reliability.sql') {
       await db.query(await fs.readFile('e2e/fixtures/backend-upgrade.sql','utf8'));
       snapshot=await preserved();
@@ -50,6 +62,14 @@ try {
   const expected=["service_catalog","service_variants","orders","payment_transactions","customer_favorite_providers","commerce_settlement_operations"];
   for (const table of expected) assert.equal((await db.query("select relrowsecurity from pg_class where oid=to_regclass($1)",["public."+table])).rows[0]?.relrowsecurity,true,table+" RLS");
   report.checks.push("Complete migration chain and critical relation RLS");
+  if (productionUpgrade) {
+    const after=await legacyRows();
+    for (const [table,rows] of Object.entries(legacySnapshot)) for (const original of rows) {
+      const record=after[table].find(r=>r.id===original.id);assert.ok(record,table+' original row exists');
+      assert.deepEqual(Object.fromEntries(Object.keys(original).map(key=>[key,record[key]])),original,table+' original columns preserved');
+    }
+    report.checks.push('Upgrade from exact 46 observed production migration versions plus populated synthetic providers/applications/reviews/requests preserves every existing column; deferred dependencies applied in order');
+  }
   if (upgrade) {
     assert.deepEqual(await preserved(),snapshot);
     assert.equal((await db.query("select state from commerce_settlement_operations where order_id='97000000-0000-4000-8000-000000000001'")).rows[0]?.state,'MANUAL_REVIEW');
@@ -64,7 +84,10 @@ try {
   const schema=await db.query("select c.relname,pg_get_constraintdef(k.oid) definition from pg_constraint k join pg_class c on c.oid=k.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' order by c.relname,k.conname");
   await securitySchemaChecks(db, report.checks);
   await prelaunchChecks(db, report.checks);
+  await providerControlChecks(db, report.checks);
+  await providerControlRace(db, report.checks);
+  await compareProviderSchema(db, output);
   await fs.writeFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
   console.log(`PASS ${files.length} migrations, ${report.scenario}, ${report.checks.length} checks`);
-} catch (e) { report.failure ??= { code:e.code??null,message:e.message }; console.error(JSON.stringify(report.failure));process.exitCode=1; }
-finally { await db?.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",data,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(output,upgrade?"migration-upgrade.json":"migration-chain.json"),JSON.stringify(report,null,2)); }
+} catch (e) { report.failure ??= { code:e.code??null,message:e.message }; console.error(JSON.stringify(report.failure));console.error(e.stack);process.exitCode=1; }
+finally { await db?.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",data,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(output,productionUpgrade?"migration-production-upgrade.json":upgrade?"migration-upgrade.json":"migration-chain.json"),JSON.stringify(report,null,2)); }

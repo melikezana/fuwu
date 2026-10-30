@@ -8,6 +8,8 @@ const requests = new AsyncLocalStorage<string>();
 export const commerceRequestId = () => requests.getStore() ?? randomUUID();
 
 const errors: Record<string, [number, string]> = {
+  schema_missing: [503, "Hizmet mağazası şeması güncel değil. Kurulum kontrol edilmeli."],
+  invalid_scope: [400, "Hizmet kapsamı en fazla 2000 karakter olabilir."],
   unauthorized: [401, "Devam etmek için giriş yap."],
   online_purchase_closed: [503, "Online satın alma henüz açılmadı."],
   forbidden: [403, "Bu işlem için yetkin yok."],
@@ -49,6 +51,7 @@ const safeCodes = new Set([
 ]);
 
 export function commerceDatabaseError(error: { code?: string; message?: string }) {
+  if (["PGRST202", "42883", "42P01", "42703"].includes(error.code ?? "")) return "schema_missing";
   if (error.message && safeCodes.has(error.message)) return error.message;
   if (error.code === "42501") return "forbidden";
   if (error.code === "23505") return "selection_conflict";

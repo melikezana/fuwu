@@ -1,0 +1,126 @@
+{
+  "scope": "Local validation only; no production mutation or hosted Supabase E2E acceptance",
+  "unit": {
+    "status": "PASS",
+    "sourceHash": "6489c8b9a0fc0a289a53d3b8cd0d7ce4baf9bdf7570f606cda69faaaefc9d080",
+    "startedAt": "2026-10-30T11:42:55.809Z",
+    "completedAt": "2026-10-30T11:42:57.491Z",
+    "executed": true,
+    "passed": 118,
+    "failed": 0,
+    "skipped": 0,
+    "reason": "",
+    "steps": [
+      {
+        "name": "unit",
+        "status": "PASS",
+        "exitCode": 0
+      }
+    ]
+  },
+  "typecheck": {
+    "status": "PASS",
+    "sourceHash": "7bb645078aacbf25d91fa2e9237580eb3867298c0209e7c51fad2bfb702fa1b3",
+    "startedAt": "2026-10-30T11:09:20.160Z",
+    "completedAt": "2026-10-30T11:09:39.325Z",
+    "executed": true,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "reason": "",
+    "steps": [
+      {
+        "name": "typecheck",
+        "status": "PASS",
+        "exitCode": 0
+      }
+    ]
+  },
+  "build": {
+    "status": "PASS",
+    "sourceHash": "f0e71e7d230ca97d8bf67342902d7a4e064d6538148a340facd1c28871313a41",
+    "startedAt": "2026-10-30T11:44:46.569Z",
+    "completedAt": "2026-10-30T11:45:13.363Z",
+    "executed": true,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "reason": "",
+    "steps": [
+      {
+        "name": "build",
+        "status": "PASS",
+        "exitCode": 0
+      }
+    ]
+  },
+  "lint": {
+    "status": "PASS",
+    "scope": "All changed application TS/TSX files checked; final changed server-control, unit, inspector, store and E2E files rechecked",
+    "errors": 0,
+    "warnings": 0
+  },
+  "migrations": [
+    {
+      "file": "migration-chain.json",
+      "scenario": "clean_install",
+      "migrations": 69,
+      "checks": 17,
+      "failure": null,
+      "postgres": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    },
+    {
+      "file": "migration-upgrade.json",
+      "scenario": "populated_upgrade",
+      "migrations": 69,
+      "checks": 18,
+      "failure": null,
+      "postgres": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    },
+    {
+      "file": "migration-production-upgrade.json",
+      "scenario": "observed_production_versions_upgrade",
+      "migrations": 69,
+      "checks": 18,
+      "failure": null,
+      "postgres": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit"
+    }
+  ],
+  "ui": {
+    "status": "PASS_UI_FIXTURES_ONLY",
+    "views": 42
+  },
+  "supabaseE2E": {
+    "scope": "Real Supabase Auth/DB E2E precondition",
+    "status": "BLOCKED",
+    "reason": "Isolated loopback Supabase Auth connection refused; Docker daemon unavailable. No write E2E ran.",
+    "allowlistValidated": true,
+    "tests": [
+      "e2e/provider-control.spec.ts: all six unpublish acceptance conditions",
+      "e2e/provider-control.spec.ts: partner price/scope/calendar and BOLA"
+    ],
+    "googleOAuth": "Not executed: no isolated Google OAuth test environment"
+  },
+  "profileCopyUI": {
+    "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+    "phase": "after",
+    "widths": [
+      {
+        "path": "/provider-dashboard/profile",
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "path": "/provider-dashboard/profile",
+        "width": 1440,
+        "overflow": false
+      }
+    ],
+    "checks": [],
+    "errors": [],
+    "status": "PASS_UI_FIXTURES_ONLY"
+  },
+  "productionMutations": false,
+  "gitCommitPushDeployment": false,
+  "livePaymentEnabled": false
+}

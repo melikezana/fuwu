@@ -23,7 +23,6 @@ import {
   formatProviderResponseTime,
   formatProviderWorkingHours,
   getProviderOperationalStatus,
-  providerWorkingHourOptions,
 } from "@/lib/providers/trust";
 import { sanitizePhone, sanitizeText } from "@/lib/validations";
 import { isUuid } from "@/lib/utils";
@@ -235,25 +234,6 @@ type AdminServiceRequestStatusRecord = Pick<
   districts: MaybeRelation;
 };
 
-type AdminProviderPublicationUpdate = Partial<
-  Pick<ProviderRow, "is_active" | "is_approved" | "is_verified" | "last_active_at">
->;
-
-type AdminProviderTrustUpdate = Partial<
-  Pick<
-    ProviderRow,
-    | "average_price_max"
-    | "average_price_min"
-    | "availability"
-    | "identity_verified"
-    | "is_verified"
-    | "name"
-    | "phone_verified"
-    | "response_time_minutes"
-    | "working_hours"
-  >
->;
-
 type AdminProviderApplicationProviderActionResult =
   AdminProviderApplicationActionResult & {
     providerId?: string;
@@ -455,15 +435,6 @@ const emptyDashboardSummary: AdminDashboardSummary = {
   totalServiceRequests: 0,
 };
 
-const adminProviderStatusActions: AdminProviderStatusAction[] = [
-  "activate",
-  "approve",
-  "deactivate",
-  "unpublish",
-  "unverify",
-  "verify",
-];
-
 function getRelationName(relation: MaybeRelation) {
   const record = Array.isArray(relation) ? relation[0] : relation;
   return record?.name?.trim() || "Belirtilmedi";
@@ -614,27 +585,6 @@ function getSupabaseErrorLogDetails(error: unknown) {
   };
 }
 
-function warnAdminProviderUpdateError(
-  context: string,
-  providerId: string,
-  payload: Record<string, unknown>,
-  error: unknown,
-) {
-  console.error(`[Fuwu] Admin Supabase ${context} failed.`, {
-    providerId,
-    supabaseError: getSupabaseErrorLogDetails(error),
-    table: "providers",
-    payloadKeys: Object.keys(payload),
-  });
-
-  handleServiceError(error, {
-    logContext: `Admin Supabase ${context} failed.`,
-    payloadKeys: Object.keys(payload),
-    publicMessage: "Admin iÅŸlemi ÅŸu anda tamamlanamadÄ±.",
-    tableName: "providers",
-  });
-}
-
 function warnAdminServiceRequestAssignmentError(
   context: string,
   requestId: string,
@@ -778,28 +728,12 @@ function createServiceRequestActionResult(
   };
 }
 
-function createProviderStatusActionResult(
-  code: AdminProviderStatusActionCode,
-  ok: boolean,
-): AdminProviderStatusActionResult {
-  return {
-    code,
-    ok,
-  };
-}
-
 function isAdminServiceRequestStatus(
   status: string,
 ): status is AdminServiceRequestStatus {
   return adminServiceRequestStatuses.includes(
     status as AdminServiceRequestStatus,
   );
-}
-
-function isAdminProviderStatusAction(
-  action: string,
-): action is AdminProviderStatusAction {
-  return adminProviderStatusActions.includes(action as AdminProviderStatusAction);
 }
 
 function createEmptyReadResult<T>(
@@ -2271,264 +2205,14 @@ export async function assignAdminServiceRequest(
   return createServiceRequestActionResult("service-request-updated", true);
 }
 
-export async function updateAdminProviderStatus(
-  providerId: string,
-  action: string,
-): Promise<AdminProviderStatusActionResult> {
-  const normalizedProviderId = sanitizeText(providerId, 80);
-  const normalizedAction = sanitizeText(action, 40);
-
-  if (!normalizedProviderId) {
-    return createProviderStatusActionResult("provider-missing-id", false);
-  }
-
-  if (!isUuid(normalizedProviderId)) {
-    return createProviderStatusActionResult("provider-invalid-id", false);
-  }
-
-  if (!isAdminProviderStatusAction(normalizedAction)) {
-    return createProviderStatusActionResult("provider-invalid-action", false);
-  }
-
-  const adminAccess = await getSupabaseForAdminWrite();
-  const { supabase } = adminAccess;
-
-  if (!supabase) {
-    return createProviderStatusActionResult(
-      adminAccess.access.isConfigured
-        ? "admin-not-authorized"
-        : "supabase-not-configured",
-      false,
-    );
-  }
-
-  if (
-    !(await assertAdminActionRateLimit(
-      supabase,
-      adminAccess.access.userId,
-      "provider.status_update",
-    ))
-  ) {
-    return createProviderStatusActionResult("provider-action-failed", false);
-  }
-
-  const updatePayload: AdminProviderPublicationUpdate =
-    normalizedAction === "activate"
-      ? { is_active: true, last_active_at: new Date().toISOString() }
-      : normalizedAction === "deactivate"
-        ? { is_active: false }
-        : normalizedAction === "approve"
-          ? { is_active: true, is_approved: true }
-          : normalizedAction === "verify"
-            ? { is_verified: true }
-            : normalizedAction === "unverify"
-              ? { is_verified: false }
-              : { is_approved: false };
-
-  const { data, error } = await supabase
-    .from("providers")
-    .update(updatePayload)
-    .eq("id", normalizedProviderId)
-    .select("id, user_id")
-    .maybeSingle();
-
-  if (error) {
-    warnAdminProviderUpdateError(
-      "provider status update",
-      normalizedProviderId,
-      updatePayload,
-      error,
-    );
-    return createProviderStatusActionResult("provider-action-failed", false);
-  }
-
-  if (!data) {
-    return createProviderStatusActionResult("provider-not-found", false);
-  }
-
-  const successCodeByAction: Record<
-    AdminProviderStatusAction,
-    AdminProviderStatusActionCode
-  > = {
-    activate: "provider-activated",
-    approve: "provider-approved",
-    deactivate: "provider-deactivated",
-    unpublish: "provider-unpublished",
-    unverify: "provider-unverified",
-    verify: "provider-verified",
-  };
-
-  const result = createProviderStatusActionResult(
-    successCodeByAction[normalizedAction],
-    true,
-  );
-
-  if (normalizedAction === "approve" && data.user_id) {
-    await grantProviderRoleToApplicant(supabase, data.user_id);
-  }
-
-  await insertAuditLog({
-    action: "provider.status_updated",
-    actorUserId: adminAccess.access.userId,
-    entityId: normalizedProviderId,
-    entityType: "provider",
-    metadata: {
-      action: normalizedAction,
-      updatePayload,
-    },
-    supabase,
-  });
-
-  return result;
+export async function updateAdminProviderStatus(providerId: string, action: string, options?: Omit<import("@/lib/providers/control").ProviderControlInput, "providerId" | "action">): Promise<import("@/lib/providers/control").ProviderControlResult> {
+  const { runProviderControl } = await import("./provider-control");
+  return runProviderControl({ providerId, action, reason: options?.reason ?? "", expectedVersion: options?.expectedVersion ?? "", requestId: options?.requestId ?? "", fingerprint: options?.fingerprint, verificationReference: options?.verificationReference, recordKind: options?.recordKind });
 }
 
-function parseAdminResponseTime(value: string) {
-  const normalizedValue = value.trim();
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const parsedValue = Number(normalizedValue);
-
-  return Number.isInteger(parsedValue) && parsedValue > 0 && parsedValue <= 1440
-    ? parsedValue
-    : undefined;
-}
-
-function parseAdminPrice(value: string) {
-  const normalizedValue = value.trim();
-
-  if (!normalizedValue) {
-    return undefined;
-  }
-
-  const parsedValue = Number(normalizedValue);
-
-  return Number.isInteger(parsedValue) && parsedValue >= 0 && parsedValue <= 1000000
-    ? parsedValue
-    : undefined;
-}
-
-export async function updateAdminProviderTrust(
-  providerId: string,
-  input: {
-    averagePriceMax: string;
-    averagePriceMin: string;
-    availability: string;
-    identityVerified: boolean;
-    isVerified: boolean;
-    name: string;
-    phoneVerified: boolean;
-    responseTimeMinutes: string;
-    workingHours: string;
-  },
-): Promise<AdminProviderStatusActionResult> {
-  const normalizedProviderId = sanitizeText(providerId, 80);
-  const name = sanitizeText(input.name, 120);
-  const availability = sanitizeText(input.availability, 40);
-  const workingHours = sanitizeText(input.workingHours, 40);
-  const responseTimeMinutes = parseAdminResponseTime(input.responseTimeMinutes);
-  const averagePriceMin = parseAdminPrice(input.averagePriceMin);
-  const averagePriceMax = parseAdminPrice(input.averagePriceMax);
-
-  if (!normalizedProviderId) {
-    return createProviderStatusActionResult("provider-missing-id", false);
-  }
-
-  if (!isUuid(normalizedProviderId)) {
-    return createProviderStatusActionResult("provider-invalid-id", false);
-  }
-
-  if (!name) {
-    return createProviderStatusActionResult("provider-invalid-name", false);
-  }
-
-  if (!isProviderAvailabilityStatus(availability)) {
-    return createProviderStatusActionResult("provider-invalid-availability", false);
-  }
-
-  if (!providerWorkingHourOptions.includes(workingHours as (typeof providerWorkingHourOptions)[number])) {
-    return createProviderStatusActionResult("provider-invalid-action", false);
-  }
-
-  if (responseTimeMinutes === undefined) {
-    return createProviderStatusActionResult("provider-invalid-action", false);
-  }
-
-  if (
-    averagePriceMin === undefined ||
-    averagePriceMax === undefined ||
-    averagePriceMax < averagePriceMin
-  ) {
-    return createProviderStatusActionResult("provider-invalid-price", false);
-  }
-
-  const adminAccess = await getSupabaseForAdminWrite();
-  const { supabase } = adminAccess;
-
-  if (!supabase) {
-    return createProviderStatusActionResult(
-      adminAccess.access.isConfigured
-        ? "admin-not-authorized"
-        : "supabase-not-configured",
-      false,
-    );
-  }
-
-  if (
-    !(await assertAdminActionRateLimit(
-      supabase,
-      adminAccess.access.userId,
-      "provider.trust_update",
-    ))
-  ) {
-    return createProviderStatusActionResult("provider-action-failed", false);
-  }
-
-  const updatePayload: AdminProviderTrustUpdate = {
-    average_price_max: averagePriceMax,
-    average_price_min: averagePriceMin,
-    availability,
-    identity_verified: input.identityVerified,
-    is_verified: input.isVerified,
-    name,
-    phone_verified: input.phoneVerified,
-    response_time_minutes: responseTimeMinutes,
-    working_hours: workingHours,
-  };
-
-  const { data, error } = await supabase
-    .from("providers")
-    .update(updatePayload)
-    .eq("id", normalizedProviderId)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    warnAdminProviderUpdateError(
-      "provider trust update",
-      normalizedProviderId,
-      updatePayload,
-      error,
-    );
-    return createProviderStatusActionResult("provider-action-failed", false);
-  }
-
-  if (!data) {
-    return createProviderStatusActionResult("provider-not-found", false);
-  }
-
-  await insertAuditLog({
-    action: "provider.price_updated",
-    actorUserId: adminAccess.access.userId,
-    entityId: normalizedProviderId,
-    entityType: "provider",
-    metadata: updatePayload,
-    supabase,
-  });
-
-  return createProviderStatusActionResult("provider-trust-updated", true);
+export async function updateAdminProviderTrust(providerId: string, input: { averagePriceMax: string; averagePriceMin: string; availability: string; identityVerified: boolean; isVerified: boolean; name: string; phoneVerified: boolean; responseTimeMinutes: string; workingHours: string }, options?: Omit<import("@/lib/providers/control").ProviderControlInput, "providerId" | "action" | "details">) {
+ const { runProviderControl } = await import("./provider-control");
+ return runProviderControl({ providerId, action: "edit_profile", reason: options?.reason ?? "", expectedVersion: options?.expectedVersion ?? "", requestId: options?.requestId ?? "", verificationReference: options?.verificationReference, details: { name: input.name, average_price_min: Number(input.averagePriceMin), average_price_max: Number(input.averagePriceMax), availability: input.availability, identity_verified: input.identityVerified, is_verified: input.isVerified, phone_verified: input.phoneVerified, response_time_minutes: input.responseTimeMinutes, working_hours: input.workingHours } });
 }
 
 export async function getAdminProviders(): Promise<AdminReadResult<AdminProvider>> {

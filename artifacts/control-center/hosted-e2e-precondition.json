@@ -1,0 +1,11 @@
+{
+  "scope": "Real Supabase Auth/DB E2E precondition",
+  "status": "BLOCKED",
+  "reason": "Isolated loopback Supabase Auth connection refused; Docker daemon unavailable. No write E2E ran.",
+  "allowlistValidated": true,
+  "tests": [
+    "e2e/provider-control.spec.ts: all six unpublish acceptance conditions",
+    "e2e/provider-control.spec.ts: partner price/scope/calendar and BOLA"
+  ],
+  "googleOAuth": "Not executed: no isolated Google OAuth test environment"
+}

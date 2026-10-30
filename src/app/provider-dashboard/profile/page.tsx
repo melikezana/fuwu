@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { PartnerProfileForms } from "@/components/dashboard/PartnerProfileForms";
 import { GalleryManager } from "@/components/dashboard/GalleryManager";
 import { ProfileImageUploader } from "@/components/dashboard/ProfileImageUploader";
 import {
@@ -54,8 +55,8 @@ const availabilityActionMessages: Record<string, AvailabilityFeedback> = {
     tone: "error",
   },
   "availability-schema-missing": {
-    body: "Supabase sağlayıcı uygunluk alanı henüz uygulanmamış. provider-availability.sql çalıştırıldıktan sonra güncelleme aktif olur.",
-    title: "Şema güncellemesi gerekli",
+    body: "Çalışma durumun şu anda güncellenemiyor. Destek ekibi kurulumu kontrol etmeli.",
+    title: "Güncelleme kullanılamıyor",
     tone: "error",
   },
   "availability-update-failed": {
@@ -74,8 +75,8 @@ const availabilityActionMessages: Record<string, AvailabilityFeedback> = {
     tone: "error",
   },
   "supabase-not-configured": {
-    body: "Supabase bağlantısı tanımlı olmadığı için canlı güncelleme yapılamadı.",
-    title: "Supabase bağlı değil",
+    body: "Profil hizmetine şu anda ulaşılamıyor. Daha sonra tekrar dene.",
+    title: "Bağlantı kurulamadı",
     tone: "error",
   },
 };
@@ -164,7 +165,7 @@ export default async function ProviderDashboardProfilePage({
   return (
     <ProviderDashboardShell
       active="profile"
-      description="Yayındaki usta profilinde kullanılan temel bilgileri gözden geçir."
+      description="Profilini ve doğrulama bilgilerini yönet."
       providerName={providerAccess.ok ? providerAccess.profile.name : undefined}
       statusLabel={statusBadge.label}
       statusTone={statusBadge.tone}
@@ -204,7 +205,7 @@ export default async function ProviderDashboardProfilePage({
             </div>
           </div>
 
-          <div className="mt-6 border-t border-[var(--border)] pt-6">
+          <PartnerProfileForms name={providerAccess.profile.name} description={providerAccess.profile.description} /><div className="mt-6 border-t border-[var(--border)] pt-6">
             <GalleryManager
               images={galleryImages}
               providerId={providerAccess.profile.id}
@@ -217,10 +218,10 @@ export default async function ProviderDashboardProfilePage({
                 Uygunluk yönetimi
               </p>
               <h3 className="mt-2 text-xl font-semibold text-[var(--brand-navy)]">
-                Public kartlarda kapasiten net görünsün.
+                Uygunluğunu güncelle.
               </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-[var(--muted)]">
-                Bu alan canlı Supabase şeması güncellendiğinde provider hesabının kendi uygunluk durumunu güvenli şekilde değiştirir.
+                Çalışma durumunu açılış için hazırla.
               </p>
             </div>
             <form action={updateAvailabilityAction} className="grid gap-3 sm:grid-cols-[minmax(12rem,1fr)_auto]">

@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
+import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 
 type ProviderDashboardNavKey =
   | "overview"
@@ -81,19 +82,19 @@ const providerNavItems: Array<{
   key: ProviderDashboardNavKey;
   label: string;
 }> = [
-  { href: "/provider-dashboard/store", icon: ClipboardList, key: "store", label: "Hizmet Mağazam" },
+  { href: "/provider-dashboard/store", icon: ClipboardList, key: "store", label: "Hizmetlerim" },
   { href: "/provider-dashboard/orders", icon: Calendar, key: "orders", label: "Siparişlerim" },
   {
     href: appRoutes.providerDashboard,
     icon: LayoutDashboard,
     key: "overview",
-    label: "Genel Bakış",
+    label: "Ana Sayfa",
   },
   {
     href: appRoutes.providerDashboardProfile,
     icon: UserRound,
     key: "profile",
-    label: "Profil",
+    label: "Profilim",
   },
   {
     href: appRoutes.providerDashboardPaymentInfo,
@@ -263,7 +264,7 @@ export function ProviderDashboardShell({
   };
 
   return (
-    <div className="premium-page-shell min-h-full">
+    <div className="premium-page-shell partner-panel-shell min-h-full">
       <section className="premium-page-band">
         <Container className="max-w-7xl py-4 sm:py-10">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -291,7 +292,7 @@ export function ProviderDashboardShell({
           </div>
 
           <nav className="provider-panel-navigation mt-4 flex flex-wrap gap-2 pb-1 sm:mt-6" aria-label="Usta paneli menüsü">
-            {providerNavItems.map((item) => {
+            {providerNavItems.filter(item => sandboxCheckoutEnabled() || ["overview", "store", "calendar", "profile"].includes(item.key)).sort((a,b) => ["overview", "store", "calendar", "profile"].indexOf(a.key) - ["overview", "store", "calendar", "profile"].indexOf(b.key)).map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
 

@@ -441,9 +441,9 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     <AdminAccessGate access={adminAccess}>
       <AdminPageShell
       active="dashboard"
-      description="Gerçek usta ağı, müşteri ilgisi ve lansman hazırlığı."
+      description="İşler kontrol altında."
       isConfigured={dashboard.isConfigured}
-      title="FUWU bugün ne durumda?"
+      title="FUWU Control Center"
     >
       <PrelaunchDashboard snapshot={prelaunch} />
       {marketplace && today && <details className="fusion-legacy"><summary>Sandbox sipariş operasyonu</summary><MarketplaceMetrics summary={marketplace} today={today} /></details>}

@@ -1,5 +1,41 @@
 [
   {
+    "relname": "admin_provider_action_receipts",
+    "definition": "FOREIGN KEY (actor_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL actor_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL input_hash"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "PRIMARY KEY (request_id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL request_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL response"
+  },
+  {
     "relname": "ai_analyses",
     "definition": "NOT NULL analysis_json"
   },
@@ -1150,6 +1186,14 @@
   {
     "relname": "provider_service_offerings",
     "definition": "UNIQUE NULLS NOT DISTINCT (provider_id, service_id, variant_id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "CHECK ((length(scope) <= 2000))"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL scope"
   },
   {
     "relname": "provider_service_offerings",

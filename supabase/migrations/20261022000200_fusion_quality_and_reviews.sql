@@ -107,7 +107,10 @@ begin
  return null;
 end $$;
 create trigger fusion_review_summary after insert or update or delete on public.reviews for each row execute function public.refresh_review_summary();
-update public.providers p set rating=coalesce((select round(avg(rating),1) from public.reviews r where r.provider_id=p.id),0),review_count=(select count(*) from public.reviews r where r.provider_id=p.id);
+-- Do not rewrite historical provider caches (or updated_at) during an upgrade.
+-- The admin quality queue compares cached summaries with source rows for review.
+-- Future review mutations refresh their own summary through fusion_review_summary.
+-- Public prelaunch projections continue to hide unverified ratings and reviews.
 revoke insert,update on public.reviews from anon,authenticated;
 drop policy if exists reviews_insert_own on public.reviews;
 

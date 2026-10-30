@@ -69,7 +69,9 @@
     "20261029000100_backend_reliability.sql",
     "20261029000200_atomic_rate_limit.sql",
     "20261029000300_provider_publication_quality.sql",
-    "20261030000100_prelaunch_trust_and_interest.sql"
+    "20261030000100_prelaunch_trust_and_interest.sql",
+    "20261030000200_provider_control_center.sql",
+    "20261030000300_partner_store_preparation.sql"
   ],
   "checks": [
     "Complete migration chain and critical relation RLS",
@@ -82,7 +84,13 @@
     "Prelaunch: verified email, versioned consent, real persistence, deduplication, RLS and idempotent withdrawal",
     "Prelaunch: persistent five-per-hour limit blocks repeated consent submissions",
     "Prelaunch: classification required; reserved seed cannot publish; sandbox reviews never become social proof",
-    "Prelaunch: compare-and-clear announcement is admin-only, audited and leaves maintenance unchanged"
+    "Prelaunch: compare-and-clear announcement is admin-only, audited and leaves maintenance unchanged",
+    "Control: real unpublish transaction changes publication only, admin badge source hidden, anon list/detail row absent, public gate absent, one audit; nonadmin denied; replay deduplicated; stale admin version rejected",
+    "Control: republish, deactivate, activate, unverify, test/real classification, quality decisions, profile editing, evidence enforcement; audit insert failure rolls back provider and receipt",
+    "Control: server pagination, literal search, empty result distinguished, invalid page size/provider/action, persistent rate limit",
+    "Partner: own profile/service price/scope/calendar persist and requeue publication; other owner/readiness/store denied; own identity/admin escalation and audit mutation denied; document path spoof rejected",
+    "Partner: private document attachment persists, reopens application review, removes old identity/professional approval; explicit EXECUTE grants; actual missing RPC fails without fallback",
+    "Control concurrency: two actual PostgreSQL sessions with the same version allow one decision and reject one conflict; simultaneous identical request creates one audit and one receipt"
   ],
   "failure": null
 }

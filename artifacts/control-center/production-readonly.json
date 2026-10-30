@@ -1,0 +1,258 @@
+{
+  "inspectedAt": "2026-10-30",
+  "project": "bjhyisomjadirdchruix",
+  "mode": "read-only",
+  "appliedMigrations": [
+    {
+      "version": "20260605000000",
+      "name": "initial_schema"
+    },
+    {
+      "version": "20260605000100",
+      "name": "provider_applications_schema_fix"
+    },
+    {
+      "version": "20260605000200",
+      "name": "add_emergency_flow_fields"
+    },
+    {
+      "version": "20260605000300",
+      "name": "emergency_service_flow"
+    },
+    {
+      "version": "20260605000400",
+      "name": "emergency_tag_flow_fields"
+    },
+    {
+      "version": "20260605000500",
+      "name": "live_backend_repair"
+    },
+    {
+      "version": "20260605000600",
+      "name": "istanbul_district_expansion"
+    },
+    {
+      "version": "20260605000700",
+      "name": "emergency_request_rls_hardening"
+    },
+    {
+      "version": "20260605000800",
+      "name": "provider_trust_layer"
+    },
+    {
+      "version": "20260605000900",
+      "name": "core_flow_reliability"
+    },
+    {
+      "version": "20260605001000",
+      "name": "provider_application_user_access"
+    },
+    {
+      "version": "20260605001100",
+      "name": "service_requests"
+    },
+    {
+      "version": "20260605001200",
+      "name": "provider_applications_public_submit"
+    },
+    {
+      "version": "20260605001300",
+      "name": "provider_application_status_visibility"
+    },
+    {
+      "version": "20260605001400",
+      "name": "provider_application_user_persistence"
+    },
+    {
+      "version": "20260605001500",
+      "name": "provider_application_profile_rls_fix"
+    },
+    {
+      "version": "20260605001600",
+      "name": "provider_application_user_binding_rpc"
+    },
+    {
+      "version": "20260605001700",
+      "name": "provider_application_admin_action_hardening"
+    },
+    {
+      "version": "20260605001800",
+      "name": "provider_admin_update_policy"
+    },
+    {
+      "version": "20260605001900",
+      "name": "complete_customer_request_flow"
+    },
+    {
+      "version": "20260605002000",
+      "name": "admin_service_request_assignment"
+    },
+    {
+      "version": "20260605002100",
+      "name": "provider_request_accept_reject"
+    },
+    {
+      "version": "20260605002200",
+      "name": "backend_hardening_status_audit_rls"
+    },
+    {
+      "version": "20260605002300",
+      "name": "rate_limits_security_audit"
+    },
+    {
+      "version": "20260605002400",
+      "name": "add_locksmith_service_category"
+    },
+    {
+      "version": "20260605002500",
+      "name": "payments_tracking"
+    },
+    {
+      "version": "20260605002600",
+      "name": "consolidate_lookup_rls_notifications"
+    },
+    {
+      "version": "20260605002700",
+      "name": "provider_application_login_binding_rpc"
+    },
+    {
+      "version": "20260605002800",
+      "name": "backend_health_catalog_rpc"
+    },
+    {
+      "version": "20260605002900",
+      "name": "audit_logs_indexes_retention"
+    },
+    {
+      "version": "20260605003000",
+      "name": "notifications_read_update_policy"
+    },
+    {
+      "version": "20260605003100",
+      "name": "service_requests_nullable_seed_user"
+    },
+    {
+      "version": "20260605003200",
+      "name": "provider_images_storage_bucket"
+    },
+    {
+      "version": "20260605003300",
+      "name": "provider_verification_documents"
+    },
+    {
+      "version": "20260621000100",
+      "name": "provider_match_notifications"
+    },
+    {
+      "version": "20260622000100",
+      "name": "backend_production_hardening"
+    },
+    {
+      "version": "20260622000200",
+      "name": "explicit_api_role_grants"
+    },
+    {
+      "version": "20260622000300",
+      "name": "customer_review_submission"
+    },
+    {
+      "version": "20260622000400",
+      "name": "customer_payment_confirmation"
+    },
+    {
+      "version": "20260625000000",
+      "name": "add_profiles_avatar_url"
+    },
+    {
+      "version": "20260628000100",
+      "name": "add_missing_service_categories"
+    },
+    {
+      "version": "20260704000100",
+      "name": "add_provider_profile_image_path"
+    },
+    {
+      "version": "20260706000100",
+      "name": "provider_gallery"
+    },
+    {
+      "version": "20260706000200",
+      "name": "add_provider_gallery_preview_url"
+    },
+    {
+      "version": "20260815000100",
+      "name": "request_messages"
+    },
+    {
+      "version": "20260816000100",
+      "name": "service_requests_assigned_at"
+    }
+  ],
+  "missingObjects": [
+    "provider_publication_reviews",
+    "admin_provider_quality_queue",
+    "review_provider_publication",
+    "provider_publication_gate",
+    "provider_is_published",
+    "consume_user_rate_limit"
+  ],
+  "providerUpdate": {
+    "authenticatedGrant": true,
+    "adminSelectPolicy": true,
+    "adminUpdatePolicy": true,
+    "triggers": [
+      "providers_set_updated_at"
+    ]
+  },
+  "confirmedLogs": [
+    {
+      "utc": "2026-10-30T09:50:56.176Z",
+      "method": "POST",
+      "path": "/rest/v1/rpc/consume_user_rate_limit",
+      "status": 404,
+      "error": "PGRST202"
+    },
+    {
+      "utc": "2026-10-30T09:50:59.642Z",
+      "method": "POST",
+      "path": "/rest/v1/rpc/admin_provider_quality_queue",
+      "status": 404,
+      "error": "PGRST202"
+    }
+  ],
+  "testProfileCandidates": [
+    {
+      "id": "4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+      "owner": "0e8618e1-57af-4504-815f-dd8066688a4b",
+      "applications": 1,
+      "legacyRequests": 0,
+      "audit": 1,
+      "ownerPrefixStorage": 0
+    },
+    {
+      "id": "8a0fd4ad-4b34-4089-8737-3cebc64e4295",
+      "owner": "132cf13b-5b40-4da5-af9b-188a4c116f86",
+      "applications": 1,
+      "legacyRequests": 0,
+      "audit": 2,
+      "ownerPrefixStorage": 0
+    },
+    {
+      "id": "78bc496a-7f93-43fb-8748-33b5d6cde252",
+      "owner": null,
+      "applications": 0,
+      "legacyRequests": 0,
+      "audit": 1,
+      "ownerPrefixStorage": 0
+    },
+    {
+      "id": "ec711057-c9a3-4a03-9737-4f560e3c39cb",
+      "owner": null,
+      "applications": 0,
+      "legacyRequests": 0,
+      "audit": 0,
+      "ownerPrefixStorage": 0
+    }
+  ],
+  "note": "Candidates identified by user's test-data statement, not automatically classified. Storage scan only owner path prefixes; missing owner is not proof of no storage. No changes executed."
+}

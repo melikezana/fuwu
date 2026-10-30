@@ -58,3 +58,6 @@ storybook-static
 /artifacts/prelaunch/private/
 /artifacts/prelaunch/runtime-before/
 /artifacts/prelaunch/baseline.zip
+
+# Isolated control center test runtime (source snapshots and disposable clusters)
+/artifacts/control-center/runtime-before/

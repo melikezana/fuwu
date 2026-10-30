@@ -2,8 +2,8 @@ import type { Json } from "@/lib/supabase/types";
 
 export type CatalogService = { id: string; category_id: string; slug: string; name: string; description: string; scope: string; exclusions: string; image_url: string; pricing_type: "FIXED_PRICE" | "VARIANT_BASED" | "DIAGNOSTIC_SERVICE"; is_active: boolean };
 export type ServiceVariant = { id: string; service_id: string; provider_id?: string | null; name: string; is_active: boolean };
-export type Offering = { id: string; provider_id: string; service_id: string; variant_id: string | null; price_minor: number; duration_minutes: number; district_ids: string[]; is_active: boolean; updated_at: string };
-export type PublicOffer = Pick<Offering, "id" | "provider_id" | "service_id" | "variant_id" | "price_minor" | "duration_minutes" | "district_ids"> & { variant_name: string | null; provider_name: string; profile_image_url: string | null; rating: number | null; review_count: number };
+export type Offering = { scope?: string; id: string; provider_id: string; service_id: string; variant_id: string | null; price_minor: number; duration_minutes: number; district_ids: string[]; is_active: boolean; updated_at: string };
+export type PublicOffer = Pick<Offering, "id" | "provider_id" | "service_id" | "variant_id" | "price_minor" | "duration_minutes" | "district_ids"> & { scope?: string; variant_name: string | null; provider_name: string; profile_image_url: string | null; rating: number | null; review_count: number };
 export type Availability = { provider_id: string; weekday: number; starts_at: string; ends_at: string };
 export type TimeOff = { id: string; provider_id: string; day: string };
 export type Slot = { starts_at: string; ends_at: string };

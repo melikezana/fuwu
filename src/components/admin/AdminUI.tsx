@@ -39,7 +39,9 @@ type AdminNavKey =
   | "verifications"
   | "notifications"
   | "audit"
-  | "settings";
+  | "settings"
+  | "interest"
+  | "health";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -74,7 +76,7 @@ type AdminEmptyStateProps = {
   title: string;
 };
 
-const adminNavItems: Array<{
+const allAdminNavItems: Array<{
   href: string;
   icon: IconComponent;
   key: AdminNavKey;
@@ -97,13 +99,13 @@ const adminNavItems: Array<{
     href: "/admin/providers",
     icon: Users,
     key: "providers",
-    label: "Ustalar",
+    label: "Usta Yönetimi",
   },
   {
     href: "/admin/provider-applications",
     icon: ClipboardList,
     key: "applications",
-    label: "Başvurular",
+    label: "Usta Başvuruları",
   },
   {
     href: "/admin/service-requests",
@@ -133,13 +135,13 @@ const adminNavItems: Array<{
     href: "/admin/catalog",
     icon: Tags,
     key: "catalog",
-    label: "Katalog",
+    label: "Hizmet Kataloğu",
   },
   {
     href: "/admin/verifications",
     icon: FileCheck,
     key: "verifications",
-    label: "Belge Doğrulama",
+    label: "Doğrulamalar",
   },
   {
     href: "/admin/notifications",
@@ -151,7 +153,7 @@ const adminNavItems: Array<{
     href: "/admin/audit",
     icon: ScrollText,
     key: "audit",
-    label: "İşlem Geçmişi",
+    label: "Denetim Kayıtları",
   },
   {
     href: "/admin/settings",
@@ -161,6 +163,8 @@ const adminNavItems: Array<{
   },
 ];
 
+const primaryAdminKeys = ["dashboard", "applications", "providers", "catalog", "interest", "verifications", "health", "audit"];
+const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
 export const adminQuickNavItems = adminNavItems.filter(item => ["marketplace", "providers", "applications", "catalog"].includes(item.key));
 
 export const adminActionIcons = {
@@ -183,7 +187,7 @@ export function AdminPageShell({
   title,
 }: AdminPageShellProps) {
   return (
-    <div className="min-h-full bg-[var(--surface-soft)]">
+    <div className="control-center-shell min-h-full bg-[var(--surface-soft)]">
       <section className="premium-page-band">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -198,7 +202,7 @@ export function AdminPageShell({
                 </nav>
               ) : null}
               <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">
-                Fuwu İç Operasyon
+                FUWU Control Center
               </p>
               <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                 {title}
@@ -213,11 +217,11 @@ export function AdminPageShell({
             </div>
           </div>
 
-          <details className="operations-navigation"><summary>Yönetim bölümleri</summary><nav
+          <details className="operations-navigation" open><summary>Yönetim bölümleri</summary><nav
             className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             aria-label="Admin menüsü"
           >
-            {adminNavItems.map((item) => {
+            {adminNavItems.filter(item => primaryAdminKeys.includes(item.key)).map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
 
@@ -244,7 +248,7 @@ export function AdminPageShell({
                 </Link>
               );
             })}
-          </nav></details>
+          </nav></details><details className="operations-navigation"><summary>Diğer operasyonlar ve geçmiş kayıtlar</summary><nav className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Diğer admin bölümleri">{adminNavItems.filter(item => !primaryAdminKeys.includes(item.key)).map(item => <Link className="control-back" href={item.href} key={item.key}>{item.label}</Link>)}</nav></details>
         </div>
       </section>
 

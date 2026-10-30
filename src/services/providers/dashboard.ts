@@ -529,7 +529,7 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
 
   const providerApplication = applicationResult.application;
 
-  if (profile?.isApproved) {
+  if (profile) {
     return {
       application: providerApplication ?? undefined,
       isConfigured: true,
@@ -540,18 +540,6 @@ export async function getProviderDashboardAccess(): Promise<ProviderDashboardAcc
     };
   }
 
-  if (profile && !profile.isApproved) {
-    return {
-      application: providerApplication ?? undefined,
-      applicationStatus: providerApplication?.status ?? PROVIDER_APPLICATION_STATUSES.pending,
-      isConfigured: true,
-      message: "Usta profilin oluşturuldu ve onay bekliyor. Onay tamamlandığında panel erişimin açılır.",
-      ok: false,
-      reason: "pending-provider-profile",
-      role: authContext.profile?.role ?? null,
-      userId: authContext.user.id,
-    };
-  }
 
   if (providerApplication) {
     return {
