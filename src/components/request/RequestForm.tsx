@@ -1482,7 +1482,7 @@ export function RequestForm({
                   </div>
                   <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">
                     <dt className="text-xs font-bold uppercase tracking-normal text-[var(--muted)]">
-                      Doğrulama kodu
+                      Talep referansı
                     </dt>
                     <dd className="mt-1 text-sm font-bold">
                       {submittedRequest.confirmationCode ?? "Usta kabul edince paylaşılacak"}
@@ -1513,7 +1513,7 @@ export function RequestForm({
                           Tahmini varış
                         </dt>
                         <dd className="mt-1 text-sm font-bold">
-                          {submittedRequest.estimatedArrivalText ?? liveTrackingSoonText}
+                          {liveTrackingSoonText}
                         </dd>
                       </div>
                       <div className="rounded-md bg-white p-3 ring-1 ring-[rgba(13,20,36,0.08)]">

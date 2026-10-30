@@ -13,7 +13,7 @@ try {
   if(!health.ok) throw new Error("Isolated Auth server is not healthy");
   fs.mkdirSync(output,{recursive:true});fs.rmSync(path.join(output,"e2e.json"),{force:true});
   executed=true;
-  const r=spawnSync(process.execPath,["node_modules/@playwright/test/cli.js","test","e2e/commerce.spec.ts"],{env,encoding:"utf8",windowsHide:true,timeout:600000,maxBuffer:10*1024*1024});
+  const r=spawnSync(process.execPath,["node_modules/@playwright/test/cli.js","test","e2e/commerce.spec.ts","e2e/trust-flow.spec.ts"],{env,encoding:"utf8",windowsHide:true,timeout:600000,maxBuffer:10*1024*1024});
   fs.writeFileSync(path.join(output,"commerce-e2e.log"),(r.stdout||"")+(r.stderr||""));
   const report=JSON.parse(fs.readFileSync(path.join(output,"e2e.json"),"utf8"));
   passed=report.stats.expected;failed=report.stats.unexpected;skipped=report.stats.skipped;

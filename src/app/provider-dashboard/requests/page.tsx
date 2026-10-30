@@ -398,7 +398,7 @@ function ProviderEmergencyEta({ request }: { request: ProviderAssignedRequest })
 
   return (
     <span className="mt-1 flex flex-wrap items-center gap-2 text-xs font-bold text-[var(--brand-orange-dark)]">
-      <span>{request.estimatedArrivalText ?? liveTrackingSoonText}</span>
+      <span>{liveTrackingSoonText}</span>
       {isEmergencyWaitingForProviderResponse(request) && request.assignedAt ? (
         <SlaCountdown assignedAt={request.assignedAt} />
       ) : null}

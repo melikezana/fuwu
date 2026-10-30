@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { getServerAuthContext } from "@/services/auth/server";
 import { confirmPaymentByCustomer } from "@/services/payments";
+import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 
 export type ConfirmPaymentActionResult =
   | {
@@ -20,7 +21,8 @@ export async function confirmPaymentByCustomerAction(
   requestId: string,
   verificationCode: string,
 ): Promise<ConfirmPaymentActionResult> {
-  try {
+  if (!sandboxCheckoutEnabled()) return { ok: false, message: "Online satın alma ve ödeme onayı henüz açılmadı." };
+    try {
     const authContext = await getServerAuthContext();
 
     if (!authContext.supabase) {

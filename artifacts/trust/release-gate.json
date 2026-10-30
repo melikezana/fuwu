@@ -1,0 +1,61 @@
+{
+  "sourceHash": "34f02831ff94ceaf6b963787e28ff167650a7935d07ad50aea06413308be3446",
+  "completedAt": "2026-10-30T21:49:33.802Z",
+  "localStatus": "PASS",
+  "releaseStatus": "BLOCKED",
+  "unitTests": 147,
+  "securityTests": 59,
+  "lint": {
+    "status": "PASS",
+    "files": 59,
+    "errors": 0,
+    "warnings": 0,
+    "exitCode": 0,
+    "completedAt": "2026-10-30T21:45:03.322Z"
+  },
+  "sql": [
+    {
+      "file": "artifacts/backend-reliability/migration-chain.json",
+      "scenario": "clean_install",
+      "migrations": 71,
+      "checks": 26,
+      "status": "PASS",
+      "sourceMatches": true
+    },
+    {
+      "file": "artifacts/trust/upgrade/migration-upgrade.json",
+      "scenario": "populated_upgrade",
+      "migrations": 71,
+      "checks": 27,
+      "status": "PASS",
+      "sourceMatches": true
+    },
+    {
+      "file": "artifacts/trust/production-upgrade/migration-production-upgrade.json",
+      "scenario": "observed_production_versions_upgrade",
+      "migrations": 71,
+      "checks": 27,
+      "status": "PASS",
+      "sourceMatches": true
+    }
+  ],
+  "ui": {
+    "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+    "status": "PASS_UI_FIXTURES_ONLY",
+    "viewportChecks": 49,
+    "seriousCriticalAccessibilityViolations": 0
+  },
+  "hostedE2E": {
+    "status": "BLOCKED",
+    "executed": false,
+    "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; see environment policy. No write test ran."
+  },
+  "blockers": [
+    "No isolated hosted Supabase Auth/Storage/Google OAuth acceptance environment",
+    "Production schema drift requires staged review and explicit migration approval",
+    "Malware scanner and legal/retention/payment launch review not configured or approved"
+  ],
+  "productionWrites": false,
+  "livePayments": false,
+  "pushOrDeployment": false
+}

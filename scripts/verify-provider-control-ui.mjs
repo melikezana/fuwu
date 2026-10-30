@@ -6,9 +6,10 @@ import { spawn, spawnSync } from 'node:child_process';
 import { parseEnv } from 'node:util';
 import { chromium } from 'playwright';
 const profileOnly=process.argv.includes('--profile-only');
+const trustOnly=process.argv.includes('--trust');
 const before=process.argv.includes('--before'), phase=before?'before':'after';
 const root=process.cwd(), appRoot=before?path.resolve('artifacts/control-center/runtime-before'):root;
-const output=path.resolve(process.env.CONTROL_UI_OUTPUT_DIR||path.join('artifacts/control-center',profileOnly?'profile-copy':phase));await fs.mkdir(output,{recursive:true});
+const output=path.resolve(process.env.CONTROL_UI_OUTPUT_DIR||(trustOnly?'artifacts/trust/ui':path.join('artifacts/control-center',profileOnly?'profile-copy':phase)));await fs.mkdir(output,{recursive:true});
 const original=await fs.readFile(path.join(appRoot,'next-env.d.ts'),'utf8');
 const id='ac000000-0000-4000-8000-000000000004',admin='ac000000-0000-4000-8000-000000000001',owner='ac000000-0000-4000-8000-000000000002';
 const category={id:'ad000000-0000-4000-8000-000000000001',name:'Klima / Beyaz Eşya',slug:'klima-beyaz-esya',is_active:true,is_visible:true};
@@ -18,6 +19,9 @@ let provider={id,name:'TEST Ahmet Yılmaz',category:category.name,district:distr
 let hours=[1,2,3,4,5].map(weekday=>({provider_id:id,weekday,starts_at:'09:00:00',ends_at:'18:00:00'}));
 let offerings=[{id:'ad000000-0000-4000-8000-000000000004',provider_id:id,service_id:service.id,variant_id:null,price_minor:85000,duration_minutes:60,district_ids:[district.id],is_active:true,scope:service.scope,updated_at:provider.updated_at}];
 const requestLog=[];
+const applicationId='ae000000-0000-4000-8000-000000000001',documentId='ae000000-0000-4000-8000-000000000002',orderId='ae000000-0000-4000-8000-000000000003';
+let trustDoc={id:documentId,document_type:'qualification',label:'Mesleki yeterlilik',version:2,status:'resubmit',expires_on:'2027-10-30',reason:'TEST Belge bulanık. Okunaklı kopyasını yükle.',reviewed_by:admin,reviewed_at:'2026-10-30T08:00:00Z',created_at:'2026-10-30T07:00:00Z',superseded:false,storage_missing:false};
+let trustOrder={id:orderId,customer_id:admin,provider_id:id,offering_id:offerings[0].id,service_name:service.name,scope:service.scope,exclusions:service.exclusions,provider_name:provider.name,district_id:district.id,district_name:district.name,address:'TEST Randevu adresi, Kadıköy',starts_at:new Date(Date.now()+600000).toISOString(),ends_at:new Date(Date.now()+4200000).toISOString(),total_minor:85000,commission_minor:8500,provider_gross_minor:76500,processor_fee_minor:null,currency:'TRY',payment_status:'UNPAID',status:'PROVIDER_ON_THE_WAY',expires_at:new Date(Date.now()+600000).toISOString(),created_at:new Date().toISOString(),arrival_verified_at:null,service_completed_at:null,customer_confirmed_at:null};
 const history=[],receipts=new Map();let missingSchema=false,actionRequests=0;
 const encode=v=>Buffer.from(JSON.stringify(v)).toString('base64url');
 const userFor=uid=>({id:uid,aud:'authenticated',role:'authenticated',email:`${uid===admin?'admin':'partner'}@example.invalid`,email_confirmed_at:new Date().toISOString(),app_metadata:{provider:'email'},user_metadata:{full_name:uid===admin?'TEST Admin':provider.name},identities:[],created_at:new Date().toISOString()});
@@ -35,9 +39,27 @@ const api=http.createServer(async(req,res)=>{
  else if(endpoint==='providers'){
   data=[{...provider,category_id:category.id,district_id:district.id,rating:0,review_count:0,last_active_at:null,profile_completion_score:83,iyzico_submerchant_status:'missing',service_categories:{name:category.name},districts:{name:district.name}}];
   if(!uid&&!provider.published)data=[];
+  if(u.searchParams.get('user_id')&&u.searchParams.get('user_id')!=='eq.'+owner)data=[];
  }
  else if(endpoint==='provider_applications')data=[{id:'ae000000-0000-4000-8000-000000000001',user_id:owner,status:'approved',created_at:provider.updated_at,full_name:provider.name,phone:provider.phone,experience_years:5,service_categories:{name:category.name},districts:{name:district.name},verification_document_path:null}];
  else if(endpoint==='service_categories')data=[category];else if(endpoint==='districts')data=[district];
+ else if(endpoint==='orders')data=[trustOrder];
+ else if(endpoint==='order_scope_changes'||endpoint==='order_status_events')data=[];
+ else if(endpoint==='provider_document_types')data=[{code:'identity',label:'Kimlik doğrulama kanıtı',purpose:'identity'},{code:'qualification',label:'MYK / ustalık / eşdeğer diploma',purpose:'professional'}];
+ else if(endpoint==='provider_document_rules')data=[];
+ else if(endpoint==='trust_application_summaries')data={[applicationId]:trustDoc.status};
+ else if(endpoint==='trust_application_file'){
+  if(missingSchema){res.statusCode=404;data={code:'PGRST202',message:'Isolated missing trust schema'};}
+  else data={id:applicationId,name:provider.name,phone:provider.phone,status:'approved',bound:true,category_id:category.id,district_id:district.id,documents:[trustDoc],legacy_status:'versioned',phone_verified:true,identity_verified:false,rules:[],history:[]};
+ }
+ else if(endpoint==='trust_admin_queue')data={documents:[{...trustDoc,application_id:applicationId,full_name:provider.name}],cases:[],overdue_confirmations:0,review_requests:1,unmatched_uploads:0};
+ else if(endpoint==='trust_review_document'){trustDoc={...trustDoc,status:input.p_status,reason:input.p_reason};data=null;}
+ else if(endpoint==='trust_issue_service_code')data={code:'483921',expires_at:new Date(Date.now()+900000).toISOString()};
+ else if(endpoint==='commerce_transition_order'){
+  if(input.p_status==='IN_PROGRESS'&&input.p_code!=='483921'){data={error:'invalid_service_code'};}
+  else if(input.p_status==='COMPLETED'&&uid===owner){trustOrder={...trustOrder,service_completed_at:new Date().toISOString()};data={status:'IN_PROGRESS',awaiting_customer:true};}
+  else{trustOrder={...trustOrder,status:input.p_status,...(input.p_status==='IN_PROGRESS'?{arrival_verified_at:new Date().toISOString()}:{}),...(input.p_status==='COMPLETED'?{customer_confirmed_at:new Date().toISOString()}:{})};data={status:trustOrder.status};}
+ }
  else if(endpoint==='service_catalog')data=[service];else if(endpoint==='service_variants')data=[];
  else if(endpoint==='provider_service_offerings')data=offerings;else if(endpoint==='provider_availability')data=hours;
  else if(endpoint==='app_settings')data=[{key:'maintenance_mode',value:'false'}];
@@ -85,8 +107,9 @@ try{
  browser=await chromium.launch({headless:true,channel:'msedge'});page=await browser.newPage({bypassCSP:true});page.setDefaultTimeout(45000);page.on('pageerror',e=>report.errors.push(e.message));
  await page.route(/^https?:\/\//,route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
  const session=async uid=>{const user=userFor(uid),token=tokenFor(uid);await page.context().clearCookies();await page.context().addCookies([{name:'sb-127-auth-token',value:'base64-'+encode({access_token:token,refresh_token:'TEST-refresh',expires_at:Math.floor(Date.now()/1000)+7200,expires_in:7200,token_type:'bearer',user}),url:base,sameSite:'Lax'}]);};
+ const hydrated=async name=>page.waitForFunction(label=>Array.from(document.querySelectorAll('button')).some(button=>button.textContent===label&&Object.keys(button).some(key=>key.startsWith('__reactProps')&&typeof button[key].onClick==='function')),name);
  const visit=async(route,width,name,heading)=>{await page.setViewportSize({width,height:900});await page.goto(base+route,{waitUntil:'domcontentloaded',timeout:120000});const expectedHeading=heading||({'/provider-dashboard':before?'Bugünkü işlerin.':'İşin burada.','/provider-dashboard/store':'Hizmetlerim','/provider-dashboard/calendar':'Takvimim','/provider-dashboard/profile':'Profil Bilgileri'})[route];if(expectedHeading)await page.getByRole('heading',{name:expectedHeading,exact:true}).first().waitFor();else await page.getByRole('heading',{level:1}).first().waitFor();await page.evaluate(()=>document.fonts.ready);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);report.widths.push({path:route,width,overflow});if(width===390&&!before){await page.addScriptTag({path:path.resolve('node_modules/axe-core/axe.min.js')});const scan=await page.evaluate(async()=>{const result=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']}});return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})).slice(0,8)}));});(report.accessibility??=[]).push({route,violations:scan});}if([390,1440].includes(width))await page.screenshot({path:path.join(output,`${name}-${width}.png`),fullPage:true,style:'nextjs-portal{display:none!important}'});};
- if(!profileOnly){
+ if(!profileOnly&&!trustOnly){
  await session(admin);
  if(!before)for(const width of [320,360,375,390,430,768,1024,1440])await visit('/admin',width,'admin-overview','İşler kontrol altında.');
  for(const width of [320,360,375,390,430,768,1024,1440])await visit('/admin/providers',width,'admin-list',before?'Ustalar':'Usta Yönetimi');
@@ -100,18 +123,32 @@ try{
   await fetch(apiUrl+'/__schema?missing=true');await page.goto(base+'/admin/providers');await page.getByRole('heading',{name:'Yönetim şeması güncel değil.'}).waitFor();assert.equal(await page.getByText('0 kayıt',{exact:true}).count(),0);await page.screenshot({path:path.join(output,'schema-missing.png'),fullPage:true});await fetch(apiUrl+'/__schema?missing=false');report.checks.push('Missing schema shows explicit blocker; never renders empty count');
  }
  }
- if(!before&&!profileOnly)for(const [route,name] of [['/admin/provider-applications','admin-applications'],['/admin/catalog','admin-catalog'],['/admin/interest','admin-interest'],['/admin/verifications','admin-verifications'],['/admin/marketplace?view=health','admin-health'],['/admin/audit','admin-audit']])for(const width of [320,360,375,390,430,768,1024,1440])await visit(route,width,name);
+ if(!before&&!profileOnly&&!trustOnly)for(const [route,name] of [['/admin/provider-applications','admin-applications'],['/admin/catalog','admin-catalog'],['/admin/interest','admin-interest'],['/admin/verifications','admin-verifications'],['/admin/marketplace?view=health','admin-health'],['/admin/audit','admin-audit']])for(const width of [320,360,375,390,430,768,1024,1440])await visit(route,width,name);
  await session(owner);
- const routes=profileOnly?['/provider-dashboard/profile']:before?['/provider-dashboard']:['/provider-dashboard','/provider-dashboard/store','/provider-dashboard/calendar','/provider-dashboard/profile'];
+ const routes=trustOnly?[]:profileOnly?['/provider-dashboard/profile']:before?['/provider-dashboard']:['/provider-dashboard','/provider-dashboard/store','/provider-dashboard/calendar','/provider-dashboard/profile'];
  for(const route of routes)for(const width of (profileOnly?[390,1440]:[320,360,375,390,430,768,1024,1440]))await visit(route,width,route.split('/').pop()||'partner',route==='/provider-dashboard'&&!before?'İşin burada.':null);
- if(!before&&!profileOnly){await page.setViewportSize({width:390,height:900});await page.goto(base+'/provider-dashboard/calendar',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>Array.from(document.querySelectorAll('form')).some(form=>Object.keys(form).some(key=>key.startsWith('__reactProps')&&typeof form[key].onSubmit==='function')));await page.getByRole('button',{name:'Takvimimi Kaydet',exact:true}).click();await page.getByRole('status').filter({hasText:'Takvimin kaydedildi.'}).waitFor();report.checks.push('Partner home, service/scope, calendar, private document form and profile form render; calendar sends real app POST to synthetic RPC; four mobile navigation tabs');}
+ if(!before&&!profileOnly&&!trustOnly){await page.setViewportSize({width:390,height:900});await page.goto(base+'/provider-dashboard/calendar',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>Array.from(document.querySelectorAll('form')).some(form=>Object.keys(form).some(key=>key.startsWith('__reactProps')&&typeof form[key].onSubmit==='function')));await page.getByRole('button',{name:'Takvimimi Kaydet',exact:true}).click();await page.getByRole('status').filter({hasText:'Takvimin kaydedildi.'}).waitFor();report.checks.push('Partner home, service/scope, calendar, private document form and profile form render; calendar sends real app POST to synthetic RPC; four mobile navigation tabs');}
 
- if(!before&&!profileOnly){
+ if(!before&&!profileOnly&&!trustOnly){
   await page.setViewportSize({width:390,height:900});await page.emulateMedia({reducedMotion:'reduce'});await page.goto(base+'/provider-dashboard',{waitUntil:'domcontentloaded'});
   const tabs=page.locator('.mobile-tab');assert.equal(await tabs.count(),4);for(const tab of await tabs.all()){const box=await tab.boundingBox();assert.ok(box&&box.width>=44&&box.height>=44,'mobile tabs have 44px targets');}
   await page.addStyleTag({content:'html{font-size:20px!important}'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'125% text remains usable');
   await page.setViewportSize({width:844,height:390});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'landscape has no overflow');
   report.checks.push('Four partner tabs have 44px touch targets; reduced-motion, 125% text zoom and 844x390 landscape checked');
+ }
+ if(trustOnly){
+  await session(admin);
+  for(const width of [320,375,390,430,768,1024,1440])for(const [route,name,heading] of [['/admin/provider-applications','applications','Usta başvuruları'],['/admin/provider-applications/'+applicationId,'application-file',provider.name],['/admin/verifications','trust-center','Güvenlik ve doğrulama']])await visit(route,width,name,heading);
+  await page.goto(base+'/admin/provider-applications/'+applicationId);await page.getByText('Belgeyi incele',{exact:true}).click();await page.getByLabel('Karar',{exact:true}).selectOption('in_review');await page.getByLabel('Gerekçe ve düzeltme yolu').fill('TEST belge incelemeye alındı.');await page.getByRole('button',{name:'Kararı kaydet',exact:true}).click();await page.getByRole('status').filter({hasText:'Gerekçeli karar işlem geçmişine kaydedildi.'}).waitFor();assert.equal(trustDoc.status,'in_review');
+  report.checks.push('Actual document review Server Action POST with version and reason reaches synthetic RPC and renders committed result');
+  await fetch(apiUrl+'/__schema?missing=true');await page.goto(base+'/admin/provider-applications/'+applicationId);await page.getByRole('heading',{name:'Belge bilgileri okunamadı'}).waitFor();await page.getByText('Belge yokluğu bu hatadan anlaşılamaz.').waitFor();await fetch(apiUrl+'/__schema?missing=false');
+  await session(owner);for(const width of [320,375,390,430,768,1024,1440])await visit('/provider-dashboard/profile',width,'partner-documents','Profil Bilgileri');
+  await session(admin);for(const width of [320,375,390,430,768,1024,1440])await visit('/orders/'+orderId,width,'customer-door-code','Ustanız yola çıktı');
+  await hydrated('Kapı kodu oluştur');await page.getByRole('button',{name:'Kapı kodu oluştur',exact:true}).click();await page.getByLabel('Kapı kodun').waitFor();assert.equal(await page.getByLabel('Kapı kodun').textContent(),'483921');
+  await session(owner);await page.goto(base+'/orders/'+orderId);await hydrated('Hizmete Başladım');await page.getByLabel('Müşterinin altı haneli kapı kodu').fill('483921');await page.getByRole('button',{name:'Hizmete Başladım',exact:true}).click();await page.getByRole('heading',{name:'Hizmet devam ediyor',exact:true}).waitFor();await hydrated('Hizmeti Tamamla');await page.getByRole('button',{name:'Hizmeti Tamamla',exact:true}).click();await page.getByRole('heading',{name:'Müşteri onayı bekleniyor',exact:true}).waitFor();assert.equal(trustOrder.status,'IN_PROGRESS');
+  await session(admin);for(const width of [320,375,390,430,768,1024,1440])await visit('/orders/'+orderId,width,'customer-confirmation','Hizmet devam ediyor');await hydrated('Hizmeti Onayla');await page.getByRole('button',{name:'Hizmeti Onayla',exact:true}).click();await page.getByRole('heading',{name:'Hizmet tamamlandı',exact:true}).first().waitFor();
+  report.checks.push('Actual local order API: customer requests code, assigned provider starts, provider completion leaves IN_PROGRESS, explicit customer confirmation completes; no geolocation granted or requested. Synthetic Auth/REST only, not hosted E2E');
+  await page.context().clearCookies();for(const width of [320,375,390,430,768,1024,1440])await visit('/provider-application',width,'short-onboarding','FUWU Partner başvurusu');
  }
  assert.equal(report.widths.filter(x=>x.overflow).length,0,'No horizontal overflow at every requested width');assert.deepEqual(report.errors,[]);assert.equal(report.accessibility?.flatMap(r=>r.violations).length||0,0,'No serious/critical WCAG violations in audited mobile screens');report.status='PASS_UI_FIXTURES_ONLY';if(profileOnly&&!process.env.CONTROL_UI_OUTPUT_DIR)for(const width of [390,1440])await fs.copyFile(path.join(output,`profile-${width}.png`),path.resolve('artifacts/control-center/after',`profile-${width}.png`));
 }catch(e){report.failure=e.message;await page?.screenshot({path:path.join(output,'failure.png'),fullPage:true}).catch(()=>{});report.apiRequests=requestLog.slice(-20);report.visibleDialogs=await page?.getByRole('dialog').count().catch(()=>null);process.exitCode=1;}

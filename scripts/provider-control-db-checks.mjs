@@ -20,6 +20,12 @@ export async function providerControlChecks(db, checks) {
   const service=await scalar("insert into service_catalog(category_id,slug,name,description,scope,image_url,pricing_type) values($1,'test-control-service','TEST Service','TEST complete service description','TEST scope included','/test-service.png','FIXED_PRICE') returning id",[cat]);
   const verificationApp=await scalar("insert into provider_applications(user_id,full_name,phone,category_id,district_id,status,verification_document_path) values($1,'TEST Verified Owner','+905550000001',$2,$3,'approved',$4) returning id",[owner,cat,district,owner+'/provider-applications/verified.pdf']);
   await db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[owner+'/provider-applications/verified.pdf']);
+  for (const type of ['identity','qualification']) {
+   const object=owner+'/provider-applications/control-'+type+'.pdf';
+   await db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[object]);
+   await db.query("insert into provider_document_uploads(path,owner_id,mime,size_bytes,sha256,scan_status) values($1,$2,'application/pdf',12,repeat('a',64),'unavailable')",[object,owner]);
+   await db.query("insert into provider_document_versions(application_id,owner_id,document_type,category_id,version,storage_path,status,reason,reviewed_by,reviewed_at) values($1,$2,$3,$4,1,$5,'approved','TEST manually reviewed version',$6,now())",[verificationApp,owner,type,cat,object,admin]);
+  }
   await as('authenticated',admin);
   let row=await current();
   await fails(actionSql,[pid,'approve_quality','TEST wrong fingerprint',row.version,randomUUID(),'0'.repeat(32),null,'real',{}],/profile_changed/);
@@ -138,10 +144,11 @@ export async function providerControlChecks(db, checks) {
   const application=await scalar("insert into provider_applications(user_id,full_name,phone,category_id,district_id,status) values($1,'TEST Document Owner','+905550000001',$2,$3,'approved') returning id",[owner,cat,district]);
   const objectPath=owner+'/provider-applications/isolated-test.pdf';
   await db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[objectPath]);
+  await db.query("insert into provider_document_uploads(path,owner_id,mime,size_bytes,sha256,scan_status) values($1,$2,'application/pdf',12,repeat('b',64),'unavailable')",[objectPath,owner]);
   await db.query('update providers set identity_verified=true,is_verified=true where id=$1',[pid]);
   await as('authenticated',owner);
   await scalar('select partner_attach_document($1,$2)',[application,objectPath]);
-  const docReady=await scalar('select provider_partner_readiness($1)',[pid]);assert.equal(docReady.has_document,true);assert.equal(docReady.identity_verified,false);assert.equal(docReady.professional_verified,false);
+  const docReady=await scalar('select provider_partner_readiness($1)',[pid]);assert.equal(docReady.has_document,true);assert.equal(docReady.identity_verified,true);assert.equal(docReady.professional_verified,false);
   assert.equal(await scalar('select status from provider_applications where id=$1',[application]),'pending');
   await as('postgres');
   assert.equal(await scalar("select has_function_privilege('anon','public.admin_provider_action(uuid,text,text,text,uuid,text,text,text,jsonb)','execute')"),false);

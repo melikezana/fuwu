@@ -1,0 +1,288 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "after",
+  "runtime": "development",
+  "widths": [
+    {
+      "path": "/admin/provider-applications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/orders/ae000000-0000-4000-8000-000000000003",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-application",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "Actual document review Server Action POST with version and reason reaches synthetic RPC and renders committed result",
+    "Actual local order API: customer requests code, assigned provider starts, provider completion leaves IN_PROGRESS, explicit customer confirmation completes; no geolocation granted or requested. Synthetic Auth/REST only, not hosted E2E"
+  ],
+  "errors": [],
+  "status": "PASS_UI_FIXTURES_ONLY",
+  "accessibility": [
+    {
+      "route": "/admin/provider-applications",
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "violations": []
+    },
+    {
+      "route": "/orders/ae000000-0000-4000-8000-000000000003",
+      "violations": []
+    },
+    {
+      "route": "/orders/ae000000-0000-4000-8000-000000000003",
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "violations": []
+    }
+  ]
+}

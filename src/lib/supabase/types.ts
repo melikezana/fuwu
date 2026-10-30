@@ -1,4 +1,5 @@
 import type { CommerceTables, CommerceFunctions } from "@/lib/commerce/types";
+import type { TrustTables, TrustFunctions } from "@/lib/trust/types";
 
 export type Json =
   | string
@@ -11,7 +12,7 @@ export type Json =
 // Replace this scaffold with generated Supabase CLI types after the database schema exists.
 export type Database = {
   public: {
-    Tables: CommerceTables & {
+    Tables: CommerceTables & TrustTables & {
       profiles: {
         Row: {
           id: string;
@@ -1059,7 +1060,7 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: CommerceFunctions & {
+    Functions: CommerceFunctions & TrustFunctions & {
       partner_save_profile: { Args: { p_provider_id: string; p_name: string; p_description: string }; Returns: undefined };
       partner_attach_document: { Args: { p_application_id: string; p_path: string }; Returns: undefined };
       admin_provider_directory: { Args: { p_search?: string; p_filter?: string; p_page?: number; p_size?: number; p_provider_id?: string | null }; Returns: Json };

@@ -69,7 +69,7 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
           {[
             [
               "Tahmini varış",
-              submittedRequest.estimatedArrivalText ?? "Usta kabul edince netleşir",
+              "Varış saatini ustanla teyit et",
             ],
             [
               "Bilgilendirilen usta",
@@ -83,9 +83,9 @@ export function HomeHeroFilters({ filterOptions }: HomeHeroFiltersProps) {
               ),
             ],
             [
-              "Doğrulama durumu",
+              "Talep referansı",
               submittedRequest.confirmationCode
-                ? "Kod üretildi"
+                ? "Referans oluşturuldu"
                 : "Usta kabul edince paylaşılacak",
             ],
           ].map(([label, value]) => (

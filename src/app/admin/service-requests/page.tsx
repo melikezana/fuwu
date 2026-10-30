@@ -789,7 +789,7 @@ export default async function AdminServiceRequestsPage({
                       {request.urgencyType === "emergency" ? (
                         <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
                           {request.confirmationCode ?? "Kod bekliyor"} ·{" "}
-                          {request.estimatedArrivalText ?? liveTrackingSoonText}
+                          {liveTrackingSoonText}
                         </p>
                       ) : null}
                     </td>

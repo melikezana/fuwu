@@ -19,6 +19,8 @@ const errors: Record<string, [number, string]> = {
   invalid_selection: [400, "Seçimlerini kontrol edip tekrar dene."],
   invalid_address: [400, "Adresini kontrol et."],
   invalid_completion_code: [400, "Tamamlama kodunu kontrol et."],
+  invalid_service_code: [400, "Kod doğrulanamadı. Müşteri yeni kod ve randevuyu kontrol etmeli."],
+  scope_approval_required: [409, "Ek iş önerisi müşteri tarafından yanıtlanmalı."],
   completion_code_locked: [429, "Bir süre bekleyip tekrar dene."],
   code_locked: [429, "Bir süre bekleyip tekrar dene."],
   too_many_holds: [429, "Mevcut siparişini tamamlayıp tekrar dene."],

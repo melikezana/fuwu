@@ -1,0 +1,14 @@
+.trust-file { display:grid; gap:1rem; margin-block:1rem; min-width:0; }
+.trust-row,.trust-filters { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; justify-content:space-between; margin-block:.75rem; }
+.trust-filters { justify-content:flex-start; }
+.trust-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr)); gap:1rem; margin-block:1rem; }
+.trust-stats strong { font-size:1.75rem; color:var(--brand-navy); }
+.trust-document { border-top:1px solid var(--border); padding-block:1rem; overflow-wrap:anywhere; min-width:0; }
+.trust-document h3 { font-size:1rem; margin:0; }
+.trust-file summary,.trust-document summary { cursor:pointer; min-height:44px; display:flex; align-items:center; font-weight:600; }
+.trust-decision { display:grid; gap:.75rem; margin-block:1rem; }
+.trust-decision textarea,.trust-onboarding input,.trust-onboarding select { width:100%; min-width:0; font-size:1rem; }
+.trust-onboarding { display:grid; gap:.75rem; }
+.trust-file p,.trust-decision p { overflow-wrap:anywhere; }
+.trust-file :is(a,button,input,select,textarea):focus-visible,.trust-onboarding :focus-visible { outline:3px solid var(--brand-orange); outline-offset:3px; }
+.trust-file :is(a,button),.trust-decision button,.trust-onboarding button { min-height:44px; }

@@ -8,7 +8,7 @@ import {
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
-import { validateProviderApplicationInput } from "@/lib/validations";
+import { validateProviderApplicationInput, sanitizePhone } from "@/lib/validations";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { writeAuditLog } from "@/services/audit";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
@@ -95,9 +95,6 @@ function getSupabaseDebugPayload(error: unknown) {
 
   return {
     code: getSupabaseDebugValue(record.code),
-    details: getSupabaseDebugValue(record.details),
-    hint: getSupabaseDebugValue(record.hint),
-    message: getSupabaseDebugValue(record.message),
   };
 }
 
@@ -232,6 +229,10 @@ async function getRequiredProviderApplicationUserId(
     throw new AuthError("Provider application requires an authenticated user.", {
       publicMessage: "Giriş yaparak devam etmelisin.",
     });
+  }
+
+  if (!user.phone_confirmed_at || sanitizePhone(user.phone || "") !== sanitizePhone(profileDetails.phone)) {
+    throw new ValidationError("Verified phone required.", { publicMessage: "Başvurudaki telefon numarasını önce SMS ile doğrula." });
   }
 
   try {

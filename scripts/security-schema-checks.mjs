@@ -15,12 +15,12 @@ export async function securitySchemaChecks(db, checks) {
     await assert.rejects(db.query("update profiles set role='admin' where id=auth.uid()"),/role|permission denied|forbidden/);
     await assert.rejects(db.query("select commerce_admin_summary()"),/forbidden/);
     checks.push("Security schema: real profile ACL/trigger and admin RPC reject customer");
-    await db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[owner+"/provider-applications/fixture.pdf"]);
-    assert.equal((await db.query("select count(*)::int n from storage.objects where bucket_id='provider-verification-documents'")).rows[0].n,1);
+    await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[owner+"/provider-applications/fixture.pdf"]),/row-level security/);
+    assert.equal((await db.query("select count(*)::int n from storage.objects where bucket_id='provider-verification-documents'")).rows[0].n,0);
     await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('provider-verification-documents',$1)",[other+"/stolen.pdf"]),/row-level security/);
     await db.query("select set_config('request.jwt.claim.sub',$1,false)",[other]);
     assert.equal((await db.query("select count(*)::int n from storage.objects where bucket_id='provider-verification-documents'")).rows[0].n,0);
-    checks.push("Security schema: private verification document actual RLS permits owner, denies other user/path spoofing");
+    checks.push("Security schema: private documents deny direct browser upload/read even to owner; transfers require validated server route; other user/path spoofing denied");
   } finally {await db.query("reset role");}
   await db.query("set role anon");
   try {assert.equal((await db.query("select count(*)::int n from storage.objects where bucket_id='provider-verification-documents'")).rows[0].n,0);}

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { PartnerProfileForms } from "@/components/dashboard/PartnerProfileForms";
+import { PartnerDocuments } from "@/components/trust/PartnerDocuments";
 import { GalleryManager } from "@/components/dashboard/GalleryManager";
 import { ProfileImageUploader } from "@/components/dashboard/ProfileImageUploader";
 import {
@@ -282,6 +283,7 @@ export default async function ProviderDashboardProfilePage({
           reason={providerAccess.reason}
         />
       )}
+      <PartnerDocuments />
     </ProviderDashboardShell>
   );
 }

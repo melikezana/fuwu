@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { getServerAuthContext } from "@/services/auth/server";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
-import { uploadProviderVerificationDocument } from "@/services/storage/providerVerificationDocuments";
+import { uploadTrustDocument } from "@/services/trust/documents";
 type Result = { ok: boolean; message: string };
 export async function savePartnerProfile(_: Result, form: FormData): Promise<Result> {
  try {
@@ -33,9 +33,13 @@ export async function attachPartnerDocument(_: Result, form: FormData): Promise<
  if (!rate.allowed) return { ok: false, message: "Saatlik belge yükleme sınırına ulaştın. Daha sonra tekrar dene." };
  const { data: application } = await supabase.from("provider_applications").select("id").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
  if (!application) return { ok: false, message: "Belge eklenecek başvuru bulunamadı. Başvuru bilgilerini kontrol et." };
- const upload = await uploadProviderVerificationDocument(supabase, file);
- if (upload.status !== "uploaded") return { ok: false, message: upload.message || "Belge yüklenemedi." };
- const { error } = await supabase.rpc("partner_attach_document", { p_application_id: application.id, p_path: upload.path });
+ const type = String(form.get("documentType") ?? "");
+ if (!/^[a-z_]{3,60}$/.test(type)) return { ok: false, message: "Belgenin türünü seç." };
+ const upload = await uploadTrustDocument(file);
+ if (!upload.path) return { ok: false, message: upload.message || "Belge yüklenemedi." };
+ const expires = String(form.get("expiresOn") ?? "");
+ if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) return { ok: false, message: "Son geçerlilik tarihini kontrol et." };
+ const { error } = await supabase.rpc("trust_attach_document", { p_application_id: application.id, p_path: upload.path, p_type: type, p_expires_on: expires || null });
  if (error) return { ok: false, message: "Belge özel alana yüklendi, ancak başvuruyla eşleştirilemedi. Destek ekibiyle iletişime geç." };
  for (const path of ["/provider-dashboard", "/provider-dashboard/profile", "/admin/providers", "/admin/verifications"]) revalidatePath(path);
  return { ok: true, message: "Belgen alındı. Yetkili incelemesinden sonra doğrulama durumu güncellenecek." };

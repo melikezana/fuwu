@@ -452,13 +452,13 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
 
               <div className="mt-5 rounded-lg bg-[#fffdf9] p-4 ring-1 ring-[rgba(10,37,64,0.08)]">
                 <p className="text-xs font-bold uppercase text-[var(--muted)]">
-                  6 haneli kod
+                  Talep referansı
                 </p>
                 <p className="mt-2 font-mono text-4xl font-extrabold tracking-[0.24em] text-[var(--brand-navy)]">
                   {request.confirmation_code ?? "------"}
                 </p>
                 <p className="mt-3 text-xs font-semibold leading-5 text-[var(--muted)]">
-                  Bu kod yalnızca müşteri hesabında gösterilir. Ustaya ödeme bu kod girilmeden serbest bırakılmaz.
+                  Bu eski talep referansı kapı doğrulaması veya hizmet onayı yerine geçmez. Online ödeme ve satın alma henüz açılmadı.
                 </p>
               </div>
 

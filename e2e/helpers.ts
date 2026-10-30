@@ -122,13 +122,21 @@ export async function loginWithEmailMagicLink(
     email = uniqueE2EEmail("customer"),
     nextPath = "/account",
     role = "customer",
+    existingUserId,
   }: {
     email?: string;
     nextPath?: string;
     role?: TestUserRole;
+    existingUserId?: string;
   } = {},
 ) {
   skipUnlessLocalSupabase();
+  if (existingUserId) {
+    if (!/@fuwu\.test$/i.test(email)) throw new Error("BLOCKED: only synthetic existing identities are allowed");
+    const { data, error } = await getTestAdminClient().auth.admin.getUserById(existingUserId);
+    if (error || data.user?.email !== email) throw new Error("BLOCKED: prepared test identity does not match appointment");
+    createdTestUsers.set(email, existingUserId);
+  }
   await ensureTestUserRole(email, role);
   const requestedAt = Date.now();
 

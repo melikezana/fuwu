@@ -22,6 +22,7 @@ import "@/styles/fusion.css";
 import "@/styles/premium.css";
 import "@/styles/mobile-experience.css";
 import "@/styles/control-center.css";
+import "@/styles/trust.css";
 
 const inter = localFont({
   display: "optional",

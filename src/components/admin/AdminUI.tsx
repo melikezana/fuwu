@@ -141,7 +141,7 @@ const allAdminNavItems: Array<{
     href: "/admin/verifications",
     icon: FileCheck,
     key: "verifications",
-    label: "Doğrulamalar",
+    label: "Güvence",
   },
   {
     href: "/admin/notifications",

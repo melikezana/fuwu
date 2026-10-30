@@ -49,19 +49,6 @@ export async function verificationDocumentContentType(file: File) {
   } catch { return null; }
 }
 
-function createVerificationDocumentPath(
-  userId: string,
-  file: File,
-  extension: VerificationDocumentExtension,
-) {
-  const randomId =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-  return `${userId}/provider-applications/${new Date().getFullYear()}/${randomId}.${extension}`;
-}
-
 export function validateProviderVerificationDocumentFile(file: File | null) {
   if (!file) {
     return null;
@@ -108,6 +95,9 @@ export async function uploadProviderVerificationDocument(
 
   const verifiedContentType=await verificationDocumentContentType(file);
   if(!verifiedContentType) return {status:"skipped",path:null,message:"Belge içeriği PDF, JPEG veya PNG olmalı."};
+  const extensionMime = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png" };
+  const extension = getFileExtension(file.name);
+  if (!extension || extensionMime[extension] !== verifiedContentType || (file.type && file.type !== verifiedContentType)) return { status: "skipped", path: null, message: "Belgenin uzantısı, dosya türü ve içeriği eşleşmeli." };
 
   try {
     const {
@@ -123,19 +113,10 @@ export async function uploadProviderVerificationDocument(
       };
     }
 
-    const extension = getFileExtension(file.name) ?? "pdf";
-    const path = createVerificationDocumentPath(user.id, file, extension);
-    const { data, error } = await supabase.storage
-      .from(PROVIDER_VERIFICATION_DOCUMENTS_BUCKET)
-      .upload(path, file, {
-        cacheControl: "3600",
-        contentType: verifiedContentType,
-        upsert: false,
-      });
-
-    if (error) {
-      throw error;
-    }
+    const form = new FormData(); form.set("document", file);
+    const response = await fetch("/api/provider-documents/upload", { method: "POST", body: form });
+    const data = await response.json();
+    if (!response.ok || typeof data.path !== "string") throw new Error("document_upload_failed");
 
     return {
       status: "uploaded",

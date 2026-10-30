@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ReportProvider } from "@/components/trust/ReportProvider";
 import Link from "next/link";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ArrowLeft, ArrowRight, BriefcaseBusiness, CalendarDays, Home, MapPin, MessageSquarePlus, Star, UserSearch } from "lucide-react";
@@ -193,6 +194,7 @@ export default async function ProviderProfilePage({ params }: ProviderProfilePag
             </header>
             <nav aria-label="Profil bölümleri" className="market-profile-sections"><a href="#provider-services">Hizmetler</a><a href="#reviews">Yorumlar</a><a href="#about-provider">Hakkında</a>{galleryImages.length ? <a href="#portfolio">İş fotoğrafları</a> : null}</nav>
             <ProviderPurchases providerId={provider.id} catalog={catalog} />
+            {!isOwnProvider && <ReportProvider providerId={provider.id} canReport={Boolean(authenticatedUserId)} />}
             <section className="market-profile-section"><h2>Çalışma düzeni</h2><ProviderSchedule providerId={provider.id} /></section>
             <details className="market-profile-section" id="about-provider"><summary>Usta hakkında</summary><p className="market-long-copy">{provider.description || "Usta henüz bir tanıtım paylaşmadı."}</p></details>
             {galleryImages.length ? <section className="market-profile-section" id="portfolio"><p className="market-eyebrow">USTANIN PAYLAŞTIKLARI</p><h2>İş fotoğrafları</h2><ProviderGalleryGrid images={galleryImages} providerName={provider.name} /></section> : isOwnProvider ? <section className="market-profile-section"><h2>İşlerini göster</h2><p className="market-help-text">Tamamladığın işlerin fotoğraflarını ekle.</p><Button href={appRoutes.providerDashboardProfile} variant="secondary">Galeri Ekle</Button></section> : null}

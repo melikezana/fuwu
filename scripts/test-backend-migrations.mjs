@@ -9,6 +9,8 @@ import { securitySchemaChecks } from "./security-schema-checks.mjs";
 import { compareProviderSchema } from "./compare-provider-schema.mjs";
 import { providerControlChecks, providerControlRace } from "./provider-control-db-checks.mjs";
 import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
+import { trustChecks } from "./trust-db-checks.mjs";
+import { sourceHash } from "./testing/evidence.mjs";
 
 // No env file or remote URL is read. Bind only loopback, always stop our own cluster.
 const runtime = path.resolve("artifacts/commerce-test-runtime");
@@ -21,7 +23,7 @@ const listener = net.createServer(); await new Promise(r => listener.listen(0,"1
 const port = listener.address().port; await new Promise(r => listener.close(r));
 const upgrade = process.argv.includes("--upgrade");
 const productionUpgrade = process.argv.includes("--production-upgrade");
-const report = { scope: "All repository migrations on disposable PostgreSQL; platform DDL shim, not hosted staging/Auth/Storage E2E", scenario: productionUpgrade ? "observed_production_versions_upgrade" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
+const report = { sourceHash: sourceHash(), startedAt: new Date().toISOString(), scope: "All repository migrations on disposable PostgreSQL; platform DDL shim, not hosted staging/Auth/Storage E2E", scenario: productionUpgrade ? "observed_production_versions_upgrade" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
 let server, db;
 try {
   execFileSync(initdb,["-D",data,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{windowsHide:true,stdio:"pipe"});
@@ -71,7 +73,12 @@ try {
     report.checks.push('Upgrade from exact 46 observed production migration versions plus populated synthetic providers/applications/reviews/requests preserves every existing column; deferred dependencies applied in order');
   }
   if (upgrade) {
-    assert.deepEqual(await preserved(),snapshot);
+    const upgraded=await preserved();
+    for (const [table,rows] of Object.entries(snapshot)) for (const original of rows) {
+      const after=upgraded[table].find(r=>r.row.id===original.row.id)?.row;
+      assert.ok(after,table+' historical row remains');
+      assert.deepEqual(Object.fromEntries(Object.keys(original.row).map(k=>[k,after[k]])),original.row,table+' original columns preserved');
+    }
     assert.equal((await db.query("select state from commerce_settlement_operations where order_id='97000000-0000-4000-8000-000000000001'")).rows[0]?.state,'MANUAL_REVIEW');
     assert.equal((await db.query("select commerce_claim_settlement('97000000-0000-4000-8000-000000000001','release') claim")).rows[0].claim.claimed,false);
     report.checks.push("Populated real-schema upgrade preserves orders/reviews/transactions/providers/categories byte-for-byte and quarantines historical IN_FLIGHT");
@@ -86,6 +93,7 @@ try {
   await prelaunchChecks(db, report.checks);
   await providerControlChecks(db, report.checks);
   await providerControlRace(db, report.checks);
+  await trustChecks(db, report.checks);
   await compareProviderSchema(db, output);
   await fs.writeFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
   console.log(`PASS ${files.length} migrations, ${report.scenario}, ${report.checks.length} checks`);

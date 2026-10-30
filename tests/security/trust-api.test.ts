@@ -1,0 +1,25 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
+const { auth, server, rpc, sign, rate } = vi.hoisted(() => ({ auth: vi.fn(), server: vi.fn(), rpc: vi.fn(), sign: vi.fn(), rate: vi.fn() }));
+vi.mock("@/services/auth/server", () => ({ getServerAuthContext: auth }));
+vi.mock("@/lib/supabase/serviceRole", () => ({ createSupabaseServiceRoleClient: server }));
+vi.mock("@/lib/security/rateLimitRedis", () => ({ checkRateLimitWithRedis: rate }));
+vi.mock("@/lib/logger", () => ({ logWarn: vi.fn(), logInfo: vi.fn(), logError: vi.fn() }));
+import { POST } from "@/app/api/commerce/orders/[id]/route";
+import { GET as documentGET } from "@/app/api/provider-documents/[id]/route";
+import { POST as uploadPOST } from "@/app/api/provider-documents/upload/route";
+import { uploadTrustDocument } from "@/services/trust/documents";
+import { confirmPaymentByCustomerAction } from "@/app/account/requests/actions";
+const id = "fa000000-0000-4000-8000-000000000001", params = { params: Promise.resolve({ id }) };
+const request = (body: object, origin = "https://fuwu.test") => new NextRequest(`https://fuwu.test/api/commerce/orders/${id}`, { method: "POST", headers: { origin, "content-type": "application/json" }, body: JSON.stringify(body) });
+beforeEach(() => { vi.clearAllMocks(); auth.mockResolvedValue({ user: { id }, supabase: { rpc }, profile: { role: "provider" } }); server.mockReturnValue({ storage: { from: () => ({ createSignedUrl: sign }) } }); rate.mockResolvedValue({ allowed: true }); });
+describe("trust server boundaries", () => {
+ it("keeps legacy payment confirmation closed by default", async () => { vi.stubEnv("FUWU_SANDBOX_CHECKOUT_ENABLED", "false"); expect(await confirmPaymentByCustomerAction(id, "123456")).toMatchObject({ ok: false }); expect(rpc).not.toHaveBeenCalled(); });
+ it("rejects missing session and forged origin before service-code mutation", async () => { auth.mockResolvedValue({ user: null, supabase: null }); expect((await POST(request({ action: "service_code" }), params)).status).toBe(401); expect((await POST(request({ action: "service_code" }, "https://attacker.invalid"), params)).status).toBe(403); expect(rpc).not.toHaveBeenCalled(); });
+ it("returns only safe denied and invalid-code messages", async () => { rpc.mockResolvedValueOnce({ error: { code: "42501", message: "private DB path/password" } }); const denied = await POST(request({ action: "service_code" }), params); expect(denied.status).toBe(403); expect(JSON.stringify(await denied.json())).not.toContain("password"); rpc.mockResolvedValueOnce({ data: { error: "invalid_service_code" } }); expect((await POST(request({ status: "IN_PROGRESS", code: "000000" }), params)).status).toBe(400); });
+ it("cannot turn an unowned document into a signed URL", async () => { rpc.mockResolvedValue({ data: null, error: { code: "42501" } }); const response = await documentGET(new NextRequest(`https://fuwu.test/api/provider-documents/${id}`), params); expect(response.status).toBe(403); expect(sign).not.toHaveBeenCalled(); expect(response.headers.get("cache-control")).toBe("private, no-store"); });
+ it("never grants file access when access audit fails", async () => { rpc.mockResolvedValue({ data: null, error: { code: "08006" } }); expect((await documentGET(new NextRequest(`https://fuwu.test/api/provider-documents/${id}`), params)).status).toBe(503); expect(sign).not.toHaveBeenCalled(); });
+ it("fails closed when server-only Storage configuration is unavailable", async () => { server.mockReturnValue(null); expect((await documentGET(new NextRequest(`https://fuwu.test/api/provider-documents/${id}`), params)).status).toBe(503); expect(rpc).not.toHaveBeenCalled(); });
+ it("checks MIME, extension and magic bytes before accepting an upload", async () => { const fake = await uploadTrustDocument(new File(["<script>fake</script>"], "identity.pdf", { type: "application/pdf" })); expect(fake.path).toBeUndefined(); const mismatch = await uploadTrustDocument(new File(["%PDF-1.7\n"], "identity.jpg", { type: "image/jpeg" })); expect(mismatch.path).toBeUndefined(); expect(server).not.toHaveBeenCalled(); });
+ it("denies anonymous upload before reading multipart bytes", async () => { auth.mockResolvedValue({ user: null }); const response = await uploadPOST(new NextRequest("https://fuwu.test/api/provider-documents/upload", { method: "POST", headers: { origin: "https://fuwu.test" }, body: "invalid" })); expect(response.status).toBe(401); expect(server).not.toHaveBeenCalled(); });
+});

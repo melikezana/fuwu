@@ -43,10 +43,6 @@ const requiredProviderFields: Array<{
   { field: "phone", message: "Telefon numarası zorunludur." },
   { field: "categoryId", message: "Hizmet kategorisi zorunludur." },
   { field: "districtId", message: "İlçe seçimi zorunludur." },
-  { field: "experienceYears", message: "Deneyim yılı zorunludur." },
-  { field: "availability", message: "Uygunluk alanı zorunludur." },
-  { field: "hasEquipment", message: "Ekipman durumu zorunludur." },
-  { field: "introduction", message: "Tanıtım alanı zorunludur." },
 ];
 
 export function validateProviderApplicationInput(

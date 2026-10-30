@@ -7,10 +7,10 @@ const verificationCodeMinimum = 100000;
 const verificationCodeRange = 900000;
 
 export function generateCustomerVerificationCode() {
-  const randomValue =
-    typeof globalThis.crypto !== "undefined" && "getRandomValues" in globalThis.crypto
-      ? globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % verificationCodeRange
-      : Math.floor(Math.random() * verificationCodeRange);
+  const limit = Math.floor(2 ** 32 / verificationCodeRange) * verificationCodeRange;
+  let value: number;
+  do { value = globalThis.crypto.getRandomValues(new Uint32Array(1))[0]; } while (value >= limit);
+  const randomValue = value % verificationCodeRange;
 
   return String(randomValue + verificationCodeMinimum).padStart(6, "0");
 }
@@ -32,7 +32,7 @@ export async function generateUniqueCustomerVerificationCode(
       .maybeSingle();
 
     if (error) {
-      console.warn("[Fuwu] Verification code uniqueness check failed.", { error });
+      console.warn("[Fuwu] Legacy reference uniqueness check failed.", { code: error.code });
       return code;
     }
 

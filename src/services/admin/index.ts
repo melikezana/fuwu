@@ -47,7 +47,9 @@ import { calculateEstimatedArrivalText } from "@/services/tracking";
 import { authAccessMessages, hasAdminRole } from "@/services/auth/constants";
 import { getServerAuthContext } from "@/services/auth/server";
 import { writeAuditLog } from "@/services/audit";
-import { PROVIDER_VERIFICATION_DOCUMENTS_BUCKET } from "@/services/storage";
+import { legacyDocumentIssue, trustReadIssue } from "@/lib/trust/documents";
+import type { DocumentIssue } from "@/lib/trust/types";
+import { documentStatusLabels } from "@/lib/trust/types";
 
 type ProviderRow = Database["public"]["Tables"]["providers"]["Row"];
 type ProviderApplicationRow =
@@ -144,6 +146,7 @@ type AdminProviderApplicationRecord = Pick<
   | "status"
   | "introduction"
   | "verification_document_path"
+  | "verification_document_url"
 > & {
   districts: MaybeRelation;
   service_categories: MaybeRelation;
@@ -277,6 +280,8 @@ export type AdminProviderApplication = {
   phone: string;
   status: string;
   verificationDocumentUrl: string | null;
+  documentIssue: DocumentIssue;
+  documentStatus?: string;
 };
 
 export type AdminServiceRequest = {
@@ -1006,7 +1011,7 @@ async function approveExistingProviderForApplicant(
     experience_years: application.experience_years,
     is_active: true,
     is_approved: true,
-    is_verified: true,
+    is_verified: false,
     last_active_at: new Date().toISOString(),
     name: payload.name,
     phone: payload.phone,
@@ -1184,7 +1189,7 @@ async function createProviderFromApplication(
     experience_years: application.experience_years,
     is_active: true,
     is_approved: true,
-    is_verified: true,
+    is_verified: false,
     last_active_at: new Date().toISOString(),
     name,
     phone,
@@ -2370,6 +2375,7 @@ export async function getAdminProviderApplications(
         experience_years,
         introduction,
         verification_document_path,
+        verification_document_url,
         status,
         created_at,
         service_categories(name),
@@ -2388,27 +2394,11 @@ export async function getAdminProviderApplications(
     return createEmptyReadResult(getAdminReadError(error));
   }
 
+  const summaries = await supabase.rpc("trust_application_summaries", { p_ids: (data ?? []).map(row => row.id) });
+  const documentStates = summaries.data && typeof summaries.data === "object" && !Array.isArray(summaries.data) ? summaries.data : {};
   const applications = await Promise.all(
     ((data ?? []) as unknown as AdminProviderApplicationRecord[]).map(
       async (application) => {
-        let verificationDocumentUrl: string | null = null;
-
-        if (application.verification_document_path) {
-          const { data: signedUrlData, error: signedUrlError } =
-            await supabase.storage
-              .from(PROVIDER_VERIFICATION_DOCUMENTS_BUCKET)
-              .createSignedUrl(application.verification_document_path, 5 * 60);
-
-          if (signedUrlError) {
-            handleServiceError(signedUrlError, {
-              logContext:
-                "Admin provider verification document signed URL creation failed.",
-              publicMessage: "Başvuru belgesi şu anda görüntülenemiyor.",
-            });
-          } else {
-            verificationDocumentUrl = signedUrlData.signedUrl;
-          }
-        }
 
         return {
           category: sanitizeText(
@@ -2423,7 +2413,9 @@ export async function getAdminProviderApplications(
           id: application.id,
           phone: sanitizePhone(application.phone) || "Belirtilmedi",
           status: application.status,
-          verificationDocumentUrl,
+          verificationDocumentUrl: null,
+          documentIssue: summaries.error ? trustReadIssue(summaries.error) : legacyDocumentIssue(application.verification_document_path, application.verification_document_url),
+          documentStatus: summaries.error ? documentStatusLabels.technical_error : documentStatusLabels[String(documentStates[application.id]) as keyof typeof documentStatusLabels],
         };
       },
     ),

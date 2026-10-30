@@ -36,7 +36,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "artifacts/prelaunch/runtime-before",
+    "artifacts",
     "fuwu",
     "node_modules"
   ]
