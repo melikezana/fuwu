@@ -14,7 +14,7 @@ console.log(`E2E Auth/DB: ${safety.ready ? "test target validated" : safety.reas
 export default defineConfig({
   expect: { timeout: 10_000 }, fullyParallel: false, retries: process.env.CI ? 1 : 0,
   testDir: "./e2e", timeout: 60_000, workers: 1,
-  reporter: [["list"], ["json", { outputFile: "artifacts/security-testing/e2e.json" }]],
+  reporter: [[process.env.CI ? "github" : "list"], ["json", { outputFile: "artifacts/security-testing/e2e.json" }]],
   use: { baseURL, trace: "off", screenshot: "off", video: "off" },
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,

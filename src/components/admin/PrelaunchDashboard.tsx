@@ -13,11 +13,13 @@ export function PrelaunchDashboard({ snapshot }: { snapshot: PrelaunchSnapshot |
     { label: "Eksik profil ve mağaza", value: readiness?.incomplete, href: "/admin/providers?filter=incomplete" },
     { label: "Doğrulama gereken usta", value: readiness?.missing_verification, href: "/admin/providers?filter=verification" },
     { label: "İzinli müşteri ön kaydı", value: snapshot.interest, href: "/admin/interest" },
+    { label: "Aktif kategoriler", value: snapshot.active_categories, href: "/admin/catalog" },
   ];
   return <div className="prelaunch-dashboard">
     <section aria-label="Pazaryeri özeti" className="control-overview-metrics">{metrics.map(metric => <Link href={metric.href} key={metric.label}><span>{metric.label}<ArrowUpRight size={18} aria-hidden /></span><strong>{metric.value === undefined ? "Bilinmiyor" : metric.value.toLocaleString("tr-TR")}</strong></Link>)}</section>
     {!readiness && <p className="commerce-notice" role="status">Hazırlık ölçümleri için güncel migration gerekiyor. Bilinmeyen değerler sıfır gösterilmez.</p>}
     <section className="control-system-notice" aria-labelledby="control-system-title"><AlertTriangle size={23} aria-hidden /><div><h2 id="control-system-title">Sistem ve güvenlik takibi</h2><p>{settings.launch_security_blockers || "Güncel güvenlik ve staging doğrulama kanıtlarını kontrol et."}</p><Link className="control-review-link" href="/admin/marketplace?view=health">Sistem Sağlığını İncele <ArrowUpRight size={16} aria-hidden /></Link></div></section>
+    <Link className="commerce-secondary" href="/admin/verifications">Belge inceleme kuyruğunu aç</Link>
     <CapacityOverview rows={snapshot.capacity ?? snapshot.pilot} pilotOnly={!snapshot.capacity} />
     <details className="commerce-panel control-launch-details"><summary>Lansman hazırlığı ve kayıt kaynakları</summary>
       <p className="control-payment-closed"><LockKeyhole size={18} aria-hidden /> Canlı ödeme kapalı. Online satın alma henüz açılmadı.</p>

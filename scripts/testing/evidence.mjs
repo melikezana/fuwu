@@ -18,7 +18,7 @@ export function saveEvidence(name, evidence) {
   fs.writeFileSync(path.join(output,`${name}-result.json`),JSON.stringify(evidence,null,2));
 }
 export function evaluateRelease(records, hash, now=Date.now()) {
-  const required=["typecheck","lint","unit","coverage","integration","security","build","commerce-e2e","google-oauth","iyzico-sandbox","staging-schema","p0-review"];
+  const required=["typecheck","lint","unit","coverage","integration","security","build","commerce-e2e","prelaunch-e2e","google-oauth","iyzico-sandbox","staging-schema","p0-review"];
   const gates=required.map(name=>{
     const r=records[name];
     if(!r) return {name,status:"BLOCKED",reason:"No current execution evidence"};

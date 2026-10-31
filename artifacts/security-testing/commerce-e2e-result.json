@@ -1,11 +1,11 @@
 {
   "status": "BLOCKED",
-  "sourceHash": "34f02831ff94ceaf6b963787e28ff167650a7935d07ad50aea06413308be3446",
-  "startedAt": "2026-10-30T21:47:31.400Z",
-  "completedAt": "2026-10-30T21:47:31.425Z",
+  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
+  "startedAt": "2026-10-30T22:48:12.351Z",
+  "completedAt": "2026-10-30T22:48:12.396Z",
   "executed": false,
   "passed": 0,
   "failed": 0,
   "skipped": 0,
-  "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; see environment policy. No write test ran."
+  "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran"
 }

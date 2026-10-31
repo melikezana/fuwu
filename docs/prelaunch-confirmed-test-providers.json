@@ -1,0 +1,6 @@
+[
+  { "providerId": "4d0d8f4a-692e-4792-9fa6-5877ba76c55f", "confirmedTest": true, "evidence": "Owner confirmed all four existing provider profiles are test records in the final readiness request, 2026-10-31; read-only UUID inventory verified." },
+  { "providerId": "78bc496a-7f93-43fb-8748-33b5d6cde252", "confirmedTest": true, "evidence": "Owner confirmed all four existing provider profiles are test records in the final readiness request, 2026-10-31; read-only UUID inventory verified." },
+  { "providerId": "8a0fd4ad-4b34-4089-8737-3cebc64e4295", "confirmedTest": true, "evidence": "Owner confirmed all four existing provider profiles are test records in the final readiness request, 2026-10-31; read-only UUID inventory verified." },
+  { "providerId": "ec711057-c9a3-4a03-9737-4f560e3c39cb", "confirmedTest": true, "evidence": "Owner confirmed all four existing provider profiles are test records in the final readiness request, 2026-10-31; read-only UUID inventory verified." }
+]

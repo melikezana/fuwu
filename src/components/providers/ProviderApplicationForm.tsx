@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { submitProviderApplicationAction } from "@/app/provider-application/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { sanitizePhone } from "@/lib/validations/phone";
+import { useHydrated } from "@/lib/useHydrated";
 import type { ProviderApplicationOption } from "@/types/provider";
 export function ProviderApplicationForm({ authenticatedUserId, categories, districts, isConfigured, lookupError }: { authenticatedUserId?: string | null; categories: ProviderApplicationOption[]; districts: ProviderApplicationOption[]; isConfigured: boolean; lookupError?: string | null }) {
  const router = useRouter();
+ const ready = useHydrated();
  const [name, setName] = useState(""), [phone, setPhone] = useState(""), [category, setCategory] = useState(""), [district, setDistrict] = useState("");
  const [otp, setOtp] = useState(""), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
  async function verifyPhone() {
@@ -28,7 +30,7 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
    }
   } catch { setMessage("Telefon doğrulama hizmetine ulaşılamadı."); } finally { setBusy(false); }
  }
- return <form data-testid="provider-application-form" className="commerce-panel trust-onboarding" onSubmit={async event => {
+ return <form method="post" data-testid="provider-application-form" className="commerce-panel trust-onboarding" onSubmit={async event => {
   event.preventDefault(); if (busy || done) return;
   if (!authenticatedUserId) { router.push("/login?next=/provider-application"); return; }
   if (!verified) { setMessage("Önce telefonunu doğrula."); return; }
@@ -48,6 +50,6 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  <label className="commerce-field">Hizmet kategorisi<select name="categoryId" required value={category} onChange={e => setCategory(e.target.value)} disabled={busy || done}><option value="">Mesleğini seç</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
  <label className="commerce-field">Çalışma ilçesi<select name="districtId" required value={district} onChange={e => setDistrict(e.target.value)} disabled={busy || done}><option value="">İlçeni seç</option>{districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
  {message && <p className={done || verified ? "commerce-notice" : "commerce-error"} role={done || verified ? "status" : "alert"}>{message}</p>}
- <button className="commerce-button" disabled={busy || done || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
+ <button className="commerce-button" disabled={busy || done || !ready || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
  <p className="commerce-help">Belge yüklemek veya başvurmak yayın onayı değildir. Online satın alma henüz açılmadı.</p></form>;
 }

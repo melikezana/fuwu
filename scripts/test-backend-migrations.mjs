@@ -23,7 +23,9 @@ const listener = net.createServer(); await new Promise(r => listener.listen(0,"1
 const port = listener.address().port; await new Promise(r => listener.close(r));
 const upgrade = process.argv.includes("--upgrade");
 const productionUpgrade = process.argv.includes("--production-upgrade");
-const report = { sourceHash: sourceHash(), startedAt: new Date().toISOString(), scope: "All repository migrations on disposable PostgreSQL; platform DDL shim, not hosted staging/Auth/Storage E2E", scenario: productionUpgrade ? "observed_production_versions_upgrade" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
+const observedOrders = process.argv.includes("--observed-orders");
+if (observedOrders && !productionUpgrade) throw new Error("--observed-orders requires --production-upgrade");
+const report = { sourceHash: sourceHash(), startedAt: new Date().toISOString(), scope: "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E", scenario: observedOrders ? "production_versions_with_observed_orders_columns" : productionUpgrade ? "production_ledger_replay_only" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
 let server, db;
 try {
   execFileSync(initdb,["-D",data,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{windowsHide:true,stdio:"pipe"});
@@ -52,6 +54,20 @@ try {
     if (productionUpgrade && !legacySnapshot && !applied.has(file.split('_')[0])) {
       await db.query(await fs.readFile('e2e/fixtures/provider-production-upgrade.sql','utf8'));
       legacySnapshot=await legacyRows();
+      if (observedOrders) {
+        const metadata = JSON.parse(await fs.readFile('artifacts/final-readiness/production-metadata.json','utf8'));
+        const orders = metadata.tables.find(t => t.name === 'orders');
+        assert.ok(orders?.columns?.length, 'Observed orders metadata required');
+        // Columns only: enough to reproduce duplicate relation, no production
+        // rows/default expressions/triggers copied or executed.
+        const columns = orders.columns.map(c => {
+          assert.match(c.name, /^[a-z_][a-z0-9_]*$/);
+          assert.match(c.type, /^(uuid|text|integer|numeric\(\d+,\d+\)|timestamp with time zone)$/);
+          return `"${c.name}" ${c.type}${c.not_null ? ' not null' : ''}`;
+        });
+        await db.query(`create table public.orders (${columns.join(',')})`);
+        report.checks.push('Observed legacy orders column overlay created locally; no production rows copied');
+      }
     }
     if (upgrade && file === '20261029000100_backend_reliability.sql') {
       await db.query(await fs.readFile('e2e/fixtures/backend-upgrade.sql','utf8'));
@@ -70,7 +86,7 @@ try {
       const record=after[table].find(r=>r.id===original.id);assert.ok(record,table+' original row exists');
       assert.deepEqual(Object.fromEntries(Object.keys(original).map(key=>[key,record[key]])),original,table+' original columns preserved');
     }
-    report.checks.push('Upgrade from exact 46 observed production migration versions plus populated synthetic providers/applications/reviews/requests preserves every existing column; deferred dependencies applied in order');
+    report.checks.push('Production ledger replay plus synthetic providers/applications/reviews/requests preserves their columns. This does not validate untracked production schema or hosted staging');
   }
   if (upgrade) {
     const upgraded=await preserved();

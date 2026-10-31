@@ -121,15 +121,20 @@ Do not commit real `.env.local` values or private credentials.
 
 1. CI/CD ortamında `npm run preflight` çalıştır; env, lint, build ve backend DB
    sağlık kontrollerinin tamamının geçtiğini doğrula.
-2. Migration'ları önce staging üzerinde test ettikten sonra production projesinde
-   `supabase db push` ile uygula.
-3. Vercel production deploy'unu başlat. Supabase, Upstash, Sentry ve gerekiyorsa
+2. Önce salt okunur canlı ledger/şema karşılaştırmasını inceleyin: `npm run audit:migrations:readonly`.
+   31 Ekim 2026 incelemesinde eski production `orders` tablosu ile bekleyen commerce
+   migration'ı çakışıyor. Tüm zinciri production'a körlemesine uygulamayın.
+   Ayrı staging'de veri ve bağımlılık koruması doğrulanmış geçiş planını hazırlayın;
+   production migration için ayrıca açık kullanıcı onayı alın.
+3. Açık kullanıcı onayından sonra Vercel production deploy'unu başlat. Supabase, Upstash, Sentry ve gerekiyorsa
    Netgsm secret'larının doğru environment scope'unda bulunduğunu kontrol et.
 4. Deploy sonrasında login, usta başvurusu, belge upload/görüntüleme, hizmet talebi,
    admin ataması ve Storage public/private erişimleri için smoke test çalıştır.
 
 Ayrıntılı backup, rollback ve env envanteri için
 [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md) dosyasına bakın.
+Güncel kabul kararı, test kapsamları ve staging engeli:
+[`docs/FUWU_PRELAUNCH_FINAL_READINESS.md`](docs/FUWU_PRELAUNCH_FINAL_READINESS.md).
 
 ## Current MVP Status
 

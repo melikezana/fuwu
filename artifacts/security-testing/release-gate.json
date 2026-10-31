@@ -1,5 +1,5 @@
 {
-  "status": "BLOCKED",
+  "status": "FAIL",
   "gates": [
     {
       "name": "typecheck",
@@ -32,29 +32,34 @@
     {
       "name": "commerce-e2e",
       "status": "BLOCKED",
-      "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; see environment policy. No write test ran."
+      "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran"
+    },
+    {
+      "name": "prelaunch-e2e",
+      "status": "BLOCKED",
+      "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran"
     },
     {
       "name": "google-oauth",
       "status": "BLOCKED",
-      "reason": "No current execution evidence"
+      "reason": "Production Google setting is enabled, but real staging OAuth/session round trip was not executed"
     },
     {
       "name": "iyzico-sandbox",
       "status": "BLOCKED",
-      "reason": "No current execution evidence"
+      "reason": "Real processor credentials/acceptance not configured; live payments remain disabled"
     },
     {
       "name": "staging-schema",
       "status": "BLOCKED",
-      "reason": "No current execution evidence"
+      "reason": "Independent staging creation rejected by Supabase active Free project quota; no hosted migration acceptance"
     },
     {
       "name": "p0-review",
-      "status": "BLOCKED",
-      "reason": "No current execution evidence"
+      "status": "FAIL",
+      "reason": "Read-only metadata and actual isolated SQL reproduce duplicate legacy orders relation (42P07); production upgrade unsafe"
     }
   ],
-  "evaluatedAt": "2026-10-29T20:58:03.353Z",
+  "evaluatedAt": "2026-10-31T08:44:12.142Z",
   "scope": "Evidence validation only; no deployment, DB mutation or processor call"
 }

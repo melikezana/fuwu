@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-29T22:18:36.908Z",
+  "checked_at": "2026-10-30T22:38:42.942Z",
   "scope": "Read-only anonymous schema/settings probes; zero rows. No migration ledger, PII, payment, login or mutation.",
   "environments": [
     {

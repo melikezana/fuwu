@@ -35,10 +35,11 @@ export async function attachPartnerDocument(_: Result, form: FormData): Promise<
  if (!application) return { ok: false, message: "Belge eklenecek başvuru bulunamadı. Başvuru bilgilerini kontrol et." };
  const type = String(form.get("documentType") ?? "");
  if (!/^[a-z_]{3,60}$/.test(type)) return { ok: false, message: "Belgenin türünü seç." };
+ const expires = String(form.get("expiresOn") ?? "");
+ const date = expires ? new Date(`${expires}T00:00:00Z`) : null;
+ if (expires && (!/^\d{4}-\d{2}-\d{2}$/.test(expires) || !date || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== expires)) return { ok: false, message: "Son geçerlilik tarihini kontrol et." };
  const upload = await uploadTrustDocument(file);
  if (!upload.path) return { ok: false, message: upload.message || "Belge yüklenemedi." };
- const expires = String(form.get("expiresOn") ?? "");
- if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) return { ok: false, message: "Son geçerlilik tarihini kontrol et." };
  const { error } = await supabase.rpc("trust_attach_document", { p_application_id: application.id, p_path: upload.path, p_type: type, p_expires_on: expires || null });
  if (error) return { ok: false, message: "Belge özel alana yüklendi, ancak başvuruyla eşleştirilemedi. Destek ekibiyle iletişime geç." };
  for (const path of ["/provider-dashboard", "/provider-dashboard/profile", "/admin/providers", "/admin/verifications"]) revalidatePath(path);

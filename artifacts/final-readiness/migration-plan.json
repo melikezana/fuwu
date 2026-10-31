@@ -1,0 +1,56 @@
+{
+  "status": "FAIL",
+  "canApply": false,
+  "scope": "Read-only conservative DDL/ledger review; never substitutes for full schema reconciliation and hosted staging tests",
+  "appliedCount": 46,
+  "repositoryCount": 71,
+  "pendingMigrations": [
+    "20260725000100_admin_management_layer.sql",
+    "20260726000100_app_settings.sql",
+    "20260804000100_ai_assistant_support.sql",
+    "20260817000100_request_reassignment_log.sql",
+    "20260817000200_ai_assistant_openai_failure_audit_index.sql",
+    "20260818000100_iyzico_commission_escrow.sql",
+    "20260819000100_repair_request_reassignment_log_schema.sql",
+    "20260824000100_deactivate_hali_yikama.sql",
+    "20261021000100_direct_service_commerce.sql",
+    "20261022000100_fusion_operations.sql",
+    "20261022000200_fusion_quality_and_reviews.sql",
+    "20261026000100_customer_favorites.sql",
+    "20261026000200_phase3_operations.sql",
+    "20261026000300_provider_financial_privacy.sql",
+    "20261026000400_review_submission_receipts.sql",
+    "20261028000100_phase2_checkout_consistency.sql",
+    "20261028000200_fuwu3_catalog_and_fees.sql",
+    "20261029000100_backend_reliability.sql",
+    "20261029000200_atomic_rate_limit.sql",
+    "20261029000300_provider_publication_quality.sql",
+    "20261030000100_prelaunch_trust_and_interest.sql",
+    "20261030000200_provider_control_center.sql",
+    "20261030000300_partner_store_preparation.sql",
+    "20261030154616_marketplace3_operations_readiness.sql",
+    "20261030204829_trust_service_confirmation.sql"
+  ],
+  "unknownVersions": [],
+  "collisions": [
+    {
+      "migration": "20261021000100_direct_service_commerce.sql",
+      "table": "orders"
+    }
+  ],
+  "conditionalCreates": [
+    {
+      "migration": "20260726000100_app_settings.sql",
+      "table": "app_settings"
+    },
+    {
+      "migration": "20260817000100_request_reassignment_log.sql",
+      "table": "request_reassignment_log"
+    }
+  ],
+  "reason": "Pending CREATE TABLE conflicts with observed production relations; preserve existing tables and reconcile dependencies before staging",
+  "observedAt": "2026-10-30T22:32:15.946401+00:00",
+  "projectRef": "bjhyisomjadirdchruix",
+  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
+  "checkedAt": "2026-10-30T22:48:10.576Z"
+}

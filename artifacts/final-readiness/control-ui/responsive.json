@@ -1,0 +1,589 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "after",
+  "runtime": "development",
+  "widths": [
+    {
+      "path": "/admin",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/catalog",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/interest",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/marketplace?view=health",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/audit",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/store",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/calendar",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 360,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "Actual Server Action POST, confirmation names provider, reason required, pending lock, double-click produces one fixture RPC, committed fixture readback updates badge, visible success notice",
+    "Missing schema shows explicit blocker; never renders empty count",
+    "Partner home, service/scope, calendar, private document form and profile form render; calendar sends real app POST to synthetic RPC; four mobile navigation tabs",
+    "Four partner tabs have 44px touch targets; reduced-motion, 125% text zoom and 844x390 landscape checked"
+  ],
+  "errors": [],
+  "status": "PASS_UI_FIXTURES_ONLY",
+  "accessibility": [
+    {
+      "route": "/admin",
+      "violations": []
+    },
+    {
+      "route": "/admin/providers",
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=ac000000-0000-4000-8000-000000000004",
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications",
+      "violations": []
+    },
+    {
+      "route": "/admin/catalog",
+      "violations": []
+    },
+    {
+      "route": "/admin/interest",
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "violations": []
+    },
+    {
+      "route": "/admin/marketplace?view=health",
+      "violations": []
+    },
+    {
+      "route": "/admin/audit",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/calendar",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "violations": []
+    }
+  ]
+}

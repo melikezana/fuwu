@@ -1,0 +1,492 @@
+{
+  "checkedAt": "2026-10-30T22:32:15.946401+00:00",
+  "scope": "Metadata/UUID/counts only. Production SELECTs only; no contact data, document paths or secrets copied.",
+  "inventory": [
+    {
+      "id": "4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+      "user_id": "0e8618e1-57af-4504-815f-dd8066688a4b",
+      "is_active": true,
+      "is_approved": true,
+      "is_verified": true,
+      "identity_verified": false,
+      "phone_verified": false,
+      "created_at": "2026-07-28 23:31:39.459811+00",
+      "updated_at": "2026-07-28 23:31:39.459811+00",
+      "applications": 1,
+      "requests": 0,
+      "reviews": 0,
+      "audit_rows": 1
+    },
+    {
+      "id": "78bc496a-7f93-43fb-8748-33b5d6cde252",
+      "user_id": null,
+      "is_active": true,
+      "is_approved": true,
+      "is_verified": true,
+      "identity_verified": false,
+      "phone_verified": false,
+      "created_at": "2026-07-26 01:22:46.493137+00",
+      "updated_at": "2026-08-15 12:41:11.83792+00",
+      "applications": 0,
+      "requests": 0,
+      "reviews": 0,
+      "audit_rows": 1
+    },
+    {
+      "id": "8a0fd4ad-4b34-4089-8737-3cebc64e4295",
+      "user_id": "132cf13b-5b40-4da5-af9b-188a4c116f86",
+      "is_active": true,
+      "is_approved": true,
+      "is_verified": true,
+      "identity_verified": false,
+      "phone_verified": false,
+      "created_at": "2026-07-28 23:44:53.092394+00",
+      "updated_at": "2026-07-29 00:18:03.724557+00",
+      "applications": 1,
+      "requests": 0,
+      "reviews": 0,
+      "audit_rows": 2
+    },
+    {
+      "id": "ec711057-c9a3-4a03-9737-4f560e3c39cb",
+      "user_id": null,
+      "is_active": true,
+      "is_approved": true,
+      "is_verified": false,
+      "identity_verified": false,
+      "phone_verified": false,
+      "created_at": "2026-05-20 21:30:33.138924+00",
+      "updated_at": "2026-06-25 12:07:15.453582+00",
+      "applications": 0,
+      "requests": 0,
+      "reviews": 0,
+      "audit_rows": 0
+    }
+  ],
+  "foreignKeys": [
+    {
+      "source_table": "audit_logs",
+      "source_column": "actor_user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "disputes",
+      "source_column": "resolved_by",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "disputes",
+      "source_column": "opened_by_user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "notifications",
+      "source_column": "actor_user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "notifications",
+      "source_column": "recipient_user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "notifications",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "orders",
+      "source_column": "customer_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "r"
+    },
+    {
+      "source_table": "payments",
+      "source_column": "confirmed_by",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "provider_applications",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "providers",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "rate_limits",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "request_messages",
+      "source_column": "sender_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "reviews",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "service_requests",
+      "source_column": "user_id",
+      "target_table": "profiles",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "notifications",
+      "source_column": "provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "orders",
+      "source_column": "provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "r"
+    },
+    {
+      "source_table": "payouts",
+      "source_column": "provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "r"
+    },
+    {
+      "source_table": "provider_gallery_images",
+      "source_column": "provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "request_reassignment_log",
+      "source_column": "new_provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "request_reassignment_log",
+      "source_column": "previous_provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "reviews",
+      "source_column": "provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "c"
+    },
+    {
+      "source_table": "service_requests",
+      "source_column": "assigned_provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "n"
+    },
+    {
+      "source_table": "service_requests",
+      "source_column": "accepted_provider_id",
+      "target_table": "providers",
+      "target_column": "id",
+      "confdeltype": "n"
+    }
+  ],
+  "storageAndFunctions": {
+    "tables": [
+      {
+        "rls": true,
+        "name": "app_settings"
+      },
+      {
+        "rls": true,
+        "name": "audit_logs"
+      },
+      {
+        "rls": true,
+        "name": "disputes"
+      },
+      {
+        "rls": true,
+        "name": "districts"
+      },
+      {
+        "rls": true,
+        "name": "notifications"
+      },
+      {
+        "rls": true,
+        "name": "order_payments"
+      },
+      {
+        "rls": true,
+        "name": "orders"
+      },
+      {
+        "rls": true,
+        "name": "payments"
+      },
+      {
+        "rls": true,
+        "name": "payouts"
+      },
+      {
+        "rls": true,
+        "name": "profiles"
+      },
+      {
+        "rls": true,
+        "name": "provider_applications"
+      },
+      {
+        "rls": true,
+        "name": "provider_gallery_images"
+      },
+      {
+        "rls": true,
+        "name": "providers"
+      },
+      {
+        "rls": true,
+        "name": "rate_limits"
+      },
+      {
+        "rls": true,
+        "name": "request_messages"
+      },
+      {
+        "rls": true,
+        "name": "request_reassignment_log"
+      },
+      {
+        "rls": true,
+        "name": "reviews"
+      },
+      {
+        "rls": true,
+        "name": "service_categories"
+      },
+      {
+        "rls": true,
+        "name": "service_requests"
+      },
+      {
+        "rls": true,
+        "name": "webhook_events"
+      }
+    ],
+    "buckets": [
+      {
+        "id": "provider-images",
+        "public": true,
+        "file_size_limit": 3145728,
+        "allowed_mime_types": [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ]
+      },
+      {
+        "id": "provider-verification-documents",
+        "public": false,
+        "file_size_limit": 5242880,
+        "allowed_mime_types": [
+          "application/pdf",
+          "image/jpeg",
+          "image/png"
+        ]
+      },
+      {
+        "id": "provider-gallery",
+        "public": true,
+        "file_size_limit": 5242880,
+        "allowed_mime_types": [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "anon": false,
+        "name": "backend_health_catalog",
+        "definer": true,
+        "settings": [
+          "search_path=public, pg_catalog"
+        ],
+        "authenticated": false
+      },
+      {
+        "anon": false,
+        "name": "bind_provider_applications_to_current_user",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "check_gallery_limit",
+        "definer": true,
+        "settings": [
+          "search_path=public"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": false,
+        "name": "cleanup_old_audit_logs",
+        "definer": true,
+        "settings": [
+          "search_path=public"
+        ],
+        "authenticated": false
+      },
+      {
+        "anon": true,
+        "name": "current_user_is_admin",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "enforce_payout_preconditions",
+        "definer": false,
+        "settings": null,
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "handle_new_user",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "notify_eligible_providers_for_request",
+        "definer": true,
+        "settings": [
+          "search_path=public, pg_temp"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "profile_role_is_unchanged",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "provider_owner_protected_fields_are_unchanged",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "provider_publication_flags_are_unchanged",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "review_provider_is_unchanged",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "service_request_assignment_fields_are_unchanged",
+        "definer": true,
+        "settings": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "set_service_request_assigned_at",
+        "definer": false,
+        "settings": null,
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "name": "set_updated_at",
+        "definer": false,
+        "settings": null,
+        "authenticated": true
+      },
+      {
+        "anon": false,
+        "name": "submit_provider_review",
+        "definer": true,
+        "settings": [
+          "search_path=public, pg_temp"
+        ],
+        "authenticated": true
+      }
+    ],
+    "object_count": 1
+  },
+  "staging": {
+    "quotedMonthlyCost": 0,
+    "created": false,
+    "status": "BLOCKED",
+    "reason": "Supabase create_project rejected: two active free projects limit reached. User authorized only $0 staging."
+  }
+}

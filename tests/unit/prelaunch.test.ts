@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isRealPublishedProvider, SEEDED_PROVIDER_IDS } from "@/lib/providers/provenance";
+import { CONFIRMED_TEST_PROVIDER_IDS, isRealPublishedProvider, SEEDED_PROVIDER_IDS } from "@/lib/providers/provenance";
 import { publicAnnouncement } from "@/lib/prelaunch";
 describe("prelaunch public trust boundaries",()=>{
   it("blocks every repository seed ID even if it is mistakenly classified real",()=>{
@@ -16,5 +16,12 @@ describe("prelaunch public trust boundaries",()=>{
   it("suppresses the legacy development message while retaining operational announcements",()=>{
     expect(publicAnnouncement('FUWU’yu GELİŞTİRİYORUZ')).toBe('');
     expect(publicAnnouncement('  Kadıköy operasyon saatleri güncellendi.  ')).toBe('Kadıköy operasyon saatleri güncellendi.');
+  });
+  it("hides owner-confirmed test profiles even when an RPC classifies them real",()=>{
+    expect(CONFIRMED_TEST_PROVIDER_IDS).toHaveLength(4);
+    for(const id of CONFIRMED_TEST_PROVIDER_IDS) {
+      expect(isRealPublishedProvider({id,record_kind:'real'})).toBe(false);
+      expect(isRealPublishedProvider({id:id.toUpperCase(),record_kind:'real'})).toBe(false);
+    }
   });
 });

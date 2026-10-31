@@ -1,5 +1,41 @@
 [
   {
+    "relname": "admin_provider_action_receipts",
+    "definition": "FOREIGN KEY (actor_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL actor_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL input_hash"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "PRIMARY KEY (request_id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL provider_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL request_id"
+  },
+  {
+    "relname": "admin_provider_action_receipts",
+    "definition": "NOT NULL response"
+  },
+  {
     "relname": "ai_analyses",
     "definition": "NOT NULL analysis_json"
   },
@@ -537,11 +573,11 @@
   },
   {
     "relname": "order_completion_codes",
-    "definition": "NOT NULL code"
+    "definition": "NOT NULL failed_attempts"
   },
   {
     "relname": "order_completion_codes",
-    "definition": "NOT NULL failed_attempts"
+    "definition": "FOREIGN KEY (issued_provider_id) REFERENCES providers(id)"
   },
   {
     "relname": "order_completion_codes",
@@ -554,6 +590,62 @@
   {
     "relname": "order_completion_codes",
     "definition": "PRIMARY KEY (order_id)"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "FOREIGN KEY (decided_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "CHECK (((extra_minor >= 0) AND (extra_minor <= 100000000)))"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL extra_minor"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL order_id"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "FOREIGN KEY (proposed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL proposed_by"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "CHECK (((length(scope) >= 10) AND (length(scope) <= 2000)))"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL scope"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "CHECK ((status = ANY (ARRAY['proposed'::text, 'accepted'::text, 'declined'::text])))"
+  },
+  {
+    "relname": "order_scope_changes",
+    "definition": "NOT NULL status"
   },
   {
     "relname": "order_status_events",
@@ -1032,6 +1124,246 @@
     "definition": "NOT NULL weekday"
   },
   {
+    "relname": "provider_document_rules",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id)"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "CHECK (((NOT enabled) OR ((legal_status = 'approved'::text) AND (reviewed_at IS NOT NULL) AND (reviewed_by IS NOT NULL))))"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "FOREIGN KEY (document_type) REFERENCES provider_document_types(code)"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL document_type"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL effective_date"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL enabled"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "CHECK ((legal_status = ANY (ARRAY['draft'::text, 'approved'::text, 'retired'::text])))"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL legal_status"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL regulatory_rule_version"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL required"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL scope"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "CHECK ((source_url ~ '^https://'::text))"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL source_url"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "CHECK ((stage = ANY (ARRAY['application'::text, 'publication'::text, 'payment'::text])))"
+  },
+  {
+    "relname": "provider_document_rules",
+    "definition": "NOT NULL stage"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "CHECK ((code ~ '^[a-z_]{3,60}$'::text))"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "NOT NULL code"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "NOT NULL enabled"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "NOT NULL label"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "PRIMARY KEY (code)"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "CHECK ((purpose = ANY (ARRAY['identity'::text, 'professional'::text, 'business'::text, 'payment'::text])))"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "NOT NULL purpose"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "CHECK (((retention_days >= 1) AND (retention_days <= 3650)))"
+  },
+  {
+    "relname": "provider_document_types",
+    "definition": "NOT NULL retention_days"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL mime"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "FOREIGN KEY (owner_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL owner_id"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL path"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "PRIMARY KEY (path)"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "CHECK ((scan_status = ANY (ARRAY['unavailable'::text, 'clean'::text, 'blocked'::text])))"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL scan_status"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL sha256"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "CHECK (((size_bytes >= 1) AND (size_bytes <= 5242880)))"
+  },
+  {
+    "relname": "provider_document_uploads",
+    "definition": "NOT NULL size_bytes"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "UNIQUE (application_id, document_type, version)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (application_id) REFERENCES provider_applications(id)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL application_id"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "CHECK (((status <> ALL (ARRAY['approved'::text, 'resubmit'::text, 'rejected'::text])) OR ((length(btrim(reason)) >= 10) AND (reviewed_by IS NOT NULL) AND (reviewed_at IS NOT NULL))))"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (document_type) REFERENCES provider_document_types(code)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL document_type"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (owner_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL owner_id"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "CHECK ((status = ANY (ARRAY['uploaded'::text, 'in_review'::text, 'approved'::text, 'resubmit'::text, 'rejected'::text])))"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL status"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "FOREIGN KEY (storage_path) REFERENCES provider_document_uploads(path)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "UNIQUE (storage_path)"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL storage_path"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "CHECK ((version > 0))"
+  },
+  {
+    "relname": "provider_document_versions",
+    "definition": "NOT NULL version"
+  },
+  {
     "relname": "provider_gallery_images",
     "definition": "NOT NULL created_at"
   },
@@ -1150,6 +1482,14 @@
   {
     "relname": "provider_service_offerings",
     "definition": "UNIQUE NULLS NOT DISTINCT (provider_id, service_id, variant_id)"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "CHECK ((length(scope) <= 2000))"
+  },
+  {
+    "relname": "provider_service_offerings",
+    "definition": "NOT NULL scope"
   },
   {
     "relname": "provider_service_offerings",
@@ -1870,5 +2210,73 @@
   {
     "relname": "support_messages",
     "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "CHECK (((order_id IS NOT NULL) OR (provider_id IS NOT NULL)))"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL created_at"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL id"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "CHECK ((kind = ANY (ARRAY['safety'::text, 'complaint'::text, 'appeal'::text, 'no_show'::text, 'unreachable'::text, 'suspicious_account'::text])))"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL kind"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "FOREIGN KEY (order_id) REFERENCES orders(id)"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id)"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "CHECK (((length(reason) >= 10) AND (length(reason) <= 2000)))"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL reason"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "FOREIGN KEY (reporter_id) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL reporter_id"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "CHECK ((reporter_side = ANY (ARRAY['customer'::text, 'provider'::text])))"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL reporter_side"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "CHECK ((status = ANY (ARRAY['open'::text, 'reviewing'::text, 'resolved'::text, 'reopened'::text])))"
+  },
+  {
+    "relname": "trust_safety_cases",
+    "definition": "NOT NULL status"
   }
 ]

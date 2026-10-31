@@ -1,0 +1,11 @@
+{
+  "status": "BLOCKED",
+  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
+  "startedAt": "2026-10-30T22:48:14.499Z",
+  "completedAt": "2026-10-30T22:48:14.554Z",
+  "executed": false,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran"
+}

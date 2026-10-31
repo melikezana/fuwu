@@ -1,0 +1,314 @@
+{
+  "lints": [
+    {
+      "name": "function_search_path_mutable",
+      "title": "Function Search Path Mutable",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects functions where the search_path parameter is not set.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+      "count": 3,
+      "findings": [
+        {
+          "detail": "Function \\`public.set_updated_at\\` has a role mutable search_path",
+          "metadata": {
+            "name": "set_updated_at",
+            "type": "function",
+            "schema": "public"
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function \\`public.enforce_payout_preconditions\\` has a role mutable search_path",
+          "metadata": {
+            "name": "enforce_payout_preconditions",
+            "type": "function",
+            "schema": "public"
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function \\`public.set_service_request_assigned_at\\` has a role mutable search_path",
+          "metadata": {
+            "name": "set_service_request_assigned_at",
+            "type": "function",
+            "schema": "public"
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        }
+      ]
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "title": "Public Can Execute SECURITY DEFINER Function",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects `SECURITY DEFINER` functions that are callable without signing in. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if it is not meant to be public.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "count": 9,
+      "findings": [
+        {
+          "detail": "Function `public.check_gallery_limit()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/check_gallery_limit`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "check_gallery_limit",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.current_user_is_admin()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/current_user_is_admin`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "current_user_is_admin",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.handle_new_user()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_new_user`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "handle_new_user",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.notify_eligible_providers_for_request(p_request_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/notify_eligible_providers_for_request`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "notify_eligible_providers_for_request",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_request_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.profile_role_is_unchanged(profile_id uuid, next_role text)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/profile_role_is_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "profile_role_is_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "profile_id uuid, next_role text",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.provider_owner_protected_fields_are_unchanged(provider_id uuid, next_user_id uuid, next_category_id uuid, next_district_id uuid, next_phone text, next_average_price_min numeric, next_average_price_max numeric, next_rating numeric, next_is_verified boolean, next_phone_verified boolean, next_identity_verified boolean, next_is_active boolean, next_is_approved boolean)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/provider_owner_protected_fields_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "provider_owner_protected_fields_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "provider_id uuid, next_user_id uuid, next_category_id uuid, next_district_id uuid, next_phone text, next_average_price_min numeric, next_average_price_max numeric, next_rating numeric, next_is_verified boolean, next_phone_verified boolean, next_identity_verified boolean, next_is_active boolean, next_is_approved boolean",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.provider_publication_flags_are_unchanged(provider_id uuid, next_is_active boolean, next_is_approved boolean)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/provider_publication_flags_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "provider_publication_flags_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "provider_id uuid, next_is_active boolean, next_is_approved boolean",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.review_provider_is_unchanged(review_id uuid, next_provider_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/review_provider_is_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "review_provider_is_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "review_id uuid, next_provider_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.service_request_assignment_fields_are_unchanged(request_id uuid, next_assigned_provider_id uuid, next_accepted_provider_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/service_request_assignment_fields_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "service_request_assignment_fields_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "request_id uuid, next_assigned_provider_id uuid, next_accepted_provider_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        }
+      ]
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "title": "Signed-In Users Can Execute SECURITY DEFINER Function",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects `SECURITY DEFINER` functions that are callable by signed-in users. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if signed-in users should not call it.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "count": 11,
+      "findings": [
+        {
+          "detail": "Function `public.bind_provider_applications_to_current_user()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/bind_provider_applications_to_current_user`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "bind_provider_applications_to_current_user",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.check_gallery_limit()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/check_gallery_limit`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "check_gallery_limit",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.current_user_is_admin()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/current_user_is_admin`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "current_user_is_admin",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.handle_new_user()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_new_user`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "handle_new_user",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.notify_eligible_providers_for_request(p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/notify_eligible_providers_for_request`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "notify_eligible_providers_for_request",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_request_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.profile_role_is_unchanged(profile_id uuid, next_role text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/profile_role_is_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "profile_role_is_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "profile_id uuid, next_role text",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.provider_owner_protected_fields_are_unchanged(provider_id uuid, next_user_id uuid, next_category_id uuid, next_district_id uuid, next_phone text, next_average_price_min numeric, next_average_price_max numeric, next_rating numeric, next_is_verified boolean, next_phone_verified boolean, next_identity_verified boolean, next_is_active boolean, next_is_approved boolean)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/provider_owner_protected_fields_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "provider_owner_protected_fields_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "provider_id uuid, next_user_id uuid, next_category_id uuid, next_district_id uuid, next_phone text, next_average_price_min numeric, next_average_price_max numeric, next_rating numeric, next_is_verified boolean, next_phone_verified boolean, next_identity_verified boolean, next_is_active boolean, next_is_approved boolean",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.provider_publication_flags_are_unchanged(provider_id uuid, next_is_active boolean, next_is_approved boolean)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/provider_publication_flags_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "provider_publication_flags_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "provider_id uuid, next_is_active boolean, next_is_approved boolean",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.review_provider_is_unchanged(review_id uuid, next_provider_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/review_provider_is_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "review_provider_is_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "review_id uuid, next_provider_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.service_request_assignment_fields_are_unchanged(request_id uuid, next_assigned_provider_id uuid, next_accepted_provider_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/service_request_assignment_fields_are_unchanged`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "service_request_assignment_fields_are_unchanged",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "request_id uuid, next_assigned_provider_id uuid, next_accepted_provider_id uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        },
+        {
+          "detail": "Function `public.submit_provider_review(p_provider_id uuid, p_rating smallint, p_comment text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/submit_provider_review`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "submit_provider_review",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_provider_id uuid, p_rating smallint, p_comment text",
+            "security_definer": true
+          },
+          "observed_at": "2026-10-30T22:44:19.830Z"
+        }
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "title": "Leaked Password Protection Disabled",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Leaked password protection is currently disabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "count": 1,
+      "findings": [
+        {
+          "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+          "metadata": {
+            "type": "auth",
+            "entity": "Auth"
+          }
+        }
+      ]
+    }
+  ]
+}

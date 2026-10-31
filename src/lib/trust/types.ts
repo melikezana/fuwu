@@ -1,5 +1,5 @@
 import type { Json } from "@/lib/supabase/types";
-export const documentStatusLabels = { not_uploaded: "Yüklenmedi", uploaded: "Yüklendi", in_review: "İncelemede", approved: "Onaylandı", resubmit: "Yeniden Yükle", rejected: "Reddedildi", technical_error: "Teknik Hata" } as const;
+export const documentStatusLabels = { not_uploaded: "Yüklenmedi", uploaded: "İncelemede", in_review: "İncelemede", approved: "Onaylandı", resubmit: "Düzeltme Gerekli", rejected: "Reddedildi", technical_error: "Teknik Hata" } as const;
 export type DocumentStatus = keyof typeof documentStatusLabels;
 export type DocumentIssue = "not_uploaded" | "unmatched_application" | "storage_missing" | "access_denied" | "metadata_unreadable" | "legacy_schema" | "connection_error";
 export const documentIssueLabels: Record<DocumentIssue, string> = {

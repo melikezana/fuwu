@@ -1,0 +1,11 @@
+{
+  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
+  "startedAt": "2026-10-31T03:06:15.536Z",
+  "completedAt": "2026-10-31T03:06:15.536Z",
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "executed": true,
+  "status": "FAIL",
+  "reason": "Read-only metadata and actual isolated SQL reproduce duplicate legacy orders relation (42P07); production upgrade unsafe"
+}

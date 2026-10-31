@@ -1,0 +1,3578 @@
+{
+  "tables": [
+    {
+      "rls": true,
+      "name": "request_messages",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "sender_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "sender_role",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "read_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "request_messages_message_check",
+          "type": "c",
+          "definition": "CHECK (((char_length(message) >= 1) AND (char_length(message) <= 2000)))"
+        },
+        {
+          "name": "request_messages_message_length_check",
+          "type": "c",
+          "definition": "CHECK ((char_length(message) <= 2000))"
+        },
+        {
+          "name": "request_messages_message_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(message) <> ''::text))"
+        },
+        {
+          "name": "request_messages_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "request_messages_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "request_messages_sender_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (sender_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "request_messages_sender_role_check",
+          "type": "c",
+          "definition": "CHECK ((sender_role = ANY (ARRAY['customer'::text, 'provider'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "districts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "city",
+          "type": "text",
+          "default": "'Istanbul'::text",
+          "not_null": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "default": "true",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "districts_city_name_unique",
+          "type": "u",
+          "definition": "UNIQUE (city, name)"
+        },
+        {
+          "name": "districts_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "districts_slug_unique",
+          "type": "u",
+          "definition": "UNIQUE (slug)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "profiles",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "full_name",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "default": "'customer'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "avatar_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "profiles_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "profiles_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "profiles_role_check",
+          "type": "c",
+          "definition": "CHECK ((role = ANY (ARRAY['customer'::text, 'provider'::text, 'admin'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "app_settings",
+      "columns": [
+        {
+          "name": "key",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "value",
+          "type": "text",
+          "default": "''::text",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "app_settings_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (key)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "providers",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "district_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "whatsapp",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "experience_years",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "average_price_min",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "average_price_max",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "rating",
+          "type": "numeric(2,1)",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "default": "true",
+          "not_null": true
+        },
+        {
+          "name": "is_approved",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "availability",
+          "type": "text",
+          "default": "'müsait'::text",
+          "not_null": true
+        },
+        {
+          "name": "working_hours",
+          "type": "text",
+          "default": "'09:00-18:00'::text",
+          "not_null": true
+        },
+        {
+          "name": "is_verified",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "phone_verified",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "identity_verified",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "last_active_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "response_time_minutes",
+          "type": "integer",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "profile_completion_score",
+          "type": "integer",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "profile_image_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "review_count",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "profile_image_path",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "gallery_preview_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_submerchant_key",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_submerchant_type",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_submerchant_status",
+          "type": "text",
+          "default": "'none'::text",
+          "not_null": true
+        },
+        {
+          "name": "legal_name",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iban",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "tax_office",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "tax_number",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "identity_number",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "submerchant_synced_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "providers_availability_check",
+          "type": "c",
+          "definition": "CHECK ((availability = ANY (ARRAY['müsait'::text, 'yoğun'::text, 'çevrimdışı'::text])))"
+        },
+        {
+          "name": "providers_average_price_max_check",
+          "type": "c",
+          "definition": "CHECK (((average_price_max IS NULL) OR (average_price_max >= (0)::numeric)))"
+        },
+        {
+          "name": "providers_average_price_min_check",
+          "type": "c",
+          "definition": "CHECK (((average_price_min IS NULL) OR (average_price_min >= (0)::numeric)))"
+        },
+        {
+          "name": "providers_average_price_range_check",
+          "type": "c",
+          "definition": "CHECK (((average_price_min IS NULL) OR (average_price_max IS NULL) OR (average_price_max >= average_price_min)))"
+        },
+        {
+          "name": "providers_category_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "providers_district_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "providers_experience_years_check",
+          "type": "c",
+          "definition": "CHECK ((experience_years >= 0))"
+        },
+        {
+          "name": "providers_iban_not_blank_check",
+          "type": "c",
+          "definition": "CHECK (((iban IS NULL) OR (btrim(iban) <> ''::text)))"
+        },
+        {
+          "name": "providers_iyzico_submerchant_status_check",
+          "type": "c",
+          "definition": "CHECK ((iyzico_submerchant_status = ANY (ARRAY['none'::text, 'pending'::text, 'active'::text, 'rejected'::text])))"
+        },
+        {
+          "name": "providers_iyzico_submerchant_type_check",
+          "type": "c",
+          "definition": "CHECK (((iyzico_submerchant_type IS NULL) OR (iyzico_submerchant_type = ANY (ARRAY['personal'::text, 'private'::text, 'limited_or_joint_stock'::text]))))"
+        },
+        {
+          "name": "providers_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "providers_profile_completion_score_check",
+          "type": "c",
+          "definition": "CHECK (((profile_completion_score IS NULL) OR ((profile_completion_score >= 0) AND (profile_completion_score <= 100))))"
+        },
+        {
+          "name": "providers_rating_check",
+          "type": "c",
+          "definition": "CHECK (((rating >= (0)::numeric) AND (rating <= (5)::numeric)))"
+        },
+        {
+          "name": "providers_response_time_minutes_check",
+          "type": "c",
+          "definition": "CHECK (((response_time_minutes IS NULL) OR ((response_time_minutes >= 1) AND (response_time_minutes <= 1440))))"
+        },
+        {
+          "name": "providers_review_count_check",
+          "type": "c",
+          "definition": "CHECK ((review_count >= 0))"
+        },
+        {
+          "name": "providers_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "providers_working_hours_check",
+          "type": "c",
+          "definition": "CHECK ((working_hours = ANY (ARRAY['09:00-18:00'::text, '09:00-22:00'::text, '7/24'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "reviews",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "rating",
+          "type": "smallint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "comment",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "reviews_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "reviews_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "reviews_provider_user_unique",
+          "type": "u",
+          "definition": "UNIQUE (provider_id, user_id)"
+        },
+        {
+          "name": "reviews_rating_check",
+          "type": "c",
+          "definition": "CHECK (((rating >= 1) AND (rating <= 5)))"
+        },
+        {
+          "name": "reviews_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "provider_applications",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "full_name",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "district_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "experience_years",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "availability",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "has_equipment",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "introduction",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "portfolio_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'pending'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "profile_image_path",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "profile_image_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "verification_document_path",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "verification_document_url",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "provider_applications_category_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "provider_applications_district_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "provider_applications_experience_years_check",
+          "type": "c",
+          "definition": "CHECK ((experience_years >= 0))"
+        },
+        {
+          "name": "provider_applications_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "provider_applications_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+        },
+        {
+          "name": "provider_applications_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "service_categories",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "default": "true",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "service_categories_name_unique",
+          "type": "u",
+          "definition": "UNIQUE (name)"
+        },
+        {
+          "name": "service_categories_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "service_categories_slug_unique",
+          "type": "u",
+          "definition": "UNIQUE (slug)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "audit_logs",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "entity_type",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "entity_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "audit_logs_actor_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (actor_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "audit_logs_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "rate_limits",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "count",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "window_start",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "rate_limits_count_check",
+          "type": "c",
+          "definition": "CHECK ((count >= 0))"
+        },
+        {
+          "name": "rate_limits_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "rate_limits_user_id_action_window_start_key",
+          "type": "u",
+          "definition": "UNIQUE (user_id, action, window_start)"
+        },
+        {
+          "name": "rate_limits_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "service_requests",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "district_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "urgency",
+          "type": "text",
+          "default": "'normal'::text",
+          "not_null": true
+        },
+        {
+          "name": "preferred_date",
+          "type": "date",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "preferred_time",
+          "type": "time without time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'pending'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "urgency_type",
+          "type": "text",
+          "default": "'standard'::text",
+          "not_null": true
+        },
+        {
+          "name": "budget",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "budget_tag",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "offered_price",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payment_method",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payment_preference",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "confirmation_code",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "estimated_arrival_text",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "approximate_location",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "emergency_status",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "assigned_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "accepted_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "accepted_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "assigned_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "service_requests_accepted_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (accepted_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "service_requests_assigned_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (assigned_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "service_requests_budget_tag_check",
+          "type": "c",
+          "definition": "CHECK (((budget_tag IS NULL) OR (budget_tag = ANY (ARRAY['ekonomik'::text, 'standart'::text, 'premium'::text, 'acil-hizmet'::text, 'acil'::text]))))"
+        },
+        {
+          "name": "service_requests_category_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "service_requests_district_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "service_requests_emergency_status_check",
+          "type": "c",
+          "definition": "CHECK (((emergency_status IS NULL) OR (emergency_status = ANY (ARRAY['pending'::text, 'assigned'::text, 'accepted'::text, 'rejected'::text, 'on_the_way'::text, 'completed'::text, 'cancelled'::text]))))"
+        },
+        {
+          "name": "service_requests_offered_price_check",
+          "type": "c",
+          "definition": "CHECK (((offered_price IS NULL) OR (offered_price >= (0)::numeric)))"
+        },
+        {
+          "name": "service_requests_payment_method_check",
+          "type": "c",
+          "definition": "CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text]))))"
+        },
+        {
+          "name": "service_requests_payment_preference_check",
+          "type": "c",
+          "definition": "CHECK (((payment_preference IS NULL) OR (payment_preference = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text]))))"
+        },
+        {
+          "name": "service_requests_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "service_requests_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'assigned'::text, 'accepted'::text, 'rejected'::text, 'in_progress'::text, 'completed'::text, 'cancelled'::text])))"
+        },
+        {
+          "name": "service_requests_urgency_check",
+          "type": "c",
+          "definition": "CHECK ((urgency = ANY (ARRAY['low'::text, 'normal'::text, 'high'::text, 'urgent'::text, 'acil'::text])))"
+        },
+        {
+          "name": "service_requests_urgency_type_check",
+          "type": "c",
+          "definition": "CHECK ((urgency_type = ANY (ARRAY['standard'::text, 'emergency'::text])))"
+        },
+        {
+          "name": "service_requests_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "notifications",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "recipient_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "entity_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "entity_type",
+          "type": "text",
+          "default": "'service_request'::text",
+          "not_null": true
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "event",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "is_read",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "notifications_actor_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (actor_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "notifications_body_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(body) <> ''::text))"
+        },
+        {
+          "name": "notifications_entity_type_check",
+          "type": "c",
+          "definition": "CHECK ((entity_type = ANY (ARRAY['service_request'::text, 'provider_application'::text, 'provider'::text])))"
+        },
+        {
+          "name": "notifications_event_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(event) <> ''::text))"
+        },
+        {
+          "name": "notifications_message_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(message) <> ''::text))"
+        },
+        {
+          "name": "notifications_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "notifications_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "notifications_recipient_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (recipient_user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "notifications_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "notifications_title_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(title) <> ''::text))"
+        },
+        {
+          "name": "notifications_type_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(type) <> ''::text))"
+        },
+        {
+          "name": "notifications_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "payments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payment_method",
+          "type": "text",
+          "default": "'cash'::text",
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'pending_confirmation'::text",
+          "not_null": true
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "confirmed_by",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "payments_amount_check",
+          "type": "c",
+          "definition": "CHECK (((amount IS NULL) OR (amount >= (0)::numeric)))"
+        },
+        {
+          "name": "payments_confirmed_by_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (confirmed_by) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "payments_payment_method_check",
+          "type": "c",
+          "definition": "CHECK ((payment_method = ANY (ARRAY['cash'::text, 'iban'::text, 'online_soon'::text])))"
+        },
+        {
+          "name": "payments_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "payments_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "payments_request_id_unique",
+          "type": "u",
+          "definition": "UNIQUE (request_id)"
+        },
+        {
+          "name": "payments_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pending_confirmation'::text, 'confirmed'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "request_reassignment_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "previous_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "new_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "default": "'sla_breach'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "is_dry_run",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "request_reassignment_log_new_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (new_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "request_reassignment_log_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "request_reassignment_log_previous_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (previous_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "request_reassignment_log_reason_check",
+          "type": "c",
+          "definition": "CHECK ((reason = ANY (ARRAY['sla_breach_dry_run'::text, 'no_eligible_provider_dry_run'::text, 'sla_breach_reassigned'::text, 'no_eligible_provider'::text, 'max_reassignment_limit_reached'::text])))"
+        },
+        {
+          "name": "request_reassignment_log_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "provider_gallery_images",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "storage_path",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "public_url",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "caption",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "display_order",
+          "type": "smallint",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "provider_gallery_images_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "provider_gallery_images_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "orders",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "customer_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "default": "'TRY'::text",
+          "not_null": true
+        },
+        {
+          "name": "commission_rate",
+          "type": "numeric(5,4)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "commission_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_net_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'PENDING_PAYMENT'::text",
+          "not_null": true
+        },
+        {
+          "name": "paid_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "auto_approve_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "orders_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_amount_split_check",
+          "type": "c",
+          "definition": "CHECK (((commission_amount + provider_net_amount) <= (amount + 0.01)))"
+        },
+        {
+          "name": "orders_commission_amount_check",
+          "type": "c",
+          "definition": "CHECK ((commission_amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_commission_rate_check",
+          "type": "c",
+          "definition": "CHECK (((commission_rate >= (0)::numeric) AND (commission_rate <= (1)::numeric)))"
+        },
+        {
+          "name": "orders_currency_check",
+          "type": "c",
+          "definition": "CHECK ((currency = 'TRY'::text))"
+        },
+        {
+          "name": "orders_customer_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (customer_id) REFERENCES profiles(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "orders_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_provider_net_amount_check",
+          "type": "c",
+          "definition": "CHECK ((provider_net_amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['PENDING_PAYMENT'::text, 'PAID'::text, 'IN_PROGRESS'::text, 'COMPLETED_PENDING_APPROVAL'::text, 'APPROVED'::text, 'CLOSED'::text, 'PAYMENT_FAILED'::text, 'CANCELLED'::text, 'DISPUTED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "webhook_events",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "provider",
+          "type": "text",
+          "default": "'iyzico'::text",
+          "not_null": true
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "external_event_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'received'::text",
+          "not_null": true
+        },
+        {
+          "name": "error",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "webhook_events_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "webhook_events_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "webhook_events_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['received'::text, 'processed'::text, 'failed'::text, 'ignored'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "payouts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "default": "'TRY'::text",
+          "not_null": true
+        },
+        {
+          "name": "iyzico_transfer_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'PENDING'::text",
+          "not_null": true
+        },
+        {
+          "name": "failure_reason",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "raw_response",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "initiated_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "payouts_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount >= (0)::numeric))"
+        },
+        {
+          "name": "payouts_currency_check",
+          "type": "c",
+          "definition": "CHECK ((currency = 'TRY'::text))"
+        },
+        {
+          "name": "payouts_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "payouts_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "payouts_provider_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "payouts_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['PENDING'::text, 'PROCESSING'::text, 'COMPLETED'::text, 'FAILED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "disputes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "opened_by",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "opened_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "not_null": true
+        },
+        {
+          "name": "resolution_note",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "resolved_by",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "disputes_opened_by_check",
+          "type": "c",
+          "definition": "CHECK ((opened_by = ANY (ARRAY['customer'::text, 'provider'::text, 'admin'::text])))"
+        },
+        {
+          "name": "disputes_opened_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (opened_by_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "disputes_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "disputes_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "disputes_reason_not_blank_check",
+          "type": "c",
+          "definition": "CHECK ((btrim(reason) <> ''::text))"
+        },
+        {
+          "name": "disputes_resolved_by_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (resolved_by) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "disputes_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['OPEN'::text, 'UNDER_REVIEW'::text, 'RESOLVED_CUSTOMER'::text, 'RESOLVED_PROVIDER'::text, 'CLOSED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "order_payments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "iyzico_payment_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_conversation_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_token",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "paid_price",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "installment",
+          "type": "integer",
+          "default": "1",
+          "not_null": true
+        },
+        {
+          "name": "card_last_four",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'INITIATED'::text",
+          "not_null": true
+        },
+        {
+          "name": "error_code",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "error_message",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "raw_response",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "iyzico_payment_transaction_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refund_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refunded_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refunded_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "order_payments_installment_check",
+          "type": "c",
+          "definition": "CHECK (((installment >= 1) AND (installment <= 12)))"
+        },
+        {
+          "name": "order_payments_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "order_payments_paid_price_check",
+          "type": "c",
+          "definition": "CHECK (((paid_price IS NULL) OR (paid_price >= (0)::numeric)))"
+        },
+        {
+          "name": "order_payments_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "order_payments_refunded_amount_check",
+          "type": "c",
+          "definition": "CHECK (((refunded_amount IS NULL) OR (refunded_amount >= (0)::numeric)))"
+        },
+        {
+          "name": "order_payments_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['INITIATED'::text, 'SUCCESS'::text, 'FAILURE'::text, 'REFUNDED'::text, 'PARTIAL_REFUNDED'::text])))"
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = provider_gallery_images.provider_id) AND (p.is_active = true) AND (p.is_approved = true))))",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "provider_gallery_images",
+      "permissive": "PERMISSIVE",
+      "policyname": "gallery_public_read",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = provider_gallery_images.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_gallery_images",
+      "permissive": "PERMISSIVE",
+      "policyname": "gallery_provider_read",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_gallery_images",
+      "permissive": "PERMISSIVE",
+      "policyname": "gallery_provider_insert",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = provider_gallery_images.provider_id) AND (p.user_id = auth.uid()))))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = provider_gallery_images.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_gallery_images",
+      "permissive": "PERMISSIVE",
+      "policyname": "gallery_provider_delete",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_gallery_images",
+      "permissive": "PERMISSIVE",
+      "policyname": "gallery_admin_all",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "order_payments_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reviews",
+      "permissive": "PERMISSIVE",
+      "policyname": "reviews_insert_authenticated_own",
+      "with_check": "((user_id = auth.uid()) AND (EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.id = reviews.provider_id) AND (providers.is_active = true) AND (providers.is_approved = true)))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "public"
+      ],
+      "tablename": "service_categories",
+      "permissive": "PERMISSIVE",
+      "policyname": "Anyone can read service categories",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "public"
+      ],
+      "tablename": "districts",
+      "permissive": "PERMISSIVE",
+      "policyname": "Anyone can read districts",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((is_active = true) AND (is_approved = true))",
+      "roles": [
+        "public"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "Anyone can read approved active providers",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow public provider applications insert",
+      "with_check": "true"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow public service requests insert",
+      "with_check": "true"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((is_active = true) AND (is_approved = true))",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "Allow public active approved providers read",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(auth.uid() = user_id)",
+      "roles": [
+        "public"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "Kullanici kendi taleplerini gorebilir",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "public"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "Kullanici talep olusturabilir",
+      "with_check": "(auth.uid() = user_id)"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "audit_logs",
+      "permissive": "PERMISSIVE",
+      "policyname": "audit_logs_insert_authenticated_actor",
+      "with_check": "((actor_user_id = auth.uid()) OR current_user_is_admin())"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rate_limits",
+      "permissive": "PERMISSIVE",
+      "policyname": "rate_limits_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rate_limits",
+      "permissive": "PERMISSIVE",
+      "policyname": "rate_limits_insert_own",
+      "with_check": "(user_id = auth.uid())"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rate_limits",
+      "permissive": "PERMISSIVE",
+      "policyname": "rate_limits_update_own",
+      "with_check": "(user_id = auth.uid())"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "rate_limits",
+      "permissive": "PERMISSIVE",
+      "policyname": "rate_limits_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "audit_logs",
+      "permissive": "PERMISSIVE",
+      "policyname": "audit_logs_select_admin_only",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM service_requests\n  WHERE ((service_requests.id = payments.request_id) AND (service_requests.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "payments_select_own_customer",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "payments_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "payments_insert_admin_or_assigned_provider",
+      "with_check": "(current_user_is_admin() OR (EXISTS ( SELECT 1\n   FROM (service_requests\n     JOIN providers ON ((providers.id = service_requests.assigned_provider_id)))\n  WHERE ((service_requests.id = payments.request_id) AND (providers.user_id = auth.uid())))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "payments_update_admin_confirmation",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(is_active = true)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "service_categories",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_categories_select_public_active",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(is_active = true)",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "districts",
+      "permissive": "PERMISSIVE",
+      "policyname": "districts_select_public_active",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = payouts.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payouts",
+      "permissive": "PERMISSIVE",
+      "policyname": "payouts_select_provider",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payouts",
+      "permissive": "PERMISSIVE",
+      "policyname": "payouts_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_select_own_profile",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_insert_admin",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_update_own_profile",
+      "with_check": "((user_id = auth.uid()) AND provider_owner_protected_fields_are_unchanged(id, user_id, category_id, district_id, phone, average_price_min, average_price_max, rating, is_verified, phone_verified, identity_verified, is_active, is_approved))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_update_admin_management",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_insert_authenticated_own",
+      "with_check": "((user_id = auth.uid()) AND (status = 'pending'::text) AND (assigned_provider_id IS NULL) AND (accepted_provider_id IS NULL) AND ((COALESCE(urgency_type, 'standard'::text) <> 'emergency'::text) OR (emergency_status = 'pending'::text)))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(current_user_is_admin() OR (EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = disputes.order_id) AND ((o.customer_id = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM providers p\n          WHERE ((p.id = o.provider_id) AND (p.user_id = auth.uid())))))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_select_related",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_insert_related",
+      "with_check": "((opened_by_user_id = auth.uid()) AND (status = 'OPEN'::text) AND (EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = disputes.order_id) AND ((o.customer_id = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM providers p\n          WHERE ((p.id = o.provider_id) AND (p.user_id = auth.uid())))))))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_update_admin",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "webhook_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "webhook_events_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reviews",
+      "permissive": "PERMISSIVE",
+      "policyname": "reviews_delete_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_categories",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_categories_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_categories",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_categories_admin_write",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "districts",
+      "permissive": "PERMISSIVE",
+      "policyname": "districts_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_update_customer_cancel",
+      "with_check": "((user_id = auth.uid()) AND (status = 'cancelled'::text) AND ((COALESCE(urgency_type, 'standard'::text) <> 'emergency'::text) OR (emergency_status = 'cancelled'::text)) AND service_request_assignment_fields_are_unchanged(id, assigned_provider_id, accepted_provider_id))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((COALESCE(urgency_type, 'standard'::text) = 'standard'::text) AND (EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.user_id = auth.uid()) AND (providers.is_active = true) AND (providers.is_approved = true) AND (providers.id = service_requests.assigned_provider_id)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_update_provider_assigned_status",
+      "with_check": "((COALESCE(urgency_type, 'standard'::text) = 'standard'::text) AND (status = ANY (ARRAY['accepted'::text, 'rejected'::text, 'in_progress'::text, 'completed'::text, 'cancelled'::text])) AND (EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.user_id = auth.uid()) AND (providers.is_active = true) AND (providers.is_approved = true) AND (providers.id = service_requests.assigned_provider_id) AND ((service_requests.accepted_provider_id IS NULL) OR (service_requests.accepted_provider_id = providers.id))))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((urgency_type = 'emergency'::text) AND (EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.user_id = auth.uid()) AND (providers.is_active = true) AND (providers.is_approved = true) AND (providers.category_id = service_requests.category_id) AND (providers.id = service_requests.assigned_provider_id)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_update_provider_emergency_acceptance",
+      "with_check": "((urgency_type = 'emergency'::text) AND (status = ANY (ARRAY['accepted'::text, 'rejected'::text, 'in_progress'::text, 'completed'::text, 'cancelled'::text])) AND (emergency_status = ANY (ARRAY['accepted'::text, 'rejected'::text, 'on_the_way'::text, 'completed'::text, 'cancelled'::text])) AND (EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.user_id = auth.uid()) AND (providers.is_active = true) AND (providers.is_approved = true) AND (providers.id = service_requests.assigned_provider_id) AND (providers.category_id = service_requests.category_id) AND ((service_requests.accepted_provider_id IS NULL) OR (service_requests.accepted_provider_id = providers.id))))))"
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "districts",
+      "permissive": "PERMISSIVE",
+      "policyname": "districts_admin_write",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = request_messages.request_id) AND (request.user_id = auth.uid())))) OR (EXISTS ( SELECT 1\n   FROM (service_requests request\n     JOIN providers provider ON (((provider.id = request.assigned_provider_id) OR (provider.id = request.accepted_provider_id))))\n  WHERE ((request.id = request_messages.request_id) AND (provider.user_id = auth.uid()) AND (provider.is_active = true) AND (provider.is_approved = true)))) OR current_user_is_admin())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_messages_select_participants",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_messages_insert_customer",
+      "with_check": "((sender_id = auth.uid()) AND (sender_role = 'customer'::text) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = request_messages.request_id) AND (request.user_id = auth.uid()) AND (request.status = ANY (ARRAY['assigned'::text, 'accepted'::text, 'in_progress'::text, 'completed'::text]))))))"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_messages_insert_provider",
+      "with_check": "((sender_id = auth.uid()) AND (sender_role = 'provider'::text) AND (EXISTS ( SELECT 1\n   FROM (service_requests request\n     JOIN providers provider ON (((provider.id = request.assigned_provider_id) OR (provider.id = request.accepted_provider_id))))\n  WHERE ((request.id = request_messages.request_id) AND (request.status = ANY (ARRAY['assigned'::text, 'accepted'::text, 'in_progress'::text, 'completed'::text])) AND (provider.user_id = auth.uid()) AND (provider.is_active = true) AND (provider.is_approved = true)))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((sender_role = 'provider'::text) AND (read_at IS NULL) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = request_messages.request_id) AND (request.user_id = auth.uid())))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_messages_mark_customer_read",
+      "with_check": "((sender_role = 'provider'::text) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = request_messages.request_id) AND (request.user_id = auth.uid())))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_insert_own",
+      "with_check": "(id = auth.uid())"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_update_admin_assignment",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((sender_role = 'customer'::text) AND (read_at IS NULL) AND (EXISTS ( SELECT 1\n   FROM (service_requests request\n     JOIN providers provider ON (((provider.id = request.assigned_provider_id) OR (provider.id = request.accepted_provider_id))))\n  WHERE ((request.id = request_messages.request_id) AND (provider.user_id = auth.uid()) AND (provider.is_active = true) AND (provider.is_approved = true)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_messages",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_messages_mark_provider_read",
+      "with_check": "((sender_role = 'customer'::text) AND (EXISTS ( SELECT 1\n   FROM (service_requests request\n     JOIN providers provider ON (((provider.id = request.assigned_provider_id) OR (provider.id = request.accepted_provider_id))))\n  WHERE ((request.id = request_messages.request_id) AND (provider.user_id = auth.uid()) AND (provider.is_active = true) AND (provider.is_approved = true)))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_update_own",
+      "with_check": "((id = auth.uid()) AND profile_role_is_unchanged(id, role))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_update_admin_all",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "provider_applications_insert_authenticated_pending",
+      "with_check": "((user_id = auth.uid()) AND (status = 'pending'::text))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "provider_applications_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "provider_applications_select_admin_all",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((user_id = auth.uid()) AND (status = 'pending'::text))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "provider_applications_update_own_pending",
+      "with_check": "((user_id = auth.uid()) AND (status = 'pending'::text))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "provider_applications",
+      "permissive": "PERMISSIVE",
+      "policyname": "provider_applications_update_admin_status",
+      "with_check": "(current_user_is_admin() AND (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((is_active = true) AND (is_approved = true))",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "providers",
+      "permissive": "PERMISSIVE",
+      "policyname": "providers_select_public_active_approved",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((user_id = auth.uid()) OR (recipient_user_id = auth.uid()) OR current_user_is_admin())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "notifications",
+      "permissive": "PERMISSIVE",
+      "policyname": "notifications_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "notifications",
+      "permissive": "PERMISSIVE",
+      "policyname": "notifications_insert_admin_or_actor",
+      "with_check": "(current_user_is_admin() OR (user_id = auth.uid()) OR (recipient_user_id = auth.uid()) OR (actor_user_id = auth.uid()))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(recipient_user_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "notifications",
+      "permissive": "PERMISSIVE",
+      "policyname": "notifications_update_own_read_state",
+      "with_check": "(recipient_user_id = auth.uid())"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((EXISTS ( SELECT 1\n   FROM providers\n  WHERE ((providers.user_id = auth.uid()) AND (providers.is_active = true) AND (providers.is_approved = true) AND ((providers.id = service_requests.assigned_provider_id) OR (providers.id = service_requests.accepted_provider_id))))) OR (EXISTS ( SELECT 1\n   FROM notifications\n  WHERE ((notifications.request_id = service_requests.id) AND (notifications.recipient_user_id = auth.uid()) AND (notifications.event = 'new_service_request_match'::text)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "service_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "service_requests_select_provider_relevant",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "tablename": "reviews",
+      "permissive": "PERMISSIVE",
+      "policyname": "reviews_select_public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "app_settings",
+      "permissive": "PERMISSIVE",
+      "policyname": "app_settings_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "app_settings",
+      "permissive": "PERMISSIVE",
+      "policyname": "app_settings_write_admin",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_reassignment_log",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_reassignment_log_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(customer_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_customer",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = orders.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_provider",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reviews",
+      "permissive": "PERMISSIVE",
+      "policyname": "reviews_insert_own",
+      "with_check": "((user_id = auth.uid()) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.user_id = auth.uid()) AND (request.assigned_provider_id = reviews.provider_id) AND (request.status = 'completed'::text)))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((status = 'pending_confirmation'::text) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = payments.request_id) AND (request.user_id = auth.uid()) AND (request.status = 'completed'::text)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "payments_update_customer_confirmation",
+      "with_check": "((status = 'confirmed'::text) AND (confirmed_by = auth.uid()) AND (confirmed_at IS NOT NULL) AND (EXISTS ( SELECT 1\n   FROM service_requests request\n  WHERE ((request.id = payments.request_id) AND (request.user_id = auth.uid()) AND (request.status = 'completed'::text)))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_admin",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_write_admin",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = order_payments.order_id) AND (o.customer_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "order_payments_select_customer",
+      "with_check": null
+    }
+  ],
+  "checkedAt": "2026-10-30T22:32:15.946401+00:00",
+  "functions": [
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "backend_health_catalog",
+      "config": [
+        "search_path=public, pg_catalog"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "e20a379a776ea7124a41408b051089cb"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "bind_provider_applications_to_current_user",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "b56c0187901398f0520b5b898a1e1add"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "check_gallery_limit",
+      "config": [
+        "search_path=public"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "13db0a2f182e62ce98a45c9e879fac2c"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "cleanup_old_audit_logs",
+      "config": [
+        "search_path=public"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "a7f375413c5d3105b1e8983874fa5bb8"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "current_user_is_admin",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "81d1dd31160ea092874212fb277431f0"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "enforce_payout_preconditions",
+      "config": null,
+      "definer": false,
+      "arguments": "",
+      "definition_hash": "c600720513d6b10dbb4d2c0dd2855812"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "handle_new_user",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "",
+      "definition_hash": "8e4be8fe8cba1684ebba462cc4ac305c"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "notify_eligible_providers_for_request",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "definer": true,
+      "arguments": "p_request_id uuid",
+      "definition_hash": "0f1f7ea08edd62acef104ebddee726db"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "profile_role_is_unchanged",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "profile_id uuid, next_role text",
+      "definition_hash": "8504d378112b98a58f74fdfe8ca92b0a"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "provider_owner_protected_fields_are_unchanged",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "provider_id uuid, next_user_id uuid, next_category_id uuid, next_district_id uuid, next_phone text, next_average_price_min numeric, next_average_price_max numeric, next_rating numeric, next_is_verified boolean, next_phone_verified boolean, next_identity_verified boolean, next_is_active boolean, next_is_approved boolean",
+      "definition_hash": "7cf0851e74ebf1380e9466c01e9b4613"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "provider_publication_flags_are_unchanged",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "provider_id uuid, next_is_active boolean, next_is_approved boolean",
+      "definition_hash": "1ff9400fb9c49cdcd5d834b989384d62"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "review_provider_is_unchanged",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "review_id uuid, next_provider_id uuid",
+      "definition_hash": "0de413e81f194b107ae7a89973e4f55b"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "service_request_assignment_fields_are_unchanged",
+      "config": [
+        "search_path=public, auth"
+      ],
+      "definer": true,
+      "arguments": "request_id uuid, next_assigned_provider_id uuid, next_accepted_provider_id uuid",
+      "definition_hash": "41a10eaf44dae17fe39489a1c9b9d412"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "set_service_request_assigned_at",
+      "config": null,
+      "definer": false,
+      "arguments": "",
+      "definition_hash": "84d67f1fafeaf02f4e7fef6b49c9fba2"
+    },
+    {
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "set_updated_at",
+      "config": null,
+      "definer": false,
+      "arguments": "",
+      "definition_hash": "1fe908e688c770996074ef7936ca3605"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "submit_provider_review",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "definer": true,
+      "arguments": "p_provider_id uuid, p_rating smallint, p_comment text",
+      "definition_hash": "861f277f8fdd1f70b2de62c3630a3b68"
+    }
+  ],
+  "projectRef": "bjhyisomjadirdchruix",
+  "appliedMigrations": [
+    {
+      "name": "initial_schema",
+      "version": "20260605000000"
+    },
+    {
+      "name": "provider_applications_schema_fix",
+      "version": "20260605000100"
+    },
+    {
+      "name": "add_emergency_flow_fields",
+      "version": "20260605000200"
+    },
+    {
+      "name": "emergency_service_flow",
+      "version": "20260605000300"
+    },
+    {
+      "name": "emergency_tag_flow_fields",
+      "version": "20260605000400"
+    },
+    {
+      "name": "live_backend_repair",
+      "version": "20260605000500"
+    },
+    {
+      "name": "istanbul_district_expansion",
+      "version": "20260605000600"
+    },
+    {
+      "name": "emergency_request_rls_hardening",
+      "version": "20260605000700"
+    },
+    {
+      "name": "provider_trust_layer",
+      "version": "20260605000800"
+    },
+    {
+      "name": "core_flow_reliability",
+      "version": "20260605000900"
+    },
+    {
+      "name": "provider_application_user_access",
+      "version": "20260605001000"
+    },
+    {
+      "name": "service_requests",
+      "version": "20260605001100"
+    },
+    {
+      "name": "provider_applications_public_submit",
+      "version": "20260605001200"
+    },
+    {
+      "name": "provider_application_status_visibility",
+      "version": "20260605001300"
+    },
+    {
+      "name": "provider_application_user_persistence",
+      "version": "20260605001400"
+    },
+    {
+      "name": "provider_application_profile_rls_fix",
+      "version": "20260605001500"
+    },
+    {
+      "name": "provider_application_user_binding_rpc",
+      "version": "20260605001600"
+    },
+    {
+      "name": "provider_application_admin_action_hardening",
+      "version": "20260605001700"
+    },
+    {
+      "name": "provider_admin_update_policy",
+      "version": "20260605001800"
+    },
+    {
+      "name": "complete_customer_request_flow",
+      "version": "20260605001900"
+    },
+    {
+      "name": "admin_service_request_assignment",
+      "version": "20260605002000"
+    },
+    {
+      "name": "provider_request_accept_reject",
+      "version": "20260605002100"
+    },
+    {
+      "name": "backend_hardening_status_audit_rls",
+      "version": "20260605002200"
+    },
+    {
+      "name": "rate_limits_security_audit",
+      "version": "20260605002300"
+    },
+    {
+      "name": "add_locksmith_service_category",
+      "version": "20260605002400"
+    },
+    {
+      "name": "payments_tracking",
+      "version": "20260605002500"
+    },
+    {
+      "name": "consolidate_lookup_rls_notifications",
+      "version": "20260605002600"
+    },
+    {
+      "name": "provider_application_login_binding_rpc",
+      "version": "20260605002700"
+    },
+    {
+      "name": "backend_health_catalog_rpc",
+      "version": "20260605002800"
+    },
+    {
+      "name": "audit_logs_indexes_retention",
+      "version": "20260605002900"
+    },
+    {
+      "name": "notifications_read_update_policy",
+      "version": "20260605003000"
+    },
+    {
+      "name": "service_requests_nullable_seed_user",
+      "version": "20260605003100"
+    },
+    {
+      "name": "provider_images_storage_bucket",
+      "version": "20260605003200"
+    },
+    {
+      "name": "provider_verification_documents",
+      "version": "20260605003300"
+    },
+    {
+      "name": "provider_match_notifications",
+      "version": "20260621000100"
+    },
+    {
+      "name": "backend_production_hardening",
+      "version": "20260622000100"
+    },
+    {
+      "name": "explicit_api_role_grants",
+      "version": "20260622000200"
+    },
+    {
+      "name": "customer_review_submission",
+      "version": "20260622000300"
+    },
+    {
+      "name": "customer_payment_confirmation",
+      "version": "20260622000400"
+    },
+    {
+      "name": "add_profiles_avatar_url",
+      "version": "20260625000000"
+    },
+    {
+      "name": "add_missing_service_categories",
+      "version": "20260628000100"
+    },
+    {
+      "name": "add_provider_profile_image_path",
+      "version": "20260704000100"
+    },
+    {
+      "name": "provider_gallery",
+      "version": "20260706000100"
+    },
+    {
+      "name": "add_provider_gallery_preview_url",
+      "version": "20260706000200"
+    },
+    {
+      "name": "request_messages",
+      "version": "20260815000100"
+    },
+    {
+      "name": "service_requests_assigned_at",
+      "version": "20260816000100"
+    }
+  ]
+}

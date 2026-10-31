@@ -1,0 +1,254 @@
+{
+  "scope": "Actual local Next.js/React/Server Action with synthetic Auth and REST fixtures. Not Supabase integration/E2E acceptance.",
+  "phase": "after",
+  "runtime": "development",
+  "widths": [
+    {
+      "path": "/admin/provider-applications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/admin/verifications",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 375,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 430,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1024,
+      "overflow": false
+    },
+    {
+      "path": "/provider-dashboard/profile",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "Actual document review Server Action POST with version and reason reaches synthetic RPC and renders committed result"
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "accessibility": [
+    {
+      "route": "/admin/provider-applications",
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/ae000000-0000-4000-8000-000000000001",
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "violations": []
+    }
+  ],
+  "failure": "locator.selectOption: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Belge türü', { exact: true })\u001b[22m\n",
+  "apiRequests": [
+    {
+      "endpoint": "profiles",
+      "method": "GET"
+    },
+    {
+      "endpoint": "trust_application_file",
+      "method": "POST"
+    },
+    {
+      "endpoint": "user",
+      "method": "GET"
+    },
+    {
+      "endpoint": "profiles",
+      "method": "GET"
+    },
+    {
+      "endpoint": "user",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "user",
+      "method": "GET"
+    },
+    {
+      "endpoint": "profiles",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "notifications",
+      "method": "GET"
+    },
+    {
+      "endpoint": "websocket",
+      "method": "GET"
+    }
+  ],
+  "visibleDialogs": 0
+}

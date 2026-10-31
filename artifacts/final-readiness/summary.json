@@ -1,0 +1,142 @@
+{
+  "at": "2026-10-31T08:44:55.436Z",
+  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
+  "decision": "FAIL / NO-GO",
+  "productionWrites": false,
+  "livePaymentsEnabled": false,
+  "commitPushDeployment": false,
+  "staging": {
+    "created": false,
+    "reason": "Active Free project quota rejected approved zero-cost creation"
+  },
+  "checks": {
+    "typecheck": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "lint": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "unit": {
+      "status": "PASS",
+      "passed": 153,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "coverage": {
+      "status": "PASS",
+      "passed": 153,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "security": {
+      "status": "PASS",
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "integration": {
+      "status": "PASS",
+      "passed": 270,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "build": {
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "http": {
+      "status": "PASS",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "mock": {
+      "status": "PASS",
+      "passed": 77,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "commerce-e2e": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "prelaunch-e2e": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "google-oauth": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "staging-schema": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "sourceMatches": true
+    },
+    "p0-review": {
+      "status": "FAIL",
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "sourceMatches": true
+    }
+  },
+  "views": {
+    "public-ui": {
+      "status": "PASS",
+      "views": 56,
+      "overflow": 0,
+      "browserErrors": 0,
+      "seriousOrCriticalAxe": 0,
+      "performance": {
+        "scope": "Warmed local synthetic fixture; not production field metrics",
+        "domContentLoadedMs": 235,
+        "loadMs": 495,
+        "decodedImages": 12
+      }
+    },
+    "control-ui": {
+      "status": "PASS_UI_FIXTURES_ONLY",
+      "views": 104,
+      "overflow": 0,
+      "browserErrors": 0,
+      "seriousOrCriticalAxe": 0
+    },
+    "trust-ui": {
+      "status": "PASS_UI_FIXTURES_ONLY",
+      "views": 49,
+      "overflow": 0,
+      "browserErrors": 0,
+      "seriousOrCriticalAxe": 0
+    }
+  },
+  "knownCriticalFailure": "Observed legacy orders table conflicts with pending commerce CREATE TABLE; actual isolated SQLSTATE 42P07"
+}
