@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 // A verified processor response is simulated explicitly by SQL contract tests.
 // This helper never contacts a processor and is not application/runtime code.
 export async function finishVerified(service, id, kind) {
-  const { rows: [r] } = await service.query("select t.item_transaction_id,o.total_minor from payment_transactions t join orders o on o.id=t.order_id where o.id=$1",[id]);
+  const { rows: [r] } = await service.query("select t.item_transaction_id,o.total_minor from payment_transactions t join commerce_orders o on o.id=t.order_id where o.id=$1",[id]);
   await service.query("select commerce_record_settlement_result($1,$2,$3,'VERIFIED',null,null,$4,$3,$5,'TRY')",[id,kind,`${kind}-${id}`,r.item_transaction_id,r.total_minor]);
   await service.query("select commerce_finish_settlement($1,$2)",[id,kind]);
 }
 
 export async function reliabilityChecks({root,a,b,p,admin,service,guest,scalar,check,winner}) {
   const clone=async()=>{
-    const id=await scalar(root,"insert into orders select (jsonb_populate_record(null::orders,to_jsonb(o)||jsonb_build_object('id',gen_random_uuid(),'idempotency_key',gen_random_uuid(),'status','REFUND_PENDING','payment_status','REFUND_PENDING'))).* from orders o where id=$1 returning id",[winner.id]);
+    const id=await scalar(root,"insert into commerce_orders select (jsonb_populate_record(null::commerce_orders,to_jsonb(o)||jsonb_build_object('id',gen_random_uuid(),'idempotency_key',gen_random_uuid(),'status','REFUND_PENDING','payment_status','REFUND_PENDING'))).* from commerce_orders o where id=$1 returning id",[winner.id]);
     await service.query("insert into payment_transactions(order_id,conversation_id,status,payment_id,item_transaction_id) values($1::uuid,'order-'||$1::text,'SUCCEEDED','payment-'||$1::text,'item-'||$1::text)",[id]);
     return id;
   };
@@ -31,10 +31,10 @@ export async function reliabilityChecks({root,a,b,p,admin,service,guest,scalar,c
     const [x,y]=await Promise.all([scalar(service,"select commerce_claim_settlement($1,'refund')",[id]),scalar(root,"select commerce_claim_settlement($1,'refund')",[id])]);
     assert.equal([x,y].filter(v=>v.claimed).length,1);
     await assert.rejects(service.query("select commerce_finish_settlement($1,'refund')",[id]),/settlement_not_verified/);
-    assert.equal(await scalar(root,"select status from orders where id=$1",[id]),"REFUND_PENDING");
+    assert.equal(await scalar(root,"select status from commerce_orders where id=$1",[id]),"REFUND_PENDING");
   });
   await check("Reliability: wrong item, amount, currency or operation reference cannot finalize a refund",async()=>{
-    const amount=await scalar(root,"select total_minor from orders where id=$1",[id]);
+    const amount=await scalar(root,"select total_minor from commerce_orders where id=$1",[id]);
     const args=[id,ref,`item-${id}`,ref,amount,'TRY'];
     for(const [index,bad] of [[1,'wrong-ref'],[2,'wrong-item'],[3,'wrong-conversation'],[4,amount-1],[5,'USD']]){
       const altered=[...args];altered[index]=bad;
@@ -58,7 +58,7 @@ export async function reliabilityChecks({root,a,b,p,admin,service,guest,scalar,c
   });
   await check("Reliability: admin review reference never marks a refund paid or complete",async()=>{
     await admin.query("select commerce_review_settlement($1,'IYZ-SUPPORT-TEST-1')",[ref]);
-    assert.equal(await scalar(root,"select status from orders where id=$1",[id]),"REFUND_PENDING");
+    assert.equal(await scalar(root,"select status from commerce_orders where id=$1",[id]),"REFUND_PENDING");
     await assert.rejects(service.query("select commerce_finish_settlement($1,'refund')",[id]),/settlement_not_verified/);
   });
   await check("Reliability: verified result survives local finish failure; duplicate finish is idempotent",async()=>{
@@ -69,8 +69,8 @@ export async function reliabilityChecks({root,a,b,p,admin,service,guest,scalar,c
     assert.equal(await scalar(root,"select refund_state from payment_transactions where order_id=$1",[id]),"REFUNDED");
   });
   await check("Reliability: an offering withdrawn after the hold cannot start payment",async()=>{
-    const pending=await scalar(root,"insert into orders select (jsonb_populate_record(null::orders,to_jsonb(o)||jsonb_build_object('id',gen_random_uuid(),'idempotency_key',gen_random_uuid(),'status','PENDING_PAYMENT','payment_status','UNPAID','expires_at',clock_timestamp()+interval '10 minutes'))).* from orders o where id=$1 returning id",[winner.id]);
-    const offering=await scalar(root,"select offering_id from orders where id=$1",[pending]);
+    const pending=await scalar(root,"insert into commerce_orders select (jsonb_populate_record(null::commerce_orders,to_jsonb(o)||jsonb_build_object('id',gen_random_uuid(),'idempotency_key',gen_random_uuid(),'status','PENDING_PAYMENT','payment_status','UNPAID','expires_at',clock_timestamp()+interval '10 minutes'))).* from commerce_orders o where id=$1 returning id",[winner.id]);
+    const offering=await scalar(root,"select offering_id from commerce_orders where id=$1",[pending]);
     const wasActive=await scalar(root,"select is_active from provider_service_offerings where id=$1",[offering]);
     await root.query("update provider_service_offerings set is_active=false where id=$1",[offering]);
     await assert.rejects(service.query("select commerce_begin_payment($1)",[pending]),/offering_unavailable/);

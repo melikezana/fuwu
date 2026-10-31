@@ -12,7 +12,7 @@ async function handleGET(_: NextRequest, { params }: { params: Promise<{ id: str
   const { user, supabase: db } = await getServerAuthContext();
   if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (!isUuid(id)) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
-  const { data: order, error } = await db.from("orders").select("provider_id").eq("id", id).maybeSingle();
+  const { data: order, error } = await db.from("commerce_orders").select("provider_id").eq("id", id).maybeSingle();
   if (error || !order) return NextResponse.json({ error: "order_not_found" }, { status: 404 });
   const [{ data: changes, error: changesError }, { data: provider }] = await Promise.all([
     db.from("order_scope_changes").select("id,scope,extra_minor,status,created_at").eq("order_id", id).order("created_at"),
@@ -46,7 +46,7 @@ async function handlePOST(request: NextRequest, { params }: { params: Promise<{ 
   }
   if (b.action === "review") {
     if (!Number.isInteger(b.rating) || b.rating < 1 || b.rating > 5 || typeof b.comment !== "string" || b.comment.length > 1000) return NextResponse.json({ error: "invalid_review" }, { status: 400 });
-    const { data: order } = await db.from("orders").select("provider_id").eq("id", id).eq("customer_id", user.id).maybeSingle();
+    const { data: order } = await db.from("commerce_orders").select("provider_id").eq("id", id).eq("customer_id", user.id).maybeSingle();
     if (!order) return NextResponse.json({ error: "review_not_eligible" }, { status: 403 });
     try {
       await submitProviderReview({ providerId: order.provider_id, orderId: id, rating: b.rating, comment: b.comment }, db);

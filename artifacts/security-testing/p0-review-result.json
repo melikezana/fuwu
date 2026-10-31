@@ -1,11 +1,20 @@
 {
-  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
-  "startedAt": "2026-10-31T03:06:15.536Z",
-  "completedAt": "2026-10-31T03:06:15.536Z",
-  "passed": 0,
-  "failed": 1,
-  "skipped": 0,
+  "status": "PASS",
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "startedAt": "2026-10-31T17:50:47.456Z",
+  "completedAt": "2026-10-31T17:50:47.456Z",
   "executed": true,
-  "status": "FAIL",
-  "reason": "Read-only metadata and actual isolated SQL reproduce duplicate legacy orders relation (42P07); production upgrade unsafe"
+  "passed": 6,
+  "failed": 0,
+  "skipped": 0,
+  "scope": "Local source and execution-evidence review only; no production rollout approval",
+  "reason": "Critical local repairs reviewed; external and production gates remain blocked",
+  "checks": [
+    "Initial HEAD preserved; no applied production migration file changed",
+    "Two real complete Supabase/Chromium suites: 39+39, retry/skip/flaky/failure zero",
+    "All required local backend/build/lint/type/security/browser evidence matches the final source hash",
+    "Read-only production observations retain the original ledger and four exact provider identities/flags",
+    "Observed legacy financial graph, indexes and rollback guards passed PostgreSQL 17 upgrade",
+    "Final Playwright report excludes Supabase test keys; production and processor actions remain unexecuted"
+  ]
 }

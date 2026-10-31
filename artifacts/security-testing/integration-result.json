@@ -1,10 +1,10 @@
 {
   "status": "PASS",
-  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
-  "startedAt": "2026-10-30T22:47:44.638Z",
-  "completedAt": "2026-10-30T22:49:08.566Z",
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "startedAt": "2026-10-31T15:15:35.088Z",
+  "completedAt": "2026-10-31T15:17:59.928Z",
   "executed": true,
-  "passed": 270,
+  "passed": 338,
   "failed": 0,
   "skipped": 0,
   "reason": "",
@@ -26,6 +26,16 @@
     },
     {
       "name": "commerce-db-upgrade",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "production-ledger-replay",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "observed-production-upgrade",
       "status": "PASS",
       "exitCode": 0
     }

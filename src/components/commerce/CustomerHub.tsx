@@ -20,10 +20,10 @@ export async function CustomerHub({ params }: { params: CustomerHubParams }) {
   if (!user || !supabase) redirect(buildLoginRedirectUrl(`/account?view=${view}`));
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
   const [upcoming, completed, nextAppointment, activeOrder] = await Promise.all([
-    supabase.from("orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", serviceActiveStatuses),
-    supabase.from("orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).eq("status", "COMPLETED"),
-    view === "overview" ? supabase.from("orders").select("*").eq("customer_id", user.id).eq("status", "CONFIRMED").gte("starts_at", new Date().toISOString()).order("starts_at").limit(1).maybeSingle() : null,
-    view === "overview" ? supabase.from("orders").select("*").eq("customer_id", user.id).in("status", serviceActiveStatuses).or(`status.in.(PROVIDER_ON_THE_WAY,IN_PROGRESS),starts_at.lte.${new Date().toISOString()}`).order("ends_at").limit(1).maybeSingle() : null,
+    supabase.from("commerce_orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", serviceActiveStatuses),
+    supabase.from("commerce_orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).eq("status", "COMPLETED"),
+    view === "overview" ? supabase.from("commerce_orders").select("*").eq("customer_id", user.id).eq("status", "CONFIRMED").gte("starts_at", new Date().toISOString()).order("starts_at").limit(1).maybeSingle() : null,
+    view === "overview" ? supabase.from("commerce_orders").select("*").eq("customer_id", user.id).in("status", serviceActiveStatuses).or(`status.in.(PROVIDER_ON_THE_WAY,IN_PROGRESS),starts_at.lte.${new Date().toISOString()}`).order("ends_at").limit(1).maybeSingle() : null,
   ]);
   const unavailable = Boolean(upcoming.error || completed.error || nextAppointment?.error || activeOrder?.error);
   const title = views.find(([id]) => id === view)![1];
@@ -52,7 +52,7 @@ async function CustomerFavorites({ userId, page }: { userId: string; page: numbe
 
 async function CustomerOrders({ userId, history, page, view }: { userId: string; history: boolean; page: number; view: string }) {
   const { supabase } = await getServerAuthContext();
-  let query = supabase!.from("orders").select("*", { count: "exact" }).eq("customer_id", userId).order("starts_at", { ascending: !history }).range((page - 1) * 12, page * 12 - 1);
+  let query = supabase!.from("commerce_orders").select("*", { count: "exact" }).eq("customer_id", userId).order("starts_at", { ascending: !history }).range((page - 1) * 12, page * 12 - 1);
   query = history ? query.in("status", historyStatuses) : query.in("status", view === "upcoming" ? ["CONFIRMED"] : view === "active" ? serviceActiveStatuses : trackingStatuses);
   if (view === "upcoming") query = query.gte("starts_at", new Date().toISOString());
   const { data, error, count } = await query;

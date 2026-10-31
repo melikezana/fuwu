@@ -25,7 +25,7 @@ async function main() {
   globalThis.fetch=async(input,init)=>{
     const url=String(input),body=JSON.parse(String(init?.body??"{}"));
     if(reconcileMode) {
-      if(url.includes('/rest/v1/orders')) return Response.json({id,total_minor:85000,provider_gross_minor:76500});
+      if(url.includes('/rest/v1/commerce_orders')) return Response.json({id,total_minor:85000,provider_gross_minor:76500});
       if(url.endsWith('/rpc/commerce_resolve_payment')) {resolutions++;return Response.json(body.p_success?'CONFIRMED':'PAYMENT_FAILED');}
       if(url.endsWith('/auth/ecom/detail')) {
         if(reconcileMode==='timeout')throw new DOMException('PII_SENTINEL','TimeoutError');

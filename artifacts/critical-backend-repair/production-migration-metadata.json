@@ -1,0 +1,226 @@
+{
+  "tables": [
+    {
+      "rls": true,
+      "name": "app_settings"
+    },
+    {
+      "rls": true,
+      "name": "audit_logs"
+    },
+    {
+      "rls": true,
+      "name": "disputes"
+    },
+    {
+      "rls": true,
+      "name": "districts"
+    },
+    {
+      "rls": true,
+      "name": "notifications"
+    },
+    {
+      "rls": true,
+      "name": "order_payments"
+    },
+    {
+      "rls": true,
+      "name": "orders"
+    },
+    {
+      "rls": true,
+      "name": "payments"
+    },
+    {
+      "rls": true,
+      "name": "payouts"
+    },
+    {
+      "rls": true,
+      "name": "profiles"
+    },
+    {
+      "rls": true,
+      "name": "provider_applications"
+    },
+    {
+      "rls": true,
+      "name": "provider_gallery_images"
+    },
+    {
+      "rls": true,
+      "name": "providers"
+    },
+    {
+      "rls": true,
+      "name": "rate_limits"
+    },
+    {
+      "rls": true,
+      "name": "request_messages"
+    },
+    {
+      "rls": true,
+      "name": "request_reassignment_log"
+    },
+    {
+      "rls": true,
+      "name": "reviews"
+    },
+    {
+      "rls": true,
+      "name": "service_categories"
+    },
+    {
+      "rls": true,
+      "name": "service_requests"
+    },
+    {
+      "rls": true,
+      "name": "webhook_events"
+    }
+  ],
+  "checkedAt": "2026-10-31T12:10:00.613392+00:00",
+  "projectRef": "bjhyisomjadirdchruix",
+  "appliedMigrations": [
+    {
+      "version": "20260605000000"
+    },
+    {
+      "version": "20260605000100"
+    },
+    {
+      "version": "20260605000200"
+    },
+    {
+      "version": "20260605000300"
+    },
+    {
+      "version": "20260605000400"
+    },
+    {
+      "version": "20260605000500"
+    },
+    {
+      "version": "20260605000600"
+    },
+    {
+      "version": "20260605000700"
+    },
+    {
+      "version": "20260605000800"
+    },
+    {
+      "version": "20260605000900"
+    },
+    {
+      "version": "20260605001000"
+    },
+    {
+      "version": "20260605001100"
+    },
+    {
+      "version": "20260605001200"
+    },
+    {
+      "version": "20260605001300"
+    },
+    {
+      "version": "20260605001400"
+    },
+    {
+      "version": "20260605001500"
+    },
+    {
+      "version": "20260605001600"
+    },
+    {
+      "version": "20260605001700"
+    },
+    {
+      "version": "20260605001800"
+    },
+    {
+      "version": "20260605001900"
+    },
+    {
+      "version": "20260605002000"
+    },
+    {
+      "version": "20260605002100"
+    },
+    {
+      "version": "20260605002200"
+    },
+    {
+      "version": "20260605002300"
+    },
+    {
+      "version": "20260605002400"
+    },
+    {
+      "version": "20260605002500"
+    },
+    {
+      "version": "20260605002600"
+    },
+    {
+      "version": "20260605002700"
+    },
+    {
+      "version": "20260605002800"
+    },
+    {
+      "version": "20260605002900"
+    },
+    {
+      "version": "20260605003000"
+    },
+    {
+      "version": "20260605003100"
+    },
+    {
+      "version": "20260605003200"
+    },
+    {
+      "version": "20260605003300"
+    },
+    {
+      "version": "20260621000100"
+    },
+    {
+      "version": "20260622000100"
+    },
+    {
+      "version": "20260622000200"
+    },
+    {
+      "version": "20260622000300"
+    },
+    {
+      "version": "20260622000400"
+    },
+    {
+      "version": "20260625000000"
+    },
+    {
+      "version": "20260628000100"
+    },
+    {
+      "version": "20260704000100"
+    },
+    {
+      "version": "20260706000100"
+    },
+    {
+      "version": "20260706000200"
+    },
+    {
+      "version": "20260815000100"
+    },
+    {
+      "version": "20260816000100"
+    }
+  ]
+}

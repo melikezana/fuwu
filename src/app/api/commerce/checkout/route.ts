@@ -18,7 +18,7 @@ async function handlePOST(request: NextRequest) {
   const b = await request.json().catch(() => null);
   if (!isUuid(b?.orderId ?? "")) return NextResponse.json({ error: "invalid_order" }, { status: 400 });
   if (!profile) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
-  const { data: order, error: orderError } = await supabase.from("orders").select("*").eq("id", b.orderId).eq("customer_id", user.id).maybeSingle();
+  const { data: order, error: orderError } = await supabase.from("commerce_orders").select("*").eq("id", b.orderId).eq("customer_id", user.id).maybeSingle();
   if (orderError) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   if (!order) return NextResponse.json({ error: "order_not_found" }, { status: 404 });
   // The immutable, server-priced order snapshot is the only source of amounts.

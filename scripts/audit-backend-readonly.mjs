@@ -21,9 +21,9 @@ const probes = [
   ["service_catalog", "/rest/v1/service_catalog?select=id&limit=0"],
   ["service_variants", "/rest/v1/service_variants?select=id,provider_id&limit=0"],
   ["review_sources", "/rest/v1/reviews?select=order_id,service_request_id&limit=0"],
-  ["orders", "/rest/v1/orders?select=id,service_price_minor,customer_fee_minor&limit=0"],
-  ["orders_identity", "/rest/v1/orders?select=id&limit=0"],
-  ["orders_commerce_contract", "/rest/v1/orders?select=id,customer_id,provider_id,offering_id,total_minor&limit=0"],
+  ["legacy_orders_contract", "/rest/v1/orders?select=id,request_id,amount,commission_amount,provider_net_amount&limit=0"],
+  ["commerce_orders_fees", "/rest/v1/commerce_orders?select=id,service_price_minor,customer_fee_minor&limit=0"],
+  ["commerce_orders_contract", "/rest/v1/commerce_orders?select=id,customer_id,provider_id,offering_id,total_minor&limit=0"],
   ["favorites", "/rest/v1/customer_favorite_providers?select=customer_id&limit=0"],
   ["category_visibility", "/rest/v1/service_categories?select=id,is_visible,customer_fee_bps&limit=0"],
   ["google_settings", "/auth/v1/settings"],
@@ -40,7 +40,7 @@ await Promise.all(probes.map(async ([name, route]) => {
 try {
   const r = await fetch(env.NEXT_PUBLIC_SUPABASE_URL + "/rest/v1/", { headers: { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY, Authorization: `Bearer ${env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`, Accept: "application/openapi+json" }, signal: AbortSignal.timeout(12000) });
   const doc = await r.json();
-  report.schema_metadata = { http_status: r.status, tables: Object.fromEntries(Object.entries(doc.definitions ?? {}).filter(([name]) => ["orders", "reviews", "service_catalog", "service_variants", "payments", "service_categories"].includes(name)).map(([name, def]) => [name, Object.keys(def.properties ?? {}).sort()])), rpc_names: Object.keys(doc.paths ?? {}).filter(p => p.startsWith("/rpc/commerce_")).sort() };
+  report.schema_metadata = { http_status: r.status, tables: Object.fromEntries(Object.entries(doc.definitions ?? {}).filter(([name]) => ["orders", "commerce_orders", "reviews", "service_catalog", "service_variants", "payments", "service_categories"].includes(name)).map(([name, def]) => [name, Object.keys(def.properties ?? {}).sort()])), rpc_names: Object.keys(doc.paths ?? {}).filter(p => p.startsWith("/rpc/commerce_")).sort() };
 } catch { report.schema_metadata = { status: "BLOCKED", reason: "metadata_unavailable" }; }
 report.checks.sort((a, b) => a.name.localeCompare(b.name));
 await fs.mkdir("artifacts/backend-reliability", { recursive: true });

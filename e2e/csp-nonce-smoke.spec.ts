@@ -1,13 +1,10 @@
-import { expect, test, type Page, type Response } from "@playwright/test";
+import { expect, test, type Page, type Response } from "./fixtures";
+import { createTrustFixture, loginWithEmailMagicLink, skipUnlessLocalSupabase, uniqueE2EEmail } from "./helpers";
 
 const cspViolationPattern =
   /Content Security Policy|Refused to execute inline script|Refused to load .*violates|violates the following Content Security Policy directive/i;
 const requireStrictNonce =
   process.env.CSP_SMOKE_REQUIRE_STRICT_NONCE !== "false";
-const productionPaymentRequestId =
-  process.env.E2E_PAYMENT_CONFIRMATION_REQUEST_ID?.trim() ?? "";
-const adminStorageState = process.env.E2E_ADMIN_STORAGE_STATE?.trim() ?? "";
-
 function collectCspViolations(page: Page) {
   const violations: string[] = [];
 
@@ -114,40 +111,19 @@ test.describe("CSP nonce smoke", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fadmin|\/admin/);
   });
 
-  test("authenticated admin panel has no CSP console violations", async ({
-    browser,
-  }, testInfo) => {
-    test.skip(
-      !adminStorageState,
-      "Set E2E_ADMIN_STORAGE_STATE to smoke the authenticated production admin panel.",
-    );
-
-    const context = await browser.newContext({
-      baseURL: testInfo.project.use.baseURL as string | undefined,
-      storageState: adminStorageState,
-    });
-    const page = await context.newPage();
-
-    try {
-      await gotoAndExpectNoCspViolations(page, "/admin");
-      await expect(page.getByRole("heading", { name: "Admin Paneli" })).toBeVisible();
-    } finally {
-      await context.close();
-    }
+  test("authenticated admin panel has no CSP console violations", async ({page}) => {
+    skipUnlessLocalSupabase();
+    const violations=collectCspViolations(page);
+    await loginWithEmailMagicLink(page,{email:uniqueE2EEmail("csp-admin"),role:"admin",nextPath:"/admin"});
+    await gotoAndExpectNoCspViolations(page,"/admin",violations);
+    await expect(page.getByRole("heading",{name:"İşler kontrol altında.",exact:true})).toBeVisible();
   });
-
-  test("payment confirmation screen has no CSP console violations", async ({
-    page,
-  }) => {
-    test.skip(
-      !productionPaymentRequestId,
-      "Set E2E_PAYMENT_CONFIRMATION_REQUEST_ID to smoke a real payment confirmation screen.",
-    );
-
-    await gotoAndExpectNoCspViolations(
-      page,
-      `/order-tracking/${productionPaymentRequestId}`,
-    );
-    await expect(page.getByText(/Ödeme|onay|takip/i).first()).toBeVisible();
+  test("synthetic order confirmation screen has no CSP console violations", async ({page}) => {
+    skipUnlessLocalSupabase();
+    const fixture=await createTrustFixture();
+    const violations=collectCspViolations(page);
+    await loginWithEmailMagicLink(page,{email:fixture.email,nextPath:"/orders/"+fixture.id});
+    await gotoAndExpectNoCspViolations(page,"/orders/"+fixture.id,violations);
+    await expect(page.getByRole("heading",{name:"E2E Synthetic Trust Appointment",exact:true})).toBeVisible();
   });
 });

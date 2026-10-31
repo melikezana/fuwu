@@ -80,5 +80,8 @@ export function loadTestEnvironment(root = process.cwd()) {
     env[key] = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"].includes(key) ? env[key] || "" : "";
   }
   env.IYZICO_BASE_URL = "https://sandbox-api.iyzipay.com";
+  // A separate fixture secret can authorize only our owned loopback test server.
+  // Inherited production CRON_SECRET remains erased above.
+  env.CRON_SECRET = safety.ready && isLoopbackUrl(env.NEXT_PUBLIC_SUPABASE_URL) && /^e2e-[a-z0-9-]{10,100}$/.test(env.E2E_CRON_SECRET || "") ? env.E2E_CRON_SECRET : "";
   return { env, safety };
 }

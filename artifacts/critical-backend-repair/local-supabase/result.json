@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "startedAt": "2026-10-31T15:16:37.529Z",
+  "completedAt": "2026-10-31T15:28:01.996Z",
+  "project": "fuwu-e2e-1793448781703",
+  "workdir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\critical-backend-repair\\local-supabase\\run-1793448781703",
+  "executionMethod": "Actual complete Playwright CLI runs, workers=1 then workers=2, no retries. Same owned Supabase stack and unchanged source; original clean CLI migrations and backend health succeeded. Diagnostic failures retained separately.",
+  "runs": [
+    {
+      "workers": 1,
+      "exitCode": 0,
+      "stats": {
+        "startTime": "2026-10-31T15:16:37.529Z",
+        "duration": 376496.718,
+        "expected": 39,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": [],
+      "report": "artifacts\\critical-backend-repair\\local-supabase\\validated-full-workers-1.json"
+    },
+    {
+      "workers": 2,
+      "exitCode": 0,
+      "stats": {
+        "startTime": "2026-10-31T15:22:55.039Z",
+        "duration": 245815.198,
+        "expected": 39,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": [],
+      "report": "artifacts\\critical-backend-repair\\local-supabase\\validated-full-workers-2.json"
+    }
+  ],
+  "reason": "All 39 cases passed in both full-suite runs; zero skip, flaky, retry or unexpected result",
+  "stackStopped": true,
+  "stackStopCommandExitCode": 0,
+  "stackStopEvidence": "Supabase CLI stop on this exact owned workdir with --no-backup completed successfully after acceptance; no developer stack was targeted"
+}

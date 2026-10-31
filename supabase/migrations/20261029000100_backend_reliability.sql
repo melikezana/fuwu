@@ -3,7 +3,7 @@ begin;
 
 create table public.commerce_settlement_operations (
  id uuid primary key default gen_random_uuid(),
- order_id uuid not null references public.orders(id),
+ order_id uuid not null references public.commerce_orders(id),
  kind text not null check(kind in ('release','refund')),
  operation_reference text not null unique,
  state text not null check(state in ('IN_FLIGHT','MANUAL_REVIEW','VERIFIED','COMPLETED')),
@@ -28,10 +28,10 @@ create index commerce_reviews_provider_idx on public.reviews(provider_id,created
 -- Recheck sale eligibility at payment start while retaining the order's frozen price.
 create or replace function public.commerce_begin_payment(p_order_id uuid) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; p public.providers; n integer;
+declare o public.commerce_orders; t public.payment_transactions; p public.providers; n integer;
 begin
- select * into p from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ select * into p from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null or o.status<>'PENDING_PAYMENT' or o.expires_at<=clock_timestamp() then raise exception 'hold_expired'; end if;
  if p.id is null or not p.is_active or not p.is_approved or p.iyzico_submerchant_status<>'active' or nullif(btrim(p.iyzico_submerchant_key),'') is null
    or not exists(select 1 from public.provider_service_offerings f join public.service_catalog s on s.id=f.service_id join public.service_categories c on c.id=s.category_id left join public.service_variants v on v.id=f.variant_id
@@ -61,10 +61,10 @@ create trigger commerce_settlement_audit after insert or update on public.commer
 
 create or replace function public.commerce_claim_settlement(p_order_id uuid,p_kind text) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; op public.commerce_settlement_operations;
+declare o public.commerce_orders; t public.payment_transactions; op public.commerce_settlement_operations;
 begin
  if p_kind is null or p_kind not in ('release','refund') then raise exception 'invalid_settlement'; end if;
- select * into o from public.orders where id=p_order_id for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  select * into op from public.commerce_settlement_operations where order_id=p_order_id and kind=p_kind;
  if op.id is not null then return jsonb_build_object('claimed',false,'operation_reference',op.operation_reference,'state',op.state); end if;
@@ -83,9 +83,9 @@ end $$;
 -- response before passing VERIFIED. No token, bank payload or free-form error is persisted.
 create function public.commerce_record_settlement_result(p_order_id uuid,p_kind text,p_operation_reference text,p_outcome text,p_failure_class text default null,p_request_id uuid default null,p_item_transaction_id text default null,p_conversation_id text default null,p_amount_minor integer default null,p_currency text default null)
 returns void language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; op public.commerce_settlement_operations;
+declare o public.commerce_orders; t public.payment_transactions; op public.commerce_settlement_operations;
 begin
- select * into o from public.orders where id=p_order_id for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  select * into op from public.commerce_settlement_operations where order_id=p_order_id and kind=p_kind for update;
  if op.id is null or op.operation_reference is distinct from p_operation_reference then raise exception 'settlement_reference_mismatch'; end if;
@@ -102,7 +102,7 @@ create or replace function public.commerce_finish_settlement(p_order_id uuid,p_k
 language plpgsql security definer set search_path='' as $$
 declare op public.commerce_settlement_operations;
 begin
- perform 1 from public.orders where id=p_order_id for update;
+ perform 1 from public.commerce_orders where id=p_order_id for update;
  perform 1 from public.payment_transactions where order_id=p_order_id for update;
  select * into op from public.commerce_settlement_operations where order_id=p_order_id and kind=p_kind for update;
  if op.state='COMPLETED' then return; end if;
@@ -114,7 +114,7 @@ begin
  else raise exception 'invalid_settlement'; end if;
  if not found then raise exception 'settlement_state_conflict'; end if;
  if p_kind='refund' then
-   update public.orders set status='REFUNDED',payment_status='REFUNDED',updated_at=clock_timestamp() where id=p_order_id and status='REFUND_PENDING';
+   update public.commerce_orders set status='REFUNDED',payment_status='REFUNDED',updated_at=clock_timestamp() where id=p_order_id and status='REFUND_PENDING';
    if not found then raise exception 'settlement_state_conflict'; end if;
  end if;
  update public.commerce_settlement_operations set state='COMPLETED',updated_at=clock_timestamp() where id=op.id;

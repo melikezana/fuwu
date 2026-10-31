@@ -20,7 +20,7 @@ export type CommerceTables = {
   provider_service_offerings: Table<Offering>;
   provider_availability: Table<Availability>;
   provider_time_off: Table<TimeOff>;
-  orders: Table<CommerceOrder>;
+  commerce_orders: Table<CommerceOrder>;
   payment_transactions: Table<PaymentTransaction>;
   order_status_events: Table<OrderEvent>;
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
@@ -35,6 +35,7 @@ export type CommerceFunctions = {
   commerce_quote: { Args: { p_offering_id: string }; Returns: Json };
   commerce_admin_save_category: { Args: { p_id: string; p_name: string; p_slug: string; p_visible: boolean; p_featured: boolean; p_sort: number; p_icon: string }; Returns: undefined };
   commerce_set_daily_limit: { Args: { p_provider_id: string; p_limit: number }; Returns: undefined };
+  commerce_provider_capacity: { Args: { p_provider_id: string }; Returns: number | null };
   commerce_hold_order_priced: { Args: { p_offering_id: string; p_starts_at: string; p_district_id: string; p_address: string; p_idempotency_key: string; p_expected_price_minor: number; p_expected_total_minor: number; p_fee_consent: boolean; p_terms_version: string }; Returns: Json };
 
   commerce_provider_private: { Args: { p_provider_id: string }; Returns: Json };

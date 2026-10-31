@@ -1,0 +1,761 @@
+{
+  "rows": [
+    {
+      "route": "/",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/services",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/services/musluk-montaji",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/providers/37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-application",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/waitlist",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/orders/2a475bb2-ce5c-45a6-bfa6-7ab09e0afb25",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/store",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/provider-dashboard/profile",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/providers?id=37a05846-6543-4fb8-afe7-90ee3ba03501",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/provider-applications/f574a4be-c550-4169-a9f3-d34a33346e1b",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "width": 320
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 360,
+      "dimensions": {
+        "viewport": 360,
+        "width": 360
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "width": 390
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "width": 768
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 1024,
+      "dimensions": {
+        "viewport": 1024,
+        "width": 1024
+      },
+      "violations": []
+    },
+    {
+      "route": "/admin/verifications",
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "violations": []
+    }
+  ],
+  "errors": []
+}

@@ -8,14 +8,14 @@ export async function fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pi
   const category = await scalar(root, "select c.category_id from provider_service_offerings f join service_catalog c on c.id=f.service_id where f.id=$1", [offering]);
   const day = await scalar(root, "select ((clock_timestamp() at time zone 'Europe/Istanbul')::date+20)::text");
   // These are exclusively disposable test rows. No remote connection or project env file is used.
-  await root.query("update orders set status='CANCELLED' where status='PENDING_PAYMENT'");
+  await root.query("update commerce_orders set status='CANCELLED' where status='PENDING_PAYMENT'");
   await root.query("update providers set daily_order_limit=null where id=$1", [pid(1)]);
   await root.query("insert into app_settings(key,value) values('commission_rate','10'),('customer_fee_rate','0') on conflict(key) do update set value=excluded.value");
   const slots = () => guest.query("select * from commerce_slots($1,$2,$3)", [offering, day, district]);
   const times = (await slots()).rows;
   assert.ok(times.length > 8);
   const reserve = (db, index, total = 200000, consent = false, key = crypto.randomUUID()) => scalar(db, "select commerce_hold_order_priced($1,$2,$3,$4,$5,200000,$6,$7,'fuwu-fees-v1')", [offering, times[index].starts_at, district, "TEST FUWU3 Açık Adres Sokak No 30", key, total, consent]);
-  const cancel = order => root.query("update orders set status='CANCELLED' where id=$1", [order.id]);
+  const cancel = order => root.query("update commerce_orders set status='CANCELLED' where id=$1", [order.id]);
 
   await check("FUWU3: category visibility and presentation are admin-only and preserve custom categories without offerings", async () => {
     const id = crypto.randomUUID();
@@ -61,7 +61,7 @@ export async function fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pi
     assert.equal(order.customer_fee_minor, 10000); assert.equal(order.service_price_minor, 200000); assert.equal(order.customer_fee_bps, 500); assert.ok(order.fee_consent_at);
     await root.query("update app_settings set value='0' where key='customer_fee_rate'");
     const retry = await reserve(a, 0, 210000, true, key); assert.deepEqual(retry, order);
-    await assert.rejects(root.query("update orders set total_minor=total_minor+1 where id=$1", [order.id]), /immutable_order_price/);
+    await assert.rejects(root.query("update commerce_orders set total_minor=total_minor+1 where id=$1", [order.id]), /immutable_order_price/);
     assert.ok(await scalar(admin, "select count(*)::int from audit_logs where action='commerce.fee_changed'"));
   });
   await check("FUWU3: sandbox finance separates service GMV, customer charge, two revenues and unknown costs", async () => {
@@ -70,7 +70,7 @@ export async function fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pi
     await service.query("select commerce_attach_payment($1,'fuwu3-token','https://sandbox-cpp.iyzipay.com/test')", [order.id]);
     assert.equal(await scalar(service, "select commerce_resolve_payment($1,'fuwu3-token','fuwu3-payment',true,null,'fuwu3-item')", [order.id]), "CONFIRMED");
     const notEarned = await scalar(admin, "select commerce_admin_summary()"); assert.equal(notEarned.platform_gross_minor, before.platform_gross_minor);
-    await root.query("update orders set status='COMPLETED' where id=$1", [order.id]);
+    await root.query("update commerce_orders set status='COMPLETED' where id=$1", [order.id]);
     const after = await scalar(admin, "select commerce_admin_summary()");
     assert.equal(after.gmv_minor - before.gmv_minor, 200000); assert.equal(after.customer_collected_minor - before.customer_collected_minor, 210000);
     assert.equal(after.commission_minor - before.commission_minor, 20000); assert.equal(after.customer_fee_minor - before.customer_fee_minor, 10000); assert.equal(after.platform_gross_minor - before.platform_gross_minor, 30000);
@@ -89,7 +89,7 @@ export async function fuwu3Checks({ root, a, b, p, p2, admin, service, guest, pi
   await check("FUWU3: category rates override defaults without editing historical snapshots", async () => {
     await root.query("update service_categories set customer_fee_bps=750,provider_commission_bps=2000 where id=$1", [category]);
     const q = await scalar(guest, "select commerce_quote($1)", [offering]); assert.equal(q.customer_fee_minor, 15000); assert.equal(q.commission_minor, 40000);
-    assert.equal(await scalar(root, "select customer_fee_bps from orders where id=$1", [order.id]), 500);
+    assert.equal(await scalar(root, "select customer_fee_bps from commerce_orders where id=$1", [order.id]), 500);
     assert.ok(await scalar(admin, "select count(*)::int from audit_logs where entity_id=$1 and action='commerce.category_fee_changed'", [category]));
     await root.query("update service_categories set customer_fee_bps=null,provider_commission_bps=null where id=$1", [category]);
   });

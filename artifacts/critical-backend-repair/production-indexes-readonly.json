@@ -1,0 +1,746 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "app_settings",
+    "indexname": "app_settings_pkey",
+    "indexdef": "CREATE UNIQUE INDEX app_settings_pkey ON public.app_settings USING btree (key)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_action_idx",
+    "indexdef": "CREATE INDEX audit_logs_action_idx ON public.audit_logs USING btree (action)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_actor_idx",
+    "indexdef": "CREATE INDEX audit_logs_actor_idx ON public.audit_logs USING btree (actor_user_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_created_at_desc_idx",
+    "indexdef": "CREATE INDEX audit_logs_created_at_desc_idx ON public.audit_logs USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_entity_idx",
+    "indexdef": "CREATE INDEX audit_logs_entity_idx ON public.audit_logs USING btree (entity_type, entity_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_entity_type_entity_id_idx",
+    "indexdef": "CREATE INDEX audit_logs_entity_type_entity_id_idx ON public.audit_logs USING btree (entity_type, entity_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_logs",
+    "indexname": "audit_logs_pkey",
+    "indexdef": "CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "disputes",
+    "indexname": "disputes_order_id_idx",
+    "indexdef": "CREATE INDEX disputes_order_id_idx ON public.disputes USING btree (order_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "disputes",
+    "indexname": "disputes_order_id_open_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX disputes_order_id_open_unique_idx ON public.disputes USING btree (order_id) WHERE (status = ANY (ARRAY['OPEN'::text, 'UNDER_REVIEW'::text]))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "disputes",
+    "indexname": "disputes_pkey",
+    "indexdef": "CREATE UNIQUE INDEX disputes_pkey ON public.disputes USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "disputes",
+    "indexname": "disputes_status_idx",
+    "indexdef": "CREATE INDEX disputes_status_idx ON public.disputes USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "districts",
+    "indexname": "districts_city_name_idx",
+    "indexdef": "CREATE INDEX districts_city_name_idx ON public.districts USING btree (city, name)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "districts",
+    "indexname": "districts_city_name_unique",
+    "indexdef": "CREATE UNIQUE INDEX districts_city_name_unique ON public.districts USING btree (city, name)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "districts",
+    "indexname": "districts_is_active_idx",
+    "indexdef": "CREATE INDEX districts_is_active_idx ON public.districts USING btree (is_active)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "districts",
+    "indexname": "districts_pkey",
+    "indexdef": "CREATE UNIQUE INDEX districts_pkey ON public.districts USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "districts",
+    "indexname": "districts_slug_unique",
+    "indexdef": "CREATE UNIQUE INDEX districts_slug_unique ON public.districts USING btree (slug)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_pkey",
+    "indexdef": "CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_provider_id_idx",
+    "indexdef": "CREATE INDEX notifications_provider_id_idx ON public.notifications USING btree (provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_recipient_created_at_idx",
+    "indexdef": "CREATE INDEX notifications_recipient_created_at_idx ON public.notifications USING btree (recipient_user_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_recipient_request_event_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX notifications_recipient_request_event_unique_idx ON public.notifications USING btree (recipient_user_id, request_id, event)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_request_id_idx",
+    "indexdef": "CREATE INDEX notifications_request_id_idx ON public.notifications USING btree (request_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_unread_idx",
+    "indexdef": "CREATE INDEX notifications_unread_idx ON public.notifications USING btree (recipient_user_id, is_read, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "indexname": "notifications_user_created_at_idx",
+    "indexdef": "CREATE INDEX notifications_user_created_at_idx ON public.notifications USING btree (user_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_conversation_id_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX order_payments_conversation_id_unique_idx ON public.order_payments USING btree (iyzico_conversation_id) WHERE (iyzico_conversation_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_iyzico_payment_id_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX order_payments_iyzico_payment_id_unique_idx ON public.order_payments USING btree (iyzico_payment_id) WHERE (iyzico_payment_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_order_id_idx",
+    "indexdef": "CREATE INDEX order_payments_order_id_idx ON public.order_payments USING btree (order_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_payment_transaction_id_idx",
+    "indexdef": "CREATE INDEX order_payments_payment_transaction_id_idx ON public.order_payments USING btree (iyzico_payment_transaction_id) WHERE (iyzico_payment_transaction_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_pkey",
+    "indexdef": "CREATE UNIQUE INDEX order_payments_pkey ON public.order_payments USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "order_payments",
+    "indexname": "order_payments_status_idx",
+    "indexdef": "CREATE INDEX order_payments_status_idx ON public.order_payments USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_auto_approve_at_idx",
+    "indexdef": "CREATE INDEX orders_auto_approve_at_idx ON public.orders USING btree (auto_approve_at) WHERE (status = 'COMPLETED_PENDING_APPROVAL'::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_created_at_idx",
+    "indexdef": "CREATE INDEX orders_created_at_idx ON public.orders USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_customer_id_idx",
+    "indexdef": "CREATE INDEX orders_customer_id_idx ON public.orders USING btree (customer_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_pkey",
+    "indexdef": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_provider_id_idx",
+    "indexdef": "CREATE INDEX orders_provider_id_idx ON public.orders USING btree (provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_request_id_active_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX orders_request_id_active_unique_idx ON public.orders USING btree (request_id) WHERE (status <> ALL (ARRAY['CANCELLED'::text, 'PAYMENT_FAILED'::text]))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "orders",
+    "indexname": "orders_status_idx",
+    "indexdef": "CREATE INDEX orders_status_idx ON public.orders USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payments",
+    "indexname": "payments_confirmed_by_idx",
+    "indexdef": "CREATE INDEX payments_confirmed_by_idx ON public.payments USING btree (confirmed_by)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payments",
+    "indexname": "payments_pkey",
+    "indexdef": "CREATE UNIQUE INDEX payments_pkey ON public.payments USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payments",
+    "indexname": "payments_request_id_idx",
+    "indexdef": "CREATE INDEX payments_request_id_idx ON public.payments USING btree (request_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payments",
+    "indexname": "payments_request_id_unique",
+    "indexdef": "CREATE UNIQUE INDEX payments_request_id_unique ON public.payments USING btree (request_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payments",
+    "indexname": "payments_status_idx",
+    "indexdef": "CREATE INDEX payments_status_idx ON public.payments USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payouts",
+    "indexname": "payouts_iyzico_transfer_id_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX payouts_iyzico_transfer_id_unique_idx ON public.payouts USING btree (iyzico_transfer_id) WHERE (iyzico_transfer_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payouts",
+    "indexname": "payouts_order_id_active_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX payouts_order_id_active_unique_idx ON public.payouts USING btree (order_id) WHERE (status <> 'FAILED'::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payouts",
+    "indexname": "payouts_pkey",
+    "indexdef": "CREATE UNIQUE INDEX payouts_pkey ON public.payouts USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payouts",
+    "indexname": "payouts_provider_id_idx",
+    "indexdef": "CREATE INDEX payouts_provider_id_idx ON public.payouts USING btree (provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "payouts",
+    "indexname": "payouts_status_idx",
+    "indexdef": "CREATE INDEX payouts_status_idx ON public.payouts USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "indexname": "profiles_phone_idx",
+    "indexdef": "CREATE INDEX profiles_phone_idx ON public.profiles USING btree (phone)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "indexname": "profiles_pkey",
+    "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "indexname": "profiles_role_idx",
+    "indexdef": "CREATE INDEX profiles_role_idx ON public.profiles USING btree (role)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_category_id_idx",
+    "indexdef": "CREATE INDEX provider_applications_category_id_idx ON public.provider_applications USING btree (category_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_created_at_idx",
+    "indexdef": "CREATE INDEX provider_applications_created_at_idx ON public.provider_applications USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_district_id_idx",
+    "indexdef": "CREATE INDEX provider_applications_district_id_idx ON public.provider_applications USING btree (district_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_email_idx",
+    "indexdef": "CREATE INDEX provider_applications_email_idx ON public.provider_applications USING btree (lower(email)) WHERE ((email IS NOT NULL) AND (btrim(email) <> ''::text))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_pending_phone_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX provider_applications_pending_phone_unique_idx ON public.provider_applications USING btree (phone) WHERE (status = 'pending'::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_pending_user_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX provider_applications_pending_user_unique_idx ON public.provider_applications USING btree (user_id) WHERE ((user_id IS NOT NULL) AND (status = 'pending'::text))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_phone_idx",
+    "indexdef": "CREATE INDEX provider_applications_phone_idx ON public.provider_applications USING btree (phone)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_pkey",
+    "indexdef": "CREATE UNIQUE INDEX provider_applications_pkey ON public.provider_applications USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_status_idx",
+    "indexdef": "CREATE INDEX provider_applications_status_idx ON public.provider_applications USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_applications",
+    "indexname": "provider_applications_user_id_idx",
+    "indexdef": "CREATE INDEX provider_applications_user_id_idx ON public.provider_applications USING btree (user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_gallery_images",
+    "indexname": "idx_provider_gallery_provider_order",
+    "indexdef": "CREATE INDEX idx_provider_gallery_provider_order ON public.provider_gallery_images USING btree (provider_id, display_order)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "provider_gallery_images",
+    "indexname": "provider_gallery_images_pkey",
+    "indexdef": "CREATE UNIQUE INDEX provider_gallery_images_pkey ON public.provider_gallery_images USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_active_approved_idx",
+    "indexdef": "CREATE INDEX providers_active_approved_idx ON public.providers USING btree (is_active, is_approved)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_availability_idx",
+    "indexdef": "CREATE INDEX providers_availability_idx ON public.providers USING btree (availability)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_category_district_idx",
+    "indexdef": "CREATE INDEX providers_category_district_idx ON public.providers USING btree (category_id, district_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_category_id_idx",
+    "indexdef": "CREATE INDEX providers_category_id_idx ON public.providers USING btree (category_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_district_id_idx",
+    "indexdef": "CREATE INDEX providers_district_id_idx ON public.providers USING btree (district_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_iyzico_submerchant_key_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX providers_iyzico_submerchant_key_unique_idx ON public.providers USING btree (iyzico_submerchant_key) WHERE (iyzico_submerchant_key IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_iyzico_submerchant_status_idx",
+    "indexdef": "CREATE INDEX providers_iyzico_submerchant_status_idx ON public.providers USING btree (iyzico_submerchant_status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_last_active_at_idx",
+    "indexdef": "CREATE INDEX providers_last_active_at_idx ON public.providers USING btree (last_active_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_match_eligibility_idx",
+    "indexdef": "CREATE INDEX providers_match_eligibility_idx ON public.providers USING btree (category_id, district_id, is_active, is_approved, is_verified DESC, identity_verified DESC, phone_verified DESC, profile_completion_score DESC NULLS LAST, rating DESC, id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_phone_category_district_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX providers_phone_category_district_unique_idx ON public.providers USING btree (phone, category_id, district_id) WHERE (btrim(phone) <> ''::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_pkey",
+    "indexdef": "CREATE UNIQUE INDEX providers_pkey ON public.providers USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_rating_idx",
+    "indexdef": "CREATE INDEX providers_rating_idx ON public.providers USING btree (rating DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_response_time_minutes_idx",
+    "indexdef": "CREATE INDEX providers_response_time_minutes_idx ON public.providers USING btree (response_time_minutes)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_trust_flags_idx",
+    "indexdef": "CREATE INDEX providers_trust_flags_idx ON public.providers USING btree (is_verified, phone_verified, identity_verified)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "providers",
+    "indexname": "providers_user_id_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX providers_user_id_unique_idx ON public.providers USING btree (user_id) WHERE (user_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rate_limits",
+    "indexname": "rate_limits_pkey",
+    "indexdef": "CREATE UNIQUE INDEX rate_limits_pkey ON public.rate_limits USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rate_limits",
+    "indexname": "rate_limits_user_action_window_idx",
+    "indexdef": "CREATE INDEX rate_limits_user_action_window_idx ON public.rate_limits USING btree (user_id, action, window_start DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "rate_limits",
+    "indexname": "rate_limits_user_id_action_window_start_key",
+    "indexdef": "CREATE UNIQUE INDEX rate_limits_user_id_action_window_start_key ON public.rate_limits USING btree (user_id, action, window_start)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_messages",
+    "indexname": "request_messages_pkey",
+    "indexdef": "CREATE UNIQUE INDEX request_messages_pkey ON public.request_messages USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_messages",
+    "indexname": "request_messages_request_created_idx",
+    "indexdef": "CREATE INDEX request_messages_request_created_idx ON public.request_messages USING btree (request_id, created_at)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_messages",
+    "indexname": "request_messages_request_unread_idx",
+    "indexdef": "CREATE INDEX request_messages_request_unread_idx ON public.request_messages USING btree (request_id) WHERE (read_at IS NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_messages",
+    "indexname": "request_messages_sender_id_created_idx",
+    "indexdef": "CREATE INDEX request_messages_sender_id_created_idx ON public.request_messages USING btree (sender_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_reassignment_log",
+    "indexname": "request_reassignment_log_created_idx",
+    "indexdef": "CREATE INDEX request_reassignment_log_created_idx ON public.request_reassignment_log USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_reassignment_log",
+    "indexname": "request_reassignment_log_new_provider_idx",
+    "indexdef": "CREATE INDEX request_reassignment_log_new_provider_idx ON public.request_reassignment_log USING btree (new_provider_id) WHERE (new_provider_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_reassignment_log",
+    "indexname": "request_reassignment_log_pkey",
+    "indexdef": "CREATE UNIQUE INDEX request_reassignment_log_pkey ON public.request_reassignment_log USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_reassignment_log",
+    "indexname": "request_reassignment_log_request_created_idx",
+    "indexdef": "CREATE INDEX request_reassignment_log_request_created_idx ON public.request_reassignment_log USING btree (request_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "request_reassignment_log",
+    "indexname": "request_reassignment_log_request_idx",
+    "indexdef": "CREATE INDEX request_reassignment_log_request_idx ON public.request_reassignment_log USING btree (request_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "indexname": "reviews_pkey",
+    "indexdef": "CREATE UNIQUE INDEX reviews_pkey ON public.reviews USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "indexname": "reviews_provider_created_at_idx",
+    "indexdef": "CREATE INDEX reviews_provider_created_at_idx ON public.reviews USING btree (provider_id, created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "indexname": "reviews_provider_id_idx",
+    "indexdef": "CREATE INDEX reviews_provider_id_idx ON public.reviews USING btree (provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "indexname": "reviews_provider_user_unique",
+    "indexdef": "CREATE UNIQUE INDEX reviews_provider_user_unique ON public.reviews USING btree (provider_id, user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "indexname": "reviews_user_id_idx",
+    "indexdef": "CREATE INDEX reviews_user_id_idx ON public.reviews USING btree (user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_categories",
+    "indexname": "service_categories_is_active_idx",
+    "indexdef": "CREATE INDEX service_categories_is_active_idx ON public.service_categories USING btree (is_active)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_categories",
+    "indexname": "service_categories_name_unique",
+    "indexdef": "CREATE UNIQUE INDEX service_categories_name_unique ON public.service_categories USING btree (name)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_categories",
+    "indexname": "service_categories_pkey",
+    "indexdef": "CREATE UNIQUE INDEX service_categories_pkey ON public.service_categories USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_categories",
+    "indexname": "service_categories_slug_unique",
+    "indexdef": "CREATE UNIQUE INDEX service_categories_slug_unique ON public.service_categories USING btree (slug)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_accepted_at_idx",
+    "indexdef": "CREATE INDEX service_requests_accepted_at_idx ON public.service_requests USING btree (accepted_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_accepted_provider_id_idx",
+    "indexdef": "CREATE INDEX service_requests_accepted_provider_id_idx ON public.service_requests USING btree (accepted_provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_assigned_at_idx",
+    "indexdef": "CREATE INDEX service_requests_assigned_at_idx ON public.service_requests USING btree (assigned_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_assigned_provider_id_idx",
+    "indexdef": "CREATE INDEX service_requests_assigned_provider_id_idx ON public.service_requests USING btree (assigned_provider_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_budget_idx",
+    "indexdef": "CREATE INDEX service_requests_budget_idx ON public.service_requests USING btree (budget)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_budget_tag_idx",
+    "indexdef": "CREATE INDEX service_requests_budget_tag_idx ON public.service_requests USING btree (budget_tag)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_category_district_status_idx",
+    "indexdef": "CREATE INDEX service_requests_category_district_status_idx ON public.service_requests USING btree (category_id, district_id, status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_category_id_idx",
+    "indexdef": "CREATE INDEX service_requests_category_id_idx ON public.service_requests USING btree (category_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_created_at_idx",
+    "indexdef": "CREATE INDEX service_requests_created_at_idx ON public.service_requests USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_district_id_idx",
+    "indexdef": "CREATE INDEX service_requests_district_id_idx ON public.service_requests USING btree (district_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_emergency_assigned_idx",
+    "indexdef": "CREATE INDEX service_requests_emergency_assigned_idx ON public.service_requests USING btree (assigned_at) WHERE ((urgency_type = 'emergency'::text) AND (assigned_provider_id IS NOT NULL))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_emergency_assigned_sla_idx",
+    "indexdef": "CREATE INDEX service_requests_emergency_assigned_sla_idx ON public.service_requests USING btree (assigned_at) WHERE ((urgency_type = 'emergency'::text) AND (status = 'assigned'::text) AND (assigned_at IS NOT NULL))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_emergency_status_idx",
+    "indexdef": "CREATE INDEX service_requests_emergency_status_idx ON public.service_requests USING btree (emergency_status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_offered_price_idx",
+    "indexdef": "CREATE INDEX service_requests_offered_price_idx ON public.service_requests USING btree (offered_price)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_payment_method_idx",
+    "indexdef": "CREATE INDEX service_requests_payment_method_idx ON public.service_requests USING btree (payment_method)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_payment_preference_idx",
+    "indexdef": "CREATE INDEX service_requests_payment_preference_idx ON public.service_requests USING btree (payment_preference)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_pkey",
+    "indexdef": "CREATE UNIQUE INDEX service_requests_pkey ON public.service_requests USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_recent_duplicate_lookup_idx",
+    "indexdef": "CREATE INDEX service_requests_recent_duplicate_lookup_idx ON public.service_requests USING btree (user_id, category_id, district_id, created_at DESC) WHERE (status = ANY (ARRAY['pending'::text, 'assigned'::text, 'accepted'::text, 'in_progress'::text, 'yeni'::text, 'inceleniyor'::text, 'ustaya_yonlendirildi'::text, 'on_the_way'::text]))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_status_idx",
+    "indexdef": "CREATE INDEX service_requests_status_idx ON public.service_requests USING btree (status)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_urgency_idx",
+    "indexdef": "CREATE INDEX service_requests_urgency_idx ON public.service_requests USING btree (urgency)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_urgency_type_idx",
+    "indexdef": "CREATE INDEX service_requests_urgency_type_idx ON public.service_requests USING btree (urgency_type)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "service_requests",
+    "indexname": "service_requests_user_id_idx",
+    "indexdef": "CREATE INDEX service_requests_user_id_idx ON public.service_requests USING btree (user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_events",
+    "indexname": "webhook_events_created_at_idx",
+    "indexdef": "CREATE INDEX webhook_events_created_at_idx ON public.webhook_events USING btree (created_at DESC)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_events",
+    "indexname": "webhook_events_order_id_idx",
+    "indexdef": "CREATE INDEX webhook_events_order_id_idx ON public.webhook_events USING btree (order_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_events",
+    "indexname": "webhook_events_pkey",
+    "indexdef": "CREATE UNIQUE INDEX webhook_events_pkey ON public.webhook_events USING btree (id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_events",
+    "indexname": "webhook_events_provider_external_unique_idx",
+    "indexdef": "CREATE UNIQUE INDEX webhook_events_provider_external_unique_idx ON public.webhook_events USING btree (provider, external_event_id) WHERE (external_event_id IS NOT NULL)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "webhook_events",
+    "indexname": "webhook_events_status_idx",
+    "indexdef": "CREATE INDEX webhook_events_status_idx ON public.webhook_events USING btree (status)"
+  }
+]

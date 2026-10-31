@@ -2,6 +2,25 @@
 -- A PENDING_PAYMENT order is itself a ten-minute slot hold; no duplicate hold table.
 begin;
 
+-- Production's request-based public.orders is a separate financial contract.
+-- Never rename it, retarget its FKs or reinterpret its decimal amounts/statuses.
+-- A database that already applied the older commerce migration needs a separately
+-- reviewed data-preserving transition; do not create an empty competing store.
+do $$ begin
+ if exists(select 1 from information_schema.columns where table_schema='public' and table_name='orders' and column_name='offering_id') then
+  raise exception 'existing_commerce_orders_requires_reviewed_transition';
+ end if;
+end $$;
+
+-- Clean Supabase resets run seed AFTER migrations. Catalog INSERT...SELECT must
+-- see its category parents now. Preserve every existing category/active flag.
+insert into public.service_categories(name,slug) values
+ ('Tesisat','tesisat'),('Çilingir','cilingir'),('Elektrik Hizmeti','elektrik-hizmeti'),
+ ('Temizlik','temizlik'),('Halı Yıkama','hali-yikama'),('Klima & Beyaz Eşya','klima-beyaz-esya'),
+ ('Mobilya Montaj','mobilya-montaj'),('Boya Badana','boya-badana'),
+ ('Nakliye Yardımı','nakliye-yardimi'),('Bahçe Bakımı','bahce-bakimi'),('Havuz Bakımı','havuz-bakimi')
+on conflict(slug) do nothing;
+
 create table public.service_catalog (
   id uuid primary key default gen_random_uuid(),
   category_id uuid not null references public.service_categories(id),
@@ -46,7 +65,7 @@ create table public.provider_time_off (
   day date not null,
   unique(provider_id, day)
 );
-create table public.orders (
+create table public.commerce_orders (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null references public.profiles(id),
   provider_id uuid not null references public.providers(id),
@@ -74,11 +93,11 @@ create table public.orders (
   unique(customer_id, idempotency_key),
   check (commission_minor >= 0 and provider_gross_minor >= 0 and commission_minor + provider_gross_minor = total_minor)
 );
-create index commerce_provider_schedule on public.orders(provider_id, starts_at, ends_at);
-create index commerce_customer_orders on public.orders(customer_id, created_at desc);
+create index commerce_provider_schedule on public.commerce_orders(provider_id, starts_at, ends_at);
+create index commerce_customer_orders on public.commerce_orders(customer_id, created_at desc);
 create table public.payment_transactions (
   id uuid primary key default gen_random_uuid(),
-  order_id uuid not null unique references public.orders(id),
+  order_id uuid not null unique references public.commerce_orders(id),
   conversation_id text not null unique,
   checkout_token text unique,
   payment_page_url text,
@@ -93,12 +112,12 @@ create table public.payment_transactions (
 );
 create table public.order_status_events (
   id uuid primary key default gen_random_uuid(),
-  order_id uuid not null references public.orders(id),
+  order_id uuid not null references public.commerce_orders(id),
   status text not null,
   created_at timestamptz not null default now()
 );
 create table public.order_completion_codes (
-  order_id uuid primary key references public.orders(id),
+  order_id uuid primary key references public.commerce_orders(id),
   code text not null,
   failed_attempts integer not null default 0,
   locked_until timestamptz
@@ -110,7 +129,7 @@ alter table public.service_variants enable row level security;
 alter table public.provider_service_offerings enable row level security;
 alter table public.provider_availability enable row level security;
 alter table public.provider_time_off enable row level security;
-alter table public.orders enable row level security;
+alter table public.commerce_orders enable row level security;
 alter table public.payment_transactions enable row level security;
 alter table public.order_status_events enable row level security;
 alter table public.order_completion_codes enable row level security;
@@ -119,13 +138,13 @@ create policy variant_read on public.service_variants for select using (is_activ
 create policy offering_owner_read on public.provider_service_offerings for select to authenticated using (exists(select 1 from public.providers p where p.id=provider_id and p.user_id=auth.uid()) or public.current_user_is_admin());
 create policy availability_owner_read on public.provider_availability for select to authenticated using (exists(select 1 from public.providers p where p.id=provider_id and p.user_id=auth.uid()) or public.current_user_is_admin());
 create policy time_off_owner_read on public.provider_time_off for select to authenticated using (exists(select 1 from public.providers p where p.id=provider_id and p.user_id=auth.uid()) or public.current_user_is_admin());
-create policy order_participant_read on public.orders for select to authenticated using (customer_id=auth.uid() or exists(select 1 from public.providers p where p.id=provider_id and p.user_id=auth.uid()) or public.current_user_is_admin());
-create policy event_participant_read on public.order_status_events for select to authenticated using (exists(select 1 from public.orders o where o.id=order_id));
-create policy code_customer_read on public.order_completion_codes for select to authenticated using (exists(select 1 from public.orders o where o.id=order_id and o.customer_id=auth.uid()));
+create policy order_participant_read on public.commerce_orders for select to authenticated using (customer_id=auth.uid() or exists(select 1 from public.providers p where p.id=provider_id and p.user_id=auth.uid()) or public.current_user_is_admin());
+create policy event_participant_read on public.order_status_events for select to authenticated using (exists(select 1 from public.commerce_orders o where o.id=order_id));
+create policy code_customer_read on public.order_completion_codes for select to authenticated using (exists(select 1 from public.commerce_orders o where o.id=order_id and o.customer_id=auth.uid()));
 create policy transaction_admin_read on public.payment_transactions for select to authenticated using (public.current_user_is_admin());
 grant select on public.service_catalog, public.service_variants to anon, authenticated;
-grant select on public.provider_service_offerings, public.provider_availability, public.provider_time_off, public.orders, public.order_status_events, public.order_completion_codes, public.payment_transactions to authenticated;
-grant all on public.service_catalog, public.service_variants, public.provider_service_offerings, public.provider_availability, public.provider_time_off, public.orders, public.order_status_events, public.order_completion_codes, public.payment_transactions to service_role;
+grant select on public.provider_service_offerings, public.provider_availability, public.provider_time_off, public.commerce_orders, public.order_status_events, public.order_completion_codes, public.payment_transactions to authenticated;
+grant all on public.service_catalog, public.service_variants, public.provider_service_offerings, public.provider_availability, public.provider_time_off, public.commerce_orders, public.order_status_events, public.order_completion_codes, public.payment_transactions to service_role;
 -- No authenticated INSERT/UPDATE/DELETE policies or grants: every mutation uses an RPC.
 
 create function public.commerce_record_status() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
@@ -135,7 +154,7 @@ begin
   end if;
   return new;
 end $$;
-create trigger commerce_status_history after insert or update of status on public.orders for each row execute function public.commerce_record_status();
+create trigger commerce_status_history after insert or update of status on public.commerce_orders for each row execute function public.commerce_record_status();
 
 create function public.commerce_offers(p_service_id uuid default null, p_district_id uuid default null, p_provider_id uuid default null)
 returns jsonb language sql stable security definer set search_path=public,pg_temp as $$
@@ -181,7 +200,7 @@ language sql stable security definer set search_path=public,pg_temp as $$
  and p_day between (now() at time zone 'Europe/Istanbul')::date and (now() at time zone 'Europe/Istanbul')::date+30
  and s.start_time > now()+interval '30 minutes'
  and not exists(select 1 from public.provider_time_off t where t.provider_id=p.id and t.day=p_day)
- and not exists(select 1 from public.orders o where o.provider_id=p.id
+ and not exists(select 1 from public.commerce_orders o where o.provider_id=p.id
    and (o.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED','DISPUTED') or (o.status='PENDING_PAYMENT' and o.expires_at>now()))
    and tstzrange(o.starts_at,o.ends_at,'[)') && tstzrange(s.start_time,s.start_time+make_interval(mins=>f.duration_minutes),'[)'))
  -- Legacy requests have no trustworthy duration: reserve their whole day until reconciled.
@@ -192,7 +211,7 @@ $$;
 
 create function public.commerce_hold_order(p_offering_id uuid, p_starts_at timestamptz, p_district_id uuid, p_address text, p_idempotency_key uuid, p_expected_price_minor integer)
 returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
-declare f public.provider_service_offerings; p public.providers; c public.service_catalog; o public.orders; slot_end timestamptz; rate numeric:=0.10;
+declare f public.provider_service_offerings; p public.providers; c public.service_catalog; o public.commerce_orders; slot_end timestamptz; rate numeric:=0.10;
 begin
  if auth.uid() is null then raise exception 'unauthorized' using errcode='42501'; end if;
  if p_idempotency_key is null or p_address is null or length(btrim(p_address)) not between 10 and 1000 then raise exception 'invalid_address'; end if;
@@ -200,12 +219,12 @@ begin
  if not found then raise exception 'offering_unavailable'; end if;
  -- All reservation/schedule/legacy assignment mutations take this same lock.
  select * into p from public.providers where id=f.provider_id for update;
- select * into o from public.orders where customer_id=auth.uid() and idempotency_key=p_idempotency_key;
+ select * into o from public.commerce_orders where customer_id=auth.uid() and idempotency_key=p_idempotency_key;
  if found then
    if o.offering_id<>p_offering_id or o.starts_at<>p_starts_at or o.address<>btrim(p_address) or o.district_id<>p_district_id then raise exception 'idempotency_conflict'; end if;
    return to_jsonb(o);
  end if;
- if (select count(*) from public.orders where customer_id=auth.uid() and status='PENDING_PAYMENT' and expires_at>now())>=3 then raise exception 'too_many_holds'; end if;
+ if (select count(*) from public.commerce_orders where customer_id=auth.uid() and status='PENDING_PAYMENT' and expires_at>now())>=3 then raise exception 'too_many_holds'; end if;
  select * into f from public.provider_service_offerings where id=p_offering_id;
  if f.price_minor is distinct from p_expected_price_minor then raise exception 'price_changed'; end if;
  select * into c from public.service_catalog where id=f.service_id;
@@ -213,7 +232,7 @@ begin
  if slot_end is null then raise exception 'slot_unavailable'; end if;
  select case when replace(value,',','.') ~ '^[0-9]+(\.[0-9]+)?$' then least(1,case when replace(value,',','.')::numeric>1 then replace(value,',','.')::numeric/100 else replace(value,',','.')::numeric end) else 0.10 end into rate from public.app_settings where key='commission_rate';
  rate:=coalesce(rate,0.10);
- insert into public.orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,expires_at,idempotency_key)
+ insert into public.commerce_orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,expires_at,idempotency_key)
  values(auth.uid(),p.id,f.id,c.name,(select name from public.service_variants where id=f.variant_id),c.scope,p.name,p_district_id,(select name from public.districts where id=p_district_id),btrim(p_address),p_starts_at,slot_end,f.price_minor,round(f.price_minor*rate)::int,f.price_minor-round(f.price_minor*rate)::int,now()+interval '10 minutes',p_idempotency_key) returning * into o;
  insert into public.order_completion_codes(order_id,code) values(o.id,((('x'||substr(replace(gen_random_uuid()::text,'-',''),1,8))::bit(32)::bigint % 900000)+100000)::text);
  return to_jsonb(o);
@@ -222,14 +241,14 @@ end $$;
 create function public.commerce_expire_holds() returns integer language plpgsql security definer set search_path=public,pg_temp as $$
 declare n integer;
 begin
- update public.orders set status='CANCELLED',updated_at=now() where status='PENDING_PAYMENT' and expires_at<=now();
+ update public.commerce_orders set status='CANCELLED',updated_at=now() where status='PENDING_PAYMENT' and expires_at<=now();
  get diagnostics n=row_count; return n;
 end $$;
 
 create function public.commerce_begin_payment(p_order_id uuid) returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders; t public.payment_transactions; n integer;
+declare o public.commerce_orders; t public.payment_transactions; n integer;
 begin
- select * into o from public.orders where id=p_order_id for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null or o.status<>'PENDING_PAYMENT' or o.expires_at<=now() then raise exception 'hold_expired'; end if;
  insert into public.payment_transactions(order_id,conversation_id) values(o.id,'order-'||o.id) on conflict(order_id) do nothing;
  get diagnostics n=row_count;
@@ -245,11 +264,11 @@ end $$;
 
 create function public.commerce_resolve_payment(p_order_id uuid,p_token text,p_payment_id text,p_success boolean,p_fee_minor integer default null,p_item_transaction_id text default null)
 returns text language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders; t public.payment_transactions; next_status text;
+declare o public.commerce_orders; t public.payment_transactions; next_status text;
 begin
  -- Provider first, then order: same lock order as reservation and lifecycle RPCs.
- perform 1 from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ perform 1 from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  if t.id is null or t.checkout_token is distinct from p_token then raise exception 'payment_token_mismatch'; end if;
  if t.status='SUCCEEDED' then return o.status; end if;
@@ -257,19 +276,19 @@ begin
  update public.payment_transactions set status=case when p_success then 'SUCCEEDED' else 'FAILED' end,payment_id=coalesce(p_payment_id,payment_id),item_transaction_id=coalesce(p_item_transaction_id,item_transaction_id),updated_at=now() where id=t.id;
  if p_success then
    next_status:=case when o.status='PENDING_PAYMENT' and o.expires_at>now() then 'CONFIRMED' else 'REFUND_PENDING' end;
-   update public.orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,processor_fee_minor=p_fee_minor,updated_at=now() where id=o.id;
+   update public.commerce_orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,processor_fee_minor=p_fee_minor,updated_at=now() where id=o.id;
  else
-   if o.status='PENDING_PAYMENT' then update public.orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=now() where id=o.id; end if;
+   if o.status='PENDING_PAYMENT' then update public.commerce_orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=now() where id=o.id; end if;
  end if;
- return (select status from public.orders where id=o.id);
+ return (select status from public.commerce_orders where id=o.id);
 end $$;
 
 -- Durable claims prevent duplicate external approval/refund requests. Ambiguous
 -- processor timeouts stay IN_FLIGHT for reconciliation rather than being retried blindly.
 create function public.commerce_claim_settlement(p_order_id uuid,p_kind text) returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders; t public.payment_transactions;
+declare o public.commerce_orders; t public.payment_transactions;
 begin
- select * into o from public.orders where id=p_order_id for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  if t.status is distinct from 'SUCCEEDED' or t.item_transaction_id is null then return jsonb_build_object('claimed',false); end if;
  if p_kind='release' and o.status='COMPLETED' and t.payout_state='NONE' and t.refund_state='NONE' then
@@ -281,22 +300,22 @@ begin
 end $$;
 create function public.commerce_finish_settlement(p_order_id uuid,p_kind text) returns void language plpgsql security definer set search_path=public,pg_temp as $$
 begin
- perform 1 from public.orders where id=p_order_id for update;
+ perform 1 from public.commerce_orders where id=p_order_id for update;
  if p_kind='release' then
    update public.payment_transactions set payout_state='RELEASED',updated_at=now() where order_id=p_order_id and payout_state='IN_FLIGHT';
  elsif p_kind='refund' then
    update public.payment_transactions set refund_state='REFUNDED',updated_at=now() where order_id=p_order_id and refund_state='IN_FLIGHT';
-   if found then update public.orders set status='REFUNDED',payment_status='REFUNDED',updated_at=now() where id=p_order_id and status='REFUND_PENDING'; end if;
+   if found then update public.commerce_orders set status='REFUNDED',payment_status='REFUNDED',updated_at=now() where id=p_order_id and status='REFUND_PENDING'; end if;
  else raise exception 'invalid_settlement'; end if;
 end $$;
 
 create function public.commerce_transition_order(p_order_id uuid,p_status text,p_code text default null)
 returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders; p public.providers; secret public.order_completion_codes; next_status text;
+declare o public.commerce_orders; p public.providers; secret public.order_completion_codes; next_status text;
 begin
  if auth.uid() is null then raise exception 'unauthorized' using errcode='42501'; end if;
- select * into p from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ select * into p from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null then raise exception 'order_not_found'; end if;
  next_status:=p_status;
  if p_status='CANCELLED' and o.customer_id=auth.uid() and o.status in ('PENDING_PAYMENT','CONFIRMED') and o.starts_at>now() then
@@ -312,7 +331,7 @@ begin
      end if;
    end if;
  else raise exception 'transition_forbidden' using errcode='42501'; end if;
- update public.orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
+ update public.commerce_orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
  return jsonb_build_object('status',next_status);
 end $$;
 
@@ -343,7 +362,7 @@ declare pid uuid:=coalesce(new.accepted_provider_id,new.assigned_provider_id);
 begin
  if pid is not null and new.status in ('assigned','accepted','on_the_way','in_progress','ustaya_yonlendirildi') then
    perform 1 from public.providers where id=pid for update;
-   if exists(select 1 from public.orders o where o.provider_id=pid
+   if exists(select 1 from public.commerce_orders o where o.provider_id=pid
       and (o.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','DISPUTED') or (o.status='PENDING_PAYMENT' and o.expires_at>now()))
       and (new.preferred_date is null or (o.starts_at at time zone 'Europe/Istanbul')::date=new.preferred_date)) then raise exception 'commerce_booking_conflict'; end if;
  end if;
@@ -352,9 +371,9 @@ end $$;
 create trigger commerce_legacy_booking_guard before insert or update of assigned_provider_id,accepted_provider_id,status,preferred_date,preferred_time on public.service_requests for each row execute function public.commerce_guard_legacy_booking();
 
 create function public.commerce_submit_review(p_order_id uuid,p_rating smallint,p_comment text) returns uuid language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders; rid uuid;
+declare o public.commerce_orders; rid uuid;
 begin
- select * into o from public.orders where id=p_order_id and customer_id=auth.uid() and status='COMPLETED';
+ select * into o from public.commerce_orders where id=p_order_id and customer_id=auth.uid() and status='COMPLETED';
  if o.id is null then raise exception 'review_not_eligible' using errcode='42501'; end if;
  if p_rating not between 1 and 5 or p_comment is null or length(btrim(p_comment)) not between 10 and 1000 then raise exception 'invalid_review'; end if;
  perform 1 from public.providers where id=o.provider_id for update;

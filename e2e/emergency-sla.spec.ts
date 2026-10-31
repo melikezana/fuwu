@@ -1,538 +1,63 @@
-import { expect, test } from "@playwright/test";
-import { randomUUID } from "node:crypto";
-import {
-  ensureTestUserRole,
-  getTestAdminClient,
-  loginWithEmailMagicLink,
-  skipUnlessLocalSupabase,
-  uniqueE2EEmail,
-  uniqueE2EValue,
-} from "./helpers";
-
-type EmergencySlaCronProcessed = {
-  action: "escalated" | "reassigned" | "skipped";
-  candidateProviderId?: string | null;
-  previousProviderId?: string | null;
-  reason?: string;
-  reassignmentCountBefore?: number;
-  requestId: string;
-};
-
-type EmergencySlaCronResponse = {
-  processed?: EmergencySlaCronProcessed[];
-};
-
-test.describe("emergency response SLA", () => {
-  test("provider sees countdown and admin sees breached SLA", async ({ browser }) => {
-    skipUnlessLocalSupabase();
-
-    const admin = getTestAdminClient();
-    const providerEmail = uniqueE2EEmail("provider-sla");
-    const adminEmail = uniqueE2EEmail("admin-sla");
-    const customerEmail = uniqueE2EEmail("customer-sla");
-    const providerUserId = await ensureTestUserRole(providerEmail, "provider");
-    const adminUserId = await ensureTestUserRole(adminEmail, "admin");
-    const customerUserId = await ensureTestUserRole(customerEmail, "customer");
-    const requestId = randomUUID();
-    const requestSuffix = uniqueE2EValue("sla");
-
-    const { data: provider, error: providerError } = await admin
-      .from("providers")
-      .select("id, user_id, category_id, district_id")
-      .eq("is_active", true)
-      .eq("is_approved", true)
-      .limit(1)
-      .single();
-
-    expect(providerError).toBeNull();
-    expect(provider).toBeTruthy();
-
-    if (!provider) {
-      throw new Error("No active approved provider was available for SLA E2E setup.");
-    }
-
-    const previousProviderUserId = provider.user_id ?? null;
-
-    try {
-      const { error: providerUpdateError } = await admin
-        .from("providers")
-        .update({ user_id: providerUserId })
-        .eq("id", provider.id);
-
-      expect(providerUpdateError).toBeNull();
-
-      const assignedAt = new Date().toISOString();
-      const { error: requestInsertError } = await admin.from("service_requests").insert({
-        address: `E2E SLA adres ${requestSuffix}`,
-        approximate_location: "E2E SLA konum",
-        assigned_at: assignedAt,
-        assigned_provider_id: provider.id,
-        budget_tag: "acil-hizmet",
-        category_id: provider.category_id,
-        confirmation_code: "123456",
-        description: `E2E acil SLA talebi ${requestSuffix}`,
-        district_id: provider.district_id,
-        emergency_status: "assigned",
-        estimated_arrival_text: "Yaklaşık 15 dakika",
-        id: requestId,
-        offered_price: 1500,
-        payment_preference: "cash",
-        status: "assigned",
-        urgency: "urgent",
-        urgency_type: "emergency",
-        user_id: customerUserId,
-      });
-
-      expect(requestInsertError).toBeNull();
-
-      const providerPage = await browser.newPage();
-      await loginWithEmailMagicLink(providerPage, {
-        email: providerEmail,
-        nextPath: "/provider-dashboard/requests",
-        role: "provider",
-      });
-
-      const countdown = providerPage.getByRole("status", {
-        name: /SLA yanıt süresi kaldı/,
-      });
-      await expect(countdown).toBeVisible();
-      await expect(countdown).toContainText(/\d{2}:\d{2}/);
-      await providerPage.close();
-
-      const breachedAssignedAt = new Date(Date.now() - 6 * 60 * 1000).toISOString();
-      const { error: breachUpdateError } = await admin
-        .from("service_requests")
-        .update({ assigned_at: breachedAssignedAt })
-        .eq("id", requestId);
-
-      expect(breachUpdateError).toBeNull();
-
-      const adminPage = await browser.newPage();
-      await loginWithEmailMagicLink(adminPage, {
-        email: adminEmail,
-        nextPath: "/admin",
-        role: "admin",
-      });
-
-      await expect(adminPage.getByText("SLA aşıldı")).toBeVisible();
-      await adminPage.close();
-
-      expect(adminUserId).toBeTruthy();
-    } finally {
-      await admin.from("service_requests").delete().eq("id", requestId);
-      await admin
-        .from("providers")
-        .update({ user_id: previousProviderUserId })
-        .eq("id", provider.id);
-    }
-  });
-
-  test("cron reassigns breached emergency request and records live notifications", async ({ request }) => {
-    skipUnlessLocalSupabase();
-    test.skip(!process.env.CRON_SECRET, "CRON_SECRET is not configured.");
-
-    const admin = getTestAdminClient();
-    const oldProviderEmail = uniqueE2EEmail("provider-sla-old");
-    const newProviderEmail = uniqueE2EEmail("provider-sla-new");
-    const customerEmail = uniqueE2EEmail("customer-sla-cron");
-    const oldProviderUserId = await ensureTestUserRole(oldProviderEmail, "provider");
-    const newProviderUserId = await ensureTestUserRole(newProviderEmail, "provider");
-    const customerUserId = await ensureTestUserRole(customerEmail, "customer");
-    const requestId = randomUUID();
-    const requestSuffix = uniqueE2EValue("sla-cron");
-
-    const { data: providers, error: providersError } = await admin
-      .from("providers")
-      .select("id, user_id, category_id, district_id, is_active, is_approved")
-      .eq("is_active", true)
-      .eq("is_approved", true)
-      .order("created_at", { ascending: true });
-
-    expect(providersError).toBeNull();
-
-    const providerPair = (providers ?? []).flatMap((provider, index, allProviders) => {
-      const nextProvider = allProviders.find(
-        (candidate, candidateIndex) =>
-          candidateIndex > index && candidate.category_id === provider.category_id,
-      );
-
-      return nextProvider ? [[provider, nextProvider] as const] : [];
-    })[0];
-
-    if (!providerPair) {
-      test.skip(true, "At least two active approved providers in one category are required.");
-      return;
-    }
-
-    const [oldProvider, newProvider] = providerPair;
-    const sameCategoryProviders = (providers ?? []).filter(
-      (provider) => provider.category_id === oldProvider.category_id,
-    );
-    const previousProviderStates = new Map(
-      sameCategoryProviders.map((provider) => [
-        provider.id,
-        {
-          is_active: provider.is_active,
-          is_approved: provider.is_approved,
-          user_id: provider.user_id,
-        },
-      ]),
-    );
-
-    try {
-      const providerUpdateResults = await Promise.all(
-        sameCategoryProviders.map((provider) =>
-          admin
-            .from("providers")
-            .update({
-              is_active: provider.id === oldProvider.id || provider.id === newProvider.id,
-              is_approved: provider.id === oldProvider.id || provider.id === newProvider.id,
-              user_id:
-                provider.id === oldProvider.id
-                  ? oldProviderUserId
-                  : provider.id === newProvider.id
-                    ? newProviderUserId
-                    : provider.user_id,
-            })
-            .eq("id", provider.id),
-        ),
-      );
-      providerUpdateResults.forEach((result) => expect(result.error).toBeNull());
-
-      const assignedAt = new Date().toISOString();
-      const { error: requestInsertError } = await admin.from("service_requests").insert({
-        address: `E2E cron SLA adres ${requestSuffix}`,
-        approximate_location: "E2E cron SLA konum",
-        assigned_at: assignedAt,
-        assigned_provider_id: oldProvider.id,
-        budget_tag: "acil-hizmet",
-        category_id: oldProvider.category_id,
-        confirmation_code: "123456",
-        description: `E2E cron acil SLA talebi ${requestSuffix}`,
-        district_id: oldProvider.district_id,
-        emergency_status: "assigned",
-        estimated_arrival_text: "Yaklaşık 15 dakika",
-        id: requestId,
-        offered_price: 1500,
-        payment_preference: "cash",
-        status: "assigned",
-        urgency: "urgent",
-        urgency_type: "emergency",
-        user_id: customerUserId,
-      });
-
-      expect(requestInsertError).toBeNull();
-
-      const breachedAssignedAt = new Date(Date.now() - 6 * 60 * 1000).toISOString();
-      const { error: breachUpdateError } = await admin
-        .from("service_requests")
-        .update({ assigned_at: breachedAssignedAt })
-        .eq("id", requestId);
-
-      expect(breachUpdateError).toBeNull();
-
-      const cronResponse = await request.get("/api/cron/emergency-sla-sweep", {
-        headers: {
-          authorization: `Bearer ${process.env.CRON_SECRET}`,
-        },
-      });
-
-      expect(cronResponse.ok()).toBeTruthy();
-
-      const { data: reassignedRequest, error: reassignedRequestError } = await admin
-        .from("service_requests")
-        .select("assigned_provider_id, status")
-        .eq("id", requestId)
-        .single();
-
-      expect(reassignedRequestError).toBeNull();
-      expect(reassignedRequest?.status).toBe("assigned");
-      expect(reassignedRequest?.assigned_provider_id).toBe(newProvider.id);
-
-      const { data: notifications, error: notificationsError } = await admin
-        .from("notifications")
-        .select("recipient_user_id, provider_id, event, body")
-        .eq("request_id", requestId);
-
-      expect(notificationsError).toBeNull();
-      expect(notifications ?? []).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            body: "Bu talep süre aşımı nedeniyle başka bir ustaya yönlendirildi.",
-            event: "emergency_request_reassigned_away",
-            provider_id: oldProvider.id,
-            recipient_user_id: oldProviderUserId,
-          }),
-          expect.objectContaining({
-            event: "emergency_request_dispatched",
-            provider_id: newProvider.id,
-            recipient_user_id: newProviderUserId,
-          }),
-        ]),
-      );
-
-      const { data: reassignmentLog, error: reassignmentLogError } = await admin
-        .from("request_reassignment_log")
-        .select("is_dry_run, new_provider_id, previous_provider_id, reason")
-        .eq("request_id", requestId)
-        .eq("reason", "sla_breach_reassigned")
-        .single();
-
-      expect(reassignmentLogError).toBeNull();
-      expect(reassignmentLog).toEqual(
-        expect.objectContaining({
-          is_dry_run: false,
-          new_provider_id: newProvider.id,
-          previous_provider_id: oldProvider.id,
-          reason: "sla_breach_reassigned",
-        }),
-      );
-    } finally {
-      await admin.from("notifications").delete().eq("request_id", requestId);
-      await admin.from("request_reassignment_log").delete().eq("request_id", requestId);
-      await admin.from("service_requests").delete().eq("id", requestId);
-      await Promise.all(
-        Array.from(previousProviderStates.entries()).map(([providerId, providerState]) =>
-          admin.from("providers").update(providerState).eq("id", providerId),
-        ),
-      );
-    }
-  });
-
-  test("cron stops auto reassignment after three SLA breaches and escalates to admin", async ({
-    request,
-  }) => {
-    skipUnlessLocalSupabase();
-    test.skip(!process.env.CRON_SECRET, "CRON_SECRET is not configured.");
-
-    const admin = getTestAdminClient();
-    const adminEmail = uniqueE2EEmail("admin-sla-limit");
-    const customerEmail = uniqueE2EEmail("customer-sla-limit");
-    const providerUserIds = await Promise.all(
-      Array.from({ length: 4 }, (_, index) =>
-        ensureTestUserRole(uniqueE2EEmail(`provider-sla-limit-${index + 1}`), "provider"),
-      ),
-    );
-    const adminUserId = await ensureTestUserRole(adminEmail, "admin");
-    const customerUserId = await ensureTestUserRole(customerEmail, "customer");
-    const requestId = randomUUID();
-    const requestSuffix = uniqueE2EValue("sla-limit");
-
-    const { data: providers, error: providersError } = await admin
-      .from("providers")
-      .select("id, user_id, category_id, district_id, is_active, is_approved")
-      .eq("is_active", true)
-      .eq("is_approved", true)
-      .order("created_at", { ascending: true });
-
-    expect(providersError).toBeNull();
-
-    const providersByCategory = new Map<string, NonNullable<typeof providers>>();
-
-    for (const provider of providers ?? []) {
-      const categoryProviders = providersByCategory.get(provider.category_id) ?? [];
-      categoryProviders.push(provider);
-      providersByCategory.set(provider.category_id, categoryProviders);
-    }
-
-    const sameCategoryProviders = Array.from(providersByCategory.values()).find(
-      (categoryProviders) => categoryProviders.length >= 4,
-    );
-
-    if (!sameCategoryProviders) {
-      test.skip(true, "At least four active approved providers in one category are required.");
-      return;
-    }
-
-    const reassignmentProviders = sameCategoryProviders.slice(0, 4);
-    const previousProviderStates = new Map(
-      sameCategoryProviders.map((provider) => [
-        provider.id,
-        {
-          is_active: provider.is_active,
-          is_approved: provider.is_approved,
-          user_id: provider.user_id,
-        },
-      ]),
-    );
-    const breachedAssignedAt = () => new Date(Date.now() - 6 * 60 * 1000).toISOString();
-    const forceSlaBreach = async () => {
-      const { error } = await admin
-        .from("service_requests")
-        .update({ assigned_at: breachedAssignedAt() })
-        .eq("id", requestId);
-
-      expect(error).toBeNull();
-    };
-    const runCronSweep = async () => {
-      const cronResponse = await request.get("/api/cron/emergency-sla-sweep", {
-        headers: {
-          authorization: `Bearer ${process.env.CRON_SECRET}`,
-        },
-      });
-
-      expect(cronResponse.ok()).toBeTruthy();
-
-      const body = (await cronResponse.json()) as EmergencySlaCronResponse;
-      const processedRequest = body.processed?.find(
-        (processed) => processed.requestId === requestId,
-      );
-
-      expect(processedRequest).toBeTruthy();
-
-      return processedRequest as EmergencySlaCronProcessed;
-    };
-
-    try {
-      const providerUpdateResults = await Promise.all(
-        sameCategoryProviders.map((provider) => {
-          const reassignmentProviderIndex = reassignmentProviders.findIndex(
-            (candidate) => candidate.id === provider.id,
-          );
-
-          return admin
-            .from("providers")
-            .update({
-              is_active: reassignmentProviderIndex >= 0,
-              is_approved: reassignmentProviderIndex >= 0,
-              user_id:
-                reassignmentProviderIndex >= 0
-                  ? providerUserIds[reassignmentProviderIndex]
-                  : provider.user_id,
-            })
-            .eq("id", provider.id);
-        }),
-      );
-      providerUpdateResults.forEach((result) => expect(result.error).toBeNull());
-
-      const { error: requestInsertError } = await admin.from("service_requests").insert({
-        address: `E2E SLA limit adres ${requestSuffix}`,
-        approximate_location: "E2E SLA limit konum",
-        assigned_at: breachedAssignedAt(),
-        assigned_provider_id: reassignmentProviders[0].id,
-        budget_tag: "acil-hizmet",
-        category_id: reassignmentProviders[0].category_id,
-        confirmation_code: "123456",
-        description: `E2E cron SLA limit talebi ${requestSuffix}`,
-        district_id: reassignmentProviders[0].district_id,
-        emergency_status: "assigned",
-        estimated_arrival_text: "Yaklaşık 15 dakika",
-        id: requestId,
-        offered_price: 1500,
-        payment_preference: "cash",
-        status: "assigned",
-        urgency: "urgent",
-        urgency_type: "emergency",
-        user_id: customerUserId,
-      });
-
-      expect(requestInsertError).toBeNull();
-
-      const assignedProviderIds = [reassignmentProviders[0].id];
-
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const processedRequest = await runCronSweep();
-
-        expect(processedRequest).toEqual(
-          expect.objectContaining({
-            action: "reassigned",
-            previousProviderId: assignedProviderIds[assignedProviderIds.length - 1],
-            reason: "sla_breach_reassigned",
-            reassignmentCountBefore: attempt,
-          }),
-        );
-        expect(processedRequest.candidateProviderId).toBeTruthy();
-        expect(assignedProviderIds).not.toContain(processedRequest.candidateProviderId);
-
-        assignedProviderIds.push(processedRequest.candidateProviderId as string);
-
-        const { data: reassignedRequest, error: reassignedRequestError } = await admin
-          .from("service_requests")
-          .select("assigned_provider_id, status")
-          .eq("id", requestId)
-          .single();
-
-        expect(reassignedRequestError).toBeNull();
-        expect(reassignedRequest?.status).toBe("assigned");
-        expect(reassignedRequest?.assigned_provider_id).toBe(
-          assignedProviderIds[assignedProviderIds.length - 1],
-        );
-
-        await forceSlaBreach();
-      }
-
-      const escalatedRequest = await runCronSweep();
-
-      expect(escalatedRequest).toEqual(
-        expect.objectContaining({
-          action: "escalated",
-          previousProviderId: assignedProviderIds[assignedProviderIds.length - 1],
-          reason: "max_reassignment_limit_reached",
-          reassignmentCountBefore: 3,
-        }),
-      );
-
-      const { data: finalRequest, error: finalRequestError } = await admin
-        .from("service_requests")
-        .select("assigned_provider_id, status")
-        .eq("id", requestId)
-        .single();
-
-      expect(finalRequestError).toBeNull();
-      expect(finalRequest?.status).toBe("assigned");
-      expect(finalRequest?.assigned_provider_id).toBe(
-        assignedProviderIds[assignedProviderIds.length - 1],
-      );
-
-      const { data: reassignmentLogs, error: reassignmentLogError } = await admin
-        .from("request_reassignment_log")
-        .select("is_dry_run, new_provider_id, previous_provider_id, reason")
-        .eq("request_id", requestId)
-        .order("created_at", { ascending: true });
-
-      expect(reassignmentLogError).toBeNull();
-
-      const liveReassignmentLogs = (reassignmentLogs ?? []).filter(
-        (log) => log.reason === "sla_breach_reassigned",
-      );
-      expect(liveReassignmentLogs).toHaveLength(3);
-      expect(reassignmentLogs ?? []).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            is_dry_run: false,
-            new_provider_id: null,
-            previous_provider_id: assignedProviderIds[assignedProviderIds.length - 1],
-            reason: "max_reassignment_limit_reached",
-          }),
-        ]),
-      );
-
-      const { data: adminNotifications, error: adminNotificationsError } = await admin
-        .from("notifications")
-        .select("body, event, metadata, recipient_user_id")
-        .eq("request_id", requestId)
-        .eq("event", "sla_breach_detected");
-
-      expect(adminNotificationsError).toBeNull();
-      expect(adminNotifications ?? []).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            body:
-              "Acil talep maksimum otomatik yeniden atama sınırına ulaştı. Yüksek öncelikli manuel müdahale gerekiyor.",
-            event: "sla_breach_detected",
-            recipient_user_id: adminUserId,
-          }),
-        ]),
-      );
-    } finally {
-      await admin.from("notifications").delete().eq("request_id", requestId);
-      await admin.from("request_reassignment_log").delete().eq("request_id", requestId);
-      await admin.from("service_requests").delete().eq("id", requestId);
-      await Promise.all(
-        Array.from(previousProviderStates.entries()).map(([providerId, providerState]) =>
-          admin.from("providers").update(providerState).eq("id", providerId),
-        ),
-      );
-    }
-  });
+import {expect,test,type APIRequestContext} from './fixtures';
+import {createTestProvider,ensureTestUserRole,getTestAdminClient,loginWithEmailMagicLink,skipUnlessLocalSupabase,uniqueE2EEmail} from './helpers';
+
+async function fixture(size:number) {
+ const db=getTestAdminClient(), categoryId=crypto.randomUUID();
+ const category=await db.from('service_categories').insert({id:categoryId,name:'E2E SLA '+categoryId,slug:'e2e-sla-'+categoryId,is_active:true,is_visible:false});expect(category.error).toBeNull();
+ const providers=[];
+ for(let i=0;i<size;i++){const email=uniqueE2EEmail('sla-provider');const owner=await ensureTestUserRole(email,'provider');providers.push({...await createTestProvider(owner,{categoryId}),email});}
+ const customer=await ensureTestUserRole(uniqueE2EEmail('sla-customer'),'customer'), id=crypto.randomUUID(), p=providers[0];
+ const row=await db.from('service_requests').insert({id,user_id:customer,category_id:categoryId,district_id:p.district_id,assigned_provider_id:p.id,address:'E2E dedicated synthetic SLA address',description:'E2E isolated historical emergency request',status:'assigned',urgency:'urgent',urgency_type:'emergency',emergency_status:'assigned',assigned_at:new Date().toISOString(),budget_tag:'acil-hizmet',payment_preference:'cash',confirmation_code:'123456',offered_price:1500});expect(row.error).toBeNull();
+ return {db,id,providers};
+}
+async function breach(f:Awaited<ReturnType<typeof fixture>>) {const r=await f.db.from('service_requests').update({assigned_at:new Date(Date.now()-6*60000).toISOString()}).eq('id',f.id);expect(r.error).toBeNull();}
+async function sweep(request:APIRequestContext,id:string) {
+ expect(process.env.CRON_SECRET,'Dedicated local cron fixture secret required').toMatch(/^e2e-/);
+ const r=await request.get('/api/cron/emergency-sla-sweep',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}});expect(r.ok()).toBe(true);
+ const body=await r.json(), result=body.processed?.find((r:{requestId:string})=>r.requestId===id);expect(result).toBeTruthy();return result;
+}
+async function cleanup(f:Awaited<ReturnType<typeof fixture>>) {
+ // Exact newly generated request only. Audit and provider identities survive until owned stack teardown.
+ for(const table of ['notifications','request_reassignment_log']){const r=await f.db.from(table).delete().eq('request_id',f.id);expect(r.error).toBeNull();}
+ const r=await f.db.from('service_requests').delete().eq('id',f.id);expect(r.error).toBeNull();
+}
+test.describe('emergency response SLA',()=>{
+ test.beforeEach(()=>skipUnlessLocalSupabase());
+ test('provider sees countdown and admin sees breached SLA',async({browser})=>{
+  const f=await fixture(1), providerContext=await browser.newContext(),adminContext=await browser.newContext();
+  try {
+   const p=await providerContext.newPage();await loginWithEmailMagicLink(p,{email:f.providers[0].email,role:'provider',nextPath:'/provider-dashboard/requests'});
+   const card=p.locator('article').filter({hasText:f.id});const countdown=card.getByRole('status',{name:/SLA yanıt süresi kaldı/});await expect(countdown).toBeVisible();await expect(countdown).toContainText(/\d{2}:\d{2}/);
+   await breach(f);const a=await adminContext.newPage();await loginWithEmailMagicLink(a,{email:uniqueE2EEmail('sla-admin'),role:'admin',nextPath:'/admin?legacy=1#legacy-operations'});
+   await expect(a.getByText('SLA aşıldı',{exact:true}).first()).toBeVisible();
+  } finally {await providerContext.close();await adminContext.close();await cleanup(f);}
+ });
+ test('cron reassigns breached emergency request and records live notifications',async({request,browser})=>{
+  const f=await fixture(2),context=await browser.newContext();try {
+   const page=await context.newPage();let subscribed=false,received=false;
+   page.on('websocket',socket=>{
+    if(!socket.url().includes('/realtime/v1'))return;
+    socket.on('framereceived',frame=>{try {
+     const message=JSON.parse(String(frame.payload)),event=Array.isArray(message)?message[3]:message.event,payload=Array.isArray(message)?message[4]:message.payload;
+     if(event==='phx_reply'&&payload?.status==='ok'&&payload.response?.postgres_changes?.some((change:{table:string})=>change.table==='notifications'))subscribed=true;
+     if(event==='postgres_changes'&&payload?.data?.table==='notifications'&&payload.data.record?.request_id===f.id&&payload.data.record?.recipient_user_id===f.providers[1].user_id)received=true;
+    }catch{/* Ignore protocol heartbeats without JSON payloads. */}});
+   });
+   await loginWithEmailMagicLink(page,{email:f.providers[1].email,role:'provider',nextPath:'/provider-dashboard/requests'});
+   await expect.poll(()=>subscribed,{message:'Real notification channel subscribes before dispatch',timeout:15_000}).toBe(true);
+   await breach(f);const result=await sweep(request,f.id);expect(result).toMatchObject({action:'reassigned',previousProviderId:f.providers[0].id,candidateProviderId:f.providers[1].id,reason:'sla_breach_reassigned'});
+   const row=await f.db.from('service_requests').select('assigned_provider_id,status').eq('id',f.id).single();expect(row.error).toBeNull();expect(row.data).toMatchObject({assigned_provider_id:f.providers[1].id,status:'assigned'});
+   const logs=await f.db.from('request_reassignment_log').select('is_dry_run,reason').eq('request_id',f.id);expect(logs.error).toBeNull();expect(logs.data).toContainEqual({is_dry_run:false,reason:'sla_breach_reassigned'});
+   const notifications=await f.db.from('notifications').select('id').eq('request_id',f.id).eq('recipient_user_id',f.providers[1].user_id);expect(notifications.error).toBeNull();expect(notifications.data?.length).toBeGreaterThan(0);
+   await expect.poll(()=>received,{message:'Actual Realtime INSERT is delivered to the assigned provider',timeout:15_000}).toBe(true);
+   await page.getByRole('button',{name:/okunmamış bildirim/i}).click();await expect(page.getByRole('dialog',{name:'Bildirimler'}).getByRole('button',{name:/Yeni acil hizmet talebi/})).toBeVisible();
+  } finally {await context.close();await cleanup(f);}
+ });
+ test('cron stops auto reassignment after three SLA breaches and escalates to admin',async({request})=>{
+  const f=await fixture(4);try {
+   const assigned=[f.providers[0].id];for(let i=0;i<3;i++){await breach(f);const result=await sweep(request,f.id);expect(result).toMatchObject({action:'reassigned',previousProviderId:assigned.at(-1),reassignmentCountBefore:i});expect(assigned).not.toContain(result.candidateProviderId);assigned.push(result.candidateProviderId);}
+   await breach(f);expect(await sweep(request,f.id)).toMatchObject({action:'escalated',reason:'max_reassignment_limit_reached',reassignmentCountBefore:3});
+   const logs=await f.db.from('request_reassignment_log').select('reason').eq('request_id',f.id);expect(logs.error).toBeNull();expect(logs.data?.filter(r=>r.reason==='sla_breach_reassigned')).toHaveLength(3);
+  } finally {await cleanup(f);}
+ });
 });

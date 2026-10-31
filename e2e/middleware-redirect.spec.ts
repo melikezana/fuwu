@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 const protectedRoutes = ["/admin", "/provider-dashboard", "/account", "/dashboard"];
 

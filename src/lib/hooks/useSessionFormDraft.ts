@@ -36,5 +36,5 @@ export function useSessionFormDraft<T extends object>(
     } catch { /* The form remains usable when browser storage is unavailable. */ }
   }, [form, key, ready]);
 
-  return () => { try { sessionStorage.removeItem(key); } catch { /* Optional storage. */ } };
+  return Object.assign(() => { try { sessionStorage.removeItem(key); } catch { /* Optional storage. */ } }, { ready });
 }

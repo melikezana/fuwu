@@ -1,0 +1,42 @@
+{
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "head": "a51c583085b980f640024f1474ef80059f839de9",
+  "completedAt": "2026-10-31T17:50:47.456Z",
+  "status": "BLOCKED",
+  "localRepairStatus": "PASS",
+  "productionWrites": false,
+  "push": false,
+  "deployment": false,
+  "livePayment": false,
+  "tests": {
+    "unit": 157,
+    "security": 59,
+    "integrationChecks": 338,
+    "postgresMajor": 17,
+    "fullChromiumSerial": 39,
+    "fullChromiumParallel": 39,
+    "retries": 0,
+    "skips": 0,
+    "flaky": 0,
+    "httpGuards": 20,
+    "responsiveScreenWidths": 84,
+    "axeScreens": 14
+  },
+  "dependencyAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 24,
+    "high": 0,
+    "critical": 0,
+    "total": 24
+  },
+  "checks": [
+    "Initial HEAD preserved; no applied production migration file changed",
+    "Two real complete Supabase/Chromium suites: 39+39, retry/skip/flaky/failure zero",
+    "All required local backend/build/lint/type/security/browser evidence matches the final source hash",
+    "Read-only production observations retain the original ledger and four exact provider identities/flags",
+    "Observed legacy financial graph, indexes and rollback guards passed PostgreSQL 17 upgrade",
+    "Final Playwright report excludes Supabase test keys; production and processor actions remain unexecuted"
+  ],
+  "report": "docs/FUWU_CRITICAL_BACKEND_REPAIR_FINAL.md"
+}

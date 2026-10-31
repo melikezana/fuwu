@@ -5,16 +5,28 @@ import { submitProviderApplicationAction } from "@/app/provider-application/acti
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { sanitizePhone } from "@/lib/validations/phone";
 import { useHydrated } from "@/lib/useHydrated";
+import { persistSessionFormDraft, useSessionFormDraft } from "@/lib/hooks/useSessionFormDraft";
 import type { ProviderApplicationOption } from "@/types/provider";
 export function ProviderApplicationForm({ authenticatedUserId, categories, districts, isConfigured, lookupError }: { authenticatedUserId?: string | null; categories: ProviderApplicationOption[]; districts: ProviderApplicationOption[]; isConfigured: boolean; lookupError?: string | null }) {
  const router = useRouter();
  const ready = useHydrated();
- const [name, setName] = useState(""), [phone, setPhone] = useState(""), [category, setCategory] = useState(""), [district, setDistrict] = useState("");
+ const [draft, setDraft] = useState({ fullName: "", phone: "", categoryId: "", districtId: "" });
+ const { fullName: name, phone, categoryId: category, districtId: district } = draft;
+ const draftKey = "fuwu:pending-provider-application";
+ const clearDraft = useSessionFormDraft(draftKey, draft, setDraft);
+ const setName = (value: string) => setDraft(current => ({ ...current, fullName: value }));
+ const setPhone = (value: string) => setDraft(current => ({ ...current, phone: value }));
+ const setCategory = (value: string) => setDraft(current => ({ ...current, categoryId: value }));
+ const setDistrict = (value: string) => setDraft(current => ({ ...current, districtId: value }));
+ function loginWithDraft() {
+  try { persistSessionFormDraft(draftKey, draft); } catch { /* Form remains usable without browser storage. */ }
+  router.push("/login?next=/provider-application&restore=1");
+ }
  const [otp, setOtp] = useState(""), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
  async function verifyPhone() {
   if (busy) return; setBusy(true); setMessage("");
   try {
-   const db = createSupabaseBrowserClient(); if (!db || !authenticatedUserId) { router.push("/login?next=/provider-application"); return; }
+   const db = createSupabaseBrowserClient(); if (!db || !authenticatedUserId) { loginWithDraft(); return; }
    const normalized = sanitizePhone(phone);
    if (!/^\+90\d{10}$/.test(normalized)) { setMessage("Geçerli cep telefonu numaranı gir."); return; }
    const { data: { user } } = await db.auth.getUser();
@@ -30,15 +42,15 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
    }
   } catch { setMessage("Telefon doğrulama hizmetine ulaşılamadı."); } finally { setBusy(false); }
  }
- return <form method="post" data-testid="provider-application-form" className="commerce-panel trust-onboarding" onSubmit={async event => {
+ return <form method="post" aria-label="FUWU Partner başvurusu" data-testid="provider-application-form" className="commerce-panel trust-onboarding" onSubmit={async event => {
   event.preventDefault(); if (busy || done) return;
-  if (!authenticatedUserId) { router.push("/login?next=/provider-application"); return; }
+  if (!authenticatedUserId) { loginWithDraft(); return; }
   if (!verified) { setMessage("Önce telefonunu doğrula."); return; }
   setBusy(true); setMessage("");
   try {
    const result = await submitProviderApplicationAction({ fullName: name, phone: sanitizePhone(phone), categoryId: category, districtId: district, availability: "", experienceYears: "", hasEquipment: "", introduction: "", portfolioUrl: "", profileImagePath: "", profileImageUrl: "", verificationDocumentPath: "", verificationDocumentUrl: "" });
    if (!result.ok) { setMessage(result.message); return; }
-   setDone(true); setMessage("Başvurun alındı. Profil ve belgelerini hesabından kademeli tamamlayabilirsin."); router.refresh();
+   clearDraft(); setDone(true); setMessage("Başvurun alındı. Profil ve belgelerini hesabından kademeli tamamlayabilirsin."); router.refresh();
   } catch { setMessage("Başvuru gönderilemedi. Bilgilerini kontrol edip tekrar dene."); } finally { setBusy(false); }
  }}>
  <h2>FUWU Partner başvurusu</h2><p>Dört bilgiyle başla. Gerekli belgeleri yayın öncesi tamamlarsın.</p>
@@ -50,6 +62,6 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  <label className="commerce-field">Hizmet kategorisi<select name="categoryId" required value={category} onChange={e => setCategory(e.target.value)} disabled={busy || done}><option value="">Mesleğini seç</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
  <label className="commerce-field">Çalışma ilçesi<select name="districtId" required value={district} onChange={e => setDistrict(e.target.value)} disabled={busy || done}><option value="">İlçeni seç</option>{districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
  {message && <p className={done || verified ? "commerce-notice" : "commerce-error"} role={done || verified ? "status" : "alert"}>{message}</p>}
- <button className="commerce-button" disabled={busy || done || !ready || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
+ <button className="commerce-button" type="submit" disabled={busy || done || !ready || !clearDraft.ready || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
  <p className="commerce-help">Belge yüklemek veya başvurmak yayın onayı değildir. Online satın alma henüz açılmadı.</p></form>;
 }

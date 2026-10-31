@@ -24,20 +24,20 @@ function formatRemainingTime(remainingMs: number) {
 export function SlaCountdown({ assignedAt }: SlaCountdownProps) {
   const assignedAtMs = useMemo(() => Date.parse(assignedAt), [assignedAt]);
   const deadlineMs = assignedAtMs + slaDurationMs;
-  const [remainingMs, setRemainingMs] = useState(() =>
-    Number.isFinite(deadlineMs) ? getRemainingMs(deadlineMs) : null,
-  );
+  // The initial SSR and browser render must agree at a second boundary.
+  const [remainingMs, setRemainingMs] = useState<number | null>(null);
 
   useEffect(() => {
     if (!Number.isFinite(deadlineMs)) {
       return undefined;
     }
 
+    const timeoutId = window.setTimeout(() => setRemainingMs(getRemainingMs(deadlineMs)), 0);
     const intervalId = window.setInterval(() => {
       setRemainingMs(getRemainingMs(deadlineMs));
     }, 1000);
 
-    return () => window.clearInterval(intervalId);
+    return () => { window.clearTimeout(timeoutId); window.clearInterval(intervalId); };
   }, [deadlineMs]);
 
   if (!Number.isFinite(deadlineMs)) {

@@ -15,7 +15,7 @@ export async function checkOperationsHealth() {
   if (!rate.allowed) redirect("/admin/marketplace?view=health&result=rate_limit");
   const service = createSupabaseServiceRoleClient();
   if (!service) redirect("/admin/marketplace?view=health&result=failed");
-  const [health, external, read] = await Promise.all([getOperationsHealth(supabase), probeExternalServices(), supabase.from("orders").select("id").limit(0).abortSignal(AbortSignal.timeout(8000))]);
+  const [health, external, read] = await Promise.all([getOperationsHealth(supabase), probeExternalServices(), supabase.from("commerce_orders").select("id").limit(0).abortSignal(AbortSignal.timeout(8000))]);
   const audit = await writeAuditLog({ action: "operations.health_checked", actorUserId: user.id, entityId: null, entityType: "admin_action", metadata: { scope: "read_only_probes", environment: "sandbox" } }, supabase);
   const probes = [...external, { name: "supabase", passed: !read.error, detail: "Yetkili orders okuma sorgusu; ödeme işlemi yapılmadı." }, { name: "schema", passed: Boolean(health?.contract_ok), detail: "Tablo RLS, gerekli RPC, review kaynak kolonu ve unique index sözleşmesi." }, { name: "audit", passed: audit && Boolean(health), detail: "Admin audit okuma ve redakte kontrol olayı yazma denemesi." }];
   const results = await Promise.all(probes.map(p => service.rpc("commerce_record_health", { p_name: p.name, p_passed: p.passed, p_detail: p.detail })));

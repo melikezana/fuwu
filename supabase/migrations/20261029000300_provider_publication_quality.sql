@@ -118,7 +118,7 @@ grant execute on function public.commerce_slots(uuid,date,uuid) to anon,authenti
 
 create function public.guard_unpublished_checkout() returns trigger language plpgsql security definer set search_path='' as $$
 begin
- if not exists(select 1 from public.orders o where o.id=new.order_id and public.provider_is_published(o.provider_id))
+ if not exists(select 1 from public.commerce_orders o where o.id=new.order_id and public.provider_is_published(o.provider_id))
  then raise exception 'offering_unavailable' using errcode='22023'; end if;
  return new;
 end $$;

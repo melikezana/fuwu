@@ -14,7 +14,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const view = views.some(([id]) => id === params.view) ? params.view! : "all";
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) redirect(buildLoginRedirectUrl(`/orders?view=${view}`));
-  let query = supabase.from("orders").select("*", { count: "exact" }).eq("customer_id", user.id).order("created_at", { ascending: false });
+  let query = supabase.from("commerce_orders").select("*", { count: "exact" }).eq("customer_id", user.id).order("created_at", { ascending: false });
   if (view === "active" || view === "overdue") query = query.in("status", serviceActiveStatuses);
   if (view === "overdue") query = query.lt("ends_at", new Date().toISOString());
   if (view === "history") query = query.in("status", historyStatuses);

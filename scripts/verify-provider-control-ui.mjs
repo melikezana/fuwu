@@ -43,7 +43,8 @@ const api=http.createServer(async(req,res)=>{
  }
  else if(endpoint==='provider_applications')data=[{id:'ae000000-0000-4000-8000-000000000001',user_id:owner,status:'approved',created_at:provider.updated_at,full_name:provider.name,phone:provider.phone,experience_years:5,service_categories:{name:category.name},districts:{name:district.name},verification_document_path:null}];
  else if(endpoint==='service_categories')data=[category];else if(endpoint==='districts')data=[district];
- else if(endpoint==='orders')data=[trustOrder];
+ else if(endpoint==='commerce_orders')data=[trustOrder];
+ else if(endpoint==='commerce_provider_capacity')data=null;
  else if(endpoint==='order_scope_changes'||endpoint==='order_status_events')data=[];
  else if(endpoint==='provider_document_types')data=[{code:'identity',label:'Kimlik doğrulama kanıtı',purpose:'identity'},{code:'qualification',label:'MYK / ustalık / eşdeğer diploma',purpose:'professional'}];
  else if(endpoint==='provider_document_rules')data=[];

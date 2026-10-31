@@ -12,13 +12,15 @@ if (process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true") throw new Error("BLOCKED: 
 console.log(`E2E Auth/DB: ${safety.ready ? "test target validated" : safety.reason}`);
 
 export default defineConfig({
-  expect: { timeout: 10_000 }, fullyParallel: false, retries: process.env.CI ? 1 : 0,
+  expect: { timeout: 10_000 }, fullyParallel: false, retries: 0,
   testDir: "./e2e", timeout: 60_000, workers: 1,
-  reporter: [[process.env.CI ? "github" : "list"], ["json", { outputFile: "artifacts/security-testing/e2e.json" }]],
-  use: { baseURL, trace: "off", screenshot: "off", video: "off" },
+  reporter: [[process.env.CI ? "github" : "list"], ["html", { open: "never" }], ["json", { outputFile: process.env.E2E_REPORT_PATH || "artifacts/security-testing/e2e.json" }]],
+  use: { baseURL, trace: "off", screenshot: "only-on-failure", video: "off" },
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
-    env: { ...env, NEXT_PUBLIC_SITE_URL: baseURL, PORT: port },
+    // Validated values already live in process.env and are inherited by the
+    // server. Listing them here would serialize test keys into JSON/HTML reports.
+    env: { NEXT_PUBLIC_SITE_URL: baseURL, PORT: port },
     reuseExistingServer: false, timeout: 180_000, url: baseURL,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

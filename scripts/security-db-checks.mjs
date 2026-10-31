@@ -27,7 +27,7 @@ export async function securityDatabaseChecks({root,a,b,p,p2,admin,service,guest,
     assert.equal(accepted.length,1);
     for(const r of attempts.filter(r=>r.status==="rejected")) assert.match(r.reason.message,/slot_unavailable/);
     raceOrder = accepted[0].value;
-    assert.equal(await scalar(root,"select count(*)::int from orders where offering_id=$1 and starts_at=$2 and status='PENDING_PAYMENT'",[offering.id,slot.starts_at]),1);
+    assert.equal(await scalar(root,"select count(*)::int from commerce_orders where offering_id=$1 and starts_at=$2 and status='PENDING_PAYMENT'",[offering.id,slot.starts_at]),1);
   });
   await check("Security: concurrent same idempotency key returns one order and one expiry",async()=>{
     const c1=await client("authenticated",raceOrder.customer_id),c2=await client("authenticated",raceOrder.customer_id);
@@ -46,21 +46,21 @@ export async function securityDatabaseChecks({root,a,b,p,p2,admin,service,guest,
   await check("Security: anonymous order mutation and unrelated provider transition fail",async()=>{
     await assert.rejects(guest.query("select commerce_transition_order($1,'CANCELLED')",[raceOrder.id]),/permission denied|unauthorized/);
     await assert.rejects(p2.query("select commerce_transition_order($1,'IN_PROGRESS')",[raceOrder.id]),/forbidden/);
-    assert.equal(await scalar(root,"select status from orders where id=$1",[raceOrder.id]),'PENDING_PAYMENT');
+    assert.equal(await scalar(root,"select status from commerce_orders where id=$1",[raceOrder.id]),'PENDING_PAYMENT');
   });
   await check("Security: payment transaction, order and status audit roll back together on audit failure",async()=>{
     await service.query("select commerce_begin_payment($1)",[raceOrder.id]);
     await service.query("select commerce_attach_payment($1,'TEST-atomic-token','https://sandbox-cpp.iyzipay.com/test')",[raceOrder.id]);
     await root.query("create function public.security_test_audit_failure() returns trigger language plpgsql as $$ begin raise exception 'TEST audit unavailable'; end $$; create trigger security_test_fail before insert on audit_logs for each row execute function public.security_test_audit_failure()");
-    const before=(await root.query("select status,payment_status from orders where id=$1",[raceOrder.id])).rows[0];
+    const before=(await root.query("select status,payment_status from commerce_orders where id=$1",[raceOrder.id])).rows[0];
     try {
       await assert.rejects(service.query("select commerce_resolve_payment($1,'TEST-atomic-token','TEST-atomic-payment',true,null,'TEST-atomic-item')",[raceOrder.id]),/TEST audit unavailable/);
-      assert.deepEqual((await root.query("select status,payment_status from orders where id=$1",[raceOrder.id])).rows[0],before);
+      assert.deepEqual((await root.query("select status,payment_status from commerce_orders where id=$1",[raceOrder.id])).rows[0],before);
       assert.equal(await scalar(root,"select status from payment_transactions where order_id=$1",[raceOrder.id]),'AWAITING');
     } finally { await root.query("drop trigger security_test_fail on audit_logs; drop function public.security_test_audit_failure()"); }
   });
   await check("Security: participant cannot finalize unverified settlement",async()=>{
     for(const c of [a,b,p,p2,guest,admin]) await assert.rejects(c.query("select commerce_finish_settlement($1,'refund')",[raceOrder.id]),/permission denied/);
-    assert.equal(await scalar(root,"select status from orders where id=$1",[raceOrder.id]),'PENDING_PAYMENT');
+    assert.equal(await scalar(root,"select status from commerce_orders where id=$1",[raceOrder.id]),'PENDING_PAYMENT');
   });
 }

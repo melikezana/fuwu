@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("opening a legacy buying link twice never submits a service request", async ({ page }) => {
   const mutations: string[] = [];

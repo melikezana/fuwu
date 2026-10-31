@@ -1,4 +1,4 @@
--- Additive partner preparation. Never enables checkout or touches historical orders.
+-- Additive partner preparation. Never enables checkout or touches historical commerce_orders.
 begin;
 alter table public.provider_service_offerings add column scope text not null default '' check(length(scope)<=2000);
 alter function public.commerce_save_store(uuid,jsonb,jsonb,jsonb) rename to commerce_save_store_before_partner;
@@ -20,7 +20,7 @@ end $$;
 revoke all on function public.commerce_save_store(uuid,jsonb,jsonb,jsonb) from public,anon,authenticated;
 grant execute on function public.commerce_save_store(uuid,jsonb,jsonb,jsonb) to authenticated;
 
--- Approved scope is shown and frozen into NEW orders only; historical snapshots stay intact.
+-- Approved scope is shown and frozen into NEW commerce_orders only; historical snapshots stay intact.
 create or replace function public.commerce_offers(p_service_id uuid default null,p_district_id uuid default null,p_provider_id uuid default null)
 returns jsonb language sql stable security definer set search_path='' as $$
  select coalesce(jsonb_agg(item||jsonb_build_object('rating',null,'review_count',0,'scope',coalesce(nullif(f.scope,''),s.scope))),'[]'::jsonb)
@@ -34,7 +34,7 @@ begin
  return new;
 end $$;
 revoke all on function public.commerce_snapshot_partner_scope() from public,anon,authenticated;
-create trigger partner_scope_snapshot before insert on public.orders for each row execute function public.commerce_snapshot_partner_scope();
+create trigger partner_scope_snapshot before insert on public.commerce_orders for each row execute function public.commerce_snapshot_partner_scope();
 
 create function public.partner_save_profile(p_provider_id uuid,p_name text,p_description text) returns void
 language plpgsql security definer set search_path='' as $$

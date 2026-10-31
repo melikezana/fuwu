@@ -1,9 +1,9 @@
 {
-  "status": "FAIL",
+  "status": "BLOCKED",
   "canApply": false,
   "scope": "Read-only conservative DDL/ledger review; never substitutes for full schema reconciliation and hosted staging tests",
   "appliedCount": 46,
-  "repositoryCount": 71,
+  "repositoryCount": 72,
   "pendingMigrations": [
     "20260725000100_admin_management_layer.sql",
     "20260726000100_app_settings.sql",
@@ -29,15 +29,11 @@
     "20261030000200_provider_control_center.sql",
     "20261030000300_partner_store_preparation.sql",
     "20261030154616_marketplace3_operations_readiness.sql",
-    "20261030204829_trust_service_confirmation.sql"
+    "20261030204829_trust_service_confirmation.sql",
+    "20261031105613_critical_backend_contract_guard.sql"
   ],
   "unknownVersions": [],
-  "collisions": [
-    {
-      "migration": "20261021000100_direct_service_commerce.sql",
-      "table": "orders"
-    }
-  ],
+  "collisions": [],
   "conditionalCreates": [
     {
       "migration": "20260726000100_app_settings.sql",
@@ -48,9 +44,9 @@
       "table": "request_reassignment_log"
     }
   ],
-  "reason": "Pending CREATE TABLE conflicts with observed production relations; preserve existing tables and reconcile dependencies before staging",
-  "observedAt": "2026-10-30T22:32:15.946401+00:00",
+  "reason": "Full schema/data review and hosted staging upgrade required",
+  "observedAt": "2026-10-31T12:10:00.613392+00:00",
   "projectRef": "bjhyisomjadirdchruix",
-  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
-  "checkedAt": "2026-10-30T22:48:10.576Z"
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "checkedAt": "2026-10-31T17:51:24.050Z"
 }

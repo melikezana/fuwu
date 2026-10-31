@@ -3,7 +3,7 @@
 begin;
 create table public.review_submission_receipts (
  id uuid primary key default gen_random_uuid(),
- order_id uuid unique references public.orders(id),
+ order_id uuid unique references public.commerce_orders(id),
  service_request_id uuid unique references public.service_requests(id),
  user_id uuid not null references public.profiles(id),
  provider_id uuid not null references public.providers(id),
@@ -31,7 +31,7 @@ language sql stable security definer set search_path='' as $$
  from (
    select 'order' kind,o.id,o.service_name label,
      coalesce((select min(e.created_at) from public.order_status_events e where e.order_id=o.id and e.status='COMPLETED'),o.updated_at) completed_at
-   from public.orders o where o.provider_id=p_provider_id and o.customer_id=auth.uid() and o.status='COMPLETED'
+   from public.commerce_orders o where o.provider_id=p_provider_id and o.customer_id=auth.uid() and o.status='COMPLETED'
      and o.payment_status='PAID' and not exists(select 1 from public.review_submission_receipts r where r.order_id=o.id)
    union all
    select 'request',s.id,'Önceki hizmet talebi',s.updated_at
@@ -61,7 +61,7 @@ begin
  end if;
  -- Recheck/lock the source to exclude a concurrent dispute or refund transition.
  if p_order_id is not null then
-   perform 1 from public.orders where id=p_order_id and customer_id=auth.uid() and provider_id=p_provider_id and status='COMPLETED' and payment_status='PAID' for update;
+   perform 1 from public.commerce_orders where id=p_order_id and customer_id=auth.uid() and provider_id=p_provider_id and status='COMPLETED' and payment_status='PAID' for update;
  else
    perform 1 from public.service_requests where id=p_request_id and user_id=auth.uid() and assigned_provider_id=p_provider_id and status='completed' for update;
  end if;

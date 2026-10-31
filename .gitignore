@@ -61,3 +61,8 @@ storybook-static
 
 # Isolated control center test runtime (source snapshots and disposable clusters)
 /artifacts/control-center/runtime-before/
+
+# Disposable backend repair runtimes (never commit binaries or test credentials)
+/artifacts/critical-backend-repair/pg17/
+/artifacts/critical-backend-repair/ci/report.zip
+/artifacts/critical-backend-repair/local-supabase/run-*/

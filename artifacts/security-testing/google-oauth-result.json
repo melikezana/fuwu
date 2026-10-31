@@ -1,11 +1,11 @@
 {
-  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
-  "startedAt": "2026-10-31T03:06:15.536Z",
-  "completedAt": "2026-10-31T03:06:15.536Z",
+  "status": "BLOCKED",
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "startedAt": "2026-10-31T15:28:01.998Z",
+  "completedAt": "2026-10-31T15:28:01.998Z",
+  "executed": false,
   "passed": 0,
   "failed": 0,
   "skipped": 0,
-  "executed": false,
-  "status": "BLOCKED",
-  "reason": "Production Google setting is enabled, but real staging OAuth/session round trip was not executed"
+  "reason": "External Google account/redirect allowlist acceptance not performed; local Auth is separate evidence"
 }

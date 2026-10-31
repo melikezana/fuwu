@@ -1,0 +1,666 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Melikezana\\Desktop\\FUWU\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/storage-documents.spec.ts",
+      "e2e/launch-verification.spec.ts",
+      "e2e/request-flow.spec.ts",
+      "e2e/provider-control.spec.ts",
+      "--workers=1",
+      "--retries=0"
+    ],
+    "configFile": "C:\\Users\\Melikezana\\Desktop\\FUWU\\playwright.config.ts",
+    "rootDir": "C:/Users/Melikezana/Desktop/FUWU/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Melikezana/Desktop/FUWU/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Melikezana/Desktop/FUWU/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e",
+        "snapshotDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://127.0.0.1:56023",
+          "trace": "off",
+          "screenshot": "only-on-failure",
+          "video": "off",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\critical-backend-repair\\local-supabase\\extended-acceptance.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --hostname 127.0.0.1 --port 56023",
+      "env": {
+        "E2E_ALLOW_REMOTE_SUPABASE_TESTS": "false",
+        "E2E_MAILPIT_URL": "http://127.0.0.1:56020",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "[redacted-local-test-key]",
+        "NEXT_PUBLIC_SUPABASE_URL": "http://127.0.0.1:56016",
+        "SUPABASE_SERVICE_ROLE_KEY": "[redacted-local-test-key]",
+        "ALLUSERSPROFILE": "C:\\ProgramData",
+        "APPDATA": "C:\\Users\\Melikezana\\AppData\\Roaming",
+        "BROWSER_USE_ACCESS_EXECUTOR_ID": "[\"4aff1876-fb6c-4996-858e-3c9fed7fa752\",\"native-browser-plugin\"]",
+        "BROWSER_USE_ACCESS_PIPE_PATH": "\\\\.\\pipe\\codex-app-tools-23084748-df16-43f6-b1b5-1bd377804b04",
+        "BROWSER_USE_ACCESS_VERIFYING_IDENTITY": "MCowBQYDK2VwAyEA9xcMH94hABwynZvPV9kZ2ZtwDpVXaoxu0vhRVJ+C+AY=",
+        "CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS": "1",
+        "CODEX_APP_RUNTIME_CLI_PATH": "C:\\Users\\Melikezana\\AppData\\Local\\OpenAI\\Codex\\bin\\22cfb1d302613eae\\codex.exe",
+        "CODEX_APP_TOOLS_PIPE_PATH": "\\\\.\\pipe\\codex-app-tools-23084748-df16-43f6-b1b5-1bd377804b04",
+        "CODEX_CI": "1",
+        "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+        "CODEX_MCP_NODE_PATH": "C:\\Users\\Melikezana\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\5c41f77a7900391c\\bin\\node.exe",
+        "CODEX_PERMISSION_PROFILE": ":workspace",
+        "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+        "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+        "CODEX_SESSION_ID": "01a19195-e8c8-7ed2-b76b-e240ba980557",
+        "CODEX_SHELL": "1",
+        "CODEX_TASK_WORKSPACE_VERIFYING_IDENTITY": "MCowBQYDK2VwAyEA9xcMH94hABwynZvPV9kZ2ZtwDpVXaoxu0vhRVJ+C+AY=",
+        "CODEX_TECTONIC_PATH": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.1027.3384.0_x64__2p2nqsd0c76g0\\app\\resources\\tectonic\\tectonic.exe",
+        "CODEX_THREAD_ID": "01a19195-e8c8-7ed2-b76b-e240ba980557",
+        "CODEX_TOOL_CALL_ID": "exec-d6f4be94-6471-4d4a-851f-4977519be05d",
+        "CODEX_VERSION": "0.166.0-alpha.5.1",
+        "CODEX_WINDOWS_SANDBOX_PACKAGE_FAMILY": "OpenAI.Codex_2p2nqsd0c76g0",
+        "COLORTERM": "",
+        "CommonProgramFiles": "C:\\Program Files\\Common Files",
+        "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+        "CommonProgramW6432": "C:\\Program Files\\Common Files",
+        "COMPUTERNAME": "DESKTOP-67JINRJ",
+        "ComSpec": "C:\\WINDOWS\\system32\\cmd.exe",
+        "DISABLE_AUTO_UPDATE": "true",
+        "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+        "E2E_CRON_SECRET": "e2e-fuwu-e2e-1793445683618-local-only",
+        "E2E_REPORT_PATH": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\critical-backend-repair\\local-supabase\\extended-acceptance.json",
+        "GH_PAGER": "cat",
+        "GIT_PAGER": "cat",
+        "HOMEDRIVE": "C:",
+        "HOMEPATH": "\\Users\\Melikezana",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "LC_CTYPE": "C.UTF-8",
+        "LOCALAPPDATA": "C:\\Users\\Melikezana\\AppData\\Local",
+        "LOGONSERVER": "\\\\DESKTOP-67JINRJ",
+        "LOG_FORMAT": "json",
+        "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "8e172ec9f458f2e636fc69a1b8c68c217f6bb8d10c41f70a05a0878b73863701",
+        "NO_COLOR": "1",
+        "NUMBER_OF_PROCESSORS": "16",
+        "OneDrive": "C:\\Users\\Melikezana\\OneDrive",
+        "OS": "Windows_NT",
+        "PAGER": "cat",
+        "Path": "C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell;C:\\Users\\Melikezana\\.codex\\tmp\\arg0-windows\\codex-arg0YIct2M;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\libheif\\libheif\\bin;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\jxrlib\\jxrlib\\bin;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\Microsoft SQL Server\\150\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files (x86)\\Microsoft SQL Server\\160\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\160\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\160\\DTS\\Binn\\;C:\\Program Files (x86)\\Microsoft SQL Server\\170\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\170\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\180\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\170\\DTS\\Binn\\;C:\\Program Files\\dotnet\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\nodejs\\;C:\\Users\\Melikezana\\AppData\\Local\\Programs\\Python\\Launcher\\;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell;C:\\Users\\Melikezana\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Melikezana\\AppData\\Local\\Python\\bin;C:\\Users\\Melikezana\\.dotnet\\tools;C:\\Users\\Melikezana\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\Melikezana\\AppData\\Local\\Programs\\Antigravity\\bin;C:\\Users\\Melikezana\\AppData\\Roaming\\npm;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin;C:\\Users\\Melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd;C:\\Users\\Melikezana\\AppData\\Local\\OpenAI\\Codex\\bin\\57159798136552f4;C:\\Users\\Melikezana\\AppData\\Local\\OpenAI\\Codex\\bin\\22cfb1d302613eae",
+        "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL",
+        "PLAYWRIGHT_BASE_URL": "http://127.0.0.1:56023",
+        "PROCESSOR_ARCHITECTURE": "AMD64",
+        "PROCESSOR_IDENTIFIER": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+        "PROCESSOR_LEVEL": "6",
+        "PROCESSOR_REVISION": "ba02",
+        "ProgramData": "C:\\ProgramData",
+        "ProgramFiles": "C:\\Program Files",
+        "ProgramFiles(x86)": "C:\\Program Files (x86)",
+        "ProgramW6432": "C:\\Program Files",
+        "PSModulePath": "C:\\Users\\Melikezana\\Documents\\PowerShell\\Modules;C:\\Program Files\\PowerShell\\Modules;c:\\users\\melikezana\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\Modules;C:\\Users\\Melikezana\\Documents\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\Modules;C:\\Program Files (x86)\\Microsoft SQL Server\\160\\Tools\\PowerShell\\Modules\\;C:\\Program Files\\Microsoft SQL Server\\170\\Tools\\PowerShell\\Modules\\",
+        "PT8HOME": "C:\\Program Files\\Cisco Packet Tracer 9.0.0",
+        "PUBLIC": "C:\\Users\\Public",
+        "RUST_LOG": "warn",
+        "SHELL": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "SystemDrive": "C:",
+        "SystemRoot": "C:\\WINDOWS",
+        "TEMP": "C:\\Users\\MELIKE~1\\AppData\\Local\\Temp",
+        "TERM": "dumb",
+        "TMP": "C:\\Users\\MELIKE~1\\AppData\\Local\\Temp",
+        "USERDOMAIN": "DESKTOP-67JINRJ",
+        "USERDOMAIN_ROAMINGPROFILE": "DESKTOP-67JINRJ",
+        "USERNAME": "Melikezana",
+        "USERPROFILE": "C:\\Users\\Melikezana",
+        "windir": "C:\\WINDOWS",
+        "ZES_ENABLE_SYSMAN": "1",
+        "ZSH_TMUX_AUTOSTART": "false",
+        "ZSH_TMUX_AUTOSTARTED": "true",
+        "OPENAI_API_KEY": "",
+        "OPENAI_VISION_MODEL": "",
+        "VERCEL_OIDC_TOKEN": "",
+        "SUPABASE_SECRET_KEY": "",
+        "IYZICO_API_KEY": "",
+        "IYZICO_SECRET_KEY": "",
+        "UPSTASH_REDIS_REST_URL": "",
+        "UPSTASH_REDIS_REST_TOKEN": "",
+        "SENTRY_AUTH_TOKEN": "",
+        "NETGSM_USERCODE": "",
+        "NETGSM_PASSWORD": "",
+        "IYZICO_BASE_URL": "https://sandbox-api.iyzipay.com",
+        "CRON_SECRET": "e2e-fuwu-e2e-1793445683618-local-only",
+        "NEXT_PUBLIC_SITE_URL": "http://127.0.0.1:56023",
+        "PORT": "56023"
+      },
+      "reuseExistingServer": false,
+      "timeout": 180000,
+      "url": "http://127.0.0.1:56023"
+    }
+  },
+  "suites": [
+    {
+      "title": "launch-verification.spec.ts",
+      "file": "launch-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CTO launch verification",
+          "file": "launch-verification.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "filtered provider empty state preserves category and preselects the catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1975,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:00:37.844Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-36e200ce4fa0b3dea994",
+              "file": "launch-verification.spec.ts",
+              "line": 6,
+              "column": 6
+            },
+            {
+              "title": "partner application, admin approval and preserved legacy assignment acceptance reach real records",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10290,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:00:40.005Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-638831b3d7571e6a0904",
+              "file": "launch-verification.spec.ts",
+              "line": 13,
+              "column": 6
+            },
+            {
+              "title": "admin rejects a pending application, preserves its history and denies applicant approval or rejection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5421,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:00:50.305Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-63b9e7f759ffa4d39ffc",
+              "file": "launch-verification.spec.ts",
+              "line": 38,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "provider-control.spec.ts",
+      "file": "provider-control.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "provider control: isolated real Supabase acceptance",
+          "file": "provider-control.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "admin control decisions commit, audit, refresh UI and enforce public and role boundaries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16583,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:00:55.743Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-9f3c4ff60b0602feb51a",
+              "file": "provider-control.spec.ts",
+              "line": 7,
+              "column": 6
+            },
+            {
+              "title": "unpublish satisfies all six acceptance conditions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4892,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:01:12.336Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-693caa08bd4b90cf5e10",
+              "file": "provider-control.spec.ts",
+              "line": 41,
+              "column": 6
+            },
+            {
+              "title": "partner saves price, scope and calendar and cannot edit another provider",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8847,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:01:17.237Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-1dd31a3ce51eb08a06e3",
+              "file": "provider-control.spec.ts",
+              "line": 84,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "request-flow.spec.ts",
+      "file": "request-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "direct purchase entry",
+          "file": "request-flow.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "legacy links retain category and district in the service catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 854,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:01:26.096Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-42e5e14c13a6096afe12",
+              "file": "request-flow.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "home offers direct purchasing and provider onboarding",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 895,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:01:26.956Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-d4e989024164aaf33afc",
+              "file": "request-flow.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "all eleven active categories retain district filters and expose the real catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3995,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T12:01:27.857Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-0dfb18638f6bb19098ec",
+              "file": "request-flow.spec.ts",
+              "line": 17,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "storage-documents.spec.ts",
+      "file": "storage-documents.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "private qualification document upload, review, owner/admin download, foreign-user denial and audit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15261,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T12:01:31.867Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ce7d55486e7158ce66a0-e98c89a5e5e7fc8a74c4",
+          "file": "storage-documents.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "private identity document upload, review, owner/admin download, foreign-user denial and audit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11324,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T12:01:47.135Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ce7d55486e7158ce66a0-0e6147ed2b0ea35f685b",
+          "file": "storage-documents.spec.ts",
+          "line": 7,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T12:00:32.557Z",
+    "duration": 88078.534,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

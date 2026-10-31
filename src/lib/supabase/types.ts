@@ -160,6 +160,7 @@ export type Database = {
           identity_verified: boolean;
           last_active_at: string | null;
           response_time_minutes: number | null;
+          daily_order_limit: number | null;
           profile_completion_score: number | null;
           gallery_preview_url: string | null;
           profile_image_path: string | null;
@@ -198,6 +199,7 @@ export type Database = {
           identity_verified?: boolean;
           last_active_at?: string | null;
           response_time_minutes?: number | null;
+          daily_order_limit?: number | null;
           profile_completion_score?: number | null;
           gallery_preview_url?: string | null;
           profile_image_path?: string | null;
@@ -236,6 +238,7 @@ export type Database = {
           identity_verified?: boolean;
           last_active_at?: string | null;
           response_time_minutes?: number | null;
+          daily_order_limit?: number | null;
           profile_completion_score?: number | null;
           gallery_preview_url?: string | null;
           profile_image_path?: string | null;

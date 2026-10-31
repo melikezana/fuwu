@@ -85,7 +85,7 @@ export async function trustChecks(db, checks) {
  const service=await scalar("insert into service_catalog(category_id,slug,name,description,scope,image_url,pricing_type) values($1,'test-trust-'||gen_random_uuid(),'TEST Trust Service','TEST Description','TEST Original scope','/test.png','FIXED_PRICE') returning id",[cat]);
  const offer=await scalar("insert into provider_service_offerings(provider_id,service_id,price_minor,duration_minutes,district_ids) values($1,$2,10000,60,array[$3]::uuid[]) returning id",[pid,service,district]);
  const createOrder=async()=>{
-  await as('postgres');return scalar("insert into orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,status,expires_at,idempotency_key) values($1,$2,$3,'TEST Service','TEST Original scope','TEST Provider',$4,'TEST District','TEST Isolated address only',now()+interval '10 minutes',now()+interval '1 hour',10000,1000,9000,'CONFIRMED',now()+interval '10 minutes',gen_random_uuid()) returning id",[customer,pid,offer,district]);
+  await as('postgres');return scalar("insert into commerce_orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,status,expires_at,idempotency_key) values($1,$2,$3,'TEST Service','TEST Original scope','TEST Provider',$4,'TEST District','TEST Isolated address only',now()+interval '10 minutes',now()+interval '1 hour',10000,1000,9000,'CONFIRMED',now()+interval '10 minutes',gen_random_uuid()) returning id",[customer,pid,offer,district]);
  };
  const issue=async(id)=>{await as('authenticated',customer);const r=await scalar('select trust_issue_service_code($1)',[id]);assert.match(r.code,/^\d{6}$/);return r.code;};
  const travel=async(id)=>{await as('authenticated',owner);await scalar("select commerce_transition_order($1,'PROVIDER_ON_THE_WAY')",[id]);};
@@ -103,9 +103,9 @@ export async function trustChecks(db, checks) {
  await as('authenticated',customer);await scalar('select trust_scope_change($1,null,null,$2,true)',[id,change]);
  await fails("select commerce_transition_order($1,'COMPLETED')",[id],/transition_forbidden/);
  await as('authenticated',owner);assert.equal((await scalar("select commerce_transition_order($1,'COMPLETED')",[id])).awaiting_customer,true);
- await as('postgres');assert.equal(await scalar('select status from orders where id=$1',[id]),'IN_PROGRESS');assert.equal(await scalar('select customer_confirmed_at from orders where id=$1',[id]),null);
+ await as('postgres');assert.equal(await scalar('select status from commerce_orders where id=$1',[id]),'IN_PROGRESS');assert.equal(await scalar('select customer_confirmed_at from commerce_orders where id=$1',[id]),null);
  await as('authenticated',customer);await scalar("select commerce_transition_order($1,'COMPLETED')",[id]);
- await as('postgres');assert.ok(await scalar('select customer_confirmed_at from orders where id=$1',[id]));assert.equal(await scalar('select total_minor from orders where id=$1',[id]),10000);
+ await as('postgres');assert.ok(await scalar('select customer_confirmed_at from commerce_orders where id=$1',[id]));assert.equal(await scalar('select total_minor from commerce_orders where id=$1',[id]),10000);
  checks.push('Service code: CSPRNG six digits, bcrypt only in existing code row, no browser secret SELECT, wrong customer/provider rejected, wrong code, single use, provider completion waits for explicit customer confirmation; pending scope blocks completion, only customer can accept scope/extra price, original financial snapshot preserved');
  const brute=await createOrder();await issue(brute);await travel(brute);
  for(let i=0;i<6;i++)assert.equal((await start(brute,'000000')).error,'invalid_service_code');
@@ -114,11 +114,11 @@ export async function trustChecks(db, checks) {
  const cancelled=await createOrder(), cancelCode=await issue(cancelled);await as('authenticated',customer);await scalar("select commerce_transition_order($1,'CANCELLED')",[cancelled]);await as('authenticated',owner);await fails("select commerce_transition_order($1,'IN_PROGRESS',$2)",[cancelled,cancelCode],/transition_forbidden/);
  const wrong=await createOrder();await issue(wrong);await travel(wrong);assert.equal((await start(wrong,'000000')).error,'invalid_service_code');
  await as('authenticated',customer);const caseId=await scalar("select trust_report_case($1,'complaint','TEST service problem requires support')",[wrong]);
- await as('postgres');assert.equal(await scalar('select status from orders where id=$1',[wrong]),'DISPUTED');
+ await as('postgres');assert.equal(await scalar('select status from commerce_orders where id=$1',[wrong]),'DISPUTED');
  await as('authenticated',owner);await scalar("select trust_report_case($1,'appeal','TEST provider disputes complaint with evidence')",[wrong]);
  await as('authenticated',other);assert.equal(Number(await scalar('select count(*) from trust_safety_cases where order_id=$1',[wrong])),0);
  await as('authenticated',admin);await scalar("select trust_resolve_case($1,'resolved','TEST human support resolution recorded')",[caseId]);await scalar("select trust_resolve_case($1,'reopened','TEST participant appeal reopens support review')",[caseId]);
- await as('postgres');assert.equal(await scalar('select status from orders where id=$1',[wrong]),'DISPUTED');
+ await as('postgres');assert.equal(await scalar('select status from commerce_orders where id=$1',[wrong]),'DISPUTED');
  checks.push('Service abuse: five attempts persisted, sixth does not reset counter, expired code, wrong order code, cancelled order rejected; customer complaint pauses order, separate provider appeal, other user cannot read cases, reversible admin resolution never impersonates customer consent; all flows work without any location input');
  const race=await createOrder(), raceCode=await issue(race);await travel(race);
  const clients=[0,1].map(()=>new db.constructor({host:'127.0.0.1',port:db.connectionParameters.port,user:'postgres',database:'postgres',password:'isolated-local-only',connectionTimeoutMillis:3000}));

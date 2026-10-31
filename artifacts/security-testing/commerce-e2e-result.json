@@ -1,11 +1,11 @@
 {
-  "status": "BLOCKED",
-  "sourceHash": "9d8c2319d38ae36325617124f762a5f650de4c7fea985481cbbeecf3ee224987",
-  "startedAt": "2026-10-30T22:48:12.351Z",
-  "completedAt": "2026-10-30T22:48:12.396Z",
-  "executed": false,
-  "passed": 0,
+  "status": "PASS",
+  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
+  "startedAt": "2026-10-31T15:28:03.826Z",
+  "completedAt": "2026-10-31T15:28:03.834Z",
+  "executed": true,
+  "passed": 39,
   "failed": 0,
   "skipped": 0,
-  "reason": "BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran"
+  "reason": "Real browser, Auth, API and DB; processor excluded"
 }

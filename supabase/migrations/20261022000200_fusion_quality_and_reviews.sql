@@ -15,7 +15,7 @@ end $$;
 create trigger fusion_provider_fields before update on public.providers for each row execute function public.fusion_protect_provider_fields();
 revoke all on function public.fusion_protect_provider_fields() from public,anon,authenticated;
 
-alter table public.reviews add column order_id uuid references public.orders(id);
+alter table public.reviews add column order_id uuid references public.commerce_orders(id);
 alter table public.reviews add column service_request_id uuid references public.service_requests(id);
 alter table public.reviews add constraint review_one_source check (num_nonnulls(order_id,service_request_id)<=1);
 -- Support both the production constraint name and older unnamed installations.
@@ -36,7 +36,7 @@ language sql stable security definer set search_path='' as $$
  from (
    select 'order' kind,o.id,o.service_name label,
      coalesce((select min(e.created_at) from public.order_status_events e where e.order_id=o.id and e.status='COMPLETED'),o.updated_at) completed_at
-   from public.orders o where o.provider_id=p_provider_id and o.customer_id=auth.uid() and o.status='COMPLETED'
+   from public.commerce_orders o where o.provider_id=p_provider_id and o.customer_id=auth.uid() and o.status='COMPLETED'
      and o.payment_status='PAID' and not exists(select 1 from public.reviews r where r.order_id=o.id)
    union all
    select 'request',s.id,'Önceki hizmet talebi',s.updated_at
@@ -66,7 +66,7 @@ begin
  end if;
  -- Recheck/lock the source to exclude a concurrent dispute or refund transition.
  if p_order_id is not null then
-   perform 1 from public.orders where id=p_order_id and customer_id=auth.uid() and provider_id=p_provider_id and status='COMPLETED' and payment_status='PAID' for update;
+   perform 1 from public.commerce_orders where id=p_order_id and customer_id=auth.uid() and provider_id=p_provider_id and status='COMPLETED' and payment_status='PAID' for update;
  else
    perform 1 from public.service_requests where id=p_request_id and user_id=auth.uid() and assigned_provider_id=p_provider_id and status='completed' for update;
  end if;
@@ -80,7 +80,7 @@ create or replace function public.commerce_submit_review(p_order_id uuid,p_ratin
 language plpgsql security definer set search_path='' as $$
 declare pid uuid;
 begin
- select provider_id into pid from public.orders where id=p_order_id and customer_id=auth.uid();
+ select provider_id into pid from public.commerce_orders where id=p_order_id and customer_id=auth.uid();
  return public.submit_service_review(pid,p_order_id,null,p_rating,p_comment);
 end $$;
 
@@ -137,7 +137,7 @@ begin
  'upcoming_count',count(*) filter(where status='CONFIRMED' and starts_at>now()),
  'active_count',count(*) filter(where status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS')),
  'overdue_count',count(*) filter(where status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS') and ends_at<now())
- ) from public.orders where provider_id=p_provider_id);
+ ) from public.commerce_orders where provider_id=p_provider_id);
 end $$;
 
 revoke all on function public.review_eligible_sources(uuid),public.submit_service_review(uuid,uuid,uuid,smallint,text),public.refresh_review_summary(),public.public_provider_reviews(uuid),public.commerce_public_schedule(uuid),public.commerce_provider_operations(uuid) from public,anon,authenticated;
@@ -172,18 +172,18 @@ begin
     (t.status='AWAITING' and o.expires_at<=now()) or (t.status='SUCCEEDED' and t.item_transaction_id is null) or t.refund_state='IN_FLIGHT' or t.payout_state='IN_FLIGHT'),
   'active_providers',(select count(*) from public.providers where is_active and is_approved),
   'new_customers_month',(select count(*) from public.profiles where role='customer' and created_at>=date_trunc('month',now() at time zone 'Europe/Istanbul') at time zone 'Europe/Istanbul'),
-  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
- ) from public.orders o left join public.payment_transactions t on t.order_id=o.id);
+  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.commerce_orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
+ ) from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id);
 end $$;
 
 
 create or replace function public.commerce_resolve_payment(p_order_id uuid,p_token text,p_payment_id text,p_success boolean,p_fee_minor integer default null,p_item_transaction_id text default null)
 returns text language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; next_status text;
+declare o public.commerce_orders; t public.payment_transactions; next_status text;
 begin
  -- Provider first, then order: same lock order as reservation and lifecycle RPCs.
- perform 1 from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ perform 1 from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  if t.id is null or t.checkout_token is distinct from p_token then raise exception 'payment_token_mismatch'; end if;
  if t.status='SUCCEEDED' then
@@ -201,11 +201,11 @@ begin
  update public.payment_transactions set status=case when p_success then 'SUCCEEDED' else 'FAILED' end,payment_id=coalesce(p_payment_id,payment_id),item_transaction_id=coalesce(p_item_transaction_id,item_transaction_id),updated_at=now() where id=t.id;
  if p_success then
    next_status:=case when o.status='PENDING_PAYMENT' and o.expires_at>now() then 'CONFIRMED' else 'REFUND_PENDING' end;
-   update public.orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,processor_fee_minor=p_fee_minor,updated_at=now() where id=o.id;
+   update public.commerce_orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,processor_fee_minor=p_fee_minor,updated_at=now() where id=o.id;
  else
-   if o.status='PENDING_PAYMENT' then update public.orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=now() where id=o.id; end if;
+   if o.status='PENDING_PAYMENT' then update public.commerce_orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=now() where id=o.id; end if;
  end if;
- return (select status from public.orders where id=o.id);
+ return (select status from public.commerce_orders where id=o.id);
 end $$;
 
 
@@ -217,7 +217,7 @@ begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
  with flagged as (
    select o.*,jsonb_build_object('status',t.status,'payout_state',t.payout_state,'refund_state',t.refund_state,'environment',t.environment,'created_at',t.created_at,'has_item_transaction',t.item_transaction_id is not null) payment_transactions
-   from public.orders o left join public.payment_transactions t on t.order_id=o.id
+   from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id
    where (o.payment_status='PAID' and t.status is distinct from 'SUCCEEDED')
    or (o.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED') and o.payment_status<>'PAID')
    or (t.status='SUCCEEDED' and o.payment_status in ('UNPAID','FAILED'))

@@ -1,7 +1,4 @@
-import { expect, test } from "@playwright/test";
-import {
-  uniqueE2EValue,
-} from "./helpers";
+import { expect, test } from "./fixtures";
 
 test.describe("auth-required form restoration", () => {
   test("guest account return retains selected view", async ({ page }) => {
@@ -14,37 +11,20 @@ test.describe("auth-required form restoration", () => {
   }) => {
     await page.goto("/provider-application");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByTestId("provider-application-form")).toBeVisible();
+    const form=page.getByRole("form", { name: "FUWU Partner başvurusu", exact: true });
+    await expect(form).toBeVisible();
     await expect(
-      page.getByTestId("provider-application-form").locator('button[type="submit"]'),
+      form.getByRole('button',{name:'Başvurumu gönder',exact:true}),
     ).toBeEnabled();
-    // The page is server-rendered; allow the controlled client form to hydrate
-    // before filling fields so React does not replace pre-hydration values.
-    await page.waitForTimeout(750);
-
-    await page.locator('input[name="fullName"]').fill("E2E Usta Adayı");
-    await page.locator('select[name="categoryId"]').selectOption({ index: 1 });
-    await page.locator('select[name="districtId"]').selectOption({ index: 1 });
-    await page.locator('input[name="experienceYears"]').fill("5");
-    const availabilityInput = page.locator(
-      'input[name="availability"][value="Tam zamanlı"]',
-    );
-    await page
-      .locator('label:has(input[name="availability"][value="Tam zamanlı"])')
-      .click();
-    await expect(availabilityInput).toBeChecked();
-    const equipmentInput = page.locator('input[name="hasEquipment"][value="true"]');
-    await page.locator('label:has(input[name="hasEquipment"][value="true"])').click();
-    await expect(equipmentInput).toBeChecked();
-    await page
-      .locator('textarea[name="introduction"]')
-      .fill(`Korunacak başvuru ${uniqueE2EValue("provider-restore")}`);
-    await page.locator('input[name="phone"]').fill("+90 555 700 00 01");
-    await expect(page.locator('input[name="fullName"]')).toHaveValue("E2E Usta Adayı");
-    await expect(page.locator('select[name="categoryId"]')).not.toHaveValue("");
-    await expect(page.locator('select[name="districtId"]')).not.toHaveValue("");
-    await expect(page.locator('input[name="experienceYears"]')).toHaveValue("5");
-    await page.getByTestId("provider-application-form").locator('button[type="submit"]').click();
+    await form.getByRole('textbox',{name:'Ad soyad',exact:true}).fill("E2E Usta Adayı");
+    await form.getByRole('combobox',{name:'Hizmet kategorisi',exact:true}).selectOption({ index: 1 });
+    await form.getByRole('combobox',{name:'Çalışma ilçesi',exact:true}).selectOption({ index: 1 });
+    await form.getByRole('textbox',{name:'Cep telefonu',exact:true}).fill("+90 555 700 00 01");
+    await expect(form.getByRole('textbox',{name:'Ad soyad',exact:true})).toHaveValue("E2E Usta Adayı");
+    await expect(form.getByRole('combobox',{name:'Hizmet kategorisi',exact:true})).not.toHaveValue("");
+    await expect(form.getByRole('combobox',{name:'Çalışma ilçesi',exact:true})).not.toHaveValue("");
+    await expect(page.locator('input[type="file"]')).toHaveCount(0);
+    await form.getByRole('button',{name:'Başvurumu gönder',exact:true}).click();
 
     await expect(page).toHaveURL(/\/login\?next=\/provider-application&restore=1/);
     const storedApplication = await page.evaluate(() =>
@@ -54,6 +34,9 @@ test.describe("auth-required form restoration", () => {
     expect(storedApplication).toContain("E2E Usta Adayı");
     expect(storedApplication).not.toContain("verificationDocumentPath");
     expect(storedApplication).not.toContain("profileImagePath");
+    await page.goto("/provider-application");
+    await expect(form.getByRole('textbox',{name:'Ad soyad',exact:true})).toHaveValue("E2E Usta Adayı");
+    await expect(form.getByRole('textbox',{name:'Cep telefonu',exact:true})).toHaveValue("+90 555 700 00 01");
   });
 
   test("legacy purchase link preserves the provider without opening the retired form", async ({ page }) => {

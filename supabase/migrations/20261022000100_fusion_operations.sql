@@ -52,13 +52,13 @@ begin
 end $$;
 create trigger fusion_payment_time before update on public.payment_transactions for each row execute function public.commerce_capture_paid_at();
 
-alter table public.orders add column exclusions text not null default '';
+alter table public.commerce_orders add column exclusions text not null default '';
 create function public.commerce_snapshot_exclusions() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
 begin
  select c.exclusions into new.exclusions from public.provider_service_offerings f join public.service_catalog c on c.id=f.service_id where f.id=new.offering_id;
  return new;
 end $$;
-create trigger fusion_order_scope before insert on public.orders for each row execute function public.commerce_snapshot_exclusions();
+create trigger fusion_order_scope before insert on public.commerce_orders for each row execute function public.commerce_snapshot_exclusions();
 revoke all on function public.commerce_snapshot_exclusions() from public,anon,authenticated;
 
 -- There was no reusable saved-address relation. Orders keep their immutable address snapshots.
@@ -81,9 +81,9 @@ grant all on public.customer_addresses to service_role;
 -- Never expose a token, payment URL, external transaction id or delivery code in participant finance reads.
 create function public.commerce_order_finance(p_order_id uuid) returns jsonb
 language plpgsql stable security definer set search_path=public,pg_temp as $$
-declare o public.orders; t public.payment_transactions;
+declare o public.commerce_orders; t public.payment_transactions;
 begin
- select * into o from public.orders where id=p_order_id;
+ select * into o from public.commerce_orders where id=p_order_id;
  if auth.uid() is null or o.id is null or not(coalesce(o.customer_id=auth.uid(),false) or
    exists(select 1 from public.providers where id=o.provider_id and user_id=auth.uid()) or public.current_user_is_admin())
  then raise exception 'forbidden' using errcode='42501'; end if;
@@ -108,7 +108,7 @@ begin
   'released_minor',coalesce(sum(o.provider_gross_minor) filter(where t.payout_state='RELEASED'),0),
   'pending_minor',coalesce(sum(o.provider_gross_minor) filter(where o.status='COMPLETED' and o.payment_status='PAID' and t.payout_state is distinct from 'RELEASED'),0),
   'in_flight_count',count(*) filter(where t.payout_state='IN_FLIGHT' or t.refund_state='IN_FLIGHT')
- ) from public.orders o left join public.payment_transactions t on t.order_id=o.id where o.provider_id=p_provider_id);
+ ) from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id where o.provider_id=p_provider_id);
 end $$;
 
 create function public.commerce_admin_summary() returns jsonb
@@ -137,20 +137,20 @@ begin
     (t.status='AWAITING' and o.expires_at<=now()) or t.refund_state='IN_FLIGHT' or t.payout_state='IN_FLIGHT'),
   'active_providers',(select count(*) from public.providers where is_active and is_approved),
   'new_customers_month',(select count(*) from public.profiles where role='customer' and created_at>=date_trunc('month',now() at time zone 'Europe/Istanbul') at time zone 'Europe/Istanbul'),
-  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
- ) from public.orders o left join public.payment_transactions t on t.order_id=o.id);
+  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.commerce_orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
+ ) from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id);
 end $$;
 
 -- Admin may request a refund, but cannot mark a payment, refund or payout successful.
 create function public.commerce_admin_request_refund(p_order_id uuid) returns void
 language plpgsql security definer set search_path=public,pg_temp as $$
-declare o public.orders;
+declare o public.commerce_orders;
 begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
- perform 1 from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ perform 1 from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.payment_status<>'PAID' or o.status not in ('CONFIRMED','DISPUTED') or not exists(select 1 from public.payment_transactions where order_id=o.id and status='SUCCEEDED' and payout_state<>'IN_FLIGHT') then raise exception 'refund_not_eligible'; end if;
- update public.orders set status='REFUND_PENDING',payment_status='REFUND_PENDING',updated_at=now() where id=o.id;
+ update public.commerce_orders set status='REFUND_PENDING',payment_status='REFUND_PENDING',updated_at=now() where id=o.id;
 end $$;
 
 -- Reuse the existing audit log. No customer address, code, token or processor secret is logged.
@@ -195,7 +195,7 @@ begin
  end if;
  return new;
 end $$;
-create trigger fusion_order_audit after insert or update of status,payment_status on public.orders for each row execute function public.commerce_audit_change();
+create trigger fusion_order_audit after insert or update of status,payment_status on public.commerce_orders for each row execute function public.commerce_audit_change();
 create trigger fusion_payment_audit after insert or update of status,payout_state,refund_state on public.payment_transactions for each row execute function public.commerce_audit_change();
 
 alter table public.notifications drop constraint notifications_entity_type_check;
@@ -210,12 +210,12 @@ begin
    if recipient is not null then
      insert into public.notifications(user_id,recipient_user_id,actor_user_id,provider_id,entity_id,entity_type,type,event,title,body,message,metadata)
      values(recipient,recipient,auth.uid(),new.provider_id,new.id,'order','commerce_order','commerce_order_updated',message_title,
-       new.service_name||' · '||message_title,new.service_name||' · '||message_title,jsonb_build_object('order_id',new.id,'status',new.status,'url','/orders/'||new.id));
+       new.service_name||' · '||message_title,new.service_name||' · '||message_title,jsonb_build_object('order_id',new.id,'status',new.status,'url','/commerce_orders/'||new.id));
    end if;
  end loop;
  return new;
 end $$;
-create trigger fusion_order_notification after update of status on public.orders for each row execute function public.commerce_notify_order();
+create trigger fusion_order_notification after update of status on public.commerce_orders for each row execute function public.commerce_notify_order();
 
 -- Notification text/recipients are server-owned; participants may only mark their messages read.
 revoke update on public.notifications from authenticated;

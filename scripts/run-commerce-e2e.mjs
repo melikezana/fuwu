@@ -6,7 +6,7 @@ import { output,saveEvidence,sourceHash } from "./testing/evidence.mjs";
 
 const source=sourceHash(),startedAt=new Date().toISOString();
 const prelaunch=process.argv.includes("--prelaunch"), reportOnly=process.argv.includes("--report-only");
-const requiredSpecs=["auth.spec.ts","provider-application.spec.ts","provider-control.spec.ts","trust-flow.spec.ts","storage-documents.spec.ts"];
+const requiredSpecs=["auth.spec.ts","provider-application.spec.ts","provider-control.spec.ts","trust-flow.spec.ts","storage-documents.spec.ts","waitlist.spec.ts"];
 let status="BLOCKED",reason="",passed=0,failed=0,skipped=0,executed=false;
 try {
   const {env,safety}=loadTestEnvironment();
@@ -26,10 +26,11 @@ try {
   const files=new Set();
   function inspect(suite){if(suite.file)files.add(path.basename(suite.file));for(const child of suite.suites||[])inspect(child);}
   for(const suite of report.suites||[])inspect(suite);
-  if(prelaunch&&requiredSpecs.some(file=>!files.has(file))) throw new Error("Required acceptance suite missing from report");
+  const required=prelaunch?requiredSpecs:["commerce.spec.ts","trust-flow.spec.ts"];
+  if(required.some(file=>!files.has(file))) throw new Error("Required acceptance suite missing from report");
   executed=true;
   passed=report.stats.expected;failed=report.stats.unexpected;skipped=report.stats.skipped;
-  status=exitCode===0&&passed>0&&failed===0&&skipped===0&&(report.errors||[]).length===0?"PASS":failed>0?"FAIL":"BLOCKED";
+  status=exitCode===0&&passed>0&&failed===0&&skipped===0&&!report.stats.flaky&&(report.errors||[]).length===0?"PASS":failed>0?"FAIL":"BLOCKED";
   reason=status==="PASS"?"Real browser, Auth, API and DB; processor excluded":"Browser suite has failures or skips";
 } catch {reason=executed?"BLOCKED: acceptance report is missing or incomplete; inspect the test log":"BLOCKED: isolated allowlisted Supabase Auth/DB unavailable or unsafe; no write test ran";}
 saveEvidence(prelaunch?"prelaunch-e2e":"commerce-e2e",{status,sourceHash:source,startedAt,completedAt:new Date().toISOString(),executed,passed,failed,skipped,reason});

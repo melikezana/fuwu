@@ -242,15 +242,15 @@ create function fuwu_private.block_legacy_confirmation() returns trigger languag
  return new;
 end $$;
 create trigger trust_legacy_payment_closed before insert or update on public.payments for each row execute function fuwu_private.block_legacy_confirmation();
-alter table public.orders add column arrival_verified_at timestamptz,add column service_completed_at timestamptz,add column customer_confirmed_at timestamptz;
+alter table public.commerce_orders add column arrival_verified_at timestamptz,add column service_completed_at timestamptz,add column customer_confirmed_at timestamptz;
 
 create function public.trust_issue_service_code(p_order_id uuid) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare o public.orders; c public.order_completion_codes; secret text; bytes bytea; n integer;
+declare o public.commerce_orders; c public.order_completion_codes; secret text; bytes bytea; n integer;
 begin
  if auth.uid() is null then raise exception 'forbidden' using errcode='42501'; end if;
- perform 1 from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ perform 1 from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null or o.customer_id<>auth.uid() or o.status not in ('CONFIRMED','PROVIDER_ON_THE_WAY') or o.arrival_verified_at is not null
  or now()<o.starts_at-interval '2 hours' or now()>o.ends_at+interval '2 hours' then raise exception 'transition_forbidden' using errcode='42501'; end if;
  insert into public.order_completion_codes(order_id,code) values(o.id,null) on conflict do nothing;
@@ -270,11 +270,11 @@ end $$;
 
 create or replace function public.commerce_transition_order(p_order_id uuid,p_status text,p_code text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare o public.orders; p public.providers; c public.order_completion_codes; next_status text;
+declare o public.commerce_orders; p public.providers; c public.order_completion_codes; next_status text;
 begin
  if auth.uid() is null then raise exception 'unauthorized' using errcode='42501'; end if;
- select * into p from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ select * into p from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null or (o.customer_id is distinct from auth.uid() and p.user_id is distinct from auth.uid()) then raise exception 'transition_forbidden' using errcode='42501'; end if;
  next_status:=p_status;
  if p_status='CANCELLED' and o.customer_id=auth.uid() and o.status in ('PENDING_PAYMENT','CONFIRMED') and o.starts_at>now() then
@@ -290,23 +290,23 @@ begin
    return jsonb_build_object('error','invalid_service_code');
   end if;
   update public.order_completion_codes set consumed_at=now(),code_hash=null where order_id=o.id;
-  update public.orders set arrival_verified_at=now() where id=o.id;
+  update public.commerce_orders set arrival_verified_at=now() where id=o.id;
  elsif p_status='COMPLETED' and o.status='IN_PROGRESS' and o.customer_id=auth.uid() and o.service_completed_at is not null then
-  update public.orders set customer_confirmed_at=now() where id=o.id;
+  update public.commerce_orders set customer_confirmed_at=now() where id=o.id;
  elsif p_status='COMPLETED' and o.status='IN_PROGRESS' and p.user_id=auth.uid() and o.customer_id<>auth.uid() then
   if o.service_completed_at is null then
-   update public.orders set service_completed_at=now(),updated_at=now() where id=o.id;
+   update public.commerce_orders set service_completed_at=now(),updated_at=now() where id=o.id;
    insert into public.audit_logs(actor_user_id,entity_type,entity_id,action,metadata) values(auth.uid(),'order',o.id,'trust.completion.requested','{}');
   end if;
   return jsonb_build_object('status','IN_PROGRESS','awaiting_customer',true);
  else raise exception 'transition_forbidden' using errcode='42501'; end if;
- update public.orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
+ update public.commerce_orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
  insert into public.audit_logs(actor_user_id,entity_type,entity_id,action,metadata) values(auth.uid(),'order',o.id,'trust.order.transition',jsonb_build_object('from',o.status,'to',next_status));
  return jsonb_build_object('status',next_status);
 end $$;
 
 create table public.trust_safety_cases (
- id uuid primary key default gen_random_uuid(), order_id uuid references public.orders(id), provider_id uuid references public.providers(id), reporter_id uuid not null references public.profiles(id),
+ id uuid primary key default gen_random_uuid(), order_id uuid references public.commerce_orders(id), provider_id uuid references public.providers(id), reporter_id uuid not null references public.profiles(id),
  reporter_side text not null check(reporter_side in ('customer','provider')), kind text not null check(kind in ('safety','complaint','appeal','no_show','unreachable','suspicious_account')),
  reason text not null check(length(reason) between 10 and 2000), status text not null default 'open' check(status in ('open','reviewing','resolved','reopened')),
  resolution text, reviewed_by uuid references public.profiles(id), reviewed_at timestamptz, created_at timestamptz not null default now(), check(order_id is not null or provider_id is not null)
@@ -318,10 +318,10 @@ create policy safety_cases_read on public.trust_safety_cases for select to authe
 create index safety_case_reporter on public.trust_safety_cases(reporter_id,created_at);
 create index safety_case_order on public.trust_safety_cases(order_id,status);
 create index safety_case_provider on public.trust_safety_cases(provider_id) where provider_id is not null;
-create index trust_overdue_completion on public.orders(service_completed_at) where status='IN_PROGRESS' and service_completed_at is not null;
+create index trust_overdue_completion on public.commerce_orders(service_completed_at) where status='IN_PROGRESS' and service_completed_at is not null;
 create function public.trust_report_case(p_order_id uuid,p_kind text,p_reason text) returns uuid
-language plpgsql security definer set search_path='' as $$ declare o public.orders; side text; cid uuid; begin
- select * into o from public.orders where id=p_order_id;
+language plpgsql security definer set search_path='' as $$ declare o public.commerce_orders; side text; cid uuid; begin
+ select * into o from public.commerce_orders where id=p_order_id;
  if auth.uid() is null or o.id is null then raise exception 'forbidden' using errcode='42501'; end if;
  if o.customer_id=auth.uid() then side:='customer'; elsif exists(select 1 from public.providers where id=o.provider_id and user_id=auth.uid()) then side:='provider'; else raise exception 'forbidden' using errcode='42501'; end if;
  if p_kind is null or p_kind not in ('safety','complaint','appeal','no_show','unreachable') or length(btrim(coalesce(p_reason,''))) not between 10 and 2000 then raise exception 'invalid_selection'; end if;
@@ -355,7 +355,7 @@ create function public.trust_admin_queue() returns jsonb language plpgsql stable
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
  return jsonb_build_object('documents',(select coalesce(jsonb_agg(to_jsonb(x)),'[]'::jsonb) from (select d.id,d.application_id,a.full_name,d.document_type,d.status,d.version,d.expires_on,d.reason from public.provider_document_versions d join public.provider_applications a on a.id=d.application_id where d.superseded_at is null order by d.created_at limit 100) x),
  'cases',(select coalesce(jsonb_agg(to_jsonb(x)),'[]'::jsonb) from (select * from public.trust_safety_cases order by created_at desc limit 100) x),
- 'overdue_confirmations',(select count(*) from public.orders where status='IN_PROGRESS' and service_completed_at<now()-interval '48 hours'),
+ 'overdue_confirmations',(select count(*) from public.commerce_orders where status='IN_PROGRESS' and service_completed_at<now()-interval '48 hours'),
  'unmatched_uploads',(select count(*) from public.provider_document_uploads u where not exists(select 1 from public.provider_document_versions where storage_path=u.path)),
  'review_requests',(select count(*) from public.provider_publication_reviews where status in ('pending_review','changes_requested')));
 end $$;
@@ -377,7 +377,7 @@ end $$;
 revoke all on function public.provider_partner_readiness(uuid) from public,anon,authenticated;
 grant execute on function public.provider_partner_readiness(uuid) to authenticated;
 create table public.order_scope_changes (
- id uuid primary key default gen_random_uuid(), order_id uuid not null references public.orders(id),
+ id uuid primary key default gen_random_uuid(), order_id uuid not null references public.commerce_orders(id),
  scope text not null check(length(scope) between 10 and 2000), extra_minor integer not null check(extra_minor between 0 and 100000000),
  status text not null default 'proposed' check(status in ('proposed','accepted','declined')),
  proposed_by uuid not null references public.profiles(id), decided_by uuid references public.profiles(id), decided_at timestamptz, created_at timestamptz not null default now()
@@ -385,13 +385,13 @@ create table public.order_scope_changes (
 alter table public.order_scope_changes enable row level security;
 revoke all on public.order_scope_changes from public,anon,authenticated;
 grant select on public.order_scope_changes to authenticated;
-create policy scope_participants_read on public.order_scope_changes for select to authenticated using(exists(select 1 from public.orders o where o.id=order_id and (o.customer_id=auth.uid() or exists(select 1 from public.providers p where p.id=o.provider_id and p.user_id=auth.uid()) or public.current_user_is_admin())));
+create policy scope_participants_read on public.order_scope_changes for select to authenticated using(exists(select 1 from public.commerce_orders o where o.id=order_id and (o.customer_id=auth.uid() or exists(select 1 from public.providers p where p.id=o.provider_id and p.user_id=auth.uid()) or public.current_user_is_admin())));
 create unique index scope_one_proposal on public.order_scope_changes(order_id) where status='proposed';
 create index scope_order_history on public.order_scope_changes(order_id,created_at);
 create function public.trust_scope_change(p_order_id uuid,p_scope text default null,p_extra_minor integer default null,p_change_id uuid default null,p_accept boolean default null) returns void
-language plpgsql security definer set search_path='' as $$ declare o public.orders; pid uuid; cid uuid; begin
- select user_id into pid from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+language plpgsql security definer set search_path='' as $$ declare o public.commerce_orders; pid uuid; cid uuid; begin
+ select user_id into pid from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if auth.uid() is null or o.id is null or o.status<>'IN_PROGRESS' or o.service_completed_at is not null then raise exception 'transition_forbidden' using errcode='42501'; end if;
  if p_change_id is null then
   if pid is distinct from auth.uid() or o.customer_id=auth.uid() then raise exception 'forbidden' using errcode='42501'; end if;
@@ -408,7 +408,7 @@ create function fuwu_private.guard_pending_scope() returns trigger language plpg
  if new.service_completed_at is not null and old.service_completed_at is null and exists(select 1 from public.order_scope_changes where order_id=new.id and status='proposed') then raise exception 'scope_approval_required' using errcode='22023'; end if;
  return new;
 end $$;
-create trigger trust_pending_scope before update on public.orders for each row execute function fuwu_private.guard_pending_scope();
+create trigger trust_pending_scope before update on public.commerce_orders for each row execute function fuwu_private.guard_pending_scope();
 create function public.trust_save_document_type(p_type jsonb,p_reason text) returns void
 language plpgsql security definer set search_path='' as $$ begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;

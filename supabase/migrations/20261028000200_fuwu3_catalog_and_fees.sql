@@ -58,7 +58,7 @@ create trigger commerce_fee_change_audit after insert or update on public.app_se
 revoke all on function public.commerce_validate_fee_setting(),public.commerce_fee_audit() from public,anon,authenticated;
 
 -- Nullable additions preserve historical rows byte for byte. NULL means historical snapshot unavailable.
-alter table public.orders
+alter table public.commerce_orders
  add column service_price_minor integer,
  add column customer_fee_minor integer,
  add column provider_commission_bps integer,
@@ -69,12 +69,12 @@ alter table public.orders
 -- Constraint names depend on earlier cross-column checks. Locate only the old money balance;
 -- never drop the independent ends_at > starts_at constraint.
 do $$ declare item record; begin
- for item in select conname from pg_catalog.pg_constraint where conrelid='public.orders'::regclass and contype='c'
+ for item in select conname from pg_catalog.pg_constraint where conrelid='public.commerce_orders'::regclass and contype='c'
    and position('commission_minor + provider_gross_minor' in pg_catalog.pg_get_constraintdef(oid))>0
    and position('total_minor' in pg_catalog.pg_get_constraintdef(oid))>0
- loop execute format('alter table public.orders drop constraint %I',item.conname); end loop;
+ loop execute format('alter table public.commerce_orders drop constraint %I',item.conname); end loop;
 end $$;
-alter table public.orders add constraint commerce_order_price_balance check(
+alter table public.commerce_orders add constraint commerce_order_price_balance check(
  commission_minor>=0 and provider_gross_minor>=0 and
  ((service_price_minor is null and customer_fee_minor is null and provider_commission_bps is null and customer_fee_bps is null and commission_minor+provider_gross_minor=total_minor)
  or (service_price_minor is not null and customer_fee_minor is not null and provider_commission_bps is not null and customer_fee_bps is not null
@@ -107,20 +107,20 @@ grant execute on function public.commerce_quote(uuid) to anon,authenticated;
 
 create function public.commerce_hold_order_priced(p_offering_id uuid,p_starts_at timestamptz,p_district_id uuid,p_address text,p_idempotency_key uuid,p_expected_price_minor integer,p_expected_total_minor integer,p_fee_consent boolean,p_terms_version text)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare f public.provider_service_offerings; p public.providers; c public.service_catalog; o public.orders; slot_end timestamptz; q jsonb;
+declare f public.provider_service_offerings; p public.providers; c public.service_catalog; o public.commerce_orders; slot_end timestamptz; q jsonb;
 begin
  if auth.uid() is null then raise exception 'unauthorized' using errcode='42501'; end if;
  if p_idempotency_key is null or p_address is null or length(btrim(p_address)) not between 10 and 1000 then raise exception 'invalid_address'; end if;
  select * into f from public.provider_service_offerings where id=p_offering_id;
  if not found then raise exception 'offering_unavailable'; end if;
  select * into p from public.providers where id=f.provider_id for update;
- select * into o from public.orders where customer_id=auth.uid() and idempotency_key=p_idempotency_key;
+ select * into o from public.commerce_orders where customer_id=auth.uid() and idempotency_key=p_idempotency_key;
  if found then
    if o.offering_id<>p_offering_id or o.starts_at<>p_starts_at or o.address<>btrim(p_address) or o.district_id<>p_district_id
      or o.total_minor is distinct from p_expected_total_minor or coalesce(o.service_price_minor,o.total_minor) is distinct from p_expected_price_minor then raise exception 'idempotency_conflict'; end if;
    return to_jsonb(o);
  end if;
- if (select count(*) from public.orders where customer_id=auth.uid() and status='PENDING_PAYMENT' and expires_at>clock_timestamp())>=3 then raise exception 'too_many_holds'; end if;
+ if (select count(*) from public.commerce_orders where customer_id=auth.uid() and status='PENDING_PAYMENT' and expires_at>clock_timestamp())>=3 then raise exception 'too_many_holds'; end if;
  select * into f from public.provider_service_offerings where id=p_offering_id;
  if f.price_minor is distinct from p_expected_price_minor then raise exception 'price_changed'; end if;
  select * into c from public.service_catalog where id=f.service_id;
@@ -129,7 +129,7 @@ begin
  q:=public.commerce_quote(p_offering_id);
  if (q->>'total_minor')::integer is distinct from p_expected_total_minor then raise exception 'fee_changed'; end if;
  if (q->>'customer_fee_minor')::integer>0 and (p_fee_consent is distinct from true or p_terms_version is distinct from 'fuwu-fees-v1') then raise exception 'fee_consent_required'; end if;
- insert into public.orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,expires_at,idempotency_key,service_price_minor,customer_fee_minor,provider_commission_bps,customer_fee_bps,fee_consent_at,fee_terms_version)
+ insert into public.commerce_orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,expires_at,idempotency_key,service_price_minor,customer_fee_minor,provider_commission_bps,customer_fee_bps,fee_consent_at,fee_terms_version)
  values(auth.uid(),p.id,f.id,c.name,(select name from public.service_variants where id=f.variant_id),c.scope,p.name,p_district_id,(select name from public.districts where id=p_district_id),btrim(p_address),p_starts_at,slot_end,(q->>'total_minor')::integer,(q->>'commission_minor')::integer,(q->>'provider_gross_minor')::integer,clock_timestamp()+interval '10 minutes',p_idempotency_key,f.price_minor,(q->>'customer_fee_minor')::integer,(q->>'provider_commission_bps')::integer,(q->>'customer_fee_bps')::integer,case when p_fee_consent then clock_timestamp() end,'fuwu-fees-v1') returning * into o;
  insert into public.order_completion_codes(order_id,code) values(o.id,((('x'||substr(replace(gen_random_uuid()::text,'-',''),1,8))::bit(32)::bigint % 900000)+100000)::text);
  return to_jsonb(o);
@@ -149,7 +149,7 @@ begin
  is distinct from row(old.total_minor,old.commission_minor,old.provider_gross_minor,old.service_price_minor,old.customer_fee_minor,old.provider_commission_bps,old.customer_fee_bps,old.fee_consent_at,old.fee_terms_version) then raise exception 'immutable_order_price'; end if;
  return new;
 end $$;
-create trigger commerce_immutable_price before update on public.orders for each row execute function public.commerce_protect_price_snapshot();
+create trigger commerce_immutable_price before update on public.commerce_orders for each row execute function public.commerce_protect_price_snapshot();
 revoke all on function public.commerce_protect_price_snapshot() from public,anon,authenticated;
 
 -- Additional function definitions follow, generated from the current audited implementations.
@@ -198,9 +198,9 @@ language sql stable security definer set search_path=public,pg_temp as $$
  and p_district_id=any(f.district_ids) and exists(select 1 from public.districts d where d.id=p_district_id and d.is_active)
  and p_day between (now() at time zone 'Europe/Istanbul')::date and (now() at time zone 'Europe/Istanbul')::date+30
  and s.start_time > clock_timestamp()+interval '30 minutes'
- and (p.daily_order_limit is null or (select count(*) from public.orders cap where cap.provider_id=p.id and (cap.starts_at at time zone 'Europe/Istanbul')::date=p_day and (cap.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED','DISPUTED') or (cap.status='PENDING_PAYMENT' and cap.expires_at>clock_timestamp())))<p.daily_order_limit)
+ and (p.daily_order_limit is null or (select count(*) from public.commerce_orders cap where cap.provider_id=p.id and (cap.starts_at at time zone 'Europe/Istanbul')::date=p_day and (cap.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED','DISPUTED') or (cap.status='PENDING_PAYMENT' and cap.expires_at>clock_timestamp())))<p.daily_order_limit)
  and not exists(select 1 from public.provider_time_off t where t.provider_id=p.id and t.day=p_day)
- and not exists(select 1 from public.orders o where o.provider_id=p.id
+ and not exists(select 1 from public.commerce_orders o where o.provider_id=p.id
    and (o.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED','DISPUTED') or (o.status='PENDING_PAYMENT' and o.expires_at>now()))
    and tstzrange(o.starts_at,o.ends_at,'[)') && tstzrange(s.start_time,s.start_time+make_interval(mins=>f.duration_minutes),'[)'))
  -- Legacy requests have no trustworthy duration: reserve their whole day until reconciled.
@@ -229,7 +229,7 @@ begin
   'released_minor',coalesce(sum(o.provider_gross_minor) filter(where t.payout_state='RELEASED'),0),
   'pending_minor',coalesce(sum(o.provider_gross_minor) filter(where o.status='COMPLETED' and o.payment_status='PAID' and t.status='SUCCEEDED' and t.payout_state is distinct from 'RELEASED'),0),
   'in_flight_count',count(*) filter(where t.payout_state='IN_FLIGHT' or t.refund_state='IN_FLIGHT')
- ) from public.orders o left join public.payment_transactions t on t.order_id=o.id where o.provider_id=p_provider_id);
+ ) from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id where o.provider_id=p_provider_id);
 end $$;
 
 create or replace function public.commerce_admin_summary() returns jsonb
@@ -266,8 +266,8 @@ begin
     (t.status='AWAITING' and o.expires_at<=now()) or (t.status='SUCCEEDED' and t.item_transaction_id is null) or t.refund_state='IN_FLIGHT' or t.payout_state='IN_FLIGHT'),
   'active_providers',(select count(*) from public.providers where is_active and is_approved),
   'new_customers_month',(select count(*) from public.profiles where role='customer' and created_at>=date_trunc('month',now() at time zone 'Europe/Istanbul') at time zone 'Europe/Istanbul'),
-  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
- ) from public.orders o left join public.payment_transactions t on t.order_id=o.id);
+  'repeat_customer_percent',(select coalesce(round(100.0*count(*) filter(where n>1)/nullif(count(*),0),1),0) from (select count(*) n from public.commerce_orders x join public.payment_transactions y on y.order_id=x.id and y.status='SUCCEEDED' group by x.customer_id) buyers)
+ ) from public.commerce_orders o left join public.payment_transactions t on t.order_id=o.id);
 end $$;
 
 create function public.commerce_set_daily_limit(p_provider_id uuid,p_limit integer) returns void
@@ -288,18 +288,18 @@ begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
  select coalesce(jsonb_agg(to_jsonb(cats) order by cats.paid_orders desc,cats.name),'[]'::jsonb) into category_rows from (
    select cat.id,cat.name,
-    (select count(*) from public.orders o join public.provider_service_offerings f on f.id=o.offering_id join public.service_catalog s on s.id=f.service_id join public.payment_transactions t on t.order_id=o.id where s.category_id=cat.id and t.status='SUCCEEDED') paid_orders,
+    (select count(*) from public.commerce_orders o join public.provider_service_offerings f on f.id=o.offering_id join public.service_catalog s on s.id=f.service_id join public.payment_transactions t on t.order_id=o.id where s.category_id=cat.id and t.status='SUCCEEDED') paid_orders,
     (select count(distinct f.provider_id) from public.provider_service_offerings f join public.service_catalog s on s.id=f.service_id join public.providers p on p.id=f.provider_id where s.category_id=cat.id and f.is_active and s.is_active and p.is_active and p.is_approved) offering_providers
    from public.service_categories cat where cat.is_active and cat.is_visible
  ) cats;
  select coalesce(jsonb_agg(to_jsonb(areas) order by areas.completed_orders desc,areas.name),'[]'::jsonb) into district_rows from (
    select d.id district_id,d.name,count(*) paid_orders,count(*) filter(where o.status='COMPLETED' and o.payment_status='PAID' and t.status='SUCCEEDED') completed_orders,
     round(100.0*count(*) filter(where o.status='COMPLETED' and o.payment_status='PAID' and t.status='SUCCEEDED')/nullif(count(*),0),1) completion_percent
-   from public.orders o join public.districts d on d.id=o.district_id join public.payment_transactions t on t.order_id=o.id and t.status='SUCCEEDED' group by d.id,d.name
+   from public.commerce_orders o join public.districts d on d.id=o.district_id join public.payment_transactions t on t.order_id=o.id and t.status='SUCCEEDED' group by d.id,d.name
  ) areas;
  select coalesce(jsonb_agg(to_jsonb(repeats) order by repeats.repeat_customers desc,repeats.name),'[]'::jsonb) into repeat_rows from (
    select service_id,name,count(*) filter(where n>1) repeat_customers,count(*) customers from (
-    select s.id service_id,s.name,o.customer_id,count(*) n from public.orders o join public.provider_service_offerings f on f.id=o.offering_id join public.service_catalog s on s.id=f.service_id join public.payment_transactions t on t.order_id=o.id and t.status='SUCCEEDED' where o.status='COMPLETED' and o.payment_status='PAID' group by s.id,s.name,o.customer_id
+    select s.id service_id,s.name,o.customer_id,count(*) n from public.commerce_orders o join public.provider_service_offerings f on f.id=o.offering_id join public.service_catalog s on s.id=f.service_id join public.payment_transactions t on t.order_id=o.id and t.status='SUCCEEDED' where o.status='COMPLETED' and o.payment_status='PAID' group by s.id,s.name,o.customer_id
    ) purchases group by service_id,name
  ) repeats;
  return jsonb_build_object('environment','sandbox','categories',category_rows,'districts',district_rows,'repeat_services',repeat_rows);

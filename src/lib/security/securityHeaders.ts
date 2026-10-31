@@ -3,14 +3,21 @@ export type SecurityHeader = {
   value: string;
 };
 
-const localSupabaseHttpSources =
-  process.env.NODE_ENV === "production"
-    ? ""
-    : " http://127.0.0.1:54321 http://localhost:54321";
+// Disposable CLI stacks can use a free port while another developer stack runs.
+// Keep production CSP unchanged and accept only a literal loopback development URL.
+function localSupabaseOrigin() {
+  if (process.env.NODE_ENV === "production") return "";
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "http://127.0.0.1:54321");
+    return url.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) && !url.username && !url.password ? url.origin : "";
+  } catch { return ""; }
+}
+const localSupabase = localSupabaseOrigin();
+const localSupabaseHttpSources = localSupabase ? ` ${localSupabase}` : "";
 const localSupabaseConnectSources =
   process.env.NODE_ENV === "production"
     ? ""
-    : `${localSupabaseHttpSources} ws://127.0.0.1:54321 ws://localhost:54321`;
+    : `${localSupabaseHttpSources}${localSupabase ? ` ${localSupabase.replace("http:", "ws:")}` : ""}`;
 const developmentEvalSource =
   process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
 const wasmEvalSource = " 'wasm-unsafe-eval'";

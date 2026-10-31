@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { expectAuthenticated, loginWithEmailMagicLink, skipUnlessLocalSupabase } from "./helpers";
 
 test.describe("auth flow", () => {

@@ -11,7 +11,7 @@ export async function reconcileCommercePayment(db: SupabaseClient<Database>, tra
   assertSandbox();
   if (!transaction.checkout_token || transaction.environment !== "sandbox") throw new Error("payment_session_missing");
   if (notification && (notification.conversationId !== transaction.conversation_id || (notification.token && notification.token !== transaction.checkout_token))) throw new Error("payment_identity_mismatch");
-  const { data: order, error } = await db.from("orders").select("*").eq("id", transaction.order_id).single();
+  const { data: order, error } = await db.from("commerce_orders").select("*").eq("id", transaction.order_id).single();
   if (error || !order) throw new Error("order_not_found");
   const result = await retrieveIyzicoCheckoutFormResult({ token: transaction.checkout_token, conversationId: transaction.conversation_id });
   const success = verifyCommercePayment(result, order, transaction.checkout_token, transaction.conversation_id, { paymentId: transaction.payment_id, itemTransactionId: transaction.item_transaction_id, submerchantKey: transaction.submerchant_key });

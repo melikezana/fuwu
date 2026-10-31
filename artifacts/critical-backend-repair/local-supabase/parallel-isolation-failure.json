@@ -1,0 +1,1762 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Melikezana\\Desktop\\FUWU\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--workers=2",
+      "--retries=0"
+    ],
+    "configFile": "C:\\Users\\Melikezana\\Desktop\\FUWU\\playwright.config.ts",
+    "rootDir": "C:/Users/Melikezana/Desktop/FUWU/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Melikezana/Desktop/FUWU/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Melikezana/Desktop/FUWU/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "chromium",
+        "testDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e",
+        "snapshotDir": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://127.0.0.1:60003",
+          "trace": "off",
+          "screenshot": "only-on-failure",
+          "video": "off",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Melikezana\\Desktop\\FUWU\\artifacts\\critical-backend-repair\\local-supabase\\validated-full-workers-2.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 2,
+    "webServer": {
+      "command": "npm run dev -- --hostname 127.0.0.1 --port 60003",
+      "env": {
+        "NEXT_PUBLIC_SITE_URL": "http://127.0.0.1:60003",
+        "PORT": "60003"
+      },
+      "reuseExistingServer": false,
+      "timeout": 180000,
+      "url": "http://127.0.0.1:60003"
+    }
+  },
+  "suites": [
+    {
+      "title": "admin-access.spec.ts",
+      "file": "admin-access.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "admin access",
+          "file": "admin-access.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "non-admin session is redirected away from admin",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7376,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:11.220Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "82a6600412bcbe95763d-b1455b025cd4568fbf7c",
+              "file": "admin-access.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "admin session can see dashboard shell",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5918,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:18.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "82a6600412bcbe95763d-3ba232a48965872b9b24",
+              "file": "admin-access.spec.ts",
+              "line": 14,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth-form-restoration.spec.ts",
+      "file": "auth-form-restoration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "auth-required form restoration",
+          "file": "auth-form-restoration.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "guest account return retains selected view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2227,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:11.210Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-ffa1a314649a0749bbda",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "guest provider application preserves text but not file references",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5528,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:13.609Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-3f9e71c2846f65485df4",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "legacy purchase link preserves the provider without opening the retired form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5061,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:19.162Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-d447ac5bf4836cf8ea51",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 42,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "auth flow",
+          "file": "auth.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "email magic-link login creates a session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3475,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:24.248Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-cbd6da65dba13e23c0a7",
+              "file": "auth.spec.ts",
+              "line": 5,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "commerce.spec.ts",
+      "file": "commerce.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "commerce: real browser and isolated Auth/DB; no processor mock",
+          "file": "commerce.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unauthenticated order/checkout and CSRF requests are denied",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1042,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:24.718Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8109404adeb653b0236f-f1a7c3d8bc116e86c905",
+              "file": "commerce.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "customer Auth session cannot enter admin or mutate invalid purchase data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3568,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:25.782Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8109404adeb653b0236f-4e4aef0ecd394b06acc0",
+              "file": "commerce.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "authoritative quote, duplicate purchase hold and cancellation reach real SQL RPCs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3457,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m503\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m503\u001b[39m\n    at C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\commerce.spec.ts:28:36",
+                        "location": {
+                          "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\commerce.spec.ts",
+                          "column": 36,
+                          "line": 28
+                        },
+                        "snippet": "  26 |     const actor=await authenticatedTestClient(page);\n  27 |     const quoteResponse=await page.request.get(`/api/commerce/quote?offering=${offeringId}`);\n> 28 |     expect(quoteResponse.status()).toBe(200);const {quote}=await quoteResponse.json();\n     |                                    ^\n  29 |     const day=new Date(Date.now()+7*86400000).toISOString().slice(0,10);\n  30 |     const slotsResponse=await page.request.get(`/api/commerce/slots?offering=${offeringId}&day=${day}&district=${districtId}`);\n  31 |     expect(slotsResponse.ok()).toBe(true);const {slots}=await slotsResponse.json();expect(slots.length).toBeGreaterThan(0);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\commerce.spec.ts",
+                            "column": 36,
+                            "line": 28
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m503\u001b[39m\n\n  26 |     const actor=await authenticatedTestClient(page);\n  27 |     const quoteResponse=await page.request.get(`/api/commerce/quote?offering=${offeringId}`);\n> 28 |     expect(quoteResponse.status()).toBe(200);const {quote}=await quoteResponse.json();\n     |                                    ^\n  29 |     const day=new Date(Date.now()+7*86400000).toISOString().slice(0,10);\n  30 |     const slotsResponse=await page.request.get(`/api/commerce/slots?offering=${offeringId}&day=${day}&district=${districtId}`);\n  31 |     expect(slotsResponse.ok()).toBe(true);const {slots}=await slotsResponse.json();expect(slots.length).toBeGreaterThan(0);\n    at C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\commerce.spec.ts:28:36"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:29.360Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results\\commerce-commerce-real-bro-f8d8a-llation-reach-real-SQL-RPCs-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results\\commerce-commerce-real-bro-f8d8a-llation-reach-real-SQL-RPCs-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\commerce.spec.ts",
+                        "column": 36,
+                        "line": 28
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8109404adeb653b0236f-5ea65db1ac9fcda63311",
+              "file": "commerce.spec.ts",
+              "line": 21,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "csp-nonce-smoke.spec.ts",
+      "file": "csp-nonce-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CSP nonce smoke",
+          "file": "csp-nonce-smoke.spec.ts",
+          "line": 61,
+          "column": 6,
+          "specs": [
+            {
+              "title": "home page loads without CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2350,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:27.746Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-a4a9d4d510b2c3fd2e9b",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "Google login entry loads without CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1908,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:30.107Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-be8d8c8456c06c8091a2",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 67,
+              "column": 7
+            },
+            {
+              "title": "service purchase loads without CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3328,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:32.024Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-99aac6ee59102cb32973",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 73,
+              "column": 7
+            },
+            {
+              "title": "AI assistant photo upload path has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2794,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:35.363Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-2f30cb5e12f581667f3b",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "admin route does not emit CSP console violations before auth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2293,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:38.169Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-0c20aa51ec59b77ddac2",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 109,
+              "column": 7
+            },
+            {
+              "title": "authenticated admin panel has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 8310,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:40.480Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-00cd8c3d16c77b9347ff",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 114,
+              "column": 7
+            },
+            {
+              "title": "synthetic order confirmation screen has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6609,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:48.803Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-06eb83f9e5ab9bd2e37a",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 121,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "duplicate-request.spec.ts",
+      "file": "duplicate-request.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "opening a legacy buying link twice never submits a service request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:04:35.313Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "298ae858b6da2a22de2f-5454ce06fcde15a59a7c",
+          "file": "duplicate-request.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "emergency-sla.spec.ts",
+      "file": "emergency-sla.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "emergency response SLA",
+          "file": "emergency-sla.spec.ts",
+          "line": 24,
+          "column": 6,
+          "specs": [
+            {
+              "title": "provider sees countdown and admin sees breached SLA",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8957,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:38.610Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-3a9045292bdf72d3bd28",
+              "file": "emergency-sla.spec.ts",
+              "line": 26,
+              "column": 6
+            },
+            {
+              "title": "cron reassigns breached emergency request and records live notifications",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4295,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:47.578Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-5c603c8649593c0b16af",
+              "file": "emergency-sla.spec.ts",
+              "line": 35,
+              "column": 6
+            },
+            {
+              "title": "cron stops auto reassignment after three SLA breaches and escalates to admin",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2124,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:51.884Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-bf23fc46481763d2b277",
+              "file": "emergency-sla.spec.ts",
+              "line": 56,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "launch-verification.spec.ts",
+      "file": "launch-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CTO launch verification",
+          "file": "launch-verification.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "filtered provider empty state preserves category and preselects the catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1374,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:54.029Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-36e200ce4fa0b3dea994",
+              "file": "launch-verification.spec.ts",
+              "line": 6,
+              "column": 6
+            },
+            {
+              "title": "partner application, admin approval and preserved legacy assignment acceptance reach real records",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10128,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"PGRST116\", \"details\": \"The result contains 0 rows\", \"hint\": null, \"message\": \"Cannot coerce the result to a single JSON object\"}\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"PGRST116\", \"details\": \"The result contains 0 rows\", \"hint\": null, \"message\": \"Cannot coerce the result to a single JSON object\"}\u001b[39m\n    at C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\launch-verification.spec.ts:29:165",
+                        "location": {
+                          "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\launch-verification.spec.ts",
+                          "column": 165,
+                          "line": 29
+                        },
+                        "snippet": "  27 |    adminPage.once('dialog',dialog=>dialog.accept());await adminPage.getByRole('button',{name:'Onayla',exact:true}).click();\n  28 |    await expect.poll(async()=>(await db.from('provider_applications').select('status').eq('id',application.data!.id).single()).data?.status).toBe('approved');\n> 29 |    const provider=await db.from('providers').select('id,user_id,category_id,district_id,is_active,is_approved').eq('user_id',owner).single();expect(provider.error).toBeNull();expect(provider.data).toMatchObject({user_id:owner,is_active:true,is_approved:true});\n     |                                                                                                                                                                     ^\n  30 |    const publicPage=await publicContext.newPage();await expectUnavailableProfile(publicPage,provider.data!.id); // Application approval never fabricates editorial approval.\n  31 |    const customer=await ensureTestUserRole(uniqueE2EEmail('legacy-owner'),'customer'), requestId=crypto.randomUUID();\n  32 |    const request=await db.from('service_requests').insert({id:requestId,user_id:customer,category_id:provider.data!.category_id,district_id:provider.data!.district_id,address:'E2E preserved legacy synthetic address',description:'E2E historical request acceptance regression',status:'assigned',assigned_provider_id:provider.data!.id,assigned_at:new Date().toISOString(),payment_preference:'cash',confirmation_code:'123456'});expect(request.error).toBeNull();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\launch-verification.spec.ts",
+                            "column": 165,
+                            "line": 29
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"PGRST116\", \"details\": \"The result contains 0 rows\", \"hint\": null, \"message\": \"Cannot coerce the result to a single JSON object\"}\u001b[39m\n\n  27 |    adminPage.once('dialog',dialog=>dialog.accept());await adminPage.getByRole('button',{name:'Onayla',exact:true}).click();\n  28 |    await expect.poll(async()=>(await db.from('provider_applications').select('status').eq('id',application.data!.id).single()).data?.status).toBe('approved');\n> 29 |    const provider=await db.from('providers').select('id,user_id,category_id,district_id,is_active,is_approved').eq('user_id',owner).single();expect(provider.error).toBeNull();expect(provider.data).toMatchObject({user_id:owner,is_active:true,is_approved:true});\n     |                                                                                                                                                                     ^\n  30 |    const publicPage=await publicContext.newPage();await expectUnavailableProfile(publicPage,provider.data!.id); // Application approval never fabricates editorial approval.\n  31 |    const customer=await ensureTestUserRole(uniqueE2EEmail('legacy-owner'),'customer'), requestId=crypto.randomUUID();\n  32 |    const request=await db.from('service_requests').insert({id:requestId,user_id:customer,category_id:provider.data!.category_id,district_id:provider.data!.district_id,address:'E2E preserved legacy synthetic address',description:'E2E historical request acceptance regression',status:'assigned',assigned_provider_id:provider.data!.id,assigned_at:new Date().toISOString(),payment_preference:'cash',confirmation_code:'123456'});expect(request.error).toBeNull();\n    at C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\launch-verification.spec.ts:29:165"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:55.419Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results\\launch-verification-CTO-la-bf94e-ceptance-reach-real-records-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results\\launch-verification-CTO-la-bf94e-ceptance-reach-real-records-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Melikezana\\Desktop\\FUWU\\test-results\\launch-verification-CTO-la-bf94e-ceptance-reach-real-records-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Melikezana\\Desktop\\FUWU\\e2e\\launch-verification.spec.ts",
+                        "column": 165,
+                        "line": 29
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-638831b3d7571e6a0904",
+              "file": "launch-verification.spec.ts",
+              "line": 13,
+              "column": 6
+            },
+            {
+              "title": "admin rejects a pending application, preserves its history and denies applicant approval or rejection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13425,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:08.486Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-63b9e7f759ffa4d39ffc",
+              "file": "launch-verification.spec.ts",
+              "line": 38,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "middleware-redirect.spec.ts",
+      "file": "middleware-redirect.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "middleware redirects",
+          "file": "middleware-redirect.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unauthenticated user visiting /admin is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 833,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:55.428Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-297334e1583391856275",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /provider-dashboard is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 576,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:56.270Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-6e7aa92af01a7c7778a2",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /account is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 823,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:56.858Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-83d066025017c0a6f47d",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /dashboard is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 801,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:57.691Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-0587185a8ba64ec6f788",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "provider-application.spec.ts",
+      "file": "provider-application.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "provider application flow",
+          "file": "provider-application.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "authenticated user submits provider application",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4374,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:04:58.510Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "743383054bd0907a843f-64f2c0b46226d29491e0",
+              "file": "provider-application.spec.ts",
+              "line": 5,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "provider-control.spec.ts",
+      "file": "provider-control.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "provider control: isolated real Supabase acceptance",
+          "file": "provider-control.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "admin control decisions commit, audit, refresh UI and enforce public and role boundaries",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 31526,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:02.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-9f3c4ff60b0602feb51a",
+              "file": "provider-control.spec.ts",
+              "line": 7,
+              "column": 6
+            },
+            {
+              "title": "unpublish satisfies all six acceptance conditions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 7867,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:34.448Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-693caa08bd4b90cf5e10",
+              "file": "provider-control.spec.ts",
+              "line": 41,
+              "column": 6
+            },
+            {
+              "title": "partner saves price, scope and calendar and cannot edit another provider",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 11476,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:42.325Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-1dd31a3ce51eb08a06e3",
+              "file": "provider-control.spec.ts",
+              "line": 84,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "request-flow.spec.ts",
+      "file": "request-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "direct purchase entry",
+          "file": "request-flow.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "legacy links retain category and district in the service catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1320,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:22.136Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-42e5e14c13a6096afe12",
+              "file": "request-flow.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "home offers direct purchasing and provider onboarding",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1640,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:23.468Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-d4e989024164aaf33afc",
+              "file": "request-flow.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "all eleven active categories retain district filters and expose the real catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7877,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T15:05:25.118Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-0dfb18638f6bb19098ec",
+              "file": "request-flow.spec.ts",
+              "line": 17,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "responsive-accessibility.spec.ts",
+      "file": "responsive-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real public, customer, partner, document and admin screens fit 320–1440px and pass mobile axe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 88838,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:05:33.014Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-c7964f18515dc8d7464d",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "storage-documents.spec.ts",
+      "file": "storage-documents.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "private qualification document upload, review, owner/admin download, foreign-user denial and audit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 27618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:05:53.821Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ce7d55486e7158ce66a0-e98c89a5e5e7fc8a74c4",
+          "file": "storage-documents.spec.ts",
+          "line": 7,
+          "column": 5
+        },
+        {
+          "title": "private identity document upload, review, owner/admin download, foreign-user denial and audit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 20780,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:06:21.449Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ce7d55486e7158ce66a0-0e6147ed2b0ea35f685b",
+          "file": "storage-documents.spec.ts",
+          "line": 7,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "trust-flow.spec.ts",
+      "file": "trust-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FUWU Güvence: assigned provider arrival, completion report, explicit customer confirmation without GPS",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 12925,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:06:42.246Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "364d4708ebcdb42c0b96-6195bf3a7c6af00f9c01",
+          "file": "trust-flow.spec.ts",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "waitlist.spec.ts",
+      "file": "waitlist.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "verified customer consent persists once, appears for admin, denies strangers and can be withdrawn",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 11853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T15:06:55.183Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "90c188d746fc87c78b58-4ba8adc9e421d49ec4bd",
+          "file": "waitlist.spec.ts",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T15:04:03.313Z",
+    "duration": 184715.12,
+    "expected": 37,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

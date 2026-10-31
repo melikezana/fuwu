@@ -108,7 +108,7 @@
     "P1 unpublished profiles cannot leak through directory, offers, slots or internal RPC bypass",
     "P1 admin approval checks current content and requires evidence for verification flags",
     "P1 valid slots require publication and stored fake ratings cannot become public ratings",
-    "P1 content edits atomically requeue and remove stale publication without deleting orders",
+    "P1 content edits atomically requeue and remove stale publication without deleting commerce_orders",
     "P1 audit outage rolls publication approval back atomically"
   ],
   "failed": null

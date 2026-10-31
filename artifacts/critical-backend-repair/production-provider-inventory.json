@@ -1,0 +1,82 @@
+[
+  {
+    "checked_at": "2026-10-31 11:18:16.307793+00",
+    "id": "4d0d8f4a-692e-4792-9fa6-5877ba76c55f",
+    "owner_user_id": "0e8618e1-57af-4504-815f-dd8066688a4b",
+    "is_active": true,
+    "is_approved": true,
+    "is_verified": true,
+    "identity_verified": false,
+    "phone_verified": false,
+    "owner_exists": 1,
+    "applications": [
+      {
+        "id": "3ecc1ed3-1a0c-4224-b2e9-b0c4d32ec495",
+        "status": "approved",
+        "has_document_path": false
+      }
+    ],
+    "legacy_orders": 0,
+    "requests": 0,
+    "payouts": 0,
+    "provider_audit": 1,
+    "storage_relations": 0
+  },
+  {
+    "checked_at": "2026-10-31 11:18:16.307793+00",
+    "id": "78bc496a-7f93-43fb-8748-33b5d6cde252",
+    "owner_user_id": null,
+    "is_active": true,
+    "is_approved": true,
+    "is_verified": true,
+    "identity_verified": false,
+    "phone_verified": false,
+    "owner_exists": 0,
+    "applications": null,
+    "legacy_orders": 0,
+    "requests": 0,
+    "payouts": 0,
+    "provider_audit": 1,
+    "storage_relations": 0
+  },
+  {
+    "checked_at": "2026-10-31 11:18:16.307793+00",
+    "id": "8a0fd4ad-4b34-4089-8737-3cebc64e4295",
+    "owner_user_id": "132cf13b-5b40-4da5-af9b-188a4c116f86",
+    "is_active": true,
+    "is_approved": true,
+    "is_verified": true,
+    "identity_verified": false,
+    "phone_verified": false,
+    "owner_exists": 1,
+    "applications": [
+      {
+        "id": "348ede79-f436-464c-a631-e09b413c22c8",
+        "status": "approved",
+        "has_document_path": false
+      }
+    ],
+    "legacy_orders": 0,
+    "requests": 0,
+    "payouts": 0,
+    "provider_audit": 2,
+    "storage_relations": 0
+  },
+  {
+    "checked_at": "2026-10-31 11:18:16.307793+00",
+    "id": "ec711057-c9a3-4a03-9737-4f560e3c39cb",
+    "owner_user_id": null,
+    "is_active": true,
+    "is_approved": true,
+    "is_verified": false,
+    "identity_verified": false,
+    "phone_verified": false,
+    "owner_exists": 0,
+    "applications": null,
+    "legacy_orders": 0,
+    "requests": 0,
+    "payouts": 0,
+    "provider_audit": 0,
+    "storage_relations": 0
+  }
+]

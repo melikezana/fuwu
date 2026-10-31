@@ -1,4 +1,4 @@
--- Apply to an isolated/staging database first. Reuses orders and payment_transactions.
+-- Apply to an isolated/staging database first. Reuses commerce_orders and payment_transactions.
 begin;
 
 -- Private processor identity, frozen when the one initializer is claimed.
@@ -7,10 +7,10 @@ alter table public.payment_transactions add column submerchant_key text;
 
 create or replace function public.commerce_begin_payment(p_order_id uuid) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; p public.providers; n integer;
+declare o public.commerce_orders; t public.payment_transactions; p public.providers; n integer;
 begin
- select * into p from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ select * into p from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null or o.status<>'PENDING_PAYMENT' or o.expires_at<=clock_timestamp() then raise exception 'hold_expired'; end if;
  if p.id is null or not p.is_active or not p.is_approved or p.iyzico_submerchant_status<>'active' or nullif(btrim(p.iyzico_submerchant_key),'') is null then raise exception 'offering_unavailable'; end if;
  insert into public.payment_transactions(order_id,conversation_id,submerchant_key)
@@ -22,11 +22,11 @@ end $$;
 
 create or replace function public.commerce_resolve_payment(p_order_id uuid,p_token text,p_payment_id text,p_success boolean,p_fee_minor integer default null,p_item_transaction_id text default null)
 returns text language plpgsql security definer set search_path='' as $$
-declare o public.orders; t public.payment_transactions; next_status text;
+declare o public.commerce_orders; t public.payment_transactions; next_status text;
 begin
  -- Provider -> order -> transaction: same order as reservation and lifecycle RPCs.
- perform 1 from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ perform 1 from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  select * into t from public.payment_transactions where order_id=p_order_id for update;
  if t.id is null or p_token is null or t.checkout_token is distinct from p_token then raise exception 'payment_token_mismatch'; end if;
  if t.status='SUCCEEDED' then
@@ -46,16 +46,16 @@ begin
    -- now() is the transaction start time and can be stale after waiting on a lock.
    -- A delayed payment never revives an expired or overlapping appointment.
    next_status:=case when o.status='PENDING_PAYMENT' and o.expires_at>clock_timestamp() and o.starts_at>clock_timestamp()
-     and not exists(select 1 from public.orders other where other.id<>o.id and other.provider_id=o.provider_id
+     and not exists(select 1 from public.commerce_orders other where other.id<>o.id and other.provider_id=o.provider_id
        and (other.status in ('CONFIRMED','PROVIDER_ON_THE_WAY','IN_PROGRESS','COMPLETED','DISPUTED') or (other.status='PENDING_PAYMENT' and other.expires_at>clock_timestamp()))
        and tstzrange(other.starts_at,other.ends_at,'[)') && tstzrange(o.starts_at,o.ends_at,'[)'))
      then 'CONFIRMED' else 'REFUND_PENDING' end;
-   update public.orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,
+   update public.commerce_orders set status=next_status,payment_status=case when next_status='CONFIRMED' then 'PAID' else 'REFUND_PENDING' end,
      processor_fee_minor=p_fee_minor,updated_at=clock_timestamp() where id=o.id;
  else
-   if o.status='PENDING_PAYMENT' then update public.orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=clock_timestamp() where id=o.id; end if;
+   if o.status='PENDING_PAYMENT' then update public.commerce_orders set status='PAYMENT_FAILED',payment_status='FAILED',updated_at=clock_timestamp() where id=o.id; end if;
  end if;
- return (select status from public.orders where id=o.id);
+ return (select status from public.commerce_orders where id=o.id);
 end $$;
 
 -- CREATE OR REPLACE retains ACLs; state them explicitly for review and drift safety.

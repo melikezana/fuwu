@@ -26,7 +26,7 @@ export async function phase2CheckoutChecks({ root, a, b, p, p2, service, guest, 
     const order = await hold(a, 0); const other = await hold(b, 0, secondFid, 240000);
     assert.equal(order.provider_id, pid(1)); assert.equal(other.provider_id, pid(2));
     assert.equal(order.total_minor, 200000); assert.equal(order.commission_minor, 20000); assert.equal(order.provider_gross_minor, 180000);
-    await root.query("update orders set status='CANCELLED' where id=any($1::uuid[])", [[order.id, other.id]]);
+    await root.query("update commerce_orders set status='CANCELLED' where id=any($1::uuid[])", [[order.id, other.id]]);
   });
   await check("Phase 2: initializer freezes the submerchant identity despite later provider profile edits", async () => {
     const order = await hold(a, 0);
@@ -35,24 +35,24 @@ export async function phase2CheckoutChecks({ root, a, b, p, p2, service, guest, 
     await root.query("update providers set iyzico_submerchant_key='sandbox-changed-later' where id=$1", [pid(1)]);
     const retry = await scalar(service, "select commerce_begin_payment($1)", [order.id]);
     assert.equal(retry.claimed, false); assert.equal(retry.submerchant_key, claim.submerchant_key);
-    await root.query("update orders set status='CANCELLED' where id=$1", [order.id]);
+    await root.query("update commerce_orders set status='CANCELLED' where id=$1", [order.id]);
   });
   await check("Phase 2: callback started before expiry but blocked on provider lock refunds after expiry", async () => {
     const order = await hold(a, 4);
     await service.query("select commerce_begin_payment($1)", [order.id]);
     await service.query("select commerce_attach_payment($1,'phase2-stale-clock-token','https://sandbox-cpp.iyzipay.com/test')", [order.id]);
-    await root.query("update orders set expires_at=clock_timestamp()+interval '350 milliseconds' where id=$1", [order.id]);
+    await root.query("update commerce_orders set expires_at=clock_timestamp()+interval '350 milliseconds' where id=$1", [order.id]);
     await root.query("begin"); await root.query("select id from providers where id=$1 for update", [pid(1)]);
     await service.query("begin");
     const pending = scalar(service, "select commerce_resolve_payment($1,'phase2-stale-clock-token','phase2-stale-payment',true,null,'phase2-stale-item')", [order.id]);
     await delay(500); await root.query("commit");
     assert.equal(await pending, "REFUND_PENDING"); await service.query("commit");
-    assert.equal(await scalar(root, "select payment_status from orders where id=$1", [order.id]), "REFUND_PENDING");
+    assert.equal(await scalar(root, "select payment_status from commerce_orders where id=$1", [order.id]), "REFUND_PENDING");
     assert.ok((await slots(guest)).rows.some(s => Date.parse(s.starts_at) === Date.parse(order.starts_at)));
   });
   await check("Phase 2: payment initializer cannot revive a hold after waiting on a provider lock", async () => {
     const order = await hold(a, 8);
-    await root.query("update orders set expires_at=clock_timestamp()+interval '350 milliseconds' where id=$1", [order.id]);
+    await root.query("update commerce_orders set expires_at=clock_timestamp()+interval '350 milliseconds' where id=$1", [order.id]);
     await root.query("begin"); await root.query("select id from providers where id=$1 for update", [pid(1)]);
     await service.query("begin");
     const pending = scalar(service, "select commerce_begin_payment($1)", [order.id]);

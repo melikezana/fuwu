@@ -35,17 +35,17 @@ try {
   const relations = {
     profiles:["id"],provider_applications:["user_id"],provider_service_offerings:["provider_id"],provider_availability:["provider_id"],provider_publication_reviews:["provider_id"],
     provider_gallery_images:["provider_id"],provider_gallery:["provider_id"],provider_verification_documents:["provider_id"],provider_documents:["provider_id"],
-    orders:["provider_id"],reviews:["provider_id"],payments:["provider_id"],payment_transactions:["order_id"],service_requests:["assigned_provider_id","accepted_provider_id"],audit_logs:["entity_id","actor_user_id"],
+    orders:["provider_id"],commerce_orders:["provider_id"],order_payments:["order_id"],payouts:["order_id"],disputes:["order_id"],webhook_events:["order_id"],reviews:["provider_id"],payments:["provider_id"],payment_transactions:["order_id"],service_requests:["assigned_provider_id","accepted_provider_id"],audit_logs:["entity_id","actor_user_id"],
   };
   // Inventory every public candidate; this never makes an unclassified row deletable.
   const testIds=report.providers.map(p=>p.id);
   const userIds=report.providers.map(p=>p.userId).filter(Boolean);
-  let orderIds=[];
-  if(testIds.length)try{orderIds=(await read("orders",{select:"id",provider_id:`in.(${testIds.join(",")})`})).map(o=>o.id);}catch(error){report.complete=false;report.blockers.push(error.message);}
+  const orderIds={orders:[],commerce_orders:[]};
+  for(const table of Object.keys(orderIds)) if(testIds.length && report.schema[table])try{orderIds[table]=(await read(table,{select:"id",provider_id:`in.(${testIds.join(",")})`})).map(o=>o.id);}catch(error){report.complete=false;report.blockers.push(error.message);}
   for(const [table,columns] of Object.entries(relations)){
     for(const column of columns){
       if(Object.keys(report.schema).length && !report.schema[table]?.includes(column))continue;
-      const ids=column==="order_id"?orderIds:["user_id","actor_user_id"].includes(column)||table==="profiles"?userIds:testIds;
+      const ids=column==="order_id"?orderIds[table==="payment_transactions"?"commerce_orders":"orders"]:["user_id","actor_user_id"].includes(column)||table==="profiles"?userIds:testIds;
       if(!ids.length){report.dependencies.push({table,column,status:'not_queried',reason:'No accessible parent identifiers; private rows remain unknown'});continue;}
       const rows=[];
       try {

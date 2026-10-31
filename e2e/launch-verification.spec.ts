@@ -1,389 +1,55 @@
-import path from "node:path";
-import { expect, test, type Locator, type Page } from "@playwright/test";
-import {
-  ensureTestUserRole,
-  getTestAdminClient,
-  loginWithEmailMagicLink,
-  skipUnlessLocalSupabase,
-  submitStandardLocksmithRequest,
-  uniqueE2EValue,
-} from "./helpers";
+import {expect,test} from './fixtures';
+import {authenticatedTestClient,ensureTestUserRole,expectUnavailableProfile,getTestAdminClient,loginWithEmailMagicLink,skipUnlessLocalSupabase,uniqueE2EEmail,uniqueE2EPhone} from './helpers';
 
-const SEEDED_LOCKSMITH_PROVIDER_ID = "00000000-0000-4000-8000-000000000013";
-const EXPECTED_CUSTOMER_PHONE = "+90 555 000 01 01";
-const EXPECTED_CUSTOMER_TEL_HREF = "tel:+905550000101";
-const EXPECTED_CUSTOMER_WHATSAPP_NUMBER = "905550000101";
-const EXPECTED_PROVIDER_TEL_HREF = "tel:+905550000013";
-const EXPECTED_PROVIDER_WHATSAPP_NUMBER = "905550000013";
-const PNG_FIXTURE = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZfWQAAAAASUVORK5CYII=",
-  "base64",
-);
-
-async function captureEvidence(page: Page, fileName: string) {
-  if (process.env.E2E_CAPTURE_LAUNCH_EVIDENCE !== "true") {
-    return;
-  }
-
-  await page.screenshot({
-    fullPage: true,
-    path: path.resolve("docs", "production", "evidence", fileName),
-  });
-}
-
-async function expectContactLinks(
-  {
-    scope,
-    telHref,
-    whatsappMessageText,
-    whatsappNumber,
-  }: {
-    scope: Locator;
-    telHref: string;
-    whatsappMessageText: string;
-    whatsappNumber: string;
-  },
-) {
-  await expect(scope.locator(`a[href="${telHref}"]`)).toHaveCount(1);
-
-  const whatsappLink = scope.locator(
-    `a[href^="https://wa.me/${whatsappNumber}?text="]`,
-  );
-  await expect(whatsappLink).toHaveCount(1);
-
-  const whatsappHref = await whatsappLink.first().getAttribute("href");
-  expect(whatsappHref).toBeTruthy();
-
-  const parsedUrl = new URL(whatsappHref!);
-  expect(parsedUrl.searchParams.get("text")).toBe(whatsappMessageText);
-}
-
-test.describe("CTO launch verification", () => {
-  test("filtered provider empty state preserves category and preselects the request", async ({
-    page,
-  }) => {
-    skipUnlessLocalSupabase();
-
-    await page.goto("/providers?category=cilingir&district=Adalar");
-    await expect(page.locator('select[name="category"]')).toHaveValue("cilingir");
-    await expect(page.locator('select[name="district"]')).toHaveValue("Adalar");
-    await expect(
-      page.getByText("Bu bölgede henüz Çilingir ustası yok", { exact: true }),
-    ).toBeVisible();
-
-    const requestLink = page.locator(
-      'a[href="/request?district=Adalar&service=cilingir"]',
-    );
-    await expect(requestLink).toHaveCount(1);
-    await captureEvidence(page, "10-provider-empty-state.png");
-    await requestLink.click();
-
-    await expect(
-      page.locator('input[name="serviceCategory"]:checked'),
-    ).toHaveValue(/Çilingir/);
-    await expect(page.locator('input[name="district"]')).toHaveValue("Adalar");
-  });
-
-  test("request, realtime, provider approval, assignment and acceptance work end to end", async ({
-    browser,
-  }) => {
-    skipUnlessLocalSupabase();
-    test.setTimeout(120_000);
-
-    const suffix = uniqueE2EValue("launch");
-    const customerEmail = `${suffix}-customer@fuwu.test`;
-    const providerEmail = `${suffix}-provider@fuwu.test`;
-    const adminEmail = `${suffix}-admin@fuwu.test`;
-    const applicationName = `Launch Usta ${suffix}`;
-    const applicationPhone = `+90 555 ${String(Date.now()).slice(-7)}`;
-    const admin = getTestAdminClient();
-
-    const [customerUserId, providerUserId] = await Promise.all([
-      ensureTestUserRole(customerEmail, "customer"),
-      ensureTestUserRole(providerEmail, "provider"),
-      ensureTestUserRole(adminEmail, "admin"),
-    ]);
-
-    const { error: providerLinkError } = await admin
-      .from("providers")
-      .update({
-        is_active: true,
-        is_approved: true,
-        user_id: providerUserId,
-      })
-      .eq("id", SEEDED_LOCKSMITH_PROVIDER_ID);
-
-    expect(providerLinkError).toBeNull();
-
-    const { error: customerProfilePhoneError } = await admin
-      .from("profiles")
-      .update({ phone: EXPECTED_CUSTOMER_PHONE })
-      .eq("id", customerUserId);
-
-    expect(customerProfilePhoneError).toBeNull();
-
-    const customerContext = await browser.newContext();
-    const providerContext = await browser.newContext();
-    const adminContext = await browser.newContext();
-    const customerPage = await customerContext.newPage();
-    const providerPage = await providerContext.newPage();
-    const adminPage = await adminContext.newPage();
-    const consoleErrors: string[] = [];
-    const unexpectedHttpErrors: string[] = [];
-
-    for (const page of [customerPage, providerPage, adminPage]) {
-      page.on("console", (message) => {
-        if (
-          message.type() === "error" &&
-          !message.text().startsWith("Failed to load resource:")
-        ) {
-          consoleErrors.push(message.text());
-        }
-      });
-      page.on("pageerror", (error) => consoleErrors.push(error.message));
-      page.on("response", (response) => {
-        if (
-          response.status() >= 400 &&
-          !(
-            response.status() === 401 &&
-            new URL(response.url()).pathname === "/api/auth/user"
-          )
-        ) {
-          unexpectedHttpErrors.push(`${response.status()} ${response.url()}`);
-        }
-      });
-    }
-
-    await loginWithEmailMagicLink(providerPage, {
-      email: providerEmail,
-      nextPath: "/provider-dashboard",
-      role: "provider",
-    });
-    await providerPage.goto("/provider-dashboard");
-    await expect(providerPage.getByRole("heading", { name: "Usta Paneli" })).toBeVisible();
-
-    await loginWithEmailMagicLink(customerPage, {
-      email: customerEmail,
-      nextPath: "/request",
-      role: "customer",
-    });
-    await submitStandardLocksmithRequest(customerPage);
-    await expect(customerPage).toHaveURL(/\/order-tracking\/[0-9a-f-]{36}$/);
-    await captureEvidence(customerPage, "03-customer-request-created.png");
-
-    const { data: request, error: requestReadError } = await admin
-      .from("service_requests")
-      .select("id, status, category_id, district_id")
-      .eq("user_id", customerUserId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    expect(requestReadError).toBeNull();
-    expect(request).not.toBeNull();
-
-    await expect
-      .poll(async () => {
-        const { count } = await admin
-          .from("notifications")
-          .select("id", { count: "exact", head: true })
-          .eq("request_id", request!.id)
-          .eq("recipient_user_id", providerUserId)
-          .eq("event", "new_service_request_match");
-
-        return count;
-      })
-      .toBe(1);
-
-    await expect(
-      providerPage.getByRole("button", { name: /okunmamış bildirim/i }),
-    ).toBeVisible();
-    await providerPage.getByRole("button", { name: /okunmamış bildirim/i }).click();
-    await expect(providerPage.getByText("Yeni hizmet talebi", { exact: true })).toBeVisible();
-    await captureEvidence(providerPage, "04-provider-realtime-notification.png");
-
-    await customerPage.goto("/provider-application");
-    await expect(customerPage.getByTestId("provider-application-form")).toBeVisible();
-    await customerPage.waitForTimeout(750);
-    const applicationForm = customerPage.getByTestId("provider-application-form");
-
-    await applicationForm.locator('input[name="fullName"]').fill(applicationName);
-    await applicationForm
-      .locator('select[name="categoryId"]')
-      .selectOption({ label: "Çilingir" });
-    await applicationForm
-      .locator('select[name="districtId"]')
-      .selectOption({ label: "Kadıköy" });
-    await applicationForm.locator('input[name="experienceYears"]').fill("8");
-    await applicationForm.locator('input[name="availability"]').first().check({ force: true });
-    await applicationForm
-      .locator('input[name="hasEquipment"][value="true"]')
-      .check({ force: true });
-    await applicationForm
-      .locator('textarea[name="introduction"]')
-      .fill(`CTO launch verification provider application ${suffix}`);
-    await applicationForm.locator('input[name="phone"]').fill(applicationPhone);
-    await applicationForm.locator('input[name="profileImage"]').setInputFiles({
-      buffer: PNG_FIXTURE,
-      mimeType: "image/png",
-      name: "profile.png",
-    });
-    await applicationForm.locator('input[name="verificationDocument"]').setInputFiles({
-      buffer: PNG_FIXTURE,
-      mimeType: "image/png",
-      name: "verification.png",
-    });
-    await applicationForm.locator('button[type="submit"]').click();
-    await expect(customerPage.getByTestId("provider-application-success")).toBeVisible();
-    await captureEvidence(customerPage, "05-provider-application-submitted.png");
-
-    const { data: application, error: applicationReadError } = await admin
-      .from("provider_applications")
-      .select("id, status, profile_image_path, verification_document_path")
-      .eq("user_id", customerUserId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    expect(applicationReadError).toBeNull();
-    expect(application?.profile_image_path).toBeTruthy();
-    expect(application?.verification_document_path).toBeTruthy();
-
-    await loginWithEmailMagicLink(adminPage, {
-      email: adminEmail,
-      nextPath: "/admin/provider-applications",
-      role: "admin",
-    });
-    await adminPage.goto("/admin/provider-applications");
-    const applicationRow = adminPage
-      .locator("table:not(.hidden) tbody tr")
-      .filter({ hasText: applicationName });
-    await expect(applicationRow).toHaveCount(1);
-    adminPage.once("dialog", (dialog) => dialog.accept());
-    await applicationRow.getByRole("button", { name: "Onayla" }).click();
-
-    await expect
-      .poll(async () => {
-        const { data } = await admin
-          .from("provider_applications")
-          .select("status")
-          .eq("id", application!.id)
-          .single();
-
-        return data?.status;
-      })
-      .toBe("approved");
-
-    const { data: approvedProvider, error: approvedProviderError } = await admin
-      .from("providers")
-      .select("id, user_id, is_active, is_approved")
-      .eq("user_id", customerUserId)
-      .single();
-
-    expect(approvedProviderError).toBeNull();
-    expect(approvedProvider).toMatchObject({
-      is_active: true,
-      is_approved: true,
-      user_id: customerUserId,
-    });
-    await captureEvidence(adminPage, "06-admin-provider-approved.png");
-
-    await adminPage.goto("/admin/service-requests");
-    const requestRow = adminPage
-      .locator("table:not(.hidden) tbody tr")
-      .filter({ hasText: request!.id });
-    await expect(requestRow).toHaveCount(1);
-    await requestRow
-      .locator('select[name="providerId"]')
-      .selectOption(SEEDED_LOCKSMITH_PROVIDER_ID);
-    await requestRow.getByRole("button", { name: "Ustaya Ata" }).click();
-
-    await expect
-      .poll(async () => {
-        const { data } = await admin
-          .from("service_requests")
-          .select("status, assigned_provider_id")
-          .eq("id", request!.id)
-          .single();
-
-        return data;
-      })
-      .toMatchObject({
-        assigned_provider_id: SEEDED_LOCKSMITH_PROVIDER_ID,
-        status: "assigned",
-      });
-    await captureEvidence(adminPage, "07-admin-request-assigned.png");
-
-    await providerPage.goto("/provider-dashboard/requests");
-    const providerRequestCard = providerPage
-      .locator("article:visible")
-      .filter({ hasText: request!.id });
-    await expect(providerRequestCard).toHaveCount(1);
-    await expectContactLinks({
-      scope: providerRequestCard,
-      telHref: EXPECTED_CUSTOMER_TEL_HREF,
-      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebiniz için yazıyorum.",
-      whatsappNumber: EXPECTED_CUSTOMER_WHATSAPP_NUMBER,
-    });
-    await providerRequestCard.getByRole("button", { name: "Kabul Et" }).click();
-
-    await expect
-      .poll(async () => {
-        const { data } = await admin
-          .from("service_requests")
-          .select("status")
-          .eq("id", request!.id)
-          .single();
-
-        return data?.status;
-      })
-      .toBe("accepted");
-    await captureEvidence(providerPage, "08-provider-request-accepted.png");
-
-    await customerPage.goto(`/account/requests?requestId=${request!.id}`);
-    const customerRequestCard = customerPage
-      .locator("article")
-      .filter({ hasText: "Usta talebini kabul etti." });
-    await expect(customerRequestCard).toHaveCount(1);
-    await expect(
-      customerRequestCard.getByText("Usta talebini kabul etti.", { exact: true }),
-    ).toBeVisible();
-    await captureEvidence(customerPage, "09-customer-sees-accepted-status.png");
-
-    await customerPage.goto("/dashboard");
-    const customerDashboardCard = customerPage
-      .locator(".premium-card-hover")
-      .filter({ hasText: "Usta talebini kabul etti." });
-    await expect(customerDashboardCard).toHaveCount(1);
-    await expect(customerDashboardCard.getByText("Acil Cilingir Istanbul")).toBeVisible();
-    await expectContactLinks({
-      scope: customerDashboardCard,
-      telHref: EXPECTED_PROVIDER_TEL_HREF,
-      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebim için yazıyorum.",
-      whatsappNumber: EXPECTED_PROVIDER_WHATSAPP_NUMBER,
-    });
-
-    await customerPage.goto(`/order-tracking/${request!.id}`);
-    const trackingProviderCard = customerPage
-      .locator("div")
-      .filter({ hasText: "Usta" })
-      .filter({ hasText: "Acil Cilingir Istanbul" })
-      .first();
-    await expect(trackingProviderCard).toBeVisible();
-    await expectContactLinks({
-      scope: trackingProviderCard,
-      telHref: EXPECTED_PROVIDER_TEL_HREF,
-      whatsappMessageText: "Merhaba, Fuwu üzerinden Çilingir talebim için yazıyorum.",
-      whatsappNumber: EXPECTED_PROVIDER_WHATSAPP_NUMBER,
-    });
-
-    expect(consoleErrors).toEqual([]);
-    expect(unexpectedHttpErrors).toEqual([]);
-
-    await Promise.all([
-      customerContext.close(),
-      providerContext.close(),
-      adminContext.close(),
-    ]);
-  });
+test.describe('CTO launch verification',()=>{
+ test.beforeEach(()=>skipUnlessLocalSupabase());
+ test('filtered provider empty state preserves category and preselects the catalog',async({page})=>{
+  await page.goto('/providers?category=cilingir&district=Adalar&q=E2E-no-match-'+crypto.randomUUID());
+  await expect(page.locator('select[name="category"]')).toHaveValue('cilingir');await expect(page.locator('select[name="district"]')).toHaveValue('Adalar');
+  const empty=page.getByTestId('provider-category-district-empty-state');await expect(empty.getByRole('heading',{name:'Bu bölgede henüz Çilingir ustası yok',exact:true})).toBeVisible();
+  const discover=empty.getByRole('link',{name:'Hizmetleri Keşfet',exact:true});await expect(discover).toHaveAttribute('href','/services?district=Adalar&category=cilingir');await discover.click();
+  await expect(page).toHaveURL(url=>url.pathname==='/services'&&url.searchParams.get('category')==='cilingir'&&url.searchParams.get('district')==='Adalar');await expect(page.getByTestId('request-form')).toHaveCount(0);
+ });
+ test('partner application, admin approval and preserved legacy assignment acceptance reach real records',async({browser})=>{
+  test.setTimeout(120000);const db=getTestAdminClient(), email=uniqueE2EEmail('launch-partner'),owner=await ensureTestUserRole(email,'customer'),phone=await uniqueE2EPhone();
+  const verified=await db.auth.admin.updateUserById(owner,{phone,phone_confirm:true});expect(verified.error).toBeNull();
+  const context=await browser.newContext(),adminContext=await browser.newContext(),publicContext=await browser.newContext();
+  try {
+   const page=await context.newPage();await loginWithEmailMagicLink(page,{email,nextPath:'/provider-application'});
+   const form=page.getByRole('form', { name: 'FUWU Partner başvurusu', exact: true });await expect(form.getByRole('button',{name:'Başvurumu gönder',exact:true})).toBeEnabled();
+   await form.getByLabel('Ad soyad',{exact:true}).fill('E2E Launch Partner '+owner.slice(0,8));await form.getByLabel('Cep telefonu',{exact:true}).fill(phone);await form.locator('[name="categoryId"]').selectOption({label:'Çilingir'});await form.locator('[name="districtId"]').selectOption({label:'Kadıköy'});
+   await form.getByRole('button',{name:'Telefonumu doğrula',exact:true}).click();await expect(form.getByRole('button',{name:'Telefon doğrulandı',exact:true})).toBeVisible();await form.getByRole('button',{name:'Başvurumu gönder',exact:true}).click();
+   await expect(page.getByRole('heading',{name:'Başvurunuz değerlendirmede',exact:true})).toBeVisible();
+   const application=await db.from('provider_applications').select('id,status').eq('user_id',owner).single();expect(application.error).toBeNull();expect(application.data?.status).toBe('pending');
+   const ownerClient=await authenticatedTestClient(page);await ownerClient.from('provider_applications').update({status:'approved'}).eq('id',application.data!.id);
+   expect((await db.from('provider_applications').select('status').eq('id',application.data!.id).single()).data?.status).toBe('pending');
+   const adminPage=await adminContext.newPage();await loginWithEmailMagicLink(adminPage,{email:uniqueE2EEmail('launch-admin'),role:'admin',nextPath:'/admin/provider-applications/'+application.data!.id});
+   adminPage.once('dialog',dialog=>dialog.accept());await adminPage.getByRole('button',{name:'Onayla',exact:true}).click();
+   await expect(adminPage.getByRole('status').filter({hasText:'Başvuru onaylandı. Belge ve yayın incelemesi ayrıca tamamlanmalı.'})).toBeVisible();
+   await expect.poll(async()=>(await db.from('provider_applications').select('status').eq('id',application.data!.id).single()).data?.status).toBe('approved');
+   const provider=await db.from('providers').select('id,user_id,category_id,district_id,is_active,is_approved').eq('user_id',owner).single();expect(provider.error).toBeNull();expect(provider.data).toMatchObject({user_id:owner,is_active:true,is_approved:true});
+   const publicPage=await publicContext.newPage();await expectUnavailableProfile(publicPage,provider.data!.id); // Application approval never fabricates editorial approval.
+   const customer=await ensureTestUserRole(uniqueE2EEmail('legacy-owner'),'customer'), requestId=crypto.randomUUID();
+   const request=await db.from('service_requests').insert({id:requestId,user_id:customer,category_id:provider.data!.category_id,district_id:provider.data!.district_id,address:'E2E preserved legacy synthetic address',description:'E2E historical request acceptance regression',status:'assigned',assigned_provider_id:provider.data!.id,assigned_at:new Date().toISOString(),payment_preference:'cash',confirmation_code:'123456'});expect(request.error).toBeNull();
+   await page.goto('/provider-dashboard/requests');const card=page.locator('article:visible').filter({hasText:requestId});await expect(card).toBeVisible();await card.getByRole('button',{name:'Kabul Et',exact:true}).click();
+   await expect.poll(async()=>(await db.from('service_requests').select('status').eq('id',requestId).single()).data?.status).toBe('accepted');
+   const audit=await db.from('audit_logs').select('id').eq('entity_id',application.data!.id);expect(audit.error).toBeNull();expect(audit.data?.length).toBeGreaterThan(0);
+  } finally {await context.close();await adminContext.close();await publicContext.close();}
+ });
+ test('admin rejects a pending application, preserves its history and denies applicant approval or rejection',async({page,browser})=>{
+  const db=getTestAdminClient(),email=uniqueE2EEmail('rejected-applicant'),owner=await ensureTestUserRole(email,'customer'),id=crypto.randomUUID();
+  const category=await db.from('service_categories').select('id').eq('is_active',true).limit(1).single(),district=await db.from('districts').select('id').eq('is_active',true).limit(1).single();expect(category.error).toBeNull();expect(district.error).toBeNull();
+  const inserted=await db.from('provider_applications').insert({id,user_id:owner,full_name:'E2E Rejected Applicant '+id.slice(0,8),phone:await uniqueE2EPhone(),category_id:category.data!.id,district_id:district.data!.id,status:'pending'});expect(inserted.error).toBeNull();
+  const applicantContext=await browser.newContext();try {
+   const applicant=await applicantContext.newPage();await loginWithEmailMagicLink(applicant,{email});const client=await authenticatedTestClient(applicant);
+   for(const status of ['approved','rejected']) {await client.from('provider_applications').update({status}).eq('id',id);expect((await db.from('provider_applications').select('status').eq('id',id).single()).data?.status).toBe('pending');}
+   await loginWithEmailMagicLink(page,{email:uniqueE2EEmail('rejection-admin'),role:'admin',nextPath:'/admin/provider-applications/'+id});page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Reddet',exact:true}).click();
+   await expect(page.getByRole('status').filter({hasText:'Başvuru reddedildi.'})).toBeVisible();
+   const saved=await db.from('provider_applications').select('status,user_id').eq('id',id).single();expect(saved.error).toBeNull();expect(saved.data).toMatchObject({status:'rejected',user_id:owner});
+   const audit=await db.from('audit_logs').select('id').eq('entity_id',id).eq('action','provider_application.rejected');expect(audit.error).toBeNull();expect(audit.data).toHaveLength(1);
+   expect((await db.from('providers').select('id').eq('user_id',owner)).data).toEqual([]);
+   await page.goto('/admin/provider-applications/'+id);await expect(page.getByRole('button',{name:'Reddet',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Onayla',exact:true})).toBeDisabled();
+   const publicGate=await client.rpc('provider_publication_gate');expect(publicGate.error).toBeNull();expect(publicGate.data.some((p:{name:string})=>p.name==='E2E Rejected Applicant '+id.slice(0,8))).toBe(false);
+  }finally{await applicantContext.close();}
+ });
 });

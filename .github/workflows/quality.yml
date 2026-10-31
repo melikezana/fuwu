@@ -65,4 +65,6 @@ jobs:
             artifacts/security-testing/coverage/
             artifacts/security-testing/db-clean/database-tests.json
             artifacts/security-testing/db-upgrade/database-tests.json
+            artifacts/security-testing/db-observed-production/migration-production-upgrade.json
+            artifacts/security-testing/db-production-ledger/migration-production-upgrade.json
             artifacts/security-testing/migration-*.json

@@ -1,106 +1,41 @@
 name: Launch verification
-
 on:
   pull_request:
   push:
-    branches:
-      - main
-
+    branches: [main]
 permissions:
   contents: read
-
 jobs:
   local-supabase-e2e:
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
-
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
-
       - uses: supabase/setup-cli@v2
         with:
-          version: 2.107.0
-          github-token: ${{ github.token }}
-
+          version: 2.115.0
       - run: npm ci
-
-      - name: Start Supabase, reset database, and export environment
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          supabase start
-          supabase db reset
-          supabase status -o env > .env.local.tmp
-
-          set -a
-          source .env.local.tmp
-          set +a
-
-          cat > .env.local <<EOF
-          NEXT_PUBLIC_SUPABASE_URL=$API_URL
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY
-          SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY
-          E2E_ALLOW_REMOTE_SUPABASE_TESTS=false
-          E2E_MAILPIT_URL=http://127.0.0.1:54324
-          UPSTASH_REDIS_REST_URL=
-          UPSTASH_REDIS_REST_TOKEN=
-          EOF
-
-          {
-            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
-            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
-            echo "E2E_ALLOW_REMOTE_SUPABASE_TESTS=false"
-            echo "E2E_MAILPIT_URL=http://127.0.0.1:54324"
-          } >> "$GITHUB_ENV"
-
-          rm .env.local.tmp
-
-      - run: npm run check:backend:db
-
-      - run: npm run lint
-
-      - run: npm run build
-
       - run: npx playwright install --with-deps chromium
-
-      - name: Run isolated Playwright tests
-        shell: bash
-        env:
-          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
-        run: |
-          set -euo pipefail
-
-          npx playwright test
-
-      - name: Reject skipped or missing prelaunch acceptance tests
-        run: node scripts/run-commerce-e2e.mjs --prelaunch --report-only
-
-      - name: Upload Playwright evidence
+      - name: Real isolated Supabase acceptance, serial then parallel, no retries
+        run: node scripts/run-local-supabase-e2e.mjs
+      - name: Upload real execution evidence even on failure
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
-            .next-ci.log
             playwright-report/
             test-results/
             artifacts/security-testing/e2e.json
             artifacts/security-testing/prelaunch-e2e-result.json
-          if-no-files-found: ignore
-
-      - name: Stop local Supabase
-        if: always()
-        shell: bash
-        run: |
-          if command -v supabase > /dev/null 2>&1; then
-            supabase stop --no-backup
-          fi
+            artifacts/security-testing/commerce-e2e-result.json
+            artifacts/critical-backend-repair/local-supabase/result.json
+            artifacts/critical-backend-repair/local-supabase/e2e-workers-*.json
+            artifacts/critical-backend-repair/mobile/
+          if-no-files-found: error

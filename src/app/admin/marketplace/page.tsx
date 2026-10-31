@@ -35,7 +35,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   </AdminPageShell>;
   const view = views.some(([id]) => id === params.view) ? params.view! : "orders";
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
-  let query = supabase!.from("orders").select("*,payment_transactions(status,payout_state,refund_state,environment,created_at,item_transaction_id)", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1);
+  let query = supabase!.from("commerce_orders").select("*,payment_transactions(status,payout_state,refund_state,environment,created_at,item_transaction_id)", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1);
   if (view === "refunds") query = query.in("payment_status", ["REFUND_PENDING", "REFUNDED"]);
   else if (view === "disputes") query = query.eq("status", "DISPUTED");
   else if (view === "payouts") query = query.eq("status", "COMPLETED");

@@ -1,0 +1,2681 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/24.22.1/x64/bin/node",
+      "/home/runner/work/fuwu/fuwu/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/home/runner/work/fuwu/fuwu/playwright.config.ts",
+    "rootDir": "/home/runner/work/fuwu/fuwu/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/melikezana/fuwu/commit/a51c583085b980f640024f1474ef80059f839de9",
+        "commitHash": "a51c583085b980f640024f1474ef80059f839de9",
+        "buildHref": "https://github.com/melikezana/fuwu/actions/runs/41186277411"
+      },
+      "gitCommit": {
+        "shortHash": "a51c583",
+        "hash": "a51c583085b980f640024f1474ef80059f839de9",
+        "subject": "Verify FUWU production readiness and staging security",
+        "body": "Verify FUWU production readiness and staging security\n",
+        "author": {
+          "name": "Melike",
+          "email": "kozmos.1408@gmail.com",
+          "time": 1793436663000
+        },
+        "committer": {
+          "name": "Melike",
+          "email": "kozmos.1408@gmail.com",
+          "time": 1793436663000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/fuwu/fuwu/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/melikezana/fuwu/commit/a51c583085b980f640024f1474ef80059f839de9",
+            "commitHash": "a51c583085b980f640024f1474ef80059f839de9",
+            "buildHref": "https://github.com/melikezana/fuwu/actions/runs/41186277411"
+          },
+          "gitCommit": {
+            "shortHash": "a51c583",
+            "hash": "a51c583085b980f640024f1474ef80059f839de9",
+            "subject": "Verify FUWU production readiness and staging security",
+            "body": "Verify FUWU production readiness and staging security\n",
+            "author": {
+              "name": "Melike",
+              "email": "kozmos.1408@gmail.com",
+              "time": 1793436663000
+            },
+            "committer": {
+              "name": "Melike",
+              "email": "kozmos.1408@gmail.com",
+              "time": 1793436663000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/runner/work/fuwu/fuwu/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/fuwu/fuwu/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/melikezana/fuwu/commit/a51c583085b980f640024f1474ef80059f839de9",
+            "commitHash": "a51c583085b980f640024f1474ef80059f839de9",
+            "buildHref": "https://github.com/melikezana/fuwu/actions/runs/41186277411"
+          },
+          "gitCommit": {
+            "shortHash": "a51c583",
+            "hash": "a51c583085b980f640024f1474ef80059f839de9",
+            "subject": "Verify FUWU production readiness and staging security",
+            "body": "Verify FUWU production readiness and staging security\n",
+            "author": {
+              "name": "Melike",
+              "email": "kozmos.1408@gmail.com",
+              "time": 1793436663000
+            },
+            "committer": {
+              "name": "Melike",
+              "email": "kozmos.1408@gmail.com",
+              "time": 1793436663000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "/home/runner/work/fuwu/fuwu/e2e",
+        "snapshotDir": "/home/runner/work/fuwu/fuwu/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://127.0.0.1:3000",
+          "trace": "off",
+          "screenshot": "off",
+          "video": "off",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "github",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/security-testing/e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --hostname 127.0.0.1 --port 3000",
+      "env": {
+        "GITHUB_STATE": "/home/runner/work/_temp/_runner_file_commands/save_state_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "SUPABASE_SERVICE_ROLE_KEY": "[redacted-local-test-key]",
+        "DOTNET_NOLOGO": "1",
+        "USER": "runner",
+        "npm_config_user_agent": "npm/11.19.1 node/v24.22.1 linux x64 workspaces/false ci/github-actions/dotcom-hosted",
+        "CI": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "silent:",
+        "E2E_ALLOW_REMOTE_SUPABASE_TESTS": "false",
+        "RUNNER_ENVIRONMENT": "github-hosted",
+        "GITHUB_ENV": "/home/runner/work/_temp/_runner_file_commands/set_env_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "PIPX_HOME": "/opt/pipx",
+        "npm_node_execpath": "/opt/hostedtoolcache/node/24.22.1/x64/bin/node",
+        "JAVA_HOME_8_X64": "/usr/lib/jvm/temurin-8-jdk-amd64",
+        "SHLVL": "1",
+        "HCA_CLOUD_PROVIDER": "azure",
+        "npm_config_noproxy": "",
+        "PLAYWRIGHT_BASE_URL": "http://127.0.0.1:3000",
+        "HOME": "/home/runner",
+        "RUNNER_TEMP": "/home/runner/work/_temp",
+        "GITHUB_EVENT_PATH": "/home/runner/work/_temp/_github_workflow/event.json",
+        "npm_package_json": "/home/runner/work/fuwu/fuwu/package.json",
+        "JAVA_HOME_11_X64": "/usr/lib/jvm/temurin-11-jdk-amd64",
+        "PIPX_BIN_DIR": "/opt/pipx_bin",
+        "GITHUB_REPOSITORY_OWNER": "melikezana",
+        "GRADLE_HOME": "/usr/share/gradle-9.8.2",
+        "ANDROID_NDK_LATEST_HOME": "/usr/local/lib/android/sdk/ndk/30.0.16248370",
+        "JAVA_HOME_21_X64": "/usr/lib/jvm/temurin-21-jdk-amd64",
+        "GITHUB_RETENTION_DAYS": "90",
+        "GITHUB_REPOSITORY_OWNER_ID": "220941503",
+        "POWERSHELL_DISTRIBUTION_CHANNEL": "GitHub-Actions-Linux",
+        "AZURE_EXTENSION_DIR": "/opt/az/azcliextensions",
+        "GITHUB_HEAD_REF": "",
+        "npm_config_userconfig": "/home/runner/.npmrc",
+        "npm_config_local_prefix": "/home/runner/work/fuwu/fuwu",
+        "SYSTEMD_EXEC_PID": "1854",
+        "ACTIONS_ORCHESTRATION_ID": "335167e0-d57f-87e7-b0f0-0b70cd7a7ba4.local-supabase-e2e.__default",
+        "GITHUB_GRAPHQL_URL": "https://api.github.com/graphql",
+        "COLOR": "0",
+        "JAVA_HOME_25_X64": "/usr/lib/jvm/temurin-25-jdk-amd64",
+        "NVM_DIR": "/home/runner/.nvm",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "[redacted-local-test-key]",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+        "JAVA_HOME_17_X64": "/usr/lib/jvm/temurin-17-jdk-amd64",
+        "ImageVersion": "20261026.354.1",
+        "LOGNAME": "runner",
+        "RUNNER_OS": "Linux",
+        "GITHUB_API_URL": "https://api.github.com",
+        "GITHUB_ARTIFACTS": "/home/runner/work/_temp/_runner_file_commands/artifacts_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "SWIFT_PATH": "/usr/share/swift/usr/bin",
+        "CHROMEWEBDRIVER": "/usr/local/share/chromedriver-linux64",
+        "JOURNAL_STREAM": "10:12724",
+        "GITHUB_WORKFLOW": "Launch verification",
+        "_": "/opt/hostedtoolcache/node/24.22.1/x64/bin/npx",
+        "npm_config_prefix": "/opt/hostedtoolcache/node/24.22.1/x64",
+        "npm_config_npm_version": "11.19.1",
+        "MEMORY_PRESSURE_WATCH": "/sys/fs/cgroup/system.slice/hosted-compute-agent.service/memory.pressure",
+        "GOROOT_1_24_X64": "/opt/hostedtoolcache/go/1.24.13/x64",
+        "ACTIONS_RUNNER_ACTION_ARCHIVE_CACHE": "/opt/actionarchivecache",
+        "NEXT_PUBLIC_SUPABASE_URL": "http://127.0.0.1:54321",
+        "GOROOT_1_25_X64": "/opt/hostedtoolcache/go/1.25.14/x64",
+        "GITHUB_RUN_ID": "41186277411",
+        "npm_config_cache": "/home/runner/.npm",
+        "SUPABASE_INTERNAL_IMAGE_REGISTRY": "ghcr.io",
+        "GITHUB_REF_TYPE": "branch",
+        "BOOTSTRAP_HASKELL_NONINTERACTIVE": "1",
+        "GITHUB_WORKFLOW_SHA": "a51c583085b980f640024f1474ef80059f839de9",
+        "GOROOT_1_26_X64": "/opt/hostedtoolcache/go/1.26.10/x64",
+        "GITHUB_BASE_REF": "",
+        "ImageOS": "ubuntu24",
+        "GITHUB_WORKFLOW_REF": "melikezana/fuwu/.github/workflows/e2e.yml@refs/heads/main",
+        "GITHUB_ACTION_REPOSITORY": "",
+        "ENABLE_RUNNER_TRACING": "true",
+        "npm_config_node_gyp": "/opt/hostedtoolcache/node/24.22.1/x64/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
+        "PATH": "/home/runner/work/fuwu/fuwu/node_modules/.bin:/home/runner/work/fuwu/fuwu/node_modules/.bin:/home/runner/work/fuwu/node_modules/.bin:/home/runner/work/node_modules/.bin:/home/runner/node_modules/.bin:/home/node_modules/.bin:/node_modules/.bin:/opt/hostedtoolcache/node/24.22.1/x64/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/home/runner/work/_temp/7ff96c2d-60a6-41dc-b4d3-7c3dd70a51b9:/home/runner/.bun/bin:/opt/hostedtoolcache/node/24.22.1/x64/bin:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "ANT_HOME": "/usr/share/ant",
+        "DOTNET_MULTILEVEL_LOOKUP": "0",
+        "RUNNER_TRACKING_ID": "github_427b13aa-fc3d-46ec-88e9-0f5f0231297a",
+        "INVOCATION_ID": "37346878ece64089b4fda57cd13fee39",
+        "RUNNER_TOOL_CACHE": "/opt/hostedtoolcache",
+        "NODE": "/opt/hostedtoolcache/node/24.22.1/x64/bin/node",
+        "npm_package_name": "fuwu",
+        "GITHUB_ACTION": "__run_7",
+        "GITHUB_RUN_NUMBER": "115",
+        "GITHUB_TRIGGERING_ACTOR": "melikezana",
+        "RUNNER_ARCH": "X64",
+        "XDG_RUNTIME_DIR": "/run/user/1001",
+        "AGENT_TOOLSDIRECTORY": "/opt/hostedtoolcache",
+        "LANG": "C.UTF-8",
+        "VCPKG_INSTALLATION_ROOT": "/usr/local/share/vcpkg",
+        "CONDA": "/usr/share/miniconda",
+        "RUNNER_NAME": "GitHub Actions 1000000135",
+        "XDG_CONFIG_HOME": "/home/runner/.config",
+        "GITHUB_REF_NAME": "main",
+        "GITHUB_REPOSITORY": "melikezana/fuwu",
+        "npm_lifecycle_script": "'playwright'",
+        "ANDROID_NDK_ROOT": "/usr/local/lib/android/sdk/ndk/27.3.13750724",
+        "GITHUB_ACTION_REF": "",
+        "DEBIAN_FRONTEND": "noninteractive",
+        "SHELL": "/bin/bash",
+        "GITHUB_REPOSITORY_ID": "1225759639",
+        "GITHUB_ACTIONS": "true",
+        "npm_package_version": "0.1.0",
+        "npm_lifecycle_event": "npx",
+        "GITHUB_REF_PROTECTED": "false",
+        "GITHUB_WORKSPACE": "/home/runner/work/fuwu/fuwu",
+        "ACCEPT_EULA": "Y",
+        "GITHUB_JOB": "local-supabase-e2e",
+        "E2E_MAILPIT_URL": "http://127.0.0.1:54324",
+        "GITHUB_SHA": "a51c583085b980f640024f1474ef80059f839de9",
+        "GITHUB_RUN_ATTEMPT": "1",
+        "ACTIONS_RUNNER_RETURN_JOB_RESULT_FOR_HOSTED": "1",
+        "GITHUB_REF": "refs/heads/main",
+        "GITHUB_ACTOR": "melikezana",
+        "ANDROID_SDK_ROOT": "/usr/local/lib/android/sdk",
+        "npm_config_globalconfig": "/opt/hostedtoolcache/node/24.22.1/x64/etc/npmrc",
+        "npm_config_init_module": "/home/runner/.npm-init.js",
+        "GITHUB_PATH": "/home/runner/work/_temp/_runner_file_commands/add_path_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "JAVA_HOME": "/usr/lib/jvm/temurin-17-jdk-amd64",
+        "PWD": "/home/runner/work/fuwu/fuwu",
+        "GITHUB_ACTOR_ID": "220941503",
+        "RUNNER_WORKSPACE": "/home/runner/work/fuwu",
+        "npm_execpath": "/opt/hostedtoolcache/node/24.22.1/x64/lib/node_modules/npm/bin/npm-cli.js",
+        "HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS": "3650",
+        "GITHUB_EVENT_NAME": "push",
+        "HOMEBREW_NO_AUTO_UPDATE": "1",
+        "ANDROID_HOME": "/usr/local/lib/android/sdk",
+        "GITHUB_SERVER_URL": "https://github.com",
+        "GECKOWEBDRIVER": "/usr/local/share/gecko_driver",
+        "GHCUP_INSTALL_BASE_PREFIX": "/usr/local",
+        "GITHUB_OUTPUT": "/home/runner/work/_temp/_runner_file_commands/set_output_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "npm_config_global_prefix": "/opt/hostedtoolcache/node/24.22.1/x64",
+        "EDGEWEBDRIVER": "/usr/local/share/edge_driver",
+        "npm_config_allow_scripts": "",
+        "npm_command": "exec",
+        "ANDROID_NDK": "/usr/local/lib/android/sdk/ndk/27.3.13750724",
+        "GITHUB_ARTIFACTS_LIST": "/home/runner/work/_temp/_runner_file_commands/artifacts_list_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "SGX_AESM_ADDR": "1",
+        "PSModulePath": "/root/.local/share/powershell/Modules:/usr/local/share/powershell/Modules:/opt/microsoft/powershell/7/Modules:/usr/share/az_15.6.1",
+        "CHROME_BIN": "/usr/bin/google-chrome",
+        "SELENIUM_JAR_PATH": "/usr/share/java/selenium-server.jar",
+        "MEMORY_PRESSURE_WRITE": "c29tZSAyMDAwMDAgMjAwMDAwMAA=",
+        "ANDROID_NDK_HOME": "/usr/local/lib/android/sdk/ndk/27.3.13750724",
+        "GITHUB_STEP_SUMMARY": "/home/runner/work/_temp/_runner_file_commands/step_summary_ea882009-cfe9-464e-adfd-33e8c3ae5dd7",
+        "INIT_CWD": "/home/runner/work/fuwu/fuwu",
+        "EDITOR": "vi",
+        "BROWSERSLIST_IGNORE_OLD_DATA": "true",
+        "UPSTASH_REDIS_REST_TOKEN": "",
+        "UPSTASH_REDIS_REST_URL": "",
+        "SUPABASE_SECRET_KEY": "",
+        "IYZICO_API_KEY": "",
+        "IYZICO_SECRET_KEY": "",
+        "SENTRY_AUTH_TOKEN": "",
+        "OPENAI_API_KEY": "",
+        "NETGSM_USERCODE": "",
+        "NETGSM_PASSWORD": "",
+        "IYZICO_BASE_URL": "https://sandbox-api.iyzipay.com",
+        "NEXT_PUBLIC_SITE_URL": "http://127.0.0.1:3000",
+        "PORT": "3000"
+      },
+      "reuseExistingServer": false,
+      "timeout": 180000,
+      "url": "http://127.0.0.1:3000"
+    }
+  },
+  "suites": [
+    {
+      "title": "admin-access.spec.ts",
+      "file": "admin-access.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "admin access",
+          "file": "admin-access.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "non-admin session is redirected away from admin",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13537,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:10:24",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                          "column": 24,
+                          "line": 10
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/admin\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/dashboard$/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/^Merhaba,/\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                            "column": 24,
+                            "line": 10
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n\n\n   8 |     await loginWithEmailMagicLink(page);\n   9 |     await page.goto(\"/admin\");\n> 10 |     await expect(page).toHaveURL(/\\/dashboard$/);\n     |                        ^\n  11 |     await expect(page.getByRole(\"heading\", { name: /^Merhaba,/ })).toBeVisible();\n  12 |   });\n  13 |\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:10:24"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:55:45.930Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/admin-access-admin-access--4c38b--redirected-away-from-admin-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                        "column": 24,
+                        "line": 10
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12294,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:10:24",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                          "column": 24,
+                          "line": 10
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page)\u001b[33m;\u001b[39m\n \u001b[90m  9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/admin\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/dashboard$/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/^Merhaba,/\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                            "column": 24,
+                            "line": 10
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/dashboard$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    24 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Fadmin\"\u001b[22m\n\n\n   8 |     await loginWithEmailMagicLink(page);\n   9 |     await page.goto(\"/admin\");\n> 10 |     await expect(page).toHaveURL(/\\/dashboard$/);\n     |                        ^\n  11 |     await expect(page.getByRole(\"heading\", { name: /^Merhaba,/ })).toBeVisible();\n  12 |   });\n  13 |\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:10:24"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:56:00.012Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/admin-access-admin-access--4c38b--redirected-away-from-admin-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                        "column": 24,
+                        "line": 10
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "82a6600412bcbe95763d-b1455b025cd4568fbf7c",
+              "file": "admin-access.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "admin session can see dashboard shell",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11716,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:21:71",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                          "column": 71,
+                          "line": 21
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m       role\u001b[33m:\u001b[39m \u001b[32m\"admin\"\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 20 |\u001b[39m     })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Admin Paneli\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                            "column": 71,
+                            "line": 21
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n\n\n  19 |       role: \"admin\",\n  20 |     });\n> 21 |     await expect(page.getByRole(\"heading\", { name: \"Admin Paneli\" })).toBeVisible();\n     |                                                                       ^\n  22 |   });\n  23 | });\n  24 |\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:21:71"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:56:12.700Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/admin-access-admin-access--3cae9-ion-can-see-dashboard-shell-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                        "column": 71,
+                        "line": 21
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11620,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:21:71",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                          "column": 71,
+                          "line": 21
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m       role\u001b[33m:\u001b[39m \u001b[32m\"admin\"\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 20 |\u001b[39m     })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Admin Paneli\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                            "column": 71,
+                            "line": 21
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Admin Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Admin Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Admin Paneli' })\u001b[22m\n\n\n  19 |       role: \"admin\",\n  20 |     });\n> 21 |     await expect(page.getByRole(\"heading\", { name: \"Admin Paneli\" })).toBeVisible();\n     |                                                                       ^\n  22 |   });\n  23 | });\n  24 |\n    at /home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts:21:71"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:56:24.852Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/admin-access-admin-access--3cae9-ion-can-see-dashboard-shell-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/admin-access.spec.ts",
+                        "column": 71,
+                        "line": 21
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "82a6600412bcbe95763d-3ba232a48965872b9b24",
+              "file": "admin-access.spec.ts",
+              "line": 14,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth-form-restoration.spec.ts",
+      "file": "auth-form-restoration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "auth-required form restoration",
+          "file": "auth-form-restoration.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "guest account return retains selected view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 387,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:56:36.869Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-ffa1a314649a0749bbda",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 7,
+              "column": 7
+            },
+            {
+              "title": "guest provider application preserves text but not file references",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11239,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts:20:7",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                          "column": 7,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 19 |\u001b[39m       page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m\"provider-application-form\"\u001b[39m)\u001b[33m.\u001b[39mlocator(\u001b[32m'button[type=\"submit\"]'\u001b[39m)\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeEnabled()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m     \u001b[90m// The page is server-rendered; allow the controlled client form to hydrate\u001b[39m\n \u001b[90m 22 |\u001b[39m     \u001b[90m// before filling fields so React does not replace pre-hydration values.\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m750\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                            "column": 7,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n\n\n  18 |     await expect(\n  19 |       page.getByTestId(\"provider-application-form\").locator('button[type=\"submit\"]'),\n> 20 |     ).toBeEnabled();\n     |       ^\n  21 |     // The page is server-rendered; allow the controlled client form to hydrate\n  22 |     // before filling fields so React does not replace pre-hydration values.\n  23 |     await page.waitForTimeout(750);\n    at /home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts:20:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:56:37.330Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/auth-form-restoration-auth-98fad-ext-but-not-file-references-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                        "column": 7,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10486,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts:20:7",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                          "column": 7,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 19 |\u001b[39m       page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m\"provider-application-form\"\u001b[39m)\u001b[33m.\u001b[39mlocator(\u001b[32m'button[type=\"submit\"]'\u001b[39m)\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeEnabled()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m     \u001b[90m// The page is server-rendered; allow the controlled client form to hydrate\u001b[39m\n \u001b[90m 22 |\u001b[39m     \u001b[90m// before filling fields so React does not replace pre-hydration values.\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m750\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                            "column": 7,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('provider-application-form').locator('button[type=\"submit\"]')\nExpected: enabled\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" getByTestId('provider-application-form').locator('button[type=\"submit\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('provider-application-form').locator('button[type=\"submit\"]')\u001b[22m\n\n\n  18 |     await expect(\n  19 |       page.getByTestId(\"provider-application-form\").locator('button[type=\"submit\"]'),\n> 20 |     ).toBeEnabled();\n     |       ^\n  21 |     // The page is server-rendered; allow the controlled client form to hydrate\n  22 |     // before filling fields so React does not replace pre-hydration values.\n  23 |     await page.waitForTimeout(750);\n    at /home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts:20:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:56:48.904Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/auth-form-restoration-auth-98fad-ext-but-not-file-references-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/auth-form-restoration.spec.ts",
+                        "column": 7,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-3f9e71c2846f65485df4",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 12,
+              "column": 7
+            },
+            {
+              "title": "legacy purchase link preserves the provider without opening the retired form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2048,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:56:59.800Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8847fcf09928402a90a9-d447ac5bf4836cf8ea51",
+              "file": "auth-form-restoration.spec.ts",
+              "line": 59,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "auth flow",
+          "file": "auth.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "email magic-link login creates a session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1670,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:01.932Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-cbd6da65dba13e23c0a7",
+              "file": "auth.spec.ts",
+              "line": 5,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "commerce.spec.ts",
+      "file": "commerce.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "commerce: real browser and isolated Auth/DB; no processor mock",
+          "file": "commerce.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unauthenticated order/checkout and CSRF requests are denied",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1133,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:03.614Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8109404adeb653b0236f-f1a7c3d8bc116e86c905",
+              "file": "commerce.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "customer Auth session cannot enter admin or mutate invalid purchase data",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11545,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts:16:24",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m   test(\u001b[32m\"customer Auth session cannot enter admin or mutate invalid purchase data\"\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m({page})\u001b[33m=>\u001b[39m{\n \u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page\u001b[33m,\u001b[39m{nextPath\u001b[33m:\u001b[39m\u001b[32m\"/orders\"\u001b[39m})\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/orders/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[36mconst\u001b[39m order\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mrequest\u001b[33m.\u001b[39mpost(\u001b[32m\"/api/commerce/orders\"\u001b[39m\u001b[33m,\u001b[39m{data\u001b[33m:\u001b[39m{offeringId\u001b[33m:\u001b[39m\u001b[32m\"not-a-uuid\"\u001b[39m}})\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m     expect(order\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/admin\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/admin(?:$|\\?)/\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n\n\n  14 |   test(\"customer Auth session cannot enter admin or mutate invalid purchase data\",async({page})=>{\n  15 |     await loginWithEmailMagicLink(page,{nextPath:\"/orders\"});\n> 16 |     await expect(page).toHaveURL(/\\/orders/);\n     |                        ^\n  17 |     const order=await page.request.post(\"/api/commerce/orders\",{data:{offeringId:\"not-a-uuid\"}});\n  18 |     expect(order.status()).toBe(400);\n  19 |     await page.goto(\"/admin\");await expect(page).not.toHaveURL(/\\/admin(?:$|\\?)/);\n    at /home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts:16:24"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:04.756Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/commerce-commerce-real-bro-6eff0-utate-invalid-purchase-data-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11614,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts:16:24",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m   test(\u001b[32m\"customer Auth session cannot enter admin or mutate invalid purchase data\"\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m({page})\u001b[33m=>\u001b[39m{\n \u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page\u001b[33m,\u001b[39m{nextPath\u001b[33m:\u001b[39m\u001b[32m\"/orders\"\u001b[39m})\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/orders/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \u001b[36mconst\u001b[39m order\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mrequest\u001b[33m.\u001b[39mpost(\u001b[32m\"/api/commerce/orders\"\u001b[39m\u001b[33m,\u001b[39m{data\u001b[33m:\u001b[39m{offeringId\u001b[33m:\u001b[39m\u001b[32m\"not-a-uuid\"\u001b[39m}})\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m     expect(order\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/admin\"\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/admin(?:$|\\?)/\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/orders/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 10000ms\u001b[22m\n\u001b[2m    23 × locator resolved to <html dir=\"ltr\" lang=\"tr\" data-scroll-behavior=\"smooth\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"http://127.0.0.1:3000/login?next=%2Forders\"\u001b[22m\n\n\n  14 |   test(\"customer Auth session cannot enter admin or mutate invalid purchase data\",async({page})=>{\n  15 |     await loginWithEmailMagicLink(page,{nextPath:\"/orders\"});\n> 16 |     await expect(page).toHaveURL(/\\/orders/);\n     |                        ^\n  17 |     const order=await page.request.post(\"/api/commerce/orders\",{data:{offeringId:\"not-a-uuid\"}});\n  18 |     expect(order.status()).toBe(400);\n  19 |     await page.goto(\"/admin\");await expect(page).not.toHaveURL(/\\/admin(?:$|\\?)/);\n    at /home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts:16:24"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:57:16.640Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/commerce-commerce-real-bro-6eff0-utate-invalid-purchase-data-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8109404adeb653b0236f-4e4aef0ecd394b06acc0",
+              "file": "commerce.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "authoritative quote, duplicate purchase hold and cancellation reach real SQL RPCs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Dedicated synthetic commerce offering fixture is not provisioned",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                        "line": 25,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 54,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:28.659Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Dedicated synthetic commerce offering fixture is not provisioned",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/commerce.spec.ts",
+                            "line": 25,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8109404adeb653b0236f-5ea65db1ac9fcda63311",
+              "file": "commerce.spec.ts",
+              "line": 21,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "csp-nonce-smoke.spec.ts",
+      "file": "csp-nonce-smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CSP nonce smoke",
+          "file": "csp-nonce-smoke.spec.ts",
+          "line": 64,
+          "column": 6,
+          "specs": [
+            {
+              "title": "home page loads without CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1983,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:28.789Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-a4a9d4d510b2c3fd2e9b",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 65,
+              "column": 7
+            },
+            {
+              "title": "Google login entry loads without CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1661,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:30.781Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-be8d8c8456c06c8091a2",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 70,
+              "column": 7
+            },
+            {
+              "title": "service purchase loads without CSP console violations",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12647,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts:78:83",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                          "column": 83,
+                          "line": 78
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 76 |\u001b[39m   test(\u001b[32m\"service purchase loads without CSP console violations\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 77 |\u001b[39m     \u001b[36mawait\u001b[39m gotoAndExpectNoCspViolations(page\u001b[33m,\u001b[39m \u001b[32m\"/services/musluk-montaji\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 78 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { level\u001b[33m:\u001b[39m \u001b[35m1\u001b[39m\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m \u001b[32m\"Musluk montajı\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 79 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 80 |\u001b[39m\n \u001b[90m 81 |\u001b[39m   test(\u001b[32m\"AI assistant photo upload path has no CSP console violations\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                            "column": 83,
+                            "line": 78
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n\n\n  76 |   test(\"service purchase loads without CSP console violations\", async ({ page }) => {\n  77 |     await gotoAndExpectNoCspViolations(page, \"/services/musluk-montaji\");\n> 78 |     await expect(page.getByRole(\"heading\", { level: 1, name: \"Musluk montajı\" })).toBeVisible();\n     |                                                                                   ^\n  79 |   });\n  80 |\n  81 |   test(\"AI assistant photo upload path has no CSP console violations\", async ({ page }) => {\n    at /home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts:78:83"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:32.452Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/csp-nonce-smoke-CSP-nonce--76519-hout-CSP-console-violations-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                        "column": 83,
+                        "line": 78
+                      }
+                    },
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11915,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts:78:83",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                          "column": 83,
+                          "line": 78
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 76 |\u001b[39m   test(\u001b[32m\"service purchase loads without CSP console violations\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 77 |\u001b[39m     \u001b[36mawait\u001b[39m gotoAndExpectNoCspViolations(page\u001b[33m,\u001b[39m \u001b[32m\"/services/musluk-montaji\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 78 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { level\u001b[33m:\u001b[39m \u001b[35m1\u001b[39m\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m \u001b[32m\"Musluk montajı\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 79 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 80 |\u001b[39m\n \u001b[90m 81 |\u001b[39m   test(\u001b[32m\"AI assistant photo upload path has no CSP console violations\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                            "column": 83,
+                            "line": 78
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Musluk montajı', level: 1 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Musluk montajı', level: 1 }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Musluk montajı', level: 1 })\u001b[22m\n\n\n  76 |   test(\"service purchase loads without CSP console violations\", async ({ page }) => {\n  77 |     await gotoAndExpectNoCspViolations(page, \"/services/musluk-montaji\");\n> 78 |     await expect(page.getByRole(\"heading\", { level: 1, name: \"Musluk montajı\" })).toBeVisible();\n     |                                                                                   ^\n  79 |   });\n  80 |\n  81 |   test(\"AI assistant photo upload path has no CSP console violations\", async ({ page }) => {\n    at /home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts:78:83"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:57:45.427Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/csp-nonce-smoke-CSP-nonce--76519-hout-CSP-console-violations-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                        "column": 83,
+                        "line": 78
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-99aac6ee59102cb32973",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 76,
+              "column": 7
+            },
+            {
+              "title": "AI assistant photo upload path has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2037,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:57.737Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-2f30cb5e12f581667f3b",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 81,
+              "column": 7
+            },
+            {
+              "title": "admin route does not emit CSP console violations before auth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1826,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:57:59.842Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-0c20aa51ec59b77ddac2",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "authenticated admin panel has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Set E2E_ADMIN_STORAGE_STATE to smoke the authenticated production admin panel.",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                        "line": 120,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:01.678Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Set E2E_ADMIN_STORAGE_STATE to smoke the authenticated production admin panel.",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                            "line": 120,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-00cd8c3d16c77b9347ff",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 117,
+              "column": 7
+            },
+            {
+              "title": "payment confirmation screen has no CSP console violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Set E2E_PAYMENT_CONFIRMATION_REQUEST_ID to smoke a real payment confirmation screen.",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                        "line": 142,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 28,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:01.682Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Set E2E_PAYMENT_CONFIRMATION_REQUEST_ID to smoke a real payment confirmation screen.",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/csp-nonce-smoke.spec.ts",
+                            "line": 142,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cfc5dcfe4ccc7b43f27b-3b1a25c1ca494bc7a204",
+              "file": "csp-nonce-smoke.spec.ts",
+              "line": 139,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "duplicate-request.spec.ts",
+      "file": "duplicate-request.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "opening a legacy buying link twice never submits a service request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T08:58:01.719Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "298ae858b6da2a22de2f-5454ce06fcde15a59a7c",
+          "file": "duplicate-request.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "emergency-sla.spec.ts",
+      "file": "emergency-sla.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "emergency response SLA",
+          "file": "emergency-sla.spec.ts",
+          "line": 25,
+          "column": 6,
+          "specs": [
+            {
+              "title": "provider sees countdown and admin sees breached SLA",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11680,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts:98:31",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                          "column": 31,
+                          "line": 98
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  96 |\u001b[39m         name\u001b[33m:\u001b[39m \u001b[35m/SLA yanıt süresi kaldı/\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m  97 |\u001b[39m       })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  98 |\u001b[39m       \u001b[36mawait\u001b[39m expect(countdown)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  99 |\u001b[39m       \u001b[36mawait\u001b[39m expect(countdown)\u001b[33m.\u001b[39mtoContainText(\u001b[35m/\\d{2}:\\d{2}/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 100 |\u001b[39m       \u001b[36mawait\u001b[39m providerPage\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\n \u001b[90m 101 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                            "column": 31,
+                            "line": 98
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n\n\n   96 |         name: /SLA yanıt süresi kaldı/,\n   97 |       });\n>  98 |       await expect(countdown).toBeVisible();\n      |                               ^\n   99 |       await expect(countdown).toContainText(/\\d{2}:\\d{2}/);\n  100 |       await providerPage.close();\n  101 |\n    at /home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts:98:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:03.504Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/emergency-sla-emergency-re-bf7a5-and-admin-sees-breached-SLA-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                        "column": 31,
+                        "line": 98
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11848,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts:98:31",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                          "column": 31,
+                          "line": 98
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  96 |\u001b[39m         name\u001b[33m:\u001b[39m \u001b[35m/SLA yanıt süresi kaldı/\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m  97 |\u001b[39m       })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  98 |\u001b[39m       \u001b[36mawait\u001b[39m expect(countdown)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  99 |\u001b[39m       \u001b[36mawait\u001b[39m expect(countdown)\u001b[33m.\u001b[39mtoContainText(\u001b[35m/\\d{2}:\\d{2}/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 100 |\u001b[39m       \u001b[36mawait\u001b[39m providerPage\u001b[33m.\u001b[39mclose()\u001b[33m;\u001b[39m\n \u001b[90m 101 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                            "column": 31,
+                            "line": 98
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status', { name: /SLA yanıt süresi kaldı/ })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('status', { name: /SLA yanıt süresi kaldı/ }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status', { name: /SLA yanıt süresi kaldı/ })\u001b[22m\n\n\n   96 |         name: /SLA yanıt süresi kaldı/,\n   97 |       });\n>  98 |       await expect(countdown).toBeVisible();\n      |                               ^\n   99 |       await expect(countdown).toContainText(/\\d{2}:\\d{2}/);\n  100 |       await providerPage.close();\n  101 |\n    at /home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts:98:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:58:15.588Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/emergency-sla-emergency-re-bf7a5-and-admin-sees-breached-SLA-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                        "column": 31,
+                        "line": 98
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-3a9045292bdf72d3bd28",
+              "file": "emergency-sla.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "cron reassigns breached emergency request and records live notifications",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "CRON_SECRET is not configured.",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                        "line": 132,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:27.857Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "CRON_SECRET is not configured.",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                            "line": 132,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-5c603c8649593c0b16af",
+              "file": "emergency-sla.spec.ts",
+              "line": 130,
+              "column": 7
+            },
+            {
+              "title": "cron stops auto reassignment after three SLA breaches and escalates to admin",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "CRON_SECRET is not configured.",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                        "line": 306,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:27.882Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "CRON_SECRET is not configured.",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/emergency-sla.spec.ts",
+                            "line": 306,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a306fe2ca0f693052282-bf23fc46481763d2b277",
+              "file": "emergency-sla.spec.ts",
+              "line": 302,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "launch-verification.spec.ts",
+      "file": "launch-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "CTO launch verification",
+          "file": "launch-verification.spec.ts",
+          "line": 61,
+          "column": 6,
+          "specs": [
+            {
+              "title": "filtered provider empty state preserves category and preselects the request",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1155,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) resolved to 2 elements:\n    1) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByRole('heading', { name: 'Bu bölgede henüz Çilingir' })\n    2) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByText('Bu bölgede henüz Çilingir').nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\u001b[22m\n\u001b[2m    2 × locator resolved to <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) resolved to 2 elements:\n    1) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByRole('heading', { name: 'Bu bölgede henüz Çilingir' })\n    2) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByText('Bu bölgede henüz Çilingir').nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\u001b[22m\n\u001b[2m    2 × locator resolved to <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:72:7",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                          "column": 7,
+                          "line": 72
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(\n \u001b[90m 71 |\u001b[39m       page\u001b[33m.\u001b[39mgetByText(\u001b[32m\"Bu bölgede henüz Çilingir ustası yok\"\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 72 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 73 |\u001b[39m\n \u001b[90m 74 |\u001b[39m     \u001b[36mconst\u001b[39m requestLink \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\n \u001b[90m 75 |\u001b[39m       \u001b[32m'a[href=\"/request?district=Adalar&service=cilingir\"]'\u001b[39m\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                            "column": 7,
+                            "line": 72
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) resolved to 2 elements:\n    1) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByRole('heading', { name: 'Bu bölgede henüz Çilingir' })\n    2) <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3> aka getByText('Bu bölgede henüz Çilingir').nth(1)\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Bu bölgede henüz Çilingir ustası yok', { exact: true })\u001b[22m\n\u001b[2m    2 × locator resolved to <h3 class=\"text-xl font-bold text-[var(--brand-navy)]\">Bu bölgede henüz Çilingir ustası yok</h3>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n\n  70 |     await expect(\n  71 |       page.getByText(\"Bu bölgede henüz Çilingir ustası yok\", { exact: true }),\n> 72 |     ).toBeVisible();\n     |       ^\n  73 |\n  74 |     const requestLink = page.locator(\n  75 |       'a[href=\"/request?district=Adalar&service=cilingir\"]',\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:72:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:27.899Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/launch-verification-CTO-la-1685d--and-preselects-the-request-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                        "column": 7,
+                        "line": 72
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10662,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('a[href=\"/request?district=Adalar&service=cilingir\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\u001b[22m\n\u001b[2m    24 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('a[href=\"/request?district=Adalar&service=cilingir\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\u001b[22m\n\u001b[2m    24 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:77:31",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                          "column": 31,
+                          "line": 77
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 75 |\u001b[39m       \u001b[32m'a[href=\"/request?district=Adalar&service=cilingir\"]'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 76 |\u001b[39m     )\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 77 |\u001b[39m     \u001b[36mawait\u001b[39m expect(requestLink)\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 78 |\u001b[39m     \u001b[36mawait\u001b[39m captureEvidence(page\u001b[33m,\u001b[39m \u001b[32m\"10-provider-empty-state.png\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 79 |\u001b[39m     \u001b[36mawait\u001b[39m requestLink\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 80 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                            "column": 31,
+                            "line": 77
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('a[href=\"/request?district=Adalar&service=cilingir\"]') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href=\"/request?district=Adalar&service=cilingir\"]')\u001b[22m\n\u001b[2m    24 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  75 |       'a[href=\"/request?district=Adalar&service=cilingir\"]',\n  76 |     );\n> 77 |     await expect(requestLink).toHaveCount(1);\n     |                               ^\n  78 |     await captureEvidence(page, \"10-provider-empty-state.png\");\n  79 |     await requestLink.click();\n  80 |\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:77:31"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:58:29.449Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/launch-verification-CTO-la-1685d--and-preselects-the-request-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                        "column": 31,
+                        "line": 77
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-5b271960449e9f07555e",
+              "file": "launch-verification.spec.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "request, realtime, provider approval, assignment and acceptance work end to end",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12028,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:163:78",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                          "column": 78,
+                          "line": 163
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m providerPage\u001b[33m.\u001b[39mgoto(\u001b[32m\"/provider-dashboard\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 163 |\u001b[39m     \u001b[36mawait\u001b[39m expect(providerPage\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Usta Paneli\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 164 |\u001b[39m\n \u001b[90m 165 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(customerPage\u001b[33m,\u001b[39m {\n \u001b[90m 166 |\u001b[39m       email\u001b[33m:\u001b[39m customerEmail\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                            "column": 78,
+                            "line": 163
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n\n\n  161 |     });\n  162 |     await providerPage.goto(\"/provider-dashboard\");\n> 163 |     await expect(providerPage.getByRole(\"heading\", { name: \"Usta Paneli\" })).toBeVisible();\n      |                                                                              ^\n  164 |\n  165 |     await loginWithEmailMagicLink(customerPage, {\n  166 |       email: customerEmail,\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:163:78"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:58:40.562Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/launch-verification-CTO-la-05d3c--acceptance-work-end-to-end-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                        "column": 78,
+                        "line": 163
+                      }
+                    },
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12010,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:163:78",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                          "column": 78,
+                          "line": 163
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m providerPage\u001b[33m.\u001b[39mgoto(\u001b[32m\"/provider-dashboard\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 163 |\u001b[39m     \u001b[36mawait\u001b[39m expect(providerPage\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Usta Paneli\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 164 |\u001b[39m\n \u001b[90m 165 |\u001b[39m     \u001b[36mawait\u001b[39m loginWithEmailMagicLink(customerPage\u001b[33m,\u001b[39m {\n \u001b[90m 166 |\u001b[39m       email\u001b[33m:\u001b[39m customerEmail\u001b[33m,\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                            "column": 78,
+                            "line": 163
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Usta Paneli' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Usta Paneli' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Usta Paneli' })\u001b[22m\n\n\n  161 |     });\n  162 |     await providerPage.goto(\"/provider-dashboard\");\n> 163 |     await expect(providerPage.getByRole(\"heading\", { name: \"Usta Paneli\" })).toBeVisible();\n      |                                                                              ^\n  164 |\n  165 |     await loginWithEmailMagicLink(customerPage, {\n  166 |       email: customerEmail,\n    at /home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts:163:78"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T08:58:52.977Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/launch-verification-CTO-la-05d3c--acceptance-work-end-to-end-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/launch-verification.spec.ts",
+                        "column": 78,
+                        "line": 163
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "372a7f19e0a987ca9f61-c36af358660ab4ded085",
+              "file": "launch-verification.spec.ts",
+              "line": 87,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "middleware-redirect.spec.ts",
+      "file": "middleware-redirect.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "middleware redirects",
+          "file": "middleware-redirect.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unauthenticated user visiting /admin is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 406,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:05.405Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-297334e1583391856275",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /provider-dashboard is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 351,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:05.883Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-6e7aa92af01a7c7778a2",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /account is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 361,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:06.246Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-83d066025017c0a6f47d",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            },
+            {
+              "title": "unauthenticated user visiting /dashboard is redirected to login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 368,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:06.623Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3ab6b8b5d17ac96e1c1f-0587185a8ba64ec6f788",
+              "file": "middleware-redirect.spec.ts",
+              "line": 7,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "provider-application.spec.ts",
+      "file": "provider-application.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "provider application flow",
+          "file": "provider-application.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "authenticated user submits provider application",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Dedicated isolated Auth test phone required; real SMS verification is a separate gate",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/provider-application.spec.ts",
+                        "line": 8,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 30,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:07.026Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Dedicated isolated Auth test phone required; real SMS verification is a separate gate",
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/provider-application.spec.ts",
+                            "line": 8,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "743383054bd0907a843f-64f2c0b46226d29491e0",
+              "file": "provider-application.spec.ts",
+              "line": 5,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "provider-control.spec.ts",
+      "file": "provider-control.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "provider control: isolated real Supabase acceptance",
+          "file": "provider-control.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "unpublish satisfies all six acceptance conditions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60019,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                            "column": 76,
+                            "line": 24
+                          },
+                          "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Yayından Kaldır', exact: true })\u001b[22m\n\n\n  22 |   await loginWithEmailMagicLink(page, { email, role: \"admin\", nextPath: `/admin/providers?id=${id}` });\n  23 |   await page.goto(`/admin/providers?id=${id}`);\n> 24 |   await page.getByRole(\"button\", { name: \"Yayından Kaldır\", exact: true }).click();\n     |                                                                            ^\n  25 |   await expect(page.getByRole(\"dialog\")).toContainText(name);\n  26 |   await page.getByLabel(\"Kısa gerekçe\").fill(\"E2E verified test profile is withdrawn from public view.\");\n  27 |   await page.getByRole(\"button\", { name: \"Yayından Kaldır · Onayla\", exact: true }).dblclick();\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:24:76"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T08:59:07.064Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/provider-control-provider--7f443-l-six-acceptance-conditions-chromium/error-context.md"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 355,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000001, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000001, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:16:24",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m   expect(categoryError)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m expect(districtError)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m   \u001b[36mconst\u001b[39m insert \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"providers\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m,\u001b[39m user_id\u001b[33m:\u001b[39m owner\u001b[33m,\u001b[39m name\u001b[33m,\u001b[39m phone\u001b[33m:\u001b[39m \u001b[32m\"+905550000001\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E dedicated synthetic provider profile for publication acceptance.\"\u001b[39m\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m district_id\u001b[33m:\u001b[39m district\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m is_approved\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m   expect(insert\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m   \u001b[36mconst\u001b[39m classify \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"provider_publication_reviews\"\u001b[39m)\u001b[33m.\u001b[39mupdate({ status\u001b[33m:\u001b[39m \u001b[32m\"approved\"\u001b[39m\u001b[33m,\u001b[39m record_kind\u001b[33m:\u001b[39m \u001b[32m\"real\"\u001b[39m })\u001b[33m.\u001b[39meq(\u001b[32m\"provider_id\"\u001b[39m\u001b[33m,\u001b[39m id)\u001b[33m;\u001b[39m\n \u001b[90m 18 |\u001b[39m   expect(classify\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m 19 |\u001b[39m   \u001b[36mconst\u001b[39m publicContext \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m browser\u001b[33m.\u001b[39mnewContext()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000001, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n\n  14 |   expect(categoryError).toBeNull(); expect(districtError).toBeNull();\n  15 |   const insert = await admin.from(\"providers\").insert({ id, user_id: owner, name, phone: \"+905550000001\", description: \"E2E dedicated synthetic provider profile for publication acceptance.\", category_id: category!.id, district_id: district!.id, is_active: true, is_approved: true });\n> 16 |   expect(insert.error).toBeNull();\n     |                        ^\n  17 |   const classify = await admin.from(\"provider_publication_reviews\").update({ status: \"approved\", record_kind: \"real\" }).eq(\"provider_id\", id);\n  18 |   expect(classify.error).toBeNull();\n  19 |   const publicContext = await browser.newContext();\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:16:24"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T09:00:07.442Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/provider-control-provider--7f443-l-six-acceptance-conditions-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-693caa08bd4b90cf5e10",
+              "file": "provider-control.spec.ts",
+              "line": 6,
+              "column": 6
+            },
+            {
+              "title": "partner saves price, scope and calendar and cannot edit another provider",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 302,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:57:327",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                          "column": 327,
+                          "line": 57
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m   \u001b[36mconst\u001b[39m id \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m otherId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m serviceId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m serviceName \u001b[33m=\u001b[39m \u001b[32m`E2E Service ${serviceId.slice(0, 8)}`\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 56 |\u001b[39m   \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [pid\u001b[33m,\u001b[39m userId] \u001b[36mof\u001b[39m [[id\u001b[33m,\u001b[39m owner]\u001b[33m,\u001b[39m [otherId\u001b[33m,\u001b[39m other]]) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m    \u001b[36mconst\u001b[39m { error } \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"providers\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m pid\u001b[33m,\u001b[39m user_id\u001b[33m:\u001b[39m userId\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m \u001b[32m`E2E Partner ${pid.slice(0, 8)}`\u001b[39m\u001b[33m,\u001b[39m phone\u001b[33m:\u001b[39m \u001b[32m\"+905550000004\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E factual dedicated provider for preparation test.\"\u001b[39m\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m district_id\u001b[33m:\u001b[39m district\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m is_approved\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m expect(error)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                                                                                                                                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m   }\n \u001b[90m 59 |\u001b[39m   \u001b[36mconst\u001b[39m service \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"service_catalog\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m serviceId\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m slug\u001b[33m:\u001b[39m \u001b[32m`e2e-${serviceId}`\u001b[39m\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m serviceName\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E dedicated service description.\"\u001b[39m\u001b[33m,\u001b[39m scope\u001b[33m:\u001b[39m \u001b[32m\"E2E baseline scope.\"\u001b[39m\u001b[33m,\u001b[39m image_url\u001b[33m:\u001b[39m \u001b[32m\"/test.png\"\u001b[39m\u001b[33m,\u001b[39m pricing_type\u001b[33m:\u001b[39m \u001b[32m\"FIXED_PRICE\"\u001b[39m\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m expect(service\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m   \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page\u001b[33m,\u001b[39m { email\u001b[33m,\u001b[39m role\u001b[33m:\u001b[39m \u001b[32m\"provider\"\u001b[39m\u001b[33m,\u001b[39m nextPath\u001b[33m:\u001b[39m \u001b[32m\"/provider-dashboard/store\"\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                            "column": 327,
+                            "line": 57
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n\n  55 |   const id = crypto.randomUUID(), otherId = crypto.randomUUID(), serviceId = crypto.randomUUID(), serviceName = `E2E Service ${serviceId.slice(0, 8)}`;\n  56 |   for (const [pid, userId] of [[id, owner], [otherId, other]]) {\n> 57 |    const { error } = await admin.from(\"providers\").insert({ id: pid, user_id: userId, name: `E2E Partner ${pid.slice(0, 8)}`, phone: \"+905550000004\", description: \"E2E factual dedicated provider for preparation test.\", category_id: category!.id, district_id: district!.id, is_active: true, is_approved: true }); expect(error).toBeNull();\n     |                                                                                                                                                                                                                                                                                                                                       ^\n  58 |   }\n  59 |   const service = await admin.from(\"service_catalog\").insert({ id: serviceId, category_id: category!.id, slug: `e2e-${serviceId}`, name: serviceName, description: \"E2E dedicated service description.\", scope: \"E2E baseline scope.\", image_url: \"/test.png\", pricing_type: \"FIXED_PRICE\", is_active: true }); expect(service.error).toBeNull();\n  60 |   await loginWithEmailMagicLink(page, { email, role: \"provider\", nextPath: \"/provider-dashboard/store\" });\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:57:327"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T09:00:08.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/provider-control-provider--45440-annot-edit-another-provider-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                        "column": 327,
+                        "line": 57
+                      }
+                    },
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 279,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:57:327",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                          "column": 327,
+                          "line": 57
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m   \u001b[36mconst\u001b[39m id \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m otherId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m serviceId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m serviceName \u001b[33m=\u001b[39m \u001b[32m`E2E Service ${serviceId.slice(0, 8)}`\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 56 |\u001b[39m   \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [pid\u001b[33m,\u001b[39m userId] \u001b[36mof\u001b[39m [[id\u001b[33m,\u001b[39m owner]\u001b[33m,\u001b[39m [otherId\u001b[33m,\u001b[39m other]]) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m    \u001b[36mconst\u001b[39m { error } \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"providers\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m pid\u001b[33m,\u001b[39m user_id\u001b[33m:\u001b[39m userId\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m \u001b[32m`E2E Partner ${pid.slice(0, 8)}`\u001b[39m\u001b[33m,\u001b[39m phone\u001b[33m:\u001b[39m \u001b[32m\"+905550000004\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E factual dedicated provider for preparation test.\"\u001b[39m\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m district_id\u001b[33m:\u001b[39m district\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m is_approved\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m expect(error)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                                                                                                                                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m   }\n \u001b[90m 59 |\u001b[39m   \u001b[36mconst\u001b[39m service \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m admin\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"service_catalog\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m serviceId\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m slug\u001b[33m:\u001b[39m \u001b[32m`e2e-${serviceId}`\u001b[39m\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m serviceName\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E dedicated service description.\"\u001b[39m\u001b[33m,\u001b[39m scope\u001b[33m:\u001b[39m \u001b[32m\"E2E baseline scope.\"\u001b[39m\u001b[33m,\u001b[39m image_url\u001b[33m:\u001b[39m \u001b[32m\"/test.png\"\u001b[39m\u001b[33m,\u001b[39m pricing_type\u001b[33m:\u001b[39m \u001b[32m\"FIXED_PRICE\"\u001b[39m\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m expect(service\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m   \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page\u001b[33m,\u001b[39m { email\u001b[33m,\u001b[39m role\u001b[33m:\u001b[39m \u001b[32m\"provider\"\u001b[39m\u001b[33m,\u001b[39m nextPath\u001b[33m:\u001b[39m \u001b[32m\"/provider-dashboard/store\"\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                            "column": 327,
+                            "line": 57
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550000004, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n\n  55 |   const id = crypto.randomUUID(), otherId = crypto.randomUUID(), serviceId = crypto.randomUUID(), serviceName = `E2E Service ${serviceId.slice(0, 8)}`;\n  56 |   for (const [pid, userId] of [[id, owner], [otherId, other]]) {\n> 57 |    const { error } = await admin.from(\"providers\").insert({ id: pid, user_id: userId, name: `E2E Partner ${pid.slice(0, 8)}`, phone: \"+905550000004\", description: \"E2E factual dedicated provider for preparation test.\", category_id: category!.id, district_id: district!.id, is_active: true, is_approved: true }); expect(error).toBeNull();\n     |                                                                                                                                                                                                                                                                                                                                       ^\n  58 |   }\n  59 |   const service = await admin.from(\"service_catalog\").insert({ id: serviceId, category_id: category!.id, slug: `e2e-${serviceId}`, name: serviceName, description: \"E2E dedicated service description.\", scope: \"E2E baseline scope.\", image_url: \"/test.png\", pricing_type: \"FIXED_PRICE\", is_active: true }); expect(service.error).toBeNull();\n  60 |   await loginWithEmailMagicLink(page, { email, role: \"provider\", nextPath: \"/provider-dashboard/store\" });\n    at /home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts:57:327"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T09:00:08.879Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/provider-control-provider--45440-annot-edit-another-provider-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/provider-control.spec.ts",
+                        "column": 327,
+                        "line": 57
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b3ad7623c2be8c33af0c-1dd31a3ce51eb08a06e3",
+              "file": "provider-control.spec.ts",
+              "line": 49,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "request-flow.spec.ts",
+      "file": "request-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "direct purchase entry",
+          "file": "request-flow.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "legacy links retain category and district in the service catalog",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 801,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T09:00:09.530Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-42e5e14c13a6096afe12",
+              "file": "request-flow.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "home offers direct purchasing and provider onboarding",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10386,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts:11:86",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                          "column": 86,
+                          "line": 11
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m   test(\u001b[32m\"home offers direct purchasing and provider onboarding\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"button\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Hizmet Satın Al\"\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'.home-secondary-actions a[href=\"/provider-application\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m\"canvas\"\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                            "column": 86,
+                            "line": 11
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n\n\n   9 |   test(\"home offers direct purchasing and provider onboarding\", async ({ page }) => {\n  10 |     await page.goto(\"/\");\n> 11 |     await expect(page.getByRole(\"button\", { name: \"Hizmet Satın Al\", exact: true })).toBeVisible();\n     |                                                                                      ^\n  12 |     await expect(page.locator('.home-secondary-actions a[href=\"/provider-application\"]')).toBeVisible();\n  13 |     await expect(page.locator(\"canvas\")).toHaveCount(0);\n  14 |   });\n    at /home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts:11:86"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-31T09:00:10.404Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/request-flow-direct-purcha-c1d90-ing-and-provider-onboarding-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                        "column": 86,
+                        "line": 11
+                      }
+                    },
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10465,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n\n    at /home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts:11:86",
+                        "location": {
+                          "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                          "column": 86,
+                          "line": 11
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m   test(\u001b[32m\"home offers direct purchasing and provider onboarding\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"button\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Hizmet Satın Al\"\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'.home-secondary-actions a[href=\"/provider-application\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m\"canvas\"\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                            "column": 86,
+                            "line": 11
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Hizmet Satın Al', exact: true })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Hizmet Satın Al', exact: true }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Hizmet Satın Al', exact: true })\u001b[22m\n\n\n   9 |   test(\"home offers direct purchasing and provider onboarding\", async ({ page }) => {\n  10 |     await page.goto(\"/\");\n> 11 |     await expect(page.getByRole(\"button\", { name: \"Hizmet Satın Al\", exact: true })).toBeVisible();\n     |                                                                                      ^\n  12 |     await expect(page.locator('.home-secondary-actions a[href=\"/provider-application\"]')).toBeVisible();\n  13 |     await expect(page.locator(\"canvas\")).toHaveCount(0);\n  14 |   });\n    at /home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts:11:86"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-10-31T09:00:21.102Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/fuwu/fuwu/test-results/request-flow-direct-purcha-c1d90-ing-and-provider-onboarding-chromium-retry1/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/request-flow.spec.ts",
+                        "column": 86,
+                        "line": 11
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0d653ae6ce84e1dac6b6-d4e989024164aaf33afc",
+              "file": "request-flow.spec.ts",
+              "line": 9,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "storage-documents.spec.ts",
+      "file": "storage-documents.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "private document upload, owner/admin download, foreign-user denial and access audit",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 22,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 60023,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts",
+                        "column": 55,
+                        "line": 20
+                      },
+                      "message": "Error: locator.selectOption: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#documents').getByLabel('Belge türü', { exact: true })\u001b[22m\n\n\n  18 |  const bytes = Buffer.from(\"%PDF-1.4\\n1 0 obj\\n<< /Type /Catalog >>\\nendobj\\ntrailer\\n<< /Root 1 0 R >>\\n%%EOF\\n\");\n  19 |  const form = page.locator(\"#documents\");\n> 20 |  await form.getByLabel(\"Belge türü\", { exact: true }).selectOption(\"qualification\");\n     |                                                       ^\n  21 |  await form.getByLabel(\"Dosya\", { exact: true }).setInputFiles({ name: \"E2E-synthetic.pdf\", mimeType: \"application/pdf\", buffer: bytes });\n  22 |  await form.getByRole(\"button\", { name: \"İncelemeye gönder\", exact: true }).click();\n  23 |  await expect(form.getByRole(\"status\")).toContainText(\"Belgen alındı.\");\n    at /home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts:20:55"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T09:00:31.999Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/fuwu/fuwu/test-results/storage-documents-private--53736-ser-denial-and-access-audit-chromium/error-context.md"
+                    }
+                  ]
+                },
+                {
+                  "workerIndex": 23,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 270,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550009999, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550009999, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n    at /home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts:14:25",
+                    "location": {
+                      "file": "/home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts",
+                      "column": 25,
+                      "line": 14
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 12 |\u001b[39m  \u001b[36mconst\u001b[39m applicationId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m,\u001b[39m providerId \u001b[33m=\u001b[39m crypto\u001b[33m.\u001b[39mrandomUUID()\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m  \u001b[36mconst\u001b[39m provider \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m db\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"providers\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m providerId\u001b[33m,\u001b[39m user_id\u001b[33m:\u001b[39m owner\u001b[33m,\u001b[39m name\u001b[33m:\u001b[39m \u001b[32m\"E2E Document Owner\"\u001b[39m\u001b[33m,\u001b[39m phone\u001b[33m:\u001b[39m \u001b[32m\"+905550009999\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"E2E synthetic provider for private document transport only.\"\u001b[39m\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m district_id\u001b[33m:\u001b[39m district\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m is_active\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m is_approved\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m  expect(provider\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m  \u001b[36mconst\u001b[39m application \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m db\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[32m\"provider_applications\"\u001b[39m)\u001b[33m.\u001b[39minsert({ id\u001b[33m:\u001b[39m applicationId\u001b[33m,\u001b[39m user_id\u001b[33m:\u001b[39m owner\u001b[33m,\u001b[39m full_name\u001b[33m:\u001b[39m \u001b[32m\"E2E Document Owner\"\u001b[39m\u001b[33m,\u001b[39m phone\u001b[33m:\u001b[39m \u001b[32m\"+905550009999\"\u001b[39m\u001b[33m,\u001b[39m category_id\u001b[33m:\u001b[39m category\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m district_id\u001b[33m:\u001b[39m district\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m status\u001b[33m:\u001b[39m \u001b[32m\"approved\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m  expect(application\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39mtoBeNull()\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m  \u001b[36mawait\u001b[39m loginWithEmailMagicLink(page\u001b[33m,\u001b[39m { email\u001b[33m,\u001b[39m role\u001b[33m:\u001b[39m \u001b[32m\"provider\"\u001b[39m\u001b[33m,\u001b[39m nextPath\u001b[33m:\u001b[39m \u001b[32m\"/provider-dashboard/profile\"\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts",
+                        "column": 25,
+                        "line": 14
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeNull\u001b[2m()\u001b[22m\n\nReceived: \u001b[31m{\"code\": \"23505\", \"details\": \"Key (phone, category_id, district_id)=(+905550009999, 56a6e4aa-60db-45e6-827d-3852a42d0fb5, 4bada687-82dc-41b2-89fa-cf9dc71d244b) already exists.\", \"hint\": null, \"message\": \"duplicate key value violates unique constraint \\\"providers_phone_category_district_unique_idx\\\"\"}\u001b[39m\n\n  12 |  const applicationId = crypto.randomUUID(), providerId = crypto.randomUUID();\n  13 |  const provider = await db.from(\"providers\").insert({ id: providerId, user_id: owner, name: \"E2E Document Owner\", phone: \"+905550009999\", description: \"E2E synthetic provider for private document transport only.\", category_id: category!.id, district_id: district!.id, is_active: true, is_approved: true });\n> 14 |  expect(provider.error).toBeNull();\n     |                         ^\n  15 |  const application = await db.from(\"provider_applications\").insert({ id: applicationId, user_id: owner, full_name: \"E2E Document Owner\", phone: \"+905550009999\", category_id: category!.id, district_id: district!.id, status: \"approved\" });\n  16 |  expect(application.error).toBeNull();\n  17 |  await loginWithEmailMagicLink(page, { email, role: \"provider\", nextPath: \"/provider-dashboard/profile\" });\n    at /home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts:14:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 1,
+                  "startTime": "2026-10-31T09:01:32.429Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/fuwu/fuwu/test-results/storage-documents-private--53736-ser-denial-and-access-audit-chromium-retry1/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/runner/work/fuwu/fuwu/e2e/storage-documents.spec.ts",
+                    "column": 25,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ce7d55486e7158ce66a0-9bfcebb25c20ce3fcaa3",
+          "file": "storage-documents.spec.ts",
+          "line": 5,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "trust-flow.spec.ts",
+      "file": "trust-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FUWU Güvence: assigned provider arrival, completion report, explicit customer confirmation without GPS",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "BLOCKED: dedicated synthetic trust appointment/accounts not provisioned",
+                  "location": {
+                    "file": "/home/runner/work/fuwu/fuwu/e2e/trust-flow.spec.ts",
+                    "line": 7,
+                    "column": 7
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 24,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 6,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-31T09:01:33.109Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "BLOCKED: dedicated synthetic trust appointment/accounts not provisioned",
+                      "location": {
+                        "file": "/home/runner/work/fuwu/fuwu/e2e/trust-flow.spec.ts",
+                        "line": 7,
+                        "column": 7
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "364d4708ebcdb42c0b96-6195bf3a7c6af00f9c01",
+          "file": "trust-flow.spec.ts",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-31T08:55:38.747Z",
+    "duration": 354608.467,
+    "expected": 14,
+    "skipped": 7,
+    "unexpected": 12,
+    "flaky": 0
+  }
+}

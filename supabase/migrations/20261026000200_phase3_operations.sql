@@ -25,11 +25,11 @@ grant execute on function public.commerce_create_variant(uuid,uuid,text) to auth
 -- Preserve the lifecycle; fail closed if a customer code or verified payment is missing.
 create or replace function public.commerce_transition_order(p_order_id uuid,p_status text,p_code text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare o public.orders; p public.providers; secret public.order_completion_codes; next_status text;
+declare o public.commerce_orders; p public.providers; secret public.order_completion_codes; next_status text;
 begin
  if auth.uid() is null then raise exception 'unauthorized' using errcode='42501'; end if;
- select * into p from public.providers where id=(select provider_id from public.orders where id=p_order_id) for update;
- select * into o from public.orders where id=p_order_id for update;
+ select * into p from public.providers where id=(select provider_id from public.commerce_orders where id=p_order_id) for update;
+ select * into o from public.commerce_orders where id=p_order_id for update;
  if o.id is null then raise exception 'order_not_found'; end if;
  next_status:=p_status;
  if p_status='CANCELLED' and o.customer_id=auth.uid() and o.status in ('PENDING_PAYMENT','CONFIRMED') and o.starts_at>now() then
@@ -48,7 +48,7 @@ begin
      end if;
    end if;
  else raise exception 'transition_forbidden' using errcode='42501'; end if;
- update public.orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
+ update public.commerce_orders set status=next_status,payment_status=case when next_status='REFUND_PENDING' then 'REFUND_PENDING' else payment_status end,updated_at=now() where id=o.id;
  return jsonb_build_object('status',next_status);
 end $$;
 
@@ -78,7 +78,7 @@ language plpgsql stable security definer set search_path='' as $$
 declare missing text[]:='{}'; item text;
 begin
  if auth.uid() is null or not public.current_user_is_admin() then raise exception 'forbidden' using errcode='42501'; end if;
- foreach item in array array['orders','payment_transactions','order_completion_codes','order_status_events','reviews','review_submission_receipts','customer_addresses','provider_service_offerings','provider_availability','provider_time_off','operations_health_checks','audit_logs'] loop
+ foreach item in array array['commerce_orders','payment_transactions','order_completion_codes','order_status_events','reviews','review_submission_receipts','customer_addresses','provider_service_offerings','provider_availability','provider_time_off','operations_health_checks','audit_logs'] loop
    if not coalesce((select relrowsecurity from pg_class where oid=to_regclass('public.'||item)),false) then missing:=array_append(missing,item||': RLS'); end if;
  end loop;
  foreach item in array array['commerce_hold_order(uuid,timestamp with time zone,uuid,text,uuid,integer)','commerce_transition_order(uuid,text,text)','review_eligible_sources(uuid)','submit_service_review(uuid,uuid,uuid,smallint,text)','commerce_create_variant(uuid,uuid,text)','commerce_provider_private(uuid)','commerce_admin_reconciliation(integer)'] loop
@@ -87,7 +87,7 @@ begin
  if not exists(select 1 from pg_attribute where attrelid='public.reviews'::regclass and attname='order_id' and not attisdropped) then missing:=array_append(missing,'reviews.order_id'); end if;
  if not exists(select 1 from pg_indexes where schemaname='public' and indexname='reviews_order_once') then missing:=array_append(missing,'reviews_order_once'); end if;
  if has_column_privilege('anon','public.providers','iyzico_submerchant_key','SELECT') or has_column_privilege('authenticated','public.providers','iyzico_submerchant_key','SELECT') then missing:=array_append(missing,'providers: private column access'); end if;
- if has_table_privilege('authenticated','public.orders','UPDATE') then missing:=array_append(missing,'orders: direct client updates'); end if;
+ if has_table_privilege('authenticated','public.commerce_orders','UPDATE') then missing:=array_append(missing,'commerce_orders: direct client updates'); end if;
  return jsonb_build_object('checked_at',now(),'contract_ok',cardinality(missing)=0,'missing_contracts',missing,
    'audit_last_event_at',(select max(created_at) from public.audit_logs),
    'probes',(select coalesce(jsonb_agg(to_jsonb(h) order by name),'[]'::jsonb) from public.operations_health_checks h));

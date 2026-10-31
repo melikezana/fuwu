@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 
 // Uses only the disposable PostgreSQL cluster created by test-direct-commerce-db.mjs.
 export async function reviewQualityChecks({ root, guest, a, b, p, p2, admin, service, winningClient, losingClient, winner, pid, uid, scalar, check, client }) {
-  const owner = await scalar(root, "select customer_id from orders where id=$1", [winner.id]);
+  const owner = await scalar(root, "select customer_id from commerce_orders where id=$1", [winner.id]);
   async function copyOrder(status = "COMPLETED", customer = owner) {
-    return scalar(root, `insert into orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,payment_status,status,expires_at,idempotency_key)
-      select $2,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,'PAID',$3,expires_at,gen_random_uuid() from orders where id=$1 returning id`, [winner.id, customer, status]);
+    return scalar(root, `insert into commerce_orders(customer_id,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,payment_status,status,expires_at,idempotency_key)
+      select $2,provider_id,offering_id,service_name,variant_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,'PAID',$3,expires_at,gen_random_uuid() from commerce_orders where id=$1 returning id`, [winner.id, customer, status]);
   }
   const sources = (c, provider = pid(1)) => scalar(c, "select review_eligible_sources($1)", [provider]);
   const review = (c, id, rating = 4) => scalar(c, "select commerce_submit_review($1,$2::smallint,'TEST tamamlanan hizmet değerlendirmesi')", [id, rating]);
@@ -49,7 +49,7 @@ export async function reviewQualityChecks({ root, guest, a, b, p, p2, admin, ser
   await check("Review eligibility: unfinished and unpaid services never qualify", async () => {
     await assert.rejects(review(winningClient, incomplete), /review-not-eligible/);
     const unpaid = await copyOrder();
-    await root.query("update orders set payment_status='UNPAID' where id=$1", [unpaid]);
+    await root.query("update commerce_orders set payment_status='UNPAID' where id=$1", [unpaid]);
     await assert.rejects(review(winningClient, unpaid), /review-not-eligible/);
     assert.ok(!(await sources(winningClient)).some(s => s.id === incomplete || s.id === unpaid));
   });
@@ -103,7 +103,7 @@ export async function reviewQualityChecks({ root, guest, a, b, p, p2, admin, ser
   await check("Profile schedule and slots share real hours; operational counts keep overdue work", async () => {
     const schedule = await scalar(guest, "select commerce_public_schedule($1)", [pid(1)]);
     assert.equal(schedule.length, 7); assert.ok(schedule.every(h => h.starts_at === "09:00:00"));
-    await root.query("update orders set starts_at=now()-interval '3 hours',ends_at=now()-interval '1 hour' where id=$1", [incomplete]);
+    await root.query("update commerce_orders set starts_at=now()-interval '3 hours',ends_at=now()-interval '1 hour' where id=$1", [incomplete]);
     const stats = await scalar(p, "select commerce_provider_operations($1)", [pid(1)]);
     assert.ok(stats.active_count >= 1 && stats.overdue_count >= 1);
     await assert.rejects(scalar(p2, "select commerce_provider_operations($1)", [pid(1)]), /forbidden/);
@@ -113,15 +113,15 @@ export async function reviewQualityChecks({ root, guest, a, b, p, p2, admin, ser
   await check("Paid payment without processor item transaction remains unconfirmed", async () => {
     // Guard tested on a real existing session whose successful transition has not occurred.
     const order = await copyOrder("PENDING_PAYMENT");
-    await root.query("update orders set payment_status='UNPAID',expires_at=now()+interval '10 minutes' where id=$1", [order]);
+    await root.query("update commerce_orders set payment_status='UNPAID',expires_at=now()+interval '10 minutes' where id=$1", [order]);
     await service.query("select commerce_begin_payment($1)", [order]);
     await service.query("select commerce_attach_payment($1,'item-guard-token','https://sandbox-cpp.iyzipay.com/test')", [order]);
     await assert.rejects(service.query("select commerce_resolve_payment($1,'item-guard-token','test-missing-item',true)", [order]), /payment_item_missing/);
-    assert.equal(await scalar(root, "select payment_status from orders where id=$1", [order]), "UNPAID");
+    assert.equal(await scalar(root, "select payment_status from commerce_orders where id=$1", [order]), "UNPAID");
   });
   await check("Uncertain checkout keeps a single initializer and is discoverable in the admin queue", async () => {
     const order = await copyOrder("PENDING_PAYMENT");
-    await root.query("update orders set payment_status='UNPAID',expires_at=now()+interval '10 minutes' where id=$1", [order]);
+    await root.query("update commerce_orders set payment_status='UNPAID',expires_at=now()+interval '10 minutes' where id=$1", [order]);
     assert.equal((await scalar(service, "select commerce_begin_payment($1)", [order])).claimed, true);
     await root.query("update payment_transactions set created_at=now()-interval '6 minutes' where order_id=$1", [order]);
     const retry = await scalar(service, "select commerce_begin_payment($1)", [order]);
@@ -142,10 +142,10 @@ export async function reviewQualityChecks({ root, guest, a, b, p, p2, admin, ser
   await check("Cancellation KPI includes paid cancelled service refunds without counting completed-service refunds", async () => {
     const before = (await scalar(admin, "select commerce_admin_summary()")).cancelled_count;
     const cancelled = await copyOrder("CONFIRMED");
-    await root.query("update orders set status='REFUND_PENDING',payment_status='REFUND_PENDING' where id=$1", [cancelled]);
+    await root.query("update commerce_orders set status='REFUND_PENDING',payment_status='REFUND_PENDING' where id=$1", [cancelled]);
     assert.equal((await scalar(admin, "select commerce_admin_summary()")).cancelled_count, before + 1);
     const completed = await copyOrder();
-    await root.query("update orders set status='REFUNDED',payment_status='REFUNDED' where id=$1", [completed]);
+    await root.query("update commerce_orders set status='REFUNDED',payment_status='REFUNDED' where id=$1", [completed]);
     assert.equal((await scalar(admin, "select commerce_admin_summary()")).cancelled_count, before + 1);
   });
 }

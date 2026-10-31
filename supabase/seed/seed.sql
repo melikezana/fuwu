@@ -3,6 +3,18 @@
 
 begin;
 
+-- Local-only fixture allocator. A database sequence prevents collisions across
+-- workers, retries and repeated suites; these numbers never reach an SMS provider.
+create sequence if not exists public.e2e_phone_sequence minvalue 1 maxvalue 9999999 no cycle;
+create or replace function public.e2e_allocate_phone() returns text
+language sql volatile security invoker set search_path='' as $$
+ select '+90559'||lpad(nextval('public.e2e_phone_sequence')::text,7,'0')
+$$;
+revoke all on sequence public.e2e_phone_sequence from public,anon,authenticated;
+grant usage,select on sequence public.e2e_phone_sequence to service_role;
+revoke all on function public.e2e_allocate_phone() from public,anon,authenticated;
+grant execute on function public.e2e_allocate_phone() to service_role;
+
 -- Local development only: the seed database treats this fixed email as the
 -- default admin account after normal Supabase Auth signup creates auth.users.
 -- Production must not trust a hard-coded email; use an environment-driven
@@ -51,7 +63,7 @@ values
   ('Çilingir', 'cilingir', 'Kapı, kilit ve oto çilingir hizmetleri.', true),
   ('Elektrik Hizmeti', 'elektrik-hizmeti', 'Elektrik ariza, montaj, priz ve aydinlatma hizmetleri.', true),
   ('Temizlik', 'temizlik', 'Ev, ofis ve tasinma sonrasi temizlik hizmetleri.', true),
-  ('Halı Yıkama', 'hali-yikama', 'Evden teslim halı, koltuk ve tekstil yıkama hizmetleri.', false),
+  ('Halı Yıkama', 'hali-yikama', 'Evden teslim halı, koltuk ve tekstil yıkama hizmetleri.', true),
   ('Klima & Beyaz Eşya', 'klima-beyaz-esya', 'Klima, kombi ve beyaz eşya bakım onarım hizmetleri.', true),
   ('Mobilya Montaj', 'mobilya-montaj', 'Mobilya kurulum, demontaj ve tamir hizmetleri.', true),
   ('Boya Badana', 'boya-badana', 'Ic cephe boya, badana ve tadilat destek hizmetleri.', true),

@@ -127,7 +127,7 @@ export function ProviderList({
         <ProviderEmptyState
           isUnavailable={isUnavailable}
           title={categoryDistrictEmptyState ? `Bu bölgede henüz ${getServiceDisplayLabel(categoryDistrictEmptyState.category)} ustası yok` : undefined}
-          hasActiveFilters={hasActiveFilters && !hasNoPublicProviders}
+          hasActiveFilters={hasActiveFilters}
           requestHref={categoryDistrictEmptyState?.requestHref || appRoutes.catalog}
           testId={
             categoryDistrictEmptyState

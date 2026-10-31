@@ -1,0 +1,1027 @@
+{
+  "ledger": [
+    "20260605000000",
+    "20260605000100",
+    "20260605000200",
+    "20260605000300",
+    "20260605000400",
+    "20260605000500",
+    "20260605000600",
+    "20260605000700",
+    "20260605000800",
+    "20260605000900",
+    "20260605001000",
+    "20260605001100",
+    "20260605001200",
+    "20260605001300",
+    "20260605001400",
+    "20260605001500",
+    "20260605001600",
+    "20260605001700",
+    "20260605001800",
+    "20260605001900",
+    "20260605002000",
+    "20260605002100",
+    "20260605002200",
+    "20260605002300",
+    "20260605002400",
+    "20260605002500",
+    "20260605002600",
+    "20260605002700",
+    "20260605002800",
+    "20260605002900",
+    "20260605003000",
+    "20260605003100",
+    "20260605003200",
+    "20260605003300",
+    "20260621000100",
+    "20260622000100",
+    "20260622000200",
+    "20260622000300",
+    "20260622000400",
+    "20260625000000",
+    "20260628000100",
+    "20260704000100",
+    "20260706000100",
+    "20260706000200",
+    "20260815000100",
+    "20260816000100"
+  ],
+  "tables": [
+    {
+      "rls": true,
+      "name": "app_settings",
+      "columns": [
+        {
+          "name": "key",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "value",
+          "type": "text",
+          "default": "''::text",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "app_settings_pkey",
+          "definition": "PRIMARY KEY (key)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "disputes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "opened_by",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "opened_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "not_null": true
+        },
+        {
+          "name": "resolution_note",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "resolved_by",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "disputes_opened_by_check",
+          "definition": "CHECK ((opened_by = ANY (ARRAY['customer'::text, 'provider'::text, 'admin'::text])))"
+        },
+        {
+          "name": "disputes_opened_by_user_id_fkey",
+          "definition": "FOREIGN KEY (opened_by_user_id) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "disputes_order_id_fkey",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "disputes_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "disputes_reason_not_blank_check",
+          "definition": "CHECK ((btrim(reason) <> ''::text))"
+        },
+        {
+          "name": "disputes_resolved_by_fkey",
+          "definition": "FOREIGN KEY (resolved_by) REFERENCES profiles(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "disputes_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['OPEN'::text, 'UNDER_REVIEW'::text, 'RESOLVED_CUSTOMER'::text, 'RESOLVED_PROVIDER'::text, 'CLOSED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "order_payments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "iyzico_payment_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_conversation_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "iyzico_token",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "paid_price",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "installment",
+          "type": "integer",
+          "default": "1",
+          "not_null": true
+        },
+        {
+          "name": "card_last_four",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'INITIATED'::text",
+          "not_null": true
+        },
+        {
+          "name": "error_code",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "error_message",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "raw_response",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "iyzico_payment_transaction_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refund_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refunded_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "refunded_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "constraints": [
+        {
+          "name": "order_payments_installment_check",
+          "definition": "CHECK (((installment >= 1) AND (installment <= 12)))"
+        },
+        {
+          "name": "order_payments_order_id_fkey",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "order_payments_paid_price_check",
+          "definition": "CHECK (((paid_price IS NULL) OR (paid_price >= (0)::numeric)))"
+        },
+        {
+          "name": "order_payments_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "order_payments_refunded_amount_check",
+          "definition": "CHECK (((refunded_amount IS NULL) OR (refunded_amount >= (0)::numeric)))"
+        },
+        {
+          "name": "order_payments_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['INITIATED'::text, 'SUCCESS'::text, 'FAILURE'::text, 'REFUNDED'::text, 'PARTIAL_REFUNDED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "orders",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "customer_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "default": "'TRY'::text",
+          "not_null": true
+        },
+        {
+          "name": "commission_rate",
+          "type": "numeric(5,4)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "commission_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_net_amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'PENDING_PAYMENT'::text",
+          "not_null": true
+        },
+        {
+          "name": "paid_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "auto_approve_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "orders_amount_check",
+          "definition": "CHECK ((amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_amount_split_check",
+          "definition": "CHECK (((commission_amount + provider_net_amount) <= (amount + 0.01)))"
+        },
+        {
+          "name": "orders_commission_amount_check",
+          "definition": "CHECK ((commission_amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_commission_rate_check",
+          "definition": "CHECK (((commission_rate >= (0)::numeric) AND (commission_rate <= (1)::numeric)))"
+        },
+        {
+          "name": "orders_currency_check",
+          "definition": "CHECK ((currency = 'TRY'::text))"
+        },
+        {
+          "name": "orders_customer_id_fkey",
+          "definition": "FOREIGN KEY (customer_id) REFERENCES profiles(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "orders_provider_id_fkey",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_provider_net_amount_check",
+          "definition": "CHECK ((provider_net_amount >= (0)::numeric))"
+        },
+        {
+          "name": "orders_request_id_fkey",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "orders_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['PENDING_PAYMENT'::text, 'PAID'::text, 'IN_PROGRESS'::text, 'COMPLETED_PENDING_APPROVAL'::text, 'APPROVED'::text, 'CLOSED'::text, 'PAYMENT_FAILED'::text, 'CANCELLED'::text, 'DISPUTED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "payouts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "amount",
+          "type": "numeric(10,2)",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "default": "'TRY'::text",
+          "not_null": true
+        },
+        {
+          "name": "iyzico_transfer_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'PENDING'::text",
+          "not_null": true
+        },
+        {
+          "name": "failure_reason",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "raw_response",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "initiated_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "payouts_amount_check",
+          "definition": "CHECK ((amount >= (0)::numeric))"
+        },
+        {
+          "name": "payouts_currency_check",
+          "definition": "CHECK ((currency = 'TRY'::text))"
+        },
+        {
+          "name": "payouts_order_id_fkey",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "payouts_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "payouts_provider_id_fkey",
+          "definition": "FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "payouts_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['PENDING'::text, 'PROCESSING'::text, 'COMPLETED'::text, 'FAILED'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "request_reassignment_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "previous_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "new_provider_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "default": "'sla_breach'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        },
+        {
+          "name": "is_dry_run",
+          "type": "boolean",
+          "default": "false",
+          "not_null": true
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "request_reassignment_log_new_provider_id_fkey",
+          "definition": "FOREIGN KEY (new_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "request_reassignment_log_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "request_reassignment_log_previous_provider_id_fkey",
+          "definition": "FOREIGN KEY (previous_provider_id) REFERENCES providers(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "request_reassignment_log_reason_check",
+          "definition": "CHECK ((reason = ANY (ARRAY['sla_breach_dry_run'::text, 'no_eligible_provider_dry_run'::text, 'sla_breach_reassigned'::text, 'no_eligible_provider'::text, 'max_reassignment_limit_reached'::text])))"
+        },
+        {
+          "name": "request_reassignment_log_request_id_fkey",
+          "definition": "FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "webhook_events",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "provider",
+          "type": "text",
+          "default": "'iyzico'::text",
+          "not_null": true
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "external_event_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "order_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'received'::text",
+          "not_null": true
+        },
+        {
+          "name": "error",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "timezone('utc'::text, now())",
+          "not_null": true
+        }
+      ],
+      "constraints": [
+        {
+          "name": "webhook_events_order_id_fkey",
+          "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "webhook_events_pkey",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "webhook_events_status_check",
+          "definition": "CHECK ((status = ANY (ARRAY['received'::text, 'processed'::text, 'failed'::text, 'ignored'::text])))"
+        }
+      ]
+    }
+  ],
+  "version": "PostgreSQL 17.6 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "app_settings",
+      "permissive": "PERMISSIVE",
+      "policyname": "app_settings_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "app_settings",
+      "permissive": "PERMISSIVE",
+      "policyname": "app_settings_write_admin",
+      "schemaname": "public",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_insert_related",
+      "schemaname": "public",
+      "with_check": "((opened_by_user_id = auth.uid()) AND (status = 'OPEN'::text) AND (EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = disputes.order_id) AND ((o.customer_id = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM providers p\n          WHERE ((p.id = o.provider_id) AND (p.user_id = auth.uid())))))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(current_user_is_admin() OR (EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = disputes.order_id) AND ((o.customer_id = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM providers p\n          WHERE ((p.id = o.provider_id) AND (p.user_id = auth.uid())))))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_select_related",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "disputes",
+      "permissive": "PERMISSIVE",
+      "policyname": "disputes_update_admin",
+      "schemaname": "public",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "order_payments_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM orders o\n  WHERE ((o.id = order_payments.order_id) AND (o.customer_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "order_payments",
+      "permissive": "PERMISSIVE",
+      "policyname": "order_payments_select_customer",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(customer_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_customer",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = orders.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_select_provider",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "ALL",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "orders",
+      "permissive": "PERMISSIVE",
+      "policyname": "orders_write_admin",
+      "schemaname": "public",
+      "with_check": "current_user_is_admin()"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payouts",
+      "permissive": "PERMISSIVE",
+      "policyname": "payouts_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM providers p\n  WHERE ((p.id = payouts.provider_id) AND (p.user_id = auth.uid()))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "payouts",
+      "permissive": "PERMISSIVE",
+      "policyname": "payouts_select_provider",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "request_reassignment_log",
+      "permissive": "PERMISSIVE",
+      "policyname": "request_reassignment_log_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "current_user_is_admin()",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "webhook_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "webhook_events_select_admin",
+      "schemaname": "public",
+      "with_check": null
+    }
+  ],
+  "triggers": [
+    {
+      "table": "disputes",
+      "definition": "CREATE TRIGGER disputes_set_updated_at BEFORE UPDATE ON public.disputes FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "table": "order_payments",
+      "definition": "CREATE TRIGGER order_payments_set_updated_at BEFORE UPDATE ON public.order_payments FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "table": "orders",
+      "definition": "CREATE TRIGGER orders_set_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "table": "payouts",
+      "definition": "CREATE TRIGGER payouts_enforce_preconditions BEFORE INSERT ON public.payouts FOR EACH ROW EXECUTE FUNCTION enforce_payout_preconditions()"
+    },
+    {
+      "table": "payouts",
+      "definition": "CREATE TRIGGER payouts_set_updated_at BEFORE UPDATE ON public.payouts FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+  ],
+  "functions": [
+    {
+      "name": "set_updated_at",
+      "definition": "CREATE OR REPLACE FUNCTION public.set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\r\nbegin\r\n  new.updated_at = timezone('utc', now());\r\n  return new;\r\nend;\r\n$function$\n"
+    },
+    {
+      "name": "enforce_payout_preconditions",
+      "definition": "CREATE OR REPLACE FUNCTION public.enforce_payout_preconditions()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\r\ndeclare\r\n  v_status text;\r\n  v_open_dispute integer;\r\nbegin\r\n  select status into v_status\r\n  from public.orders\r\n  where id = new.order_id;\r\n\r\n  if v_status is null then\r\n    raise exception 'Payout icin order bulunamadi (order_id=%).', new.order_id;\r\n  end if;\r\n\r\n  if v_status <> 'APPROVED' then\r\n    raise exception 'Payout yalnizca APPROVED order icin olusturulabilir (mevcut durum=%).', v_status;\r\n  end if;\r\n\r\n  select count(*) into v_open_dispute\r\n  from public.disputes\r\n  where order_id = new.order_id\r\n    and status in ('OPEN', 'UNDER_REVIEW');\r\n\r\n  if v_open_dispute > 0 then\r\n    raise exception 'Acik dispute varken payout olusturulamaz (order_id=%).', new.order_id;\r\n  end if;\r\n\r\n  return new;\r\nend;\r\n$function$\n"
+    },
+    {
+      "name": "set_service_request_assigned_at",
+      "definition": "CREATE OR REPLACE FUNCTION public.set_service_request_assigned_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\r\nbegin\r\n  if new.assigned_provider_id is not null\r\n     and (tg_op = 'INSERT' or old.assigned_provider_id is null) then\r\n    new.assigned_at := timezone('utc', now());\r\n  end if;\r\n\r\n  if new.assigned_provider_id is null then\r\n    new.assigned_at := null;\r\n  end if;\r\n\r\n  return new;\r\nend;\r\n$function$\n"
+    }
+  ],
+  "categories": [
+    {
+      "id": "62a52822-727e-4acc-8bf5-c695585ca599",
+      "slug": "bahce-bakimi",
+      "active": true
+    },
+    {
+      "id": "036dd200-effb-4584-a236-a35fa7ed6e35",
+      "slug": "boya-badana",
+      "active": true
+    },
+    {
+      "id": "2d9939c9-7e7c-469d-b81f-671845954e93",
+      "slug": "cilingir",
+      "active": true
+    },
+    {
+      "id": "4af57758-da73-4aa4-a692-89ade7872b03",
+      "slug": "elektrik-hizmeti",
+      "active": true
+    },
+    {
+      "id": "0942f5da-103c-43bc-9a79-3f7276770812",
+      "slug": "hali-yikama",
+      "active": true
+    },
+    {
+      "id": "df7012d8-686f-4a29-917c-23593b4c646a",
+      "slug": "havuz-bakimi",
+      "active": true
+    },
+    {
+      "id": "86f2d09c-6f58-47d0-a863-3d59120e89e8",
+      "slug": "klima-beyaz-esya",
+      "active": true
+    },
+    {
+      "id": "963a2c68-9b02-4066-a0a3-c30294634a15",
+      "slug": "mobilya-montaj",
+      "active": true
+    },
+    {
+      "id": "521c415f-15ed-41f6-ab67-27066751fa3e",
+      "slug": "nakliye-yardimi",
+      "active": true
+    },
+    {
+      "id": "f5ec050b-de56-497e-a4de-51fbab9bec45",
+      "slug": "temizlik",
+      "active": true
+    },
+    {
+      "id": "99b10c4e-0f57-48a4-86cc-71435a7df792",
+      "slug": "tesisat",
+      "active": true
+    }
+  ],
+  "checked_at": "2026-10-31T10:55:32.753086+00:00"
+}

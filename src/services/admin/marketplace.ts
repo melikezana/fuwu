@@ -17,7 +17,7 @@ export async function getCeoDailySnapshot(): Promise<CeoDailySnapshot | null> {
   const start = new Date(`${todayIstanbul()}T00:00:00+03:00`).toISOString();
   const end = new Date(Date.parse(start) + 86400000).toISOString();
   const [created, completed, failed, pending] = await Promise.all([
-    supabase.from("orders").select("id", { head: true, count: "exact" }).gte("created_at", start).lt("created_at", end),
+    supabase.from("commerce_orders").select("id", { head: true, count: "exact" }).gte("created_at", start).lt("created_at", end),
     supabase.from("order_status_events").select("id", { head: true, count: "exact" }).eq("status", "COMPLETED").gte("created_at", start).lt("created_at", end),
     supabase.from("payment_transactions").select("id", { head: true, count: "exact" }).eq("status", "FAILED").gte("updated_at", start).lt("updated_at", end),
     supabase.from("provider_applications").select("id", { head: true, count: "exact" }).eq("status", "pending"),

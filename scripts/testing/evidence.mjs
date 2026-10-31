@@ -7,8 +7,8 @@ export function sourceHash() {
   const hash=createHash("sha256");
   function walk(file) {
     if (!fs.existsSync(file)) return;
-    if(fs.statSync(file).isDirectory()) for(const child of fs.readdirSync(file).sort()) walk(path.join(file,child));
-    else if(/\.(?:ts|tsx|mjs|json|sql|yml|toml)$/.test(file)) {hash.update(file.replaceAll("\\","/"));hash.update(fs.readFileSync(file));}
+    if(fs.statSync(file).isDirectory()) for(const child of fs.readdirSync(file).sort()) {if(!['.temp','.branches'].includes(child))walk(path.join(file,child));}
+    else if(/\.(?:ts|tsx|mjs|json|sql|yml|toml|css)$/.test(file)) {hash.update(file.replaceAll("\\","/"));hash.update(fs.readFileSync(file));}
   }
   for(const file of ["src","scripts","tests","e2e","supabase","config",".github","package.json","package-lock.json","playwright.config.ts","vitest.unit.config.ts","vitest.security.config.ts","next.config.ts","middleware.ts","eslint.config.mjs","tsconfig.json"]) walk(file);
   return hash.digest("hex");

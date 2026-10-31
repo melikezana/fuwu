@@ -10,7 +10,7 @@ create table public.profiles(id uuid primary key, role text not null, created_at
 create table public.rate_limits(id uuid primary key default gen_random_uuid(),user_id uuid not null references public.profiles(id),action text not null,count integer not null default 0,window_start timestamptz not null,updated_at timestamptz default now(),unique(user_id,action,window_start));
 alter table public.rate_limits enable row level security;
 create function public.current_user_is_admin() returns boolean language sql stable security definer as $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin') $$;
-create table public.service_categories(id uuid primary key,name text,slug text,is_active boolean default true);
+create table public.service_categories(id uuid primary key default gen_random_uuid(),name text unique,slug text unique,is_active boolean default true);
 create table public.districts(id uuid primary key,name text,is_active boolean default true);
 create table public.providers(id uuid primary key,user_id uuid references public.profiles(id),name text,category_id uuid references public.service_categories(id),profile_image_url text,is_active boolean default true,is_approved boolean default true,availability text default 'müsait',iyzico_submerchant_status text default 'active',iyzico_submerchant_key text default 'sandbox-test',rating numeric default 0,review_count integer default 0);
 -- Editorial fields mirror the real provider schema for publication regression tests.

@@ -11,10 +11,10 @@ export async function ProviderCommerceSummary({ providerId, earnings = false }: 
     return <ProviderEarnings finance={error ? null : finance} />;
   }
   const [result, operations, financeResult, nearest] = await Promise.all([
-    db ? db.from("orders").select("*").eq("provider_id", providerId).in("status", serviceActiveStatuses).order("starts_at").limit(30) : null,
+    db ? db.from("commerce_orders").select("*").eq("provider_id", providerId).in("status", serviceActiveStatuses).order("starts_at").limit(30) : null,
     db ? db.rpc("commerce_provider_operations", { p_provider_id: providerId }) : null,
     db ? db.rpc("commerce_provider_finance", { p_provider_id: providerId }) : null,
-    db ? db.from("orders").select("*").eq("provider_id", providerId).in("status", serviceActiveStatuses).gt("ends_at", new Date().toISOString()).order("starts_at").limit(1).maybeSingle() : null,
+    db ? db.from("commerce_orders").select("*").eq("provider_id", providerId).in("status", serviceActiveStatuses).gt("ends_at", new Date().toISOString()).order("starts_at").limit(1).maybeSingle() : null,
   ]);
   const orders = result?.data ?? [];
   const finance = financeResult?.data as unknown as ProviderFinance | null;

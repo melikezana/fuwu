@@ -10,6 +10,7 @@ import { compareProviderSchema } from "./compare-provider-schema.mjs";
 import { providerControlChecks, providerControlRace } from "./provider-control-db-checks.mjs";
 import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
 import { trustChecks } from "./trust-db-checks.mjs";
+import { legacySnapshot as snapshotLegacy, verifyLegacyPreservation } from "./testing/legacy-preservation.mjs";
 import { sourceHash } from "./testing/evidence.mjs";
 
 // No env file or remote URL is read. Bind only loopback, always stop our own cluster.
@@ -25,7 +26,7 @@ const upgrade = process.argv.includes("--upgrade");
 const productionUpgrade = process.argv.includes("--production-upgrade");
 const observedOrders = process.argv.includes("--observed-orders");
 if (observedOrders && !productionUpgrade) throw new Error("--observed-orders requires --production-upgrade");
-const report = { sourceHash: sourceHash(), startedAt: new Date().toISOString(), scope: "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E", scenario: observedOrders ? "production_versions_with_observed_orders_columns" : productionUpgrade ? "production_ledger_replay_only" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
+const report = { sourceHash: sourceHash(), startedAt: new Date().toISOString(), scope: "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E", scenario: observedOrders ? "production_versions_with_observed_legacy_graph" : productionUpgrade ? "production_ledger_replay_only" : upgrade ? "populated_upgrade" : "clean_install", version: null, migrations: [], checks: [], failure: null };
 let server, db;
 try {
   execFileSync(initdb,["-D",data,"-U","postgres","-A","trust","--encoding=UTF8","--locale=C"],{windowsHide:true,stdio:"pipe"});
@@ -36,15 +37,16 @@ try {
   report.version=(await db.query("select version() v")).rows[0].v;
   await db.query(await fs.readFile("e2e/fixtures/supabase-platform.sql","utf8"));
   const files=(await fs.readdir("supabase/migrations")).filter(f=>/^\d+.*\.sql$/.test(f)).sort();
-  const applied=productionUpgrade ? new Set(JSON.parse(await fs.readFile('artifacts/control-center/production-readonly.json','utf8')).appliedMigrations.map(m=>m.version)) : new Set();
+  const applied=productionUpgrade ? new Set(JSON.parse(await fs.readFile('e2e/fixtures/production-migration-ledger.json','utf8'))) : new Set();
   const planned=productionUpgrade ? [...files.filter(f=>applied.has(f.split('_')[0])),...files.filter(f=>!applied.has(f.split('_')[0]))] : files;
   let current;
   let snapshot;
   let legacySnapshot;
+  let observedSnapshot;
   const legacyTables=['profiles','providers','provider_applications','reviews','service_requests','payments'];
   const legacyRows=async()=>Object.fromEntries(await Promise.all(legacyTables.map(async table=>[table,(await db.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows.map(r=>r.row)])));
   const preserved=async()=>{
-    const tables=['orders','reviews','payment_transactions','providers','service_categories'];
+    const tables=['commerce_orders','reviews','payment_transactions','providers','service_categories'];
     const result={};
     for(const table of tables) result[table]=(await db.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows;
     return result;
@@ -55,18 +57,11 @@ try {
       await db.query(await fs.readFile('e2e/fixtures/provider-production-upgrade.sql','utf8'));
       legacySnapshot=await legacyRows();
       if (observedOrders) {
-        const metadata = JSON.parse(await fs.readFile('artifacts/final-readiness/production-metadata.json','utf8'));
-        const orders = metadata.tables.find(t => t.name === 'orders');
-        assert.ok(orders?.columns?.length, 'Observed orders metadata required');
-        // Columns only: enough to reproduce duplicate relation, no production
-        // rows/default expressions/triggers copied or executed.
-        const columns = orders.columns.map(c => {
-          assert.match(c.name, /^[a-z_][a-z0-9_]*$/);
-          assert.match(c.type, /^(uuid|text|integer|numeric\(\d+,\d+\)|timestamp with time zone)$/);
-          return `"${c.name}" ${c.type}${c.not_null ? ' not null' : ''}`;
-        });
-        await db.query(`create table public.orders (${columns.join(',')})`);
-        report.checks.push('Observed legacy orders column overlay created locally; no production rows copied');
+        await db.query(await fs.readFile('e2e/fixtures/legacy-production-overlay.sql','utf8'));
+        await db.query(await fs.readFile('e2e/fixtures/legacy-production-indexes.sql','utf8'));
+        await db.query(await fs.readFile('e2e/fixtures/legacy-production-data.sql','utf8'));
+        observedSnapshot=await snapshotLegacy(db);
+        report.checks.push('Observed legacy DDL including all dependent FKs, policies and triggers installed with synthetic data only');
       }
     }
     if (upgrade && file === '20261029000100_backend_reliability.sql') {
@@ -77,7 +72,17 @@ try {
     catch (e) { report.failure={ migration:current, code:e.code, message:e.message }; throw e; }
     report.migrations.push(file);
   }
-  const expected=["service_catalog","service_variants","orders","payment_transactions","customer_favorite_providers","commerce_settlement_operations"];
+  if(observedSnapshot) await verifyLegacyPreservation(db,observedSnapshot,report.checks);
+  const contractGuard=await fs.readFile('supabase/migrations/20261031105613_critical_backend_contract_guard.sql','utf8');
+  await db.query(contractGuard); await db.query(contractGuard);
+  report.checks.push('Contract guard can be reapplied without rewriting data or migration ledger');
+  await db.query('begin');
+  await db.query('alter table public.payment_transactions drop constraint payment_transactions_order_id_fkey');
+  await assert.rejects(db.query(contractGuard.replace(/^begin;/m,'').replace(/^commit;/m,'')),/commerce_fk_contract_missing/);
+  await db.query('rollback');
+  assert.equal((await db.query("select count(*)::int n from pg_constraint where conrelid='payment_transactions'::regclass and confrelid='commerce_orders'::regclass")).rows[0].n,1);
+  report.checks.push('Incomplete FK contract fails closed and transaction rollback restores the constraint');
+  const expected=["service_catalog","service_variants","commerce_orders","payment_transactions","customer_favorite_providers","commerce_settlement_operations"];
   for (const table of expected) assert.equal((await db.query("select relrowsecurity from pg_class where oid=to_regclass($1)",["public."+table])).rows[0]?.relrowsecurity,true,table+" RLS");
   report.checks.push("Complete migration chain and critical relation RLS");
   if (productionUpgrade) {
@@ -97,7 +102,7 @@ try {
     }
     assert.equal((await db.query("select state from commerce_settlement_operations where order_id='97000000-0000-4000-8000-000000000001'")).rows[0]?.state,'MANUAL_REVIEW');
     assert.equal((await db.query("select commerce_claim_settlement('97000000-0000-4000-8000-000000000001','release') claim")).rows[0].claim.claimed,false);
-    report.checks.push("Populated real-schema upgrade preserves orders/reviews/transactions/providers/categories byte-for-byte and quarantines historical IN_FLIGHT");
+    report.checks.push("Populated real-schema upgrade preserves commerce_orders/reviews/transactions/providers/categories byte-for-byte and quarantines historical IN_FLIGHT");
   }
   await db.query("set role authenticated");
   await assert.rejects(db.query("select iyzico_checkout_token from payments"),/permission denied/);

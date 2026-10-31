@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 export async function publicationChecks({ root, a, p, admin, guest, pid, scalar, check }) {
   const snapshot = async () => {
     const result = {};
-    for (const table of ["providers", "orders", "reviews", "payment_transactions", "payments"]) result[table] = (await root.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows;
+    for (const table of ["providers", "commerce_orders", "reviews", "payment_transactions", "payments"]) result[table] = (await root.query(`select to_jsonb(t) row from public.${table} t order by id`)).rows;
     return result;
   };
   const before = await snapshot();
@@ -14,7 +14,7 @@ export async function publicationChecks({ root, a, p, admin, guest, pid, scalar,
     assert.deepEqual(await scalar(guest, "select commerce_offers()"), []);
     await assert.rejects(guest.query("select commerce_offers_before_publication(null,null,null)"), /permission denied/);
     await assert.rejects(guest.query("select * from commerce_slots_before_publication(gen_random_uuid(),current_date,gen_random_uuid())"), /permission denied/);
-    const orderId = await scalar(root, "select id from orders where provider_id=$1 limit 1", [pid(1)]);
+    const orderId = await scalar(root, "select id from commerce_orders where provider_id=$1 limit 1", [pid(1)]);
     await assert.rejects(root.query("insert into payment_transactions(order_id,conversation_id) values($1,'TEST unpublished initializer')", [orderId]), /offering_unavailable/);
     await assert.rejects(a.query("select admin_provider_quality_queue()"), /forbidden/);
     await assert.rejects(a.query("select * from provider_publication_reviews"), /permission denied/);
@@ -59,12 +59,12 @@ export async function publicationChecks({ root, a, p, admin, guest, pid, scalar,
     assert.equal(gate.verified,false);assert.equal(gate.identity_verified,false);
     await root.query("update provider_applications set status='approved' where id=$1",[evidenceId]);
   });
-  await check("P1 content edits atomically requeue and remove stale publication without deleting orders", async () => {
+  await check("P1 content edits atomically requeue and remove stale publication without deleting commerce_orders", async () => {
     await p.query("update providers set description=$2 where id=$1", [pid(1), description + " Yeni açıklama."]);
     assert.equal(await scalar(guest, "select provider_is_published($1)", [pid(1)]), false);
     assert.equal(await scalar(root, "select status from provider_publication_reviews where provider_id=$1", [pid(1)]), "pending_review");
     await assert.rejects(review(), /profile_changed/);
-    assert.deepEqual((await snapshot()).orders, before.orders);
+    assert.deepEqual((await snapshot()).commerce_orders, before.commerce_orders);
     assert.ok(await scalar(root, "select count(*)::int from audit_logs where action='provider.quality_queued' and entity_id=$1", [pid(1)]));
   });
   await check("P1 audit outage rolls publication approval back atomically", async () => {

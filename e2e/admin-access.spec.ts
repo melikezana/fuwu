@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { loginWithEmailMagicLink, skipUnlessLocalSupabase } from "./helpers";
 
 test.describe("admin access", () => {
@@ -8,7 +8,7 @@ test.describe("admin access", () => {
     await loginWithEmailMagicLink(page);
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.getByRole("heading", { name: /^Merhaba,/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "İşlerin burada.", exact: true })).toBeVisible();
   });
 
   test("admin session can see dashboard shell", async ({ page }) => {
@@ -18,6 +18,6 @@ test.describe("admin access", () => {
       nextPath: "/admin",
       role: "admin",
     });
-    await expect(page.getByRole("heading", { name: "Admin Paneli" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "İşler kontrol altında.", exact: true })).toBeVisible();
   });
 });

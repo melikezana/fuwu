@@ -1,0 +1,4 @@
+{
+  "scope": "Read-only metadata and literal CREATE INDEX names; actual PG17 upgrade is separate",
+  "unconditionalCollisions": []
+}

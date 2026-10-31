@@ -56,7 +56,7 @@ export async function phase3Checks({ root, a, p, p2, admin, service, guest, pid,
     assert.equal(await scalar(root,"select count(*)::int from provider_service_offerings where provider_id=$1 and is_active",[pid(2)]),0);
   });
   const make = async (status="IN_PROGRESS", transaction=true) => {
-    const id=await scalar(root,"insert into orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,payment_status,status,expires_at,idempotency_key) select customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,now()-interval '3 hours',now()-interval '1 hour',total_minor,commission_minor,provider_gross_minor,'PAID',$2,now(),gen_random_uuid() from orders where id=$1 returning id",[winner.id,status]);
+    const id=await scalar(root,"insert into commerce_orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,payment_status,status,expires_at,idempotency_key) select customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,now()-interval '3 hours',now()-interval '1 hour',total_minor,commission_minor,provider_gross_minor,'PAID',$2,now(),gen_random_uuid() from commerce_orders where id=$1 returning id",[winner.id,status]);
     if(transaction) await root.query("insert into payment_transactions(order_id,conversation_id,status) values($1::uuid,$1::text,'SUCCEEDED')",[id]);
     return id;
   };
@@ -64,7 +64,7 @@ export async function phase3Checks({ root, a, p, p2, admin, service, guest, pid,
     const id=await make();
     await root.query("delete from order_completion_codes where order_id=$1",[id]);
     assert.equal((await scalar(p,"select commerce_transition_order($1,'COMPLETED')",[id])).error,"completion_code_unavailable");
-    assert.equal(await scalar(root,"select status from orders where id=$1",[id]),"IN_PROGRESS");
+    assert.equal(await scalar(root,"select status from commerce_orders where id=$1",[id]),"IN_PROGRESS");
     await root.query("insert into order_completion_codes(order_id,code) values($1,'654321')",[id]);
     for(const code of [null,"","12345","000000","999999"]) assert.equal((await scalar(p,"select commerce_transition_order($1,'COMPLETED',$2)",[id,code])).error,"invalid_completion_code");
     assert.equal((await scalar(p,"select commerce_transition_order($1,'COMPLETED','654321')",[id])).error,"code_locked");

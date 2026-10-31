@@ -58,6 +58,12 @@ try {
       run(upgrade?"commerce-db-upgrade":"commerce-db-clean",["scripts/test-direct-commerce-db.mjs"],{COMMERCE_OUTPUT_DIR:dir,FUWU3_UPGRADE_TEST:upgrade?"true":"false"});
       const r=JSON.parse(fs.readFileSync(path.join(dir,"database-tests.json"),"utf8"));passed+=r.checks.length;failed+=r.failed?1:0;
     }
+    for(const observed of [false,true]) {
+      const dir=path.join(output,observed?"db-observed-production":"db-production-ledger");fs.mkdirSync(dir,{recursive:true});
+      const file=path.join(dir,"migration-production-upgrade.json");fresh(file);
+      run(observed?"observed-production-upgrade":"production-ledger-replay",["scripts/test-backend-migrations.mjs","--production-upgrade",...(observed?["--observed-orders"]:[])],{MIGRATION_OUTPUT_DIR:dir});
+      const r=JSON.parse(fs.readFileSync(file,"utf8"));passed+=r.checks.length;failed+=r.failure?1:0;
+    }
   } else if(name==="mock") {
     fresh("artifacts/backend-reliability/fault-injection.json");
     run("fault-injection",["node_modules/tsx/dist/cli.mjs","scripts/test-backend-reliability.ts"]);
