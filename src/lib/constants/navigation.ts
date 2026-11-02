@@ -33,6 +33,7 @@ export const appRoutes = {
   about: "/#about",
   howItWorks: "/#how-it-works",
   trust: "/#trust",
+  trustCenter: "/guven",
   faq: "/#faq",
   contact: "#contact",
   kvkk: "/kvkk",

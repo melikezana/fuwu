@@ -23,6 +23,7 @@ import "@/styles/premium.css";
 import "@/styles/mobile-experience.css";
 import "@/styles/control-center.css";
 import "@/styles/trust.css";
+import "@/styles/growth.css";
 
 const inter = localFont({
   display: "optional",

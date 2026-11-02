@@ -56,14 +56,15 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
     {unavailable && <div className="catalog-connection-notice" role="alert"><Info size={20} aria-hidden /><div><strong>Hizmet kataloğuna şu anda tam olarak ulaşılamıyor.</strong><p>Fiyat ve randevu bilgileri doğrulanamıyor. Okunabilen kayıtlar korunuyor; satın alma kapalı.</p><button onClick={() => window.location.reload()} type="button">Bağlantıyı yeniden dene <ArrowRight size={15} aria-hidden /></button></div></div>}
     <div className="commerce-service-grid">{visible.map(service => {
       const available = offersForService(availableOffers, service.id, districtId);
-      const min = available.length ? Math.min(...available.map(offer => offer.price_minor)) : null;
+      const shown = (offer: PublicOffer) => offer.customer_price_minor ?? offer.price_minor;
+      const min = available.length ? Math.min(...available.map(shown)) : null;
       const duration = available.length ? Math.min(...available.map(offer => offer.duration_minutes)) : null;
       return <article className="commerce-service-card" key={service.id}>
         <Link href={serviceHref(service.slug)} className="commerce-service-photo"><ServicePhoto keys={[service.slug, categories.find(item => item.id === service.category_id)?.slug]} src={service.image_url} label={service.name} sizes={featured ? "(max-width: 767px) 92vw, 380px" : "(max-width: 639px) 92vw, (max-width: 1023px) 45vw, 380px"} /><span className="commerce-photo-label">{service.pricing_type === "DIAGNOSTIC_SERVICE" ? "Yerinde tespit" : service.pricing_type === "VARIANT_BASED" ? "Paketini seç" : "Sabit kapsam"}</span></Link>
         <div className="commerce-service-body">
           <h3><Link href={serviceHref(service.slug)}>{service.name}</Link></h3><p>{service.description}</p><details className="catalog-scope"><summary>Hizmet kapsamı</summary><p>{service.scope}</p>{service.exclusions && <p><strong>Dahil olmayanlar:</strong> {service.exclusions}</p>}</details>
           {duration != null && <div className="commerce-meta"><Clock3 size={15} aria-hidden />{duration} dk itibarıyla</div>}
-          <div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(offer => offer.price_minor === min) ? "Hizmet bedeli" : "Başlangıç fiyatı"}</small><strong>{min == null ? district && !unavailable ? "Bu ilçede satışa açık değil" : "Henüz satışa açılmadı" : money(min)}</strong></div>{available.length > 0 && <span>{new Set(available.map(offer => offer.provider_id)).size} usta</span>}</div>
+          <div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(offer => shown(offer) === min) ? "Her şey dahil" : "Her şey dahil, başlayan"}</small><strong>{min == null ? district && !unavailable ? "Bu ilçede satışa açık değil" : "Henüz satışa açılmadı" : money(min)}</strong></div>{available.length > 0 && <span>{new Set(available.map(offer => offer.provider_id)).size} usta</span>}</div>
           <Link className={min == null ? "commerce-secondary" : "commerce-button"} href={serviceHref(service.slug)}>{min == null ? "Kapsamı İncele" : "Usta ve Randevu Seç"}<ArrowRight size={17} aria-hidden /></Link>
         </div>
       </article>;

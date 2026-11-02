@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { HomePremiumPanels, HomeProviderInvite } from "@/components/home/HomePremiumPanels";
 import { PopularServices } from "@/components/home/PopularServices";
 import { TrustedProviders } from "@/components/home/TrustedProviders";
+import { TrustPromise } from "@/components/trust/TrustPromise";
 import { Container } from "@/components/ui/Container";
 import { getCatalogNavigation, featuredCategories } from "@/lib/commerce/catalog-navigation";
 import { getProviderDirectory } from "@/services/providers";
@@ -32,6 +33,7 @@ export async function MarketplaceHome() {
       <PopularServices services={featuredCategories(categories)} unavailable={discovery.unavailable} discoveryOnly />
       <Suspense fallback={null}><FeaturedHomeServices catalogPromise={catalog} /></Suspense>
       <HomePremiumPanels />
+      <TrustPromise />
       <Suspense fallback={<section className="home-section" aria-label="Ustalar yükleniyor" aria-busy="true"><Container className="home-container"><p role="status">Ustalar yükleniyor…</p><div className="home-provider-grid mt-5" aria-hidden>{[1,2,3].map(n => <div key={n} className="commerce-skeleton h-80 rounded-2xl" />)}</div></Container></section>}><FeaturedHomeProviders directory={directory} catalog={catalog} /></Suspense>
       <HomeProviderInvite />
     </div>

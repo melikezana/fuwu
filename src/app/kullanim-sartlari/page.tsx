@@ -39,7 +39,7 @@ const sections: PolicySection[] = [
     title: "Test ödemesi ve ücretler",
     body: [
       "Online satın alma henüz açılmadı. Yetkili test oturumlarında yalnızca iyzico sandbox kullanılır; gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
-      "Müşteri platform ücreti varsa hizmet bedelinden ayrı gösterilir. Toplam ödeme öncesinde açıklanır ve ek ücret için ayrıca onayın istenir. Usta komisyonu hizmet bedeli üzerinden hesaplanır. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
+      "Hizmet kartında ve ödeme ekranında gördüğün tutar, ödeyeceğin son tutardır; FUWU platform hizmeti bu fiyata dahildir ve sonradan ayrı ücret eklenmez. Ödeme öncesinde toplam tutarı onaylarsın. Usta komisyonu ustanın satış bedeli üzerinden hesaplanır ve müşteriden ayrıca alınmaz. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
     ],
   },
   {

@@ -20,7 +20,7 @@ export function HeroSection({ categories, districts }: { categories: CatalogNavi
           <div className="home-hero-content">
             <p className="home-eyebrow"><MapPin aria-hidden size={16} /> İSTANBUL’DA EV HİZMETLERİ</p>
             <h1 className="home-hero-title" id="home-title">Evinin işi,<br /><span>FUWU&apos;nun işi.</span></h1>
-            <p className="home-hero-description">Hizmetini seç. Ustanı belirle. Zamanını planla.</p>
+            <p className="home-hero-description">Fiyatı baştan belli, ustası doğrulanmış ev hizmetleri. Seç, saatini al, öde. Gerisi bizde.</p>
             <HeroSearch categories={categories.map(category => category.title)} districts={districts} />
           </div>
           <figure className="home-photo-composition">

@@ -22,3 +22,17 @@ export function percentToBps(value: string): number | null {
   const bps = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
   return bps <= 10000 ? bps : null;
 }
+
+// Müşteriye gösterilen tek fiyat: hizmet bedeli + müşteri payı. commerce_quote ile aynı yuvarlama.
+export function customerPrice(serviceMinor: number, customerBps = 0): number {
+  if (!Number.isSafeInteger(serviceMinor) || serviceMinor <= 0 || !Number.isInteger(customerBps) || customerBps < 0 || customerBps > 10000) return serviceMinor;
+  return serviceMinor + Number((BigInt(serviceMinor) * BigInt(customerBps) + BigInt(5000)) / BigInt(10000));
+}
+
+export type PublicFeeRates = { default_customer_fee_bps: number; categories: { id: string; customer_fee_bps: number | null }[] };
+
+export function customerFeeBpsFor(rates: PublicFeeRates | null, categoryId: string | null | undefined, categoryBps?: number | null): number {
+  if (typeof categoryBps === "number") return categoryBps;
+  const override = rates?.categories.find(item => item.id === categoryId)?.customer_fee_bps;
+  return typeof override === "number" ? override : rates?.default_customer_fee_bps ?? 0;
+}

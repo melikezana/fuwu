@@ -141,7 +141,7 @@ try {
   mode = "open"; feeBps = 500; await reset(); await summary();
   const pay = () => page.locator(".booking-sticky").getByRole("button", { name: "Ödemeye Geç", exact: true });
   await expect(pay()).toBeDisabled();
-  const consent = page.getByRole("checkbox", { name: /FUWU platform ücretini/ });
+  const consent = page.getByRole("checkbox", { name: /ödemeyi onaylıyorum/ });
   await expect(consent).not.toBeChecked(); await consent.check(); await expect(pay()).toBeEnabled();
   await expect(page.locator(".booking-review-summary")).toContainText("892,5");
   await shot("customer-fee-consent-390-FIXTURE"); await pay().click();

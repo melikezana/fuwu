@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRealPublishedProvider } from "@/lib/providers/provenance";
 import type { PublicOffer } from "@/lib/commerce/types";
 import type { CatalogCategory } from "@/lib/commerce/catalog-navigation";
+import { customerFeeBpsFor, customerPrice, type PublicFeeRates } from "@/lib/commerce/pricing";
 
 export async function getCommerceCatalog() {
   const db = await createSupabaseServerClient();
@@ -25,10 +26,18 @@ export async function getCommerceCatalog() {
     readCategories(),
     db.rpc("provider_publication_gate", {}).abortSignal(signal),
   ]);
+  // Ücret oranları okunamazsa vitrin hizmet bedelini gösterir; kesin toplam ödeme adımında sunucudan doğrulanır.
+  const feeResult = await db.rpc("commerce_public_fee_rates" as never, {} as never).abortSignal(signal).then(r => r, () => ({ data: null, error: true }));
+  const feeData = feeResult.error ? null : (feeResult.data as unknown as PublicFeeRates | null);
+  const feeRates = feeData && typeof feeData === "object" && Array.isArray(feeData.categories) ? feeData : null;
   const visibleCategories = (categories.data ?? []).filter(category => category.is_visible !== false);
   const visibleServices = (services.data ?? []).filter(service => visibleCategories.some(category => category.id === service.category_id));
   const unavailable = Boolean(services.error || variants.error || districts.error || offers.error || categories.error || publication.error || !Array.isArray(publication.data));
   const approvedIds = new Set(Array.isArray(publication.data) ? (publication.data as { id: string; record_kind?: string }[]).filter(isRealPublishedProvider).map(p => p.id) : []);
   return { services: visibleServices, variants: variants.data ?? [], districts: districts.data ?? [], categories: categories.data ?? [],
-    offers: unavailable ? [] : ((offers.data ?? []) as unknown as PublicOffer[]).filter(offer => approvedIds.has(offer.provider_id)).map(offer => ({ ...offer, rating: null, review_count: 0 })), unavailable };
+    offers: unavailable ? [] : ((offers.data ?? []) as unknown as PublicOffer[]).filter(offer => approvedIds.has(offer.provider_id)).map(offer => {
+      const categoryId = visibleServices.find(service => service.id === offer.service_id)?.category_id;
+      const category = visibleCategories.find(item => item.id === categoryId) as (CatalogCategory & { customer_fee_bps?: number | null }) | undefined;
+      return { ...offer, customer_price_minor: customerPrice(offer.price_minor, customerFeeBpsFor(feeRates, categoryId, category?.customer_fee_bps)), rating: null, review_count: 0 };
+    }), unavailable };
 }

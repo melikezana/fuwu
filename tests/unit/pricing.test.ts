@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculatePrice, percentToBps, FEE_TERMS_VERSION } from "@/lib/commerce/pricing";
+import { calculatePrice, customerFeeBpsFor, customerPrice, percentToBps, FEE_TERMS_VERSION } from "@/lib/commerce/pricing";
 import { providerNetEntitlement, type ProviderFinance } from "@/lib/commerce/finance";
 
 describe("minor-unit pricing", () => {
@@ -35,5 +35,24 @@ describe("minor-unit pricing", () => {
     const finance={provider_gross_minor:9000,provider_processor_fee_minor:150,unconfirmed_provider_fee_count:0} as ProviderFinance;
     expect(providerNetEntitlement(finance)).toBe(8850);
     for(const patch of [{unconfirmed_provider_fee_count:1},{provider_processor_fee_minor:undefined},{provider_processor_fee_minor:-1},{provider_processor_fee_minor:9001},{provider_processor_fee_minor:1.5}]) expect(providerNetEntitlement({...finance,...patch})).toBeNull();
+  });
+});
+
+describe("inclusive customer price display", () => {
+  it("matches the server quote total for every rate", () => {
+    for (const [price, bps] of [[10000, 0], [10000, 500], [85050, 750], [999, 333]]) {
+      expect(customerPrice(price, bps)).toBe(calculatePrice(price, 1000, bps).total_minor);
+    }
+  });
+  it("falls back to the service price for invalid input", () => {
+    expect(customerPrice(10000, -1)).toBe(10000);
+    expect(customerPrice(10000, 10001)).toBe(10000);
+  });
+  it("prefers the category rate, then the overrides list, then the default", () => {
+    const rates = { default_customer_fee_bps: 300, categories: [{ id: "c1", customer_fee_bps: 500 }] };
+    expect(customerFeeBpsFor(rates, "c1", 700)).toBe(700);
+    expect(customerFeeBpsFor(rates, "c1", null)).toBe(500);
+    expect(customerFeeBpsFor(rates, "c2", null)).toBe(300);
+    expect(customerFeeBpsFor(null, "c2", null)).toBe(0);
   });
 });
