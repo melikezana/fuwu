@@ -1,4 +1,5 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import { verifyIyzicoWebhookSignature } from "@/services/payments/iyzico-client";
@@ -6,6 +7,8 @@ import { assertSandbox } from "@/lib/commerce/payment";
 import { reconcileCommercePayment } from "@/services/commerce/reconciliation";
 
 async function handlePOST(request: NextRequest) {
+  const limited = await commerceRateLimit(request, "commerce.payment_callback", 30, 60_000);
+  if (limited) return limited;
   try { assertSandbox(); } catch { return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 }); }
   const isJson = request.headers.get("content-type")?.includes("application/json");
   let token: string;

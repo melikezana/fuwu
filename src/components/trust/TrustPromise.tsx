@@ -20,7 +20,7 @@ export function TrustPromise() {
         <div className="home-section-heading">
           <div>
             <p className="home-eyebrow">İKİ TARAFLI GÜVEN</p>
-            <h2 className="home-section-title" id="trust-promise-title">Kapını açmadan önce içinin rahat olsun.</h2>
+            <h2 className="home-section-title" id="trust-promise-title">Kapını açmadan önce için rahat olsun.</h2>
             <p className="home-section-description">Müşteri de usta da doğrulanır. Herkes kime güvendiğini bilir.</p>
           </div>
           <Link className="home-text-link" href="/guven">Nasıl doğruluyoruz? <ArrowRight size={16} aria-hidden /></Link>

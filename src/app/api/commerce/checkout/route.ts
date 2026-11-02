@@ -1,4 +1,5 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -14,6 +15,8 @@ async function handlePOST(request: NextRequest) {
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, profile, supabase } = await getServerAuthContext();
   if (!user || !supabase) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const limited = await commerceRateLimit(request, "commerce.checkout", 10, 60_000, user.id);
+  if (limited) return limited;
   if (!sandboxCheckoutEnabled()) return NextResponse.json({ error: "online_purchase_closed" }, { status: 503 });
   const b = await request.json().catch(() => null);
   if (!isUuid(b?.orderId ?? "")) return NextResponse.json({ error: "invalid_order" }, { status: 400 });

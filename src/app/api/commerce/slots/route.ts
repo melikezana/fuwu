@@ -1,8 +1,11 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/validation";
 async function handleGET(request: NextRequest) {
+  const limited = await commerceRateLimit(request, "commerce.slots", 240, 60_000);
+  if (limited) return limited;
   const p = request.nextUrl.searchParams;
   if (!isUuid(p.get("offering") ?? "") || !isUuid(p.get("district") ?? "") || !/^\d{4}-\d{2}-\d{2}$/.test(p.get("day") ?? "")) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const day = p.get("day")!;

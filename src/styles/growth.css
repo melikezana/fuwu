@@ -69,3 +69,35 @@
   .trust-center-hero { padding:36px 0 28px; }
   .trust-center-card, .provider-calc, .provider-docs { padding:20px; border-radius:20px; }
 }
+
+/* Hızlı işlem düğmeleri: takvime ekle, yol tarifi. */
+.job-quick-actions { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; }
+.job-quick-actions a { display:inline-flex; align-items:center; gap:8px; min-height:44px; }
+
+/* Usta güven karnesi */
+.quality-card { margin-top:20px; }
+.quality-head { display:flex; gap:12px; align-items:flex-start; color:var(--brand-orange-dark); }
+.quality-head h2 { margin:0; color:var(--brand-navy); }
+.quality-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:16px; }
+.quality-grid li { position:relative; display:grid; gap:4px; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); }
+.quality-grid span { color:var(--muted); font-size:13px; }
+.quality-grid strong { color:var(--brand-navy); font-size:24px; letter-spacing:-.02em; }
+.quality-grid small { color:var(--muted); font-size:12px; line-height:1.5; }
+.quality-grid em { position:absolute; top:12px; right:12px; padding:2px 8px; border-radius:999px; font-size:11px; font-style:normal; font-weight:700; }
+.quality-good em { background:var(--trust-green-soft); color:var(--trust-green); }
+.quality-watch em, .quality-empty em { background:var(--brand-orange-soft); color:var(--brand-orange-dark); }
+.quality-risk em { background:#fdecec; color:#b42318; }
+.quality-risk { border-color:#f3c4c0 !important; }
+.quality-tips { display:flex; gap:10px; margin-top:14px; padding:12px 14px; border-radius:12px; background:var(--surface-soft); color:var(--brand-navy); font-size:14px; line-height:1.6; }
+.quality-tips svg { flex-shrink:0; margin-top:3px; color:var(--brand-orange-dark); }
+
+/* Admin güven radarı */
+.trust-alerts h2 { display:flex; gap:8px; align-items:center; }
+.trust-alert-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-top:14px; }
+.trust-alert-grid article { display:grid; gap:4px; align-content:start; padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--surface); font-size:13px; }
+.trust-alert-grid article.has-alert { border-color:#f3c4c0; background:#fff8f7; }
+.trust-alert-grid strong { color:var(--brand-navy); font-size:14px; }
+.trust-alert-grid small { color:var(--muted); }
+.trust-alert-grid a { color:var(--brand-orange-dark); text-decoration:underline; }
+@media (max-width: 1023px) { .quality-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .trust-alert-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 639px) { .quality-grid, .trust-alert-grid { grid-template-columns:minmax(0,1fr); } }

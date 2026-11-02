@@ -1,4 +1,5 @@
 import { commerceDatabaseError, withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -26,6 +27,8 @@ async function handlePOST(request: NextRequest, { params }: { params: Promise<{ 
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { user, supabase: db } = await getServerAuthContext();
   if (!user || !db) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const limited = await commerceRateLimit(request, "commerce.order.action", 30, 60_000, user.id);
+  if (limited) return limited;
   const { id } = await params;
   const b = await request.json().catch(() => null);
   if (!isUuid(id) || !b) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });

@@ -1,4 +1,5 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthContext } from "@/services/auth/server";
 import { isUuid } from "@/lib/utils/validation";
@@ -19,6 +20,8 @@ async function handlePOST(request: NextRequest) {
   if (origin && origin !== getRequestOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403, headers });
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) return NextResponse.json({ error: "unauthorized" }, { status: 401, headers });
+  const limited = await commerceRateLimit(request, "account.favorites", 60, 60_000, user.id);
+  if (limited) return limited;
   const body = await request.json().catch(() => null);
   if (!body || typeof body.providerId !== "string" || !isUuid(body.providerId) || typeof body.saved !== "boolean") {
     return NextResponse.json({ error: "invalid_selection" }, { status: 400, headers });

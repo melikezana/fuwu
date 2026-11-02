@@ -1,9 +1,12 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/utils/validation";
 
 async function handleGET(request: NextRequest) {
+  const limited = await commerceRateLimit(request, "commerce.quote", 120, 60_000);
+  if (limited) return limited;
   const id = request.nextUrl.searchParams.get("offering") ?? "";
   if (!isUuid(id)) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const db = await createSupabaseServerClient();
