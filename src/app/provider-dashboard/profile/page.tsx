@@ -29,7 +29,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Profil | Usta Paneli",
-  description: "Fuwu onaylı usta profil bilgileri görünümü.",
+  description: "FUWU onaylı usta profil bilgileri görünümü.",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -46,7 +46,7 @@ type AvailabilityFeedback = {
 
 const availabilityActionMessages: Record<string, AvailabilityFeedback> = {
   "availability-invalid": {
-    body: "Seçilen uygunluk değeri Fuwu operasyon modeliyle uyumlu değil.",
+    body: "Seçilen uygunluk değeri FUWU operasyon modeliyle uyumlu değil.",
     title: "Uygunluk güncellenemedi",
     tone: "error",
   },

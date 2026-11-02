@@ -117,8 +117,8 @@ async function getCommissionRate(supabase: CheckoutSupabaseClient) {
 }
 
 function splitName(value: string | null | undefined) {
-  const parts = (value?.trim() || "Fuwu Müşteri").split(/\s+/).filter(Boolean);
-  const name = parts.length > 1 ? parts.slice(0, -1).join(" ") : parts[0] ?? "Fuwu";
+  const parts = (value?.trim() || "FUWU Müşteri").split(/\s+/).filter(Boolean);
+  const name = parts.length > 1 ? parts.slice(0, -1).join(" ") : parts[0] ?? "FUWU";
   const surname = parts.length > 1 ? parts[parts.length - 1] : "Müşteri";
 
   return { name, surname };
@@ -238,7 +238,7 @@ async function handlePOST(request: NextRequest) {
   const customerProfile = getRelation(serviceRequest.profile);
   const customerName = splitName(customerProfile?.full_name);
   const districtName = getRelation(serviceRequest.district)?.name || "İstanbul";
-  const categoryName = getRelation(serviceRequest.service_category)?.name || "Fuwu Hizmet";
+  const categoryName = getRelation(serviceRequest.service_category)?.name || "FUWU Hizmet";
   const address = serviceRequest.address?.trim() || `${districtName}, İstanbul`;
   const checkoutResponse = await initializeIyzicoCheckoutForm({
     basketId: requestId,
@@ -256,7 +256,7 @@ async function handlePOST(request: NextRequest) {
     billingAddress: {
       address,
       city: "İstanbul",
-      contactName: customerProfile?.full_name || "Fuwu Müşteri",
+      contactName: customerProfile?.full_name || "FUWU Müşteri",
       country: "Turkey",
       zipCode: "34000",
     },
@@ -280,7 +280,7 @@ async function handlePOST(request: NextRequest) {
     shippingAddress: {
       address,
       city: "İstanbul",
-      contactName: customerProfile?.full_name || "Fuwu Müşteri",
+      contactName: customerProfile?.full_name || "FUWU Müşteri",
       country: "Turkey",
       zipCode: "34000",
     },

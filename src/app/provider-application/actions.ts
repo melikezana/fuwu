@@ -13,7 +13,7 @@ import type {
 } from "@/types/provider";
 
 const providerApplicationSubmitErrorMessage =
-  "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
+  "Başvuru gönderilemedi. Lütfen tekrar dene.";
 
 export async function submitProviderApplicationAction(
   input: ProviderApplicationInput,
@@ -32,7 +32,7 @@ export async function submitProviderApplicationAction(
     });
 
     if (process.env.NODE_ENV !== "production") {
-      console.error("[Fuwu] Provider application submit action failed.", { code: appError.code, status: appError.statusCode });
+      console.error("[FUWU] Provider application submit action failed.", { code: appError.code, status: appError.statusCode });
     }
 
     return {

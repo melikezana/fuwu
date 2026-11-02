@@ -27,14 +27,14 @@ function getWhatsappHref(phone: string) {
   }
 
   const message = encodeURIComponent(
-    "Merhaba, Fuwu usta başvurunuz hakkında iletişime geçiyorum.",
+    "Merhaba, FUWU usta başvurunuz hakkında iletişime geçiyorum.",
   );
 
   return `https://wa.me/${digits}?text=${message}`;
 }
 
 function getFallbackMessageHref() {
-  const subject = encodeURIComponent("Fuwu usta başvurusu");
+  const subject = encodeURIComponent("FUWU usta başvurusu");
   const body = encodeURIComponent(
     "Başvuru sahibi için e-posta/mesaj kanalı eklendiğinde buradan iletişim kurulacak.",
   );

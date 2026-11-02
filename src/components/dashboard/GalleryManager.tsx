@@ -352,7 +352,7 @@ export function GalleryManager({
 
       {hasReachedLimit ? (
         <p className="mt-4 rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-semibold text-[var(--muted)]">
-          Maksimum 12 görsel yüklediniz.
+          En fazla 12 görsel yükleyebilirsin.
         </p>
       ) : null}
 

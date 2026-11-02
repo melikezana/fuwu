@@ -3,14 +3,14 @@ import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
   title: "Gizlilik Politikası",
-  description: "Fuwu gizlilik politikası ve veri güvenliği yaklaşımı.",
+  description: "FUWU gizlilik politikası ve veri güvenliği yaklaşımı.",
 };
 
 const sections: PolicySection[] = [
   {
     title: "Gizlilik yaklaşımı",
     body: [
-      "Fuwu, kullanıcıların ev hizmeti arama ve usta başvuru süreçlerinde paylaştığı bilgileri açık, sınırlı ve güvenli şekilde kullanmayı hedefler.",
+      "FUWU, kullanıcıların ev hizmeti arama ve usta başvuru süreçlerinde paylaştığı bilgileri açık, sınırlı ve güvenli şekilde kullanmayı hedefler.",
       "Hizmet deneyimi için gerekli olmayan kişisel veriler talep edilmemeye çalışılır.",
     ],
   },
@@ -18,7 +18,7 @@ const sections: PolicySection[] = [
     title: "Bilgilerin kullanımı",
     body: [
       "Paylaşılan bilgiler; randevu planlama ve hizmet satın alma, usta profillerini listeleme, başvuruları değerlendirme, destek taleplerini yanıtlamak ve güvenlik kontrolleri yapmak için kullanılabilir.",
-      "Fuwu, kullanıcı iletişim bilgilerini izinsiz pazarlama amacıyla üçüncü kişilerle paylaşmamayı hedefler.",
+      "FUWU, kullanıcı iletişim bilgilerini izinsiz pazarlama amacıyla üçüncü kişilerle paylaşmamayı hedefler.",
     ],
   },
   {
@@ -31,7 +31,7 @@ const sections: PolicySection[] = [
   {
     title: "İletişim",
     body: [
-      "Gizlilik soruları, veri talepleri veya güvenlik bildirimleri için fuwuhizmet@gmail.com adresinden Fuwu ekibine ulaşabilirsiniz.",
+      "Gizlilik soruları, veri talepleri veya güvenlik bildirimleri için fuwuhizmet@gmail.com adresinden FUWU ekibine ulaşabilirsiniz.",
     ],
   },
 ];
@@ -39,7 +39,7 @@ const sections: PolicySection[] = [
 export default function PrivacyPage() {
   return (
     <PolicyPage
-      description="Fuwu’da paylaşılan bilgilerin nasıl kullanıldığını anlatan genel gizlilik metni."
+      description="FUWU’da paylaşılan bilgilerin nasıl kullanıldığını anlatan genel gizlilik metni."
       descriptionKey="policy.privacy.description"
       sections={sections}
       title="Gizlilik Politikası"

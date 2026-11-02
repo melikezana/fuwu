@@ -61,8 +61,8 @@ const homeServiceCardDetails: Record<
     trustLine: "Yakındaki taşıma desteğini filtrele",
   },
   "pool-garden": {
-    description: "Bahçe düzenleme, havuz temizliği ve dış mekan bakımını tek ekranda karşılaştır.",
-    trustLine: "Dış mekan bakım profillerini incele",
+    description: "Bahçe düzenleme, havuz temizliği ve dış mekân bakımını tek ekranda karşılaştır.",
+    trustLine: "Dış mekân bakım profillerini incele",
   },
   renovation: {
     description: "Küçük tadilat, yenileme ve ev iyileştirme işleri için uygun profilleri incele.",

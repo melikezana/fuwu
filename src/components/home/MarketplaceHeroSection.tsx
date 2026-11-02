@@ -30,7 +30,7 @@ const mobileTrustSignals: Array<{
 
 function MobileHeroTrustSignals() {
   return (
-    <div className="mt-4 grid grid-cols-2 gap-2 md:hidden" aria-label="Fuwu güven sinyalleri">
+    <div className="mt-4 grid grid-cols-2 gap-2 md:hidden" aria-label="FUWU güven sinyalleri">
       {mobileTrustSignals.map((signal) => {
         const Icon = signal.icon;
 
@@ -90,7 +90,7 @@ function HeroMockup({ heroProviders }: { heroProviders: Provider[] }) {
         <div className="rounded-[1.6rem] bg-[#F9FAFB] p-4 ring-1 ring-[rgba(13,20,36,0.04)] inset-ring-white">
           <div className="flex cursor-default select-none items-center justify-between">
             <Link
-              aria-label="Fuwu ana sayfasına git"
+              aria-label="FUWU ana sayfasına git"
               className="inline-flex cursor-pointer rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               href={appRoutes.home}
             >
@@ -179,7 +179,7 @@ export function MarketplaceHeroSection({
       <Container className="grid max-w-[1400px] gap-8 py-10 sm:py-16 lg:py-20 xl:grid-cols-[1.3fr_auto] xl:items-center xl:justify-between xl:gap-12">
         <div className="w-full max-w-[calc(100vw-2rem)] min-w-0 sm:max-w-full xl:max-w-[820px] xl:pr-6">
           <Link
-            aria-label="Fuwu ana sayfasına git"
+            aria-label="FUWU ana sayfasına git"
             className="inline-flex cursor-pointer select-none rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >

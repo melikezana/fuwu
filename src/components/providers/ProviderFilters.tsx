@@ -427,7 +427,7 @@ export function ProviderFilters({
       {!isFilterOpen ? Object.entries({ rating: values?.rating, availability: values?.availability, verified: values?.verified, response_time: values?.responseTime, price_info: values?.hasPrice, profile_image: values?.hasProfileImage, portfolio: values?.hasPortfolio, reviews: values?.hasReviews, average_price_min: values?.minimumPrice, average_price_max: values?.maximumPrice }).map(([name, value]) => value ? <input key={name} name={name} type="hidden" value={value} /> : null) : null}
       {values?.price ? <input name="price" type="hidden" value={values.price} /> : null}
       <div className="market-filter-grid">
-        <FilterField label="Ne için usta arıyorsunuz?">
+        <FilterField label="Ne için usta arıyorsun?">
           <input className="premium-control mt-2 h-[54px] w-full min-w-0 rounded-[14px] px-3.5 text-base" defaultValue={values?.query ?? ""} name="q" placeholder="Hizmet, uzmanlık veya usta adı" type="search" />
         </FilterField>
         <FilterField label={t("filters.service")}>

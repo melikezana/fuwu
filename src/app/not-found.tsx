@@ -11,7 +11,7 @@ export default function NotFound() {
             Sayfa bulunamadı
           </p>
           <h1 className="mt-3 text-4xl font-bold leading-tight text-[var(--brand-navy)]">
-            Aradığınız sayfa Fuwu’da yok.
+            Aradığın sayfa FUWU’da yok.
           </h1>
           <p className="mt-4 text-base leading-7 text-[var(--muted)]">
             Sana uygun ustaları listeleyebilir, ihtiyacını belirleyebilir veya usta ağına

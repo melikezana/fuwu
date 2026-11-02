@@ -33,7 +33,7 @@ export function CookieConsentBanner() {
     >
       <div className="flex flex-col gap-3">
         <p className="text-left text-xs font-semibold leading-5 text-[var(--muted)] sm:text-sm sm:leading-6">
-          Fuwu, deneyimi iyileştirmek için çerez kullanır.{" "}
+          FUWU, deneyimi iyileştirmek için çerez kullanır.{" "}
           <Link
             href={appRoutes.privacy}
             className="inline-flex min-h-11 items-center font-bold text-[var(--brand-orange-dark)] hover:underline sm:min-h-0"

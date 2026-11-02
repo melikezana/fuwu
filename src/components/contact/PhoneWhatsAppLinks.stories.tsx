@@ -7,7 +7,7 @@ import {
 const meta = {
   args: {
     phone: "+90 555 123 45 67",
-    whatsappMessage: "Merhaba, Fuwu talebim hakkinda yaziyorum.",
+    whatsappMessage: "Merhaba, FUWU talebim hakkinda yaziyorum.",
   },
   component: PhoneWhatsAppLinks,
   parameters: {
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 const defaultArgs = {
   phone: "+90 555 123 45 67",
-  whatsappMessage: "Merhaba, Fuwu talebim hakkinda yaziyorum.",
+  whatsappMessage: "Merhaba, FUWU talebim hakkinda yaziyorum.",
 } satisfies PhoneWhatsAppLinksProps;
 
 const compactArgs = {

@@ -19,7 +19,7 @@ test.describe('CTO launch verification',()=>{
    const form=page.getByRole('form', { name: 'FUWU Partner başvurusu', exact: true });await expect(form.getByRole('button',{name:'Başvurumu gönder',exact:true})).toBeEnabled();
    await form.getByLabel('Ad soyad',{exact:true}).fill('E2E Launch Partner '+owner.slice(0,8));await form.getByLabel('Cep telefonu',{exact:true}).fill(phone);await form.locator('[name="categoryId"]').selectOption({label:'Çilingir'});await form.locator('[name="districtId"]').selectOption({label:'Kadıköy'});
    await form.getByRole('button',{name:'Telefonumu doğrula',exact:true}).click();await expect(form.getByRole('button',{name:'Telefon doğrulandı',exact:true})).toBeVisible();await form.getByRole('button',{name:'Başvurumu gönder',exact:true}).click();
-   await expect(page.getByRole('heading',{name:'Başvurunuz değerlendirmede',exact:true})).toBeVisible();
+   await expect(page.getByRole('heading',{name:'Başvurun değerlendirmede',exact:true})).toBeVisible();
    const application=await db.from('provider_applications').select('id,status').eq('user_id',owner).single();expect(application.error).toBeNull();expect(application.data?.status).toBe('pending');
    const ownerClient=await authenticatedTestClient(page);await ownerClient.from('provider_applications').update({status:'approved'}).eq('id',application.data!.id);
    expect((await db.from('provider_applications').select('status').eq('id',application.data!.id).single()).data?.status).toBe('pending');

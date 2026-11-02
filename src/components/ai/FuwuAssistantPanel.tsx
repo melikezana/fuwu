@@ -217,7 +217,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
 
   return (
     <section
-      aria-label="Fuwu Akıllı Asistan"
+      aria-label="FUWU Akıllı Asistan"
       className="flex h-full max-h-[calc(100dvh-env(safe-area-inset-bottom)-0.5rem)] flex-col overflow-hidden rounded-t-[24px] border border-[rgba(10,37,64,0.12)] bg-[#fbfcfe] shadow-[0_28px_80px_rgba(10,37,64,0.22)] sm:h-[min(760px,calc(100vh-7rem))] sm:rounded-[24px]"
     >
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[rgba(10,37,64,0.08)] bg-white px-4 py-4">
@@ -227,7 +227,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-extrabold text-[var(--brand-navy)]">Fuwu Akıllı Asistan</h2>
+              <h2 className="text-base font-extrabold text-[var(--brand-navy)]">FUWU Akıllı Asistan</h2>
               <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[11px] font-extrabold text-[var(--brand-orange)]">
                 Yapay zeka destekli
               </span>
@@ -254,7 +254,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
               <Sparkles aria-hidden className="size-5" />
             </span>
             <div className="rounded-[22px] rounded-tl-md bg-white p-4 text-sm font-semibold leading-6 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]">
-              Merhaba, ben Fuwu Akıllı Asistan. Sorunu birkaç cümleyle anlatabilir veya fotoğrafını yükleyebilirsin. Önce durumu değerlendirecek, ardından en güvenli ve pratik yolu önereceğim.
+              Merhaba, ben FUWU Akıllı Asistan. Sorunu birkaç cümleyle anlatabilir veya fotoğrafını yükleyebilirsin. Önce durumu değerlendirecek, ardından en güvenli ve pratik yolu önereceğim.
             </div>
           </div>
 

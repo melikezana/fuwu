@@ -7,7 +7,7 @@ export const trTranslations = {
   "nav.providers": "Usta Bul",
   "nav.about": "Hakkımızda",
   "nav.howItWorks": "Nasıl Çalışır?",
-  "nav.trust": "Fuwu Güvencesi",
+  "nav.trust": "FUWU Güvencesi",
   "nav.contact": "İletişim",
   "nav.login": "Giriş Yap",
   "nav.account": "Hesabım",
@@ -83,12 +83,12 @@ export const trTranslations = {
   "home.about.eyebrow": "Hakkımızda",
   "home.about.title": "Güvenilir ustalar, anında karşında.",
   "home.about.description":
-    "Fuwu, ev hizmetlerinde güvenilir ustaları hızlı ve şeffaf şekilde bulmanı sağlayan yeni nesil hizmet platformudur.",
-  "home.trust.eyebrow": "Fuwu Güvencesi",
+    "FUWU, ev hizmetlerinde güvenilir ustaları hızlı ve şeffaf şekilde bulmanı sağlayan yeni nesil hizmet platformudur.",
+  "home.trust.eyebrow": "FUWU Güvencesi",
   "home.trust.title": "Karar vermeyi kolaylaştıran güven sinyalleri",
   "home.trust.description":
-    "Fuwu, müşteri kararını hızlandıran net profil bilgileri ve doğrudan iletişim akışı sunar.",
-  "home.final.eyebrow": "Fuwu Hizmet",
+    "FUWU, müşteri kararını hızlandıran net profil bilgileri ve doğrudan iletişim akışı sunar.",
+  "home.final.eyebrow": "FUWU Hizmet",
   "home.final.title": "Müşteri ve usta akışları sade, ayrı ve net.",
   "home.final.customer": "Müşteri",
   "home.final.customerTitle": "Yakındaki ustaları karşılaştır.",
@@ -103,7 +103,7 @@ export const trTranslations = {
   "providers.hero.subtitle":
     "Hizmetini ve ilçeni seç; fiyat, puan ve iletişim bilgilerini tek ekranda gör. Karar verdiğinde ustaya doğrudan ulaş.",
   "providers.hero.liveNote":
-    "Canlı sağlayıcı kayıtlarını puan, ilçe ve fiyat aralığıyla karşılaştırın; karar verdiğinizde doğrudan iletişime geçin.",
+    "Ustaları puan, ilçe ve fiyat aralığıyla karşılaştır; karar verdiğinde doğrudan iletişime geç.",
   "providers.hero.fallbackNote":
     "Örnek liste notu: Bu listedeki profiller örnek veridir; canlı doğrulama, ödeme veya hesap sistemi yoktur.",
   "providers.badge.today": "Müsait ustalar",
@@ -140,14 +140,14 @@ export const trTranslations = {
   "providerCard.badge.live": "Onaylı profil",
   "providerCard.badge.fallback": "Yedek profil",
   "providerCard.notice.live":
-    "Bu profil canlı sağlayıcı kaydından alınır; fiyat ve uygunluk için doğrudan iletişime geçin.",
+    "Bu profil canlı sağlayıcı kaydından alınır; fiyat ve uygunluk için doğrudan iletişime geç.",
   "providerCard.notice.fallback":
     "Bu profil canlı Supabase kaydı değildir; iletişim ve uygunluk bilgisini doğrulayın.",
   "providerCard.trust.aria": "Güven sinyalleri",
   "providerCard.trust.approved": "Onaylı Usta",
   "providerCard.trust.approvedDescription": "Profil, yayına alınmadan önce temel bilgilerle kontrol edildi.",
-  "providerCard.trust.fuwu": "Fuwu Güvencesi",
-  "providerCard.trust.fuwuDescription": "Fuwu, profilde görünen bilgileri sade ve doğrulanabilir tutar.",
+  "providerCard.trust.fuwu": "FUWU Güvencesi",
+  "providerCard.trust.fuwuDescription": "FUWU, profilde görünen bilgileri sade ve doğrulanabilir tutar.",
   "providerCard.trust.verified": "Doğrulanmış Profil",
   "providerCard.trust.verifiedDescription": "Bu kart canlı sağlayıcı kaydından gelir.",
   "providerCard.trust.preview": "Hazırlık Profili",
@@ -180,7 +180,7 @@ export const trTranslations = {
     "Hizmetini seç, fiyatı belli bir ustayı incele. Gün, saat ve adresini belirleyerek sipariş özetinden güvenli ödeme adımına geç.",
   "home.faq.providerChecks.question": "Ustalar kontrol ediliyor mu?",
   "home.faq.providerChecks.answer":
-    "Fuwu, ustaları listelemeden önce hizmet uyumu, çalışma bölgesi, deneyim, ekipman ve hazırlık bilgilerini değerlendirir.",
+    "FUWU, ustaları listelemeden önce hizmet uyumu, çalışma bölgesi, deneyim, ekipman ve hazırlık bilgilerini değerlendirir.",
   "home.faq.payNow.question": "Ne zaman ödeme yaparım?",
   "home.faq.payNow.answer":
     "Hizmet, usta, randevu ve adresini seçtikten sonra toplam tutarı görürsün. Randevun ödeme doğrulandığında kesinleşir. Şu anda yalnızca test ödemesi kullanılmaktadır.",
@@ -224,14 +224,14 @@ export const trTranslations = {
   "login.guestNote": "Hesap girişi olmadan da ustaları inceleyebilirsin. Yardım için",
   "login.emailLink": "e-posta gönder",
   "providerApplication.eyebrow": "Usta ağına katıl",
-  "providerApplication.title": "Profilini oluştur, Fuwu’da görünür ol.",
+  "providerApplication.title": "Profilini oluştur, FUWU’da görünür ol.",
   "providerApplication.subtitle":
     "Hizmetlerini fiyatlandır, müsait saatlerini belirle ve siparişlerini tek yerden yönet.",
   "providerApplication.trustTitle": "Profesyonel görünürlük",
   "providerApplication.trustDescription":
     "Hizmet alanını, çalışma bölgeni ve iletişim bilgilerini netleştir; başvurun değerlendirme kuyruğuna güvenle alınır.",
   "providerApplication.reassurance":
-    "Başvurun incelendikten sonra uygun profiller Fuwu’da yayınlanır.",
+    "Başvurun incelendikten sonra uygun profiller FUWU’da yayınlanır.",
   "providerApplication.noPassword": "Hesabına giriş yaparak başvurunu ve doğrulama durumunu takip et.",
   "providerApplication.formEyebrow": "Usta başvurusu",
   "providerApplication.formTitle": "Profilini oluştur, doğru müşteriye görünür ol.",
@@ -241,16 +241,16 @@ export const trTranslations = {
     "Şifre, ödeme bilgisi veya hassas belge istenmeden değerlendirme kuyruğuna gönderilir.",
   "providerApplication.section.basic": "Kişisel Bilgiler",
   "providerApplication.section.basicDescription":
-    "Bilgileriniz yalnızca başvurunuzu doğrulamak ve hesabınızla eşleştirmek için kullanılır.",
+    "Bilgilerin yalnızca başvurunu doğrulamak ve hesabınla eşleştirmek için kullanılır.",
   "providerApplication.section.service": "Hizmet Bilgileri",
   "providerApplication.section.serviceDescription":
     "Uzmanlık ve hizmet bölgesi bilgileri yalnızca doğru müşterilerle eşleşmeniz için kullanılır.",
   "providerApplication.section.experience": "Deneyim ve Çalışma",
   "providerApplication.section.experienceDescription":
-    "Deneyiminizi açıkça paylaşmanız profil incelemesini hızlandırır ve müşteriye güven verir.",
+    "Deneyimini açıkça paylaşman profil incelemesini hızlandırır ve müşteriye güven verir.",
   "providerApplication.section.contact": "Belgeler ve İletişim",
   "providerApplication.section.contactDescription":
-    "Telefonunuz müşteri iletişimi için, özel belgeleriniz ise yalnızca doğrulama amacıyla kullanılır.",
+    "Telefonun müşteri iletişimi için, özel belgelerin ise yalnızca doğrulama amacıyla kullanılır.",
   "providerApplication.fullName": "Ad soyad",
   "providerApplication.fullNamePlaceholder": "Resmi adını veya iş adını yaz",
   "providerApplication.fullNameHelper": "Müşterilerin göreceği adı kullan.",
@@ -322,20 +322,20 @@ export const trTranslations = {
     "Hizmet için gerekli temel ekipmanı getirebilirim.",
   "providerApplication.equipment.noDescription":
     "Müşteri malzemesi veya mevcut ekipmanla çalışırım.",
-  "policy.eyebrow": "Fuwu Politikaları",
+  "policy.eyebrow": "FUWU Politikaları",
   "policy.updatedAt": "Son güncelleme: {date}",
   "policy.reviewNote":
     "Bu metin bilgilendirme amaçlıdır; yayına çıkmadan önce hukuki danışmanlıkla gözden geçirilmelidir.",
   "policy.privacy.title": "Gizlilik Politikası",
   "policy.privacy.description":
-    "Fuwu’da paylaşılan bilgilerin nasıl kullanıldığını anlatan genel gizlilik metni.",
+    "FUWU’da paylaşılan bilgilerin nasıl kullanıldığını anlatan genel gizlilik metni.",
   "policy.kvkk.title": "KVKK Aydınlatma Metni",
   "policy.kvkk.description": "Kişisel verilerin işlenmesine dair temel bilgilendirme.",
   "policy.terms.title": "Kullanım Şartları",
-  "policy.terms.description": "Fuwu hizmetlerini kullanırken geçerli temel kurallar ve sorumluluklar.",
+  "policy.terms.description": "FUWU hizmetlerini kullanırken geçerli temel kurallar ve sorumluluklar.",
   "policy.cookies.title": "Çerez Politikası",
   "policy.cookies.description":
-    "Fuwu’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme.",
+    "FUWU’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme.",
   "voice.examples":
     "Şöyle söyleyebilirsin: ‘Kadıköy’de tesisat ustası bul’, ‘En yüksek puanlı elektrikçileri göster’ veya ‘Doğrulanmış ustaları listele’.",
   "voice.button.start": "Sesli Komut",
@@ -360,7 +360,7 @@ export const trTranslations = {
     "Yanıt süresi verisi olan profil bulunmadığı için hızlı yanıt sıralaması açılamıyor.",
   "voice.whatsappFocused": "İlk WhatsApp düğmesi odaklandı. Açmak için Enter tuşuna basabilirsin.",
   "voice.whatsappMissing": "Bu listede WhatsApp düğmesi bulunamadı.",
-  "voice.unsupported": "Tarayıcınız sesli komutu desteklemiyor.",
+  "voice.unsupported": "Tarayıcın sesli komutu desteklemiyor.",
   "voice.permissionRequest": "Mikrofon izni isteniyor.",
   "voice.permissionDenied": "Mikrofon izni verilmedi. Sesli komutu kullanmak için izni açabilirsin.",
   "voice.error": "Sesli komut alınamadı. Mikrofon iznini ve tarayıcı desteğini kontrol edebilirsin.",
@@ -377,27 +377,27 @@ export const trTranslations = {
   "footer.description":
     "FUWU ile evinin ihtiyaçlarını tek yerden planla. Hizmetini seç, ustanı incele ve sana uygun randevuyu güvenle satın al.",
   "footer.discover": "Keşfet",
-  "footer.company": "Fuwu",
+  "footer.company": "FUWU",
   "footer.faq": "SSS",
   "footer.policies": "Politikalar",
   "footer.legal": "Yasal",
   "footer.contact": "İletişim",
   "footer.discoverAria": "Keşfet bağlantıları",
-  "footer.companyAria": "Fuwu bağlantıları",
+  "footer.companyAria": "FUWU bağlantıları",
   "footer.policyAria": "Yasal ve politika bağlantıları",
   "footer.location": "İstanbul, Türkiye",
   "footer.phone": "Telefon",
-  "footer.phoneAria": "Fuwu destek hattını telefonla ara",
+  "footer.phoneAria": "FUWU destek hattını telefonla ara",
   "footer.whatsapp": "WhatsApp",
-  "footer.whatsappAria": "Fuwu desteğine WhatsApp üzerinden yaz",
+  "footer.whatsappAria": "FUWU desteğine WhatsApp üzerinden yaz",
   "footer.email": "E-posta",
-  "footer.emailAria": "Fuwu destek ekibine e-posta gönder",
-  "footer.instagramAria": "Fuwu Instagram hesabını yeni sekmede aç",
+  "footer.emailAria": "FUWU destek ekibine e-posta gönder",
+  "footer.instagramAria": "FUWU Instagram hesabını yeni sekmede aç",
   "footer.kvkk": "KVKK Aydınlatma Metni",
   "footer.privacy": "Gizlilik Politikası",
   "footer.terms": "Kullanım Şartları",
   "footer.cookies": "Çerez Politikası",
-  "footer.copyright": "© 2026 Fuwu Hizmet",
+  "footer.copyright": "© 2026 FUWU Hizmet",
   "footer.tagline": "Gerçek hizmet. Doğru usta. Güvenli satın alma.",
   "services.plumbing.title": "Tesisat",
   "services.plumbing.description":
@@ -425,10 +425,10 @@ export const trTranslations = {
     "Kapıda kalma, kilit değiştirme ve oto çilingir ihtiyaçları için hemen usta bul.",
   "services.garden.title": "Havuz ve Bahçe Bakımı",
   "services.garden.description":
-    "Bahçe düzenleme, havuz temizliği ve dış mekan bakımı için uygun ustaları karşılaştır.",
+    "Bahçe düzenleme, havuz temizliği ve dış mekân bakımı için uygun ustaları karşılaştır.",
   "services.pool.title": "Havuz ve Bahçe Bakımı",
   "services.pool.description":
-    "Bahçe düzenleme, havuz temizliği ve dış mekan bakımı için uygun ustaları karşılaştır.",
+    "Bahçe düzenleme, havuz temizliği ve dış mekân bakımı için uygun ustaları karşılaştır.",
   "services.renovation.title": "Ev Tadilatı",
   "services.renovation.description":
     "Küçük tadilat, yenileme ve ev iyileştirme işleri için uygun profilleri incele.",

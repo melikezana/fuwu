@@ -42,9 +42,9 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
 
   if (!provider) {
     return createPageMetadata({
-      title: "Usta Bulunamadı | Fuwu",
+      title: "Usta Bulunamadı | FUWU",
       description:
-        "Aradığınız Fuwu Hizmet profiline ulaşılamadı; İstanbul’daki uygun ustaları kategori, ilçe ve puana göre karşılaştırın.",
+        "Aradığın usta profiline ulaşılamadı. İstanbul’daki ustaları kategori, ilçe ve puana göre karşılaştır.",
       path: `/providers/${id}`,
       noIndex: true,
     });
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
   const professionLabel = getProviderProfessionLabel(provider.category);
 
   return createPageMetadata({
-    title: `${provider.district} ${professionLabel} | ${provider.name} | Fuwu`,
+    title: `${provider.district} ${professionLabel} | ${provider.name} | FUWU`,
     description: `${provider.district} bölgesinde ${provider.category} hizmeti sunan ${provider.name} profilini, hizmet bilgilerini ve müşteri değerlendirmelerini inceleyin.`,
     path: `/providers/${provider.id}`,
     keywords: [
@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
       provider.category,
       provider.district,
       `${provider.district} ${professionLabel}`,
-      `${provider.category} Fuwu`,
-      "Fuwu Hizmet",
+      `${provider.category} FUWU`,
+      "FUWU Hizmet",
     ],
   });
 }
@@ -91,7 +91,7 @@ function ProviderNotFoundState() {
         <section className="relative mx-auto max-w-2xl overflow-hidden rounded-lg bg-white p-6 text-center shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] sm:p-8">
           <FuwuWatermark className="-right-16 -top-10 text-[7rem] opacity-[0.03] sm:text-[9rem]" />
           <Link
-            aria-label="Fuwu ana sayfasına git"
+            aria-label="FUWU ana sayfasına git"
             className="relative mx-auto mb-6 inline-flex rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(13,20,36,0.08)] transition-colors hover:bg-[var(--brand-orange-soft)]"
             href={appRoutes.home}
           >

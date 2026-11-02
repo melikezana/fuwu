@@ -442,7 +442,7 @@ export async function notifyNewServiceRequestMatch(
   const startedAt = Date.now();
   const isEmergency = metadata.urgencyType === "emergency";
   const body = isEmergency
-    ? "Bölgenizde acil bir müşteri talebi oluşturuldu. Talep ayrıntılarını inceleyin."
+    ? "Bölgende acil bir müşteri talebi var. Ayrıntılarını incele."
     : "Kategori ve hizmet bölgenizle eşleşen yeni bir müşteri talebi var.";
   const title = isEmergency ? "Yeni acil hizmet talebi" : "Yeni hizmet talebi";
   const uniqueProviders = Array.from(
@@ -546,7 +546,7 @@ export async function notifyProviderApplicationApproved(
 ) {
   return createNotificationRecordIfTableExists({
     actorUserId: metadata.actorUserId,
-    body: "Usta başvurunuz onaylandı. Usta paneliniz artık kullanıma hazır.",
+    body: "Usta başvurun onaylandı. Usta panelin artık kullanıma hazır.",
     entityId: metadata.applicationId,
     entityType: "provider_application",
     event: "provider_application_approved",
@@ -557,7 +557,7 @@ export async function notifyProviderApplicationApproved(
     providerId: metadata.providerId,
     recipientUserId: metadata.recipientUserId,
     supabaseClient: metadata.supabaseClient,
-    title: "Usta başvurunuz onaylandı",
+    title: "Usta başvurun onaylandı",
   });
 }
 
@@ -566,7 +566,7 @@ export async function notifyProviderApplicationRejected(
 ) {
   return createNotificationRecordIfTableExists({
     actorUserId: metadata.actorUserId,
-    body: "Usta başvurunuz şu aşamada onaylanmadı. Başvuru durumunuzu hesabınızdan inceleyebilirsiniz.",
+    body: "Usta başvurun şu aşamada onaylanmadı. Başvuru durumunu hesabından inceleyebilirsin.",
     entityId: metadata.applicationId,
     entityType: "provider_application",
     event: "provider_application_rejected",

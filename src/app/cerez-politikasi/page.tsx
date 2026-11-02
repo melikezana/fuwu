@@ -3,7 +3,7 @@ import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
   title: "Çerez Politikası",
-  description: "Fuwu çerez kullanımı ve tarayıcı tercihleri hakkında bilgilendirme.",
+  description: "FUWU çerez kullanımı ve tarayıcı tercihleri hakkında bilgilendirme.",
 };
 
 const sections: PolicySection[] = [
@@ -11,7 +11,7 @@ const sections: PolicySection[] = [
     title: "Çerez nedir?",
     body: [
       "Çerezler, bir web sitesini ziyaret ettiğinizde tarayıcınıza kaydedilebilen küçük metin dosyalarıdır.",
-      "Fuwu, site deneyimini güvenli ve anlaşılır tutmak için zorunlu veya işlevsel çerezlerden yararlanabilir.",
+      "FUWU, site deneyimini güvenli ve anlaşılır tutmak için zorunlu veya işlevsel çerezlerden yararlanabilir.",
     ],
   },
   {
@@ -31,7 +31,7 @@ const sections: PolicySection[] = [
   {
     title: "İletişim",
     body: [
-      "Çerez kullanımı hakkında sorularınız için fuwuhizmet@gmail.com adresinden Fuwu ekibine ulaşabilirsiniz.",
+      "Çerez kullanımı hakkında sorularınız için fuwuhizmet@gmail.com adresinden FUWU ekibine ulaşabilirsiniz.",
     ],
   },
 ];
@@ -39,7 +39,7 @@ const sections: PolicySection[] = [
 export default function CookiePolicyPage() {
   return (
     <PolicyPage
-      description="Fuwu’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme."
+      description="FUWU’nun çerezleri hangi amaçlarla kullanabileceğine dair bilgilendirme."
       descriptionKey="policy.cookies.description"
       sections={sections}
       title="Çerez Politikası"

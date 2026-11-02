@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Yorumlar | Admin",
-  description: "Fuwu müşteri yorumları görünümü.",
+  description: "FUWU müşteri yorumları görünümü.",
 };
 
 function Stars({ rating }: { rating: number }) {

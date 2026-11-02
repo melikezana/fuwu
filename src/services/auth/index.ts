@@ -239,7 +239,7 @@ export async function signInWithPhoneOtp(phone: string) {
 
   if (!validationResult.ok) {
     throw new ValidationError("Login phone validation failed.", {
-      publicMessage: validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.",
+      publicMessage: validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası gir.",
     });
   }
 
@@ -254,7 +254,7 @@ export async function signInWithPhoneOtp(phone: string) {
   if (error) {
     throw handleServiceError(error, {
       logContext: "Supabase phone OTP sign-in failed.",
-      publicMessage: "Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam edin.",
+      publicMessage: "Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam et.",
     });
   }
 }
@@ -265,13 +265,13 @@ export async function verifyPhoneOtp(phone: string, token: string) {
 
   if (!phoneValidationResult.ok) {
     throw new ValidationError("Login phone validation failed.", {
-      publicMessage: phoneValidationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.",
+      publicMessage: phoneValidationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası gir.",
     });
   }
 
   if (!otpValidationResult.ok) {
     throw new ValidationError("Login OTP validation failed.", {
-      publicMessage: otpValidationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu girin.",
+      publicMessage: otpValidationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu gir.",
     });
   }
 
@@ -285,7 +285,7 @@ export async function verifyPhoneOtp(phone: string, token: string) {
   if (error) {
     throw handleServiceError(error, {
       logContext: "Supabase phone OTP verification failed.",
-      publicMessage: "Girdiğiniz kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin.",
+      publicMessage: "Girdiğin kod hatalı veya süresi dolmuş. Lütfen tekrar dene.",
     });
   }
 }

@@ -38,7 +38,7 @@ const launchSignals: LaunchSignal[] = [
     label: "Talep özeti",
     title: "Net ihtiyaç sinyali",
     description:
-      "Hizmet talebi, özel kapsam veya bölge ihtiyacını Fuwu’nun daha net anlamasına yardım eder.",
+      "Hizmet talebi, özel kapsam veya bölge ihtiyacını FUWU’nun daha net anlamasına yardım eder.",
   },
 ];
 
@@ -50,7 +50,7 @@ export function TestimonialsSection() {
           <SectionIntro
             eyebrow="Pazaryeri kontrolleri"
             title="Güven veren karar anları."
-            description="Fuwu; net talep, değerlendirilen usta ve açık iletişim bilgisiyle karar sürecini güçlendirir."
+            description="FUWU; net talep, değerlendirilen usta ve açık iletişim bilgisiyle karar sürecini güçlendirir."
           />
           <Button className="w-full sm:w-fit" href={appRoutes.request} variant="secondary">
             {ctaLabels.request}

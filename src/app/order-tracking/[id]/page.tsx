@@ -38,8 +38,8 @@ import { getUnreadRequestMessageCount } from "@/services/messaging";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Order Tracking | Fuwu",
-  description: "Fuwu sipariş takip, doğrulama kodu ve ödeme serbest bırakma akışı.",
+  title: "Order Tracking | FUWU",
+  description: "FUWU sipariş takip, doğrulama kodu ve ödeme serbest bırakma akışı.",
 };
 
 type OrderTrackingPageProps = {
@@ -139,7 +139,7 @@ function shouldShowRequestMessaging(status: string) {
 }
 
 function createCustomerToProviderWhatsAppMessage(category: string) {
-  return `Merhaba, Fuwu üzerinden ${category} talebim için yazıyorum.`;
+  return `Merhaba, FUWU üzerinden ${category} talebim için yazıyorum.`;
 }
 
 function formatDateTime(value: string | null) {
@@ -356,7 +356,7 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
     <main className="min-h-screen bg-[var(--surface-soft)]">
       <header className="border-b border-[var(--border)] bg-white">
         <Container className="flex min-h-16 items-center justify-between gap-4">
-          <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
+          <Link href={appRoutes.home} aria-label="FUWU ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
           <Button href={appRoutes.accountRequests} variant="secondary">

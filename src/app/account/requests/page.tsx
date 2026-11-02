@@ -26,8 +26,8 @@ import { getServerAuthContext, type ServerAuthContext } from "@/services/auth/se
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Taleplerim | Fuwu",
-  description: "Fuwu hizmet taleplerini ve acil usta çağrılarını takip et.",
+  title: "Taleplerim | FUWU",
+  description: "FUWU hizmet taleplerini ve acil usta çağrılarını takip et.",
 };
 
 type AccountRequestsSearchParams = {
@@ -319,7 +319,7 @@ export default async function AccountRequestsPage({
     <main className="min-h-screen bg-[var(--surface-soft)]">
       <header className="border-b border-[var(--border)] bg-white">
         <Container className="flex min-h-16 items-center justify-between gap-4">
-          <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
+          <Link href={appRoutes.home} aria-label="FUWU ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
           <Button
@@ -357,7 +357,7 @@ export default async function AccountRequestsPage({
             <div className="flex gap-3">
               <ReceiptText className="mt-0.5 size-5 shrink-0" aria-hidden />
               <div>
-                <p className="text-sm font-semibold">Talebiniz başarıyla oluşturuldu</p>
+                <p className="text-sm font-semibold">Talebin oluşturuldu</p>
                 <p className="mt-1 text-sm font-semibold leading-6">
                   Durum, kategori, ilçe, bütçe ve ödeme bilgilerini aşağıda görebilirsin.
                 </p>

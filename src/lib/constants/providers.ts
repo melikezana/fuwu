@@ -168,7 +168,7 @@ export function getProviderWhatsAppHref(provider: Provider) {
   }
 
   const message = encodeURIComponent(
-    `Merhaba, Fuwu üzerinden ulaşıyorum. ${provider.district} için ${provider.category} hizmeti almak istiyorum.`,
+    `Merhaba, FUWU üzerinden ulaşıyorum. ${provider.district} için ${provider.category} hizmeti almak istiyorum.`,
   );
 
   return `https://wa.me/${whatsappNumber}?text=${message}`;
@@ -184,7 +184,7 @@ export function getProviderProfileBadge(provider: Provider) {
 
 export function getProviderDataNotice(provider: Provider) {
   if (isLiveProvider(provider)) {
-    return "Bu profil canlı sağlayıcı kaydından alınır; fiyat ve uygunluk için doğrudan iletişime geçin.";
+    return "Bu profil canlı sağlayıcı kaydından alınır; fiyat ve uygunluk için doğrudan iletişime geç.";
   }
 
   return "Bu profil canlı Supabase kaydı değildir; iletişim ve uygunluk bilgisini doğrulayın.";

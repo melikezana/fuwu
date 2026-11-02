@@ -160,7 +160,7 @@ export function ProviderReviews({
                 {source === "supabase" ? "Henüz değerlendirme yok" : "Değerlendirmelere ulaşılamıyor"}
               </p>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                {source === "supabase" ? "Tamamlanan hizmetinizin ardından deneyiminizi paylaşabilirsiniz." : "Yorumları görüntülemek için biraz sonra tekrar deneyin."}
+                {source === "supabase" ? "Tamamlanan hizmetinin ardından deneyimini paylaşabilirsin." : "Yorumları görmek için biraz sonra tekrar dene."}
               </p>
             </div>
           )}

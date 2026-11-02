@@ -64,7 +64,7 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         <div className="commerce-service-body">
           <h3><Link href={serviceHref(service.slug)}>{service.name}</Link></h3><p>{service.description}</p><details className="catalog-scope"><summary>Hizmet kapsamı</summary><p>{service.scope}</p>{service.exclusions && <p><strong>Dahil olmayanlar:</strong> {service.exclusions}</p>}</details>
           {duration != null && <div className="commerce-meta"><Clock3 size={15} aria-hidden />{duration} dk itibarıyla</div>}
-          <div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(offer => shown(offer) === min) ? "Her şey dahil" : "Her şey dahil, başlayan"}</small><strong>{min == null ? district && !unavailable ? "Bu ilçede satışa açık değil" : "Henüz satışa açılmadı" : money(min)}</strong></div>{available.length > 0 && <span>{new Set(available.map(offer => offer.provider_id)).size} usta</span>}</div>
+          <div className="commerce-price-row"><div><small>{min == null ? "Satış durumu" : available.every(offer => shown(offer) === min) ? "Her şey dahil fiyat" : "Başlangıç fiyatı · her şey dahil"}</small><strong>{min == null ? district && !unavailable ? "Bu ilçede satışa açık değil" : "Henüz satışa açılmadı" : money(min)}</strong></div>{available.length > 0 && <span>{new Set(available.map(offer => offer.provider_id)).size} usta</span>}</div>
           <Link className={min == null ? "commerce-secondary" : "commerce-button"} href={serviceHref(service.slug)}>{min == null ? "Kapsamı İncele" : "Usta ve Randevu Seç"}<ArrowRight size={17} aria-hidden /></Link>
         </div>
       </article>;

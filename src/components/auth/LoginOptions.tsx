@@ -188,7 +188,7 @@ export function LoginOptions() {
       const validationResult = validateLoginOtpInput(otpToken);
 
       if (!validationResult.ok) {
-        setFeedbackText(validationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu girin.");
+        setFeedbackText(validationResult.fieldErrors.otp ?? "Lütfen 6 haneli kodu gir.");
         return;
       }
 
@@ -197,13 +197,13 @@ export function LoginOptions() {
 
       try {
         await verifyPhoneOtp(phone, validationResult.data.otp);
-        setFeedbackText("Giriş başarılı. Yönlendiriliyorsunuz...");
+        setFeedbackText("Giriş başarılı. Yönlendiriliyorsun…");
         router.push(getSafeNextPath());
       } catch (error) {
         setFeedbackText(
           getPublicErrorMessage(
             error,
-            "Girdiğiniz kod hatalı veya süresi dolmuş. Lütfen tekrar deneyin."
+            "Girdiğin kod hatalı veya süresi dolmuş. Lütfen tekrar dene."
           ),
         );
       } finally {
@@ -215,7 +215,7 @@ export function LoginOptions() {
     const validationResult = validateLoginPhoneInput(phone);
 
     if (!validationResult.ok) {
-      setFeedbackText(validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası girin.");
+      setFeedbackText(validationResult.fieldErrors.phone ?? "Geçerli bir telefon numarası gir.");
       return;
     }
 
@@ -229,12 +229,12 @@ export function LoginOptions() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : "";
       if (errorMessage.includes("not configured") || errorMessage.includes("not enabled")) {
-        setFeedbackText("Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam edin.");
+        setFeedbackText("Telefonla giriş şu anda aktif değil. Lütfen e-posta veya Google ile devam et.");
       } else {
         setFeedbackText(
           getPublicErrorMessage(
             error,
-            "Giriş kodu gönderilemedi. Lütfen tekrar deneyin."
+            "Giriş kodu gönderilemedi. Lütfen tekrar dene."
           ),
         );
       }

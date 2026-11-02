@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Ödeme Bilgileri | Usta Paneli",
-  description: "Fuwu usta payout ve iyzico pazaryeri kayıt bilgileri.",
+  description: "FUWU usta payout ve iyzico pazaryeri kayıt bilgileri.",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -211,7 +211,7 @@ export default async function ProviderPaymentInfoPage({
       statusTone={statusBadge.tone}
       title="Ödeme Bilgileri"
     >
-      {providerAccess.ok && !providerAccess.profile.privateInfoAvailable ? <p role="alert" className="commerce-notice">Özel ödeme bilgilerine şu anda ulaşılamıyor. Bağlantı veya erişim kontrolü tamamlanana kadar bilgileri güncelleyemezsiniz.</p> : providerAccess.ok ? (
+      {providerAccess.ok && !providerAccess.profile.privateInfoAvailable ? <p role="alert" className="commerce-notice">Özel ödeme bilgilerine şu anda ulaşılamıyor. Bağlantı veya erişim kontrolü tamamlanana kadar bilgileri güncelleyemezsin.</p> : providerAccess.ok ? (
         <section className="premium-card p-5 sm:p-6">
           <div className="flex flex-col gap-5 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 cursor-default select-none">

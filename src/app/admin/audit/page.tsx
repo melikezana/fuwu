@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "İşlem Geçmişi | Admin",
-  description: "Fuwu sistem işlem geçmişi (audit log).",
+  description: "FUWU sistem işlem geçmişi (audit log).",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;

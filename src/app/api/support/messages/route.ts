@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     return supportJson({
-      message: "Mesajın Fuwu Destek ekibine iletildi.",
+      message: "Mesajın FUWU Destek ekibine iletildi.",
       ok: true,
     });
   } catch (error) {

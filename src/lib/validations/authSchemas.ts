@@ -92,7 +92,7 @@ export function validateLoginOtpInput(
   } else if (sanitizedOtp.length !== 6 || !/^\d+$/.test(sanitizedOtp)) {
     issues.push({
       field: "otp",
-      message: "Lütfen 6 haneli geçerli bir kod girin.",
+      message: "Lütfen 6 haneli geçerli bir kod gir.",
     });
   }
 

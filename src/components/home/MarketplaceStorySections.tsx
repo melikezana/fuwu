@@ -34,7 +34,7 @@ export function MarketplaceHowItWorksSection() {
       <Container className="max-w-7xl py-14 sm:py-16">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-[var(--brand-navy)] sm:text-3xl">
-            Fuwu ile Hızlı Eşleş
+            FUWU ile Hızlı Eşleş
           </h2>
           <p className="mt-2 text-sm font-medium text-[#6B7280]">
             Tek platform, anında çözüm
@@ -105,7 +105,7 @@ export function MarketplaceTrustSection() {
       title: "Doğrudan Usta ile İletişim",
     },
     {
-      description: "Fuwu ilk temas için gizli komisyon ya da görünmeyen hizmet bedeli eklemez.",
+      description: "FUWU ilk temas için gizli komisyon ya da görünmeyen hizmet bedeli eklemez.",
       title: "Gizli Komisyon Yok",
     },
     {
@@ -124,7 +124,7 @@ export function MarketplaceTrustSection() {
         <SectionHeading
           description="Karar vermeden önce profil güven sinyallerini, iletişim seçeneklerini ve hizmet kapsamını tek yerde gör."
           eyebrow="Güven"
-          title="Neden Fuwu?"
+          title="Neden FUWU?"
         />
         <MobileCollapsibleSection contentClassName="mt-7">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

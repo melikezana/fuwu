@@ -42,7 +42,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Talepler | Admin",
-  description: "Fuwu hizmet talepleri için admin görünümü.",
+  description: "FUWU hizmet talepleri için admin görünümü.",
 };
 
 const adminServiceRequestsPath = "/admin/service-requests";

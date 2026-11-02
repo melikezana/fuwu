@@ -16,8 +16,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Bildirimlerim | Fuwu",
-  description: "Fuwu talep ve hesap bildirimlerini takip et.",
+  title: "Bildirimlerim | FUWU",
+  description: "FUWU talep ve hesap bildirimlerini takip et.",
 };
 
 function formatNotificationDate(value: string | null) {
@@ -86,7 +86,7 @@ export default async function AccountNotificationsPage() {
     <main className="min-h-screen bg-[var(--surface-soft)]">
       <header className="border-b border-[var(--border)] bg-white">
         <Container className="flex min-h-16 items-center justify-between gap-4">
-          <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
+          <Link href={appRoutes.home} aria-label="FUWU ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
           <Button href={appRoutes.accountRequests} variant="secondary">
@@ -134,7 +134,7 @@ export default async function AccountNotificationsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <h2 className="text-sm font-bold leading-5 text-[var(--brand-navy)]">
-                          {notification.title || "Fuwu bildirimi"}
+                          {notification.title || "FUWU bildirimi"}
                         </h2>
                         {isUnread ? (
                           <span className="mt-1.5 size-2 shrink-0 rounded-full bg-[var(--brand-orange)]" />

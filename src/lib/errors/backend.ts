@@ -8,7 +8,7 @@ type SupabaseLikeError = {
 };
 
 export const SAFE_BACKEND_ERROR_MESSAGES = {
-  generic: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+  generic: "İşlem tamamlanamadı. Lütfen tekrar dene.",
   forbidden: "Bu işlem için yetkin yok.",
   invalid: "Geçersiz işlem.",
   notFound: "Kayıt bulunamadı.",

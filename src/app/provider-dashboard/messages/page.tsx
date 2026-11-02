@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Mesajlar | Usta Paneli",
-  description: "Fuwu usta hesabı müşteri yazışmaları.",
+  description: "FUWU usta hesabı müşteri yazışmaları.",
 };
 
 type ProviderAssignedRequest = Awaited<ReturnType<typeof getProviderAssignedRequests>>[number];

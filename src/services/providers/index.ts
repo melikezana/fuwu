@@ -272,7 +272,7 @@ function normalizePhoneForWhatsApp(value: string) {
 }
 
 function createFallbackDescription(name: string, category: string, district: string) {
-  return `${name}; ${district} bölgesinde ${category} hizmeti için doğrudan iletişime hazır bir Fuwu profilidir.`;
+  return `${name}; ${district} bölgesinde ${category} hizmeti için doğrudan iletişime hazır bir FUWU profilidir.`;
 }
 
 function getProviderAvailability(value: string | null | undefined): ProviderAvailabilityStatus {

@@ -13,7 +13,7 @@ export function MaintenanceScreen({ message }: { message?: string }) {
       <p className="mt-4 max-w-md text-base font-medium leading-7 text-[var(--muted)]">
         {message?.trim()
           ? message
-          : "Fuwu şu anda bakımda. Kısa süre içinde tekrar hizmetinizdeyiz, anlayışınız için teşekkürler."}
+          : "FUWU şu anda bakımda. Kısa süre içinde yeniden buradayız, anlayışın için teşekkürler."}
       </p>
     </div>
   );

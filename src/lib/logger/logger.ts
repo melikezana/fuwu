@@ -113,14 +113,14 @@ export function logInfo(message: string, context?: LogContext) {
     return;
   }
 
-  console.info(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+  console.info(`[FUWU] ${message}`, createLogPayload(context) ?? "");
 }
 
 export function logWarn(message: string, context?: LogContext) {
   captureWarning(message, context);
 
   if (canLogToConsole()) {
-    console.warn(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+    console.warn(`[FUWU] ${message}`, createLogPayload(context) ?? "");
   }
 }
 
@@ -129,6 +129,6 @@ export function logError(error: unknown, context?: LogContext) {
 
   if (canLogToConsole()) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`[Fuwu] ${message}`, createLogPayload(context) ?? "");
+    console.error(`[FUWU] ${message}`, createLogPayload(context) ?? "");
   }
 }

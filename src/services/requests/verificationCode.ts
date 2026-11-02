@@ -32,7 +32,7 @@ export async function generateUniqueCustomerVerificationCode(
       .maybeSingle();
 
     if (error) {
-      console.warn("[Fuwu] Legacy reference uniqueness check failed.", { code: error.code });
+      console.warn("[FUWU] Legacy reference uniqueness check failed.", { code: error.code });
       return code;
     }
 

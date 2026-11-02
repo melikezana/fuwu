@@ -14,7 +14,7 @@ export class NetgsmSmsProvider implements SmsProvider {
   async sendOtp(phone: string, code: string): Promise<SmsSendResult> {
     const body = new URLSearchParams({
       gsmno: phone,
-      message: `Fuwu doğrulama kodunuz: ${code}`,
+      message: `FUWU doğrulama kodunuz: ${code}`,
       msgheader: this.options.header,
       password: this.options.password,
       usercode: this.options.usercode,

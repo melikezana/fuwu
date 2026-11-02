@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Gelir ve Büyüme | Admin",
-  description: "Fuwu komisyon geliri, GMV ve arz-talep fırsat görünümü.",
+  description: "FUWU komisyon geliri, GMV ve arz-talep fırsat görünümü.",
 };
 
 const currency = new Intl.NumberFormat("tr-TR", {

@@ -34,7 +34,7 @@ export function TrustSection() {
                 Kullanıcı kararını kanıtlanabilir bilgiyle verir.
               </p>
               <p className="mt-3 text-sm font-medium leading-6 text-[var(--muted)]">
-                Bu yüzden Fuwu, profilde görünen veriyi net tutar; olmayan özelliği varmış gibi
+                Bu yüzden FUWU, profilde görünen veriyi net tutar; olmayan özelliği varmış gibi
                 sunmaz.
               </p>
             </div>

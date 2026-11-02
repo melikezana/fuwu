@@ -16,7 +16,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) redirect(buildLoginRedirectUrl(`/orders/${id}`));
   const { data: order, error } = await supabase.from("commerce_orders").select("*").eq("id", id).maybeSingle();
-  if (error) return <div className="commerce-page"><p role="alert" className="commerce-notice">Siparişe şu anda ulaşılamıyor. Lütfen yeniden deneyin.</p></div>;
+  if (error) return <div className="commerce-page"><p role="alert" className="commerce-notice">Siparişe şu anda ulaşılamıyor. Lütfen yeniden dene.</p></div>;
   if (!order) notFound();
   const [{ data: events }, { data: provider }, { data: finance }, { data: review }] = await Promise.all([
     supabase.from("order_status_events").select("*").eq("order_id", id).order("created_at"),

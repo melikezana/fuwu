@@ -85,7 +85,7 @@ export function PopularServicesSection() {
 
         <div className="mt-8 grid gap-3 rounded-lg border border-[rgba(255,138,0,0.26)] bg-[var(--brand-orange-soft)] p-4 text-[var(--brand-navy)] sm:grid-cols-[1fr_auto] sm:items-center sm:p-5">
           <p className="font-semibold leading-6">
-            Daha özel bir ihtiyacın mı var? Bir kez anlat, Fuwu ihtiyacını netleştirsin.
+            Daha özel bir ihtiyacın mı var? Bir kez anlat, FUWU ihtiyacını netleştirsin.
           </p>
           <Button className="w-full sm:w-fit" href={appRoutes.request}>
             {ctaLabels.request}

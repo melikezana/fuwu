@@ -22,7 +22,7 @@ function SupportEmailForm({
   onBack: () => void;
   onClose: () => void;
 }) {
-  const [subject, setSubject] = useState("Fuwu Akıllı Asistan desteği");
+  const [subject, setSubject] = useState("FUWU Akıllı Asistan desteği");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [analysisSummary, setAnalysisSummary] = useState(draft.analysisSummary ?? "");
@@ -54,7 +54,7 @@ function SupportEmailForm({
         throw new Error(payload?.message ?? "Mesaj gönderilemedi.");
       }
 
-      setFeedback(payload?.message ?? "Mesajın Fuwu Destek ekibine iletildi.");
+      setFeedback(payload?.message ?? "Mesajın FUWU Destek ekibine iletildi.");
       setMessage("");
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : "Mesaj gönderilemedi.");
@@ -65,13 +65,13 @@ function SupportEmailForm({
 
   return (
     <section
-      aria-label="Fuwu Destek Ekibine Yaz"
+      aria-label="FUWU Destek Ekibine Yaz"
       className="flex h-full max-h-[calc(100dvh-env(safe-area-inset-bottom)-0.5rem)] flex-col overflow-hidden rounded-t-[24px] border border-[rgba(10,37,64,0.12)] bg-white shadow-[0_28px_80px_rgba(10,37,64,0.22)] sm:h-auto sm:max-h-[calc(100vh-7rem)] sm:rounded-[24px]"
     >
       <header className="flex items-start justify-between gap-3 border-b border-[rgba(10,37,64,0.08)] px-4 py-4">
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-[var(--brand-orange)]">E-posta</p>
-          <h2 className="mt-1 text-lg font-extrabold text-[var(--brand-navy)]">Fuwu Destek Ekibine Yaz</h2>
+          <h2 className="mt-1 text-lg font-extrabold text-[var(--brand-navy)]">FUWU Destek Ekibine Yaz</h2>
         </div>
         <button
           aria-label="E-posta formunu kapat"
@@ -222,7 +222,7 @@ export function FuwuAssistantWidget() {
                       <Bot aria-hidden className="size-5" />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-extrabold text-[var(--brand-navy)]">Fuwu Akıllı Asistan</p>
+                      <p className="text-sm font-extrabold text-[var(--brand-navy)]">FUWU Akıllı Asistan</p>
                       <p className="mt-0.5 text-xs font-extrabold text-[var(--brand-orange)]">Yapay zeka destekli</p>
                     </div>
                   </div>
@@ -263,7 +263,7 @@ export function FuwuAssistantWidget() {
 
         {!isOpen ? (
           <button
-            aria-label="Fuwu Akıllı Asistan destek panelini aç"
+            aria-label="FUWU Akıllı Asistan destek panelini aç"
             aria-expanded={isOpen}
             className="hidden min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--brand-navy)] px-4 text-white shadow-[var(--shadow-elevated)] transition-colors hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:inline-flex"
             onClick={() => setIsOpen(true)}

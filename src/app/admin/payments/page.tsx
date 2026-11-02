@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Ödemeler | Admin",
-  description: "Fuwu ödeme ve finans görünümü.",
+  description: "FUWU ödeme ve finans görünümü.",
 };
 
 const currency = new Intl.NumberFormat("tr-TR", {

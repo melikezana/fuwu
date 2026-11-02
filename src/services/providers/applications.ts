@@ -43,11 +43,11 @@ export type ProviderApplicationFormOptions = {
 };
 
 const providerApplicationSubmitErrorMessage =
-  "Başvuru gönderilemedi. Lütfen tekrar deneyin.";
+  "Başvuru gönderilemedi. Lütfen tekrar dene.";
 const duplicateProviderApplicationMessage =
-  "Bu telefon numarasıyla aktif bir başvurunuz zaten bulunuyor.";
+  "Bu telefon numarasıyla zaten aktif bir başvurun var.";
 const providerApplicationOptionsErrorMessage =
-  "Başvuru seçenekleri şu anda yüklenemedi. Lütfen tekrar deneyin.";
+  "Başvuru seçenekleri şu anda yüklenemedi. Lütfen tekrar dene.";
 
 const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "full_name",
@@ -99,7 +99,7 @@ function getSupabaseDebugPayload(error: unknown) {
 }
 
 function logProviderApplicationSupabaseError(context: string, error: unknown) {
-  console.error(`[Fuwu] ${context}`, getSupabaseDebugPayload(error));
+  console.error(`[FUWU] ${context}`, getSupabaseDebugPayload(error));
 }
 
 function createProviderApplicationFailure(error: unknown) {
@@ -443,7 +443,7 @@ async function assertUserIsNotApprovedProvider(
   if (data?.id) {
     throw new ValidationError("Approved provider attempted another application.", {
       publicMessage:
-        "Onaylı usta hesabınız zaten aktif. Yeni başvuru yerine usta panelini kullanabilirsiniz.",
+        "Onaylı usta hesabın zaten aktif. Yeni başvuru yerine usta panelini kullanabilirsin.",
     });
   }
 }

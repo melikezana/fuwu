@@ -39,7 +39,7 @@ export function HowItWorksSection() {
         <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionIntro
             eyebrow="Nasıl işler?"
-            title="Fuwu ile süreç"
+            title="FUWU ile süreç"
             description="İhtiyacını belirle, ustaları karşılaştır, doğrudan iletişime geç."
           />
           <Button className="w-full sm:w-fit" href={appRoutes.request}>

@@ -118,7 +118,7 @@ export async function checkRateLimitWithRedis(
     );
 
     void result.pending.catch((error) => {
-      console.error("[Fuwu] Upstash rate limit pending task failed.", {
+      console.error("[FUWU] Upstash rate limit pending task failed.", {
         action: options.action,
         error,
       });
@@ -135,7 +135,7 @@ export async function checkRateLimitWithRedis(
       resetAt: result.reset,
     };
   } catch (error) {
-    console.error("[Fuwu] Upstash rate limit check failed; using database fallback.", {
+    console.error("[FUWU] Upstash rate limit check failed; using database fallback.", {
       action: options.action,
       error,
       userId: options.userId,
@@ -170,7 +170,7 @@ export async function checkIdentifierRateLimitWithRedis({
     const result = await rateLimiter.limit(`${safeAction}:${safeIdentifier}`);
 
     void result.pending.catch((error) => {
-      console.error("[Fuwu] API rate limit pending task failed.", {
+      console.error("[FUWU] API rate limit pending task failed.", {
         action: safeAction,
         error,
       });
@@ -187,7 +187,7 @@ export async function checkIdentifierRateLimitWithRedis({
       resetAt: result.reset,
     };
   } catch (error) {
-    console.error("[Fuwu] API rate limit check failed; using local fallback.", {
+    console.error("[FUWU] API rate limit check failed; using local fallback.", {
       action: safeAction,
       error,
     });

@@ -174,13 +174,13 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
       (selectedSort && selectedSort !== defaultProviderSort),
   );
   const title = selectedCategory
-    ? `${areaLabel} ${categoryLabel} | Fuwu`
+    ? `${areaLabel} ${categoryLabel} | FUWU`
     : selectedDistrict
-      ? `${areaLabel} Ev Hizmeti Ustaları | Fuwu`
-      : "İstanbul Ev Hizmeti Ustaları | Fuwu";
+      ? `${areaLabel} Ev Hizmeti Ustaları | FUWU`
+      : "İstanbul Ev Hizmeti Ustaları | FUWU";
   const description = selectedCategory
-    ? `${areaLabel} bölgesinde ${categoryLabel.toLocaleLowerCase("tr")} profillerini Fuwu’da fiyat aralığı, puan ve telefon/WhatsApp iletişim bilgileriyle karşılaştırın.`
-    : `${areaLabel} genelinde tesisatçı, elektrikçi, temizlik ve ev hizmeti ustalarını Fuwu’da fiyat, puan ve direkt iletişim bilgileriyle karşılaştırın.`;
+    ? `${areaLabel} bölgesinde ${categoryLabel.toLocaleLowerCase("tr")} profillerini FUWU’da fiyat aralığı, puan ve telefon/WhatsApp iletişim bilgileriyle karşılaştırın.`
+    : `${areaLabel} genelinde tesisatçı, elektrikçi, temizlik ve ev hizmeti ustalarını FUWU’da fiyat, puan ve direkt iletişim bilgileriyle karşılaştırın.`;
 
   return createPageMetadata({
     title,
@@ -208,7 +208,7 @@ export async function generateMetadata({ searchParams }: ProvidersPageProps): Pr
       selectedQuery,
       categoryLabel,
       `${areaLabel} usta`,
-      "Fuwu Hizmet",
+      "FUWU Hizmet",
     ].filter((keyword): keyword is string => Boolean(keyword)),
     noIndex: hasGranularFilters,
   });

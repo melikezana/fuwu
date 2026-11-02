@@ -430,12 +430,12 @@ function getProviderBudgetOfferText(request: ProviderAssignedRequest) {
 }
 
 function createProviderToCustomerWhatsAppMessage(request: ProviderAssignedRequest) {
-  return `Merhaba, Fuwu üzerinden ${request.category} talebiniz için yazıyorum.`;
+  return `Merhaba, FUWU üzerinden ${request.category} talebiniz için yazıyorum.`;
 }
 
 export const metadata: Metadata = {
   title: "Talepler | Usta Paneli",
-  description: "Fuwu onaylı ustaları için gelen talep görünümü.",
+  description: "FUWU onaylı ustaları için gelen talep görünümü.",
 };
 
 export default async function ProviderDashboardRequestsPage({

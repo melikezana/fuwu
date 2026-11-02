@@ -98,7 +98,7 @@ const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
   { values: ["Nakliye"], aliases: ["nakliye", "taşıma", "tasima"] },
   {
     values: ["Havuz ve Bahçe Bakımı"],
-    aliases: ["bahçe", "bahce", "havuz", "peyzaj", "dış mekan", "dis mekan"],
+    aliases: ["bahçe", "bahce", "havuz", "peyzaj", "dış mekân", "dis mekan"],
   },
   { values: ["Ev Tadilatı"], aliases: ["tadilat", "ev tadilatı", "ev tadilati"] },
 ];

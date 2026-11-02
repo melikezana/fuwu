@@ -37,7 +37,7 @@ try {
   assert.ok(await cards.count() > 0, "Real provider directory is available for read-only verification");
   const name = (await cards.locator("h3").allTextContents()).map(name => name.trim()).sort((a,b) => b.length - a.length)[0];
   const profileHref = await cards.filter({ has: page.getByRole("heading", { name, exact: true }) }).getByRole("link", { name: /Profili Gör/ }).getAttribute("href");
-  await page.getByRole("searchbox", { name: "Ne için usta arıyorsunuz?" }).fill(name);
+  await page.getByRole("searchbox", { name: "Ne için usta arıyorsun?" }).fill(name);
   await page.getByRole("button", { name: "Ustaları Göster", exact: true }).click();
   await page.waitForLoadState("domcontentloaded");
   assert.equal(new URL(page.url()).searchParams.get("q"), name);

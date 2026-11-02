@@ -89,13 +89,13 @@ function isMissingPaymentsTable(error: unknown) {
 
 function warnPaymentTrackingError(context: string, error: unknown) {
   if (isMissingPaymentsTable(error)) {
-    console.warn("[Fuwu] Payment tracking skipped because payments table is missing.", {
+    console.warn("[FUWU] Payment tracking skipped because payments table is missing.", {
       context,
     });
     return;
   }
 
-  console.warn("[Fuwu] Payment tracking failed.", {
+  console.warn("[FUWU] Payment tracking failed.", {
     context,
     classification: "payment_tracking_unavailable",
   });
@@ -269,7 +269,7 @@ export async function createPaymentTrackingForCompletedRequest({
     return false;
   }
 
-  console.info("[Fuwu] Payment tracking record created.", {
+  console.info("[FUWU] Payment tracking record created.", {
     actorUserId,
     paymentMethod,
     requestId,
@@ -483,7 +483,7 @@ async function releaseIyzicoEscrowPayment({
   }
 
   const { data: claimed, error: claimError } = await supabase.rpc("commerce_claim_legacy_settlement", { p_payment_id: payment.id, p_kind: "release" });
-  if (claimError || !claimed) throw new AppError("payment-operation-pending", { code: "payment-operation-pending", publicMessage: "Hak ediş işlemi beklemede veya kurulum gerekli. Destek ekibiyle kontrol edin.", statusCode: 409 });
+  if (claimError || !claimed) throw new AppError("payment-operation-pending", { code: "payment-operation-pending", publicMessage: "Hak ediş işlemi beklemede veya kurulum gerekli. Destek ekibiyle iletişime geç.", statusCode: 409 });
   try {
     const { approveIyzicoPaymentItem } = await import(
       "@/services/payments/iyzico-marketplace"

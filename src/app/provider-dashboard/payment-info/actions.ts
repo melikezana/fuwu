@@ -142,7 +142,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     .maybeSingle();
 
   if (baseUpdateError || !baseUpdated) {
-    console.error("[Fuwu] Provider payment info update failed.", {
+    console.error("[FUWU] Provider payment info update failed.", {
       providerId: providerAccess.profile.id,
       error: baseUpdateError,
     });
@@ -166,7 +166,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
 
     subMerchantKey = iyzicoResponse.subMerchantKey?.trim() ?? "";
   } catch (error) {
-    console.error("[Fuwu] iyzico submerchant creation failed.", {
+    console.error("[FUWU] iyzico submerchant creation failed.", {
       providerId: providerAccess.profile.id,
       error,
     });
@@ -190,7 +190,7 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
     .maybeSingle();
 
   if (keyUpdateError || !keyUpdated) {
-    console.error("[Fuwu] Provider iyzico submerchant key update failed.", {
+    console.error("[FUWU] Provider iyzico submerchant key update failed.", {
       providerId: providerAccess.profile.id,
       error: keyUpdateError,
     });

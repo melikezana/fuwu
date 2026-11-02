@@ -209,7 +209,7 @@ const onlinePaymentOption: {
   value: ServiceRequestPaymentPreference;
 } = {
   description:
-    "Bu formda kart bilgisi istenmez ve ödeme alınmaz. Desteklenen online ödeme seçeneği talep sonrası siparişinizden kontrol edilebilir.",
+    "Bu formda kart bilgisi istenmez ve ödeme alınmaz. Desteklenen online ödeme seçeneğini talep sonrası siparişinden kontrol edebilirsin.",
   label: "Online Ödeme",
   value: PAYMENT_PREFERENCES.onlineSoon,
 };
@@ -296,9 +296,9 @@ const helperClassName = "mt-2 cursor-default select-none text-xs leading-5 text-
 const errorClassName = "mt-2 cursor-default select-none text-sm font-medium text-red-600";
 const stepCardClassName =
   "premium-reveal rounded-lg border bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 sm:p-6";
-const serviceRequestSuccessMessage = "Siparişiniz başarıyla alındı";
+const serviceRequestSuccessMessage = "Siparişin alındı";
 const serviceRequestSubmitErrorMessage =
-  "Hizmet kaydı oluşturulamadı. Lütfen tekrar deneyin.";
+  "Hizmet kaydı oluşturulamadı. Lütfen tekrar dene.";
 const emptyRequestFormInsights: RequestFormInsights = {
   averageResponseMinutesByCategory: {},
   providerCountByCategory: {},
@@ -1381,13 +1381,13 @@ export function RequestForm({
                 </p>
                 <h2 className="mt-3 text-3xl font-extrabold leading-tight text-[var(--brand-navy)] sm:text-4xl">
                   {isProviderProfileCheckout
-                    ? "Randevu detaylarınızı tamamlayın."
-                    : "Hizmet detaylarınızı tamamlayın."}
+                    ? "Randevu detaylarını tamamla."
+                    : "Hizmet detaylarını tamamla."}
                 </h2>
                 <p className="mt-3 text-base font-semibold leading-7 text-[var(--muted)]">
                   {isProviderProfileCheckout
                     ? `${initialProviderNameValue || "Seçtiğin usta"} için servis seçimini geçip doğrudan randevu detaylarına devam edin.`
-                    : "Adımları tamamlayın, göndermeden önce özetinizi kontrol edin."}
+                    : "Adımları tamamla, göndermeden önce özetini kontrol et."}
                 </p>
               </div>
               <div className="rounded-lg bg-white px-4 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] ring-1 ring-[rgba(10,37,64,0.08)]">
@@ -1462,7 +1462,7 @@ export function RequestForm({
                         ? submittedRequest.providerCountNotified
                           ? "Acil siparişin uygun ustalara iletildi."
                           : "Acil siparişin incelemeye alındı."
-                        : "Siparişin Fuwu tarafından alındı."}
+                        : "Siparişin FUWU tarafından alındı."}
                     </h3>
                   </div>
                   <div className="w-fit rounded-md bg-white px-3 py-2 text-xs font-bold text-[var(--brand-navy)] ring-1 ring-[rgba(13,20,36,0.08)]">
@@ -2026,7 +2026,7 @@ export function RequestForm({
                 <FieldError id="fullName-error" message={errors.fullName} />
               </div>
 
-              <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-soft)] p-4"><p className="text-sm font-semibold">İşinizi tarif edin</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">İşin kapsamını, ölçüleri ve varsa dikkat edilmesi gerekenleri notlara ekleyin. Bu formda fotoğraf yükleme desteklenmiyor.</p></div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-soft)] p-4"><p className="text-sm font-semibold">İşini tarif et</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">İşin kapsamını, ölçüleri ve varsa dikkat edilmesi gerekenleri notlara ekle. Bu formda fotoğraf yükleme desteklenmiyor.</p></div>
             </div>
 
             <div className="mt-5">

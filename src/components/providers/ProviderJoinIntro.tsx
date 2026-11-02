@@ -10,9 +10,9 @@ import { servicePhotos } from "@/lib/service-photos";
 // dönmeyen müşteri, açıklamasız hesap kapatma) birebir cevap verir.
 const benefits = [
   { icon: Coins, title: "Teklif parası yok.", copy: "Bakiye yüklemezsin. Sadece biten işten %10 komisyon." },
-  { icon: Handshake, title: "Pazarlık yok, boş yol yok.", copy: "Müşteri fiyatını görüp ödemesini yapmış olarak gelir." },
+  { icon: Handshake, title: "Pazarlık yok, boş yol yok.", copy: "Sipariş sana, müşteri fiyatı görüp ödemeyi yaptıktan sonra düşer." },
   { icon: CalendarDays, title: "Takvim senin.", copy: "Hangi gün, hangi saat, hangi ilçe; sen açarsın." },
-  { icon: BadgeCheck, title: "Şeffaf onay.", copy: "Eksik belge varsa ne eksik, açıkça yazar. Sürpriz kapatma yok." },
+  { icon: BadgeCheck, title: "Şeffaf onay.", copy: "Eksik belge varsa neyin eksik olduğunu açıkça görürsün. Habersiz hesap kapatma yok." },
 ];
 
 const documents = {
@@ -22,7 +22,7 @@ const documents = {
     ["Kendi adına banka hesabı", "Kazancın ödeme kuruluşunca doğrulanan bu hesaba geçer."],
   ],
   byCategory: [
-    ["Elektrik, doğalgaz, klima", "Mesleki Yeterlilik (MYK) veya ustalık belgesi."],
+    ["Elektrik, doğal gaz, klima", "Mesleki Yeterlilik (MYK) veya ustalık belgesi."],
     ["Yetkili servis işleri", "Markanın verdiği yetki belgesi."],
     ["Şirket veya esnafsan", "Vergi levhası ya da esnaf kaydı."],
   ],
@@ -35,7 +35,7 @@ const documents = {
 export function ProviderJoinIntro() {
   return <>
     <section className="market-join-hero"><Container className="max-w-7xl market-join-grid">
-      <div className="min-w-0"><p className="market-eyebrow">FUWU PARTNER</p><h1>Teklif için değil,<br />iş için öde.</h1><p className="market-join-description">Müşteri seni seçer, ödemesini yapar, randevuya gelir. Sen işini yaparsın. Komisyon yalnızca biten işten.</p><a className="home-primary-link" href="#provider-application-form">Usta Ol <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></a><p className="market-help-text">Başvurunu hesabından takip edebilirsin.</p></div>
+      <div className="min-w-0"><p className="market-eyebrow">FUWU PARTNER</p><h1>Teklif için değil,<br />iş için öde.</h1><p className="market-join-description">Müşteri seni seçer, ödemesini yapar, randevu kesinleşir. Sen işini yaparsın. Komisyon yalnızca biten işten.</p><a className="home-primary-link" href="#provider-application-form">Usta Ol <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></a><p className="market-help-text">Başvurunu hesabından takip edebilirsin.</p></div>
       <figure className="market-join-photo"><Image alt={servicePhotos.painting.alt} fill preload sizes="(max-width: 767px) 92vw, 550px" className="object-cover" src="/images/services/provider-painting.webp" /><figcaption>İşinin ustası ol.<br /><strong>Fotoğraf hizmeti temsil eder.</strong></figcaption></figure>
     </Container></section>
     <section className="market-join-benefits"><Container className="max-w-7xl"><div className="market-join-benefit-grid is-four">{benefits.map(({ icon: Icon, title, copy }) => <div key={title}><Icon aria-hidden="true" className="size-6" /><h2>{title}</h2><p>{copy}</p></div>)}</div></Container></section>

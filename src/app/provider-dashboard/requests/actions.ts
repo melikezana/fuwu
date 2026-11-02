@@ -75,7 +75,7 @@ export async function providerUpdateRequestStatusAction(formData: FormData) {
       }
     }
   } catch (error) {
-    console.error("[Fuwu] Provider request action failed.", {
+    console.error("[FUWU] Provider request action failed.", {
       action: status,
       providerId: undefined,
       requestId,

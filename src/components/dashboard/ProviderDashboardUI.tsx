@@ -370,7 +370,7 @@ function getProviderDashboardStatusViewClean(
   if (reason === "missing-session") {
     return {
       body:
-        "Ba\u015fvuru olu\u015fturmak veya mevcut ba\u015fvuru durumunu g\u00f6rmek i\u00e7in Fuwu hesab\u0131nla devam et.",
+        "Ba\u015fvuru olu\u015fturmak veya mevcut ba\u015fvuru durumunu g\u00f6rmek i\u00e7in FUWU hesab\u0131nla devam et.",
       cta: true,
       eyebrow: "Hesap do\u011frulamas\u0131",
       headline: "Usta a\u011f\u0131na kat\u0131lmak i\u00e7in giri\u015f yap",

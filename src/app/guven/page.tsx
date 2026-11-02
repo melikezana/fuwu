@@ -51,13 +51,13 @@ export default function TrustCenterPage() {
       <section className="home-section">
         <Container className="home-container trust-center-columns">
           <article className="trust-center-card">
-            <p className="home-eyebrow">USTA İÇİN</p>
+            <p className="home-eyebrow">USTA NASIL DOĞRULANIR?</p>
             <h2>Kapına gelen kişiyi tanı.</h2>
             <ul>{providerChecks.map(({ icon: Icon, title, copy }) => <li key={title}><Icon aria-hidden size={20} /><div><strong>{title}</strong><p>{copy}</p></div></li>)}</ul>
             <p className="trust-center-note"><BadgeCheck aria-hidden size={16} /> Profildeki her rozet, yalnızca tamamlanmış bir kontrolü gösterir.</p>
           </article>
           <article className="trust-center-card">
-            <p className="home-eyebrow">MÜŞTERİ İÇİN</p>
+            <p className="home-eyebrow">MÜŞTERİ NASIL DOĞRULANIR?</p>
             <h2>Usta da kime gittiğini bilir.</h2>
             <ul>{customerChecks.map(({ icon: Icon, title, copy }) => <li key={title}><Icon aria-hidden size={20} /><div><strong>{title}</strong><p>{copy}</p></div></li>)}</ul>
             <p className="trust-center-note"><KeyRound aria-hidden size={16} /> Teslim kodu yalnızca sende görünür. Kodu iş bitmeden paylaşma.</p>

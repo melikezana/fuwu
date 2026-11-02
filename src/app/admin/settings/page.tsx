@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Ayarlar | Admin",
-  description: "Fuwu platform ayarları.",
+  description: "FUWU platform ayarları.",
 };
 
 export default async function AdminSettingsPage() {

@@ -3,7 +3,7 @@ import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 
 export const metadata: Metadata = {
   title: "Kullanım Şartları",
-  description: "Fuwu hizmet pazaryeri kullanım şartları.",
+  description: "FUWU hizmet pazaryeri kullanım şartları.",
 };
 
 const sections: PolicySection[] = [
@@ -25,7 +25,7 @@ const sections: PolicySection[] = [
     title: "Usta başvuruları",
     body: [
       "Usta başvuruları değerlendirme sürecine alınır. Başvuru yapılması, profilin otomatik olarak yayına alınacağı anlamına gelmez.",
-      "Fuwu, hizmet kalitesi, kategori uygunluğu, bölge bilgisi ve iletişim hazırlığı gibi kriterlere göre başvuruları inceleyebilir.",
+      "FUWU, hizmet kalitesi, kategori uygunluğu, bölge bilgisi ve iletişim hazırlığı gibi kriterlere göre başvuruları inceleyebilir.",
     ],
   },
   {
@@ -55,7 +55,7 @@ const sections: PolicySection[] = [
 export default function TermsPage() {
   return (
     <PolicyPage
-      description="Fuwu hizmetlerini kullanırken geçerli temel kurallar ve sorumluluklar."
+      description="FUWU hizmetlerini kullanırken geçerli temel kurallar ve sorumluluklar."
       descriptionKey="policy.terms.description"
       sections={sections}
       title="Kullanım Şartları"

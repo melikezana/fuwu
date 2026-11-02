@@ -33,7 +33,7 @@ export const homeCopy = {
     eyebrow: "Nasıl çalışır?",
     title: "Üç adımda daha net karar ver.",
     description:
-      "Fuwu, aradığın hizmeti hızlıca daraltır; profilleri, bölgeyi ve güven sinyallerini aynı akışta gösterir.",
+      "FUWU, aradığın hizmeti hızlıca daraltır; profilleri, bölgeyi ve güven sinyallerini aynı akışta gösterir.",
     steps: [
       {
         description:
@@ -54,9 +54,9 @@ export const homeCopy = {
   },
   providers: {
     eyebrow: "Öne çıkan ustalar",
-    title: "İhtiyacınıza uygun ustaları tanıyın.",
+    title: "İhtiyacına uygun ustaları tanı.",
     description:
-      "Bölgenizde hizmet veren ustaların uzmanlıklarını ve profillerinde paylaştıkları bilgileri inceleyin.",
+      "Bölgende hizmet veren ustaların uzmanlıklarını ve profillerinde paylaştıkları bilgileri incele.",
     emptyTitle: "Henüz yayında doğrulanmış usta bulunmuyor.",
     emptyDescription:
       "Canlı profiller onaylandığında burada görünür. Şimdilik hizmetini seçip hizmet kaydı oluşturabilirsin.",
@@ -65,7 +65,7 @@ export const homeCopy = {
     eyebrow: "Güven sistemi",
     title: "Bir ustadan fazlası, güvenilir bir seçim.",
     description:
-      "Fuwu, karar anında belirsizliği azaltan bilgileri görünür ve anlaşılır tutar.",
+      "FUWU, karar anında belirsizliği azaltan bilgileri görünür ve anlaşılır tutar.",
     items: [
       {
         description: "Profilde temel iletişim ve hizmet bilgileri net biçimde yer alır.",
@@ -126,7 +126,7 @@ export const homeCopy = {
       "İlçe seçimi, sonuçları bulunduğun bölgeye göre daraltır ve karşılaştırmayı pratik hale getirir.",
   },
   finalCta: {
-    eyebrow: "Fuwu Hizmet",
+    eyebrow: "FUWU Hizmet",
     title: "Doğru ustayı bulmak için ilk adımı şimdi at.",
     description:
       "Hizmeti seç, ilçeni belirt ve güven sinyalleri görünür profiller arasından kararını ver.",

@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Hizmet Kataloğu | Admin",
-  description: "Fuwu hizmet kategorileri ve ilçe yönetimi.",
+  description: "FUWU hizmet kategorileri ve ilçe yönetimi.",
 };
 
 export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string; category?: string }> }) {

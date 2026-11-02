@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 export const seoConfig = {
-  brandName: "Fuwu",
+  brandName: "FUWU",
   legalName: "FUWU",
-  siteName: "Fuwu Hizmet",
+  siteName: "FUWU Hizmet",
   domain: "fuwu.com.tr",
   siteUrl: "https://fuwu.com.tr",
   twitterHandle: "@fuwuapp",
-  titleTemplate: "%s | Fuwu",
-  defaultTitle: "Fuwu | Ev Hizmetleri Platformu",
+  titleTemplate: "%s | FUWU",
+  defaultTitle: "FUWU | Ev Hizmetleri Platformu",
   defaultDescription:
     "İstanbul’da evin için hizmet seç, ustaları karşılaştır, uygun gün ve saatte satın al. Randevularını ve siparişlerini FUWU ile takip et.",
   ogImagePath: "/og/fuwu-og-placeholder.svg",
@@ -17,7 +17,7 @@ export const seoConfig = {
 
 export const defaultKeywords = [
   "FUWU",
-  "Fuwu Hizmet",
+  "FUWU Hizmet",
   "fuwu.com.tr",
   "İstanbul ev hizmetleri",
   "tesisatçı",
@@ -32,7 +32,7 @@ export const defaultOpenGraphImage = {
   url: seoConfig.ogImagePath,
   width: 1200,
   height: 630,
-  alt: "FUWU - Fuwu Hizmet",
+  alt: "FUWU - FUWU Hizmet",
 } as const;
 
 export const indexableRobots = {

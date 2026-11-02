@@ -479,7 +479,7 @@ function getProfileName(relation: MaybeProfileRelation, userId: string | null) {
   }
 
   if (!userId) {
-    return "Demo musteri";
+    return "Demo müşteri";
   }
 
   return `MÃ¼ÅŸteri ${userId.slice(0, 8).toLocaleUpperCase("tr")}`;
@@ -597,7 +597,7 @@ function warnAdminServiceRequestAssignmentError(
   payload: Record<string, unknown>,
   error: unknown,
 ) {
-  console.error(`[Fuwu] Admin Supabase ${context} failed.`, {
+  console.error(`[FUWU] Admin Supabase ${context} failed.`, {
     providerId,
     requestId,
     supabaseError: getSupabaseErrorLogDetails(error),
@@ -889,7 +889,7 @@ function createInvalidApplicationIdResult(action: string) {
 function normalizeAdminApplicationId(applicationId: string, action: string) {
   const normalizedApplicationId = sanitizeText(applicationId, 80);
 
-  console.info("[Fuwu] Admin provider application action received id.", {
+  console.info("[FUWU] Admin provider application action received id.", {
     action,
     applicationId: normalizedApplicationId,
   });
@@ -1126,7 +1126,7 @@ async function createProviderFromApplication(
   const whatsapp = phone;
   const description =
     sanitizeText(application.introduction ?? "", 1200) ||
-    `${sanitizeText(application.full_name, 120)} Fuwu usta baÅŸvurusundan oluÅŸturulan saÄŸlayÄ±cÄ± profili.`;
+    `${sanitizeText(application.full_name, 120)} FUWU usta baÅŸvurusundan oluÅŸturulan saÄŸlayÄ±cÄ± profili.`;
   const name = sanitizeText(application.full_name, 120);
 
   if (!name || !phone) {

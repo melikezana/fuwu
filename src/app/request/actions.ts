@@ -103,7 +103,7 @@ export async function cancelServiceRequestAction(
     return { ok: true };
   } catch (error) {
     return {
-      message: getPublicErrorMessage(error, "İşlem tamamlanamadı. Lütfen tekrar deneyin."),
+      message: getPublicErrorMessage(error, "İşlem tamamlanamadı. Lütfen tekrar dene."),
       ok: false,
     };
   }

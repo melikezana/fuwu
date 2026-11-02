@@ -136,7 +136,7 @@ export const serviceCategories = [
     category: "Dış Mekan",
     title: "Havuz ve Bahçe Bakımı",
     description:
-      "Bahçe düzenleme, havuz temizliği ve dış mekan bakımı için uygun ustaları karşılaştır.",
+      "Bahçe düzenleme, havuz temizliği ve dış mekân bakımı için uygun ustaları karşılaştır.",
     iconName: "leaf",
     slug: "havuz-bahce-bakimi",
     aliases: ["Bahçe Bakımı", "Bahçe düzenleme", "Havuz Bakımı", "havuz-bakimi", "bahce-bakimi"],
@@ -151,7 +151,7 @@ export const serviceCategories = [
       "Küçük tadilat, yenileme ve ev iyileştirme işleri için uygun profilleri incele.",
     iconName: "home",
     slug: "ev-tadilati",
-    aliases: ["Tadilat", "Ev tadilati", "Renovasyon"],
+    aliases: ["Tadilat", "Ev tadilatı", "Renovasyon"],
     startingHint: "Usta Bul",
     href: createProviderCategoryHref("ev-tadilati"),
   },

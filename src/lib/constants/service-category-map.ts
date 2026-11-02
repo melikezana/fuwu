@@ -75,7 +75,7 @@ export const serviceCategoryMap = {
   renovation: createServiceTarget("renovation"),
   "all-services": {
     ctaLabel: "Ustaları Gör",
-    description: "Fuwu'daki tüm aktif hizmet kategorilerini ve ustaları keşfet.",
+    description: "FUWU'daki tüm aktif hizmet kategorilerini ve ustaları keşfet.",
     href: appRoutes.providers,
     id: "all-services",
     label: "Tüm Hizmetler",

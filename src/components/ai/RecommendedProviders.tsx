@@ -38,7 +38,7 @@ export function RecommendedProviders({ providers }: RecommendedProvidersProps) {
           Senin için uygun olabilecek ustalar
         </p>
         <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
-          Bu kartlar yalnızca gerçek Fuwu profillerinden gelir; asistan otomatik rezervasyon veya ödeme yapmaz.
+          Bu kartlar yalnızca gerçek FUWU profillerinden gelir; asistan otomatik rezervasyon veya ödeme yapmaz.
         </p>
       </div>
       <div className="grid gap-3">

@@ -166,7 +166,7 @@ export const serviceRequestLoginRequiredMessage =
   "Hizmet kaydı oluşturmak için giriş yapmalısın.";
 
 export const serviceRequestSubmitErrorMessage =
-  "Hizmet kaydı oluşturulamadı. Lütfen tekrar deneyin.";
+  "Hizmet kaydı oluşturulamadı. Lütfen tekrar dene.";
 
 const serviceRequestRateLimitMessage =
   "Kısa sürede çok sayıda hizmet kaydı oluşturdun. Lütfen biraz sonra tekrar dene.";
@@ -350,7 +350,7 @@ function logProviderRequestActionFailure({
     supabaseError: getSupabaseErrorLogDetails(error),
   };
 
-  console.error(`[Fuwu] Provider request ${context} failed.`, payload);
+  console.error(`[FUWU] Provider request ${context} failed.`, payload);
   logError(`Provider request ${context} failed.`, payload);
 }
 
@@ -875,7 +875,7 @@ export async function createServiceRequest(
 
   if (existingRequest?.id) {
     throw new ValidationError("Duplicate service request detected.", {
-      publicMessage: "Bu alanda halihazırda yeni bir talebiniz bulunuyor.",
+      publicMessage: "Bu alanda zaten yeni bir talebin var.",
     });
   }
 
@@ -945,7 +945,7 @@ export async function createServiceRequest(
     notificationMessage:
       eligibleProviderCount > 0
         ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
-        : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
+        : "Şu anda bu bölgede uygun usta bulunamadı. Talebin ekibimiz tarafından değerlendirilecek.",
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
     providerCountNotified: eligibleProviderCount,
@@ -1028,7 +1028,7 @@ export async function createAuthenticatedServiceRequest(
 
   if (existingRequest?.id) {
     throw new ValidationError("Duplicate service request detected.", {
-      publicMessage: "Bu alanda halihazırda yeni bir talebiniz bulunuyor.",
+      publicMessage: "Bu alanda zaten yeni bir talebin var.",
     });
   }
 
@@ -1098,7 +1098,7 @@ export async function createAuthenticatedServiceRequest(
     notificationMessage:
       eligibleProviderCount > 0
         ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
-        : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
+        : "Şu anda bu bölgede uygun usta bulunamadı. Talebin ekibimiz tarafından değerlendirilecek.",
     offeredPrice: insertPayload.offered_price ?? null,
     paymentPreference: insertPayload.payment_preference ?? null,
     providerCountNotified: eligibleProviderCount,

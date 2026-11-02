@@ -4,7 +4,7 @@ import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
 export const metadata: Metadata = {
   title: "KVKK Aydınlatma Metni",
   description:
-    "Fuwu kullanıcıları ve usta başvuru sahipleri için KVKK kapsamında bilgilendirme metni.",
+    "FUWU kullanıcıları ve usta başvuru sahipleri için KVKK kapsamında bilgilendirme metni.",
 };
 
 const sections: PolicySection[] = [
@@ -20,8 +20,8 @@ const sections: PolicySection[] = [
   {
     title: "Veri sorumlusu ve kapsam",
     body: [
-      "Bu metin, Fuwu hizmet pazaryeri deneyimini kullanan müşteriler, ziyaretçiler ve usta başvuru sahipleri için kişisel verilerin hangi amaçlarla işlendiğini açıklar.",
-      "Fuwu; kullanıcıların hizmet arama, usta profillerini inceleme, randevu planlama ve hizmet satın alma ve usta başvurusu yapma süreçlerinde paylaştığı verileri yalnızca meşru ve sınırlı amaçlarla işlemeyi hedefler.",
+      "Bu metin, FUWU hizmet pazaryeri deneyimini kullanan müşteriler, ziyaretçiler ve usta başvuru sahipleri için kişisel verilerin hangi amaçlarla işlendiğini açıklar.",
+      "FUWU; kullanıcıların hizmet arama, usta profillerini inceleme, randevu planlama ve hizmet satın alma ve usta başvurusu yapma süreçlerinde paylaştığı verileri yalnızca meşru ve sınırlı amaçlarla işlemeyi hedefler.",
     ],
   },
   {
@@ -41,7 +41,7 @@ const sections: PolicySection[] = [
   {
     title: "Haklarınız",
     body: [
-      "KVKK kapsamındaki haklarınızla ilgili bilgi almak, verilerinize erişim talep etmek veya düzeltme/silme taleplerinizi iletmek için fuwuhizmet@gmail.com adresinden Fuwu ekibine ulaşabilirsiniz.",
+      "KVKK kapsamındaki haklarınızla ilgili bilgi almak, verilerinize erişim talep etmek veya düzeltme/silme taleplerinizi iletmek için fuwuhizmet@gmail.com adresinden FUWU ekibine ulaşabilirsiniz.",
       "Talepler, kimlik doğrulama ve yasal saklama yükümlülükleri dikkate alınarak değerlendirilir.",
     ],
   },

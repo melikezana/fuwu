@@ -48,7 +48,7 @@ try {
   assert.equal((await page.request.get(base+"/api/cron/commerce-expiry")).status(),401);
   report.checks.push({name:"Guest commerce mutations and unauthenticated cron",expected:"401",actual:"PASS"});
   await page.goto(base+"/auth/callback?error=access_denied&next="+encodeURIComponent("/services/musluk-montaji?provider=chosen"),{waitUntil:"domcontentloaded"});
-  assert.equal(new URL(page.url()).pathname,"/login");assert.equal(new URL(page.url()).searchParams.get("next"),"/services/musluk-montaji?provider=chosen");await expect(page.getByText("Google ile giriş tamamlanmadı. Tekrar deneyebilirsiniz.",{exact:true})).toBeVisible();
+  assert.equal(new URL(page.url()).pathname,"/login");assert.equal(new URL(page.url()).searchParams.get("next"),"/services/musluk-montaji?provider=chosen");await expect(page.getByText("Google ile giriş tamamlanmadı. Tekrar deneyebilirsin.",{exact:true})).toBeVisible();
   await page.goto(base+"/auth/callback?error=access_denied&next=%2F%09%2Fevil.test",{waitUntil:"domcontentloaded"});assert.equal(new URL(page.url()).origin,base);assert.equal(new URL(page.url()).searchParams.get("next"),"/account");
   report.checks.push({name:"Actual OAuth denial and malicious redirect",expected:"Actionable login error and safe internal next",actual:"PASS"});
   const manifestResponse=await page.request.get(base+"/manifest.webmanifest");assert.equal(manifestResponse.status(),200);const manifest=await manifestResponse.json();assert.equal(manifest.display,"standalone");assert.ok(manifest.icons.length>0);report.checks.push({name:"Existing PWA manifest",expected:"Standalone display with icons",actual:"PASS"});

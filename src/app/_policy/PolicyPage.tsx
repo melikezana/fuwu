@@ -33,7 +33,7 @@ export function PolicyPage({
       <Container className="relative max-w-4xl py-10 sm:py-14 lg:py-16">
         <div className="cursor-default select-none">
           <Link
-            aria-label="Fuwu ana sayfasına git"
+            aria-label="FUWU ana sayfasına git"
             className="inline-flex cursor-pointer rounded-lg bg-white px-4 py-3 shadow-[var(--shadow-elevated)] ring-1 ring-[rgba(13,20,36,0.08)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
             href={appRoutes.home}
           >

@@ -174,7 +174,7 @@ export default async function ProviderApplicationPage() {
       <ProviderJoinIntro />
       <section className="market-application-section" id="provider-application-form">
         <Container className="market-application-grid max-w-7xl">
-          <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI ATIN</p><h2>İşinizi tanıyalım.</h2><p>Başvurunu tamamla, durumunu hesabından takip et.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunuzu oluşturun</strong><p>Uzmanlığınızı ve hizmet bölgenizi paylaşın.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip edin</strong><p>Başvurunuzun durumuna hesabınızdan ulaşın.</p></div></li><li><span>03</span><div><strong>Profilinizi tamamlayın</strong><p>Onaydan sonra hizmet paketinizi ve takviminizi hazırlayın.</p></div></li></ol></div>
+          <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI AT</p><h2>İşini tanıyalım.</h2><p>Başvurunu tamamla, durumunu hesabından takip et.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunu oluştur</strong><p>Uzmanlığını ve hizmet bölgeni paylaş.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip et</strong><p>Başvurunun durumunu hesabından izle.</p></div></li><li><span>03</span><div><strong>Profilini tamamla</strong><p>Onaydan sonra hizmet paketini ve takvimini hazırla.</p></div></li></ol></div>
         {!providerAccess.ok && providerAccess.reason === "missing-session" ? (
           <div className="grid gap-5">
             <ProviderApplicationLoginRequiredCard />

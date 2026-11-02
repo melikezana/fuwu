@@ -108,7 +108,7 @@ export async function checkDatabaseRateLimit({
     if(typeof result.allowed!=="boolean" || result.limit!==limit || !Number.isSafeInteger(result.remaining) || !Number.isSafeInteger(result.resetAt)) throw new Error("rate_limit_unavailable");
     return {allowed:result.allowed,limit,remaining:result.remaining as number,resetAt:result.resetAt as number};
   } catch {
-    console.error("[Fuwu] Persistent rate limit unavailable.", {action:safeAction});
+    console.error("[FUWU] Persistent rate limit unavailable.", {action:safeAction});
     if(process.env.NODE_ENV === "production") return {allowed:false,limit,remaining:0,resetAt};
 
     return checkRateLimit({

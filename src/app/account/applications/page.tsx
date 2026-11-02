@@ -25,8 +25,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Başvurularım | Fuwu",
-  description: "Fuwu usta başvurularını ve hizmet taleplerini hesabından takip et.",
+  title: "Başvurularım | FUWU",
+  description: "FUWU usta başvurularını ve hizmet taleplerini hesabından takip et.",
 };
 
 function formatDate(value: string) {
@@ -184,7 +184,7 @@ export default async function AccountApplicationsPage() {
     <main className="premium-page-shell min-h-screen">
       <header className="premium-page-band">
         <Container className="flex min-h-16 items-center justify-between gap-4">
-          <Link href={appRoutes.home} aria-label="Fuwu ana sayfasına git">
+          <Link href={appRoutes.home} aria-label="FUWU ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
           <div className="flex gap-2">

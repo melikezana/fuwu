@@ -851,7 +851,7 @@ export async function POST(request: NextRequest) {
       store: false,
       text: {
         format: {
-          description: "Fuwu ev hizmeti ilk değerlendirme sonucu.",
+          description: "FUWU ev hizmeti ilk değerlendirme sonucu.",
           name: "fuwu_ai_assistant_analysis",
           schema: assistantAnalysisJsonSchema,
           strict: true,

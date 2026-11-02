@@ -21,9 +21,9 @@ export type SendRequestMessageInput = {
 };
 
 const requestMessageLoadErrorMessage =
-  "Mesajlar şu anda yüklenemedi. Lütfen tekrar deneyin.";
+  "Mesajlar şu anda yüklenemedi. Lütfen tekrar dene.";
 const requestMessageSendErrorMessage =
-  "Mesaj gönderilemedi. Lütfen tekrar deneyin.";
+  "Mesaj gönderilemedi. Lütfen tekrar dene.";
 const requestMessageLoginRequiredMessage =
   "Mesaj göndermek için giriş yapmalısın.";
 const requestMessageValidationMessage =

@@ -21,7 +21,7 @@ export async function assignServiceRequestAction(formData: FormData) {
       resultCode = result.code;
     }
   } catch (error) {
-    console.error("[Fuwu] Admin service request assignment action failed.", {
+    console.error("[FUWU] Admin service request assignment action failed.", {
       providerId,
       requestId,
       payloadKeys: Array.from(formData.keys()),

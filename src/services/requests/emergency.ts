@@ -389,7 +389,7 @@ export async function createEmergencyMatchRequest(
       notificationMessage:
         eligibleProviderCount > 0
           ? `${eligibleProviderCount} uygun ustaya bildirim gönderildi.`
-          : "Şu anda bu bölgede uygun usta bulunamadı, talebiniz admin tarafından değerlendirilecek.",
+          : "Şu anda bu bölgede uygun usta bulunamadı. Talebin ekibimiz tarafından değerlendirilecek.",
       offeredPrice: insertPayload.offered_price ?? null,
       paymentPreference: insertPayload.payment_preference ?? null,
       providerCountNotified: eligibleProviderCount,

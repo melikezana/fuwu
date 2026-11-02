@@ -91,14 +91,14 @@ export const providerApplicationStatusLabels: Record<ProviderApplicationStatus, 
 };
 
 export const providerApplicationStatusMessages: Record<ProviderApplicationStatus, string> = {
-  [PROVIDER_APPLICATION_STATUSES.pending]: "Başvurunuz değerlendirmede",
+  [PROVIDER_APPLICATION_STATUSES.pending]: "Başvurun değerlendirmede",
   [PROVIDER_APPLICATION_STATUSES.approved]:
-    "Başvurunuz onaylandı. Usta paneliniz aktif.",
+    "Başvurun onaylandı. Usta panelin aktif.",
   [PROVIDER_APPLICATION_STATUSES.rejected]:
-    "Başvurunuz reddedildi. Bilgilerinizi güncelleyerek tekrar başvurabilirsiniz.",
+    "Başvurun onaylanmadı. Bilgilerini güncelleyerek tekrar başvurabilirsin.",
 };
 
-export const noProviderApplicationMessage = "Henüz usta başvurunuz yok.";
+export const noProviderApplicationMessage = "Henüz usta başvurun yok.";
 
 function getRelationName(relation: MaybeRelation) {
   const record = Array.isArray(relation) ? relation[0] : relation;

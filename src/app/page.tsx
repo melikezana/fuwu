@@ -12,7 +12,7 @@ export const metadata: Metadata = createPageMetadata({
     "İstanbul tesisatçı",
     "İstanbul elektrikçi",
     "ev temizliği",
-    "Fuwu Hizmet",
+    "FUWU Hizmet",
   ],
 });
 

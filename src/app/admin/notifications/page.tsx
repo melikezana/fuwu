@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Bildirimler | Admin",
-  description: "Fuwu kullanıcılarına bildirim gönder.",
+  description: "FUWU kullanıcılarına bildirim gönder.",
 };
 
 export default async function AdminNotificationsPage() {

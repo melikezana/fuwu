@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Kullanıcılar | Admin",
-  description: "Fuwu kullanıcılarını ve rollerini yöneten admin görünümü.",
+  description: "FUWU kullanıcılarını ve rollerini yöneten admin görünümü.",
 };
 
 const adminUsersPath = "/admin/users";

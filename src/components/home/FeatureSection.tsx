@@ -9,9 +9,9 @@ export function FeatureSection() {
     <section className="border-y border-[var(--border)] bg-white" id="why">
       <Container className="py-14 sm:py-16 lg:py-20">
         <SectionIntro
-          eyebrow="Neden Fuwu"
+          eyebrow="Neden FUWU"
           title="Karar vermeyi hızlandıran net bilgiler."
-          description="Fuwu ilk adımı net tutar; ihtiyacını belirler, fiyat aralığını görür ve güven veren bilgilerle ilerlersin."
+          description="FUWU ilk adımı net tutar; ihtiyacını belirler, fiyat aralığını görür ve güven veren bilgilerle ilerlersin."
         />
 
         <div className="mt-8 grid gap-4 md:grid-cols-3 lg:gap-5">

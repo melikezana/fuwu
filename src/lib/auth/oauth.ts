@@ -1,8 +1,8 @@
 export const oauthErrors = {
-  oauth_denied: "Google ile giriş tamamlanmadı. Tekrar deneyebilirsiniz.",
-  oauth_exchange_failed: "Giriş bağlantısı geçersiz veya süresi dolmuş. Lütfen yeniden giriş yapın.",
-  oauth_unavailable: "Giriş hizmetine şu anda ulaşılamıyor. Lütfen tekrar deneyin.",
-  profile_unavailable: "Oturum açıldı ancak hesap bilgileri hazırlanamadı. Lütfen yeniden deneyin.",
+  oauth_denied: "Google ile giriş tamamlanmadı. Tekrar deneyebilirsin.",
+  oauth_exchange_failed: "Giriş bağlantısı geçersiz veya süresi dolmuş. Lütfen yeniden giriş yap.",
+  oauth_unavailable: "Giriş hizmetine şu anda ulaşılamıyor. Lütfen tekrar dene.",
+  profile_unavailable: "Oturum açıldı ancak hesap bilgileri hazırlanamadı. Lütfen yeniden dene.",
 } as const;
 export type OAuthErrorCode = keyof typeof oauthErrors;
 

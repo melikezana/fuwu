@@ -276,7 +276,7 @@ export async function uploadGalleryImage(
 
   if (!countError && typeof count === "number" && count >= PROVIDER_GALLERY_MAX_IMAGES) {
     return {
-      message: "Maksimum 12 görsel yüklediniz.",
+      message: "En fazla 12 görsel yükleyebilirsin.",
       ok: false,
     };
   }
@@ -327,7 +327,7 @@ export async function uploadGalleryImage(
 
     if (isGalleryLimitError(insertError)) {
       return {
-        message: "Maksimum 12 görsel yüklediniz.",
+        message: "En fazla 12 görsel yükleyebilirsin.",
         ok: false,
       };
     }
