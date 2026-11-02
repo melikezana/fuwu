@@ -101,3 +101,41 @@
 .trust-alert-grid a { color:var(--brand-orange-dark); text-decoration:underline; }
 @media (max-width: 1023px) { .quality-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .trust-alert-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width: 639px) { .quality-grid, .trust-alert-grid { grid-template-columns:minmax(0,1fr); } }
+
+/* ===== Okunabilirlik katmanı (her yaştan kullanıcı) =====
+   Kaynak: WCAG 2.2 kontrast (4.5:1), Apple HIG / Material asgari metin boyutları,
+   yaşlı kullanıcılar için 13–16px önerisi. Renk token'ları değişmez; yalnızca boyut ve
+   turuncu zemin üzerindeki yazı rengi düzenlenir. */
+
+/* iPhone, 16px altındaki alanlara dokununca sayfayı yakınlaştırır; uygulama hissini bozar. */
+@media (max-width: 767px) {
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
+}
+
+/* Etiket ve üst başlıklar: en az 12px */
+.commerce-eyebrow, .home-eyebrow, .market-eyebrow, .booking-service-heading .commerce-eyebrow,
+.commerce-badge, .commerce-status, .commerce-photo-label, .market-price-label { font-size: 12px; }
+
+/* Bilgi, fiyat açıklaması, puan ve süre gibi karar veren metinler: en az 13px */
+.commerce-meta, .commerce-price-row small, .commerce-price-row > span, .commerce-offer-person p, .commerce-offer-meta,
+.commerce-order-details dd small, .commerce-history time, .commerce-journey-bottom small, .commerce-summary > small,
+.commerce-sticky small, .commerce-sandbox, .commerce-progress li > span, .commerce-journey-steps li > span,
+.home-category-detail, .home-category-description, .home-payment-note, .home-catalog-notice, .home-benefit > span, .home-benefit small,
+.home-quick-services, .request-service-description, .market-profile-stats small, .market-mobile-action small,
+.market-breadcrumb, .fusion-photo-note, .booking-scope summary > span, .booking-day-rail button > span,
+.providers-page .page-header-actions > span, .providers-page .page-header-metrics .text-xs { font-size: 13px; }
+
+/* Dokunulan metinler (filtre, sekme, bağlantı, ikincil düğme): en az 13–14px */
+.commerce-filters button, .home-category-filters button, .catalog-category-nav a, .request-progress button,
+.market-request-form .request-progress button, .fusion-booking-progress li, .operations-week a,
+.home-how-link, .home-section-heading > .home-text-link, .home-steps .home-text-link { font-size: 13px; }
+.commerce-offer-actions a, .commerce-offer-actions button { font-size: 14px; }
+.commerce-help { font-size: max(13px, 1em); }
+
+/* Alt menü etiketi: 5 sekme 320px ekrana sığsın diye 11px (iOS standardı 10pt). */
+.mobile-tab-label { font-size: 11px; }
+.home-photo-credit, .home-photo-caption { font-size: 11px; }
+
+/* Turuncu zemin üzerinde beyaz yazı 2,95:1 (yetersiz). Ana düğmelerdeki gibi koyu yazı: 5,7:1. */
+.bg-\[var\(--brand-orange\)\].text-white:not(:hover):not(:focus-visible), .partner-stage li[aria-current=step] span { color: #241c16; }
+.quality-grid em { font-size: 12px; }

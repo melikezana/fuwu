@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { ArrowRight, Loader2, Mail, Phone, type LucideIcon } from "lucide-react";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getPublicErrorMessage } from "@/lib/errors";
@@ -11,7 +11,6 @@ import { isSupabaseAuthConfigured } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 import { validateLoginEmailInput, validateLoginPhoneInput, validateLoginOtpInput } from "@/lib/validations";
 import { signInWithEmailMagicLink, signInWithGoogle, signInWithPhoneOtp, verifyPhoneOtp } from "@/services/auth";
-import { useRouter } from "next/navigation";
 import { oauthErrors } from "@/lib/auth/oauth";
 
 type LoginOptionKey = "google" | "email";
@@ -109,7 +108,34 @@ export function LoginOptions() {
   const [otpToken, setOtpToken] = useState("");
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const router = useRouter();
+  // Aynı adrese/numaraya art arda kod istenmesin: Supabase 60 sn sınırına takılmadan önce kullanıcıya süre gösterilir.
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const cooldown = Math.max(0, Math.ceil((cooldownUntil - now) / 1000));
+
+  useEffect(() => {
+    if (!cooldownUntil) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [cooldownUntil]);
+
+  // Google sayfasından geri tuşuyla dönülünce (bfcache) düğmeler "açılıyor" durumunda kilitli kalmasın.
+  useEffect(() => {
+    const reset = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      setIsGoogleLoading(false);
+      setIsEmailLoading(false);
+      setIsPhoneLoading(false);
+    };
+    window.addEventListener("pageshow", reset);
+    return () => window.removeEventListener("pageshow", reset);
+  }, []);
+
+  function startCooldown() {
+    const until = Date.now() + 60_000;
+    setNow(Date.now());
+    setCooldownUntil(until);
+  }
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
   const callbackFeedback = urlError && Object.hasOwn(oauthErrors, urlError)
@@ -158,12 +184,18 @@ export function LoginOptions() {
       return;
     }
 
+    if (cooldown > 0) {
+      setFeedbackText(`Yeni bağlantı için ${cooldown} saniye bekle. Gelen kutunu ve spam klasörünü kontrol et.`);
+      return;
+    }
+
     setIsEmailLoading(true);
     setTranslatedFeedback("login.status.emailPreparing");
 
     try {
       await signInWithEmailMagicLink(validationResult.data.email, getAuthRedirectUrl());
       setTranslatedFeedback("login.status.emailSent");
+      startCooldown();
     } catch (error) {
       setFeedbackText(
         getPublicErrorMessage(
@@ -193,12 +225,13 @@ export function LoginOptions() {
       }
 
       setIsPhoneLoading(true);
-      setFeedbackText("Giriş yapılıyor...");
+      setFeedbackText("Giriş yapılıyor…");
 
       try {
         await verifyPhoneOtp(phone, validationResult.data.otp);
         setFeedbackText("Giriş başarılı. Yönlendiriliyorsun…");
-        router.push(getSafeNextPath());
+        // Tam sayfa geçişi: sunucu bileşenleri ve üst menü yeni oturumu hemen görür.
+        window.location.assign(getSafeNextPath());
       } catch (error) {
         setFeedbackText(
           getPublicErrorMessage(
@@ -212,6 +245,10 @@ export function LoginOptions() {
       return;
     }
 
+    await sendPhoneCode();
+  }
+
+  async function sendPhoneCode() {
     const validationResult = validateLoginPhoneInput(phone);
 
     if (!validationResult.ok) {
@@ -219,13 +256,20 @@ export function LoginOptions() {
       return;
     }
 
+    if (cooldown > 0) {
+      setFeedbackText(`Yeni kod için ${cooldown} saniye bekle.`);
+      return;
+    }
+
     setIsPhoneLoading(true);
-    setFeedbackText("Giriş kodu gönderiliyor...");
+    setFeedbackText("Giriş kodu gönderiliyor…");
 
     try {
       await signInWithPhoneOtp(validationResult.data.phone);
       setShowOtpInput(true);
-      setFeedbackText("Giriş kodu SMS ile gönderildi.");
+      setOtpToken("");
+      startCooldown();
+      setFeedbackText("Giriş kodu SMS ile gönderildi. Kod birkaç saniye içinde gelir.");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : "";
       if (errorMessage.includes("not configured") || errorMessage.includes("not enabled")) {
@@ -276,7 +320,7 @@ export function LoginOptions() {
               {getOptionDescription(loginOptions[0], t)}
             </span>
           </span>
-          <span className="w-fit rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-[0.68rem] font-bold text-[var(--muted)]">
+          <span className="w-fit rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-bold text-[var(--muted)]">
             {getOptionStatus("google", isGoogleLoading, t)}
           </span>
         </button>
@@ -293,6 +337,7 @@ export function LoginOptions() {
                 className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
                 data-testid="login-email-input"
                 disabled={isEmailLoading}
+                autoComplete="email"
                 inputMode="email"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={t("login.emailPlaceholder")}
@@ -331,8 +376,10 @@ export function LoginOptions() {
                 className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
                 data-testid={showOtpInput ? "login-otp-input" : "login-phone-input"}
                 disabled={isPhoneLoading}
+                autoComplete={showOtpInput ? "one-time-code" : "tel"}
                 inputMode={showOtpInput ? "numeric" : "tel"}
-                onChange={(event) => showOtpInput ? setOtpToken(event.target.value) : setPhone(event.target.value)}
+                maxLength={showOtpInput ? 6 : 20}
+                onChange={(event) => showOtpInput ? setOtpToken(event.target.value.replace(/\D/g, "").slice(0, 6)) : setPhone(event.target.value)}
                 placeholder={showOtpInput ? "6 haneli kod" : "+90 5XX XXX XX XX"}
                 type="text"
                 value={showOtpInput ? otpToken : phone}
@@ -352,9 +399,18 @@ export function LoginOptions() {
             )}
             {showOtpInput ? "Giriş Yap" : "Kod Gönder"}
           </button>
-          {!showOtpInput && (
+          {!showOtpInput ? (
             <span className="cursor-default select-none text-xs font-bold leading-5 text-[var(--muted)]">
               Telefon numarana 6 haneli bir SMS onay kodu göndereceğiz.
+            </span>
+          ) : (
+            <span className="flex flex-wrap items-center justify-between gap-2 text-sm font-bold">
+              <button className="min-h-11 underline decoration-2 underline-offset-4 text-[var(--brand-navy)]" type="button" disabled={isPhoneLoading} onClick={() => { setShowOtpInput(false); setOtpToken(""); setFeedbackText(null); }}>
+                Numarayı değiştir
+              </button>
+              <button className="min-h-11 underline decoration-2 underline-offset-4 text-[var(--brand-orange-dark)] disabled:text-[var(--muted)] disabled:no-underline" type="button" disabled={isPhoneLoading || cooldown > 0} onClick={() => void sendPhoneCode()}>
+                {cooldown > 0 ? `Kodu tekrar gönder (${cooldown} sn)` : "Kodu tekrar gönder"}
+              </button>
             </span>
           )}
         </form>

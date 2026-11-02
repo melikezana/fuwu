@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, Check, Loader2 } from "lucide-react";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { updateProviderProfileImageAction } from "@/app/provider-dashboard/profile/actions";
-import { resizeImageForUpload } from "@/lib/utils/resizeImageForUpload";
+import { resizeImageForUpload, validateRawImageFile } from "@/lib/utils/resizeImageForUpload";
 import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 import {
   PROVIDER_IMAGE_ACCEPT,
@@ -65,7 +65,7 @@ export function ProfileImageUploader({
       return;
     }
 
-    const sourceValidationError = validateProviderImageFile(sourceFile);
+    const sourceValidationError = validateRawImageFile(sourceFile);
 
     if (sourceValidationError) {
       setMessage(sourceValidationError);

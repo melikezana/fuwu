@@ -205,7 +205,7 @@ export const trTranslations = {
     "Giriş sistemi şu anda kullanılamıyor. Ustaları giriş yapmadan inceleyebilirsin.",
   "login.status.googleOpening": "Google girişi açılıyor.",
   "login.status.emailPreparing": "Giriş bağlantısı hazırlanıyor.",
-  "login.status.emailSent": "Giriş bağlantısı e-posta adresine gönderildi.",
+  "login.status.emailSent": "Giriş bağlantısı e-postana gönderildi. Bağlantıyı bu cihazda, aynı tarayıcıda aç. Gelmediyse spam klasörüne bak.",
   "login.status.googleError": "Google girişi şu anda açılamıyor. Lütfen tekrar dene.",
   "login.status.emailError": "Giriş bağlantısı şu anda gönderilemedi. Lütfen tekrar dene.",
   "login.google": "Google ile devam et",

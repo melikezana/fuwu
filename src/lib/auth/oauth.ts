@@ -1,6 +1,6 @@
 export const oauthErrors = {
   oauth_denied: "Google ile giriş tamamlanmadı. Tekrar deneyebilirsin.",
-  oauth_exchange_failed: "Giriş bağlantısı geçersiz veya süresi dolmuş. Lütfen yeniden giriş yap.",
+  oauth_exchange_failed: "Giriş bağlantısı geçersiz, süresi dolmuş ya da başka bir tarayıcıda açılmış. Bağlantıyı girişi başlattığın tarayıcıda aç veya yeniden giriş yap.",
   oauth_unavailable: "Giriş hizmetine şu anda ulaşılamıyor. Lütfen tekrar dene.",
   profile_unavailable: "Oturum açıldı ancak hesap bilgileri hazırlanamadı. Lütfen yeniden dene.",
 } as const;

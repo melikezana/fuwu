@@ -63,6 +63,12 @@ export function validateLoginPhoneInput(
       field: "phone",
       message: commonValidationMessages.phoneInvalid,
     });
+  } else if (sanitizedPhone.startsWith("+90") && !/^\+905\d{9}$/.test(sanitizedPhone)) {
+    // SMS kodu yalnızca cep telefonuna gider: +90 5XX XXX XX XX.
+    issues.push({
+      field: "phone",
+      message: "SMS kodu için 05XX XXX XX XX biçiminde cep telefonu numaranı gir.",
+    });
   }
 
   if (issues.length > 0) {

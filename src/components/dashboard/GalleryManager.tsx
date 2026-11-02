@@ -8,7 +8,7 @@ import {
   deleteGalleryImageAction,
   uploadGalleryImageAction,
 } from "@/app/provider-dashboard/profile/actions";
-import { resizeImageForUpload } from "@/lib/utils/resizeImageForUpload";
+import { resizeImageForUpload, validateRawImageFile } from "@/lib/utils/resizeImageForUpload";
 import { validateImageMagicBytes } from "@/lib/validations/imageMagicBytes";
 import {
   PROVIDER_GALLERY_ACCEPT,
@@ -91,22 +91,49 @@ export function GalleryManager({
   );
   const hasReachedLimit = visibleImageCount >= maxImages;
 
-  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const sourceFile = event.target.files?.[0] ?? null;
-    event.target.value = "";
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
-    if (!sourceFile || hasReachedLimit) {
+  // Usta birden fazla iş fotoğrafını tek seferde seçebilir; sırayla yüklenir, kalan kotayı aşmaz.
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    const remaining = Math.max(0, maxImages - visibleImageCount);
+
+    if (!selected.length || remaining === 0) {
       return;
     }
 
-    const sourceValidationError = validateGalleryImageFile(sourceFile);
+    const queue = selected.slice(0, remaining);
+    let uploaded = 0;
+    let lastError: string | null = null;
+    setUploadProgress({ done: 0, total: queue.length });
+
+    for (const [index, sourceFile] of queue.entries()) {
+      const error = await uploadOne(sourceFile, visibleImageCount + index, index === 0);
+      if (error) lastError = error; else uploaded += 1;
+      setUploadProgress({ done: index + 1, total: queue.length });
+    }
+
+    setUploadProgress(null);
+    if (queue.length > 1 || selected.length > queue.length) {
+      const skipped = selected.length - queue.length;
+      setFeedback({
+        message: `${uploaded}/${queue.length} fotoğraf yüklendi.${skipped ? ` ${skipped} fotoğraf, ${maxImages} görsel sınırı nedeniyle eklenmedi.` : ""}${lastError ? ` Son hata: ${lastError}` : ""}`,
+        tone: uploaded ? "success" : "error",
+      });
+    }
+  }
+
+  // Tek dosyayı doğrular, küçültür ve yükler. Hata mesajını döndürür; başarıda null.
+  async function uploadOne(sourceFile: File, displayOrder: number, useCaption: boolean): Promise<string | null> {
+    const sourceValidationError = validateRawImageFile(sourceFile);
 
     if (sourceValidationError) {
       setFeedback({
         message: sourceValidationError,
         tone: "error",
       });
-      return;
+      return sourceValidationError;
     }
 
     const magicByteError = await validateImageMagicBytes(sourceFile);
@@ -116,7 +143,7 @@ export function GalleryManager({
         message: magicByteError,
         tone: "error",
       });
-      return;
+      return magicByteError;
     }
 
     const file = await convertImageFileToWebp(sourceFile);
@@ -127,12 +154,12 @@ export function GalleryManager({
         message: validationError,
         tone: "error",
       });
-      return;
+      return validationError;
     }
 
     const previewUrl = URL.createObjectURL(sourceFile);
     const temporaryId = createTemporaryId();
-    const safeCaption = caption.trim();
+    const safeCaption = useCaption ? caption.trim() : "";
     previewUrlsRef.current.add(previewUrl);
     setFeedback(null);
     setOptimisticItems((currentItems) => [
@@ -140,7 +167,7 @@ export function GalleryManager({
       {
         caption: safeCaption || null,
         createdAt: new Date().toISOString(),
-        displayOrder: visibleImageCount,
+        displayOrder,
         id: temporaryId,
         isPending: true,
         providerId,
@@ -168,7 +195,7 @@ export function GalleryManager({
         message: result.message,
         tone: "error",
       });
-      return;
+      return result.message;
     }
 
     setCaption("");
@@ -197,6 +224,7 @@ export function GalleryManager({
       );
     }, 2200);
     cleanupTimeoutsRef.current.add(cleanupTimeout);
+    return null;
   }
 
   async function handleDelete(image: GalleryItem) {
@@ -344,11 +372,18 @@ export function GalleryManager({
         accept={PROVIDER_GALLERY_ACCEPT}
         aria-label="İş fotoğrafı dosyası"
         className="sr-only"
+        multiple
         name="galleryImage"
         onChange={handleFileChange}
         ref={inputRef}
         type="file"
       />
+
+      {uploadProgress ? (
+        <p className="mt-4 flex items-center gap-2 rounded-md bg-[var(--brand-orange-soft)] px-3 py-2 text-sm font-bold text-[var(--brand-orange-dark)]" role="status">
+          <Loader2 aria-hidden className="size-4 animate-spin" /> {uploadProgress.done}/{uploadProgress.total} fotoğraf yükleniyor…
+        </p>
+      ) : null}
 
       {hasReachedLimit ? (
         <p className="mt-4 rounded-md bg-[var(--surface-soft)] px-3 py-2 text-sm font-semibold text-[var(--muted)]">
