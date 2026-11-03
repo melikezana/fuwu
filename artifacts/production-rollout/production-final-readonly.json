@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-11-01T20:40:52.536326+00:00",
+  "scope": "Fresh read-only metadata comparison against schema-only dump baseline; no production row payloads",
+  "metadataDrift": [],
+  "counts": {
+    "audit": 77,
+    "providers": 4,
+    "applications": 10,
+    "activeCategories": 11
+  },
+  "ledgerCount": 46,
+  "ledgerUnchanged": true
+}

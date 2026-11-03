@@ -11,7 +11,7 @@ import { providerControlChecks, providerControlRace } from "./provider-control-d
 import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
 import { trustChecks } from "./trust-db-checks.mjs";
 import { legacySnapshot as snapshotLegacy, verifyLegacyPreservation } from "./testing/legacy-preservation.mjs";
-import { sourceHash } from "./testing/evidence.mjs";
+import { sourceHash, writeArtifactFile } from "./testing/evidence.mjs";
 
 // No env file or remote URL is read. Bind only loopback, always stop our own cluster.
 const runtime = path.resolve("artifacts/commerce-test-runtime");
@@ -116,7 +116,7 @@ try {
   await providerControlRace(db, report.checks);
   await trustChecks(db, report.checks);
   await compareProviderSchema(db, output);
-  await fs.writeFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
+  writeArtifactFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
   console.log(`PASS ${files.length} migrations, ${report.scenario}, ${report.checks.length} checks`);
 } catch (e) { report.failure ??= { code:e.code??null,message:e.message }; console.error(JSON.stringify(report.failure));console.error(e.stack);process.exitCode=1; }
-finally { await db?.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",data,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(output,productionUpgrade?"migration-production-upgrade.json":upgrade?"migration-upgrade.json":"migration-chain.json"),JSON.stringify(report,null,2)); }
+finally { await db?.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",data,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}writeArtifactFile(path.join(output,productionUpgrade?"migration-production-upgrade.json":upgrade?"migration-upgrade.json":"migration-chain.json"),JSON.stringify(report,null,2)); }

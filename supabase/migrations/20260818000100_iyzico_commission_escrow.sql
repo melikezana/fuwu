@@ -13,9 +13,20 @@ alter table public.providers
 alter table public.providers
   drop constraint if exists providers_iyzico_submerchant_status_check;
 
+-- Production received an earlier onboarding contract with default 'none' and
+-- statuses none/pending/active/rejected outside this migration ledger. Keep
+-- those original values/defaults; neither legacy alias authorizes payments.
+do $$ begin
+  if not exists (select 1 from information_schema.columns where table_schema='public'
+    and table_name='providers' and column_name='iyzico_submerchant_status'
+    and data_type='text' and is_nullable='NO') then
+    raise exception 'provider_onboarding_status_contract_mismatch';
+  end if;
+end $$;
+
 alter table public.providers
   add constraint providers_iyzico_submerchant_status_check
-  check (iyzico_submerchant_status in ('missing', 'pending_review', 'active', 'rejected'));
+  check (iyzico_submerchant_status in ('none', 'pending', 'missing', 'pending_review', 'active', 'rejected'));
 
 create index if not exists providers_iyzico_submerchant_status_idx
   on public.providers (iyzico_submerchant_status);

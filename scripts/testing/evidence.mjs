@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 export const output = path.resolve("artifacts/security-testing");
 export function sourceHash() {
@@ -13,9 +13,16 @@ export function sourceHash() {
   for(const file of ["src","scripts","tests","e2e","supabase","config",".github","package.json","package-lock.json","playwright.config.ts","vitest.unit.config.ts","vitest.security.config.ts","next.config.ts","middleware.ts","eslint.config.mjs","tsconfig.json"]) walk(file);
   return hash.digest("hex");
 }
+export function writeArtifactFile(target, contents) {
+  fs.mkdirSync(path.dirname(target),{recursive:true});
+  const temporary=`${target}.${randomUUID()}.tmp`;
+  try {
+    fs.writeFileSync(temporary,contents,{flag:"wx"});
+    fs.renameSync(temporary,target);
+  } finally { fs.rmSync(temporary,{force:true}); }
+}
 export function saveEvidence(name, evidence) {
-  fs.mkdirSync(output,{recursive:true});
-  fs.writeFileSync(path.join(output,`${name}-result.json`),JSON.stringify(evidence,null,2));
+  writeArtifactFile(path.join(output,`${name}-result.json`),JSON.stringify(evidence,null,2));
 }
 export function evaluateRelease(records, hash, now=Date.now()) {
   const required=["typecheck","lint","unit","coverage","integration","security","build","commerce-e2e","prelaunch-e2e","google-oauth","iyzico-sandbox","staging-schema","p0-review"];

@@ -5,7 +5,7 @@ import {createCommerceFixture,createTrustFixture,ensureTestUserRole,getTestAdmin
 
 test('real public, customer, partner, document and admin screens fit 320–1440px and pass mobile axe',async({browser})=>{
  test.setTimeout(300_000);skipUnlessLocalSupabase();
- const output=path.resolve('artifacts/critical-backend-repair/mobile');await fs.mkdir(output,{recursive:true});
+ const output=path.resolve(process.env.E2E_MOBILE_OUTPUT_DIR||'artifacts/critical-backend-repair/mobile');await fs.mkdir(output,{recursive:true});
  const axe=await fs.readFile(path.resolve('node_modules/axe-core/axe.min.js'),'utf8');
  const db=getTestAdminClient(),email=uniqueE2EEmail('mobile-partner'),owner=await ensureTestUserRole(email,'provider'),prepared=await createCommerceFixture(owner),trust=await createTrustFixture();
  const appId=crypto.randomUUID(),application=await db.from('provider_applications').insert({id:appId,user_id:owner,full_name:prepared.provider.name,phone:prepared.provider.phone,category_id:prepared.provider.category_id,district_id:prepared.districtId,status:'approved'});expect(application.error).toBeNull();

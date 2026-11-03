@@ -58,6 +58,8 @@ type ProviderRelation = {
 };
 
 export type ProviderIyzicoSubmerchantStatus =
+  | "none"
+  | "pending"
   | "missing"
   | "pending_review"
   | "active"
@@ -198,6 +200,8 @@ export const PROVIDER_IYZICO_SUBMERCHANT_STATUS_LABELS: Record<
   string
 > = {
   active: "Ödeme hesabı aktif",
+  none: "Ödeme bilgisi eksik",
+  pending: "iyzico incelemede",
   missing: "Ödeme bilgisi eksik",
   pending_review: "iyzico incelemede",
   rejected: "iyzico kaydı reddedildi",

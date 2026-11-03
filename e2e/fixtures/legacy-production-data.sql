@@ -1,9 +1,12 @@
 -- Synthetic evidence only. Monetary values deliberately include fractional TRY.
+insert into public.providers(id,name,phone,description,category_id,district_id,iyzico_submerchant_status)
+select 'b3000000-0000-4000-8000-000000000003','TEST Legacy Pending Provider','+905550000004','TEST preserve pending onboarding without activation.',category_id,district_id,'pending'
+from public.providers where id='b1000000-0000-4000-8000-000000000002';
 insert into public.app_settings(key,value) values('commission_rate','10'),('preserve_me','synthetic legacy setting');
 insert into public.orders(id,request_id,customer_id,provider_id,amount,commission_rate,commission_amount,provider_net_amount,status)
 values('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000004','b1000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000002',1234.56,0.10,123.46,1111.10,'APPROVED');
-insert into public.order_payments(id,order_id,paid_price,status,raw_response)
-values('b2000000-0000-4000-8000-000000000002','b2000000-0000-4000-8000-000000000001',1234.56,'SUCCESS','{"synthetic":true}');
+insert into public.order_payments(id,order_id,paid_price,status,raw_response,iyzico_token)
+values('b2000000-0000-4000-8000-000000000002','b2000000-0000-4000-8000-000000000001',1234.56,'SUCCESS','{"synthetic":true}','TEST-synthetic-legacy-token');
 insert into public.payouts(id,order_id,provider_id,amount,status)
 values('b2000000-0000-4000-8000-000000000003','b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000002',1111.10,'PENDING');
 insert into public.disputes(id,order_id,opened_by,reason,status)

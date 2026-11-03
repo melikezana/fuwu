@@ -71,4 +71,29 @@ grant insert,delete on public.provider_gallery_images to authenticated;
 grant all on public.provider_gallery_images to service_role;
 alter function public.check_gallery_limit() set search_path=pg_catalog,public,pg_temp;
 revoke all on function public.check_gallery_limit() from public,anon,authenticated;
+
+-- The untracked legacy financial graph has participant SELECT policies. RLS
+-- restricts rows, not columns: its observed table-wide SELECT also exposed
+-- processor tokens/raw responses to the customer and payout owner. Preserve
+-- the graph and its write policies; browser readers receive summaries only.
+-- Explicit column revokes also cover independent grants left by older repairs.
+do $$ begin
+ if to_regclass('public.order_payments') is not null then
+  revoke select on public.order_payments from public,anon,authenticated;
+  revoke select (iyzico_payment_id,iyzico_conversation_id,iyzico_token,
+   iyzico_payment_transaction_id,refund_id,raw_response,error_code,error_message)
+   on public.order_payments from public,anon,authenticated;
+  grant select (id,order_id,paid_price,installment,card_last_four,status,
+   created_at,updated_at,refunded_amount,refunded_at)
+   on public.order_payments to authenticated;
+ end if;
+ if to_regclass('public.payouts') is not null then
+  revoke select on public.payouts from public,anon,authenticated;
+  revoke select (iyzico_transfer_id,raw_response,failure_reason)
+   on public.payouts from public,anon,authenticated;
+  grant select (id,order_id,provider_id,amount,currency,status,
+   initiated_at,completed_at,created_at,updated_at)
+   on public.payouts to authenticated;
+ end if;
+end $$;
 commit;

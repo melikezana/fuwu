@@ -1,0 +1,43 @@
+{
+  "status": "FAIL",
+  "sourceHash": "1d4b430a077759202bc2c05ada56a97e3ce5158a8763041628c9e2fa6b71be2c",
+  "startedAt": "2026-10-31T19:36:04.848Z",
+  "completedAt": "2026-10-31T19:37:58.396Z",
+  "executed": true,
+  "passed": 340,
+  "failed": 1,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "migrations-clean",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "migrations-upgrade",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "commerce-db-clean",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "commerce-db-upgrade",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "production-ledger-replay",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "observed-production-upgrade",
+      "status": "FAIL",
+      "exitCode": 1
+    }
+  ]
+}

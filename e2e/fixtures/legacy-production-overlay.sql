@@ -1,6 +1,24 @@
 -- DDL observed read-only on 2026-10-31. No production rows or secrets.
 -- Apply ONLY after the 46 recorded migrations in a disposable database.
 
+-- Production defaults apply even when a later migration grants only SELECT.
+-- Exercise RLS and explicit REVOKEs under the same inherited privileges.
+alter default privileges for role postgres in schema public grant all on tables to anon,authenticated,service_role;
+alter default privileges for role postgres in schema public grant all on functions to anon,authenticated,service_role;
+alter default privileges for role postgres in schema public grant all on sequences to anon,authenticated,service_role;
+
+-- Untracked provider onboarding columns from the fresh production snapshot.
+-- These defaults and legacy status values must survive the pending migration.
+alter table public.providers
+ add column iyzico_submerchant_key text,
+ add column iyzico_submerchant_type text,
+ add column iyzico_submerchant_status text not null default 'none',
+ add column legal_name text,
+ add column tax_office text,
+ add column tax_number text,
+ add constraint providers_iyzico_submerchant_status_check check(iyzico_submerchant_status in ('none','pending','active','rejected')),
+ add constraint providers_iyzico_submerchant_type_check check(iyzico_submerchant_type is null or iyzico_submerchant_type in ('personal','private','limited_or_joint_stock'));
+
 create table public."app_settings" (
  "key" text not null,
  "value" text default ''::text not null,
@@ -249,3 +267,9 @@ create policy "request_reassignment_log_select_admin" on public."request_reassig
 create policy "webhook_events_select_admin" on public."webhook_events" as PERMISSIVE for SELECT to "authenticated" using (current_user_is_admin());
 
 grant all on public.orders,public.order_payments,public.payouts,public.disputes,public.webhook_events,public.app_settings,public.request_reassignment_log to service_role;
+-- Observed production ACLs, not just table definitions: participant policies
+-- plus these inherited table grants previously exposed processor columns.
+grant all on public.orders,public.order_payments,public.payouts,public.disputes,public.webhook_events to anon,authenticated;
+-- Model independent column grants too; a table-level REVOKE alone is insufficient.
+grant select(iyzico_token,raw_response) on public.order_payments to authenticated;
+grant select(raw_response) on public.payouts to authenticated;

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { parseEnv } from 'node:util';
 import { isLoopbackUrl, loadTestEnvironment } from './testing/environment.mjs';
-import { sourceHash } from './testing/evidence.mjs';
+import { sourceHash, writeArtifactFile } from './testing/evidence.mjs';
 import net from 'node:net';
 
 // Own disposable stack. Never copy .temp/link metadata, remote credentials or rows.
@@ -68,13 +68,14 @@ try {
  if(backend.code!==0) throw new Error('Local backend contract check failed');
  for(const workers of [1,2]) {
   const reportFile=path.join(output,`e2e-workers-${workers}.json`);
+  const artifactDirectory=path.resolve('artifacts/critical-backend-repair/mobile',project,`workers-${workers}`);
   await fs.rm(reportFile,{force:true}); // Never read evidence from an earlier run.
-  const result=await run(process.execPath,['node_modules/@playwright/test/cli.js','test',`--workers=${workers}`,'--retries=0'],{...validated.env,E2E_REPORT_PATH:reportFile},{timeout:1_800_000});
+  const result=await run(process.execPath,['node_modules/@playwright/test/cli.js','test',`--workers=${workers}`,'--retries=0'],{...validated.env,E2E_REPORT_PATH:reportFile,E2E_MOBILE_OUTPUT_DIR:artifactDirectory},{timeout:1_800_000});
   if(result.code!==0) report.status='FAIL';
   const data=JSON.parse(await fs.readFile(reportFile,'utf8'));
   await fs.mkdir(path.resolve('artifacts/security-testing'),{recursive:true});
   await fs.copyFile(reportFile,path.resolve('artifacts/security-testing/e2e.json'));
-  report.runs.push({workers,exitCode:result.code,stats:data.stats,errors:data.errors});
+  report.runs.push({workers,exitCode:result.code,artifactDirectory,stats:data.stats,errors:data.errors});
   if(result.code!==0||data.stats.skipped||data.stats.flaky||data.stats.unexpected||data.errors.length) {report.status='FAIL';throw new Error(`Full suite failed with ${workers} worker(s); no retry/skip can pass`);}
  }
  const gate=await run(process.execPath,['scripts/run-commerce-e2e.mjs','--prelaunch','--report-only'],validated.env);
@@ -87,6 +88,6 @@ finally {
  if(started&&!keep) await run(cli,['stop','--workdir',work,'--no-backup']);
  if(started&&keep) console.log(`Owned diagnostic stack retained at ${work}; stop this exact workdir after debugging`);
  report.completedAt=new Date().toISOString();
- await fs.writeFile(path.join(output,'result.json'),JSON.stringify(report,null,2));
+ writeArtifactFile(path.join(output,'result.json'),JSON.stringify(report,null,2));
  console.log(`${report.status}: ${report.reason||'Complete local Supabase suites, serial and parallel'}`);
 }

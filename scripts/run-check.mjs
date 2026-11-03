@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { output, saveEvidence, sourceHash } from "./testing/evidence.mjs";
+import { output, saveEvidence, sourceHash, writeArtifactFile } from "./testing/evidence.mjs";
 import { readEnv } from "./testing/environment.mjs";
 
 const name=process.argv[2];
@@ -19,7 +19,7 @@ const steps=[];
 function run(label,args,extra={}) {
   console.log(`Running ${label}`);
   const r=spawnSync(process.execPath,args,{env:{...env,...extra},encoding:"utf8",windowsHide:true,timeout:600000,maxBuffer:20*1024*1024});
-  const log=(r.stdout||"")+(r.stderr||"");fs.writeFileSync(path.join(output,`${label}.log`),log);
+  const log=(r.stdout||"")+(r.stderr||"");writeArtifactFile(path.join(output,`${label}.log`),log);
   if(r.error) console.error(r.error.code||"Execution error");
   process.stdout.write(log);
   steps.push({name:label,status:r.status===0&&!r.error?"PASS":"FAIL",exitCode:r.status});
@@ -37,7 +37,7 @@ try {
       run("static-security",["scripts/check-security.mjs"]);
       if(!process.env.npm_execpath) throw new Error("npm runner required for dependency audit");
       const audit=run("dependency-audit",[process.env.npm_execpath,"audit","--json"]);
-      fs.writeFileSync(path.join(output,"dependency-audit.json"),audit.stdout||"{}");
+      writeArtifactFile(path.join(output,"dependency-audit.json"),audit.stdout||"{}");
       const parsed=JSON.parse(audit.stdout||"{}");
       if(!parsed.metadata?.vulnerabilities) throw new Error("BLOCKED: dependency advisory service unavailable");
       // Low/moderate findings are reported. High/critical findings fail CI.

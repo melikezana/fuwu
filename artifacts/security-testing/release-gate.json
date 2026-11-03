@@ -40,23 +40,24 @@
     {
       "name": "google-oauth",
       "status": "BLOCKED",
-      "reason": "External Google account/redirect allowlist acceptance not performed; local Auth is separate evidence"
+      "reason": "Stale or mismatched source evidence"
     },
     {
       "name": "iyzico-sandbox",
       "status": "BLOCKED",
-      "reason": "No external processor transaction authorized or performed; company/live payment gate remains closed"
+      "reason": "Stale or mismatched source evidence"
     },
     {
       "name": "staging-schema",
       "status": "BLOCKED",
-      "reason": "No independent hosted staging project available; production migration unapplied. Real isolated Supabase and observed-schema PG17 upgrade passed separately"
+      "reason": "Stale or mismatched source evidence"
     },
     {
       "name": "p0-review",
-      "status": "PASS"
+      "status": "BLOCKED",
+      "reason": "Stale or mismatched source evidence"
     }
   ],
-  "evaluatedAt": "2026-10-31T17:50:50.027Z",
+  "evaluatedAt": "2026-10-31T19:22:31.622Z",
   "scope": "Evidence validation only; no deployment, DB mutation or processor call"
 }

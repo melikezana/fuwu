@@ -9,6 +9,7 @@ import path from "node:path";
 import { postgresRuntime } from "./testing/postgres.mjs";
 import { securityDatabaseChecks } from "./security-db-checks.mjs";
 import { publicationChecks } from "./product-publication-db-checks.mjs";
+import { writeArtifactFile } from "./testing/evidence.mjs";
 import { execFileSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import net from "node:net";
@@ -143,4 +144,4 @@ try {
   await publicationChecks({root,a,p,admin,guest,pid,scalar,check});
   console.log(`${report.checks.length} database checks passed.`);
 } catch(error){report.failed=String(error?.stack||error);console.error(report.failed);process.exitCode=1;}
-finally {for(const c of clients)await c.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",dataDir,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}await fs.writeFile(path.join(out,"database-tests.json"),JSON.stringify(report,null,2));}
+finally {for(const c of clients)await c.end().catch(()=>{});if(server){try{execFileSync(pg_ctl,["-D",dataDir,"-m","fast","-w","stop"],{windowsHide:true,stdio:"pipe"});}catch{server.kill();}}writeArtifactFile(path.join(out,"database-tests.json"),JSON.stringify(report,null,2));}

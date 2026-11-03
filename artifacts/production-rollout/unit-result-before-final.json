@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "sourceHash": "1d4b430a077759202bc2c05ada56a97e3ce5158a8763041628c9e2fa6b71be2c",
+  "startedAt": "2026-10-31T19:36:18.998Z",
+  "completedAt": "2026-10-31T19:36:22.692Z",
+  "executed": true,
+  "passed": 157,
+  "failed": 0,
+  "skipped": 0,
+  "reason": "",
+  "steps": [
+    {
+      "name": "unit",
+      "status": "PASS",
+      "exitCode": 0
+    }
+  ]
+}

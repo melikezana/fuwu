@@ -45,8 +45,8 @@
     }
   ],
   "reason": "Full schema/data review and hosted staging upgrade required",
-  "observedAt": "2026-10-31T12:10:00.613392+00:00",
+  "observedAt": "2026-10-31T18:54:56.669934+00:00",
   "projectRef": "bjhyisomjadirdchruix",
-  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
-  "checkedAt": "2026-10-31T17:51:24.050Z"
+  "sourceHash": "aa51c1a68951dba4e229791b3c029e2f1a627e552544b2b133046badf678e858",
+  "checkedAt": "2026-11-01T20:41:28.496Z"
 }

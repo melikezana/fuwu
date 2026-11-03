@@ -66,3 +66,4 @@ storybook-static
 /artifacts/critical-backend-repair/pg17/
 /artifacts/critical-backend-repair/ci/report.zip
 /artifacts/critical-backend-repair/local-supabase/run-*/
+/artifacts/production-rollout/runtime/

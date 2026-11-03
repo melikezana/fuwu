@@ -1,6 +1,6 @@
 {
-  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
-  "startedAt": "2026-10-31T15:17:36.671Z",
+  "sourceHash": "f3d32e121d50b817ecf2c890a70d484fcaaa063a0defc4ed46c94b69c1ad22a0",
+  "startedAt": "2026-11-01T21:13:22.592Z",
   "scope": "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E",
   "scenario": "production_versions_with_observed_legacy_graph",
   "version": "PostgreSQL 17.6 on x86_64-windows, compiled by msvc-19.44.35213, 64-bit",
@@ -81,6 +81,8 @@
   "checks": [
     "Observed legacy DDL including all dependent FKs, policies and triggers installed with synthetic data only",
     "Observed legacy orders/payment/payout/dispute/webhook graph: relation OIDs, decimal money, original rows, FK targets, audit and 11 active categories preserved; legacy payout trigger still enforces its contract",
+    "Legacy financial ACL: customer/provider summaries persist under RLS; all processor/token/raw/error columns, SELECT * and anonymous reads denied, including independent column grants",
+    "Legacy financial ACL: server service role retains original processor evidence; no row, FK or historical value rewritten",
     "Contract guard can be reapplied without rewriting data or migration ledger",
     "Incomplete FK contract fails closed and transaction rollback restores the constraint",
     "Complete migration chain and critical relation RLS",

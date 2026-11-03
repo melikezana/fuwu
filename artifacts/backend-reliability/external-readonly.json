@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-30T22:38:42.942Z",
+  "checked_at": "2026-11-01T20:41:29.009Z",
   "scope": "Read-only anonymous schema/settings probes; zero rows. No migration ledger, PII, payment, login or mutation.",
   "environments": [
     {
@@ -53,6 +53,16 @@
       "code": "42703"
     },
     {
+      "name": "commerce_orders_contract",
+      "http_status": 404,
+      "code": "PGRST205"
+    },
+    {
+      "name": "commerce_orders_fees",
+      "http_status": 404,
+      "code": "PGRST205"
+    },
+    {
       "name": "favorites",
       "http_status": 404,
       "code": "PGRST205"
@@ -64,17 +74,7 @@
       "google_enabled": true
     },
     {
-      "name": "orders",
-      "http_status": 400,
-      "code": "42703"
-    },
-    {
-      "name": "orders_commerce_contract",
-      "http_status": 400,
-      "code": "42703"
-    },
-    {
-      "name": "orders_identity",
+      "name": "legacy_orders_contract",
       "http_status": 200,
       "code": null
     },

@@ -865,7 +865,11 @@
   },
   {
     "relname": "providers",
-    "definition": "CHECK ((iyzico_submerchant_status = ANY (ARRAY['missing'::text, 'pending_review'::text, 'active'::text, 'rejected'::text])))"
+    "definition": "CHECK ((iyzico_submerchant_status = ANY (ARRAY['none'::text, 'pending'::text, 'missing'::text, 'pending_review'::text, 'active'::text, 'rejected'::text])))"
+  },
+  {
+    "relname": "providers",
+    "definition": "CHECK (((iyzico_submerchant_type IS NULL) OR (iyzico_submerchant_type = ANY (ARRAY['personal'::text, 'private'::text, 'limited_or_joint_stock'::text]))))"
   },
   {
     "relname": "providers",

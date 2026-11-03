@@ -1,6 +1,6 @@
 {
-  "sourceHash": "516a791929fa71f102d3ad0830f8cf51ab243c76d2ffef12b335174b3affa5c1",
-  "startedAt": "2026-10-31T15:16:05.727Z",
+  "sourceHash": "f3d32e121d50b817ecf2c890a70d484fcaaa063a0defc4ed46c94b69c1ad22a0",
+  "startedAt": "2026-11-01T21:11:48.495Z",
   "scope": "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E",
   "scenario": "populated_upgrade",
   "version": "PostgreSQL 17.6 on x86_64-windows, compiled by msvc-19.44.35213, 64-bit",

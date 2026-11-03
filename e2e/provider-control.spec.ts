@@ -16,7 +16,7 @@ test.describe("provider control: isolated real Supabase acceptance", () => {
     const provider=await db.from("providers").update({profile_image_url:"/images/services/plumbing-work.webp",is_approved:action!=="approve",is_active:action!=="activate"}).eq("id",id);expect(provider.error).toBeNull();
     const publication=await db.from("provider_publication_reviews").update({status:action==="approve_quality"?"pending_review":"approved",record_kind:action==="mark_real"?"test":"real"}).eq("provider_id",id);expect(publication.error).toBeNull();
     await page.goto(`/admin/providers?id=${id}`);await page.getByRole("combobox",{name:"İşlem",exact:true}).selectOption(action);await page.getByRole("button",{name:"Kararı uygula",exact:true}).click();
-    const dialog=page.getByRole("dialog");await dialog.getByLabel("Kısa gerekçe").fill(`E2E isolated decision ${action} verified against committed records.`);
+    const dialog=page.getByRole("dialog");await expect(dialog.getByRole("heading",{name:providerControlLabels[action],exact:true})).toBeVisible();await dialog.getByLabel("Kısa gerekçe").fill(`E2E isolated decision ${action} verified against committed records.`);
     if(action==="approve_quality") await dialog.getByLabel("Kayıt kaynağı").selectOption("real");
     await dialog.getByRole("button",{name:providerControlLabels[action]+" · Onayla",exact:true}).click();
     await expect(page.getByRole("status").filter({hasText:"İşlem kaydedildi."})).toBeVisible();
@@ -107,7 +107,7 @@ test.describe("provider control: isolated real Supabase acceptance", () => {
   await page.reload();await page.getByText("Günlük iş sınırı",{exact:true}).click();await expect(page.getByRole("spinbutton",{name:"Bir günde en fazla kaç sipariş alabilirsin?",exact:true})).toHaveValue("7");
   expect((await admin.from("providers").select("daily_order_limit").eq("id",id).single()).data?.daily_order_limit).toBe(7);
   expect((await page.request.post("/api/commerce/store/capacity",{data:{providerId:otherId,limit:9}})).status()).toBe(403);
-  await page.goto("/provider-dashboard/calendar"); await page.getByRole("checkbox", { name: "Pazartesi", exact: true }).check(); const monday=page.getByRole("textbox",{name:"Pazartesi başlangıç",exact:true});await monday.fill("10:00");await monday.press("Tab");await expect(monday).toHaveValue("10:00");
+  await page.goto("/provider-dashboard/calendar"); const mondayEnabled=page.getByRole("checkbox",{name:"Pazartesi",exact:true});await mondayEnabled.check();await expect(mondayEnabled).toBeChecked();await mondayEnabled.uncheck();await expect(mondayEnabled).not.toBeChecked();await mondayEnabled.check();const monday=page.getByRole("textbox",{name:"Pazartesi başlangıç",exact:true});await monday.fill("10:00");await monday.press("Tab");await expect(monday).toHaveValue("10:00");
   await page.getByRole("button", { name: "Takvimimi Kaydet", exact: true }).click(); await expect(page.getByRole("status").filter({ hasText: "Takvimin kaydedildi. Yayın için admin incelemesi gerekiyor." })).toBeVisible();
   const { data: hours } = await admin.from("provider_availability").select("starts_at").eq("provider_id", id).eq("weekday", 1).single(); expect(hours?.starts_at).toBe("10:00:00");
   const denied = await page.request.post("/api/commerce/store", { data: { providerId: otherId, offerings: [], hours: [], daysOff: [] } }); expect(denied.status()).toBe(403);

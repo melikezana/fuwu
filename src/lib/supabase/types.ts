@@ -171,7 +171,7 @@ export type Database = {
           legal_name: string | null;
           payout_address: string | null;
           iyzico_submerchant_key: string | null;
-          iyzico_submerchant_status: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_status: "none" | "pending" | "missing" | "pending_review" | "active" | "rejected";
           iyzico_submerchant_conversation_id: string | null;
           review_count: number;
           is_active: boolean;
@@ -210,7 +210,7 @@ export type Database = {
           legal_name?: string | null;
           payout_address?: string | null;
           iyzico_submerchant_key?: string | null;
-          iyzico_submerchant_status?: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_status?: "none" | "pending" | "missing" | "pending_review" | "active" | "rejected";
           iyzico_submerchant_conversation_id?: string | null;
           review_count?: number;
           is_active?: boolean;
@@ -249,7 +249,7 @@ export type Database = {
           legal_name?: string | null;
           payout_address?: string | null;
           iyzico_submerchant_key?: string | null;
-          iyzico_submerchant_status?: "missing" | "pending_review" | "active" | "rejected";
+          iyzico_submerchant_status?: "none" | "pending" | "missing" | "pending_review" | "active" | "rejected";
           iyzico_submerchant_conversation_id?: string | null;
           review_count?: number;
           is_active?: boolean;

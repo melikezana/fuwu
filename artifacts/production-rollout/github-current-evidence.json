@@ -1,0 +1,38 @@
+{
+  "commit": "a9f1089fafb5cffa74bcf27ecd5fba2a1e6151ea",
+  "quality": {
+    "url": "https://github.com/melikezana/fuwu/actions/runs/41226934515",
+    "conclusion": "success",
+    "extracts": [
+      "PASS: typecheck; passed=1, failed=0, skipped=0",
+      "PASS: lint; passed=1, failed=0, skipped=0",
+      "\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m15 passed\u001b[39m\u001b[22m\u001b[90m (15)\u001b[39m",
+      "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m157 passed\u001b[39m\u001b[22m\u001b[90m (157)\u001b[39m",
+      "PASS: unit; passed=157, failed=0, skipped=0",
+      "\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m15 passed\u001b[39m\u001b[22m\u001b[90m (15)\u001b[39m",
+      "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m157 passed\u001b[39m\u001b[22m\u001b[90m (157)\u001b[39m",
+      "PASS: coverage; passed=157, failed=0, skipped=0",
+      "PASS: integration; passed=338, failed=0, skipped=0",
+      "PASS: mock; passed=77, failed=0, skipped=0",
+      "\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m10 passed\u001b[39m\u001b[22m\u001b[90m (10)\u001b[39m",
+      "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m59 passed\u001b[39m\u001b[22m\u001b[90m (59)\u001b[39m",
+      "PASS: security; passed=60, failed=0, skipped=0",
+      "PASS: build; passed=1, failed=0, skipped=0"
+    ]
+  },
+  "e2e": {
+    "url": "https://github.com/melikezana/fuwu/actions/runs/41226934514",
+    "conclusion": "success",
+    "extracts": [
+      "Running 39 tests using 1 worker",
+      "39 passed (4.2m)",
+      "##[notice]  39 passed (4.2m)",
+      "Running 39 tests using 2 workers",
+      "39 passed (3.4m)",
+      "##[notice]  39 passed (3.4m)",
+      "PASS: Real browser, Auth, API and DB; processor excluded",
+      "PASS: Real browser, Auth, API and DB; processor excluded",
+      "PASS: Complete local Supabase suites, serial and parallel"
+    ]
+  }
+}

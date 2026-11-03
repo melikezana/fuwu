@@ -1,0 +1,271 @@
+{
+  "startedAt": "2026-11-01T21:13:44.905Z",
+  "sourceHash": "f3d32e121d50b817ecf2c890a70d484fcaaa063a0defc4ed46c94b69c1ad22a0",
+  "status": "PASS",
+  "scope": "Fresh production public schema-only pg_dump restored on disposable PostgreSQL 17; platform Auth/Storage DDL shim and synthetic records only. Not a production data backup/restore or Google OAuth test.",
+  "schemaSha256": "1a77fbbbbf4988c802c513e7fbc24877726ce48948d9792c8b19fe8a3ef61ed7",
+  "version": "PostgreSQL 17.6 on x86_64-windows, compiled by msvc-19.44.35213, 64-bit",
+  "checks": [
+    "Restored all 244 original columns/types/nullability/defaults, 124 constraints, 124 indexes and 16 RPC/trigger function definitions from fresh production schema metadata",
+    "Actual production table ACL + customer policy reproduces synthetic legacy token exposure before pending guard",
+    "Observed legacy orders/payment/payout/dispute/webhook graph: relation OIDs, decimal money, original rows, FK targets, audit and 11 active categories preserved; legacy payout trigger still enforces its contract",
+    "Legacy financial ACL: customer/provider summaries persist under RLS; all processor/token/raw/error columns, SELECT * and anonymous reads denied, including independent column grants",
+    "Legacy financial ACL: server service role retains original processor evidence; no row, FK or historical value rewritten",
+    "All original legacy financial column contracts remain byte-for-byte after all 26 pending migrations",
+    "Security schema: actual signup trigger ignores user_metadata role escalation",
+    "Security schema: real profile ACL/trigger and admin RPC reject customer",
+    "Security schema: private documents deny direct browser upload/read even to owner; transfers require validated server route; other user/path spoofing denied",
+    "Security schema: owner reads saved capacity through scoped RPC without financial-column SELECT; foreign/anon denied; gallery grants preserve ownership and unpublished visibility RLS",
+    "Security schema: anonymous document access denied; private bucket MIME/size configuration verified (not Storage HTTP)",
+    "Prelaunch: anonymous interest access and admin aggregates denied; new providers unpublished by default",
+    "Prelaunch: verified email, versioned consent, real persistence, deduplication, RLS and idempotent withdrawal",
+    "Prelaunch: persistent five-per-hour limit blocks repeated consent submissions",
+    "Prelaunch: classification required; reserved seed cannot publish; sandbox reviews never become social proof",
+    "Prelaunch: compare-and-clear announcement is admin-only, audited and leaves maintenance unchanged",
+    "Control: real unpublish transaction changes publication only, admin badge source hidden, anon list/detail row absent, public gate absent, one audit; nonadmin denied; replay deduplicated; stale admin version rejected",
+    "Control: republish, deactivate, activate, unverify, test/real classification, quality decisions, profile editing, evidence enforcement; audit insert failure rolls back provider and receipt",
+    "Control: server pagination, literal search, empty result distinguished, invalid page size/provider/action, persistent rate limit",
+    "Partner independent writes: calendar leaves complete service price/scope rows unchanged; services preserve latest hours; other users cannot call either focused RPC",
+    "Marketplace 3: service-only health metadata includes actual gallery RLS/policies; private wrappers denied; admin-only aggregates cover all active categories/districts; verified prepared real profiles count separately from publication; test classification removes readiness without deleting services; actual application status retained",
+    "Partner: own profile/service price/scope/calendar persist and requeue publication; other owner/readiness/store denied; own identity/admin escalation and audit mutation denied; document path spoof rejected",
+    "Partner: private document attachment persists, reopens application review, removes old identity/professional approval; explicit EXECUTE grants; actual missing RPC fails without fallback",
+    "Control concurrency: two actual PostgreSQL sessions with the same version allow one decision and reject one conflict; simultaneous identical request creates one audit and one receipt",
+    "Trust documents: real ownership/role escalation denial, verified-phone INSERT, upload receipt required, typed immutable versions, resubmit reason visible, stale/superseded review denied, identity evidence and access audit without content/path",
+    "Trust requirements: expired approval denied, missing Storage distinguished, inaccessible object denied, qualification from different category cannot verify provider",
+    "Trust publication: draft activation denied; versioned official-source rule editable without code; missing reviewed requirement blocks actual publication decision; explicit rule retirement permits reviewed publication",
+    "Service code: CSPRNG six digits, bcrypt only in existing code row, no browser secret SELECT, wrong customer/provider rejected, wrong code, single use, provider completion waits for explicit customer confirmation; pending scope blocks completion, only customer can accept scope/extra price, original financial snapshot preserved",
+    "Service abuse: five attempts persisted, sixth does not reset counter, expired code, wrong order code, cancelled order rejected; customer complaint pauses order, separate provider appeal, other user cannot read cases, reversible admin resolution never impersonates customer consent; all flows work without any location input",
+    "Service atomicity: two independent PostgreSQL connections consume same order/code concurrently; exactly one succeeds and one transition/audit persists under row locks",
+    "Trust audit fail-closed: simulated audit INSERT outage rolls back code generation; every trust RPC denies anon and has explicit empty search_path and SECURITY DEFINER boundary"
+  ],
+  "migrations": [
+    "20260725000100_admin_management_layer.sql",
+    "20260726000100_app_settings.sql",
+    "20260804000100_ai_assistant_support.sql",
+    "20260817000100_request_reassignment_log.sql",
+    "20260817000200_ai_assistant_openai_failure_audit_index.sql",
+    "20260818000100_iyzico_commission_escrow.sql",
+    "20260819000100_repair_request_reassignment_log_schema.sql",
+    "20260824000100_deactivate_hali_yikama.sql",
+    "20261021000100_direct_service_commerce.sql",
+    "20261022000100_fusion_operations.sql",
+    "20261022000200_fusion_quality_and_reviews.sql",
+    "20261026000100_customer_favorites.sql",
+    "20261026000200_phase3_operations.sql",
+    "20261026000300_provider_financial_privacy.sql",
+    "20261026000400_review_submission_receipts.sql",
+    "20261028000100_phase2_checkout_consistency.sql",
+    "20261028000200_fuwu3_catalog_and_fees.sql",
+    "20261029000100_backend_reliability.sql",
+    "20261029000200_atomic_rate_limit.sql",
+    "20261029000300_provider_publication_quality.sql",
+    "20261030000100_prelaunch_trust_and_interest.sql",
+    "20261030000200_provider_control_center.sql",
+    "20261030000300_partner_store_preparation.sql",
+    "20261030154616_marketplace3_operations_readiness.sql",
+    "20261030204829_trust_service_confirmation.sql",
+    "20261031105613_critical_backend_contract_guard.sql"
+  ],
+  "failure": null,
+  "currentMigration": "20261031105613_critical_backend_contract_guard.sql",
+  "finalCatalog": {
+    "tables": [
+      {
+        "rls": true,
+        "name": "admin_provider_action_receipts"
+      },
+      {
+        "rls": true,
+        "name": "ai_analyses"
+      },
+      {
+        "rls": true,
+        "name": "ai_conversations"
+      },
+      {
+        "rls": true,
+        "name": "ai_messages"
+      },
+      {
+        "rls": true,
+        "name": "app_settings"
+      },
+      {
+        "rls": true,
+        "name": "audit_logs"
+      },
+      {
+        "rls": true,
+        "name": "commerce_orders"
+      },
+      {
+        "rls": true,
+        "name": "commerce_settlement_operations"
+      },
+      {
+        "rls": true,
+        "name": "customer_addresses"
+      },
+      {
+        "rls": true,
+        "name": "customer_favorite_providers"
+      },
+      {
+        "rls": true,
+        "name": "disputes"
+      },
+      {
+        "rls": true,
+        "name": "districts"
+      },
+      {
+        "rls": true,
+        "name": "launch_interest"
+      },
+      {
+        "rls": true,
+        "name": "launch_interest_consent_events"
+      },
+      {
+        "rls": true,
+        "name": "notifications"
+      },
+      {
+        "rls": true,
+        "name": "operations_health_checks"
+      },
+      {
+        "rls": true,
+        "name": "order_completion_codes"
+      },
+      {
+        "rls": true,
+        "name": "order_payments"
+      },
+      {
+        "rls": true,
+        "name": "order_scope_changes"
+      },
+      {
+        "rls": true,
+        "name": "order_status_events"
+      },
+      {
+        "rls": true,
+        "name": "orders"
+      },
+      {
+        "rls": true,
+        "name": "payment_transactions"
+      },
+      {
+        "rls": true,
+        "name": "payments"
+      },
+      {
+        "rls": true,
+        "name": "payouts"
+      },
+      {
+        "rls": true,
+        "name": "profiles"
+      },
+      {
+        "rls": true,
+        "name": "provider_applications"
+      },
+      {
+        "rls": true,
+        "name": "provider_availability"
+      },
+      {
+        "rls": true,
+        "name": "provider_document_rules"
+      },
+      {
+        "rls": true,
+        "name": "provider_document_types"
+      },
+      {
+        "rls": true,
+        "name": "provider_document_uploads"
+      },
+      {
+        "rls": true,
+        "name": "provider_document_versions"
+      },
+      {
+        "rls": true,
+        "name": "provider_gallery_images"
+      },
+      {
+        "rls": true,
+        "name": "provider_publication_reviews"
+      },
+      {
+        "rls": true,
+        "name": "provider_service_offerings"
+      },
+      {
+        "rls": true,
+        "name": "provider_time_off"
+      },
+      {
+        "rls": true,
+        "name": "providers"
+      },
+      {
+        "rls": true,
+        "name": "rate_limits"
+      },
+      {
+        "rls": true,
+        "name": "request_messages"
+      },
+      {
+        "rls": true,
+        "name": "request_reassignment_log"
+      },
+      {
+        "rls": true,
+        "name": "review_submission_receipts"
+      },
+      {
+        "rls": true,
+        "name": "reviews"
+      },
+      {
+        "rls": true,
+        "name": "service_catalog"
+      },
+      {
+        "rls": true,
+        "name": "service_categories"
+      },
+      {
+        "rls": true,
+        "name": "service_requests"
+      },
+      {
+        "rls": true,
+        "name": "service_variants"
+      },
+      {
+        "rls": true,
+        "name": "support_messages"
+      },
+      {
+        "rls": true,
+        "name": "trust_safety_cases"
+      },
+      {
+        "rls": true,
+        "name": "webhook_events"
+      }
+    ],
+    "policies": 113,
+    "functions": 118,
+    "mutableSearchPaths": null
+  },
+  "completedAt": "2026-11-01T21:14:14.221Z"
+}
