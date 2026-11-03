@@ -41,7 +41,8 @@ type AdminNavKey =
   | "audit"
   | "settings"
   | "interest"
-  | "health";
+  | "health"
+  | "setup";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -163,8 +164,8 @@ const allAdminNavItems: Array<{
   },
 ];
 
-const primaryAdminKeys = ["dashboard", "applications", "providers", "catalog", "interest", "verifications", "health", "audit"];
-const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
+const primaryAdminKeys = ["setup", "dashboard", "applications", "providers", "catalog", "interest", "verifications", "health", "audit"];
+const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }, { href: "/admin/setup", icon: ClipboardList, key: "setup" as const, label: "Kurulum Durumu" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
 export const adminQuickNavItems = adminNavItems.filter(item => ["marketplace", "providers", "applications", "catalog"].includes(item.key));
 
 export const adminActionIcons = {
