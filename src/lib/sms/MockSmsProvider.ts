@@ -12,4 +12,13 @@ export class MockSmsProvider implements SmsProvider {
 
     return { ok: true };
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async sendMessage(phone: string, message: string, _options?: Pick<SmsSendOptions, "timeoutMs">): Promise<SmsSendResult> {
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[FUWU] Mock SMS", { message, phone });
+    }
+
+    return { ok: true };
+  }
 }

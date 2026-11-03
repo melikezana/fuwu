@@ -24,6 +24,7 @@ export type CommerceTables = {
   payment_transactions: Table<PaymentTransaction>;
   order_status_events: Table<OrderEvent>;
   order_completion_codes: Table<{ order_id: string; code: string; failed_attempts: number; locked_until: string | null }>;
+  order_sms_dispatches: Table<{ order_id: string; event: "provider_new_order"; created_at: string }>;
 };
 export type CommerceFunctions = {
   consume_user_rate_limit: { Args: { p_action: string; p_limit: number; p_window_ms: number }; Returns: Json };

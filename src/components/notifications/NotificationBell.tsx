@@ -40,6 +40,13 @@ function getNotificationBody(notification: NotificationRecord) {
   return notification.body || notification.message;
 }
 
+// Sipariş bildirimine dokununca ilgili sipariş açılır (yeni randevu, tamamlama, iade, destek).
+function getOrderNotificationHref(notification: NotificationRecord) {
+  return notification.entity_type === "order" && notification.entity_id && /^[0-9a-f-]{36}$/i.test(notification.entity_id)
+    ? `/orders/${notification.entity_id}`
+    : null;
+}
+
 function isProviderRequestNotification(notification: NotificationRecord) {
   const providerRequestEvents = [
     "emergency_request_dispatched",
@@ -210,6 +217,7 @@ export function NotificationBell({
 
   async function handleNotificationRead(notification: NotificationRecord) {
     const shouldOpenProviderRequests = isProviderRequestNotification(notification);
+    const orderHref = getOrderNotificationHref(notification);
 
     if (supabase && !notification.is_read) {
       setNotifications((currentNotifications) =>
@@ -227,7 +235,10 @@ export function NotificationBell({
       }
     }
 
-    if (shouldOpenProviderRequests) {
+    if (orderHref) {
+      setIsOpen(false);
+      router.push(orderHref);
+    } else if (shouldOpenProviderRequests) {
       setIsOpen(false);
       router.push("/provider-dashboard/requests");
     }

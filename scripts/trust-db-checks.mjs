@@ -109,6 +109,16 @@ export async function trustChecks(db, checks) {
  await as('anon');await fails('select commerce_order_trust($1)',[trustOrder],/permission denied/);
  await as('authenticated',customer);await fails('select fuwu_private.customer_contact_verified($1)',[customer],/permission denied/);
  checks.push('Customer verification gate: unverified or anonymous accounts cannot open orders; order parties and admin see verified/unverified status only (no e-mail or phone), outsiders and anon are denied');
+ // Ustaya yeni randevu SMS'i: sipariş başına tek kayıt, yalnızca sunucu rolüne açık.
+ const smsOrder=await createOrder();
+ await as('authenticated',owner);await fails('select * from order_sms_dispatches',[],/permission denied/);
+ await fails("insert into order_sms_dispatches(order_id,event) values($1,'provider_new_order')",[smsOrder],/permission denied/);
+ await as('anon');await fails('select * from order_sms_dispatches',[],/permission denied/);
+ await as('service_role');await db.query("insert into order_sms_dispatches(order_id,event) values($1,'provider_new_order')",[smsOrder]);
+ await fails("insert into order_sms_dispatches(order_id,event) values($1,'provider_new_order')",[smsOrder],/duplicate key/);
+ await fails("insert into order_sms_dispatches(order_id,event) values($1,'customer_spam')",[smsOrder],/check constraint/);
+ await as('postgres');
+ checks.push('Provider new-order SMS: one dispatch per order (primary key), unknown events rejected, browser roles denied, server role only');
  const id=await createOrder(), code=await issue(id);await as('postgres');
  const stored=(await db.query('select * from order_completion_codes where order_id=$1',[id])).rows[0];assert.equal(stored.code,null);assert.notEqual(stored.code_hash,code);assert.ok(stored.expires_at);
  await as('authenticated',owner);await fails('select code_hash from order_completion_codes where order_id=$1',[id],/permission denied/);

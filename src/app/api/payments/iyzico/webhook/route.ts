@@ -8,6 +8,7 @@ import { verifyIyzicoWebhookSignature } from "@/services/payments/iyzico-client"
 import { retrieveIyzicoCheckoutFormResult } from "@/services/payments/iyzico-checkout";
 import { assertSandbox, minorAmount, verifyCommercePayment } from "@/lib/commerce/payment";
 import { reconcileCommercePayment } from "@/services/commerce/reconciliation";
+import { notifyProviderAfterResponse } from "@/services/commerce/provider-order-sms";
 import { logWarn } from "@/lib/logger";
 
 type WebhookSupabaseClient = SupabaseClient<Database>;
@@ -166,7 +167,12 @@ async function handlePOST(request: NextRequest) {
   if (conversationId.startsWith("order-")) {
     const { data: transaction } = await supabase.from("payment_transactions").select("*").eq("conversation_id", conversationId).maybeSingle();
     if (!transaction) return NextResponse.json({ error: "payment_not_found" }, { status: 404 });
-    try { await reconcileCommercePayment(supabase, transaction, { conversationId, paymentId: payloadPaymentId, token: getString(payload.token) }); return NextResponse.json({ ok: true }); }
+    try {
+      const { orderId, status } = await reconcileCommercePayment(supabase, transaction, { conversationId, paymentId: payloadPaymentId, token: getString(payload.token) });
+      // Ustaya yeni randevu SMS'i: yanıttan sonra, siparişte bir kez; hata ödemeyi etkilemez.
+      if (status === "CONFIRMED") notifyProviderAfterResponse(supabase, orderId);
+      return NextResponse.json({ ok: true });
+    }
     catch { return NextResponse.json({ error: "payment_verification_failed" }, { status: 502 }); }
   }
 

@@ -12,9 +12,13 @@ export class NetgsmSmsProvider implements SmsProvider {
   constructor(private readonly options: NetgsmSmsProviderOptions) {}
 
   async sendOtp(phone: string, code: string, options: SmsSendOptions = {}): Promise<SmsSendResult> {
+    return this.sendMessage(phone, options.message ?? `FUWU doğrulama kodunuz: ${code}`, { timeoutMs: options.timeoutMs });
+  }
+
+  async sendMessage(phone: string, message: string, options: Pick<SmsSendOptions, "timeoutMs"> = {}): Promise<SmsSendResult> {
     const body = new URLSearchParams({
       gsmno: phone,
-      message: options.message ?? `FUWU doğrulama kodunuz: ${code}`,
+      message,
       // Türkçe karakterler (ç, ğ, ı, ö, ş, ü) bozulmadan iletilsin.
       dil: "TR",
       msgheader: this.options.header,

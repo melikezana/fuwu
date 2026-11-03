@@ -5,6 +5,7 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import { verifyIyzicoWebhookSignature } from "@/services/payments/iyzico-client";
 import { assertSandbox } from "@/lib/commerce/payment";
 import { reconcileCommercePayment } from "@/services/commerce/reconciliation";
+import { notifyProviderAfterResponse } from "@/services/commerce/provider-order-sms";
 
 async function handlePOST(request: NextRequest) {
   const limited = await commerceRateLimit(request, "commerce.payment_callback", 30, 60_000);
@@ -31,7 +32,9 @@ async function handlePOST(request: NextRequest) {
   if (lookupError) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   if (!transaction) return NextResponse.json({ error: "payment_not_found" }, { status: 404 });
   try {
-    const { orderId } = await reconcileCommercePayment(db, transaction, notification);
+    const { orderId, status } = await reconcileCommercePayment(db, transaction, notification);
+    // Ustaya yeni randevu SMS'i: yanıttan sonra, siparişte bir kez; hata ödemeyi etkilemez.
+    if (status === "CONFIRMED") notifyProviderAfterResponse(db, orderId);
     if (isJson) return NextResponse.json({ ok: true });
     return NextResponse.redirect(new URL(`/orders/${orderId}`, process.env.NEXT_PUBLIC_SITE_URL || request.url), 303);
   } catch {

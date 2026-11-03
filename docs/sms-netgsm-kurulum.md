@@ -8,6 +8,10 @@ Telefonla giriş ve usta telefon doğrulaması Supabase Auth üzerinden çalış
 - Aynı numaraya 15 dakikada en fazla 5, günde en fazla 15 kod gönderir.
 - Canlıda NetGSM ayarlı değilse "gönderildi" demez, hata döner.
 
+NetGSM açıldığında ödemesi doğrulanan her siparişte ustaya bir kez "Yeni randevun var" SMS'i de gider
+(hizmet, gün-saat ve ilçe; müşterinin adı, telefonu veya açık adresi yazılmaz). Kapatmak için
+Vercel'e `ORDER_SMS_ENABLED=false` ekle.
+
 ## 1. NetGSM
 
 1. NetGSM hesabı aç, SMS başlığını (ör. `FUWU`) onaylat.

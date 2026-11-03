@@ -12,4 +12,6 @@ export type SmsSendOptions = {
 
 export interface SmsProvider {
   sendOtp(phone: string, code: string, options?: SmsSendOptions): Promise<SmsSendResult>;
+  /** Bilgilendirme mesajı (ör. ustaya yeni randevu). */
+  sendMessage(phone: string, message: string, options?: Pick<SmsSendOptions, "timeoutMs">): Promise<SmsSendResult>;
 }
