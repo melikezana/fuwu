@@ -5,6 +5,7 @@ import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { OrderList } from "@/components/commerce/OrderList";
 import { getOrderCardDetails } from "@/services/commerce/order-cards";
 import { historyStatuses, serviceActiveStatuses } from "@/lib/commerce/order-state";
+import { LinkPending } from "@/components/ui/LinkPending";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Siparişlerim | MY FUWU", robots: { index: false, follow: false } };
 const views = [["all", "Tümü"], ["active", "Aktif Hizmetler"], ["overdue", "Geciken Hizmetler"], ["history", "Geçmiş Hizmetler"]];
@@ -20,5 +21,5 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   if (view === "history") query = query.in("status", historyStatuses);
   const { data, error, count } = await query.range((page - 1) * 24, page * 24 - 1);
   const details = error ? {} : await getOrderCardDetails(supabase, data ?? []);
-  return <div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">MY FUWU · HİZMETLERİN TEK YERDE</p><h1>Siparişlerim</h1><p>Randevularını ve sipariş aşamalarını buradan takip et.</p></header><nav className="fusion-tabs" aria-label="Sipariş filtreleri">{views.map(([id,label]) => <Link key={id} href={`?view=${id}`} aria-current={view === id ? "page" : undefined}>{label}</Link>)}</nav><OrderList orders={data ?? []} details={details} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Sipariş sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 24 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →</Link>}</nav><Link className="commerce-text-link" href="/dashboard/requests">Önceki hizmet taleplerini görüntüle</Link></div>;
+  return <div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">MY FUWU · HİZMETLERİN TEK YERDE</p><h1>Siparişlerim</h1><p>Randevularını ve sipariş aşamalarını buradan takip et.</p></header><nav className="fusion-tabs" aria-label="Sipariş filtreleri">{views.map(([id,label]) => <Link key={id} href={`?view=${id}`} aria-current={view === id ? "page" : undefined}>{label}<LinkPending /></Link>)}</nav><OrderList orders={data ?? []} details={details} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Sipariş sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki<LinkPending /></Link>}{(count ?? 0) > page * 24 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →<LinkPending /></Link>}</nav><Link className="commerce-text-link" href="/dashboard/requests">Önceki hizmet taleplerini görüntüle</Link></div>;
 }

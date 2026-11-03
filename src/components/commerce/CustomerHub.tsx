@@ -11,6 +11,7 @@ import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { OrderList } from "./OrderList";
 import { saveCustomerDetails } from "@/app/account/actions";
 import { historyStatuses, serviceActiveStatuses, trackingStatuses } from "@/lib/commerce/order-state";
+import { LinkPending } from "@/components/ui/LinkPending";
 
 const views = [["overview", "Genel Bakış"], ["upcoming", "Yaklaşan Randevular"], ["active", "Aktif Hizmetler"], ["history", "Geçmiş Hizmetler"], ["favorites", "Favori Ustalarım"], ["reviews", "Yorumlarım"], ["addresses", "Adreslerim"], ["payments", "Ödeme Yöntemleri"], ["settings", "Hesabım"], ["support", "Destek"]];
 export type CustomerHubParams = { view?: string; page?: string; result?: string };
@@ -47,7 +48,7 @@ async function CustomerFavorites({ userId, page }: { userId: string; page: numbe
   if (error) return <p role="alert" className="commerce-notice">Favori ustalarına şu anda ulaşılamıyor. Biraz sonra yeniden deneyebilirsin.</p>;
   if (!data?.length) return <section className="commerce-empty"><Heart size={32} aria-hidden /><h2>İyi bir ustayı kaybetme.</h2><p>Usta kartındaki kalbe dokun. Kaydettiğin ustalar burada seni beklesin.</p><Link className="commerce-button" href="/providers">Usta Bul</Link></section>;
   const providers = (await Promise.all(data.map(row => getProviderById(row.provider_id)))).filter((provider): provider is NonNullable<typeof provider> => provider != null);
-  return <><div className="favorite-provider-grid">{providers.map(provider => <ProviderCard key={provider.id} provider={provider} />)}</div>{providers.length < data.length && <p className="commerce-help">Bazı kayıtlı profiller şu anda görüntülenemiyor.</p>}<nav className="fusion-pagination" aria-label="Favori usta sayfaları">{page > 1 && <Link href={`?view=favorites&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 12 && <Link href={`?view=favorites&page=${page + 1}`}>Sonraki →</Link>}</nav></>;
+  return <><div className="favorite-provider-grid">{providers.map(provider => <ProviderCard key={provider.id} provider={provider} />)}</div>{providers.length < data.length && <p className="commerce-help">Bazı kayıtlı profiller şu anda görüntülenemiyor.</p>}<nav className="fusion-pagination" aria-label="Favori usta sayfaları">{page > 1 && <Link href={`?view=favorites&page=${page - 1}`}>← Önceki<LinkPending /></Link>}{(count ?? 0) > page * 12 && <Link href={`?view=favorites&page=${page + 1}`}>Sonraki →<LinkPending /></Link>}</nav></>;
 }
 
 async function CustomerOrders({ userId, history, page, view }: { userId: string; history: boolean; page: number; view: string }) {
@@ -57,7 +58,7 @@ async function CustomerOrders({ userId, history, page, view }: { userId: string;
   if (view === "upcoming") query = query.gte("starts_at", new Date().toISOString());
   const { data, error, count } = await query;
   const details = error ? {} : await getOrderCardDetails(supabase!, data ?? []);
-  return <><OrderList orders={data ?? []} details={details} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Hizmet sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki</Link>}{(count ?? 0) > page * 12 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →</Link>}</nav></>;
+  return <><OrderList orders={data ?? []} details={details} unavailable={Boolean(error)} /><nav className="fusion-pagination" aria-label="Hizmet sayfaları">{page > 1 && <Link href={`?view=${view}&page=${page - 1}`}>← Önceki<LinkPending /></Link>}{(count ?? 0) > page * 12 && <Link href={`?view=${view}&page=${page + 1}`}>Sonraki →<LinkPending /></Link>}</nav></>;
 }
 async function CustomerAddresses({ userId }: { userId: string }) {
   const { supabase } = await getServerAuthContext();

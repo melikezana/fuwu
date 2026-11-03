@@ -7,7 +7,8 @@ import { isUuid } from "@/lib/utils/validation";
 import { OrderView } from "@/components/commerce/OrderView";
 import type { OrderFinance } from "@/lib/commerce/finance";
 import { getReviewEligibility } from "@/services/reviews";
-import { getCommerceCatalog } from "@/services/commerce";
+import { getRebookHref } from "@/services/commerce/order-cards";
+import type { OrderTrustData } from "@/components/commerce/OrderTrust";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Sipariş Takibi | FUWU", robots: { index: false, follow: false } };
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,17 +19,19 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { data: order, error } = await supabase.from("commerce_orders").select("*").eq("id", id).maybeSingle();
   if (error) return <div className="commerce-page"><p role="alert" className="commerce-notice">Siparişe şu anda ulaşılamıyor. Lütfen yeniden dene.</p></div>;
   if (!order) notFound();
-  const [{ data: events }, { data: provider }, { data: finance }, { data: review }] = await Promise.all([
+  const isCustomer = order.customer_id === user.id;
+  // Tüm okumalar tek turda ve paralel: tüm kataloğu çekmek yerine yalnızca bu siparişin ustasına bakılır.
+  const [{ data: events }, { data: provider }, { data: finance }, { data: review }, eligibility, rebookHref, trustResult] = await Promise.all([
     supabase.from("order_status_events").select("*").eq("order_id", id).order("created_at"),
     supabase.from("providers").select("id").eq("id", order.provider_id).eq("user_id", user.id).maybeSingle(),
     supabase.rpc("commerce_order_finance", { p_order_id: id }),
     supabase.from("reviews").select("id").eq("order_id", order.id).eq("user_id", user.id).maybeSingle(),
+    isCustomer ? getReviewEligibility(order.provider_id, supabase) : Promise.resolve([]),
+    isCustomer ? getRebookHref(supabase, order) : Promise.resolve(undefined),
+    // Karşılıklı doğrulama: okunamazsa kutu gizlenir, sipariş ekranı etkilenmez.
+    supabase.rpc("commerce_order_trust", { p_order_id: id }),
   ]);
-  const eligibility = order.customer_id === user.id ? await getReviewEligibility(order.provider_id, supabase) : [];
-  const catalog = order.customer_id === user.id ? await getCommerceCatalog() : null;
-  const offering = catalog?.offers.find(o => o.id === order.offering_id);
-  const service = catalog?.services.find(s => s.id === offering?.service_id);
-  const rebookHref = service && offering ? `/services/${service.slug}?${new URLSearchParams({ provider: order.provider_id, district: order.district_id, ...(offering.variant_id ? { variant: offering.variant_id } : {}), rebook: order.id })}` : undefined;
+  const trust = !trustResult.error && trustResult.data && typeof trustResult.data === "object" && !Array.isArray(trustResult.data) ? trustResult.data as unknown as OrderTrustData : null;
   let paymentReady = false; try { assertSandbox(); paymentReady = isSupabaseServiceRoleConfigured; } catch { /* Sandbox is explicitly unavailable. */ }
-  return <OrderView order={order} events={events ?? []} completionCode={null} isProvider={Boolean(provider) && order.customer_id !== user.id} readOnly={order.customer_id !== user.id && !provider} paymentReady={paymentReady} finance={finance as unknown as OrderFinance | null} hasReview={Boolean(review)} reviewEligible={eligibility.some(source => source.kind === "order" && source.id === order.id)} rebookHref={rebookHref} />;
+  return <OrderView order={order} events={events ?? []} completionCode={null} isProvider={Boolean(provider) && order.customer_id !== user.id} readOnly={order.customer_id !== user.id && !provider} paymentReady={paymentReady} finance={finance as unknown as OrderFinance | null} hasReview={Boolean(review)} reviewEligible={eligibility.some(source => source.kind === "order" && source.id === order.id)} trust={trust} rebookHref={rebookHref} />;
 }

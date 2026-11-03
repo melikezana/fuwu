@@ -202,3 +202,44 @@
 
 /* Bölüm başlığındaki "Tümü" bağlantıları iki satıra kırılmasın. */
 .home-section-heading .home-text-link { white-space: nowrap; flex-shrink: 0; }
+
+/* Anında geri bildirim: sekmeye, sayfa numarasına veya güne dokunulduğu an seçili görünür;
+   sunucu yanıtı gelene kadar altında ince bir yükleniyor çizgisi akar ve liste soluklaşır.
+   Bağlantılardaki <LinkPending /> ile çalışır; yerleşimi kaydırmaz. */
+.link-pending { display: none; }
+:is(.fusion-tabs, .fusion-pagination, .customer-hub-navigation, .operations-week) a { position: relative; }
+.link-pending[data-pending] {
+  display: block; position: absolute; left: 10px; right: 10px; bottom: 5px; height: 3px; overflow: hidden;
+  border-radius: 3px; background: color-mix(in srgb, currentColor 18%, transparent);
+  opacity: 0; animation: fuwu-link-show 0s linear .1s forwards;
+}
+.link-pending[data-pending]::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; border-radius: inherit;
+  background: currentColor; animation: fuwu-link-slide 1s ease-in-out infinite;
+}
+@keyframes fuwu-link-show { to { opacity: 1; } }
+@keyframes fuwu-link-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.fusion-tabs a:has(.link-pending[data-pending]),
+.customer-hub-navigation a:has(.link-pending[data-pending]),
+.operations-week a:has(.link-pending[data-pending]) { background: #fff0e5; border-color: #bd5009; color: #853a08; }
+/* Eski seçili sekme, yenisi işaretlenince sönükleşir; aynı anda iki seçili sekme görünmez. */
+:is(.fusion-tabs, .customer-hub-navigation, .operations-week):has(.link-pending[data-pending]) a[aria-current]:not(:has(.link-pending[data-pending])) { background: #fff; border-color: var(--border, #dedbd3); color: #514d46; }
+:is(.fusion-tabs, .customer-hub-navigation):has(.link-pending[data-pending]) ~ *,
+main:has(:is(.fusion-pagination, .operations-week) .link-pending[data-pending]) :is(.commerce-orders, .operations-agenda-list, .favorite-provider-grid, .commerce-empty) {
+  opacity: .5; pointer-events: none; transition: opacity .15s ease .1s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .link-pending[data-pending]::after { width: 100%; animation: none; opacity: .6; }
+}
+
+/* Karşılıklı doğrulama kutusu (sipariş detayı). */
+.order-trust h2 { display: flex; align-items: center; gap: 8px; }
+.order-trust-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+.order-trust-grid > div { padding: 14px 16px; border: 1px solid var(--border, #dedbd3); border-radius: 12px; background: var(--surface-soft, #faf9f6); min-width: 0; }
+.order-trust-grid h3 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #2b2822; }
+.order-trust-grid ul { display: grid; gap: 8px; margin: 0 0 8px; padding: 0; list-style: none; }
+.order-trust-grid li { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.45; }
+.order-trust-grid li svg { flex: none; margin-top: 1px; }
+.order-trust-grid li.is-ok { color: #1f5f35; }
+.order-trust-grid li.is-missing { color: #6b6459; }
+@media (max-width: 767px) { .order-trust-grid { grid-template-columns: 1fr; gap: 10px; } }

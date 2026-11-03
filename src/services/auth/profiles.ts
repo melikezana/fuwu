@@ -121,6 +121,23 @@ function hasProfileUpdate(updatePayload: ProfileUpdate) {
   return Object.keys(updatePayload).length > 0;
 }
 
+// Var olan profili ek sorgu yapmadan eşitler: yalnızca değişiklik varsa tek bir güncelleme atar.
+// Sayfa başına profil sorgusunu ikiden bire indirir. Döndürdüğü yama, çağıranın elindeki profile uygulanır.
+export async function syncExistingProfile(
+  supabase: AuthProfileSupabaseClient,
+  user: Pick<User, "id" | "user_metadata">,
+  existingProfile: ProfileRecord,
+  details: EnsureProfileDetails = {},
+): Promise<ProfileUpdate> {
+  const metadataName = getAuthUserMetadataName(user);
+  const metadataAvatar = getMetadataString(user.user_metadata, ["avatar_url", "picture"], 500);
+  const patch = getProfileDetailsPatch(existingProfile, details, metadataName, metadataAvatar);
+  if (hasProfileUpdate(patch)) {
+    await updateOwnProfile(supabase, user.id, existingProfile, details, metadataName, metadataAvatar);
+  }
+  return patch;
+}
+
 async function updateOwnProfile(
   supabase: AuthProfileSupabaseClient,
   userId: string,

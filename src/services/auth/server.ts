@@ -7,7 +7,8 @@ import {
 import type { Database } from "@/lib/supabase/types";
 import type { CurrentUserProfile } from "@/types/auth";
 import { authAccessMessages } from "./constants";
-import { ensureProfileForUser } from "./profiles";
+import { cache } from "react";
+import { ensureProfileForUser, syncExistingProfile } from "./profiles";
 
 type ServerAuthSupabaseClient = SupabaseClient<Database>;
 
@@ -101,7 +102,11 @@ async function getServerProfile(
   };
 }
 
-export async function getServerAuthContext(): Promise<ServerAuthContext> {
+// Aynı istek içinde düzen, sayfa ve bileşenler bu fonksiyonu birden çok kez çağırır;
+// cache ile Supabase'e tek tur gidilir (her tur Singapur veritabanına ~0,2 sn).
+export const getServerAuthContext = cache(loadServerAuthContext);
+
+async function loadServerAuthContext(): Promise<ServerAuthContext> {
   if (!isSupabaseServerConfigured) {
     return {
       error: authAccessMessages.loginRequired,
@@ -136,11 +141,21 @@ export async function getServerAuthContext(): Promise<ServerAuthContext> {
     };
   }
 
+  const profileDetails = { phone: getAuthUserPhone(userResult.user), preserveExistingPhone: true };
+  // Hızlı yol: profil zaten varsa tek sorguyla oku, gerekiyorsa yalnızca eksik alanı güncelle.
+  const existing = await getServerProfile(supabase, userResult.user.id);
+  if (existing.profile) {
+    try {
+      const patch = await syncExistingProfile(supabase, userResult.user, existing.profile, profileDetails);
+      return { error: null, isConfigured: true, profile: { ...existing.profile, ...patch } as CurrentUserProfile, supabase, user: userResult.user };
+    } catch (error) {
+      return { error: warnServerAuthError("Supabase server profile ensure failed.", error), isConfigured: true, profile: null, supabase, user: userResult.user };
+    }
+  }
+
+  // İlk giriş veya okuma hatası: mevcut güvenli yol (oluştur, sonra oku).
   try {
-    await ensureProfileForUser(supabase, userResult.user, {
-      phone: getAuthUserPhone(userResult.user),
-      preserveExistingPhone: true,
-    });
+    await ensureProfileForUser(supabase, userResult.user, profileDetails);
   } catch (error) {
     return {
       error: warnServerAuthError("Supabase server profile ensure failed.", error),

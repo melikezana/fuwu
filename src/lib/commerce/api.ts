@@ -24,6 +24,7 @@ const errors: Record<string, [number, string]> = {
   completion_code_locked: [429, "Bir süre bekleyip tekrar dene."],
   code_locked: [429, "Bir süre bekleyip tekrar dene."],
   too_many_holds: [429, "Mevcut siparişini tamamlayıp tekrar dene."],
+  contact_verification_required: [403, "Sipariş için doğrulanmış e-posta veya telefon gerekiyor. Çıkış yapıp yeniden giriş yap."],
   rate_limit: [429, "Bir süre bekleyip tekrar dene."],
   payload_too_large: [413, "Gönderilen veri çok büyük."],
   slot_unavailable: [409, "Bu saat artık uygun değil. Yeni bir saat seç."],

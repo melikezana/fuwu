@@ -22,23 +22,39 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
   try { persistSessionFormDraft(draftKey, draft); } catch { /* Form remains usable without browser storage. */ }
   router.push("/login?next=/provider-application&restore=1");
  }
- const [otp, setOtp] = useState(""), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
- async function verifyPhone() {
+ const [otp, setOtp] = useState(""), [resendAt, setResendAt] = useState(0), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
+ // Supabase hata kodlarını ustanın anlayacağı, ne yapacağını söyleyen mesajlara çevirir.
+ function phoneErrorMessage(error: { code?: string; status?: number; message?: string }) {
+  const code = error.code ?? "";
+  if (code === "phone_exists" || /already.*registered|already been registered/i.test(error.message ?? "")) return "Bu numara başka bir FUWU hesabına bağlı. O hesapla giriş yap ya da destek ekibine yaz.";
+  if (code.startsWith("over_sms_send_rate_limit") || error.status === 429) return "Çok sık kod istendi. Bir dakika sonra tekrar dene.";
+  if (code === "sms_send_failed" || code === "phone_provider_disabled") return "SMS şu anda gönderilemiyor. Biraz sonra tekrar dene; sorun sürerse destek ekibine yaz.";
+  if (code === "otp_expired") return "Kodun süresi doldu. \"Kodu tekrar gönder\" ile yeni kod iste.";
+  return "";
+ }
+ async function sendPhoneCode(normalized: string) {
+  const db = createSupabaseBrowserClient(); if (!db) return;
+  const { error } = await db.auth.updateUser({ phone: normalized });
+  if (error) { setMessage(phoneErrorMessage(error) || "Doğrulama mesajı gönderilemedi. Daha sonra tekrar dene."); return; }
+  setSent(true); setOtp(""); setResendAt(Date.now() + 60_000); setMessage("Telefonuna gelen 6 haneli kodu gir.");
+ }
+ async function verifyPhone(resend = false) {
   if (busy) return; setBusy(true); setMessage("");
   try {
    const db = createSupabaseBrowserClient(); if (!db || !authenticatedUserId) { loginWithDraft(); return; }
    const normalized = sanitizePhone(phone);
-   if (!/^\+90\d{10}$/.test(normalized)) { setMessage("Geçerli cep telefonu numaranı gir."); return; }
+   // SMS yalnızca cep telefonuna gider: +90 5XX XXX XX XX.
+   if (!/^\+905\d{9}$/.test(normalized)) { setMessage("05XX XXX XX XX biçiminde cep telefonu numaranı gir."); return; }
    const { data: { user } } = await db.auth.getUser();
    if (user?.phone_confirmed_at && sanitizePhone(user.phone || "") === normalized) { setVerified(true); setMessage("Telefonun doğrulandı."); return; }
-   if (sent) {
+   if (sent && !resend) {
+    if (!/^\d{6}$/.test(otp)) { setMessage("Telefonuna gelen 6 haneli kodu gir."); return; }
     const { error } = await db.auth.verifyOtp({ phone: normalized, token: otp, type: "phone_change" });
-    if (error) { setMessage("Kod doğrulanamadı. Kodu ve süresini kontrol et."); return; }
+    if (error) { setMessage(phoneErrorMessage(error) || "Kod doğrulanamadı. Kodu kontrol et ya da yeni kod iste."); return; }
     setVerified(true); setMessage("Telefonun doğrulandı.");
    } else {
-    const { error } = await db.auth.updateUser({ phone: normalized });
-    if (error) { setMessage("Doğrulama mesajı gönderilemedi. Daha sonra tekrar dene."); return; }
-    setSent(true); setMessage("Telefonuna gelen kodu gir.");
+    if (resend && Date.now() < resendAt) { setMessage("Yeni kod için biraz bekle."); return; }
+    await sendPhoneCode(normalized);
    }
   } catch { setMessage("Telefon doğrulama hizmetine ulaşılamadı."); } finally { setBusy(false); }
  }
@@ -58,7 +74,8 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  <label className="commerce-field">Ad soyad<input autoComplete="name" name="fullName" minLength={2} maxLength={120} required value={name} onChange={e => setName(e.target.value)} disabled={busy || done} /></label>
  <label className="commerce-field">Cep telefonu<input autoComplete="tel" name="phone" type="tel" required value={phone} onChange={e => { setPhone(e.target.value); setVerified(false); setSent(false); }} disabled={busy || done} /></label>
  {sent && !verified && <label className="commerce-field">SMS doğrulama kodu<input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ""))} disabled={busy} /></label>}
- <button className="commerce-secondary" type="button" onClick={verifyPhone} disabled={busy || verified || done}>{verified ? "Telefon doğrulandı" : sent ? "Kodu doğrula" : "Telefonumu doğrula"}</button>
+ <button className="commerce-secondary" type="button" onClick={() => void verifyPhone()} disabled={busy || verified || done}>{verified ? "Telefon doğrulandı" : sent ? "Kodu doğrula" : "Telefonumu doğrula"}</button>
+ {sent && !verified && <button className="commerce-text-link" type="button" onClick={() => void verifyPhone(true)} disabled={busy || done}>Kodu tekrar gönder</button>}
  <label className="commerce-field">Hizmet kategorisi<select name="categoryId" required value={category} onChange={e => setCategory(e.target.value)} disabled={busy || done}><option value="">Mesleğini seç</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
  <label className="commerce-field">Çalışma ilçesi<select name="districtId" required value={district} onChange={e => setDistrict(e.target.value)} disabled={busy || done}><option value="">İlçeni seç</option>{districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
  {message && <p className={done || verified ? "commerce-notice" : "commerce-error"} role={done || verified ? "status" : "alert"}>{message}</p>}

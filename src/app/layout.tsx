@@ -25,9 +25,13 @@ import "@/styles/control-center.css";
 import "@/styles/trust.css";
 import "@/styles/growth.css";
 
+// "optional" + preload:false ile yazı tipi çoğu ilk ziyarette hiç yüklenmiyor, site yedek
+// yazı tipiyle (Arial benzeri) görünüyordu. "swap" + önyükleme: Inter her zaman gelir; yedek
+// yazı tipi ölçüleri Inter'e ayarlandığı için sayfa kayması en aza iner.
 const inter = localFont({
-  display: "optional",
-  preload: false,
+  adjustFontFallback: "Arial",
+  display: "swap",
+  preload: true,
   src: [
     {
       path: "../fonts/Inter-Regular.woff2",

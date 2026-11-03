@@ -49,6 +49,7 @@ export type CommerceFunctions = {
   commerce_public_schedule: { Args: { p_provider_id: string }; Returns: Json };
   commerce_provider_operations: { Args: { p_provider_id: string }; Returns: Json };
   commerce_order_finance: { Args: { p_order_id: string }; Returns: Json };
+  commerce_order_trust: { Args: { p_order_id: string }; Returns: Json };
   commerce_provider_finance: { Args: { p_provider_id: string }; Returns: Json };
   commerce_admin_summary: { Args: Record<string, never>; Returns: Json };
   commerce_admin_request_refund: { Args: { p_order_id: string }; Returns: undefined };

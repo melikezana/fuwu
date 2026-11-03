@@ -67,3 +67,7 @@ storybook-static
 /artifacts/critical-backend-repair/ci/report.zip
 /artifacts/critical-backend-repair/local-supabase/run-*/
 /artifacts/production-rollout/runtime/
+
+# Elle uygulanan yama dosyaları depoya girmesin.
+/*.patch
+next-env.d.ts
