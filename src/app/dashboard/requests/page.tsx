@@ -4,7 +4,7 @@ import AccountRequestsPage from "@/app/account/requests/page";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Taleplerim | FUWU",
+  title: "Taleplerim",
   description: "FUWU hizmet taleplerini ve acil usta çağrılarını takip et.",
 };
 

@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
 
   if (!provider) {
     return createPageMetadata({
-      title: "Usta Bulunamadı | FUWU",
+      title: "Usta Bulunamadı",
       description:
         "Aradığın usta profiline ulaşılamadı. İstanbul’daki ustaları kategori, ilçe ve puana göre karşılaştır.",
       path: `/providers/${id}`,
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: ProviderProfilePageProps): Pr
   const professionLabel = getProviderProfessionLabel(provider.category);
 
   return createPageMetadata({
-    title: `${provider.district} ${professionLabel} | ${provider.name} | FUWU`,
+    title: `${provider.district} ${professionLabel} | ${provider.name}`,
     description: `${provider.district} bölgesinde ${provider.category} hizmeti sunan ${provider.name} profilini, hizmet bilgilerini ve müşteri değerlendirmelerini inceleyin.`,
     path: `/providers/${provider.id}`,
     keywords: [

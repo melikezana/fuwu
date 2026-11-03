@@ -42,10 +42,11 @@ Tekrar çalıştırmak için: `npm run build && npm start`, ardından `PENTEST_T
 ## Senin yapman gereken panel ayarları (koddan yapılamaz)
 
 1. **SMS kancasını aç:** Supabase › Authentication › Hooks › *Before User Created* → `public.hook_fuwu_before_user_created`. Ardından yabancı bir numarayla (ör. +44…) kod istemeyi dene; reddedilmeli.
-2. **CAPTCHA:** Supabase › Authentication › Attack Protection › Cloudflare Turnstile. SMS ve e-posta kod isteklerini botlara kapatır.
-3. **Admin hesaplarında iki adımlı doğrulama:** Admin olarak kullanılan Google hesabında 2FA açık olmalı.
-4. **Gizli anahtarlar:** `SUPABASE_SERVICE_ROLE_KEY`, `IYZICO_SECRET_KEY`, `CRON_SECRET`, `OPENAI_API_KEY` yalnızca Vercel ortam değişkenlerinde dursun; repoda ve ekran görüntülerinde paylaşılmasın. `CRON_SECRET` en az 32 rastgele karakter olsun.
-5. **Bağımlılıklar:** `@sentry/nextjs` derleme eklentilerindeki 5 orta seviye açık yalnızca derleme anında çalışır; bir sonraki bakımda Sentry sürümünü güncelle.
+2. **SMS kodları NetGSM ile:** `docs/sms-netgsm-kurulum.md` adımlarıyla Supabase › Authentication › Hooks › *Send SMS* kancasını `/api/auth/sms-hook` adresine bağla. Kanca imzayı doğrular, yalnızca +90 5xx numaralara gönderir ve numara başına sınır uygular.
+3. **CAPTCHA:** Supabase › Authentication › Attack Protection › Cloudflare Turnstile. SMS ve e-posta kod isteklerini botlara kapatır.
+4. **Admin hesaplarında iki adımlı doğrulama:** Admin olarak kullanılan Google hesabında 2FA açık olmalı.
+5. **Gizli anahtarlar:** `SUPABASE_SERVICE_ROLE_KEY`, `IYZICO_SECRET_KEY`, `CRON_SECRET`, `OPENAI_API_KEY` yalnızca Vercel ortam değişkenlerinde dursun; repoda ve ekran görüntülerinde paylaşılmasın. `CRON_SECRET` en az 32 rastgele karakter olsun.
+6. **Bağımlılıklar:** `@sentry/nextjs` derleme eklentilerindeki 5 orta seviye açık yalnızca derleme anında çalışır; bir sonraki bakımda Sentry sürümünü güncelle.
 
 ## Kalan riskler
 

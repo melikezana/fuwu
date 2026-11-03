@@ -6,7 +6,7 @@ import { ProviderStore } from "@/components/commerce/ProviderStore";
 import { ProviderDashboardShell } from "@/components/dashboard/ProviderDashboardUI";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hizmet Mağazam | FUWU" };
+export const metadata = { title: "Hizmet Mağazam" };
 export default async function StorePage() {
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) redirect(buildLoginRedirectUrl("/provider-dashboard/store"));

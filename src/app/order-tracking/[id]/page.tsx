@@ -38,7 +38,7 @@ import { getUnreadRequestMessageCount } from "@/services/messaging";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Order Tracking | FUWU",
+  title: "Sipariş Takibi",
   description: "FUWU sipariş takip, doğrulama kodu ve ödeme serbest bırakma akışı.",
 };
 

@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/Container";
 import { I18nText } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Giriş | FUWU",
+  title: "Giriş",
   description: "Hesabına güvenle giriş yap. Hizmetlerini satın al, randevularını ve siparişlerini tek yerden takip et.",
 };
 

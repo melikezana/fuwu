@@ -10,6 +10,8 @@ export async function trustChecks(db, checks) {
  await as('postgres');
  await db.query("insert into auth.users(id,email,phone,phone_confirmed_at) values($1,'trust-admin@example.invalid',null,null),($2,'trust-owner@example.invalid','905550001111',now()),($3,'trust-customer@example.invalid',null,null),($4,'trust-other@example.invalid',null,null)",[admin,owner,customer,other]);
  await db.query("update profiles set role='admin' where id=$1",[admin]);
+ // Gerçek müşteri en az bir doğrulanmış kanal (Google / e-posta kodu / SMS) ile girer.
+ await db.query("update auth.users set email_confirmed_at=now() where id=$1",[customer]);
  const cat=await scalar("insert into service_categories(name,slug) values('TEST Trust Category','test-trust-'||gen_random_uuid()) returning id");
  const cat2=await scalar("insert into service_categories(name,slug) values('TEST Other Trade','test-trust-other-'||gen_random_uuid()) returning id");
  const district=await scalar("insert into districts(name,slug) values('TEST Trust District','test-trust-'||gen_random_uuid()) returning id");
@@ -90,6 +92,23 @@ export async function trustChecks(db, checks) {
  const issue=async(id)=>{await as('authenticated',customer);const r=await scalar('select trust_issue_service_code($1)',[id]);assert.match(r.code,/^\d{6}$/);return r.code;};
  const travel=async(id)=>{await as('authenticated',owner);await scalar("select commerce_transition_order($1,'PROVIDER_ON_THE_WAY')",[id]);};
  const start=async(id,code)=>scalar("select commerce_transition_order($1,'IN_PROGRESS',$2)",[id,code]);
+ // Müşteri doğrulama kapısı: doğrulanmış e-postası/telefonu olmayan veya anonim hesap sipariş açamaz.
+ await as('postgres');
+ await fails("insert into commerce_orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,status,expires_at,idempotency_key) values($1,$2,$3,'TEST Service','TEST scope','TEST Provider',$4,'TEST District','TEST Isolated address only',now()+interval '10 minutes',now()+interval '1 hour',10000,1000,9000,'PENDING_PAYMENT',now()+interval '10 minutes',gen_random_uuid())",[other,pid,offer,district],/contact_verification_required/);
+ const anonymousUser=randomUUID();
+ await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'trust-anon@example.invalid',now())",[anonymousUser]);
+ const hasAnonymousFlag=Number(await scalar("select count(*) from information_schema.columns where table_schema='auth' and table_name='users' and column_name='is_anonymous'"))>0;
+ if(hasAnonymousFlag){await db.query('update auth.users set is_anonymous=true where id=$1',[anonymousUser]);await fails("insert into commerce_orders(customer_id,provider_id,offering_id,service_name,scope,provider_name,district_id,district_name,address,starts_at,ends_at,total_minor,commission_minor,provider_gross_minor,status,expires_at,idempotency_key) values($1,$2,$3,'TEST Service','TEST scope','TEST Provider',$4,'TEST District','TEST Isolated address only',now()+interval '10 minutes',now()+interval '1 hour',10000,1000,9000,'PENDING_PAYMENT',now()+interval '10 minutes',gen_random_uuid())",[anonymousUser,pid,offer,district],/contact_verification_required/);}
+ const trustOrder=await createOrder();
+ await as('authenticated',customer);const seenByCustomer=await scalar('select commerce_order_trust($1)',[trustOrder]);
+ assert.equal(seenByCustomer.customer.email_verified,true);assert.equal(seenByCustomer.customer.phone_verified,false);assert.equal(typeof seenByCustomer.provider.identity_verified,'boolean');
+ assert.equal(JSON.stringify(seenByCustomer).includes('example.invalid'),false);assert.equal(JSON.stringify(seenByCustomer).includes('905550001111'),false);
+ await as('authenticated',owner);const seenByProvider=await scalar('select commerce_order_trust($1)',[trustOrder]);assert.equal(seenByProvider.customer.email_verified,true);
+ await as('authenticated',admin);assert.ok(await scalar('select commerce_order_trust($1)',[trustOrder]));
+ await as('authenticated',other);await fails('select commerce_order_trust($1)',[trustOrder],/forbidden/);
+ await as('anon');await fails('select commerce_order_trust($1)',[trustOrder],/permission denied/);
+ await as('authenticated',customer);await fails('select fuwu_private.customer_contact_verified($1)',[customer],/permission denied/);
+ checks.push('Customer verification gate: unverified or anonymous accounts cannot open orders; order parties and admin see verified/unverified status only (no e-mail or phone), outsiders and anon are denied');
  const id=await createOrder(), code=await issue(id);await as('postgres');
  const stored=(await db.query('select * from order_completion_codes where order_id=$1',[id])).rows[0];assert.equal(stored.code,null);assert.notEqual(stored.code_hash,code);assert.ok(stored.expires_at);
  await as('authenticated',owner);await fails('select code_hash from order_completion_codes where order_id=$1',[id],/permission denied/);

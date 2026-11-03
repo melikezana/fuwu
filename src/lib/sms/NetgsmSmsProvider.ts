@@ -1,4 +1,4 @@
-import type { SmsProvider, SmsSendResult } from "./types";
+import type { SmsProvider, SmsSendOptions, SmsSendResult } from "./types";
 
 type NetgsmSmsProviderOptions = {
   header: string;
@@ -11,10 +11,12 @@ const netgsmSendEndpoint = "https://api.netgsm.com.tr/sms/send/get";
 export class NetgsmSmsProvider implements SmsProvider {
   constructor(private readonly options: NetgsmSmsProviderOptions) {}
 
-  async sendOtp(phone: string, code: string): Promise<SmsSendResult> {
+  async sendOtp(phone: string, code: string, options: SmsSendOptions = {}): Promise<SmsSendResult> {
     const body = new URLSearchParams({
       gsmno: phone,
-      message: `FUWU doğrulama kodunuz: ${code}`,
+      message: options.message ?? `FUWU doğrulama kodunuz: ${code}`,
+      // Türkçe karakterler (ç, ğ, ı, ö, ş, ü) bozulmadan iletilsin.
+      dil: "TR",
       msgheader: this.options.header,
       password: this.options.password,
       usercode: this.options.usercode,
@@ -27,7 +29,7 @@ export class NetgsmSmsProvider implements SmsProvider {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "POST",
-        signal: AbortSignal.timeout(10_000),
+        signal: AbortSignal.timeout(options.timeoutMs ?? 10_000),
       });
       const responseText = (await response.text()).trim();
       const responseCode = responseText.split(/\s+/)[0];

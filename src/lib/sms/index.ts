@@ -34,6 +34,6 @@ export function getSmsProvider(): SmsProvider {
   throw new Error(`Unsupported SMS_PROVIDER value: ${provider}`);
 }
 
-export type { SmsProvider, SmsSendResult } from "./types";
+export type { SmsProvider, SmsSendOptions, SmsSendResult } from "./types";
 export { MockSmsProvider } from "./MockSmsProvider";
 export { NetgsmSmsProvider } from "./NetgsmSmsProvider";

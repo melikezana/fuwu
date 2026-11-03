@@ -5,7 +5,7 @@ import { ServiceCatalog } from "@/components/commerce/ServiceCatalog";
 import { getServiceForValue } from "@/lib/constants/services";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hizmetleri Keşfet | FUWU", description: "Hizmetini seç, ustaları karşılaştır, uygun gün ve saatte randevunu planla." };
+export const metadata = { title: "Hizmetleri Keşfet", description: "Hizmetini seç, ustaları karşılaştır, uygun gün ve saatte randevunu planla." };
 
 export default async function ServicesPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string; district?: string }> }) {
   const [catalog, params] = await Promise.all([getCommerceCatalog(), searchParams]);

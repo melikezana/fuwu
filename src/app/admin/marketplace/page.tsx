@@ -21,7 +21,7 @@ import { serviceActiveStatuses } from "@/lib/commerce/order-state";
 import { LinkPending } from "@/components/ui/LinkPending";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Marketplace Operasyon Merkezi | FUWU", robots: { index: false, follow: false } };
+export const metadata = { title: "Marketplace Operasyon Merkezi", robots: { index: false, follow: false } };
 const views = [["orders", "Siparişler"], ["payments", "Ödemeler"], ["reconciliation", "Ödeme Mutabakatı"], ["overdue", "Geciken İşler"], ["refunds", "İadeler"], ["payouts", "Hak Edişler"], ["disputes", "Uyuşmazlıklar"], ["health", "Sistem Sağlığı"]];
 type Transaction = { status: string; payout_state: string; refund_state: string; environment: string; created_at: string; item_transaction_id?: string | null; has_item_transaction?: boolean };
 type AdminOrder = CommerceOrder & { payment_transactions: Transaction | Transaction[] | null };

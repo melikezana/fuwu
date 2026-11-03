@@ -25,7 +25,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Başvurularım | FUWU",
+  title: "Başvurularım",
   description: "FUWU usta başvurularını ve hizmet taleplerini hesabından takip et.",
 };
 
