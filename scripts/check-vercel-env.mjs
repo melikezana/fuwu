@@ -50,6 +50,9 @@ async function main() {
           .map((entry) => entry.key)
       : [],
   );
+  // Vercel'in Upstash entegrasyonu KV_REST_API_* adlarını kullanır; uygulama ikisini de kabul eder.
+  if (names.has("KV_REST_API_URL")) names.add("UPSTASH_REDIS_REST_URL");
+  if (names.has("KV_REST_API_TOKEN")) names.add("UPSTASH_REDIS_REST_TOKEN");
   const missing = requiredNames.filter((name) => !names.has(name));
 
   for (const name of requiredNames) {

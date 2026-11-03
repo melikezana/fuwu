@@ -37,9 +37,9 @@ export function environmentChecks(env: Env): SetupCheck[] {
       ? { id: "cron", title: "Zamanlanmış işler", status: "warn", detail: "CRON_SECRET kısa; tahmin edilmesi kolaylaşır.", action: "En az 32 rastgele karakterlik yeni bir CRON_SECRET tanımla." }
       : { id: "cron", title: "Zamanlanmış işler", status: "fail", detail: "Gece temizliği ve sistem kontrolleri çalışmaz.", action: "Vercel'e en az 32 karakterlik CRON_SECRET ekle." });
 
-  add(has(env, "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN")
+  add(has(env, "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN") || has(env, "KV_REST_API_URL", "KV_REST_API_TOKEN")
     ? { id: "rate-limit", title: "Saldırı ve hız sınırı", status: "ok", detail: "Hız sınırları kalıcı ve tüm sunucularda ortak." }
-    : { id: "rate-limit", title: "Saldırı ve hız sınırı", status: "warn", detail: "Hız sınırı yalnızca tek sunucunun belleğinde tutuluyor; yoğun saldırıda zayıf kalır.", action: "Upstash Redis aç; UPSTASH_REDIS_REST_URL ve UPSTASH_REDIS_REST_TOKEN ekle." });
+    : { id: "rate-limit", title: "Saldırı ve hız sınırı", status: "warn", detail: "Hız sınırı yalnızca tek sunucunun belleğinde tutuluyor; yoğun saldırıda zayıf kalır.", action: "Vercel › Storage › Upstash for Redis ile ücretsiz veritabanı oluşturup projeye bağla; anahtarlar kendiliğinden eklenir." });
 
   add(has(env, "NEXT_PUBLIC_SENTRY_DSN")
     ? { id: "monitoring", title: "Hata izleme", status: "ok", detail: "Sitede oluşan hatalar Sentry'ye kaydedilir." }

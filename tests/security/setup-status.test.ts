@@ -44,6 +44,13 @@ describe("kurulum durumu: ortam ayarları", () => {
     expect(sms.detail).toContain("SUPABASE_SEND_SMS_HOOK_SECRET");
   });
 
+  it("Vercel'in Upstash entegrasyonu adlarını da hazır sayar", () => {
+    const { UPSTASH_REDIS_REST_URL: _url, UPSTASH_REDIS_REST_TOKEN: _token, ...rest } = secrets;
+    void _url; void _token;
+    expect(environmentChecks({ ...rest, KV_REST_API_URL: "https://kv.example", KV_REST_API_TOKEN: "kv-SECRET" }).find(check => check.id === "rate-limit")?.status).toBe("ok");
+    expect(environmentChecks(rest).find(check => check.id === "rate-limit")?.status).toBe("warn");
+  });
+
   it("kısa cron anahtarını uyarır", () => {
     expect(environmentChecks({ ...secrets, CRON_SECRET: "kisa" }).find(check => check.id === "cron")?.status).toBe("warn");
   });

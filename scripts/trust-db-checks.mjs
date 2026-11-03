@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 // Invoked ONLY with the disposable loopback PostgreSQL created by the chain runner.
 export async function trustChecks(db, checks) {
@@ -119,6 +120,17 @@ export async function trustChecks(db, checks) {
  await fails("insert into order_sms_dispatches(order_id,event) values($1,'customer_spam')",[smsOrder],/check constraint/);
  await as('postgres');
  checks.push('Provider new-order SMS: one dispatch per order (primary key), unknown events rejected, browser roles denied, server role only');
+ // Katalog tamamlama: açılış kategorilerinin hepsinde paketli hizmet var; tekrar çalıştırmak çoğaltmaz.
+ await as('postgres');
+ const launchCategories="('temizlik','boya-badana','cilingir','hali-yikama','havuz-bakimi','nakliye-yardimi','bahce-bakimi')";
+ const catalogCounts=async()=>[Number(await scalar('select count(*) from service_catalog')),Number(await scalar('select count(*) from service_variants where provider_id is null'))];
+ const beforeRerun=await catalogCounts();
+ await db.query(readFileSync('supabase/migrations/20261103000800_catalog_completion.sql','utf8'));
+ assert.deepEqual(await catalogCounts(),beforeRerun);
+ assert.equal(Number(await scalar(`select count(*) from service_categories c where c.is_active and c.slug in ${launchCategories} and not exists(select 1 from service_catalog s where s.category_id=c.id and s.is_active)`)),0);
+ assert.equal(Number(await scalar(`select count(*) from service_catalog s join service_categories c on c.id=s.category_id where c.slug in ${launchCategories} and s.pricing_type='VARIANT_BASED' and (select count(*) from service_variants v where v.service_id=s.id and v.provider_id is null)<2`)),0);
+ assert.equal(Number(await scalar("select count(*) from service_catalog where slug in ('kapi-acma','ev-temizligi','oda-boyama','hali-yikama','havuz-temizligi','esya-tasima-yardimi','cim-bicme')")) > 0, Number(await scalar(`select count(*) from service_categories where slug in ${launchCategories}`)) > 0);
+ checks.push('Catalog completion: every launch category has sellable services with packages; re-running adds nothing');
  const id=await createOrder(), code=await issue(id);await as('postgres');
  const stored=(await db.query('select * from order_completion_codes where order_id=$1',[id])).rows[0];assert.equal(stored.code,null);assert.notEqual(stored.code_hash,code);assert.ok(stored.expires_at);
  await as('authenticated',owner);await fails('select code_hash from order_completion_codes where order_id=$1',[id],/permission denied/);
