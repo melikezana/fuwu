@@ -89,7 +89,7 @@ export function authChecks(settings: AuthSettings, dashboardUrl: string | null):
   }
   const panel = dashboardUrl ? { href: dashboardUrl } : {};
   add({ id: "sms-hook", title: "SMS kancası (Send SMS)", status: "manual", detail: "Panelden okunamıyor. Kodların NetGSM ile gitmesi için açık olmalı.", action: "Supabase › Authentication › Hooks › Send SMS: https://www.fuwu.com.tr/api/auth/sms-hook", ...panel });
-  add({ id: "signup-hook", title: "Yurt dışı numara engeli (Before User Created)", status: "manual", detail: "Panelden okunamıyor.", action: "Supabase › Authentication › Hooks › Before User Created: public.hook_fuwu_before_user_created", ...panel });
+  add({ id: "signup-hook", title: "Yurt dışı numara engeli (Before User Created)", status: "manual", detail: "Panelden okunamıyor.", action: "Önce db push çalıştır; sonra Supabase › Authentication › Hooks › Add hook › Before User Created › Postgres › public › hook_fuwu_before_user_created", ...panel });
   add({ id: "captcha", title: "Bot koruması (Turnstile)", status: "manual", detail: "Panelden okunamıyor. Kod isteklerini botlara kapatır.", action: "Supabase › Authentication › Attack Protection › Cloudflare Turnstile", ...panel });
   add({ id: "admin-2fa", title: "Admin hesabında iki adımlı doğrulama", status: "manual", detail: "Admin olarak giriş yaptığın Google hesabında 2 adımlı doğrulama açık olmalı." });
   return checks;
