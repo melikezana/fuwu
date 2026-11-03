@@ -49,7 +49,8 @@
     "test:release": "node scripts/release-gate.mjs",
     "check:lint": "node scripts/run-check.mjs lint",
     "check:build": "node scripts/run-check.mjs build",
-    "test:http": "node scripts/run-check.mjs http"
+    "test:http": "node scripts/run-check.mjs http",
+    "test:pentest": "node scripts/security/pentest.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.59.0",

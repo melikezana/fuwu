@@ -7,11 +7,14 @@ type ApiRateLimitOptions = {
   windowMs: number;
 };
 
+// Vercel'in kendi yazdığı başlık önce gelir; istemcinin uydurduğu X-Forwarded-For ile
+// her istekte farklı IP gösterip hız sınırını atlatması zorlaşır.
 function getRequestIdentifier(request: NextRequest) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const vercelIp = request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
   const realIp = request.headers.get("x-real-ip")?.trim();
+  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
 
-  return forwardedFor || realIp || "anonymous";
+  return vercelIp || realIp || forwardedFor || "anonymous";
 }
 
 export async function checkApiRateLimit(

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAuthorizedCronRequest } from "@/lib/security/cronAuth";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { SERVICE_REQUEST_STATUSES } from "@/lib/constants/statuses";
@@ -95,14 +96,12 @@ function getCronAuthorizationError(request: Request) {
 
   if (!cronSecret) {
     return {
-      message: "CRON_SECRET is not configured.",
+      message: "Cron is not configured.",
       status: 500,
     };
   }
 
-  const authorization = request.headers.get("authorization")?.trim();
-
-  if (authorization !== `Bearer ${cronSecret}`) {
+  if (!isAuthorizedCronRequest(request.headers.get("authorization"), cronSecret)) {
     return {
       message: "Unauthorized.",
       status: 401,

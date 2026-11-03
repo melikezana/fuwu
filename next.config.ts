@@ -22,7 +22,19 @@ const localSupabaseImagePatterns: NonNullable<
       ]
     : [];
 
+// Görsel optimize edici yalnızca FUWU'nun kendi Supabase deposundan görsel çeker.
+// Joker (*.supabase.co) başka projelerin dosyalarını FUWU üzerinden servis ettirip
+// Vercel görsel kotasını tüketmeye açıktı.
+const supabaseStorageHost = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname : null;
+  } catch {
+    return null;
+  }
+})();
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
   // Unconfigured monitoring should not ship the SDK to every customer phone.
   // The browser condition never substitutes the server/Edge SDK.
@@ -37,10 +49,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        hostname: "**.supabase.co",
-        protocol: "https",
-      },
+      supabaseStorageHost && supabaseStorageHost.endsWith(".supabase.co")
+        ? { hostname: supabaseStorageHost, pathname: "/storage/v1/object/public/**", protocol: "https" as const }
+        : { hostname: "**.supabase.co", pathname: "/storage/v1/object/public/**", protocol: "https" as const },
       {
         hostname: "lh3.googleusercontent.com",
         protocol: "https",

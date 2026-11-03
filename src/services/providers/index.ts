@@ -134,13 +134,12 @@ type MarketplaceTrustMetricFallbacks = {
   serviceCategories: number;
 };
 
+// Herkese açık profil sorgusu: telefon/WhatsApp bilinçli olarak alınmaz (anon rolünde kapalı, numara kazımaya karşı).
 const providerSelectQuery = `
   id,
   category_id,
   district_id,
   name,
-  phone,
-  whatsapp,
   description,
   experience_years,
   average_price_min,
@@ -167,8 +166,6 @@ const providerSelectQueryWithoutAvailability = `
   category_id,
   district_id,
   name,
-  phone,
-  whatsapp,
   description,
   experience_years,
   average_price_min,
@@ -296,15 +293,17 @@ function mapSupabaseProvider(record: SupabaseProviderRecord, index = 0): Provide
   const category = sanitizeText(getServiceDisplayLabel(rawCategory), 120);
   const district = sanitizeText(getRelationName(record.district ?? record.districts), 120);
   const name = sanitizeText(record.name, 120);
-  const phone = sanitizePhone(record.phone);
+  // Herkese açık sorgu numara içermez; numara yalnızca yetkili iç akışlarda gelir.
+  const phone = record.phone ? sanitizePhone(record.phone) : "";
 
-  if (!rawCategory || !category || !district || !name || !phone) {
+  if (!rawCategory || !category || !district || !name) {
     return null;
   }
 
   const description =
     sanitizeText(record.description ?? "", 900) || createFallbackDescription(name, category, district);
-  const whatsapp = normalizePhoneForWhatsApp(sanitizePhone(record.whatsapp || "") || phone);
+  const whatsappSource = sanitizePhone(record.whatsapp || "") || phone;
+  const whatsapp = whatsappSource ? normalizePhoneForWhatsApp(whatsappSource) : "";
   const experienceYears = Math.max(0, Number(record.experience_years ?? 0));
   const availability = getProviderAvailability(record.availability);
   const workingHours = formatProviderWorkingHours(record.working_hours);
