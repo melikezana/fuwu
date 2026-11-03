@@ -16,9 +16,9 @@ export default function LoginPage() {
   return <section className="premium-login border-b border-[var(--border)]">
     <Container className="grid gap-8 py-7 sm:py-12 lg:grid-cols-2 lg:items-center lg:gap-20">
       <div className="premium-login-visual"><Image src="/images/services/provider-painting.webp" alt="İç mekânda duvar boyayan profesyonel" fill priority sizes="(max-width:1023px) 0px, 540px" /><div className="premium-login-caption"><span><ShieldCheck size={18} aria-hidden /> Evin için güvenle.</span><h2>Bir iş daha,<br />usta ellerde.</h2><p>İhtiyacın olan hizmeti seç.<br />Gününün geri kalanı sana kalsın.</p></div></div>
-      <div className="min-w-0"><header className="premium-login-intro"><p className="commerce-eyebrow"><I18nText i18nKey="login.eyebrow" /></p><h1><I18nText i18nKey="login.title" /></h1><p><I18nText i18nKey="login.description" /></p></header>
+      <div className="login-column min-w-0"><header className="premium-login-intro"><p className="commerce-eyebrow"><I18nText i18nKey="login.eyebrow" /></p><h1><I18nText i18nKey="login.title" /></h1><p><I18nText i18nKey="login.description" /></p></header>
         <Suspense fallback={<div className="commerce-skeleton h-96 rounded-2xl" role="status" aria-label="Giriş seçenekleri yükleniyor" />}><LoginOptions /></Suspense>
-        <p className="commerce-help mt-5"><ShieldCheck size={17} aria-hidden /> Hesabın, adreslerin ve siparişlerin tek yerde.</p><Link className="commerce-text-link" href="/services">Önce hizmetleri keşfet →</Link>
+        <div className="login-after"><Link href="/services">Giriş yapmadan hizmetlere göz at →</Link><a href="mailto:fuwuhizmet@gmail.com">Yardım</a></div>
       </div>
     </Container>
   </section>;

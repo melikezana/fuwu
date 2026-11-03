@@ -36,7 +36,7 @@ export function ProviderJoinIntro() {
   return <>
     <section className="market-join-hero"><Container className="max-w-7xl market-join-grid">
       <div className="min-w-0"><p className="market-eyebrow">FUWU PARTNER</p><h1>Teklif için değil,<br />iş için öde.</h1><p className="market-join-description">Müşteri seni seçer, ödemesini yapar, randevu kesinleşir. Sen işini yaparsın. Komisyon yalnızca biten işten.</p><a className="home-primary-link" href="#provider-application-form">Usta Ol <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></a><p className="market-help-text">Başvurunu hesabından takip edebilirsin.</p></div>
-      <figure className="market-join-photo"><Image alt={servicePhotos.painting.alt} fill preload sizes="(max-width: 767px) 92vw, 550px" className="object-cover" src="/images/services/provider-painting.webp" /><figcaption>İşinin ustası ol.<br /><strong>Fotoğraf hizmeti temsil eder.</strong></figcaption></figure>
+      <figure className="market-join-photo"><Image alt={servicePhotos.painting.alt} fill preload sizes="(max-width: 767px) 92vw, 550px" className="object-cover" src="/images/services/provider-painting.webp" /></figure>
     </Container></section>
     <section className="market-join-benefits"><Container className="max-w-7xl"><div className="market-join-benefit-grid is-four">{benefits.map(({ icon: Icon, title, copy }) => <div key={title}><Icon aria-hidden="true" className="size-6" /><h2>{title}</h2><p>{copy}</p></div>)}</div></Container></section>
   </>;

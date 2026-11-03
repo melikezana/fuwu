@@ -194,9 +194,9 @@ export const trTranslations = {
   "home.faq.urgent.answer":
     "Ustanı seçtikten sonra Bugün seçeneğine dokun. Uygun saat varsa seçerek ilerleyebilirsin; saatler gerçek çalışma takviminden hesaplanır.",
   "login.eyebrow": "FUWU HESABIN",
-  "login.title": "Hoş geldin. Kaldığın yerden devam et.",
+  "login.title": "Giriş yap veya hesap oluştur",
   "login.description":
-    "Hizmetlerini satın al, randevularını planla ve siparişlerini tek yerden takip et.",
+    "Şifre yok. Randevularını, siparişlerini ve adreslerini tek yerden yönet.",
   "login.badge.compare": "Ustayı İncele",
   "login.badge.contact": "Güvenli Ödeme",
   "login.badge.guest": "Hizmetleri Keşfet",

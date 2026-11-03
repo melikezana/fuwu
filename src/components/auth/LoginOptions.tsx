@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
-import { ArrowRight, Loader2, Mail, Phone, type LucideIcon } from "lucide-react";
+import { Loader2, Mail, Phone } from "lucide-react";
 import { appRoutes } from "@/lib/constants/navigation";
 import { getPublicErrorMessage } from "@/lib/errors";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
@@ -13,45 +13,17 @@ import { validateLoginEmailInput, validateLoginPhoneInput, validateLoginOtpInput
 import { signInWithEmailMagicLink, signInWithGoogle, signInWithPhoneOtp, verifyPhoneOtp } from "@/services/auth";
 import { oauthErrors } from "@/lib/auth/oauth";
 
-type LoginOptionKey = "google" | "email";
-
-type LoginOption = {
-  descriptionKey: TranslationKey;
-  Icon: LucideIcon | "google";
-  key: LoginOptionKey;
-  labelKey: TranslationKey;
-};
-
 const authRedirectPath = "/auth/callback";
 
-const loginOptions: LoginOption[] = [
-  {
-    descriptionKey: "login.googleDescription",
-    Icon: "google",
-    key: "google",
-    labelKey: "login.google",
-  },
-  {
-    descriptionKey: "login.emailDescription",
-    Icon: Mail,
-    key: "email",
-    labelKey: "login.email",
-  },
-];
-
-function LoginIcon({ Icon }: { Icon: LoginOption["Icon"] | typeof Phone }) {
-  if (Icon === "google") {
-    return (
-      <span className="inline-flex size-9 items-center justify-center rounded-full bg-white text-sm font-bold text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)]">
-        G
-      </span>
-    );
-  }
-
+// Google'ın resmi çok renkli "G" işareti (marka yönergesine uygun düğme simgesi).
+function GoogleMark() {
   return (
-    <span className="inline-flex size-9 items-center justify-center rounded-full bg-[var(--surface-soft)] text-[var(--brand-navy)]">
-      <Icon aria-hidden="true" className="size-4" />
-    </span>
+    <svg aria-hidden="true" className="size-5 shrink-0" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+      <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+    </svg>
   );
 }
 
@@ -69,37 +41,12 @@ function getAuthRedirectUrl() {
   return `${window.location.origin}${authRedirectPath}?${params.toString()}`;
 }
 
-function getOptionDescription(option: LoginOption, t: ReturnType<typeof useI18n>["t"]) {
-  if (!isSupabaseAuthConfigured) {
-    return t("login.status.unavailable");
-  }
-
-  return t(option.descriptionKey);
-}
-
-function getOptionStatus(
-  optionKey: LoginOptionKey,
-  isLoading: boolean,
-  t: ReturnType<typeof useI18n>["t"],
-) {
-  if (!isSupabaseAuthConfigured) {
-    return t("login.statusSoon");
-  }
-
-  if (optionKey === "google") {
-    return isLoading ? t("login.statusOpening") : t("login.statusActive");
-  }
-
-  return isLoading ? t("login.statusSending") : t("login.statusActive");
-}
-
 export function LoginOptions() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
-  const [feedbackKey, setFeedbackKey] = useState<TranslationKey>(
-    isSupabaseAuthConfigured
-      ? "login.status.ready"
-      : "login.status.unavailable",
+  const [method, setMethod] = useState<"email" | "phone">("email");
+  const [feedbackKey, setFeedbackKey] = useState<TranslationKey | null>(
+    isSupabaseAuthConfigured ? null : "login.status.unavailable",
   );
   const [feedbackText, setFeedbackText] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -140,9 +87,13 @@ export function LoginOptions() {
   const urlError = searchParams.get("error");
   const callbackFeedback = urlError && Object.hasOwn(oauthErrors, urlError)
     ? oauthErrors[urlError as keyof typeof oauthErrors] : null;
-  const feedback = feedbackText ?? callbackFeedback ?? t(feedbackKey);
+  const feedback = feedbackText ?? callbackFeedback ?? (feedbackKey ? t(feedbackKey) : "");
+  // Mesaj tonu: başarı yeşil, hata kırmızı, bilgi nötr. Boşken kutu hiç görünmez.
+  const feedbackTone = !feedback ? "none"
+    : /gönderildi|başarılı|Yönlendiriliyorsun|açılıyor/i.test(feedback) ? "success"
+    : /hatalı|geçersiz|gönderilemedi|açılamıyor|aktif değil|kullanılamıyor|bekle|gir\.|zorunlu|olmalı|dolmuş|tamamlanmadı|ulaşılamıyor|hazırlanamadı/i.test(feedback) ? "error" : "info";
 
-  function setTranslatedFeedback(key: TranslationKey) {
+  function setTranslatedFeedback(key: TranslationKey | null) {
     setFeedbackKey(key);
     setFeedbackText(null);
   }
@@ -287,153 +238,110 @@ export function LoginOptions() {
     }
   }
 
+  const busy = isGoogleLoading || isEmailLoading || isPhoneLoading;
+
   return (
-    <div
-      className="premium-card p-5 shadow-[var(--shadow-premium)] sm:p-6"
-      data-testid="login-options"
-    >
+    <div className="login-card" data-testid="login-options">
       <p
         aria-live="polite"
-        className="mb-4 cursor-default select-none rounded-md border border-[rgba(255,138,0,0.24)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]"
+        className={feedbackTone === "none" ? "sr-only" : `login-status is-${feedbackTone}`}
         id="login-auth-status"
+        role="status"
       >
         {feedback}
       </p>
-      <div className="grid gap-3">
-        <button
-          aria-describedby="login-auth-status"
-          className="grid min-h-14 w-full cursor-pointer select-none grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-[rgba(20,33,61,0.1)] bg-white px-4 py-3 text-left text-sm font-bold text-[var(--brand-navy)] shadow-[var(--shadow-subtle)] transition-colors hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
-          disabled={isGoogleLoading}
-          onClick={() => void handleGoogleLogin()}
-          type="button"
-        >
-          {isGoogleLoading ? (
-            <span className="inline-flex size-9 items-center justify-center rounded-full bg-white text-[var(--brand-navy)] shadow-[inset_0_0_0_1px_rgba(13,20,36,0.14)]">
-              <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-            </span>
-          ) : (
-            <LoginIcon Icon={loginOptions[0].Icon} />
-          )}
-          <span className="min-w-0">
-            <span className="block leading-5">{t(loginOptions[0].labelKey)}</span>
-            <span className="mt-1 block text-xs font-bold leading-5 text-[var(--muted)]">
-              {getOptionDescription(loginOptions[0], t)}
-            </span>
-          </span>
-          <span className="w-fit rounded-md bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-bold text-[var(--muted)]">
-            {getOptionStatus("google", isGoogleLoading, t)}
-          </span>
-        </button>
 
-        <form className="grid gap-3" data-testid="email-login-form" noValidate onSubmit={handleEmailLogin}>
-          <label className="block min-w-0 cursor-default select-none">
-            <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
-              {t(loginOptions[1].labelKey)}
-            </span>
-            <span className="premium-control grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-3 px-4 py-3">
-              <LoginIcon Icon={loginOptions[1].Icon} />
-              <input
-                aria-describedby="login-auth-status"
-                className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
-                data-testid="login-email-input"
-                disabled={isEmailLoading}
-                autoComplete="email"
-                inputMode="email"
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={t("login.emailPlaceholder")}
-                type="email"
-                value={email}
-              />
-            </span>
-          </label>
+      <button
+        aria-describedby="login-auth-status"
+        className="login-google"
+        disabled={busy}
+        onClick={() => void handleGoogleLogin()}
+        type="button"
+      >
+        {isGoogleLoading ? <Loader2 aria-hidden="true" className="size-5 animate-spin" /> : <GoogleMark />}
+        {t("login.google")}
+      </button>
+
+      <div className="login-divider" role="separator"><span>veya</span></div>
+
+      <div aria-label="Giriş yöntemi" className="login-tabs" role="tablist">
+        {([["email", "E-posta", Mail], ["phone", "Telefon", Phone]] as const).map(([key, label, Icon]) => (
           <button
-            aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-[#241c16] shadow-[var(--shadow-subtle)] transition-colors duration-200 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            aria-selected={method === key}
+            className="login-tab"
+            disabled={busy}
+            key={key}
+            onClick={() => { setMethod(key); setFeedbackText(null); setTranslatedFeedback(isSupabaseAuthConfigured ? null : "login.status.unavailable"); }}
+            role="tab"
+            type="button"
+          >
+            <Icon aria-hidden="true" className="size-4" />{label}
+          </button>
+        ))}
+      </div>
+
+      {method === "email" ? (
+        <form className="login-form" data-testid="email-login-form" noValidate onSubmit={handleEmailLogin}>
+          <label className="login-label" htmlFor="login-email">E-posta adresin</label>
+          <input
+            aria-describedby="login-auth-status login-email-hint"
+            autoComplete="email"
+            className="login-input"
+            data-testid="login-email-input"
             disabled={isEmailLoading}
-            type="submit"
-          >
-            {isEmailLoading ? (
-              <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-            ) : (
-              <Mail aria-hidden="true" className="size-4" />
-            )}
-            {t("login.email")}
+            id="login-email"
+            inputMode="email"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={t("login.emailPlaceholder")}
+            type="email"
+            value={email}
+          />
+          <button className="login-submit" disabled={isEmailLoading} type="submit">
+            {isEmailLoading ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : null}
+            {cooldown > 0 ? `Tekrar gönder (${cooldown} sn)` : "Giriş bağlantısı gönder"}
           </button>
-          <span className="cursor-default select-none text-xs font-bold leading-5 text-[var(--muted)]">
-            {getOptionDescription(loginOptions[1], t)}
-          </span>
+          <p className="login-hint" id="login-email-hint">E-postana tek dokunuşla giriş bağlantısı gelir.</p>
         </form>
-
-        <form className="grid gap-3" data-testid="phone-login-form" noValidate onSubmit={handlePhoneLogin}>
-          <label className="block min-w-0 cursor-default select-none">
-            <span className="mb-2 block text-sm font-bold text-[var(--brand-navy)]">
-              {showOtpInput ? "SMS Onay Kodu" : "Telefon ile giriş kodu gönder"}
-            </span>
-            <span className="premium-control grid min-h-12 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-3 px-4 py-3">
-              <LoginIcon Icon={Phone} />
-              <input
-                aria-describedby="login-auth-status"
-                className="min-w-0 cursor-text bg-transparent text-sm font-bold text-[var(--brand-navy)] outline-none placeholder:text-[var(--muted)]"
-                data-testid={showOtpInput ? "login-otp-input" : "login-phone-input"}
-                disabled={isPhoneLoading}
-                autoComplete={showOtpInput ? "one-time-code" : "tel"}
-                inputMode={showOtpInput ? "numeric" : "tel"}
-                maxLength={showOtpInput ? 6 : 20}
-                onChange={(event) => showOtpInput ? setOtpToken(event.target.value.replace(/\D/g, "").slice(0, 6)) : setPhone(event.target.value)}
-                placeholder={showOtpInput ? "6 haneli kod" : "+90 5XX XXX XX XX"}
-                type="text"
-                value={showOtpInput ? otpToken : phone}
-              />
-            </span>
-          </label>
-          <button
+      ) : (
+        <form className="login-form" data-testid="phone-login-form" noValidate onSubmit={handlePhoneLogin}>
+          <label className="login-label" htmlFor="login-phone">{showOtpInput ? "SMS ile gelen 6 haneli kod" : "Cep telefonun"}</label>
+          <input
             aria-describedby="login-auth-status"
-            className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-[#241c16] shadow-[var(--shadow-subtle)] transition-colors duration-200 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-80"
+            autoComplete={showOtpInput ? "one-time-code" : "tel"}
+            className="login-input"
+            data-testid={showOtpInput ? "login-otp-input" : "login-phone-input"}
             disabled={isPhoneLoading}
-            type="submit"
-          >
-            {isPhoneLoading ? (
-              <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-            ) : (
-              <Phone aria-hidden="true" className="size-4" />
-            )}
-            {showOtpInput ? "Giriş Yap" : "Kod Gönder"}
+            id="login-phone"
+            inputMode={showOtpInput ? "numeric" : "tel"}
+            maxLength={showOtpInput ? 6 : 20}
+            onChange={(event) => showOtpInput ? setOtpToken(event.target.value.replace(/\D/g, "").slice(0, 6)) : setPhone(event.target.value)}
+            placeholder={showOtpInput ? "••••••" : "05XX XXX XX XX"}
+            type="text"
+            value={showOtpInput ? otpToken : phone}
+          />
+          <button className="login-submit" disabled={isPhoneLoading} type="submit">
+            {isPhoneLoading ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : null}
+            {showOtpInput ? "Giriş yap" : "Kod gönder"}
           </button>
-          {!showOtpInput ? (
-            <span className="cursor-default select-none text-xs font-bold leading-5 text-[var(--muted)]">
-              Telefon numarana 6 haneli bir SMS onay kodu göndereceğiz.
-            </span>
-          ) : (
-            <span className="flex flex-wrap items-center justify-between gap-2 text-sm font-bold">
-              <button className="min-h-11 underline decoration-2 underline-offset-4 text-[var(--brand-navy)]" type="button" disabled={isPhoneLoading} onClick={() => { setShowOtpInput(false); setOtpToken(""); setFeedbackText(null); }}>
+          {showOtpInput ? (
+            <div className="login-otp-actions">
+              <button disabled={isPhoneLoading} onClick={() => { setShowOtpInput(false); setOtpToken(""); setFeedbackText(null); }} type="button">
                 Numarayı değiştir
               </button>
-              <button className="min-h-11 underline decoration-2 underline-offset-4 text-[var(--brand-orange-dark)] disabled:text-[var(--muted)] disabled:no-underline" type="button" disabled={isPhoneLoading || cooldown > 0} onClick={() => void sendPhoneCode()}>
+              <button disabled={isPhoneLoading || cooldown > 0} onClick={() => void sendPhoneCode()} type="button">
                 {cooldown > 0 ? `Kodu tekrar gönder (${cooldown} sn)` : "Kodu tekrar gönder"}
               </button>
-            </span>
+            </div>
+          ) : (
+            <p className="login-hint">Numarana 6 haneli bir kod göndereceğiz.</p>
           )}
         </form>
+      )}
 
-        <Link
-          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-[var(--brand-orange)] px-4 py-3 text-sm font-bold text-white shadow-[var(--shadow-action)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--brand-orange-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-          href={appRoutes.providers}
-        >
-          {t("login.continueWithoutLogin")}
-          <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
-        </Link>
-      </div>
-
-      <div className="mt-4 min-h-12 cursor-default select-none rounded-md border border-[rgba(255,138,0,0.2)] bg-[var(--brand-orange-soft)] px-4 py-3 text-sm font-bold leading-6 text-[var(--brand-navy)]">
-        {t("login.guestNote")}{" "}
-        <a
-          className="inline-flex min-h-11 cursor-pointer items-center underline decoration-[var(--brand-orange-dark)] decoration-2 underline-offset-4 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:min-h-0"
-          href="mailto:fuwuhizmet@gmail.com"
-        >
-          {t("login.emailLink")}
-        </a>
-        .
-      </div>
+      <p className="login-legal">
+        Devam ederek <Link href={appRoutes.terms}>Kullanım Şartları</Link>&apos;nı kabul etmiş ve{" "}
+        <Link href={appRoutes.kvkk}>KVKK Aydınlatma Metni</Link>&apos;ni okumuş olursun.
+      </p>
     </div>
   );
 }
