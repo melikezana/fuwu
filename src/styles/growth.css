@@ -197,6 +197,7 @@
   /* Güven maddeleri: altı kart alt alta yerine yatay kaydırılan kartlar. */
   .trust-promise-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: 0; padding: 2px 0 8px; gap: 12px; }
   .trust-promise-grid::-webkit-scrollbar { display: none; }
+  .trust-promise-grid:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 4px; border-radius: 12px; }
   .trust-promise-grid li { flex: 0 0 78%; scroll-snap-align: start; grid-template-columns: 44px 1fr; }
 }
 

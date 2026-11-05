@@ -25,7 +25,7 @@ export function TrustPromise() {
           </div>
           <Link className="home-text-link" href="/guven">Nasıl doğruluyoruz? <ArrowRight size={16} aria-hidden /></Link>
         </div>
-        <ul className="trust-promise-grid">
+        <ul aria-label="Güven taahhütleri" className="trust-promise-grid" tabIndex={0}>
           {trustPromises.map(({ icon: Icon, title, copy }) => (
             <li key={title}>
               <span className="trust-promise-icon"><Icon aria-hidden size={22} /></span>
