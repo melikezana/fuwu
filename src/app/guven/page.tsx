@@ -79,7 +79,7 @@ export default function TrustCenterPage() {
           <details><summary>Fiyatın içinde neler var?</summary><p>Ustanın işçiliği ve FUWU platform hizmeti. Ödeme ekranında ayrıca ücret eklenmez. Kapsam dışı malzeme gerekirse usta önce sana sorar; onayın olmadan ek ücret alınmaz.</p></details>
           <details><summary>Usta gelmezse ne olur?</summary><p>Siparişinden durumu görür, destek ekibine bildirirsin. İş tamamlanmadıysa teslim kodunu vermezsin; iade süreci sipariş ekranında izlenir.</p></details>
           <details><summary>Belgelerim kimlerle paylaşılır?</summary><p>Belgeler özel ve şifreli bir alanda tutulur. Yalnızca doğrulama ekibi görür; profilinde belge değil, sadece rozet görünür. Ayrıntılar <Link href="/kvkk">KVKK aydınlatma metninde</Link>.</p></details>
-          <details><summary>Sorun yaşarsam kime ulaşırım?</summary><p>Sipariş detayındaki destek alanından ya da <Link href="/#contact">iletişim bilgilerimizden</Link> bize yazabilirsin.</p></details>
+          <details><summary>Sorun yaşarsam kime ulaşırım?</summary><p>Sipariş detayındaki destek alanından ya da <Link href="/iletisim">iletişim bilgilerimizden</Link> bize yazabilirsin.</p></details>
         </Container>
       </section>
     </div>

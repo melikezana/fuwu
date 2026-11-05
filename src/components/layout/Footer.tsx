@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 
 export function Footer() {
   const { t } = useI18n();
-  const discover = [[appRoutes.services, t("nav.services")], [appRoutes.providers, t("cta.findProvider")], [appRoutes.orders, "Siparişlerim"], [appRoutes.providerApplication, "Usta Ol"], [appRoutes.trustCenter, "Güven Merkezi"]];
+  const discover = [[appRoutes.services, t("nav.services")], [appRoutes.providers, t("cta.findProvider")], [appRoutes.orders, "Siparişlerim"], [appRoutes.providerApplication, "Usta Ol"], [appRoutes.trustCenter, "Güven Merkezi"], [appRoutes.about, "Hakkımızda"], [appRoutes.contact, "İletişim"]];
   const legal = [[appRoutes.kvkk, t("footer.kvkk")], [appRoutes.privacy, t("footer.privacy")], [appRoutes.terms, t("footer.terms")], [appRoutes.cookies, t("footer.cookies")]];
   return <footer className="app-footer" id="contact"><Container className="home-container">
     <div className="app-footer-top"><Link href="/"><FuwuLogo size="sm" /></Link><p>İstanbul, Türkiye</p></div>

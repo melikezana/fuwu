@@ -36,7 +36,8 @@ export type AuditAction =
   | "review.deleted"
   | "catalog.updated"
   | "notification.sent"
-  | "settings.updated";
+  | "settings.updated"
+  | "support_message.updated";
 
 export type AuditLogEvent = {
   action: AuditAction;
@@ -55,7 +56,8 @@ export type AuditLogEvent = {
     | "review"
     | "security_event"
     | "service_request"
-    | "settings";
+    | "settings"
+    | "support_message";
   metadata?: Json;
 };
 

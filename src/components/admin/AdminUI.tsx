@@ -9,6 +9,7 @@ import {
   FileCheck,
   FileText,
   LayoutDashboard,
+  LifeBuoy,
   MessageCircle,
   Power,
   PowerOff,
@@ -42,7 +43,8 @@ type AdminNavKey =
   | "settings"
   | "interest"
   | "health"
-  | "setup";
+  | "setup"
+  | "support";
 
 type IconComponent = ComponentType<{
   "aria-hidden"?: boolean;
@@ -151,6 +153,12 @@ const allAdminNavItems: Array<{
     label: "Bildirimler",
   },
   {
+    href: "/admin/support",
+    icon: LifeBuoy,
+    key: "support",
+    label: "Destek Mesajları",
+  },
+  {
     href: "/admin/audit",
     icon: ScrollText,
     key: "audit",
@@ -164,7 +172,7 @@ const allAdminNavItems: Array<{
   },
 ];
 
-const primaryAdminKeys = ["setup", "dashboard", "applications", "providers", "catalog", "interest", "verifications", "health", "audit"];
+const primaryAdminKeys = ["setup", "dashboard", "applications", "providers", "catalog", "support", "interest", "verifications", "health", "audit"];
 const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }, { href: "/admin/setup", icon: ClipboardList, key: "setup" as const, label: "Kurulum Durumu" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
 export const adminQuickNavItems = adminNavItems.filter(item => ["marketplace", "providers", "applications", "catalog"].includes(item.key));
 
@@ -330,7 +338,7 @@ export function AdminSummaryCard({
 export function AdminActionButton({
   children,
   className,
-  disabled = true,
+  disabled = false,
   icon: Icon,
   title,
   tone = "neutral",

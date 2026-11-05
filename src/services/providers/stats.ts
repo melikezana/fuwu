@@ -18,6 +18,14 @@ export type ProviderStats = {
   lastWeekEarnings: number;
   weeklyTrendPercent: number;
   weeklyTrendDirection: "up" | "down" | "neutral";
+  monthlyEarnings: MonthlyEarningsPoint[];
+};
+
+export type MonthlyEarningsPoint = {
+  completed: number;
+  earnings: number;
+  label: string;
+  month: string;
 };
 
 type StatsRequestRow = {
@@ -34,6 +42,39 @@ type StatsReviewRow = {
 function getThisMonthStart() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+}
+
+const istanbulMonthFormatter = new Intl.DateTimeFormat("en-CA", { month: "2-digit", timeZone: "Europe/Istanbul", year: "numeric" });
+const turkishMonthLabel = new Intl.DateTimeFormat("tr-TR", { month: "short", timeZone: "UTC" });
+
+function istanbulMonthKey(value: string | Date) {
+  const parts = istanbulMonthFormatter.formatToParts(new Date(value));
+  const year = parts.find(part => part.type === "year")?.value ?? "0000";
+  const month = parts.find(part => part.type === "month")?.value ?? "01";
+  return `${year}-${month}`;
+}
+
+/** Last `months` calendar months (Europe/Istanbul), oldest first, including empty months. */
+export function buildMonthlyEarnings(
+  completedRequests: Array<Pick<StatsRequestRow, "created_at" | "offered_price">>,
+  months = 6,
+  now: Date = new Date(),
+): MonthlyEarningsPoint[] {
+  const [currentYear, currentMonth] = istanbulMonthKey(now).split("-").map(Number);
+  const points: MonthlyEarningsPoint[] = [];
+  for (let offset = months - 1; offset >= 0; offset -= 1) {
+    const date = new Date(Date.UTC(currentYear, currentMonth - 1 - offset, 15));
+    const month = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+    points.push({ completed: 0, earnings: 0, label: turkishMonthLabel.format(date), month });
+  }
+  const byMonth = new Map(points.map(point => [point.month, point]));
+  for (const request of completedRequests) {
+    const point = byMonth.get(istanbulMonthKey(request.created_at));
+    if (!point) continue;
+    point.completed += 1;
+    point.earnings += Number(request.offered_price) || 0;
+  }
+  return points;
 }
 
 function calcResponseRate(total: number, responded: number) {
@@ -105,6 +146,7 @@ export async function getProviderStats(
     lastWeekEarnings: 0,
     weeklyTrendPercent: 0,
     weeklyTrendDirection: "neutral",
+    monthlyEarnings: buildMonthlyEarnings([]),
   };
 
   try {
@@ -180,6 +222,7 @@ export async function getProviderStats(
       thisMonthCompleted: thisMonthCompleted.length,
       thisMonthEarnings,
       ...weeklyTrend,
+      monthlyEarnings: buildMonthlyEarnings(completed),
     };
   } catch {
     return emptyStats;

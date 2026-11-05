@@ -12,7 +12,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     { path: appRoutes.home, priority: 1 },
     { path: appRoutes.providers, priority: 0.95 },
-    { path: appRoutes.request, priority: 0.7 },
+    { path: appRoutes.services, priority: 0.9 },
+    { path: appRoutes.about, priority: 0.5 },
+    { path: appRoutes.contact, priority: 0.5 },
+    { path: appRoutes.faq, priority: 0.5 },
+    { path: appRoutes.waitlist, priority: 0.5 },
     { path: appRoutes.providerApplication, priority: 0.65 },
     { path: appRoutes.trustCenter, priority: 0.6 },
     { path: appRoutes.kvkk, priority: 0.4 },

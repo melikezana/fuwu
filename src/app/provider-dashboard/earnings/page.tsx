@@ -97,18 +97,43 @@ function ProgressBar({
   );
 }
 
-// TODO: Aylık kazanç grafiği için getProviderMonthlyStats()
-// servisi tamamlandığında buraya entegre edilecek.
-function MonthlyStatsPlaceholder() {
+function MonthlyEarningsChart({ points }: { points: ProviderStats["monthlyEarnings"] }) {
+  const max = Math.max(0, ...points.map(point => point.earnings));
+  const total = points.reduce((sum, point) => sum + point.earnings, 0);
+
   return (
-    <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
-      <div className="cursor-default select-none">
-        <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Aylık özet</p>
-        <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]">Kazanç grafiği</h2>
-        <p className="mt-3 rounded-md border border-dashed border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-          Henüz veri yok
-        </p>
+    <section aria-labelledby="monthly-earnings-title" className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="cursor-default select-none">
+          <p className="text-xs font-medium uppercase text-[var(--brand-orange-dark)]">Son {points.length} ay</p>
+          <h2 className="mt-2 text-xl font-bold text-[var(--brand-navy)]" id="monthly-earnings-title">Aylık kazanç</h2>
+        </div>
+        <p className="text-sm font-semibold text-[var(--muted)]">Toplam {formatCurrency(total)} TL</p>
       </div>
+      {max === 0 ? (
+        <p className="mt-4 rounded-md border border-dashed border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--muted)]">
+          Son aylarda tamamlanan iş yok. İlk işini tamamladığında kazancın burada aylara göre görünür.
+        </p>
+      ) : (
+        <ol aria-label="Aylara göre kazanç" className="mt-6 grid h-48 grid-cols-6 items-end gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))` }}>
+          {points.map(point => {
+            const height = Math.max(point.earnings > 0 ? 6 : 2, Math.round((point.earnings / max) * 100));
+            return (
+              <li className="flex h-full min-w-0 flex-col items-center justify-end gap-2" key={point.month}>
+                <span className="text-[11px] font-bold text-[var(--brand-navy)] sm:text-xs">{point.earnings > 0 ? formatCurrency(point.earnings) : "–"}</span>
+                <span
+                  aria-label={`${point.label}: ${formatCurrency(point.earnings)} TL, ${point.completed} iş`}
+                  className={`w-full max-w-12 rounded-t-md ${point.earnings > 0 ? "bg-[var(--brand-orange)]" : "bg-[var(--surface-soft)]"}`}
+                  role="img"
+                  style={{ height: `${height}%` }}
+                  title={`${point.completed} iş`}
+                />
+                <span className="text-xs font-semibold capitalize text-[var(--muted)]">{point.label}</span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </section>
   );
 }
@@ -208,7 +233,7 @@ function ProviderEarningsContent({ stats }: { stats: ProviderStats }) {
         <StatCard icon={CheckCircle2} label="Aktif Talepler" sub="Devam ediyor" tone="blue" value={String(stats.acceptedRequests)} />
       </div>
 
-      <MonthlyStatsPlaceholder />
+      <MonthlyEarningsChart points={stats.monthlyEarnings} />
 
       <section className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-card)] sm:p-6">
         <div className="mb-6 cursor-default select-none">
