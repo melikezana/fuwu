@@ -36,6 +36,12 @@ FUWU için öneri:
 6. Deploy sonrası tablo, RLS, Storage policy, auth, başvuru ve talep akışlarına smoke
    test uygula.
 
+> **Supabase CLI v3 notu:** v3'te `db push`, `db pull`, `db dump`, `migration list` ve
+> `gen types` varsayılan olarak **yerel** veritabanını hedefler. Bağlı (hosted) projeye
+> uygulamak için `--remote` ekle: `npx supabase db push --remote`. CI'da onay için
+> `--yes` gerekir. v2 (ör. `npx supabase@2.115.0 db push`) eski davranışla çalışmaya
+> devam eder; `config.toml` iki sürümle de uyumludur (`[local_smtp]`).
+
 Repo forward-only migration kullanıyor; eşleşen down migration dosyaları yok. Bu
 nedenle otomatik rollback mümkün değildir. Geri dönüş için önceki kod sürümüne dönmek
 tek başına yeterli olmayabilir. Riskli DDL değişikliklerinde:
