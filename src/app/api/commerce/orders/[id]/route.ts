@@ -1,3 +1,4 @@
+import { notifyAdminOfTrustCase } from "@/services/notifications/partner-sms";
 import { commerceDatabaseError, withCommerceApi } from "@/lib/commerce/api";
 import { commerceRateLimit } from "@/lib/commerce/rate";
 import { getRequestOrigin } from "@/lib/security/safeRedirect";
@@ -45,6 +46,7 @@ async function handlePOST(request: NextRequest, { params }: { params: Promise<{ 
   if (b.action === "report") {
     if (typeof b.reason !== "string" || b.reason.trim().length < 10 || b.reason.length > 2000 || !["safety", "complaint", "appeal", "no_show", "unreachable"].includes(b.kind)) return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
     const { error } = await db.rpc("trust_report_case", { p_order_id: id, p_kind: b.kind, p_reason: b.reason.trim() });
+    if (!error) notifyAdminOfTrustCase(b.kind);
     return NextResponse.json(error ? { error: commerceDatabaseError(error) } : { ok: true }, { status: error ? 409 : 200 });
   }
   if (b.action === "review") {

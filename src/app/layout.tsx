@@ -10,6 +10,7 @@ import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { HelpButton } from "@/components/layout/HelpButton";
 import { Footer } from "@/components/layout/Footer";
 import { MobileAppShell } from "@/components/layout/MobileAppShell";
+import { AppInstall } from "@/components/layout/AppInstall";
 import { Navbar } from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/lib/i18n";
 import { createPageMetadata, seoConfig } from "@/lib/seo";
@@ -160,6 +161,7 @@ export default async function RootLayout({
             <main className="flex-1" id="main-content" tabIndex={-1}>{children}</main>
             <Footer />
             <HelpButton />
+            <AppInstall />
           </MobileAppShell>
           {analyticsEnabled && <Suspense fallback={null}>
             <CookieConsentBanner />

@@ -60,7 +60,7 @@ export function LayeredHomeStack() {
 
   return (
     <div
-      aria-label="FUWU'nun tek platform, doğrulanmış usta ve komisyonsuzluk sözünü anlatan katmanlı görsel"
+      aria-label="FUWU'nun tek platform, doğrulanmış usta ve teklif ücretsiz çalışma sözünü anlatan katmanlı görsel"
       className="relative mx-auto flex min-h-[22rem] w-full max-w-[30rem] items-center justify-center sm:min-h-[28rem]"
       onPointerLeave={resetTransform}
       onPointerMove={handlePointerMove}
@@ -105,7 +105,7 @@ export function LayeredHomeStack() {
           <span className="inline-flex size-11 items-center justify-center rounded-lg border border-[#0F0F0F]/25 bg-[#0F0F0F]/15 font-mono text-lg font-bold text-[#1A1000]">
             %0
           </span>
-          <span className="text-sm font-extrabold text-[#1A1000]">Komisyonsuz</span>
+          <span className="text-sm font-extrabold text-[#1A1000]">Teklif ücretsiz</span>
           <span className="font-mono text-[0.65rem] font-bold uppercase text-[#1A1000]/70">
             Kesinti yok
           </span>

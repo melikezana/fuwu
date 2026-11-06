@@ -1,6 +1,8 @@
 "use client";
 
-import { Bot, LifeBuoy, Mail, Send, Sparkles, X } from "lucide-react";
+import Link from "next/link";
+import { Bot, HelpCircle, LifeBuoy, Mail, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { customerServiceContact } from "@/lib/constants/contact";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -99,6 +101,7 @@ function SupportEmailForm({
             inputMode="email"
             onChange={(event) => setEmail(event.target.value)}
             placeholder="ornek@eposta.com"
+            required
             type="email"
             value={email}
           />
@@ -108,7 +111,9 @@ function SupportEmailForm({
           <textarea
             className="premium-control min-h-28 resize-none rounded-[22px] px-4 py-3 text-sm font-semibold leading-6"
             onChange={(event) => setMessage(event.target.value)}
+            minLength={10}
             placeholder="Destek ekibine iletmek istediğin notu yaz..."
+            required
             value={message}
           />
         </label>
@@ -256,6 +261,25 @@ export function FuwuAssistantWidget() {
                   <Mail aria-hidden className="size-4" />
                   E-posta Gönder
                 </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-xs font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+                    href={customerServiceContact.whatsappHref}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <MessageCircle aria-hidden className="size-4" />
+                    WhatsApp
+                  </a>
+                  <Link
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-xs font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+                    href="/sss"
+                    onClick={closeWidget}
+                  >
+                    <HelpCircle aria-hidden className="size-4" />
+                    Sık sorulanlar
+                  </Link>
+                </div>
               </div>
             </section>
           )

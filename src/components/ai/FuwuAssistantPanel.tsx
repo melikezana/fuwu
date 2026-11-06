@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { AnalysisResult } from "./AnalysisResult";
 import { ImageUploader, type AssistantImageFile } from "./ImageUploader";
 import { RecommendedProviders } from "./RecommendedProviders";
+import { RecommendedServices } from "./RecommendedServices";
+import type { RecommendedService } from "@/lib/ai/service-recommendations";
 
 type FuwuAssistantPanelProps = {
   onClose: () => void;
@@ -99,6 +101,8 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
   const [history, setHistory] = useState<ConversationMessage[]>([]);
   const [analysis, setAnalysis] = useState<AssistantAnalysis | null>(null);
   const [providers, setProviders] = useState<RecommendedProvider[]>([]);
+  const [services, setServices] = useState<RecommendedService[]>([]);
+  const [degraded, setDegraded] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [imageReference, setImageReference] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +150,8 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
     setHistory([]);
     setAnalysis(null);
     setProviders([]);
+    setServices([]);
+    setDegraded(false);
     setConversationId(null);
     setImageReference(null);
     setError(null);
@@ -186,6 +192,8 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
 
       setAnalysis(response.analysis);
       setProviders(response.providers);
+      setServices(response.services ?? []);
+      setDegraded(Boolean(response.degraded));
       setConversationId(response.conversationId ?? conversationId);
       setImageReference(response.imageReference);
       setHistory((currentHistory) =>
@@ -323,10 +331,15 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
           {isSubmitting ? <LoadingSkeleton /> : null}
 
           <div ref={resultRef} className="grid gap-4">
+            {analysis && degraded ? (
+              <p className="rounded-2xl bg-[var(--surface-soft)] px-3 py-2 text-xs font-bold leading-5 text-[var(--muted)]" role="status">
+                Hızlı değerlendirme: yapay zekâ şu an yoğun, anlattıklarına göre yönlendirdim. Ayrıntılı inceleme için destek ekibine de yazabilirsin.
+              </p>
+            ) : null}
             {analysis ? (
               <AnalysisResult
                 analysis={analysis}
-                hasProviders={providers.length > 0}
+                hasProviders={providers.length > 0 || services.length > 0}
                 onAskMore={() => setMessage("")}
                 onEmailSupport={() =>
                   onEmailRequest({
@@ -342,6 +355,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
               />
             ) : null}
             <RecommendedProviders providers={providers} />
+            <RecommendedServices services={services} />
           </div>
         </div>
       </div>

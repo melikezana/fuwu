@@ -890,11 +890,6 @@ function createInvalidApplicationIdResult(action: string) {
 function normalizeAdminApplicationId(applicationId: string, action: string) {
   const normalizedApplicationId = sanitizeText(applicationId, 80);
 
-  console.info("[FUWU] Admin provider application action received id.", {
-    action,
-    applicationId: normalizedApplicationId,
-  });
-
   if (!normalizedApplicationId) {
     return createAdminActionResult("application-missing-id", false);
   }

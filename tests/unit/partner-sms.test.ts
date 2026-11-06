@@ -13,3 +13,12 @@ describe("partner SMS texts", () => {
     expect(text).toContain("fuwu.com.tr/admin/provider-applications");
   });
 });
+
+describe("trust case alert", () => {
+  it("fits one SMS and never contains the reporter's reason", async () => {
+    const { adminTrustCaseText } = await import("@/services/notifications/partner-sms");
+    for (const kind of ["safety", "no_show", "suspicious_account", "unreachable"]) {
+      expect(adminTrustCaseText(kind).length).toBeLessThanOrEqual(155);
+    }
+  });
+});

@@ -13,6 +13,9 @@ import {
   setCachedAssistantResponse,
 } from "@/lib/ai/rate-limit";
 import { searchProviders } from "@/lib/ai/provider-tools";
+import { buildFallbackAnalysis } from "@/lib/ai/fallback-analysis";
+import { recommendServices } from "@/lib/ai/service-recommendations";
+import { getCommerceCatalog } from "@/services/commerce";
 import { logWarn } from "@/lib/logger";
 import { checkApiRateLimit, getApiRateLimitHeaders } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -826,16 +829,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let parsedRequest: ParsedAssistantRequest;
+  try {
+    parsedRequest = await parseAssistantRequest(request);
+  } catch (error) {
+    logAssistantAnalyzeError(error);
+    return assistantJson(
+      { ok: false, error: "assistant_analysis_failed", message: "İstek okunamadı. Mesajını ve fotoğrafını kontrol edip tekrar dene.", requestId: null },
+      { status: getAssistantFailureStatus(error) },
+    );
+  }
+
   try {
     const model = process.env.OPENAI_VISION_MODEL?.trim();
-
-    console.info("AI model:", model);
 
     if (!model) {
       throw new Error("openai-model-missing");
     }
 
-    const parsedRequest = await parseAssistantRequest(request);
     const cacheKey = getCacheKey(parsedRequest);
     const cachedResponse = getCachedAssistantResponse(cacheKey);
 
@@ -887,6 +898,7 @@ export async function POST(request: NextRequest) {
       conversationId,
       imageReference: parsedRequest.imageReference,
       providers,
+      services: await recommendCatalogServices(analysis),
     } satisfies AssistantAnalyzeResponse;
 
     setCachedAssistantResponse(cacheKey, response);
@@ -896,16 +908,58 @@ export async function POST(request: NextRequest) {
     logAssistantAnalyzeError(error);
     await writeOpenAiFailureAuditLog(error);
 
-    return assistantJson(
-      {
-        ok: false,
-        error: "assistant_analysis_failed",
-        message: "İlk değerlendirme şu anda hazırlanamadı.",
-        requestId: getErrorRequestId(error),
-      },
-      {
-        status: getAssistantFailureStatus(error),
-      },
-    );
+    // Yapay zekâya ulaşılamasa da kullanıcı boş dönmez: kural tabanlı güvenli ilk değerlendirme.
+    try {
+      const analysis = applySafetyOverrides(
+        buildFallbackAnalysis({
+          message: parsedRequest.message,
+          history: parsedRequest.history.filter(item => item.role === "user").map(item => item.content),
+        }),
+        parsedRequest,
+      );
+      const providers = analysis.providerSearchRecommended && analysis.urgency !== "emergency"
+        ? await searchProviders({
+            availableNow: false,
+            category: analysis.category,
+            district: parsedRequest.district,
+            latitude: parsedRequest.latitude,
+            longitude: parsedRequest.longitude,
+            urgency: analysis.urgency,
+            verifiedOnly: false,
+          }).catch(() => [])
+        : [];
+      return assistantJson({
+        analysis,
+        cached: false,
+        conversationId: parsedRequest.conversationId,
+        degraded: true,
+        imageReference: parsedRequest.imageReference,
+        providers,
+        services: await recommendCatalogServices(analysis),
+      } satisfies AssistantAnalyzeResponse);
+    } catch (fallbackError) {
+      logAssistantAnalyzeError(fallbackError);
+      return assistantJson(
+        {
+          ok: false,
+          error: "assistant_analysis_failed",
+          message: "İlk değerlendirme şu anda hazırlanamadı. Destek ekibine yazabilirsin.",
+          requestId: getErrorRequestId(error),
+        },
+        {
+          status: getAssistantFailureStatus(error),
+        },
+      );
+    }
+  }
+}
+
+async function recommendCatalogServices(analysis: AssistantAnalysis) {
+  if (analysis.urgency === "emergency") return [];
+  try {
+    const catalog = await getCommerceCatalog();
+    return catalog.unavailable ? [] : recommendServices(analysis.category, catalog);
+  } catch {
+    return [];
   }
 }

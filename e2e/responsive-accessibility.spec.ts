@@ -16,9 +16,9 @@ test('real public, customer, partner, document and admin screens fit 320–1440p
   for(const page of [g,c,p,a])page.on('pageerror',error=>errors.push(error.message));
   await loginWithEmailMagicLink(c,{email:trust.email,nextPath:'/orders'});await loginWithEmailMagicLink(p,{email,role:'provider',nextPath:'/provider-dashboard'});await loginWithEmailMagicLink(a,{email:uniqueE2EEmail('mobile-admin'),role:'admin',nextPath:'/admin'});
   const screens:[Page,string,string][]=[
-   [g,'/','home'],[g,'/services','catalog'],[g,'/services/musluk-montaji','service'],[g,'/providers/'+prepared.provider.id,'provider'],[g,'/provider-application','application'],
+   [g,'/','home'],[g,'/services','catalog'],[g,'/services/musluk-montaji','service'],[g,'/providers/'+prepared.provider.id,'provider'],[g,'/provider-application','application'],[g,'/hakkimizda','about'],[g,'/sss','faq'],[g,'/iletisim','contact'],
    [c,'/waitlist','interest'],[c,'/orders/'+trust.id,'trust'],[p,'/provider-dashboard','partner'],[p,'/provider-dashboard/store','store'],[p,'/provider-dashboard/profile','documents'],
-   [a,'/admin','admin'],[a,'/admin/providers?id='+prepared.provider.id,'inspector'],[a,'/admin/provider-applications/'+appId,'application-file'],[a,'/admin/verifications','verification'],
+   [a,'/admin','admin'],[a,'/admin/providers?id='+prepared.provider.id,'inspector'],[a,'/admin/provider-applications/'+appId,'application-file'],[a,'/admin/verifications','verification'],[a,'/admin/support','support-inbox'],
   ];
   for(const [page,route,name] of screens) for(const width of [320,360,390,768,1024,1440]) {
    await page.setViewportSize({width,height:900});await page.goto(route,{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{level:1}).first()).toBeVisible();await page.evaluate(()=>document.fonts.ready);

@@ -51,6 +51,9 @@ export type RecommendedProvider = {
 export type AssistantAnalyzeResponse = {
   analysis: AssistantAnalysis;
   cached: boolean;
+  /** true: yapay zekâya ulaşılamadı, kural tabanlı hızlı değerlendirme döndü. */
+  degraded?: boolean;
+  services?: import("@/lib/ai/service-recommendations").RecommendedService[];
   conversationId: string | null;
   imageReference: string | null;
   providers: RecommendedProvider[];

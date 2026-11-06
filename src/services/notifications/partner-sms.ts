@@ -58,3 +58,24 @@ export function notifyAdminOfNewApplication(db: SupabaseClient<Database>, ids: {
     return send(adminPhone, adminNewApplicationText(category.data?.name ?? "Kategori", district.data?.name ?? "İstanbul"), "admin_new_application");
   });
 }
+
+const caseKindLabels: Record<string, string> = {
+  safety: "Güvenlik olayı",
+  no_show: "Randevuya gelinmedi",
+  complaint: "Şikâyet",
+  unreachable: "Ulaşılamıyor",
+  appeal: "İtiraz",
+  suspicious_account: "Şüpheli hesap",
+};
+
+export function adminTrustCaseText(kind: string) {
+  return `FUWU: Yeni destek kaydı · ${caseKindLabels[kind] ?? "Bildirim"}. 24 saat içinde incele: fuwu.com.tr/admin/verifications`;
+}
+
+/** Güvenlik ve "gelmedi" bildirimlerinde kurucuya anında SMS. Kişisel veri veya gerekçe metni yazılmaz. */
+export function notifyAdminOfTrustCase(kind: string) {
+  const adminPhone = process.env.ADMIN_ALERT_PHONE;
+  if (!enabled() || !adminPhone) return;
+  if (!["safety", "no_show", "suspicious_account", "unreachable"].includes(kind)) return;
+  runAfterResponse(() => send(adminPhone, adminTrustCaseText(kind), "admin_trust_case"));
+}
