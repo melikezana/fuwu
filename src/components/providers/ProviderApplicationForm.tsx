@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { submitProviderApplicationAction } from "@/app/provider-application/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -23,6 +23,24 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
   router.push("/login?next=/provider-application&restore=1");
  }
  const [otp, setOtp] = useState(""), [resendAt, setResendAt] = useState(0), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
+ // Telefonla giriş yapan ustanın numarası zaten doğrulanmıştır: alanı doldur ve ikinci SMS isteme.
+ const draftReady = clearDraft.ready;
+ const phoneRef = useRef(phone);
+ useEffect(() => { phoneRef.current = phone; }, [phone]);
+ useEffect(() => {
+  if (!authenticatedUserId || !draftReady) return;
+  let cancelled = false;
+  const db = createSupabaseBrowserClient(); if (!db) return;
+  void db.auth.getUser().then(({ data: { user } }) => {
+   if (cancelled || !user?.phone || !user.phone_confirmed_at) return;
+   const confirmed = sanitizePhone(user.phone);
+   const typed = phoneRef.current;
+   if (typed && sanitizePhone(typed) !== confirmed) return;
+   if (!typed) setDraft(current => current.phone ? current : { ...current, phone: `0${confirmed.slice(3)}` });
+   setVerified(true); setMessage("Telefonun doğrulandı.");
+  }, () => undefined);
+  return () => { cancelled = true; };
+ }, [authenticatedUserId, draftReady]);
  // Supabase hata kodlarını ustanın anlayacağı, ne yapacağını söyleyen mesajlara çevirir.
  function phoneErrorMessage(error: { code?: string; status?: number; message?: string }) {
   const code = error.code ?? "";
@@ -66,13 +84,13 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
   try {
    const result = await submitProviderApplicationAction({ fullName: name, phone: sanitizePhone(phone), categoryId: category, districtId: district, availability: "", experienceYears: "", hasEquipment: "", introduction: "", portfolioUrl: "", profileImagePath: "", profileImageUrl: "", verificationDocumentPath: "", verificationDocumentUrl: "" });
    if (!result.ok) { setMessage(result.message); return; }
-   clearDraft(); setDone(true); setMessage("Başvurun alındı. Profil ve belgelerini hesabından kademeli tamamlayabilirsin."); router.refresh();
+   clearDraft(); setDone(true); setMessage("Başvurun alındı. Onaylandığında SMS ile haber vereceğiz; ardından Usta Paneli'nden profilini, belgelerini ve hizmetlerini tamamlayacaksın."); router.refresh();
   } catch { setMessage("Başvuru gönderilemedi. Bilgilerini kontrol edip tekrar dene."); } finally { setBusy(false); }
  }}>
- <h2>FUWU Partner başvurusu</h2><p>Dört bilgiyle başla. Gerekli belgeleri yayın öncesi tamamlarsın.</p>
+ <h2>FUWU Partner başvurusu</h2><p>Dört bilgiyle başla, iki dakika sürer. Belgeleri onaydan sonra, yayından önce yüklersin.</p>
  {lookupError && <p className="commerce-error" role="alert">{lookupError}</p>}
  <label className="commerce-field">Ad soyad<input autoComplete="name" name="fullName" minLength={2} maxLength={120} required value={name} onChange={e => setName(e.target.value)} disabled={busy || done} /></label>
- <label className="commerce-field">Cep telefonu<input autoComplete="tel" name="phone" type="tel" required value={phone} onChange={e => { setPhone(e.target.value); setVerified(false); setSent(false); }} disabled={busy || done} /></label>
+ <label className="commerce-field">Cep telefonu<input autoComplete="tel" inputMode="tel" name="phone" placeholder="05XX XXX XX XX" type="tel" required value={phone} onChange={e => { setPhone(e.target.value); setVerified(false); setSent(false); }} disabled={busy || done} /></label>
  {sent && !verified && <label className="commerce-field">SMS doğrulama kodu<input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ""))} disabled={busy} /></label>}
  <button className="commerce-secondary" type="button" onClick={() => void verifyPhone()} disabled={busy || verified || done}>{verified ? "Telefon doğrulandı" : sent ? "Kodu doğrula" : "Telefonumu doğrula"}</button>
  {sent && !verified && <button className="commerce-text-link" type="button" onClick={() => void verifyPhone(true)} disabled={busy || done}>Kodu tekrar gönder</button>}

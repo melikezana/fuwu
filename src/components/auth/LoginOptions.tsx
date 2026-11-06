@@ -44,7 +44,10 @@ function getAuthRedirectUrl() {
 export function LoginOptions() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
-  const [method, setMethod] = useState<"email" | "phone">("email");
+  const searchParams = useSearchParams();
+  // Ustalar çoğunlukla telefonla gelir: usta sayfalarından gelindiğinde telefon sekmesi açık başlar.
+  const prefersPhone = searchParams.get("method") === "phone" || /^\/provider[-/]/.test(searchParams.get("next") ?? "");
+  const [method, setMethod] = useState<"email" | "phone">(prefersPhone ? "phone" : "email");
   const [feedbackKey, setFeedbackKey] = useState<TranslationKey | null>(
     isSupabaseAuthConfigured ? null : "login.status.unavailable",
   );
@@ -66,6 +69,19 @@ export function LoginOptions() {
     return () => window.clearInterval(timer);
   }, [cooldownUntil]);
 
+  // Usta başvuru formunda yazılan numara girişte tekrar istenmesin.
+  useEffect(() => {
+    if (!prefersPhone) return;
+    const timer = window.setTimeout(() => {
+      try {
+        const draft = JSON.parse(sessionStorage.getItem("fuwu:pending-provider-application") ?? "null") as { form?: { phone?: unknown } } | null;
+        const draftPhone = typeof draft?.form?.phone === "string" ? draft.form.phone.slice(0, 20) : "";
+        if (draftPhone) setPhone(current => current || draftPhone);
+      } catch { /* Optional browser storage. */ }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [prefersPhone]);
+
   // Google sayfasından geri tuşuyla dönülünce (bfcache) düğmeler "açılıyor" durumunda kilitli kalmasın.
   useEffect(() => {
     const reset = (event: PageTransitionEvent) => {
@@ -83,7 +99,6 @@ export function LoginOptions() {
     setNow(Date.now());
     setCooldownUntil(until);
   }
-  const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
   const callbackFeedback = urlError && Object.hasOwn(oauthErrors, urlError)
     ? oauthErrors[urlError as keyof typeof oauthErrors] : null;

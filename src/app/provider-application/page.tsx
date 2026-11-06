@@ -66,7 +66,7 @@ function ProviderApplicationStatusCard({
           ["Telefon", application.phone],
           ["Kategori", application.category],
           ["İlçe", application.district],
-          ["Deneyim", `${application.experienceYears} yıl`],
+          ...(application.experienceYears > 0 ? [["Deneyim", `${application.experienceYears} yıl`]] : []),
         ].map(([label, value]) => (
           <div className="rounded-md bg-[var(--surface-soft)] px-3 py-2" key={label}>
             <dt className="text-[0.68rem] font-medium uppercase leading-4 text-[var(--muted)]">
@@ -78,6 +78,18 @@ function ProviderApplicationStatusCard({
           </div>
         ))}
       </dl>
+      {application.status === PROVIDER_APPLICATION_STATUSES.pending && !isApprovedProvider ? (
+        <div className="mt-5 rounded-md border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+          <p className="text-sm font-bold text-[var(--brand-navy)]">Onay beklerken hazırla</p>
+          <ul className="mt-2 grid gap-1.5 text-sm font-medium leading-6 text-[var(--muted)]">
+            <li>· T.C. kimlik kartının ön ve arka yüz fotoğrafı</li>
+            <li>· e-Devlet&apos;ten barkodlu adli sicil kaydı (son 3 ay)</li>
+            <li>· Kendi adına açılmış banka hesabının IBAN&apos;ı</li>
+            <li>· Varsa ustalık / MYK belgen ve 3–5 iş fotoğrafın</li>
+          </ul>
+          <p className="mt-2 text-xs font-medium leading-5 text-[var(--muted)]">Başvurun onaylandığında SMS ile haber veririz. Belgeleri Usta Paneli&apos;nden yüklersin.</p>
+        </div>
+      ) : null}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         {(application.status === PROVIDER_APPLICATION_STATUSES.approved || isApprovedProvider) ? (
           <Button className="w-full sm:w-fit" href={appRoutes.providerDashboard}>
@@ -93,7 +105,7 @@ function ProviderApplicationStatusCard({
 }
 
 function ProviderApplicationLoginRequiredCard() {
-  const loginHref = `${appRoutes.login}?next=${encodeURIComponent(appRoutes.providerApplication)}`;
+  const loginHref = `${appRoutes.login}?method=phone&next=${encodeURIComponent(appRoutes.providerApplication)}`;
 
   return (
     <Card className="min-w-0">
@@ -104,7 +116,7 @@ function ProviderApplicationLoginRequiredCard() {
         {authAccessMessages.loginRequired}
       </h2>
       <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
-        Usta başvurunun kalıcı olarak hesabında görünmesi için Google veya e-posta hesabınla devam et.
+        Başvurun hesabına kaydedilir. Cep telefonunla, Google veya e-posta hesabınla birkaç saniyede giriş yaparsın; şifre yok.
       </p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <Button className="w-full sm:w-fit" href={loginHref}>

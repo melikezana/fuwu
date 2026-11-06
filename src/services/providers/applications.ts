@@ -12,6 +12,7 @@ import { validateProviderApplicationInput, sanitizePhone } from "@/lib/validatio
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { writeAuditLog } from "@/services/audit";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
+import { notifyAdminOfNewApplication } from "@/services/notifications/partner-sms";
 import type {
   ProviderApplicationInput,
   ProviderApplicationOption,
@@ -540,6 +541,8 @@ export async function submitProviderApplication(
       },
       supabase,
     );
+
+    notifyAdminOfNewApplication(supabase, { categoryId: insertPayload.category_id, districtId: insertPayload.district_id });
 
     return notifyProviderApplicationSubmitResult({
       applicationCode: createLiveApplicationCode(),

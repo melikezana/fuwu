@@ -1,4 +1,5 @@
 ﻿import { getPublicErrorMessage, handleServiceError } from "@/lib/errors";
+import { notifyApplicantApprovedBySms } from "@/services/notifications/partner-sms";
 import {
   PROVIDER_APPLICATION_STATUSES,
   EMERGENCY_REQUEST_STATUSES,
@@ -1455,6 +1456,7 @@ export async function approveAdminProviderApplication(
     } catch (error) {
       warnAdminWriteError("provider application approval notification", error);
     }
+    notifyApplicantApprovedBySms(application.phone);
 
     await insertAuditLog({
       action: "provider_application.approved",
