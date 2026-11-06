@@ -26,7 +26,9 @@ test.describe("auth-required form restoration", () => {
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
     await form.getByRole('button',{name:'Başvurumu gönder',exact:true}).click();
 
-    await expect(page).toHaveURL(/\/login\?next=\/provider-application&restore=1/);
+    await expect(page).toHaveURL(/\/login\?method=phone&next=\/provider-application&restore=1/);
+    // Usta başvurusundan gelen giriş telefon sekmesiyle açılır ve formdaki numara taşınır.
+    await expect(page.getByTestId("login-phone-input")).toHaveValue("+90 555 700 00 01");
     const storedApplication = await page.evaluate(() =>
       window.sessionStorage.getItem("fuwu:pending-provider-application"),
     );
