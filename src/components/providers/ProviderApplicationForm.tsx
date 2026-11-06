@@ -20,7 +20,7 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  const setDistrict = (value: string) => setDraft(current => ({ ...current, districtId: value }));
  function loginWithDraft() {
   try { persistSessionFormDraft(draftKey, draft); } catch { /* Form remains usable without browser storage. */ }
-  router.push("/login?next=/provider-application&restore=1");
+  router.push("/login?method=phone&next=/provider-application&restore=1");
  }
  const [otp, setOtp] = useState(""), [resendAt, setResendAt] = useState(0), [sent, setSent] = useState(false), [verified, setVerified] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [done, setDone] = useState(false);
  // Telefonla giriş yapan ustanın numarası zaten doğrulanmıştır: alanı doldur ve ikinci SMS isteme.

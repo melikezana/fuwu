@@ -45,8 +45,8 @@ export function LoginOptions() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const searchParams = useSearchParams();
-  // Ustalar çoğunlukla telefonla gelir: usta sayfalarından gelindiğinde telefon sekmesi açık başlar.
-  const prefersPhone = searchParams.get("method") === "phone" || /^\/provider[-/]/.test(searchParams.get("next") ?? "");
+  // Usta başvurusundan gelen bağlantılar ?method=phone taşır: ustalar çoğunlukla telefonla giriş yapar.
+  const prefersPhone = searchParams.get("method") === "phone";
   const [method, setMethod] = useState<"email" | "phone">(prefersPhone ? "phone" : "email");
   const [feedbackKey, setFeedbackKey] = useState<TranslationKey | null>(
     isSupabaseAuthConfigured ? null : "login.status.unavailable",
