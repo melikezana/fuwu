@@ -10,6 +10,7 @@ import { compareProviderSchema } from "./compare-provider-schema.mjs";
 import { providerControlChecks, providerControlRace } from "./provider-control-db-checks.mjs";
 import { prelaunchChecks } from "./prelaunch-db-checks.mjs";
 import { trustChecks } from "./trust-db-checks.mjs";
+import { auditAdvisorChecks } from "./audit-advisor-db-checks.mjs";
 import { legacySnapshot as snapshotLegacy, verifyLegacyPreservation } from "./testing/legacy-preservation.mjs";
 import { sourceHash, writeArtifactFile } from "./testing/evidence.mjs";
 
@@ -115,6 +116,7 @@ try {
   await providerControlChecks(db, report.checks);
   await providerControlRace(db, report.checks);
   await trustChecks(db, report.checks);
+  await auditAdvisorChecks(db, report.checks);
   await compareProviderSchema(db, output);
   writeArtifactFile(path.join(output,"isolated-constraints.json"),JSON.stringify(schema.rows,null,2));
   console.log(`PASS ${files.length} migrations, ${report.scenario}, ${report.checks.length} checks`);

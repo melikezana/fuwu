@@ -49,6 +49,8 @@ import { MarketplaceMetrics } from "@/components/admin/MarketplaceMetrics";
 import { getMarketplaceSummary, getCeoDailySnapshot } from "@/services/admin/marketplace";
 import { getPrelaunchSnapshot } from "@/services/admin/prelaunch";
 import { PrelaunchDashboard } from "@/components/admin/PrelaunchDashboard";
+import { WeeklyLaunchMetrics } from "@/components/admin/WeeklyLaunchMetrics";
+import { getWeeklyLaunchMetrics } from "@/services/admin/launch-metrics";
 import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
 import { getNewSupportMessageCount } from "@/services/admin/support";
 
@@ -426,7 +428,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
-  const [marketplace, today, prelaunch, newSupportCount] = await Promise.all([sandboxCheckoutEnabled() ? getMarketplaceSummary() : Promise.resolve(null), sandboxCheckoutEnabled() ? getCeoDailySnapshot() : Promise.resolve(null), getPrelaunchSnapshot(), getNewSupportMessageCount()]);
+  const [marketplace, today, prelaunch, newSupportCount, weeklyMetrics] = await Promise.all([sandboxCheckoutEnabled() ? getMarketplaceSummary() : Promise.resolve(null), sandboxCheckoutEnabled() ? getCeoDailySnapshot() : Promise.resolve(null), getPrelaunchSnapshot(), getNewSupportMessageCount(), getWeeklyLaunchMetrics()]);
 
   const includeLegacy = (await searchParams).legacy === "1";
   const [overview, reqAnalytics, provAnalytics, assignments, reassignmentLogs, auditLogs] = await Promise.all([
@@ -448,6 +450,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     >
       {newSupportCount ? <Link className="commerce-warning mb-6 block" href="/admin/support?status=new">{newSupportCount} yeni destek mesajı yanıt bekliyor · Gelen kutusunu aç →</Link> : null}
       <PrelaunchDashboard snapshot={prelaunch} />
+      <WeeklyLaunchMetrics metrics={weeklyMetrics} />
       {marketplace && today && <details className="fusion-legacy"><summary>Sandbox sipariş operasyonu</summary><MarketplaceMetrics summary={marketplace} today={today} /></details>}
       <details className="fusion-legacy"><summary>Önceki talep sistemi · ayrı operasyon ve istatistikler</summary><p className="commerce-help">Bu kayıtlar yeni siparişlerin GMV ve komisyon toplamına dahil değildir. Eski ödeme kayıtlarının ortamı doğrulanmadığından muhasebe geliri olarak kullanmayın.</p>
       {dashboard.error ? (

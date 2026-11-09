@@ -30,6 +30,8 @@ main :is(input,select,textarea) { font-size: 1rem; }
 .home-search-location { min-width: 0; flex: 1; }
 .home-search-location select { font-size: .875rem; min-height: 48px; max-width: 100%; }
 .home-search-hint { font-size: .8125rem; color: var(--muted); }
+.home-hero-stage { max-width: 49ch; margin-top: 12px; color: var(--home-muted); font-size: .8125rem; line-height: 1.6; }
+.home-hero-stage a { display: inline-block; min-height: 24px; color: var(--home-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .home-photo-composition { grid-template-rows: 110px 48px 110px; margin-bottom: 24px; }
 .home-photo-credit { font-size: .75rem; }
 .home-eyebrow { font-size: .75rem; }
