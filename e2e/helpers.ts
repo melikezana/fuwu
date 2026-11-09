@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import { loadTestEnvironment } from "../scripts/testing/environment.mjs";
 import { createHash, randomUUID } from "node:crypto";
 import { createServerClient } from "@supabase/ssr";
@@ -335,3 +335,15 @@ export async function submitStandardLocksmithRequest(page: Page) {
   await fillStandardLocksmithRequest(page);
   await page.getByTestId("request-form").locator('button[type="submit"]').click();
 }
+
+// Telefonu önceden doğrulanmış hesapta form, numara yazılınca kendiliğinden "Telefon doğrulandı" durumuna
+// geçebilir (auth.getUser yanıtı doldurmadan sonra gelirse). Bu durumda "Telefonumu doğrula" düğmesi ekrandan
+// kalkar; ona koşulsuz tıklamak test süresi dolana kadar bekler. İki yol da geçerlidir; sonuç her zaman doğrulanır.
+export async function confirmApplicationPhone(form: Locator) {
+  const verified = form.getByRole("button", { name: "Telefon doğrulandı", exact: true });
+  const verify = form.getByRole("button", { name: "Telefonumu doğrula", exact: true });
+  await expect(verified.or(verify)).toBeVisible();
+  if (!(await verified.isVisible())) await verify.click({ timeout: 5_000 }).catch(() => undefined);
+  await expect(verified).toBeVisible();
+}
+
