@@ -1,8 +1,24 @@
 {
- "reviewedAt": "2026-11-10",
+ "reviewedAt": "2026-11-11",
  "source": "supabase/migrations (tam zincir, izole PostgreSQL)",
  "scope": "public şemasında anon veya authenticated rolünün çağırabildiği tüm SECURITY DEFINER fonksiyonları",
  "functions": [
+  {
+   "function": "admin_application_sources()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_classify_application(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
   {
    "function": "admin_control_snapshot()",
    "anon": false,

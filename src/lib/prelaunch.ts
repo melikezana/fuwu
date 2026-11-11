@@ -7,6 +7,9 @@ export const PRELAUNCH_COPY = {
   howTitle: "Hizmeti seç. Ustayı tanı. Zamanını planla.",
   trustStage: "Online satın alma henüz açılmadı. Bu taahhütler satış açıldığında geçerli olur.",
   journeyStage: "Online satın alma henüz açılmadı. Satış açıldığında süreç aşağıdaki gibi işleyecek.",
+  catalogLead: "Kapsamı ve dahil olmayanları şimdiden incele.",
+  catalogStageTitle: "Hizmetler satışa hazırlanıyor.",
+  catalogStage: "Fiyat ve randevu, ustalar yayına girdiğinde bu sayfada açılır.",
   seoDescription: "İstanbul’da ev hizmetlerini kapsamı ve fiyatıyla incele, ustaları tanı, zamanını planla. Online satın alma açılışta başlayacak.",
 } as const;
 export const INTEREST_CONSENT_VERSION = "prelaunch-2026-10-30";

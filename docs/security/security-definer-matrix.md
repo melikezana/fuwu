@@ -5,11 +5,14 @@
 - Kaynak: tam migration zinciri, izole PostgreSQL. Üretimdeki advisor sayısı şema sapması nedeniyle birkaç fonksiyon farklı olabilir; `20261110000100_audit_advisor_hardening.sql` uygulandıktan sonra Security Advisor yeniden çalıştırılmalıdır.
 - Makine tarafından okunan kaynak: `security-definer-matrix.json`. `scripts/audit-advisor-db-checks.mjs` her CI koşusunda veritabanındaki gerçek listeyi bu dosyayla karşılaştırır; incelenmemiş yeni bir fonksiyon testi düşürür.
 - Tüm fonksiyonlarda sabit `search_path` vardır.
+- BOLA/IDOR: `scripts/bola-db-checks.mjs` yabancı bir oturumla her fonksiyonu kurbanın usta ve başvuru kimlikleriyle dener; veri dönen ya da kayıt değiştiren fonksiyon testi düşürür.
 
-Toplam: 73 fonksiyon · anonim çağrılabilir: 9 · oturumlu çağrılabilir: 73
+Toplam: 75 fonksiyon · anonim çağrılabilir: 9 · oturumlu çağrılabilir: 75
 
 | Fonksiyon | anon | authenticated | Koruma | Not |
 |---|---|---|---|---|
+| `admin_application_sources` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |
+| `admin_classify_application` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |
 | `admin_control_snapshot` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |
 | `admin_prelaunch_snapshot` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |
 | `admin_provider_action` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |

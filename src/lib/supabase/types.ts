@@ -1081,6 +1081,8 @@ export type Database = {
       clear_legacy_announcement: { Args: { p_expected: string }; Returns: boolean };
       admin_control_snapshot: { Args: Record<string, never>; Returns: Json };
       admin_weekly_launch_metrics: { Args: { p_weeks?: number }; Returns: Json };
+      admin_application_sources: { Args: Record<string, never>; Returns: Json };
+      admin_classify_application: { Args: { p_application_id: string; p_kind: string; p_note: string }; Returns: undefined };
       admin_prelaunch_snapshot: { Args: Record<string, never>; Returns: Json };
       bind_provider_applications_to_current_user: {
         Args: Record<PropertyKey, never>;
