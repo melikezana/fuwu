@@ -347,3 +347,13 @@ export async function confirmApplicationPhone(form: Locator) {
   await expect(verified).toBeVisible();
 }
 
+// Paralel koşuda (2 işçi, `next dev`) onay kutusu tıklaması aralıklı olarak "did not change its state" ile düşüyor:
+// Playwright durumu, tıklamadan önce çözdüğü DOM düğümünde okur; geliştirme sunucusu o arada bileşeni yeniden
+// bağlarsa (diğer işçinin tetiklediği derleme / Fast Refresh) eski düğümün durumu değişmez. Seri koşuda görülmez.
+// Tıklama yeniden çözülen düğümde tekrar denenir; kutu istenen duruma gelmezse test yine düşer.
+export async function setCheckboxReliably(box: Locator, checked: boolean) {
+  await expect(async () => {
+    await box.setChecked(checked, { timeout: 5_000 });
+    await expect(box).toBeChecked({ checked, timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+}
