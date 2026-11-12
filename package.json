@@ -16,6 +16,7 @@
     "preflight": "node scripts/preflight-check.mjs",
     "start": "next start",
     "test:sms": "tsx scripts/test-sms-provider.ts",
+    "eval:assistant": "tsx scripts/eval-assistant.ts",
     "lint": "eslint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

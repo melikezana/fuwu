@@ -13,7 +13,7 @@ import {
   setCachedAssistantResponse,
 } from "@/lib/ai/rate-limit";
 import { searchProviders } from "@/lib/ai/provider-tools";
-import { buildFallbackAnalysis } from "@/lib/ai/fallback-analysis";
+import { buildFallbackAnalysis, hasEmergencySignal } from "@/lib/ai/fallback-analysis";
 import { requestStructuredJson, resolveAiProviders } from "@/lib/ai/model-gateway";
 import { recommendServices } from "@/lib/ai/service-recommendations";
 import { getCommerceCatalog } from "@/services/commerce";
@@ -690,27 +690,11 @@ function parseAssistantAnalysisResponse(response: OpenAiRequestResult) {
   return parsedAnalysis;
 }
 
+// Acil durum işaretleri tek yerde tanımlıdır (fallback-analysis); yapay zekâ yanıtı ne derse desin uygulanır.
 function includesEmergencySignal(parsedRequest: ParsedAssistantRequest) {
-  const haystack = [parsedRequest.message, ...parsedRequest.history.map((item) => item.content)]
-    .join(" ")
-    .toLocaleLowerCase("tr");
-
-  return [
-    "gaz kokusu",
-    "yanık kokusu",
-    "yanik kokusu",
-    "kıvılcım",
-    "kivilcim",
-    "pano yangın",
-    "pano yangin",
-    "su baskını",
-    "su baskini",
-    "çökme",
-    "cokme",
-    "çocuk kilitli",
-    "cocuk kilitli",
-    "duman",
-  ].some((signal) => haystack.includes(signal));
+  return hasEmergencySignal(
+    [parsedRequest.message, ...parsedRequest.history.filter((item) => item.role === "user").map((item) => item.content)].join(" "),
+  );
 }
 
 function applySafetyOverrides(

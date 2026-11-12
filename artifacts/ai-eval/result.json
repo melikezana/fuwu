@@ -1,0 +1,38 @@
+{
+  "cases": 74,
+  "generatedAt": "2026-11-12T20:14:43.803Z",
+  "dataset": "evals/assistant-cases.json (sentetik)",
+  "ruleBased": {
+    "categoryAccuracy": 0.935,
+    "categoryCorrect": 58,
+    "categoryTotal": 62,
+    "emergencyFalseAlarms": 0,
+    "emergencyMissed": [],
+    "emergencyRecall": 1,
+    "emergencyTotal": 12,
+    "failed": 0,
+    "total": 74,
+    "wrongCategory": [
+      {
+        "expected": "white_goods",
+        "got": "plumbing",
+        "text": "Klima içinden su damlatıyor bakım lazım"
+      },
+      {
+        "expected": "painting",
+        "got": "cleaning",
+        "text": "Tavanda nem lekesi var boya döküldü"
+      },
+      {
+        "expected": "furniture",
+        "got": "painting",
+        "text": "Televizyonu duvara astırmak istiyorum"
+      },
+      {
+        "expected": "moving",
+        "got": "cleaning",
+        "text": "Bir koltuk takımını başka adrese taşıtacağım"
+      }
+    ]
+  }
+}

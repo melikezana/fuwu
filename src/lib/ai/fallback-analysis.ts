@@ -15,15 +15,15 @@ const normalize = (value: string) =>
 
 const categoryKeywords: Array<[Exclude<AssistantCategory, "unknown">, string[]]> = [
   ["electric", ["elektrik", "priz", "sigorta", "pano", "kablo", "lamba", "avize", "aydinlatma", "kacak akim", "salter", "anahtar yanmiyor", "isik"]],
-  ["plumbing", ["tesisat", "musluk", "batarya", "lavabo", "gider", "tikan", "tikali", "su kacag", "sizinti", "damlat", "klozet", "rezervuar", "sifon", "boru", "kombi su", "sofben"]],
+  ["plumbing", ["tesisat", "musluk", "batarya", "lavabo", "gider", "tikan", "tikali", "su kacag", "sizinti", "damlat", "klozet", "rezervuar", "sifon", "boru", "kombi su", "sofben", "su kacir", "su damli"]],
   ["white_goods", ["klima", "camasir makinesi", "bulasik makinesi", "buzdolabi", "firin", "kurutma", "beyaz esya", "derin dondurucu", "aspirator"]],
-  ["locksmith", ["kilit", "anahtar", "kapida kaldim", "kapi acma", "cilingir", "barel", "kapi kilitli"]],
-  ["cleaning", ["temizlik", "temizle", "hali", "koltuk", "kir", "leke", "cam silme", "tasinma sonrasi", "insaat sonrasi", "kuf"]],
+  ["locksmith", ["kilit", "kilid", "anahtar", "kapida kaldim", "kapi acma", "cilingir", "barel", "kapi kilitli"]],
+  ["cleaning", ["temizli", "temizle", "sildir", "hali", "koltuk", "kir", "leke", "cam silme", "tasinma sonrasi", "insaat sonrasi", "kuf"]],
   ["painting", ["boya", "badana", "duvar", "rotus", "alci", "tavan lekesi", "dokulme", "macun"]],
-  ["furniture", ["mobilya", "montaj", "dolap", "gardirop", "ikea", "kurulum", "raf", "masa kurulumu", "tv duvara"]],
-  ["moving", ["nakliye", "tasima", "tasinma", "esya tasi", "evden eve", "koli"]],
+  ["furniture", ["mobilya", "montaj", "duvara as", "dolap", "gardirop", "ikea", "kurulum", "raf", "masa kurulumu", "tv duvara"]],
+  ["moving", ["nakliye", "tasima", "tasinma", "tasit", "tasinacak", "esya tasi", "evden eve", "koli"]],
   ["pool_garden", ["havuz", "bahce", "cim", "agac", "budama", "sulama", "yaprak"]],
-  ["renovation", ["tadilat", "fayans", "seramik", "parke", "mutfak yenile", "banyo yenile", "kartonpiyer", "laminant"]],
+  ["renovation", ["tadilat", "fayans", "seramik", "parke", "mutfak yenile", "banyo yenile", "yenilemek", "seramik yap", "kartonpiyer", "laminant"]],
 ];
 
 const emergencyKeywords = [
@@ -82,9 +82,23 @@ export function detectCategory(text: string): AssistantCategory {
   return best;
 }
 
+// Tek kelimeyle yakalanamayan acil durumlar: iki işaretin aynı mesajda birlikte geçmesi aranır.
+// Kaçırılan bir acil durum, gereksiz bir uyarıdan çok daha pahalıdır; kurallar bu yüzden geniş tutulur.
+const emergencyPatterns: RegExp[] = [
+  /gaz\w*\s+(koku|kok|kacag|kacir|sizdir|sizinti)/,
+  /(koku|kokuyor)\w*.{0,30}\bgaz|\bgaz\w*.{0,30}(kokuyor|kokusu)/,
+  /\balev(?!\s+alm)|tutustu|yangin/,
+  /(pano|sigorta|priz|kablo|kutu|kombi|ocak|cihaz|makine)\w*.{0,40}(yaniyor|yandi|duman|kivilcim|\beriyor)/,
+  /elektrik\w*\s+carp|carpti|carpildi/,
+  /boru\w*\s+patla|su\w*\s+bas(ti|kini|iyor)/,
+  /(tavan|duvar|balkon|kolon)\w*\s+(coktu|cokuyor|catirdi)/,
+  /(cocu[kg](?!\s+odas)|bebe[kg]|yasli|annem|babam)\w*.{0,60}(kilitli|iceride kaldi|mahsur|kapi kapandi)/,
+  /(kilitli|iceride kaldi|mahsur|kapi kapandi).{0,60}(cocu[kg](?!\s+odas)|bebe[kg]|yasli)/,
+];
+
 export function hasEmergencySignal(text: string) {
   const haystack = normalize(text);
-  return emergencyKeywords.some(keyword => haystack.includes(keyword));
+  return emergencyKeywords.some(keyword => haystack.includes(keyword)) || emergencyPatterns.some(pattern => pattern.test(haystack));
 }
 
 export function buildFallbackAnalysis(input: { message: string; history?: string[]; categoryHint?: AssistantCategory | null }): AssistantAnalysis {

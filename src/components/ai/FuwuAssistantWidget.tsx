@@ -170,8 +170,16 @@ export function FuwuAssistantWidget() {
       setView("menu");
       setIsOpen(true);
     }
+    function openAssistant() {
+      setView("assistant");
+      setIsOpen(true);
+    }
     window.addEventListener("fuwu:open-support", openSupport);
-    return () => window.removeEventListener("fuwu:open-support", openSupport);
+    window.addEventListener("fuwu:open-assistant", openAssistant);
+    return () => {
+      window.removeEventListener("fuwu:open-support", openSupport);
+      window.removeEventListener("fuwu:open-assistant", openAssistant);
+    };
   }, []);
 
   function closeWidget() {
