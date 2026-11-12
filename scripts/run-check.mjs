@@ -10,7 +10,7 @@ fs.mkdirSync(output,{recursive:true});
 const tmp=path.join(output,"tmp");fs.mkdirSync(tmp,{recursive:true});
 const env={...process.env,TEMP:tmp,TMP:tmp};
 for(const file of [".env",".env.local",".env.test",".env.production",".env.production.local"]) for(const key of Object.keys(readEnv(file))) env[key]="";
-for(const key of Object.keys(env)) if(/SUPABASE|IYZICO|UPSTASH|SENTRY|OPENAI|NETGSM|SMTP|CRON_SECRET/.test(key)) delete env[key];
+for(const key of Object.keys(env)) if(/SUPABASE|IYZICO|UPSTASH|SENTRY|OPENAI|ANTHROPIC|AI_PROVIDER|NETGSM|SMTP|CRON_SECRET/.test(key)) delete env[key];
 env.NEXT_PUBLIC_SUPABASE_URL="";env.NEXT_PUBLIC_SUPABASE_ANON_KEY="";env.SUPABASE_SERVICE_ROLE_KEY="";
 env.IYZICO_API_KEY="";env.IYZICO_SECRET_KEY="";env.UPSTASH_REDIS_REST_URL="";env.UPSTASH_REDIS_REST_TOKEN="";
 env.NEXT_PUBLIC_SITE_URL="http://127.0.0.1:3109";

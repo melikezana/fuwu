@@ -14,6 +14,7 @@ import {
 } from "@/lib/ai/rate-limit";
 import { searchProviders } from "@/lib/ai/provider-tools";
 import { buildFallbackAnalysis } from "@/lib/ai/fallback-analysis";
+import { requestStructuredJson, resolveAiProviders } from "@/lib/ai/model-gateway";
 import { recommendServices } from "@/lib/ai/service-recommendations";
 import { getCommerceCatalog } from "@/services/commerce";
 import { logWarn } from "@/lib/logger";
@@ -807,6 +808,76 @@ async function persistAssistantExchange(
   }
 }
 
+const assistantSchemaName = "fuwu_ai_assistant_analysis";
+const assistantSchemaDescription = "FUWU ev hizmeti ilk değerlendirme sonucu.";
+
+/**
+ * Tanımlı sağlayıcıları sırayla dener (bkz. src/lib/ai/model-gateway.ts). OpenAI yolu mevcut
+ * ayrıntılı hata kaydını korur; diğer sağlayıcılar ortak kapıdan geçer. Hepsi düşerse son hata
+ * fırlatılır ve çağıran taraf kural tabanlı değerlendirmeye geçer.
+ */
+async function analyzeWithConfiguredModels(parsedRequest: ParsedAssistantRequest): Promise<AssistantAnalysis> {
+  const providers = resolveAiProviders();
+
+  if (!providers.length) {
+    throw new Error(process.env.OPENAI_API_KEY?.trim() ? "openai-model-missing" : "openai-key-missing");
+  }
+
+  const input = buildOpenAiInput(parsedRequest);
+  let lastError: unknown = null;
+
+  for (const config of providers) {
+    try {
+      if (config.provider === "openai") {
+        return parseAssistantAnalysisResponse(
+          await callOpenAi({
+            input,
+            instructions: fuwuAssistantSystemPrompt,
+            max_output_tokens: 1200,
+            model: config.model,
+            store: false,
+            text: {
+              format: {
+                description: assistantSchemaDescription,
+                name: assistantSchemaName,
+                schema: assistantAnalysisJsonSchema,
+                strict: true,
+                type: "json_schema",
+              },
+            },
+          }),
+        );
+      }
+
+      const textPart = input[0]?.content.find((item) => item.type === "input_text");
+      const result = await requestStructuredJson(
+        {
+          imageDataUrl: parsedRequest.imageDataUrl,
+          instructions: fuwuAssistantSystemPrompt,
+          maxOutputTokens: 1200,
+          schema: assistantAnalysisJsonSchema as unknown as Record<string, unknown>,
+          schemaDescription: assistantSchemaDescription,
+          schemaName: assistantSchemaName,
+          timeoutMs: openAiTimeoutMs,
+          userText: textPart && textPart.type === "input_text" ? textPart.text : parsedRequest.message,
+        },
+        { providers: [config] },
+      );
+      const analysis = parseAssistantAnalysis(result.json);
+
+      if (!analysis) {
+        throw new AssistantStructuredOutputError("assistant-schema-invalid", result.requestId);
+      }
+
+      return analysis;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("openai-request-failed");
+}
+
 export async function POST(request: NextRequest) {
   try {
     assertSameOrigin(request);
@@ -841,12 +912,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const model = process.env.OPENAI_VISION_MODEL?.trim();
-
-    if (!model) {
-      throw new Error("openai-model-missing");
-    }
-
     const cacheKey = getCacheKey(parsedRequest);
     const cachedResponse = getCachedAssistantResponse(cacheKey);
 
@@ -854,23 +919,7 @@ export async function POST(request: NextRequest) {
       return assistantJson(cachedResponse);
     }
 
-    const openAiResponse = await callOpenAi({
-      input: buildOpenAiInput(parsedRequest),
-      instructions: fuwuAssistantSystemPrompt,
-      max_output_tokens: 1200,
-      model,
-      store: false,
-      text: {
-        format: {
-          description: "FUWU ev hizmeti ilk değerlendirme sonucu.",
-          name: "fuwu_ai_assistant_analysis",
-          schema: assistantAnalysisJsonSchema,
-          strict: true,
-          type: "json_schema",
-        },
-      },
-    });
-    const parsedAnalysis = parseAssistantAnalysisResponse(openAiResponse);
+    const parsedAnalysis = await analyzeWithConfiguredModels(parsedRequest);
 
     const analysis = applySafetyOverrides(parsedAnalysis, parsedRequest);
     const providers =
