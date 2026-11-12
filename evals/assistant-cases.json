@@ -1,0 +1,376 @@
+{
+ "version": 1,
+ "note": "Elle yazılmış sentetik değerlendirme kümesi. Gerçek kullanıcı verisi değildir.",
+ "cases": [
+  {
+   "text": "Lavabonun altından su sızıyor, dolabın içi ıslandı",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Mutfak musluğu sürekli damlatıyor",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Tuvalet rezervuarı durmadan su akıtıyor",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Banyo gideri tıkandı su gitmiyor",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Duş bataryası sıcak su vermiyor, değişmesi lazım",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Klozetin dibinden su sızdırıyor",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Çamaşır makinesinin gider hortumu taşıyor, sifon tıkalı galiba",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Alt komşunun tavanına su damlıyormuş, bizim banyodan kaçak varmış",
+   "category": "plumbing",
+   "emergency": false
+  },
+  {
+   "text": "Salondaki priz çalışmıyor",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Sigorta sürekli atıyor",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Avize taktırmak istiyorum",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Mutfaktaki lamba yanıp sönüyor",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Evin bir odasında elektrik yok diğerlerinde var",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Kaçak akım rölesi atıyor sebebini bulamadık",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Yeni priz hattı çektirmek istiyorum",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Anahtar bozuldu ışık yanmıyor",
+   "category": "electric",
+   "emergency": false
+  },
+  {
+   "text": "Klima soğutmuyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Çamaşır makinesi su almıyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Buzdolabı çok ses yapıyor ve soğutmuyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Bulaşık makinesi suyu boşaltmıyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Klima içinden su damlatıyor bakım lazım",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Fırın ısıtmıyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Kurutma makinesi hata kodu veriyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Klimadan kötü koku geliyor",
+   "category": "white_goods",
+   "emergency": false
+  },
+  {
+   "text": "Kapıda kaldım anahtar içeride",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Anahtarımı kaybettim kilidi değiştirmek istiyorum",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Çelik kapının kilidi dönmüyor",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Barel değişimi yaptırmak istiyorum",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Anahtar kilidin içinde kırıldı",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Oda kapısı kilitli kaldı açılmıyor",
+   "category": "locksmith",
+   "emergency": false
+  },
+  {
+   "text": "Ev temizliği yaptırmak istiyorum",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "İnşaat sonrası temizlik lazım",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "Koltuk yıkama hizmeti arıyorum",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "Taşınma sonrası boş ev temizliği",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "Camları sildirmek istiyorum",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "Halıda büyük bir leke var çıkmıyor",
+   "category": "cleaning",
+   "emergency": false
+  },
+  {
+   "text": "Salonu boyatmak istiyorum",
+   "category": "painting",
+   "emergency": false
+  },
+  {
+   "text": "Tavanda nem lekesi var boya döküldü",
+   "category": "painting",
+   "emergency": false
+  },
+  {
+   "text": "İki odanın badanası yapılacak",
+   "category": "painting",
+   "emergency": false
+  },
+  {
+   "text": "Duvardaki çatlaklar için alçı ve boya",
+   "category": "painting",
+   "emergency": false
+  },
+  {
+   "text": "Kapı ve pencere kasalarını boyatacağım",
+   "category": "painting",
+   "emergency": false
+  },
+  {
+   "text": "IKEA dolabı kurdurmak istiyorum",
+   "category": "furniture",
+   "emergency": false
+  },
+  {
+   "text": "Televizyonu duvara astırmak istiyorum",
+   "category": "furniture",
+   "emergency": false
+  },
+  {
+   "text": "Gardırop montajı yapılacak",
+   "category": "furniture",
+   "emergency": false
+  },
+  {
+   "text": "Raf ve kitaplık kurulumu",
+   "category": "furniture",
+   "emergency": false
+  },
+  {
+   "text": "Yatak bazası montajı lazım",
+   "category": "furniture",
+   "emergency": false
+  },
+  {
+   "text": "Evden eve nakliye lazım",
+   "category": "moving",
+   "emergency": false
+  },
+  {
+   "text": "Bir koltuk takımını başka adrese taşıtacağım",
+   "category": "moving",
+   "emergency": false
+  },
+  {
+   "text": "Asansörlü taşıma arıyorum",
+   "category": "moving",
+   "emergency": false
+  },
+  {
+   "text": "Birkaç koli ve buzdolabı taşınacak",
+   "category": "moving",
+   "emergency": false
+  },
+  {
+   "text": "Bahçedeki çimleri biçtirmek istiyorum",
+   "category": "pool_garden",
+   "emergency": false
+  },
+  {
+   "text": "Havuz suyu yeşillendi bakım lazım",
+   "category": "pool_garden",
+   "emergency": false
+  },
+  {
+   "text": "Ağaç budama yaptırmak istiyorum",
+   "category": "pool_garden",
+   "emergency": false
+  },
+  {
+   "text": "Otomatik sulama sistemi çalışmıyor",
+   "category": "pool_garden",
+   "emergency": false
+  },
+  {
+   "text": "Banyoyu komple yenilemek istiyorum",
+   "category": "renovation",
+   "emergency": false
+  },
+  {
+   "text": "Mutfak tezgahı ve fayans değişecek",
+   "category": "renovation",
+   "emergency": false
+  },
+  {
+   "text": "Laminat parke döşetmek istiyorum",
+   "category": "renovation",
+   "emergency": false
+  },
+  {
+   "text": "Balkonu kapattırıp seramik yaptıracağım",
+   "category": "renovation",
+   "emergency": false
+  },
+  {
+   "text": "Merhaba",
+   "category": "unknown",
+   "emergency": false
+  },
+  {
+   "text": "Fiyatlarınız nedir",
+   "category": "unknown",
+   "emergency": false
+  },
+  {
+   "text": "Evde bir sorun var ama ne olduğunu bilmiyorum",
+   "category": "unknown",
+   "emergency": false
+  },
+  {
+   "text": "Usta lazım",
+   "category": "unknown",
+   "emergency": false
+  },
+  {
+   "text": "Evde gaz kokusu var",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Ocağın oradan doğalgaz kokuyor",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Prizden kıvılcım çıktı ve yanık kokusu var",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Elektrik panosundan duman çıkıyor",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Banyoda su baskını oldu su prizlere yaklaşıyor",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Boru patladı evi su bastı",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Çocuğum odada kilitli kaldı kapı açılmıyor",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Bebek içeride kapı kapandı anahtar yok",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Tavan çöktü",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Kombiden gaz kaçağı var gibi başım ağrıyor",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Priz elektrik çarptı",
+   "category": null,
+   "emergency": true
+  },
+  {
+   "text": "Sigorta kutusu yanıyor alev var",
+   "category": null,
+   "emergency": true
+  }
+ ]
+}

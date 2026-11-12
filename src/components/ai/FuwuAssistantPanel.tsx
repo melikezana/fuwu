@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { AnalysisResult } from "./AnalysisResult";
 import { ImageUploader, type AssistantImageFile } from "./ImageUploader";
 import { RecommendedProviders } from "./RecommendedProviders";
-import { RecommendedServices } from "./RecommendedServices";
+import { RecommendedServices, SecureProcessSteps } from "./RecommendedServices";
 import type { RecommendedService } from "@/lib/ai/service-recommendations";
 
 type FuwuAssistantPanelProps = {
@@ -390,6 +390,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
               providers={providers}
             />
             <RecommendedServices services={services} />
+            {analysis && analysis.professionalNeeded && analysis.urgency !== "emergency" && analysis.category !== "unknown" ? <SecureProcessSteps /> : null}
           </div>
         </div>
       </div>
