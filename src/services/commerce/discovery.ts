@@ -13,11 +13,19 @@ const readDiscovery = unstable_cache(async () => {
       if (page.length < 500) return rows;
     }
   };
-  const [categories, districts] = await Promise.all([read("service_categories", "*"), read("districts", "id,name")]);
-  return { categories: categories as CatalogCategory[], districts: districts as { id: string; name: string }[], unavailable: false };
-}, ["public-discovery-v1"], { revalidate: 60 });
+  // Ön kayıt anahtarı yalnızca okunur; hata veya kapalı durumda bağlantı gösterilmez.
+  const interest = async () => {
+    try {
+      const response = await fetch(`${url}/rest/v1/rpc/launch_interest_health`, { method: "POST", headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: "{}", signal: AbortSignal.timeout(5000), cache: "no-store" });
+      const body = response.ok ? await response.json() : null;
+      return Boolean(body && typeof body === "object" && body.available === true && body.version === 1);
+    } catch { return false; }
+  };
+  const [categories, districts, launchInterestOpen] = await Promise.all([read("service_categories", "*"), read("districts", "id,name"), interest()]);
+  return { categories: categories as CatalogCategory[], districts: districts as { id: string; name: string }[], launchInterestOpen, unavailable: false };
+}, ["public-discovery-v2"], { revalidate: 60 });
 // Public discovery is identical for every visitor. Price, slots, publication and payments stay fresh.
 export async function getPublicDiscovery() {
   try { return await readDiscovery(); }
-  catch { return { categories: [] as CatalogCategory[], districts: [] as { id: string; name: string }[], unavailable: true }; }
+  catch { return { categories: [] as CatalogCategory[], districts: [] as { id: string; name: string }[], launchInterestOpen: false, unavailable: true }; }
 }

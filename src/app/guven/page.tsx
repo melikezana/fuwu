@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CreditCard, FileCheck2, IdCard, KeyRound, Landmark, MessageSquareQuote, PhoneCall, ShieldCheck, UserRound, Wrench } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { PRELAUNCH_COPY } from "@/lib/prelaunch";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
@@ -69,6 +70,7 @@ export default function TrustCenterPage() {
         <Container className="home-container">
           <p className="home-eyebrow">KAPIDAN KAPANIŞA</p>
           <h2 className="home-section-title">Her adım kayıt altında.</h2>
+          <p className="home-section-description" role="note">{PRELAUNCH_COPY.journeyStage}</p>
           <ol>{journey.map(([title, copy], index) => <li key={title}><span>{String(index + 1).padStart(2, "0")}</span><strong>{title}</strong><p>{copy}</p></li>)}</ol>
         </Container>
       </section>

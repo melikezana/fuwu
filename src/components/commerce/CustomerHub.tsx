@@ -3,7 +3,8 @@ import { CustomerNavigation } from "./CustomerNavigation";
 import { getOrderCardDetails } from "@/services/commerce/order-cards";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, CreditCard, Heart, MapPin, ShieldCheck, ShoppingBag, Star, UserRound } from "lucide-react";
+import { CalendarDays, CreditCard, Heart, LifeBuoy, MapPin, Search, ShieldCheck, ShoppingBag, Star, UserRound } from "lucide-react";
+import { getPublicDiscovery } from "@/services/commerce/discovery";
 import { getProviderById } from "@/services/providers";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { getServerAuthContext } from "@/services/auth/server";
@@ -20,18 +21,25 @@ export async function CustomerHub({ params }: { params: CustomerHubParams }) {
   const { user, supabase, profile } = await getServerAuthContext();
   if (!user || !supabase) redirect(buildLoginRedirectUrl(`/account?view=${view}`));
   const page = Math.min(10000, Math.max(1, Number.parseInt(params.page || "1") || 1));
-  const [upcoming, completed, nextAppointment, activeOrder] = await Promise.all([
+  const [upcoming, completed, nextAppointment, activeOrder, anyOrder] = await Promise.all([
     supabase.from("commerce_orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", serviceActiveStatuses),
     supabase.from("commerce_orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).eq("status", "COMPLETED"),
     view === "overview" ? supabase.from("commerce_orders").select("*").eq("customer_id", user.id).eq("status", "CONFIRMED").gte("starts_at", new Date().toISOString()).order("starts_at").limit(1).maybeSingle() : null,
     view === "overview" ? supabase.from("commerce_orders").select("*").eq("customer_id", user.id).in("status", serviceActiveStatuses).or(`status.in.(PROVIDER_ON_THE_WAY,IN_PROGRESS),starts_at.lte.${new Date().toISOString()}`).order("ends_at").limit(1).maybeSingle() : null,
+    view === "overview" ? supabase.from("commerce_orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id) : null,
   ]);
   const unavailable = Boolean(upcoming.error || completed.error || nextAppointment?.error || activeOrder?.error);
+  // Hiç siparişi olmayan müşteriye sıfırlarla dolu bir pano yerine şimdi yapabileceklerini gösteririz.
+  const fresh = view === "overview" && !unavailable && Boolean(anyOrder) && !anyOrder!.error && anyOrder!.count === 0;
+  const launchInterestOpen = fresh ? (await getPublicDiscovery()).launchInterestOpen : false;
+  const quick = [["/services", "Hizmet seç", Search], ["/account?view=favorites", "Favori ustalarım", Heart], ["/account?view=addresses", "Adreslerim", MapPin], ["/account?view=support", "Destek", LifeBuoy]] as const;
   const title = views.find(([id]) => id === view)![1];
-  return <div className="commerce-page fusion-customer-hub"><header className="commerce-page-header"><p className="commerce-eyebrow">MY FUWU</p><h1>{view === "overview" ? "İşlerin burada." : title}</h1>{view === "overview" && <p>{profile?.full_name?.split(" ")[0] ? `Merhaba ${profile.full_name.split(" ")[0]}. ` : ""}Randevularını ve hizmetlerini takip et.</p>}</header><CustomerNavigation view={view} />
+  return <div className="commerce-page fusion-customer-hub"><header className="commerce-page-header"><p className="commerce-eyebrow">HESABIM</p><h1>{view === "overview" ? "İşlerin burada." : title}</h1>{view === "overview" && <p>{profile?.full_name?.split(" ")[0] ? `Merhaba ${profile.full_name.split(" ")[0]}. ` : ""}Randevularını ve hizmetlerini takip et.</p>}</header><CustomerNavigation view={view} />
     {params.result && <p role="status" className="commerce-notice">{params.result === "saved" ? "Bilgilerin kaydedildi." : "Bilgiler kaydedilemedi. Alanları ve bağlantını kontrol edip tekrar dene."}</p>}
-    {view === "overview" && <><div className="fusion-metric-grid"><article><CalendarDays aria-hidden size={22} /><span>Aktif hizmet</span><strong>{unavailable ? "—" : upcoming.count ?? 0}</strong></article><article><ShoppingBag aria-hidden size={22} /><span>Tamamlanan hizmet</span><strong>{unavailable ? "—" : completed.count ?? 0}</strong></article></div>{unavailable && <p role="alert" className="commerce-notice">Sipariş bilgilerine şu anda ulaşılamıyor.</p>}{!unavailable && <CustomerSpotlight upcoming={nextAppointment?.data ?? null} active={activeOrder?.data ?? null} now={new Date().getTime()} />}<div className="fusion-section-heading"><h2>Takip ettiğin siparişler</h2><Link className="commerce-button" href="/services">Yeni Hizmet Seç</Link></div></>}
-    {["overview", "upcoming", "active", "history"].includes(view) && <CustomerOrders userId={user.id} history={view === "history"} page={page} view={view} />}
+    {view === "overview" && <nav className="customer-quick-grid" aria-label="Hızlı işlemler">{quick.map(([href, label, Icon]) => <Link href={href} key={href}><Icon aria-hidden size={22} /><span>{label}</span></Link>)}</nav>}
+    {fresh && <section className="commerce-panel customer-start" aria-labelledby="customer-start-title"><h2 id="customer-start-title">Henüz bir siparişin yok.</h2><p className="commerce-help">Online satın alma henüz açılmadı. Açıldığında randevuların ve siparişlerin burada görünür. O zamana kadar hazırlık yapabilirsin:</p><ol><li><Link href="/services">Hizmetlerin kapsamını incele</Link></li><li><Link href="/account?view=addresses">Adresini şimdiden kaydet</Link></li>{launchInterestOpen && <li><Link href="/waitlist">Açılıştan haberdar ol</Link></li>}</ol></section>}
+    {view === "overview" && !fresh && <><div className="fusion-metric-grid"><article><CalendarDays aria-hidden size={22} /><span>Aktif hizmet</span><strong>{unavailable ? "—" : upcoming.count ?? 0}</strong></article><article><ShoppingBag aria-hidden size={22} /><span>Tamamlanan hizmet</span><strong>{unavailable ? "—" : completed.count ?? 0}</strong></article></div>{unavailable && <p role="alert" className="commerce-notice">Sipariş bilgilerine şu anda ulaşılamıyor.</p>}{!unavailable && <CustomerSpotlight upcoming={nextAppointment?.data ?? null} active={activeOrder?.data ?? null} now={new Date().getTime()} />}<div className="fusion-section-heading"><h2>Takip ettiğin siparişler</h2><Link className="commerce-button" href="/services">Yeni Hizmet Seç</Link></div></>}
+    {["overview", "upcoming", "active", "history"].includes(view) && !fresh && <CustomerOrders userId={user.id} history={view === "history"} page={page} view={view} />}
     {view === "addresses" && <CustomerAddresses userId={user.id} />}
     {view === "reviews" && <CustomerReviews userId={user.id} page={page} />}
     {view === "favorites" && <CustomerFavorites userId={user.id} page={page} />}

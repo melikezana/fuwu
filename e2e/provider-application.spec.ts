@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { ensureTestUserRole, getTestAdminClient, loginWithEmailMagicLink, skipUnlessLocalSupabase, uniqueE2EEmail, uniqueE2EPhone } from "./helpers";
+import { confirmApplicationPhone, ensureTestUserRole, getTestAdminClient, loginWithEmailMagicLink, skipUnlessLocalSupabase, uniqueE2EEmail, uniqueE2EPhone } from "./helpers";
 
 test.describe("provider application flow", () => {
   test("authenticated user submits provider application", async ({ page }) => {
@@ -21,8 +21,7 @@ test.describe("provider application flow", () => {
     await form
       .locator('input[name="phone"]')
       .fill(phone!);
-    await form.getByRole("button", { name: "Telefonumu doğrula", exact: true }).click();
-    await expect(form.getByRole("button", { name: "Telefon doğrulandı", exact: true })).toBeVisible();
+    await confirmApplicationPhone(form);
     await expect(page.locator('input[name="experienceYears"]')).toHaveCount(0);
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
     await form.getByRole("button", { name: "Başvurumu gönder", exact: true }).click();

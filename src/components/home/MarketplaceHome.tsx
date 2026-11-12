@@ -29,7 +29,7 @@ export async function MarketplaceHome() {
 
   return (
     <div className="fuwu-home">
-      <HeroSection categories={categories} districts={districts} />
+      <HeroSection categories={categories} districts={districts} launchInterestOpen={discovery.launchInterestOpen} />
       <PopularServices services={featuredCategories(categories)} unavailable={discovery.unavailable} discoveryOnly />
       <Suspense fallback={null}><FeaturedHomeServices catalogPromise={catalog} /></Suspense>
       <HomePremiumPanels />

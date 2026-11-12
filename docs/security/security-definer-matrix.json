@@ -1,0 +1,607 @@
+{
+ "reviewedAt": "2026-11-11",
+ "source": "supabase/migrations (tam zincir, izole PostgreSQL)",
+ "scope": "public şemasında anon veya authenticated rolünün çağırabildiği tüm SECURITY DEFINER fonksiyonları",
+ "functions": [
+  {
+   "function": "admin_application_sources()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_classify_application(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_control_snapshot()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_prelaunch_snapshot()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_provider_action(uuid,text,text,text,uuid,text,text,text,jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_provider_detail(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_provider_directory(text,text,integer,integer,uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_provider_quality_queue()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_trust_alerts()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "admin_weekly_launch_metrics(integer)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "bind_provider_applications_to_current_user()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "public, auth",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "clear_legacy_announcement(text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_health()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_legacy_checkout_queue()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_reconciliation(integer)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_request_refund(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "public, pg_temp",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_save_category(uuid,text,text,boolean,boolean,integer,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_save_service(uuid,jsonb,jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "public, pg_temp",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_settlement_queue()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_admin_summary()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_ceo_insights()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_create_variant(uuid,uuid,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "commerce_hold_order(uuid,timestamp with time zone,uuid,text,uuid,integer)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "delegates",
+   "search_path": "\"\"",
+   "note": "commerce_hold_order_priced() içinde auth.uid() ve fiyat/slot doğrulaması yapılır."
+  },
+  {
+   "function": "commerce_hold_order_priced(uuid,timestamp with time zone,uuid,text,uuid,integer,integer,boolean,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "commerce_offers(uuid,uuid,uuid)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımlı gerçek ustaların aktif tekliflerini döndürür; telefon/finans alanı içermez."
+  },
+  {
+   "function": "commerce_order_finance(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "public, pg_temp",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_order_trust(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_provider_capacity(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_provider_finance(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "public, pg_temp",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_provider_operations(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_provider_private(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_public_fee_rates()",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca müşteri hizmet bedeli oranlarını döndürür."
+  },
+  {
+   "function": "commerce_public_schedule(uuid)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımlı ustanın haftalık çalışma saatleri."
+  },
+  {
+   "function": "commerce_quote(uuid)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımda olan teklifin fiyat dökümü; teklif yayımda değilse hata."
+  },
+  {
+   "function": "commerce_review_settlement(text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_save_store(uuid,jsonb,jsonb,jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "commerce_set_daily_limit(uuid,integer)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "commerce_slots(uuid,date,uuid)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımlı ustanın boş saatleri."
+  },
+  {
+   "function": "commerce_submit_review(uuid,smallint,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "commerce_transition_order(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "consume_user_rate_limit(text,integer,integer)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "current_user_has_provider()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "current_user_is_admin()",
+   "anon": true,
+   "authenticated": true,
+   "guard": "policy-helper",
+   "search_path": "public, auth",
+   "note": "Yalnızca çağıranın kendi admin durumunu döndürür; RLS politikalarında kullanılır."
+  },
+  {
+   "function": "launch_interest_health()",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Tek bir açık/kapalı bayrağı döndürür."
+  },
+  {
+   "function": "notify_eligible_providers_for_request(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "public, pg_temp",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "partner_attach_document(uuid,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "delegates",
+   "search_path": "\"\"",
+   "note": "trust_attach_document() içinde auth.uid() ve başvuru sahipliği doğrulanır."
+  },
+  {
+   "function": "partner_save_calendar(uuid,jsonb,jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "partner_save_profile(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "partner_save_services(uuid,jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "profile_role_is_unchanged(uuid,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "policy-helper",
+   "search_path": "public, auth",
+   "note": "auth.uid() ile yalnızca çağıranın kendi profili; UPDATE politikası yardımcı fonksiyonu."
+  },
+  {
+   "function": "provider_is_published(uuid)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "RLS politikası yardımcı fonksiyonu; yalnızca boolean döndürür."
+  },
+  {
+   "function": "provider_owner_protected_fields_are_unchanged(uuid,uuid,uuid,uuid,text,numeric,numeric,numeric,boolean,boolean,boolean,boolean,boolean)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "policy-helper",
+   "search_path": "public, auth",
+   "note": "auth.uid() ile yalnızca çağıranın kendi usta kaydı; UPDATE politikası yardımcı fonksiyonu."
+  },
+  {
+   "function": "provider_partner_readiness(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "delegates",
+   "search_path": "\"\"",
+   "note": "provider_partner_readiness_before_* zinciri sahiplik/admin kontrolü yapar; yabancı kullanıcı forbidden alır (DB testi)."
+  },
+  {
+   "function": "provider_publication_gate()",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımlı gerçek ustaların kimlik ve doğrulama bayrakları."
+  },
+  {
+   "function": "provider_quality_snapshot(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "review_eligible_sources(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "review_provider_publication(uuid,text,text,text,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "save_launch_interest(uuid,uuid,boolean,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "service_request_assignment_fields_are_unchanged(uuid,uuid,uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "policy-helper",
+   "search_path": "public, auth",
+   "note": "Yalnızca authenticated UPDATE politikasında kullanılır; boolean döndürür."
+  },
+  {
+   "function": "submit_provider_review(uuid,smallint,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "delegates",
+   "search_path": "\"\"",
+   "note": "review_eligible_sources() ve submit_service_review() auth.uid() ile yalnızca tamamlanmış kendi işini kabul eder."
+  },
+  {
+   "function": "submit_service_review(uuid,uuid,uuid,smallint,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "trust_admin_queue()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_application_file(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_application_summaries(uuid[])",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_attach_document(uuid,text,text,date)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "trust_document_access(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_issue_service_code(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "trust_report_account(uuid,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "trust_report_case(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "trust_resolve_case(uuid,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_review_document(uuid,integer,text,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_save_document_type(jsonb,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_save_rule(jsonb,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
+  },
+  {
+   "function": "trust_scope_change(uuid,text,integer,uuid,boolean)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "withdraw_launch_interest()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  }
+ ]
+}

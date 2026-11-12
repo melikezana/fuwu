@@ -52,7 +52,7 @@ function ProviderEmptyState({
       <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[var(--muted)]">
         {isUnavailable ? "Ustalar yüklenemedi. Tekrar dene veya hizmetleri incele." : hasActiveFilters
           ? "Filtreleri temizleyerek diğer ustaları ve satın alınabilir hizmetleri inceleyebilirsin."
-          : "Alanında uzman hizmet verenleri FUWU'ya davet ediyoruz."}
+          : "İlk ustalarımızın kimlik ve belge incelemesi sürüyor. Yayına girdiklerinde burada göreceksin. O zamana kadar hizmetlerin kapsamını inceleyebilirsin."}
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         {hasActiveFilters ? (
@@ -60,9 +60,14 @@ function ProviderEmptyState({
             Filtreleri Temizle
           </Button>
         ) : null}
-        <Button className="inline-flex" href={isUnavailable || hasActiveFilters ? requestHref : appRoutes.providerApplication} variant="primary">
-          {isUnavailable || hasActiveFilters ? "Hizmetleri Keşfet" : "Usta Ol"}
+        <Button className="inline-flex" href={requestHref} variant="primary">
+          Hizmetleri Keşfet
         </Button>
+        {!isUnavailable && !hasActiveFilters ? (
+          <Button className="inline-flex" href={appRoutes.providerApplication} variant="secondary">
+            Usta mısın? Başvur
+          </Button>
+        ) : null}
       </div>
     </div>
   );

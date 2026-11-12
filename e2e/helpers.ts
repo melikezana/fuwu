@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import { loadTestEnvironment } from "../scripts/testing/environment.mjs";
 import { createHash, randomUUID } from "node:crypto";
 import { createServerClient } from "@supabase/ssr";
@@ -334,4 +334,26 @@ export async function fillStandardLocksmithRequest(page: Page) {
 export async function submitStandardLocksmithRequest(page: Page) {
   await fillStandardLocksmithRequest(page);
   await page.getByTestId("request-form").locator('button[type="submit"]').click();
+}
+
+// Telefonu önceden doğrulanmış hesapta form, numara yazılınca kendiliğinden "Telefon doğrulandı" durumuna
+// geçebilir (auth.getUser yanıtı doldurmadan sonra gelirse). Bu durumda "Telefonumu doğrula" düğmesi ekrandan
+// kalkar; ona koşulsuz tıklamak test süresi dolana kadar bekler. İki yol da geçerlidir; sonuç her zaman doğrulanır.
+export async function confirmApplicationPhone(form: Locator) {
+  const verified = form.getByRole("button", { name: "Telefon doğrulandı", exact: true });
+  const verify = form.getByRole("button", { name: "Telefonumu doğrula", exact: true });
+  await expect(verified.or(verify)).toBeVisible();
+  if (!(await verified.isVisible())) await verify.click({ timeout: 5_000 }).catch(() => undefined);
+  await expect(verified).toBeVisible();
+}
+
+// Paralel koşuda (2 işçi, `next dev`) onay kutusu tıklaması aralıklı olarak "did not change its state" ile düşüyor:
+// Playwright durumu, tıklamadan önce çözdüğü DOM düğümünde okur; geliştirme sunucusu o arada bileşeni yeniden
+// bağlarsa (diğer işçinin tetiklediği derleme / Fast Refresh) eski düğümün durumu değişmez. Seri koşuda görülmez.
+// Tıklama yeniden çözülen düğümde tekrar denenir; kutu istenen duruma gelmezse test yine düşer.
+export async function setCheckboxReliably(box: Locator, checked: boolean) {
+  await expect(async () => {
+    await box.setChecked(checked, { timeout: 5_000 });
+    await expect(box).toBeChecked({ checked, timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
 }
