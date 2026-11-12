@@ -13,6 +13,7 @@ import { OrderList } from "./OrderList";
 import { saveCustomerDetails } from "@/app/account/actions";
 import { historyStatuses, serviceActiveStatuses, trackingStatuses } from "@/lib/commerce/order-state";
 import { LinkPending } from "@/components/ui/LinkPending";
+import { HomeCarePlan } from "./HomeCarePlan";
 
 const views = [["overview", "Genel Bakış"], ["upcoming", "Yaklaşan Randevular"], ["active", "Aktif Hizmetler"], ["history", "Geçmiş Hizmetler"], ["favorites", "Favori Ustalarım"], ["reviews", "Yorumlarım"], ["addresses", "Adreslerim"], ["payments", "Ödeme Yöntemleri"], ["settings", "Hesabım"], ["support", "Destek"]];
 export type CustomerHubParams = { view?: string; page?: string; result?: string };
@@ -39,6 +40,7 @@ export async function CustomerHub({ params }: { params: CustomerHubParams }) {
     {view === "overview" && <nav className="customer-quick-grid" aria-label="Hızlı işlemler">{quick.map(([href, label, Icon]) => <Link href={href} key={href}><Icon aria-hidden size={22} /><span>{label}</span></Link>)}</nav>}
     {fresh && <section className="commerce-panel customer-start" aria-labelledby="customer-start-title"><h2 id="customer-start-title">Henüz bir siparişin yok.</h2><p className="commerce-help">Online satın alma henüz açılmadı. Açıldığında randevuların ve siparişlerin burada görünür. O zamana kadar hazırlık yapabilirsin:</p><ol><li><Link href="/services">Hizmetlerin kapsamını incele</Link></li><li><Link href="/account?view=addresses">Adresini şimdiden kaydet</Link></li>{launchInterestOpen && <li><Link href="/waitlist">Açılıştan haberdar ol</Link></li>}</ol></section>}
     {view === "overview" && !fresh && <><div className="fusion-metric-grid"><article><CalendarDays aria-hidden size={22} /><span>Aktif hizmet</span><strong>{unavailable ? "—" : upcoming.count ?? 0}</strong></article><article><ShoppingBag aria-hidden size={22} /><span>Tamamlanan hizmet</span><strong>{unavailable ? "—" : completed.count ?? 0}</strong></article></div>{unavailable && <p role="alert" className="commerce-notice">Sipariş bilgilerine şu anda ulaşılamıyor.</p>}{!unavailable && <CustomerSpotlight upcoming={nextAppointment?.data ?? null} active={activeOrder?.data ?? null} now={new Date().getTime()} />}<div className="fusion-section-heading"><h2>Takip ettiğin siparişler</h2><Link className="commerce-button" href="/services">Yeni Hizmet Seç</Link></div></>}
+    {view === "overview" && <HomeCarePlan />}
     {["overview", "upcoming", "active", "history"].includes(view) && !fresh && <CustomerOrders userId={user.id} history={view === "history"} page={page} view={view} />}
     {view === "addresses" && <CustomerAddresses userId={user.id} />}
     {view === "reviews" && <CustomerReviews userId={user.id} page={page} />}

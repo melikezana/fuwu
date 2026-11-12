@@ -10,6 +10,7 @@ import {
   FileText,
   LayoutDashboard,
   LifeBuoy,
+  LineChart,
   MessageCircle,
   Power,
   PowerOff,
@@ -44,6 +45,7 @@ type AdminNavKey =
   | "interest"
   | "health"
   | "setup"
+  | "investor"
   | "support";
 
 type IconComponent = ComponentType<{
@@ -172,8 +174,8 @@ const allAdminNavItems: Array<{
   },
 ];
 
-const primaryAdminKeys = ["setup", "dashboard", "applications", "providers", "catalog", "support", "interest", "verifications", "health", "audit"];
-const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }, { href: "/admin/setup", icon: ClipboardList, key: "setup" as const, label: "Kurulum Durumu" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
+const primaryAdminKeys = ["setup", "dashboard", "applications", "providers", "catalog", "support", "interest", "verifications", "health", "audit", "investor"];
+const adminNavItems = [...allAdminNavItems, { href: "/admin/interest", icon: Users, key: "interest" as const, label: "Müşteri İlgisi" }, { href: "/admin/marketplace?view=health", icon: ShieldAlert, key: "health" as const, label: "Sistem Sağlığı" }, { href: "/admin/setup", icon: ClipboardList, key: "setup" as const, label: "Kurulum Durumu" }, { href: "/admin/investor", icon: LineChart, key: "investor" as const, label: "Yatırımcı Görünümü" }].sort((a,b) => { const x = primaryAdminKeys.indexOf(a.key), y = primaryAdminKeys.indexOf(b.key); return (x < 0 ? 100 : x) - (y < 0 ? 100 : y); });
 export const adminQuickNavItems = adminNavItems.filter(item => ["marketplace", "providers", "applications", "catalog"].includes(item.key));
 
 export const adminActionIcons = {

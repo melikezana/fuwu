@@ -76,7 +76,7 @@ export function loadTestEnvironment(root = process.cwd()) {
   const keep=new Set(["NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","SUPABASE_SERVICE_ROLE_KEY","E2E_ALLOW_REMOTE_SUPABASE_TESTS","E2E_MAILPIT_URL"]);
   for(const source of protectedEnvs) for(const key of Object.keys(source)) if(!keep.has(key) && !key.startsWith("E2E_")) env[key]="";
   // Explicit blanks prevent Next's env loader from falling back to .env.local.
-  for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY", "IYZICO_API_KEY", "IYZICO_SECRET_KEY", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "SENTRY_AUTH_TOKEN", "OPENAI_API_KEY", "NETGSM_USERCODE", "NETGSM_PASSWORD"]) {
+  for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY", "IYZICO_API_KEY", "IYZICO_SECRET_KEY", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "SENTRY_AUTH_TOKEN", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "NETGSM_USERCODE", "NETGSM_PASSWORD"]) {
     env[key] = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"].includes(key) ? env[key] || "" : "";
   }
   env.IYZICO_BASE_URL = "https://sandbox-api.iyzipay.com";

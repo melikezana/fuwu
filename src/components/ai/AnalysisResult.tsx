@@ -1,31 +1,23 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, RotateCcw, Search, ShieldCheck, Upload } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardCheck, Copy, RotateCcw, Search, ShieldCheck, Upload } from "lucide-react";
+import { useState } from "react";
 import type { AssistantAnalysis } from "@/lib/ai/assistant-schema";
+import { assistantCategoryLabels, type JobBrief } from "@/lib/ai/job-brief";
 import { cn } from "@/lib/utils";
 
 type AnalysisResultProps = {
   analysis: AssistantAnalysis;
   hasProviders: boolean;
+  jobBrief?: JobBrief | null;
+  onAnswerFollowUp?: (question: string) => void;
   onAskMore: () => void;
   onEmailSupport: () => void;
   onFindProviders: () => void;
   onNewPhoto: () => void;
 };
 
-const categoryLabels: Record<AssistantAnalysis["category"], string> = {
-  cleaning: "Temizlik",
-  electric: "Elektrik",
-  furniture: "Mobilya Montajı",
-  locksmith: "Çilingir",
-  moving: "Nakliye",
-  painting: "Boya Badana",
-  plumbing: "Tesisat",
-  pool_garden: "Havuz ve Bahçe Bakımı",
-  renovation: "Ev Tadilatı",
-  unknown: "Netleştirilecek",
-  white_goods: "Beyaz Eşya",
-};
+const categoryLabels = assistantCategoryLabels;
 
 const urgencyStyles: Record<
   AssistantAnalysis["urgency"],
@@ -72,6 +64,8 @@ function ResultList({ items }: { items: string[] }) {
 export function AnalysisResult({
   analysis,
   hasProviders,
+  jobBrief,
+  onAnswerFollowUp,
   onAskMore,
   onEmailSupport,
   onFindProviders,
@@ -79,6 +73,17 @@ export function AnalysisResult({
 }: AnalysisResultProps) {
   const urgency = urgencyStyles[analysis.urgency];
   const confidenceLabel = `${Math.round(analysis.confidence * 100)}%`;
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+
+  async function copyBrief() {
+    if (!jobBrief) return;
+    try {
+      await navigator.clipboard.writeText(jobBrief.text);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  }
   const shouldShowProviderCta =
     analysis.professionalNeeded &&
     analysis.providerSearchRecommended &&
@@ -156,11 +161,56 @@ export function AnalysisResult({
           <p className="text-sm font-extrabold text-[var(--brand-navy)]">Kısa takip soruları</p>
           <ul className="mt-2 grid gap-2">
             {analysis.followUpQuestions.map((question) => (
-              <li className="text-sm font-semibold leading-6 text-[var(--muted)]" key={question}>
-                {question}
+              <li key={question}>
+                {onAnswerFollowUp ? (
+                  <button
+                    className="inline-flex min-h-11 w-full cursor-pointer items-center rounded-2xl border border-[rgba(10,37,64,0.1)] bg-[var(--surface-soft)] px-3 py-2 text-left text-sm font-semibold leading-6 text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-orange)] hover:bg-[var(--brand-orange-soft)]"
+                    onClick={() => onAnswerFollowUp(question)}
+                    type="button"
+                  >
+                    {question}
+                  </button>
+                ) : (
+                  <span className="text-sm font-semibold leading-6 text-[var(--muted)]">{question}</span>
+                )}
               </li>
             ))}
           </ul>
+        </div>
+      ) : null}
+
+      {jobBrief ? (
+        <div className="rounded-3xl border border-[rgba(10,37,64,0.1)] bg-[var(--surface-soft)] p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-2 text-sm font-extrabold text-[var(--brand-navy)]">
+                <ClipboardCheck aria-hidden className="size-4 text-[var(--trust-green)]" />
+                Ustaya gidecek iş özeti
+              </p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
+                Anlattıklarını ustanın tek bakışta anlayacağı şekilde derledim. Aynı şeyi tekrar anlatmana gerek kalmaz.
+              </p>
+            </div>
+            <button
+              className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-xs font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
+              onClick={copyBrief}
+              type="button"
+            >
+              <Copy aria-hidden className="size-3.5" />
+              {copyState === "copied" ? "Kopyalandı" : "Kopyala"}
+            </button>
+          </div>
+          <dl className="mt-3 grid gap-2">
+            {jobBrief.lines.map((line) => (
+              <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-2 text-sm" key={line.label}>
+                <dt className="font-bold text-[var(--muted)]">{line.label}</dt>
+                <dd className="font-semibold leading-6 text-[var(--brand-navy)]">{line.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p aria-live="polite" className="mt-2 text-xs font-bold text-[var(--muted)]">
+            {copyState === "failed" ? "Kopyalanamadı. Metni seçip elle kopyalayabilirsin." : ""}
+          </p>
         </div>
       ) : null}
 

@@ -1,13 +1,15 @@
 "use client";
 
-import { Bot, Loader2, Mail, RotateCcw, Send, Sparkles, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Bot, Loader2, Mail, Mic, RotateCcw, Send, Sparkles, Square, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AssistantAnalysis,
   AssistantAnalyzeResponse,
   RecommendedProvider,
 } from "@/lib/ai/assistant-schema";
 import { serviceCategories } from "@/lib/constants/services";
+import { buildJobBrief } from "@/lib/ai/job-brief";
+import { useSpeechDictation } from "@/lib/hooks/useSpeechDictation";
 import { cn } from "@/lib/utils";
 import { AnalysisResult } from "./AnalysisResult";
 import { ImageUploader, type AssistantImageFile } from "./ImageUploader";
@@ -108,7 +110,13 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [analysisContext, setAnalysisContext] = useState<{ district: string; hasPhoto: boolean }>({ district: "", hasPhoto: false });
   const resultRef = useRef<HTMLDivElement | null>(null);
+  const messageRef = useRef<HTMLTextAreaElement | null>(null);
+  const appendDictation = useCallback((text: string) => {
+    setMessage((current) => `${current}${current && !/\s$/.test(current) ? " " : ""}${text}`.slice(0, 2000));
+  }, []);
+  const dictation = useSpeechDictation(appendDictation);
   const uploadButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -132,6 +140,25 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
     ].join("\n");
   }, [analysis]);
 
+  // Ustanın tek bakışta anlayacağı iş özeti; müşterinin kendi cümlelerinden ve değerlendirmeden derlenir.
+  const jobBrief = useMemo(
+    () =>
+      analysis
+        ? buildJobBrief({
+            analysis,
+            customerMessages: history.filter((item) => item.role === "user").map((item) => item.content),
+            district: analysisContext.district,
+            hasPhoto: analysisContext.hasPhoto,
+          })
+        : null,
+    [analysis, analysisContext, history],
+  );
+
+  function answerFollowUp(question: string) {
+    setMessage((current) => (current.trim() ? current : `${question} `));
+    messageRef.current?.focus();
+  }
+
   function setImage(nextImage: AssistantImageFile | null) {
     setImageState((currentImage) => {
       if (currentImage?.previewUrl && currentImage.previewUrl !== nextImage?.previewUrl) {
@@ -154,6 +181,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
     setDegraded(false);
     setConversationId(null);
     setImageReference(null);
+    setAnalysisContext({ district: "", hasPhoto: false });
     setError(null);
     setProgress(null);
   }
@@ -196,6 +224,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
       setDegraded(Boolean(response.degraded));
       setConversationId(response.conversationId ?? conversationId);
       setImageReference(response.imageReference);
+      setAnalysisContext((current) => ({ district: district.trim(), hasPhoto: current.hasPhoto || Boolean(image) }));
       setHistory((currentHistory) =>
         [
           ...currentHistory,
@@ -340,10 +369,12 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
               <AnalysisResult
                 analysis={analysis}
                 hasProviders={providers.length > 0 || services.length > 0}
-                onAskMore={() => setMessage("")}
+                jobBrief={jobBrief}
+                onAnswerFollowUp={answerFollowUp}
+                onAskMore={() => { setMessage(""); messageRef.current?.focus(); }}
                 onEmailSupport={() =>
                   onEmailRequest({
-                    analysisSummary: assistantSummary,
+                    analysisSummary: jobBrief ? `${assistantSummary}\n\n${jobBrief.text}` : assistantSummary,
                     imageReference,
                   })
                 }
@@ -354,7 +385,10 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
                 }}
               />
             ) : null}
-            <RecommendedProviders providers={providers} />
+            <RecommendedProviders
+              context={analysis ? { category: analysis.category, district: analysisContext.district, urgency: analysis.urgency } : null}
+              providers={providers}
+            />
             <RecommendedServices services={services} />
           </div>
         </div>
@@ -373,10 +407,15 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
           id="fuwuAssistantMessage"
           maxLength={2000}
           onChange={(event) => setMessage(event.target.value)}
-          placeholder="Sorunu birkaç cümleyle anlat..."
+          placeholder={dictation.listening ? "Dinliyorum, sorunu anlat..." : "Sorunu birkaç cümleyle anlat..."}
+          ref={messageRef}
           value={message}
         />
-        <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+        {dictation.error ? (
+          <p className="text-xs font-bold leading-5 text-red-700" role="alert">{dictation.error}</p>
+        ) : null}
+        <span aria-live="polite" className="sr-only">{dictation.listening ? "Mikrofon açık, dinleniyor." : ""}</span>
+        <div className={cn("grid gap-2", dictation.supported ? "grid-cols-[1fr_auto_auto_auto]" : "grid-cols-[1fr_auto_auto]")}>
           <button
             className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-sm font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
             onClick={resetConversation}
@@ -385,6 +424,24 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
             <RotateCcw aria-hidden className="size-4" />
             Yeni konuşma
           </button>
+          {dictation.supported ? (
+            <button
+              aria-label={dictation.listening ? "Sesle yazmayı durdur" : "Sorunu sesle anlat"}
+              aria-pressed={dictation.listening}
+              className={cn(
+                "inline-flex min-h-[52px] min-w-[52px] cursor-pointer items-center justify-center rounded-2xl border transition-colors disabled:opacity-60",
+                dictation.listening
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-[rgba(10,37,64,0.12)] bg-white text-[var(--brand-navy)] hover:bg-[var(--brand-orange-soft)]",
+              )}
+              disabled={isSubmitting}
+              onClick={dictation.listening ? dictation.stop : dictation.start}
+              title={dictation.listening ? "Durdur" : "Sesle anlat"}
+              type="button"
+            >
+              {dictation.listening ? <Square aria-hidden className="size-5" /> : <Mic aria-hidden className="size-5" />}
+            </button>
+          ) : null}
           <button
             className="inline-flex min-h-[52px] min-w-[52px] cursor-pointer items-center justify-center rounded-2xl bg-[var(--brand-navy)] text-white transition-colors hover:bg-[var(--brand-navy-deep)]"
             onClick={() =>

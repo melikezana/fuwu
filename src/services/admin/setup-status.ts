@@ -62,9 +62,10 @@ export function environmentChecks(env: Env): SetupCheck[] {
 
   add({ id: "live-payment", title: "Gerçek ödeme", status: "info", detail: "Gerçek para tahsilatı için iyzico pazaryeri sözleşmesi, alt üye işyeri onayı ve canlı anahtarlar gerekir. Şu an yalnızca test ödemesi var." });
 
-  add(has(env, "OPENAI_API_KEY")
-    ? { id: "ai", title: "Yapay zekâ destek asistanı", status: "ok", detail: "Açık." }
-    : { id: "ai", title: "Yapay zekâ destek asistanı", status: "info", detail: "Kapalı. İsteğe bağlı.", action: "Kullanmak istersen OPENAI_API_KEY ekle." });
+  const aiReady = (has(env, "ANTHROPIC_API_KEY") && has(env, "ANTHROPIC_MODEL")) || (has(env, "OPENAI_API_KEY") && has(env, "OPENAI_VISION_MODEL"));
+  add(aiReady
+    ? { id: "ai", title: "Yapay zekâ destek asistanı", status: "ok", detail: "Açık. Sağlayıcıya ulaşılamazsa kural tabanlı hızlı değerlendirme devreye girer." }
+    : { id: "ai", title: "Yapay zekâ destek asistanı", status: "info", detail: "Yapay zekâ kapalı; asistan kural tabanlı hızlı değerlendirmeyle çalışıyor. İsteğe bağlı.", action: "Kullanmak istersen bir sağlayıcının anahtarını ve modelini birlikte ekle: ANTHROPIC_API_KEY + ANTHROPIC_MODEL ya da OPENAI_API_KEY + OPENAI_VISION_MODEL." });
 
   add(has(env, "NEXT_PUBLIC_GA_MEASUREMENT_ID") || has(env, "NEXT_PUBLIC_META_PIXEL_ID")
     ? { id: "analytics", title: "Ziyaretçi ölçümü", status: "ok", detail: "Analitik etiketi tanımlı." }

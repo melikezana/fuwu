@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getServerAuthContext } from "@/services/auth/server";
 import { checkRateLimitWithRedis } from "@/lib/security/rateLimitRedis";
 import { uploadTrustDocument } from "@/services/trust/documents";
+import { draftProviderDescription, PROFILE_DRAFT_NOTES_MAX } from "@/lib/ai/profile-draft";
 type Result = { ok: boolean; message: string };
 export async function savePartnerProfile(_: Result, form: FormData): Promise<Result> {
  try {
@@ -21,6 +22,25 @@ export async function savePartnerProfile(_: Result, form: FormData): Promise<Res
  return { ok: true, message: "Profilin kaydedildi. Yayın için yeniden incelenecek." };
  } catch {
   return { ok: false, message: "Profil sonucu doğrulanamadı. Bilgilerini kontrol edip yeniden dene." };
+ }
+}
+export type PartnerDraftResult = { ok: boolean; message: string; description?: string };
+/** Ustanın kısa notlarından hizmet açıklaması taslağı üretir. Hiçbir şey kaydetmez; yalnızca metin döner. */
+export async function draftPartnerDescription(notes: string): Promise<PartnerDraftResult> {
+ try {
+ const { supabase, user } = await getServerAuthContext();
+ if (!supabase || !user) return { ok: false, message: "Taslak için giriş yap." };
+ const text = typeof notes === "string" ? notes.trim() : "";
+ if (text.length < 10 || text.length > PROFILE_DRAFT_NOTES_MAX) return { ok: false, message: `Kendini ve yaptığın işleri 10–${PROFILE_DRAFT_NOTES_MAX} karakterle anlat.` };
+ const { data: p } = await supabase.from("providers").select("name, service_categories(name), districts(name)").eq("user_id", user.id).maybeSingle();
+ if (!p) return { ok: false, message: "Usta profilin bulunamadı." };
+ const rate = await checkRateLimitWithRedis({ action: "partner:profile-draft", limit: 6, windowMs: 3600000, supabase, userId: user.id });
+ if (!rate.allowed) return { ok: false, message: "Saatlik taslak sınırına ulaştın. Daha sonra tekrar dene ya da açıklamanı kendin yaz." };
+ const related = (value: unknown) => { const row = Array.isArray(value) ? value[0] : value; return row && typeof row === "object" && typeof (row as { name?: unknown }).name === "string" ? (row as { name: string }).name : ""; };
+ const draft = await draftProviderDescription({ name: typeof p.name === "string" ? p.name : "", category: related(p.service_categories), district: related(p.districts), notes: text });
+ return { ok: true, description: draft.description, message: draft.source === "ai" ? "Taslak hazır. Okuyup düzelt; doğru olmayan bir şey varsa çıkar, sonra kaydet." : "Yapay zekâya şu an ulaşılamadı; notlarından sade bir taslak hazırladım. Düzenleyip kaydedebilirsin." };
+ } catch {
+  return { ok: false, message: "Taslak hazırlanamadı. Açıklamanı kendin yazabilirsin." };
  }
 }
 export async function attachPartnerDocument(_: Result, form: FormData): Promise<Result> {

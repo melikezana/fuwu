@@ -1,10 +1,12 @@
 "use client";
 
 import { ArrowRight, BadgeCheck, CalendarCheck, Clock3, MapPin, Star } from "lucide-react";
-import type { RecommendedProvider } from "@/lib/ai/assistant-schema";
+import type { AssistantAnalysis, AssistantCategory, RecommendedProvider } from "@/lib/ai/assistant-schema";
+import { explainProviderMatch } from "@/lib/ai/job-brief";
 import { cn } from "@/lib/utils";
 
 type RecommendedProvidersProps = {
+  context?: { category: AssistantCategory; district?: string | null; urgency?: AssistantAnalysis["urgency"] } | null;
   providers: RecommendedProvider[];
 };
 
@@ -26,7 +28,7 @@ function formatRating(provider: RecommendedProvider) {
   return provider.rating.toFixed(1);
 }
 
-export function RecommendedProviders({ providers }: RecommendedProvidersProps) {
+export function RecommendedProviders({ context, providers }: RecommendedProvidersProps) {
   if (providers.length === 0) {
     return null;
   }
@@ -42,7 +44,10 @@ export function RecommendedProviders({ providers }: RecommendedProvidersProps) {
         </p>
       </div>
       <div className="grid gap-3">
-        {providers.slice(0, 3).map((provider) => (
+        {providers.slice(0, 3).map((provider) => {
+          const reasons = context ? explainProviderMatch(provider, context) : [];
+
+          return (
           <article
             className="rounded-3xl border border-[rgba(10,37,64,0.1)] bg-white p-3 shadow-[var(--shadow-subtle)]"
             key={provider.id}
@@ -107,6 +112,19 @@ export function RecommendedProviders({ providers }: RecommendedProvidersProps) {
                 ) : null}
               </div>
             </div>
+            {reasons.length > 0 ? (
+              <div className="mt-3 rounded-2xl bg-[var(--surface-soft)] px-3 py-2">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--muted)]">Neden bu usta?</p>
+                <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                  {reasons.map((reason) => (
+                    <li className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--brand-navy)]" key={reason}>
+                      <BadgeCheck aria-hidden className="size-3.5 text-[var(--trust-green)]" />
+                      {reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <a
                 className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-sm font-bold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
@@ -126,7 +144,8 @@ export function RecommendedProviders({ providers }: RecommendedProvidersProps) {
               </a>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
