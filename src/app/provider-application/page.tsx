@@ -19,6 +19,7 @@ import {
   type ProviderDashboardApplication,
 } from "@/services/providers/dashboard";
 import { getProviderApplicationFormOptions } from "@/services/providers/applications";
+import { isAuthSmsConfigured } from "@/lib/sms/availability";
 
 export const dynamic = "force-dynamic";
 
@@ -149,6 +150,7 @@ export default async function ProviderApplicationPage() {
     getProviderDashboardAccess(),
   ]);
   const application = providerAccess.application;
+  const smsAvailable = isAuthSmsConfigured();
   const shouldShowExistingApplication =
     application?.status === PROVIDER_APPLICATION_STATUSES.pending ||
     application?.status === PROVIDER_APPLICATION_STATUSES.approved ||
@@ -168,6 +170,7 @@ export default async function ProviderApplicationPage() {
               districts={formOptions.districts}
               isConfigured={formOptions.isConfigured}
               lookupError={formOptions.error}
+              smsAvailable={smsAvailable}
             />
           </div>
         ) : shouldShowExistingApplication && application ? (
@@ -189,6 +192,7 @@ export default async function ProviderApplicationPage() {
               districts={formOptions.districts}
               isConfigured={formOptions.isConfigured}
               lookupError={formOptions.error}
+              smsAvailable={smsAvailable}
             />
           </div>
         )}

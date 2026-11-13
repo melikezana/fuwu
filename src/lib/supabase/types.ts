@@ -362,6 +362,7 @@ export type Database = {
           verification_document_url: string | null;
           privacy_notice_version: string | null;
           privacy_notice_acknowledged_at: string | null;
+          phone_verified_on_submit: boolean | null;
           status: "pending" | "approved" | "rejected";
           created_at: string;
           updated_at: string;
@@ -385,6 +386,7 @@ export type Database = {
           verification_document_url?: string | null;
           privacy_notice_version?: string | null;
           privacy_notice_acknowledged_at?: string | null;
+          phone_verified_on_submit?: boolean | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
@@ -408,6 +410,7 @@ export type Database = {
           verification_document_url?: string | null;
           privacy_notice_version?: string | null;
           privacy_notice_acknowledged_at?: string | null;
+          phone_verified_on_submit?: boolean | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;

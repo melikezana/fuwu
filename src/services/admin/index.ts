@@ -143,6 +143,7 @@ type AdminProviderApplicationRecord = Pick<
   | "full_name"
   | "id"
   | "phone"
+  | "phone_verified_on_submit"
   | "profile_image_url"
   | "status"
   | "introduction"
@@ -279,6 +280,8 @@ export type AdminProviderApplication = {
   fullName: string;
   id: string;
   phone: string;
+  /** false: SMS doğrulaması yapılmadan alındı, admin arayıp doğrulamalı. null: eski kayıt. */
+  phoneVerified: boolean | null;
   status: string;
   verificationDocumentUrl: string | null;
   documentIssue: DocumentIssue;
@@ -2369,6 +2372,7 @@ export async function getAdminProviderApplications(
         id,
         full_name,
         phone,
+        phone_verified_on_submit,
         experience_years,
         introduction,
         verification_document_path,
@@ -2409,6 +2413,7 @@ export async function getAdminProviderApplications(
           fullName: sanitizeText(application.full_name, 120),
           id: application.id,
           phone: sanitizePhone(application.phone) || "Belirtilmedi",
+          phoneVerified: typeof application.phone_verified_on_submit === "boolean" ? application.phone_verified_on_submit : null,
           status: application.status,
           verificationDocumentUrl: null,
           documentIssue: summaries.error ? trustReadIssue(summaries.error) : legacyDocumentIssue(application.verification_document_path, application.verification_document_url),
