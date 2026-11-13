@@ -47,6 +47,13 @@ function getOrderNotificationHref(notification: NotificationRecord) {
     : null;
 }
 
+// Bildirimdeki iç bağlantı (ör. yeni usta başvurusu → admin başvuru dosyası). Yalnızca site içi yollar açılır.
+function getMetadataHref(notification: NotificationRecord) {
+  const metadata = notification.metadata;
+  const url = metadata && typeof metadata === "object" && !Array.isArray(metadata) ? (metadata as Record<string, unknown>).url : null;
+  return typeof url === "string" && /^\/(admin|account|provider-dashboard|orders)(\/[A-Za-z0-9/_-]*)?$/.test(url) ? url : null;
+}
+
 function isProviderRequestNotification(notification: NotificationRecord) {
   const providerRequestEvents = [
     "emergency_request_dispatched",
@@ -217,7 +224,7 @@ export function NotificationBell({
 
   async function handleNotificationRead(notification: NotificationRecord) {
     const shouldOpenProviderRequests = isProviderRequestNotification(notification);
-    const orderHref = getOrderNotificationHref(notification);
+    const orderHref = getOrderNotificationHref(notification) ?? getMetadataHref(notification);
 
     if (supabase && !notification.is_read) {
       setNotifications((currentNotifications) =>

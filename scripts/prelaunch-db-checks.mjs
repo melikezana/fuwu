@@ -130,5 +130,19 @@ export async function prelaunchChecks(db,checks){
     const ack=(await db.query('select privacy_notice_acknowledged_at from provider_applications where user_id=$1',[applicant])).rows[0].privacy_notice_acknowledged_at;
     assert.ok(Date.now()-new Date(ack).getTime()<60_000,'acknowledgement time comes from the database clock, not the client');
     checks.push('Provider application: end users cannot apply without the current privacy notice acknowledgement; acknowledgement time set server-side');
+    // 14 Kasım 2026 · Zil bildirimleri gerçek olaylardan üretilir.
+    const note=async(recipient,event)=>Number(await scalar('select count(*) from notifications where recipient_user_id=$1 and event=$2',[recipient,event]));
+    assert.equal(await note(applicant,'provider_application_submitted'),1);
+    assert.equal(await note(admin,'admin_new_provider_application'),1);
+    assert.match(await scalar("select body from notifications where recipient_user_id=$1 and event='admin_new_provider_application'",[admin]),/TEST With Notice/);
+    assert.equal(await note(admin,'admin_new_launch_interest'),2,'one admin notification per new request (first and v2-first), not per update');
+    assert.equal(Number(await scalar("select count(*) from notifications where event='admin_new_launch_interest' and body like '%@%'")),0,'no e-mail address in admin notifications');
+    await as('anon');
+    await db.query("insert into support_messages(subject,email,message) values('TEST destek konusu','TEST-support@example.invalid','TEST gizli mesaj gövdesi')");
+    await db.query('reset role');
+    assert.equal(await note(admin,'admin_new_support_message'),1);
+    assert.equal(Number(await scalar("select count(*) from notifications where body like '%gizli mesaj%' or body like '%TEST-support@%'")),0,'support body and e-mail stay out of notifications');
+    assert.equal(Number(await scalar("select count(*) from notifications where recipient_user_id=$1 and event like 'admin_%'",[applicant])),0,'non-admins never receive admin notifications');
+    checks.push('Notifications: application notifies applicant and admins; new launch request and support message notify admins only, without e-mail or message body');
   }finally{await db.query('reset role');await db.query('rollback');await db.query("select set_config('request.jwt.claim.sub','',false)");}
 }
