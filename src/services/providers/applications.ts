@@ -9,7 +9,7 @@ import {
   isSupabaseServerConfigured,
 } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
-import { validateProviderApplicationInput, sanitizePhone } from "@/lib/validations";
+import { validateProviderApplicationInput } from "@/lib/validations";
 import { ensureProfileForUser } from "@/services/auth/profiles";
 import { writeAuditLog } from "@/services/audit";
 import { notifyProviderApplicationSubmitted } from "@/services/notifications";
@@ -248,9 +248,9 @@ async function getRequiredProviderApplicationUserId(
     });
   }
 
-  if (!user.phone_confirmed_at || sanitizePhone(user.phone || "") !== sanitizePhone(profileDetails.phone)) {
-    throw new ValidationError("Verified phone required.", { publicMessage: "Başvurudaki telefon numarasını önce SMS ile doğrula." });
-  }
+  // SMS doğrulaması burada şart koşulmaz: SMS kurulu değilken hiçbir usta başvuramıyordu. Veritabanı tetikleyicisi
+  // (guard_application_phone) telefonun doğrulanıp doğrulanmadığını başvuruya yazar, başka hesapta doğrulanmış numarayı
+  // ve sabit hattı reddeder; doğrulanmamış başvuruyu admin arayarak doğrular.
 
   try {
     await ensureProfileForUser(supabase, user, {

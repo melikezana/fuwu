@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Camera, Clock3, LifeBuoy, Mail, MessageCircle } from "lucide-react";
+import { Camera, Clock3, LifeBuoy, Mail } from "lucide-react";
 import { ContactForm } from "@/components/support/ContactForm";
 import { appRoutes } from "@/lib/constants/navigation";
 import { customerServiceContact } from "@/lib/constants/contact";
@@ -36,7 +36,6 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           <h2 id="contact-channels-title">Diğer kanallar</h2>
           <ul className="grid gap-4">
             <li><a className="commerce-secondary" href={`mailto:${customerServiceContact.email}`}><Mail aria-hidden size={18} /> {customerServiceContact.email}</a></li>
-            <li><a className="commerce-secondary" href={customerServiceContact.whatsappHref} rel="noopener noreferrer" target="_blank"><MessageCircle aria-hidden size={18} /> WhatsApp ile yaz</a></li>
             <li><a className="commerce-secondary" href={customerServiceContact.instagramHref} rel="noopener noreferrer" target="_blank"><Camera aria-hidden size={18} /> @{customerServiceContact.instagramHandle}</a></li>
           </ul>
           <p className="commerce-help mt-4 flex items-center gap-2"><Clock3 aria-hidden size={16} /> Mesajlarını sırayla okuyor, en kısa sürede dönüyoruz.</p>

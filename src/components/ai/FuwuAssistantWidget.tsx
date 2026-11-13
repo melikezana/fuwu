@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bot, HelpCircle, LifeBuoy, Mail, MessageCircle, Send, Sparkles, X } from "lucide-react";
-import { customerServiceContact } from "@/lib/constants/contact";
+import { Bot, HelpCircle, LifeBuoy, Mail, Send, Sparkles, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -270,15 +269,14 @@ export function FuwuAssistantWidget() {
                   E-posta Gönder
                 </button>
                 <div className="grid grid-cols-2 gap-2">
-                  <a
+                  <Link
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-xs font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
-                    href={customerServiceContact.whatsappHref}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                    href="/iletisim"
+                    onClick={closeWidget}
                   >
-                    <MessageCircle aria-hidden className="size-4" />
-                    WhatsApp
-                  </a>
+                    <LifeBuoy aria-hidden className="size-4" />
+                    Destek formu
+                  </Link>
                   <Link
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-3 text-xs font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
                     href="/sss"
