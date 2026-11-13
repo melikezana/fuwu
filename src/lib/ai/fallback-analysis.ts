@@ -68,8 +68,20 @@ const issueByCategory: Record<AssistantCategory, string> = {
   unknown: "Sorunun türü net değil",
 };
 
+// Kategoriler arasında geçen genel sözcükler (su, leke, koltuk, duvar) yerine
+// açıkça belirtilen işin amacına öncelik ver. Aciliyet ayrı kontrol edilir.
+function detectExplicitServiceIntent(haystack: string): AssistantCategory | null {
+  if (/\bklima\w*/.test(haystack) && /(damlat|su |sizint|bakim|kacir)/.test(haystack)) return "white_goods";
+  if (/\b(televizyon\w*|tv)\b/.test(haystack) && /(duvar\w*|montaj)/.test(haystack) && /(as\w*|montaj|tak\w*)/.test(haystack)) return "furniture";
+  if (/\b(koltuk|kanepe|mobilya)\w*/.test(haystack) && /(baska adrese|nakli\w*|tasit\w*|tasiy\w*|tasima\b)/.test(haystack)) return "moving";
+  if (/\b(tavan|duvar)\w*/.test(haystack) && /(boya|badana)/.test(haystack) && /(dokul\w*|nem|rotus|boyat\w*)/.test(haystack)) return "painting";
+  return null;
+}
+
 export function detectCategory(text: string): AssistantCategory {
   const haystack = normalize(text);
+  const explicitIntent = detectExplicitServiceIntent(haystack);
+  if (explicitIntent) return explicitIntent;
   let best: AssistantCategory = "unknown";
   let bestScore = 0;
   for (const [category, keywords] of categoryKeywords) {
