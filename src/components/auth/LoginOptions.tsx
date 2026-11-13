@@ -41,12 +41,13 @@ function getAuthRedirectUrl() {
   return `${window.location.origin}${authRedirectPath}?${params.toString()}`;
 }
 
-export function LoginOptions() {
+export function LoginOptions({ phoneLogin = true }: { phoneLogin?: boolean }) {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const searchParams = useSearchParams();
   // Usta başvurusundan gelen bağlantılar ?method=phone taşır: ustalar çoğunlukla telefonla giriş yapar.
-  const prefersPhone = searchParams.get("method") === "phone";
+  // SMS kurulu değilken telefon sekmesi gösterilmez: kod gitmeyeceği için kullanıcı çıkmaza girerdi.
+  const prefersPhone = phoneLogin && searchParams.get("method") === "phone";
   const [method, setMethod] = useState<"email" | "phone">(prefersPhone ? "phone" : "email");
   const [feedbackKey, setFeedbackKey] = useState<TranslationKey | null>(
     isSupabaseAuthConfigured ? null : "login.status.unavailable",
@@ -280,7 +281,7 @@ export function LoginOptions() {
       <div className="login-divider" role="separator"><span>veya</span></div>
 
       <div aria-label="Giriş yöntemi" className="login-tabs" role="tablist">
-        {([["email", "E-posta", Mail], ["phone", "Telefon", Phone]] as const).map(([key, label, Icon]) => (
+        {([["email", "E-posta", Mail], ...(phoneLogin ? [["phone", "Telefon", Phone]] as const : [])] as const).map(([key, label, Icon]) => (
           <button
             aria-selected={method === key}
             className="login-tab"

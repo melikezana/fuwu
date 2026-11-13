@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { setCheckboxReliably } from "./helpers";
 
 test.describe("auth-required form restoration", () => {
   test("guest account return retains selected view", async ({ page }) => {
@@ -24,6 +25,9 @@ test.describe("auth-required form restoration", () => {
     await expect(form.getByRole('combobox',{name:'Hizmet kategorisi',exact:true})).not.toHaveValue("");
     await expect(form.getByRole('combobox',{name:'Çalışma ilçesi',exact:true})).not.toHaveValue("");
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
+    // Giriş yapmamış aday formun nasıl gönderileceğini önceden görür.
+    await expect(page.getByTestId('provider-application-guest-note')).toBeVisible();
+    await setCheckboxReliably(form.getByRole('checkbox',{name:'Başvuru aydınlatma metnini okudum, bilgi edindim.',exact:true}),true);
     await form.getByRole('button',{name:'Başvurumu gönder',exact:true}).click();
 
     await expect(page).toHaveURL(/\/login\?method=phone&next=\/provider-application&restore=1/);

@@ -35,6 +35,8 @@ export const SETTING_DEFS: SettingDef[] = [
   { default: "", key: "launch_migration_evidence", label: "Staging migration · tarihli test kanıtı", type: "text" },
   { default: "", key: "launch_security_blockers", label: "Açık güvenlik / test engelleri", type: "text" },
   { default: "false", key: "launch_interest_enabled", label: "Açılış kaydı · KVKK ve operasyon hazırlığı tamamlandı", type: "boolean" },
+  // 6563 s. Kanun: onay alındı e-postası (24 saat) ve İYS kaydı (3 iş günü) hazır olmadan açılmamalı; kapalıyken veritabanı onayı reddeder.
+  { default: "false", key: "launch_marketing_email_enabled", label: "Ön kayıtta e-posta onayı · İYS kaydı ve onay bildirim e-postası hazır", type: "boolean" },
 ];
 
 const KNOWN_KEYS = new Set(SETTING_DEFS.map((definition) => definition.key));

@@ -20,7 +20,7 @@ const groups: FaqGroup[] = [
     title: "Hizmet ve satın alma",
     items: [
       { q: "FUWU nasıl çalışır?", a: <>Hizmetini seçersin, kapsamını ve fiyatını görürsün, ustanın takviminden sana uyan saati alırsın. Adımlar <Link href={appRoutes.howItWorks}>Nasıl Çalışır</Link> bölümünde.</> },
-      { q: "Ne zaman satın alabilirim?", a: <>Online satın alma açılış aşamasında. <Link href={appRoutes.waitlist}>Açılış bilgilendirmesine</Link> kaydolursan ilçende hizmet açıldığında ilk sen haberdar olursun.</> },
+      { q: "Ne zaman satın alabilirim?", a: <>Online satın alma açılış aşamasında. <Link href={appRoutes.waitlist}>Bölgene talep bırakırsan</Link> ilk ustaları önce talep olan ilçelere davet ederiz.</> },
       { q: "Fiyatın içinde neler var?", a: "Hizmet sayfasında yazan kapsam ve ustanın işçiliği. Kapsam dışı bir iş gerekirse usta önce sana sorar; onayın olmadan ek ücret çıkmaz." },
       { q: "Hangi ilçelerde hizmet var?", a: <>İstanbul ilçelerinde. <Link href={appRoutes.services}>Hizmetler</Link> sayfasında ilçeni seçerek o bölgede çalışan ustaları görebilirsin.</> },
     ],

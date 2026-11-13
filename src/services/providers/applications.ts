@@ -66,6 +66,7 @@ const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "profile_image_url",
   "verification_document_path",
   "verification_document_url",
+  "privacy_notice_version",
   "status",
 ];
 
@@ -104,7 +105,21 @@ function logProviderApplicationSupabaseError(context: string, error: unknown) {
   console.error(`[FUWU] ${context}`, getSupabaseDebugPayload(error));
 }
 
+// Veritabanı kurallarının (tetikleyiciler) reddini ustanın anlayacağı, ne yapacağını söyleyen mesaja çevirir.
+const applicationRuleMessages: Record<string, string> = {
+  phone_belongs_to_other_account: "Bu numara başka bir FUWU hesabında doğrulanmış. O hesapla giriş yap ya da destek ekibine yaz.",
+  mobile_phone_required: "05XX XXX XX XX biçiminde bir cep telefonu numarası gir.",
+  privacy_notice_required: "Başvuru aydınlatma metnini okuduğunu işaretle.",
+};
+
+function applicationRuleMessage(error: unknown) {
+  const message = typeof error === "object" && error !== null ? String((error as SupabaseErrorRecord).message ?? "") : "";
+  return Object.hasOwn(applicationRuleMessages, message) ? applicationRuleMessages[message] : null;
+}
+
 function createProviderApplicationFailure(error: unknown) {
+  const ruleMessage = applicationRuleMessage(error);
+  if (ruleMessage) return new ValidationError("Provider application rejected by database rule.", { publicMessage: ruleMessage });
   return handleServiceError(error, {
     logContext: "Provider application Supabase write failed.",
     publicMessage: hasSupabaseErrorCode(error, "23505")
@@ -274,6 +289,8 @@ function buildProviderApplicationInsert(
     verification_document_url: normalizeOptionalText(
       data.verificationDocumentUrl ?? "",
     ),
+    // Beyan zamanı veritabanı tetikleyicisinde sunucu saatiyle yazılır; istemci zamanı kabul edilmez.
+    privacy_notice_version: data.privacyNoticeVersion || null,
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 }

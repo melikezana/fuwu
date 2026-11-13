@@ -602,6 +602,22 @@
    "guard": "session",
    "search_path": "\"\"",
    "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
+  },
+  {
+   "function": "save_launch_interest_v2(uuid,uuid,text,boolean,boolean,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği; aydınlatma beyanı ve isteğe bağlı e-posta onayı ayrı, sürümlü."
+  },
+  {
+   "function": "withdraw_launch_marketing_consent()",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile yalnızca çağıranın e-posta onayını geri çeker."
   }
  ]
 }

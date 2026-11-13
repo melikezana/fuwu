@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { ProviderApplicationForm } from "@/components/providers/ProviderApplicationForm";
 import { appRoutes } from "@/lib/constants/navigation";
-import { authAccessMessages } from "@/services/auth/constants";
 import {
   PROVIDER_APPLICATION_STATUSES,
   type ProviderApplicationStatus,
@@ -20,6 +19,7 @@ import {
   type ProviderDashboardApplication,
 } from "@/services/providers/dashboard";
 import { getProviderApplicationFormOptions } from "@/services/providers/applications";
+import { isAuthSmsConfigured } from "@/lib/sms/availability";
 
 export const dynamic = "force-dynamic";
 
@@ -104,32 +104,6 @@ function ProviderApplicationStatusCard({
   );
 }
 
-function ProviderApplicationLoginRequiredCard() {
-  const loginHref = `${appRoutes.login}?method=phone&next=${encodeURIComponent(appRoutes.providerApplication)}`;
-
-  return (
-    <Card className="min-w-0">
-      <p className="text-sm font-medium uppercase tracking-normal text-[var(--brand-orange-dark)]">
-        Giriş gerekli
-      </p>
-      <h2 className="mt-3 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
-        {authAccessMessages.loginRequired}
-      </h2>
-      <p className="mt-4 text-base font-semibold leading-7 text-[var(--muted)]">
-        Başvurun hesabına kaydedilir. Cep telefonunla, Google veya e-posta hesabınla birkaç saniyede giriş yaparsın; şifre yok.
-      </p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button className="w-full sm:w-fit" href={loginHref}>
-          Giriş Yap
-        </Button>
-        <Button className="w-full sm:w-fit" href={appRoutes.providers} variant="secondary">
-          Ustaları Gör
-        </Button>
-      </div>
-    </Card>
-  );
-}
-
 function ActiveProviderCard() {
   return (
     <Card className="min-w-0">
@@ -176,6 +150,7 @@ export default async function ProviderApplicationPage() {
     getProviderDashboardAccess(),
   ]);
   const application = providerAccess.application;
+  const smsAvailable = isAuthSmsConfigured();
   const shouldShowExistingApplication =
     application?.status === PROVIDER_APPLICATION_STATUSES.pending ||
     application?.status === PROVIDER_APPLICATION_STATUSES.approved ||
@@ -189,13 +164,13 @@ export default async function ProviderApplicationPage() {
           <div className="market-application-intro"><p className="market-eyebrow">İLK ADIMI AT</p><h2>İşini tanıyalım.</h2><p>Başvurunu tamamla, durumunu hesabından takip et.</p><ol className="market-join-steps"><li><span>01</span><div><strong>Başvurunu oluştur</strong><p>Uzmanlığını ve hizmet bölgeni paylaş.</p></div></li><li><span>02</span><div><strong>İncelemeyi takip et</strong><p>Başvurunun durumunu hesabından izle.</p></div></li><li><span>03</span><div><strong>Profilini tamamla</strong><p>Onaydan sonra hizmet paketini ve takvimini hazırla.</p></div></li></ol></div>
         {!providerAccess.ok && providerAccess.reason === "missing-session" ? (
           <div className="grid gap-5">
-            <ProviderApplicationLoginRequiredCard />
             <ProviderApplicationForm
               authenticatedUserId={null}
               categories={formOptions.categories}
               districts={formOptions.districts}
               isConfigured={formOptions.isConfigured}
               lookupError={formOptions.error}
+              smsAvailable={smsAvailable}
             />
           </div>
         ) : shouldShowExistingApplication && application ? (
@@ -217,6 +192,7 @@ export default async function ProviderApplicationPage() {
               districts={formOptions.districts}
               isConfigured={formOptions.isConfigured}
               lookupError={formOptions.error}
+              smsAvailable={smsAvailable}
             />
           </div>
         )}

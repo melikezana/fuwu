@@ -23,7 +23,16 @@ export async function trustChecks(db, checks) {
  await fails('select trust_admin_queue()',[],/forbidden/);
  await fails("insert into payments(request_id,payment_method,status) values(gen_random_uuid(),'cash','confirmed')",[],/online_purchase_closed/);
  await fails("insert into provider_document_uploads(path,owner_id,mime,size_bytes,sha256,scan_status) values('spoof',$1,'application/pdf',12,repeat('a',64),'clean')",[other],/permission denied/);
- await fails("insert into provider_applications(user_id,full_name,phone,category_id,district_id) values($1,'TEST Unverified','+905550001112',$2,$3)",[other,cat,district],/verified_phone_required/);
+ // SMS kurulu değilken başvuru alınır ama doğrulanmadığı işaretlenir; başkasının doğrulanmış numarası ve sabit hat reddedilir.
+ const notice="aydinlatma-usta-2026-11-13";
+ await fails("insert into provider_applications(user_id,full_name,phone,category_id,district_id,privacy_notice_version) values($1,'TEST Borrowed Number','+905550001111',$2,$3,$4)",[other,cat,district,notice],/phone_belongs_to_other_account/);
+ await fails("insert into provider_applications(user_id,full_name,phone,category_id,district_id,privacy_notice_version) values($1,'TEST Landline','+902125550000',$2,$3,$4)",[other,cat,district,notice],/mobile_phone_required/);
+ await db.query('begin');
+ try {
+  const unverified=(await db.query("insert into provider_applications(user_id,full_name,phone,category_id,district_id,privacy_notice_version,phone_verified_on_submit) values($1,'TEST Unverified','+905550001112',$2,$3,$4,true) returning phone_verified_on_submit,status",[other,cat,district,notice])).rows[0];
+  assert.deepEqual(unverified,{phone_verified_on_submit:false,status:'pending'});
+ } finally { await db.query('rollback'); }
+ checks.push('Trust: application with an unverified phone is accepted only as pending and flagged; borrowed verified numbers and landlines refused; client cannot claim verification');
  await as('authenticated',owner);
  await fails('select trust_attach_document($1,$2,\'identity\')',[app,owner+'/provider-applications/missing.pdf'],/forbidden/);
  await fails('update providers set identity_verified=true where id=$1',[pid],/forbidden|protected|permission|row-level/);
