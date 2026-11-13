@@ -41,12 +41,12 @@ export const serviceCategories = [
   {
     id: "electrical",
     category: "Onarım",
-    title: "Elektrik",
+    title: "Elektrik Hizmeti",
     description:
       "Priz, aydınlatma, sigorta ve arıza tespitinde güvenilir elektrik ustalarını gör.",
     iconName: "bolt",
     slug: "elektrik-hizmeti",
-    aliases: ["Elektrik Hizmeti"],
+    aliases: ["Elektrik"],
     startingHint: "Usta Bul",
     href: createProviderCategoryHref("elektrik-hizmeti"),
   },
@@ -87,12 +87,12 @@ export const serviceCategories = [
   {
     id: "climate-appliance-service",
     category: "Teknik Servis",
-    title: "Beyaz Eşya",
+    title: "Klima & Beyaz Eşya",
     description:
       "Klima, buzdolabı, çamaşır ve bulaşık makinesi için teknik servis.",
     iconName: "air-conditioner",
     slug: "klima-beyaz-esya",
-    aliases: ["Klima", "Klima & Beyaz Eşya", "Klima ve Beyaz Eşya", "klima"],
+    aliases: ["Beyaz Eşya", "Klima", "Klima ve Beyaz Eşya", "klima"],
     startingHint: "Usta Bul",
     href: createProviderCategoryHref("klima-beyaz-esya"),
   },
@@ -110,24 +110,24 @@ export const serviceCategories = [
   {
     id: "furniture-assembly",
     category: "Montaj",
-    title: "Mobilya Montajı",
+    title: "Mobilya Montaj",
     description:
       "Dolap, yatak, masa ve raf montajında deneyimli ustalara hemen ulaş.",
     iconName: "furniture-tool",
     slug: "mobilya-montaj",
-    aliases: ["Mobilya Montaj"],
+    aliases: ["Mobilya Montajı"],
     startingHint: "Usta Bul",
     href: createProviderCategoryHref("mobilya-montaj"),
   },
   {
     id: "moving-help",
     category: "Taşıma",
-    title: "Nakliye",
+    title: "Nakliye Yardımı",
     description:
       "Koli taşıma, küçük eşya nakli ve apartman içi taşıma desteği için usta bul.",
     iconName: "truck",
     slug: "nakliye-yardimi",
-    aliases: ["Nakliye Yardımı"],
+    aliases: ["Nakliye"],
     startingHint: "Usta Bul",
     href: createProviderCategoryHref("nakliye-yardimi"),
   },

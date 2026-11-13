@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { sortByTurkishName } from "@/lib/commerce/discovery-order";
 import { AuthError, DatabaseError, getPublicErrorMessage, handleServiceError, ValidationError } from "@/lib/errors";
 import { PROVIDER_APPLICATION_STATUSES } from "@/lib/constants/statuses";
 import { logInfo } from "@/lib/logger";
@@ -332,8 +333,8 @@ export async function getProviderApplicationFormOptions(): Promise<ProviderAppli
   }
 
   return {
-    categories: mapLookupOptions(categoriesResult.data ?? []),
-    districts: mapLookupOptions(districtsResult.data ?? []),
+    categories: mapLookupOptions(sortByTurkishName(categoriesResult.data ?? [])),
+    districts: mapLookupOptions(sortByTurkishName(districtsResult.data ?? [])),
     error: null,
     isConfigured: true,
   };

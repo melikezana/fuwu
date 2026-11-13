@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isRealPublishedProvider } from "@/lib/providers/provenance";
+import { sortCategories } from "@/lib/commerce/discovery-order";
 import {
   normalizeProviderAvailabilityStatus,
   type ProviderAvailabilityStatus,
@@ -757,8 +758,10 @@ function mergeLookupFilterOptions(
     availabilityOptions: providerOptions.availabilityOptions.length
       ? providerOptions.availabilityOptions
       : fallbackOptions.availabilityOptions,
-    categories: getOrderedCategoryOptions([...lookups.categories, ...fallbackOptions.categories]),
-    districts: lookups.districts,
+    // Veritabanı listesi okunduysa yalnızca o gösterilir: kodda olup veritabanında olmayan
+    // kategoriler (ör. "Ev Tadilatı") boş sonuç veren seçenek olarak çıkmasın.
+    categories: lookups.categories.length ? lookups.categories : fallbackOptions.categories,
+    districts: lookups.districts.length ? lookups.districts : fallbackOptions.districts,
   };
 }
 
@@ -828,15 +831,15 @@ async function fetchMatchingCategoryIds(
 async function fetchServiceCategoryFilterOptions(supabase: SupabaseClient<Database>) {
   const { data, error } = await supabase
     .from("service_categories")
-    .select("name")
-    .eq("is_active", true)
-    .order("name", { ascending: true });
+    .select("name, sort_order")
+    .eq("is_active", true);
 
   if (error) {
     throw error;
   }
 
-  return getOrderedCategoryOptions((data ?? []).map((record) => record.name));
+  // Adlar veritabanındaki haliyle kalır; ana sayfa, katalog ve ön kayıtla aynı sırada gösterilir.
+  return sortCategories(data ?? []).map((record) => record.name);
 }
 
 async function fetchDistrictFilterOptions(supabase: SupabaseClient<Database>) {

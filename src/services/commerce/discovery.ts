@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import type { CatalogCategory } from "@/lib/commerce/catalog-navigation";
+import { sortCategories, sortDistricts } from "@/lib/commerce/discovery-order";
 const readDiscovery = unstable_cache(async () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -22,8 +23,8 @@ const readDiscovery = unstable_cache(async () => {
     } catch { return false; }
   };
   const [categories, districts, launchInterestOpen] = await Promise.all([read("service_categories", "*"), read("districts", "id,name"), interest()]);
-  return { categories: categories as CatalogCategory[], districts: districts as { id: string; name: string }[], launchInterestOpen, unavailable: false };
-}, ["public-discovery-v2"], { revalidate: 60 });
+  return { categories: sortCategories(categories as CatalogCategory[]), districts: sortDistricts(districts as { id: string; name: string }[]), launchInterestOpen, unavailable: false };
+}, ["public-discovery-v3"], { revalidate: 60 });
 // Public discovery is identical for every visitor. Price, slots, publication and payments stay fresh.
 export async function getPublicDiscovery() {
   try { return await readDiscovery(); }

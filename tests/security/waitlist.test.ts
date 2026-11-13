@@ -6,6 +6,21 @@ const auth=vi.mocked(getServerAuthContext);
 const input={districtId:'',categoryId:'',consent:true,version:'prelaunch-2026-10-30',website:''};
 beforeEach(()=>{auth.mockReset();});
 describe('real interest persistence boundary',()=>{
+  it('does not crash or claim signup availability when the health RPC rejects',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockRejectedValue(new Error('network unavailable'))}));
+    auth.mockResolvedValue({user:{id:'test',email:'customer@example.com',email_confirmed_at:'2026-10-30'},supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    expect(await getWaitlistContext()).toEqual({available:false,email:'customer@example.com',authenticated:true});
+  });
+  it('does not enable signup when health returns an incompatible version',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockResolvedValue({data:{available:true,version:999},error:null})}));
+    auth.mockResolvedValue({user:null,supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    expect(await getWaitlistContext()).toEqual({available:false,email:'',authenticated:false});
+  });
+  it('enables signup only when the setting is on and the contract version matches',async()=>{
+    const rpc=vi.fn(()=>({abortSignal:vi.fn().mockResolvedValue({data:{available:true,version:1},error:null})}));
+    auth.mockResolvedValue({user:null,supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
+    expect(await getWaitlistContext()).toEqual({available:true,email:'',authenticated:false});
+  });
   it('keeps verified consent management available when health transport fails',async()=>{
     const rpc=vi.fn(()=>({abortSignal:vi.fn().mockRejectedValue(new Error('network unavailable'))}));
     auth.mockResolvedValue({user:{id:'test',email:'customer@example.invalid',email_confirmed_at:'2026-10-30'},supabase:{rpc}} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);

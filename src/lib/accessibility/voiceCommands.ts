@@ -90,12 +90,12 @@ const categoryAliases: Array<{ values: string[]; aliases: string[] }> = [
     aliases: ["temizlik ara", "temizlik", "temizlikçi", "temizlikci"],
   },
   {
-    values: ["Beyaz Eşya"],
+    values: ["Klima & Beyaz Eşya", "Beyaz Eşya"],
     aliases: ["klima", "beyaz eşya", "beyaz esya", "teknik servis"],
   },
-  { values: ["Mobilya Montajı"], aliases: ["mobilya", "montaj", "mobilya montaj"] },
+  { values: ["Mobilya Montaj", "Mobilya Montajı"], aliases: ["mobilya", "montaj", "mobilya montaj"] },
   { values: ["Boya Badana"], aliases: ["boya", "badana", "boyacı", "boyaci"] },
-  { values: ["Nakliye"], aliases: ["nakliye", "taşıma", "tasima"] },
+  { values: ["Nakliye Yardımı", "Nakliye"], aliases: ["nakliye", "taşıma", "tasima"] },
   {
     values: ["Havuz ve Bahçe Bakımı"],
     aliases: ["bahçe", "bahce", "havuz", "peyzaj", "dış mekân", "dis mekan"],
