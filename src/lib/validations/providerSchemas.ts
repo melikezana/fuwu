@@ -1,4 +1,5 @@
 import type { ProviderApplicationInput } from "@/types/provider";
+import { PROVIDER_APPLICATION_NOTICE_VERSION } from "@/lib/legal/notices";
 import {
   addRequiredTextIssue,
   commonValidationMessages,
@@ -23,6 +24,7 @@ export type ProviderApplicationField =
   | "introduction"
   | "phone"
   | "portfolioUrl"
+  | "privacyNotice"
   | "profileImagePath"
   | "profileImageUrl"
   | "verificationDocumentPath"
@@ -32,6 +34,7 @@ const requiredProviderFields: Array<{
   field: Exclude<
     ProviderApplicationField,
     | "portfolioUrl"
+    | "privacyNotice"
     | "profileImagePath"
     | "profileImageUrl"
     | "verificationDocumentPath"
@@ -58,6 +61,7 @@ export function validateProviderApplicationInput(
     introduction: sanitizeText(input.introduction, 1500),
     phone: sanitizePhone(input.phone),
     portfolioUrl: normalizeOptionalUrl(input.portfolioUrl),
+    privacyNoticeVersion: sanitizeText(input.privacyNoticeVersion ?? "", 80),
     profileImagePath: sanitizeText(input.profileImagePath ?? "", 500),
     profileImageUrl: normalizeOptionalUrl(input.profileImageUrl ?? ""),
     verificationDocumentPath: sanitizeText(
@@ -73,6 +77,14 @@ export function validateProviderApplicationInput(
   requiredProviderFields.forEach(({ field, message }) => {
     addRequiredTextIssue(issues, field, sanitizedData[field], message);
   });
+
+  // KVKK: aydınlatma metni işlemeden önce sunulur; okunduğu beyanı ve sürümü olmadan başvuru alınmaz.
+  if (sanitizedData.privacyNoticeVersion !== PROVIDER_APPLICATION_NOTICE_VERSION) {
+    issues.push({
+      field: "privacyNotice",
+      message: "Başvuru aydınlatma metnini okuduğunu işaretle.",
+    });
+  }
 
   if (sanitizedData.phone && !isValidPhone(sanitizedData.phone)) {
     issues.push({

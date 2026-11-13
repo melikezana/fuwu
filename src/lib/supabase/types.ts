@@ -319,6 +319,29 @@ export type Database = {
           },
         ];
       };
+      launch_interest: {
+        Row: {
+          id: string;
+          user_id: string;
+          email: string;
+          district_id: string | null;
+          category_id: string | null;
+          consent_version: string;
+          consent_at: string;
+          withdrawn_at: string | null;
+          notice_version: string | null;
+          notice_acknowledged_at: string | null;
+          marketing_email_consent: boolean;
+          marketing_consent_version: string | null;
+          marketing_consent_at: string | null;
+          marketing_withdrawn_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       provider_applications: {
         Row: {
           id: string;
@@ -337,6 +360,8 @@ export type Database = {
           profile_image_url: string | null;
           verification_document_path: string | null;
           verification_document_url: string | null;
+          privacy_notice_version: string | null;
+          privacy_notice_acknowledged_at: string | null;
           status: "pending" | "approved" | "rejected";
           created_at: string;
           updated_at: string;
@@ -358,6 +383,8 @@ export type Database = {
           profile_image_url?: string | null;
           verification_document_path?: string | null;
           verification_document_url?: string | null;
+          privacy_notice_version?: string | null;
+          privacy_notice_acknowledged_at?: string | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
@@ -379,6 +406,8 @@ export type Database = {
           profile_image_url?: string | null;
           verification_document_path?: string | null;
           verification_document_url?: string | null;
+          privacy_notice_version?: string | null;
+          privacy_notice_acknowledged_at?: string | null;
           status?: "pending" | "approved" | "rejected";
           created_at?: string;
           updated_at?: string;
@@ -1078,6 +1107,8 @@ export type Database = {
       launch_interest_health: { Args: Record<string, never>; Returns: Json };
       save_launch_interest: { Args: { p_district_id?: string | null; p_category_id?: string | null; p_consent: boolean; p_version: string }; Returns: string };
       withdraw_launch_interest: { Args: Record<string, never>; Returns: boolean };
+      save_launch_interest_v2: { Args: { p_district_id?: string | null; p_category_id?: string | null; p_notice_version: string; p_notice_acknowledged: boolean; p_marketing_email: boolean; p_marketing_version: string }; Returns: string };
+      withdraw_launch_marketing_consent: { Args: Record<string, never>; Returns: boolean };
       clear_legacy_announcement: { Args: { p_expected: string }; Returns: boolean };
       admin_control_snapshot: { Args: Record<string, never>; Returns: Json };
       admin_weekly_launch_metrics: { Args: { p_weeks?: number }; Returns: Json };

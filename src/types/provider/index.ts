@@ -92,6 +92,8 @@ export type ProviderApplicationInput = {
   introduction: string;
   phone: string;
   portfolioUrl: string;
+  /** Okunduğu beyan edilen usta başvurusu aydınlatma metninin sürümü. */
+  privacyNoticeVersion?: string;
   profileImagePath?: string;
   profileImageUrl?: string;
   verificationDocumentPath?: string;

@@ -24,7 +24,7 @@ export function HeroSection({ categories, districts, launchInterestOpen = false 
             <h1 className="home-hero-title" id="home-title">Evinin işi,<br /><span>FUWU&apos;nun işi.</span></h1>
             <p className="home-hero-description">{PRELAUNCH_COPY.heroDescription}</p>
             <HeroSearch categories={categories.map(category => category.title)} districts={districts} />
-            <p className="home-hero-stage">{PRELAUNCH_COPY.heroStage}{launchInterestOpen && <> <Link href="/waitlist">Açılıştan Haberdar Ol</Link></>}</p>
+            <p className="home-hero-stage">{PRELAUNCH_COPY.heroStage}{launchInterestOpen && <> <Link href="/waitlist">Bölgene Talep Bırak</Link></>}</p>
           </div>
           <figure className="home-photo-composition">
             {photos.map(({ id, title, className }, index) => {

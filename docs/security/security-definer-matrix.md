@@ -7,7 +7,7 @@
 - Tüm fonksiyonlarda sabit `search_path` vardır.
 - BOLA/IDOR: `scripts/bola-db-checks.mjs` yabancı bir oturumla her fonksiyonu kurbanın usta ve başvuru kimlikleriyle dener; veri dönen ya da kayıt değiştiren fonksiyon testi düşürür.
 
-Toplam: 75 fonksiyon · anonim çağrılabilir: 9 · oturumlu çağrılabilir: 75
+Toplam: 77 fonksiyon · anonim çağrılabilir: 9 · oturumlu çağrılabilir: 77
 
 | Fonksiyon | anon | authenticated | Koruma | Not |
 |---|---|---|---|---|
@@ -86,6 +86,8 @@ Toplam: 75 fonksiyon · anonim çağrılabilir: 9 · oturumlu çağrılabilir: 7
 | `trust_save_rule` | hayır | evet | Admin kontrolü | Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır. |
 | `trust_scope_change` | hayır | evet | Oturum + sahiplik | Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü. |
 | `withdraw_launch_interest` | hayır | evet | Oturum + sahiplik | Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü. |
+| `save_launch_interest_v2` | hayır | evet | Oturum + sahiplik | Aydınlatma beyanı ve isteğe bağlı e-posta onayı ayrı, sürümlü kaydedilir. |
+| `withdraw_launch_marketing_consent` | hayır | evet | Oturum + sahiplik | Yalnızca çağıranın e-posta onayını geri çeker. |
 
 ## Bu incelemede kaldırılan yetkiler
 

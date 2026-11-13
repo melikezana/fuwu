@@ -1,5 +1,15 @@
 import type { Metadata } from "next";
 import { PolicyPage, type PolicySection } from "@/app/_policy/PolicyPage";
+import { LAUNCH_INTEREST_NOTICE, LAUNCH_MARKETING_CONSENT, PROVIDER_APPLICATION_NOTICE, type LegalNotice } from "@/lib/legal/notices";
+
+// Formlarda açılan metinle birebir aynı içerik; sürüm satırı hangi metnin okunduğunu belgelemek içindir.
+function noticeSection(notice: LegalNotice): PolicySection {
+  return {
+    id: notice.id,
+    title: notice.title,
+    body: [...notice.sections.flatMap(section => section.body.map((paragraph, index) => index === 0 ? `${section.title}: ${paragraph}` : paragraph)), `Sürüm: ${notice.version} · Güncelleme: ${notice.updated}`],
+  };
+}
 
 export const metadata: Metadata = {
   title: "KVKK Aydınlatma Metni",
@@ -8,15 +18,13 @@ export const metadata: Metadata = {
 };
 
 const sections: PolicySection[] = [
+  noticeSection(LAUNCH_INTEREST_NOTICE),
   {
-    id: "launch-interest",
-    title: "Açılış bilgilendirmesi",
-    body: [
-      "Açılış bilgilendirmesine katılmayı seçersen doğrulanmış hesabındaki e-posta adresi, isteğe bağlı ilçe ve kategori tercihin ile izin tarihi ve metin sürümü kaydedilir. Bu bilgiler açılış haberini iletmek ve bölge/hizmet ilgisini toplu değerlendirmek amacıyla işlenir. Katılım isteğe bağlıdır; hizmetleri incelemek için izin vermen gerekmez.",
-      "İletişim iznini /waitlist sayfasında aynı hesapla giriş yaparak geri çekebilirsin. Geri çekilen kayıtlar bilgilendirme listesine ve aktif ilgi sayısına dahil edilmez. İzin geçmişi kötüye kullanımı önleme ve izni belgeleme amacıyla sınırlı erişimle tutulur. Pazarlama iletisi gönderimi için ayrıca gerekli operasyonel ve hukuki hazırlıkların tamamlanması gerekir.",
-      "Verilere yalnızca yetkili ekip ve teknik altyapı hizmet sağlayıcıları görevleri kapsamında erişebilir. Erişim, düzeltme ve silme taleplerini fuwuhizmet@gmail.com adresine iletebilirsin. Açılış bilgilendirme kaydı, veri sorumlusu ve saklama koşulları tamamlandıktan sonra açılır.",
-    ],
+    id: "marketing-consent",
+    title: LAUNCH_MARKETING_CONSENT.title,
+    body: [...LAUNCH_MARKETING_CONSENT.body, `Onay beyanı: "${LAUNCH_MARKETING_CONSENT.statement}" Sürüm: ${LAUNCH_MARKETING_CONSENT.version}.`],
   },
+  noticeSection(PROVIDER_APPLICATION_NOTICE),
   {
     title: "Veri sorumlusu ve kapsam",
     body: [
@@ -55,7 +63,7 @@ export default function KvkkPage() {
       sections={sections}
       title="KVKK Aydınlatma Metni"
       titleKey="policy.kvkk.title"
-      updatedAt="30 Ekim 2026"
+      updatedAt="13 Kasım 2026"
     />
   );
 }

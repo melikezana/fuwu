@@ -66,6 +66,7 @@ const providerApplicationInsertKeys: Array<keyof ProviderApplicationInsert> = [
   "profile_image_url",
   "verification_document_path",
   "verification_document_url",
+  "privacy_notice_version",
   "status",
 ];
 
@@ -274,6 +275,8 @@ function buildProviderApplicationInsert(
     verification_document_url: normalizeOptionalText(
       data.verificationDocumentUrl ?? "",
     ),
+    // Beyan zamanı veritabanı tetikleyicisinde sunucu saatiyle yazılır; istemci zamanı kabul edilmez.
+    privacy_notice_version: data.privacyNoticeVersion || null,
     status: PROVIDER_APPLICATION_STATUSES.pending,
   };
 }

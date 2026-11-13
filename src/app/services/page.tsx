@@ -25,9 +25,9 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
 
   return <div className="commerce-page catalog-page">
     <header className="commerce-page-header"><p className="commerce-eyebrow">HİZMET KATALOĞU{categoryName ? ` / ${categoryName}` : ""}</p><h1>{categoryName || "Evin için ne yapalım?"}</h1><p>{sellable ? "Hizmetini seç, ustanı ve saatini belirle." : PRELAUNCH_COPY.catalogLead}</p></header>
-    {!sellable && !catalog.unavailable && <p className="catalog-stage-notice" role="note"><strong>{PRELAUNCH_COPY.catalogStageTitle}</strong> {PRELAUNCH_COPY.catalogStage}{discovery.launchInterestOpen && <> <Link href="/waitlist">Açılıştan Haberdar Ol</Link></>}</p>}
+    {!sellable && !catalog.unavailable && <p className="catalog-stage-notice" role="note"><strong>{PRELAUNCH_COPY.catalogStageTitle}</strong> {PRELAUNCH_COPY.catalogStage}{discovery.launchInterestOpen && <> <Link href="/waitlist">Bölgene Talep Bırak</Link></>}</p>}
     <nav className="catalog-category-nav" aria-label="Hizmet kategorileri"><Link href={categoryHref()} aria-current={!requestedCategory ? "page" : undefined}>Tüm hizmetler</Link>{navigation.map(item => <Link key={item.slug} href={categoryHref(item.slug)} aria-current={categorySlug === item.slug ? "page" : undefined}>{item.title}</Link>)}</nav>
     <ServiceCatalog key={`${requestedCategory}|${params.q ?? ""}|${params.district ?? ""}`} category={categorySlug} categories={catalog.categories} services={services} offers={catalog.offers} unavailable={catalog.unavailable} initialSearch={params.q} district={params.district} districtId={params.district ? district?.id ?? "unknown-district" : ""} />
-    <p className="catalog-payment-note">Online satın alma henüz açılmadı.{discovery.launchInterestOpen && <> <Link href="/waitlist">Açılıştan haberdar ol</Link></>}</p>
+    <p className="catalog-payment-note">Online satın alma henüz açılmadı.{discovery.launchInterestOpen && <> <Link href="/waitlist">Bölgene talep bırak</Link></>}</p>
   </div>;
 }

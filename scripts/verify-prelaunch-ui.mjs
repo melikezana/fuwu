@@ -30,7 +30,8 @@ const api=http.createServer((req,res)=>{
   if((route.endsWith('/admin_prelaunch_snapshot')||route.endsWith('/admin_control_snapshot')))data={version:1,network:{applications:0,pending:0,unclassified:0,published:0,verified:0,stores:0,calendars:0},interest:0,pilot:districts.flatMap(d=>categories.slice(0,2).map(c=>({district_id:d.id,district:d.name,category_id:c.id,category:c.name,applications:0,published:0,verified:0,stores:0,calendars:0,interest:0}))),settings:{launch_company_status:'Şirketleşme bekleniyor',launch_payment_status:'Canlı ödeme kapalı'}};
   if(route.endsWith('/launch_interest_health'))data={version:1,available:false};
   if(route.endsWith('/withdraw_launch_interest'))data=true;
-  if(route.endsWith('/launch_interest')){res.statusCode=503;data={code:'42P01'};}
+  // Kayıt kapalıyken bile mevcut talebi olan kullanıcı talebini kaldırabilmeli.
+  if(route.endsWith('/launch_interest'))data={district_id:null,category_id:null,marketing_email_consent:false,withdrawn_at:null};
   res.end(JSON.stringify(data));
 });
 await new Promise(r=>api.listen(0,'127.0.0.1',r));
@@ -113,12 +114,12 @@ try{
     }
     report.checks.push('Readiness dashboard rendered using synthetic admin session and empty metrics; this is UI evidence, not hosted Auth/RLS proof');
     await page.goto(`${base}/waitlist`,{waitUntil:'domcontentloaded'});
-    const withdraw=page.getByRole('button',{name:'İletişim iznimi geri çek',exact:true});
+    const withdraw=page.getByRole('button',{name:'Talebimi kaldır',exact:true});
     await withdraw.waitFor();
     if(!await withdraw.isEnabled())throw new Error('withdrawal_disabled_when_signups_closed');
-    await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(button=>button.textContent==='İletişim iznimi geri çek'&&Object.keys(button).some(key=>key.startsWith('__reactProps')&&typeof button[key].onClick==='function')));
+    await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(button=>button.textContent==='Talebimi kaldır'&&Object.keys(button).some(key=>key.startsWith('__reactProps')&&typeof button[key].onClick==='function')));
     await withdraw.click();
-    await page.getByText('Açılış bilgilendirme iznin geri çekildi.',{exact:true}).waitFor();
+    await page.getByText('Talebin kaldırıldı; varsa e-posta onayın da sona erdi.',{exact:true}).waitFor();
     report.checks.push('Authenticated withdrawal remains available while new registrations are closed; actual Server Action exercised against local RPC fixture');
   }
   if(report.widths.some(row=>row.overflow))throw new Error('horizontal_overflow');

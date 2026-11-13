@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { confirmApplicationPhone, ensureTestUserRole, getTestAdminClient, loginWithEmailMagicLink, skipUnlessLocalSupabase, uniqueE2EEmail, uniqueE2EPhone } from "./helpers";
+import { confirmApplicationPhone, ensureTestUserRole, setCheckboxReliably, getTestAdminClient, loginWithEmailMagicLink, skipUnlessLocalSupabase, uniqueE2EEmail, uniqueE2EPhone } from "./helpers";
 
 test.describe("provider application flow", () => {
   test("authenticated user submits provider application", async ({ page }) => {
@@ -24,7 +24,11 @@ test.describe("provider application flow", () => {
     await confirmApplicationPhone(form);
     await expect(page.locator('input[name="experienceYears"]')).toHaveCount(0);
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
+    await setCheckboxReliably(form.getByRole('checkbox',{name:'Başvuru aydınlatma metnini okudum, bilgi edindim.',exact:true}),true);
     await form.getByRole("button", { name: "Başvurumu gönder", exact: true }).click();
     await expect.poll(async () => (await admin.from("provider_applications").select("id").eq("user_id", uid)).data?.length).toBe(1);
+    const saved = await admin.from("provider_applications").select("privacy_notice_version,privacy_notice_acknowledged_at").eq("user_id", uid).single();
+    expect(saved.data?.privacy_notice_version).toBe("aydinlatma-usta-2026-11-13");
+    expect(saved.data?.privacy_notice_acknowledged_at).not.toBeNull();
   });
 });

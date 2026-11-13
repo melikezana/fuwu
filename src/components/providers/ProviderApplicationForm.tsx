@@ -7,17 +7,20 @@ import { sanitizePhone } from "@/lib/validations/phone";
 import { useHydrated } from "@/lib/useHydrated";
 import { persistSessionFormDraft, useSessionFormDraft } from "@/lib/hooks/useSessionFormDraft";
 import type { ProviderApplicationOption } from "@/types/provider";
+import { LegalNoticeDisclosure } from "@/components/legal/LegalNoticeDisclosure";
+import { PROVIDER_APPLICATION_NOTICE } from "@/lib/legal/notices";
 export function ProviderApplicationForm({ authenticatedUserId, categories, districts, isConfigured, lookupError }: { authenticatedUserId?: string | null; categories: ProviderApplicationOption[]; districts: ProviderApplicationOption[]; isConfigured: boolean; lookupError?: string | null }) {
  const router = useRouter();
  const ready = useHydrated();
- const [draft, setDraft] = useState({ fullName: "", phone: "", categoryId: "", districtId: "" });
- const { fullName: name, phone, categoryId: category, districtId: district } = draft;
+ const [draft, setDraft] = useState({ fullName: "", phone: "", categoryId: "", districtId: "", noticeAcknowledged: false });
+ const { fullName: name, phone, categoryId: category, districtId: district, noticeAcknowledged } = draft;
  const draftKey = "fuwu:pending-provider-application";
  const clearDraft = useSessionFormDraft(draftKey, draft, setDraft);
  const setName = (value: string) => setDraft(current => ({ ...current, fullName: value }));
  const setPhone = (value: string) => setDraft(current => ({ ...current, phone: value }));
  const setCategory = (value: string) => setDraft(current => ({ ...current, categoryId: value }));
  const setDistrict = (value: string) => setDraft(current => ({ ...current, districtId: value }));
+ const setNoticeAcknowledged = (value: boolean) => setDraft(current => ({ ...current, noticeAcknowledged: value }));
  function loginWithDraft() {
   try { persistSessionFormDraft(draftKey, draft); } catch { /* Form remains usable without browser storage. */ }
   router.push("/login?method=phone&next=/provider-application&restore=1");
@@ -78,16 +81,18 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  }
  return <form method="post" aria-label="FUWU Partner başvurusu" data-testid="provider-application-form" className="commerce-panel trust-onboarding" onSubmit={async event => {
   event.preventDefault(); if (busy || done) return;
+  if (!noticeAcknowledged) { setMessage("Başvuru aydınlatma metnini okuduğunu işaretle."); return; }
   if (!authenticatedUserId) { loginWithDraft(); return; }
   if (!verified) { setMessage("Önce telefonunu doğrula."); return; }
   setBusy(true); setMessage("");
   try {
-   const result = await submitProviderApplicationAction({ fullName: name, phone: sanitizePhone(phone), categoryId: category, districtId: district, availability: "", experienceYears: "", hasEquipment: "", introduction: "", portfolioUrl: "", profileImagePath: "", profileImageUrl: "", verificationDocumentPath: "", verificationDocumentUrl: "" });
+   const result = await submitProviderApplicationAction({ fullName: name, phone: sanitizePhone(phone), categoryId: category, districtId: district, availability: "", experienceYears: "", hasEquipment: "", introduction: "", portfolioUrl: "", privacyNoticeVersion: PROVIDER_APPLICATION_NOTICE.version, profileImagePath: "", profileImageUrl: "", verificationDocumentPath: "", verificationDocumentUrl: "" });
    if (!result.ok) { setMessage(result.message); return; }
    clearDraft(); setDone(true); setMessage("Başvurun alındı. Onaylandığında SMS ile haber vereceğiz; ardından Usta Paneli'nden profilini, belgelerini ve hizmetlerini tamamlayacaksın."); router.refresh();
   } catch { setMessage("Başvuru gönderilemedi. Bilgilerini kontrol edip tekrar dene."); } finally { setBusy(false); }
  }}>
  <h2>FUWU Partner başvurusu</h2><p>Dört bilgiyle başla, iki dakika sürer. Belgeleri onaydan sonra, yayından önce yüklersin.</p>
+ {!authenticatedUserId && <p className="prelaunch-text" data-testid="provider-application-guest-note">Formu şimdi doldur. Gönderirken cep telefonunla giriş yapacaksın; yazdıkların kaybolmaz.</p>}
  {lookupError && <p className="commerce-error" role="alert">{lookupError}</p>}
  <label className="commerce-field">Ad soyad<input autoComplete="name" name="fullName" minLength={2} maxLength={120} required value={name} onChange={e => setName(e.target.value)} disabled={busy || done} /></label>
  <label className="commerce-field">Cep telefonu<input autoComplete="tel" inputMode="tel" name="phone" placeholder="05XX XXX XX XX" type="tel" required value={phone} onChange={e => { setPhone(e.target.value); setVerified(false); setSent(false); }} disabled={busy || done} /></label>
@@ -96,6 +101,10 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  {sent && !verified && <button className="commerce-text-link" type="button" onClick={() => void verifyPhone(true)} disabled={busy || done}>Kodu tekrar gönder</button>}
  <label className="commerce-field">Hizmet kategorisi<select name="categoryId" required value={category} onChange={e => setCategory(e.target.value)} disabled={busy || done}><option value="">Mesleğini seç</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
  <label className="commerce-field">Çalışma ilçesi<select name="districtId" required value={district} onChange={e => setDistrict(e.target.value)} disabled={busy || done}><option value="">İlçeni seç</option>{districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
+ <div className="legal-step">
+  <LegalNoticeDisclosure notice={PROVIDER_APPLICATION_NOTICE} summary="Başvurun için hangi verilerin, neden ve ne kadar süreyle işlendiğini anlatır. Bu bir onay değil, bilgilendirmedir." />
+  <label className="prelaunch-consent"><input type="checkbox" name="privacyNoticeAcknowledged" required checked={noticeAcknowledged} onChange={e => setNoticeAcknowledged(e.target.checked)} disabled={busy || done} /><span>Başvuru aydınlatma metnini okudum, bilgi edindim.</span></label>
+ </div>
  {message && <p className={done || verified ? "commerce-notice" : "commerce-error"} role={done || verified ? "status" : "alert"}>{message}</p>}
  <button className="commerce-button" type="submit" disabled={busy || done || !ready || !clearDraft.ready || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
  <p className="commerce-help">Belge yüklemek veya başvurmak yayın onayı değildir. Online satın alma henüz açılmadı.</p></form>;
