@@ -19,5 +19,28 @@ Sentry.init({
     queues: false,
     graphQL: { document: false, variables: false },
   },
+  // FUWU: minimum hata verisi
+  beforeBreadcrumb() {
+    return null;
+  },
+  beforeSend(event) {
+    const isTest =
+      event.message?.includes("FUWU_SENTRY_PREVIEW_TEST_NO_PII") ||
+      event.exception?.values?.some((item) =>
+        item.value?.includes("FUWU_SENTRY_PREVIEW_TEST_NO_PII")
+      );
+
+    if (isTest) return null;
+
+    // Kullanıcı, konum, istek ve gezinme verilerini çıkar.
+    event.user = undefined;
+    event.request = undefined;
+    event.breadcrumbs = [];
+    event.extra = undefined;
+    event.contexts = undefined;
+    event.tags = undefined;
+
+    return event;
+  },
   tracesSampleRate: 0,
 });
