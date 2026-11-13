@@ -12,6 +12,20 @@ describe("AI fallback analysis", () => {
     expect(detectCategory("merhaba")).toBe("unknown");
   });
 
+  it("prioritizes the requested service over overlapping generic keywords", () => {
+    expect(detectCategory("Klima içinden su damlatıyor bakım lazım")).toBe("white_goods");
+    expect(detectCategory("Tavanda nem lekesi var boya döküldü")).toBe("painting");
+    expect(detectCategory("Televizyonu duvara astırmak istiyorum")).toBe("furniture");
+    expect(detectCategory("Bir koltuk takımını başka adrese taşıtacağım")).toBe("moving");
+  });
+
+  it("does not confuse nearby cleaning or plumbing requests with those intents", () => {
+    expect(detectCategory("Koltuk yıkama hizmeti arıyorum")).toBe("cleaning");
+    expect(detectCategory("Taşınma sonrası boş ev temizliği")).toBe("cleaning");
+    expect(detectCategory("Banyo gideri tıkandı su gitmiyor")).toBe("plumbing");
+    expect(detectCategory("Klima soğutmuyor")).toBe("white_goods");
+  });
+
   it("always escalates emergencies and never recommends a booking for them", () => {
     expect(hasEmergencySignal("Evde DOĞALGAZ KOKUSU var")).toBe(true);
     const analysis = buildFallbackAnalysis({ message: "Banyoda su baskını oldu, prizlere yaklaşıyor" });
