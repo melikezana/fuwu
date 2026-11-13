@@ -1,4 +1,5 @@
 import { withCommerceApi } from "@/lib/commerce/api";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { NextResponse, type NextRequest } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isUuid } from "@/lib/utils/validation";
@@ -180,6 +181,8 @@ async function handlePOST(request: NextRequest) {
   if (!authContext.supabase || !authContext.user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  const limited = await commerceRateLimit(request, "payments.iyzico.checkout", 10, 60_000, authContext.user.id);
+  if (limited) return limited;
 
   if (!sandboxCheckoutEnabled()) return NextResponse.json({ error: "online_purchase_closed" }, { status: 503 });
   if (!authContext.profile) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
