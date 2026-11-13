@@ -4,6 +4,8 @@ import { Bell, Check, CheckCheck } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isProviderRequestNotification, notificationHref } from "@/lib/notifications/links";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   getNotificationsForUser,
@@ -38,34 +40,6 @@ function formatNotificationDate(value: string) {
 
 function getNotificationBody(notification: NotificationRecord) {
   return notification.body || notification.message;
-}
-
-// Sipariş bildirimine dokununca ilgili sipariş açılır (yeni randevu, tamamlama, iade, destek).
-function getOrderNotificationHref(notification: NotificationRecord) {
-  return notification.entity_type === "order" && notification.entity_id && /^[0-9a-f-]{36}$/i.test(notification.entity_id)
-    ? `/orders/${notification.entity_id}`
-    : null;
-}
-
-// Bildirimdeki iç bağlantı (ör. yeni usta başvurusu → admin başvuru dosyası). Yalnızca site içi yollar açılır.
-function getMetadataHref(notification: NotificationRecord) {
-  const metadata = notification.metadata;
-  const url = metadata && typeof metadata === "object" && !Array.isArray(metadata) ? (metadata as Record<string, unknown>).url : null;
-  return typeof url === "string" && /^\/(admin|account|provider-dashboard|orders)(\/[A-Za-z0-9/_-]*)?$/.test(url) ? url : null;
-}
-
-function isProviderRequestNotification(notification: NotificationRecord) {
-  const providerRequestEvents = [
-    "emergency_request_dispatched",
-    "emergency_request_reassigned_away",
-    "new_service_request_match",
-    "service_request_assigned",
-  ];
-
-  return (
-    providerRequestEvents.includes(notification.type) ||
-    providerRequestEvents.includes(notification.event)
-  );
 }
 
 export function NotificationBell({
@@ -223,8 +197,7 @@ export function NotificationBell({
   }, [isOpen]);
 
   async function handleNotificationRead(notification: NotificationRecord) {
-    const shouldOpenProviderRequests = isProviderRequestNotification(notification);
-    const orderHref = getOrderNotificationHref(notification) ?? getMetadataHref(notification);
+    const href = notificationHref(notification);
 
     if (supabase && !notification.is_read) {
       setNotifications((currentNotifications) =>
@@ -242,12 +215,9 @@ export function NotificationBell({
       }
     }
 
-    if (orderHref) {
+    if (href) {
       setIsOpen(false);
-      router.push(orderHref);
-    } else if (shouldOpenProviderRequests) {
-      setIsOpen(false);
-      router.push("/provider-dashboard/requests");
+      router.push(href);
     }
   }
 
@@ -374,6 +344,15 @@ export function NotificationBell({
                 })}
               </div>
             )}
+          </div>
+          <div className="border-t border-[var(--border)] px-4 py-3">
+            <Link
+              className="inline-flex min-h-9 items-center text-sm font-semibold text-[var(--brand-orange-dark)] underline-offset-4 hover:underline"
+              href="/account/notifications"
+              onClick={() => setIsOpen(false)}
+            >
+              Tüm bildirimleri gör
+            </Link>
           </div>
         </div>
       ) : null}
