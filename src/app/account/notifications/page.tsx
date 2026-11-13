@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Bell, Check, CircleDot, Info } from "lucide-react";
+import { Info } from "lucide-react";
+import { NotificationList } from "@/components/notifications/NotificationList";
+import { notificationHref } from "@/lib/notifications/links";
 import { FuwuLogo } from "@/components/brand/FuwuLogo";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -35,19 +37,6 @@ function getNotificationBody(notification: NotificationRecord) {
   return notification.body || notification.message || "Bildirim detayı hazırlanıyor.";
 }
 
-function getNotificationHref(notification: NotificationRecord) {
-  if (notification.entity_type === "order" && notification.entity_id) return `/orders/${notification.entity_id}`;
-  if (notification.request_id) {
-    return `${appRoutes.orderTracking}/${notification.request_id}`;
-  }
-
-  if (notification.entity_type === "provider_application") {
-    return appRoutes.accountApplications;
-  }
-
-  return appRoutes.account;
-}
-
 function NotificationsEmptyState() {
   return (
     <section
@@ -59,11 +48,12 @@ function NotificationsEmptyState() {
         Henüz bildirim yok.
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[var(--muted)]">
-        Sipariş durumu, doğrulama kodu ve hesap güncellemeleri burada görünecek.
+        Başvuru, sipariş ve hesap güncellemeleri burada görünecek. Yeni bir şey olduğunda üstteki zil de haber verir.
       </p>
-      <Button className="mt-5" href={appRoutes.catalog}>
-        Hizmet Satın Al
-      </Button>
+      <div className="mt-5 flex flex-wrap justify-center gap-3">
+        <Button href={appRoutes.account}>Hesabıma dön</Button>
+        <Button href="/services" variant="secondary">Hizmetleri Keşfet</Button>
+      </div>
     </section>
   );
 }
@@ -89,8 +79,8 @@ export default async function AccountNotificationsPage() {
           <Link href={appRoutes.home} aria-label="FUWU ana sayfasına git">
             <FuwuLogo size="sm" />
           </Link>
-          <Button href={appRoutes.accountRequests} variant="secondary">
-            Taleplerim
+          <Button href={appRoutes.account} variant="secondary">
+            Hesabım
           </Button>
         </Container>
       </header>
@@ -106,55 +96,22 @@ export default async function AccountNotificationsPage() {
               Bildirimler
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
-              Talep akışındaki önemli gelişmeleri buradan takip edebilirsin.
+              Başvuru, sipariş ve hesap gelişmelerini buradan takip et. Bir bildirime dokununca okundu sayılır ve ilgili sayfa açılır.
             </p>
-          </div>
-          <div className="flex w-fit items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-semibold text-[var(--muted)] ring-1 ring-[rgba(13,20,36,0.08)]">
-            <Bell className="size-4 text-[var(--brand-orange-dark)]" aria-hidden="true" />
-            {unreadCount} okunmamış
           </div>
         </div>
 
-        {notifications.length > 0 ? (
-          <section className="grid gap-3">
-            {notifications.map((notification) => {
-              const isUnread = !notification.is_read;
-              const Icon = isUnread ? CircleDot : Check;
-
-              return (
-                <Link
-                  className="rounded-lg border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-subtle)] transition-colors hover:border-[rgba(255,138,0,0.42)] hover:bg-[var(--brand-orange-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-                  href={getNotificationHref(notification)}
-                  key={notification.id}
-                >
-                  <article className="flex gap-3">
-                    <span className="mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--brand-orange-soft)] text-[var(--brand-orange-dark)]">
-                      <Icon className="size-5" aria-hidden="true" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <h2 className="text-sm font-bold leading-5 text-[var(--brand-navy)]">
-                          {notification.title || "FUWU bildirimi"}
-                        </h2>
-                        {isUnread ? (
-                          <span className="mt-1.5 size-2 shrink-0 rounded-full bg-[var(--brand-orange)]" />
-                        ) : null}
-                      </div>
-                      <p className="mt-1 text-sm font-semibold leading-6 text-[var(--muted)]">
-                        {getNotificationBody(notification)}
-                      </p>
-                      <p className="mt-2 text-xs font-bold uppercase text-[var(--brand-orange-dark)]">
-                        {formatNotificationDate(notification.created_at)}
-                      </p>
-                    </div>
-                  </article>
-                </Link>
-              );
-            })}
-          </section>
-        ) : (
-          <NotificationsEmptyState />
-        )}
+        <NotificationList
+          emptyState={<NotificationsEmptyState />}
+          items={notifications.map((notification) => ({
+            id: notification.id,
+            title: notification.title || "FUWU bildirimi",
+            body: getNotificationBody(notification),
+            dateLabel: formatNotificationDate(notification.created_at),
+            href: notificationHref(notification),
+            isUnread: !notification.is_read,
+          }))}
+        />
       </Container>
     </main>
   );
