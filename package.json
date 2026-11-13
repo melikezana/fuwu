@@ -55,7 +55,7 @@
     "test:pentest": "node scripts/security/pentest.mjs"
   },
   "dependencies": {
-    "@sentry/nextjs": "^10.59.0",
+    "@sentry/nextjs": "11.12.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.3",
     "@upstash/ratelimit": "^2.0.8",
