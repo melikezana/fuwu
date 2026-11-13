@@ -21,6 +21,7 @@ const localSupabaseConnectSources =
 const developmentEvalSource =
   process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
 const wasmEvalSource = " 'wasm-unsafe-eval'";
+const sentryConnectSources = process.env.NEXT_PUBLIC_SENTRY_DSN ? " https://*.ingest.sentry.io https://*.ingest.de.sentry.io" : "";
 const metaPixelConnectSources = " https://*.facebook.com https://*.facebook.net";
 const metaPixelImageSources = " https://*.facebook.com https://*.facebook.net";
 const metaPixelScriptSources = " https://connect.facebook.net";
@@ -46,7 +47,7 @@ export function createContentSecurityPolicyHeaderValue(nonce: string, requestOri
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
     `img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com${metaPixelImageSources}${localSupabaseHttpSources}`,
-    `connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co${metaPixelConnectSources}${localSupabaseConnectSources}`,
+    `connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co${metaPixelConnectSources}${sentryConnectSources}${localSupabaseConnectSources}`,
     "form-action 'self' https://*.supabase.co https://accounts.google.com",
     "frame-src 'self' https://*.supabase.co https://accounts.google.com",
     "frame-ancestors 'none'",
