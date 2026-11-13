@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { commerceRateLimit } from "@/lib/commerce/rate";
 import { assertSameOrigin, boundRequestBody, RequestBoundaryError } from "@/lib/security/requestBoundary";
 import { getServerAuthContext } from "@/services/auth/server";
 import { uploadTrustDocument } from "@/services/trust/documents";
@@ -9,6 +10,8 @@ export async function POST(request: NextRequest) {
   assertSameOrigin(request);
   const { user } = await getServerAuthContext();
   if (!user) return NextResponse.json({ message: "Giriş yap." }, { status: 401, headers });
+  // Belge yükleme pahalı bir işlem (5 MB, depolama + tarama kaydı): kullanıcı başına saatte 20 yükleme.
+  if (await commerceRateLimit(request, "provider-documents.upload", 20, 3_600_000, user.id)) return NextResponse.json({ message: "Çok fazla yükleme denemesi. Biraz bekleyip yeniden dene." }, { status: 429, headers });
   const bytes = await boundRequestBody(request, 5 * 1024 * 1024 + 65536);
   const form = await new Request(request.url, { method: "POST", headers: request.headers, body: bytes }).formData();
   const file = form.get("document");
