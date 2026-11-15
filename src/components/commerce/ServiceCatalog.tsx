@@ -53,7 +53,7 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
       <div className="catalog-desktop-filters"><CatalogFilters filter={filter} onFilter={setFilter} saleOnly={saleOnly} onSaleOnly={setSaleOnly} hasSellableOffers={availableOffers.length > 0} /></div>
       <div className="catalog-results-heading"><h2 aria-live="polite">{visible.length} hizmet{district ? ` · ${district}` : ""}</h2>{activeFilterCount > 0 && <button type="button" onClick={resetFilters}>Filtreleri temizle</button>}{availableOffers.length > 0 && <Link className="commerce-text-link" href="/orders">Siparişlerim <ArrowRight size={15} aria-hidden /></Link>}</div>
       <Dialog isOpen={filtersOpen} onClose={() => setFiltersOpen(false)} title="Hizmetleri filtrele" description="İhtiyacına uygun hizmet türünü seç.">
-        <CatalogFilters filter={filter} onFilter={setFilter} saleOnly={saleOnly} onSaleOnly={setSaleOnly} />
+        <CatalogFilters filter={filter} onFilter={setFilter} saleOnly={saleOnly} onSaleOnly={setSaleOnly} hasSellableOffers={availableOffers.length > 0} />
         <div className="catalog-sheet-actions"><button className="commerce-secondary" onClick={resetFilters} type="button">Temizle</button><button className="commerce-button" onClick={() => setFiltersOpen(false)} type="button">{visible.length} hizmeti göster <ArrowRight size={17} aria-hidden /></button></div>
       </Dialog>
     </>}
