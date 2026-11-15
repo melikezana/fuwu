@@ -39,3 +39,15 @@ export function getServicePhoto(...keys: (string | undefined | null)[]): Service
   }
   return null;
 }
+
+/**
+ * Prefer a service-specific licensed photo, then the service's own image URL,
+ * and only then the broader category photo. This prevents category imagery
+ * from silently overriding an accurate, service-specific catalog photo.
+ */
+export function resolveServicePhoto(keys: (string | undefined | null)[], src?: string | null): ServicePhotoDefinition | null {
+  const exact = getServicePhoto(keys[0]);
+  if (exact) return exact;
+  if (src?.trim()) return { src: src.trim(), alt: "Hizmeti tanıtan temsili fotoğraf", position: "50% 50%" };
+  return getServicePhoto(...keys.slice(1));
+}
