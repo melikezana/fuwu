@@ -252,6 +252,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
   }), getCommerceCatalog()]);
   const purchases = providerPurchaseLinks(catalog, selectedDistrict);
   const { filterOptions, providers: filteredProviders, source } = providerDirectory;
+  const noPublishedProviders = source === "supabase" && providerDirectory.totalCount === 0;
   const categoryDistrictEmptyState =
     selectedCategory && selectedDistrict && filteredProviders.length === 0
       ? {
@@ -285,7 +286,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       <section className="market-directory-header">
         <Container className="max-w-7xl">
           <nav aria-label="İçerik yolu" className="market-breadcrumb"><Link href={appRoutes.home}>Ana sayfa</Link><span>/</span><span>Usta Bul</span></nav>
-          <div className="market-directory-heading"><div><p className="market-eyebrow"><MapPin aria-hidden="true" className="size-4" />{selectedDistrict || "İstanbul"} · Ev hizmetleri</p><h1>Ustanı tanı. Kararını ver.</h1><p>Hizmeti ve fiyatı incele, sana uygun ustayı seç.</p></div><Link className="market-outline-link" href={appRoutes.services}>Hizmetleri Gör <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
+          <div className="market-directory-heading"><div><p className="market-eyebrow"><MapPin aria-hidden="true" className="size-4" />{selectedDistrict || "İstanbul"} · Ev hizmetleri</p><h1>{noPublishedProviders ? "Usta ağımızı hazırlıyoruz." : "Ustanı tanı. Kararını ver."}</h1><p>{noPublishedProviders ? "Ustalarımızın kimlik ve belge incelemeleri sürüyor. Bu sırada hizmetleri ve kapsamlarını inceleyebilirsin." : "Hizmeti ve fiyatı incele, sana uygun ustayı seç."}</p></div><Link className="market-outline-link" href={appRoutes.services}>Hizmetleri Gör <ArrowRight aria-hidden="true" className="size-4 shrink-0" /></Link></div>
           {source !== "supabase" ? <p className="market-data-notice" role="status">Usta listesi şu anda yüklenemiyor. Biraz sonra yeniden deneyebilir veya hizmet kataloğunu inceleyebilirsin.</p> : null}
         </Container>
       </section>
