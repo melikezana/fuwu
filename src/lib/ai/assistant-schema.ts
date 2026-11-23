@@ -1,3 +1,5 @@
+import { scrubAssistantText } from "@/lib/ai/guardrails";
+
 export const assistantCategories = [
   "electric",
   "plumbing",
@@ -146,10 +148,10 @@ function isAssistantUrgency(value: unknown): value is AssistantUrgency {
   return assistantUrgencies.includes(value as AssistantUrgency);
 }
 
+// Model çıktısı güvenilmez veridir: iletişim bilgisi, bağlantı, işaretleme ve görünmez
+// karakterler kullanıcıya ulaşmadan temizlenir (bkz. guardrails.ts).
 function normalizeText(value: unknown, maxLength: number) {
-  return typeof value === "string"
-    ? value.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, maxLength)
-    : "";
+  return typeof value === "string" ? scrubAssistantText(value).slice(0, maxLength).trim() : "";
 }
 
 function normalizeTextList(value: unknown, maxItems: number, maxLength: number) {

@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Bot, HelpCircle, LifeBuoy, Mail, Send, Sparkles, X } from "lucide-react";
+import { HelpCircle, LifeBuoy, Mail, Send, Sparkles, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FuwuAssistantPanel } from "./FuwuAssistantPanel";
+import { FuwiMascot } from "./FuwiMascot";
 
 type WidgetView = "menu" | "assistant" | "email";
 
@@ -23,7 +24,7 @@ function SupportEmailForm({
   onBack: () => void;
   onClose: () => void;
 }) {
-  const [subject, setSubject] = useState("FUWU Akıllı Asistan desteği");
+  const [subject, setSubject] = useState("Fuwi asistan desteği");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [analysisSummary, setAnalysisSummary] = useState(draft.analysisSummary ?? "");
@@ -121,7 +122,7 @@ function SupportEmailForm({
           <textarea
             className="premium-control min-h-24 resize-none rounded-[22px] px-4 py-3 text-sm font-semibold leading-6"
             onChange={(event) => setAnalysisSummary(event.target.value)}
-            placeholder="Akıllı Asistan sonucu buraya otomatik eklenir."
+            placeholder="Fuwi'nin değerlendirmesi buraya otomatik eklenir."
             value={analysisSummary}
           />
         </label>
@@ -162,6 +163,7 @@ export function FuwuAssistantWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<WidgetView>("menu");
   const [supportDraft, setSupportDraft] = useState<SupportDraft>({});
+  const [initialMessage, setInitialMessage] = useState("");
   const hasMobileContactBar = /^\/providers\/[^/]+/.test(pathname ?? "");
 
   useEffect(() => {
@@ -169,7 +171,11 @@ export function FuwuAssistantWidget() {
       setView("menu");
       setIsOpen(true);
     }
-    function openAssistant() {
+    function openAssistant(event: Event) {
+      // Arama kutusundan gelen metin asistana hazır yazılmış olarak aktarılır (gönderilmez).
+      const detail = (event as CustomEvent<{ message?: unknown } | null>).detail;
+      const text = typeof detail?.message === "string" ? detail.message.slice(0, 500) : "";
+      setInitialMessage(text);
       setView("assistant");
       setIsOpen(true);
     }
@@ -215,6 +221,8 @@ export function FuwuAssistantWidget() {
         {isOpen ? (
           view === "assistant" ? (
             <FuwuAssistantPanel
+              initialMessage={initialMessage}
+              key={initialMessage || "assistant"}
               onClose={closeWidget}
               onEmailRequest={(draft) => openEmail(draft)}
             />
@@ -226,20 +234,18 @@ export function FuwuAssistantWidget() {
               onClose={closeWidget}
             />
           ) : (
-            <section className="mb-3 w-[min(calc(100vw-2rem),370px)] rounded-[24px] border border-[rgba(10,37,64,0.1)] bg-white p-4 shadow-[0_24px_70px_rgba(10,37,64,0.18)]">
+            <section aria-label="Fuwi ve destek" className="mb-3 w-[min(calc(100vw-2rem),370px)] rounded-[24px] border border-[rgba(10,37,64,0.1)] bg-white p-4 shadow-[0_24px_70px_rgba(10,37,64,0.18)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-navy)] text-white">
-                      <Bot aria-hidden className="size-5" />
-                    </span>
+                    <FuwiMascot className="size-11 shrink-0" decorative />
                     <div className="min-w-0">
-                      <p className="text-sm font-extrabold text-[var(--brand-navy)]">FUWU Akıllı Asistan</p>
-                      <p className="mt-0.5 text-xs font-extrabold text-[var(--brand-orange)]">Yapay zeka destekli</p>
+                      <p className="text-sm font-extrabold text-[var(--brand-navy)]">Fuwi</p>
+                      <p className="mt-0.5 text-xs font-extrabold text-[var(--brand-orange-dark)]">FUWU&apos;nun yapay zekâ ev asistanı</p>
                     </div>
                   </div>
                   <p className="mt-3 text-sm font-semibold leading-6 text-[var(--muted)]">
-                    Sorunu anlat veya fotoğrafını yükle. İlk değerlendirmeyi yapalım, gerekiyorsa sana en uygun ustayı bulalım.
+                    Sorunu anlat ya da fotoğrafını yükle. Fuwi ilk değerlendirmeyi yapar, sana uygun hizmeti ve ustayı gösterir.
                   </p>
                 </div>
                 <button
@@ -258,7 +264,7 @@ export function FuwuAssistantWidget() {
                   type="button"
                 >
                   <Sparkles aria-hidden className="size-4" />
-                  Akıllı Asistanı Aç
+                  Fuwi&apos;ye Anlat
                 </button>
                 <button
                   className="inline-flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[rgba(10,37,64,0.12)] bg-white px-4 text-sm font-extrabold text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
@@ -293,14 +299,14 @@ export function FuwuAssistantWidget() {
 
         {!isOpen ? (
           <button
-            aria-label="FUWU Akıllı Asistan destek panelini aç"
+            aria-label="Fuwi ve destek panelini aç"
             aria-expanded={isOpen}
             className="hidden min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--brand-navy)] px-4 text-white shadow-[var(--shadow-elevated)] transition-colors hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 md:inline-flex"
             onClick={() => setIsOpen(true)}
             type="button"
           >
-            <LifeBuoy aria-hidden className="size-5" />
-            <span className="hidden text-sm font-extrabold sm:inline">Destek</span>
+            <FuwiMascot className="size-7" decorative />
+            <span className="hidden text-sm font-extrabold sm:inline">Fuwi&apos;ye sor</span>
           </button>
         ) : null}
       </div>

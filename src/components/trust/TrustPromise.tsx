@@ -20,8 +20,7 @@ export function TrustPromise() {
       <Container className="home-container">
         <div className="home-section-heading">
           <div>
-            <p className="home-eyebrow">İKİ TARAFLI GÜVEN</p>
-            <h2 className="home-section-title" id="trust-promise-title">Kapını açmadan önce için rahat olsun.</h2>
+            <h2 className="home-section-title" id="trust-promise-title">İki taraflı güven</h2>
             <p className="home-section-description">Müşteri de usta da doğrulanır. Herkes kime güvendiğini bilir.</p>
             <p className="home-section-description" role="note">{PRELAUNCH_COPY.trustStage}</p>
           </div>

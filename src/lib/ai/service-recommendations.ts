@@ -31,7 +31,8 @@ export type RecommendedService = {
 
 const trimText = (value: string | null | undefined, max: number) => (value ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 
-const categorySlugs: Record<Exclude<AssistantCategory, "unknown">, string[]> = {
+/** Asistan kategorisinin katalogdaki karşılık slug'ları (asistan ve katalog araması ortak kullanır). */
+export const assistantCategorySlugs: Record<Exclude<AssistantCategory, "unknown">, string[]> = {
   electric: ["elektrik-hizmeti", "elektrik", "electrical"],
   plumbing: ["tesisat", "plumbing"],
   cleaning: ["temizlik", "hali-yikama", "cleaning"],
@@ -51,7 +52,7 @@ export function recommendServices(
   limit = 3,
 ): RecommendedService[] {
   if (category === "unknown") return [];
-  const slugs = new Set(categorySlugs[category]);
+  const slugs = new Set(assistantCategorySlugs[category]);
   const categoryIds = new Set(catalog.categories.filter(item => slugs.has(item.slug)).map(item => item.id));
   if (!categoryIds.size) return [];
 

@@ -77,7 +77,7 @@ try{
     if([390,1440].includes(width))await page.screenshot({path:`${output}/home-${width}.png`,fullPage:true,caret:'initial',style:'nextjs-portal{display:none!important}'});
     if(phase==='after'){
       if(await page.getByText('GELİŞTİRİYORUZ',{exact:true}).count())throw new Error('legacy_banner_visible');
-      if(!await page.getByRole('heading',{name:'Usta ağımızı kuruyoruz.'}).count())throw new Error('provider_empty_state_missing');
+      if(!await page.getByRole('heading',{name:'Bir usta profili nasıl görünür?'}).count())throw new Error('provider_empty_state_missing');
     }
   }
   await page.setViewportSize({width:390,height:900});await page.goto(base,{waitUntil:'domcontentloaded'});

@@ -45,3 +45,12 @@ Arayüzde `next/image`, duyarlı `sizes`, sabit görsel alanları ve ekran altı
 - Ortak etkileşim ikonları Lucide; kategori ikonları mevcut `ServiceIcon` SVG sistemidir. Yeni ikon veya stok kişi kimliği üretilmedi.
 - `public/reference/fuwu-target-design.jpg` eski 3D ev tasarım referansıdır; lisanslı fotoğraf veya Instagram paylaşımı olarak kullanılmadı. İstenen önceki Instagram görseli bu çalışma alanında tespit edilemedi.
 - Eski Meshy/cartoon varlıklar ve referans dosyası arşiv niteliğinde korundu. Yeni müşteri ana sayfasında yüklenmezler.
+
+## Örnek usta profilleri · yapay zekâ görselleri (24 Kasım 2026)
+
+`public/images/demo/` altındaki 33 görsel (11 portre, 22 iş fotoğrafı) **gerçek kişi veya gerçek iş değildir**. FUWU hesabının OpenArt aboneliğiyle, sahibinin onayıyla üretildi (OpenArt › Personal Project › "FUWU Örnek Profiller" klasörü). Portreler Nano Banana 2 (1K, 4:5), iş fotoğrafları GPT Image 2.5 Flare (1K, 4:3) ile üretildi; toplam yaklaşık 440 kredi.
+
+- Her görselin içine `scripts/prepare-demo-photos.mjs` ile kalıcı **"ÖRNEK · Yapay zekâ görseli"** etiketi basılır; arayüzde ayrıca "Örnek profil" rozeti gösterilir.
+- Komut istemleri logo, yazı, marka ve tanınabilir kişi içermeyecek şekilde yazıldı. Üretim meta verisi WebP'ye taşınmaz.
+- Görseller yalnızca `/ornek-profiller` sayfalarında ve ana sayfa / usta listesindeki etiketli örnek bölümünde kullanılır; gerçek usta profili, hizmet kataloğu, reklam ya da sosyal medya için kullanılmaz.
+- Dayanak: 1 Ağustos 2026'da yürürlüğe giren Ticari Reklam ve Haksız Ticari Uygulamalar Yönetmeliği değişikliği (yapay zekâ ile hazırlanan içerik gizlenmez; değerlendirmeyi yalnızca satın alan tüketici yapar). Bu yüzden örneklerde puan, yorum, fiyat ve tamamlanan iş sayısı yoktur.

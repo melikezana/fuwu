@@ -123,9 +123,9 @@ try {
 
   await page.locator('button[aria-controls="mobile-navigation-menu"]').click();
   await page.getByRole("button", { name: "Yardım ve Destek", exact: true }).click();
-  await page.getByRole("button", { name: "Akıllı Asistanı Aç", exact: true }).waitFor();
+  await page.getByRole("region", { name: "Fuwi ve destek" }).getByRole("button", { name: "Fuwi'ye Anlat", exact: true }).waitFor();
   await page.getByRole("button", { name: "Destek panelini kapat", exact: true }).click();
-  assert.equal(await page.getByRole("button", { name: "FUWU Akıllı Asistan destek panelini aç", exact: true }).isVisible(), false);
+  assert.equal(await page.getByRole("button", { name: "Fuwi ve destek panelini aç", exact: true }).isVisible(), false);
   report.interactions.push("Mobile help stays available in the menu without covering service or payment controls");
 
   await page.locator(".home-how-link").click();

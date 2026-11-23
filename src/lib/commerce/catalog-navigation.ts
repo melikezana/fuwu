@@ -1,5 +1,7 @@
 import { getServiceForValue, normalizeServiceValue, type Service } from "@/lib/constants/services";
 import type { CatalogService, PublicOffer } from "@/lib/commerce/types";
+import { detectCategory, hasEmergencySignal } from "@/lib/ai/fallback-analysis";
+import { assistantCategorySlugs } from "@/lib/ai/service-recommendations";
 
 export type CatalogCategory = { id: string; name: string; slug: string; is_active?: boolean; is_visible?: boolean; is_featured?: boolean; sort_order?: number; icon_name?: Service["iconName"] | null; description?: string | null };
 export type CatalogNavigationItem = Service & { serviceCount: number; offerCount: number; preview: boolean; featured?: boolean; sortOrder?: number };
@@ -54,10 +56,54 @@ export function featuredCategories(items: CatalogNavigationItem[], limit = 8) {
   return [...items].sort((a,b) => rank(a.slug)-rank(b.slug) || (a.sortOrder ?? 0)-(b.sortOrder ?? 0)).slice(0,limit);
 }
 
+// Türkçe ekler ("tesisatçı", "musluklar", "boyacıya") birebir eşleşmeyi bozar. Kelime içerikte yoksa
+// sonundan en fazla 4 harf kısaltılarak (kök en az 4 harf kalacak şekilde) yeniden denenir.
+function wordMatches(content: string, word: string) {
+  if (content.includes(word)) return true;
+  for (let cut = 1; cut <= 4 && word.length - cut >= 4; cut += 1) {
+    if (content.includes(word.slice(0, word.length - cut))) return true;
+  }
+  return false;
+}
+
+// Aramada anlam taşımayan dolgu sözcükleri.
+const stopWords = new Set(["ve", "ile", "bir", "icin", "lazim", "gerek", "gerekli", "ariyorum", "istiyorum", "var", "yok", "cok", "en", "iyi", "ucuz", "acil", "hemen", "evde", "evim", "evimde", "benim"]);
+
 export function matchesCatalogQuery(service: CatalogService, query: string, categoryName = "") {
-  const words = normalizeServiceValue(query).split(" ").filter(Boolean);
+  const words = normalizeServiceValue(query).split(" ").filter(word => word && !stopWords.has(word));
+  if (!words.length) return true;
   const content = normalizeServiceValue([service.name, service.description, service.scope, categoryName].join(" "));
-  return words.every(word => content.includes(word));
+  return words.every(word => wordMatches(content, word));
+}
+
+export type CatalogQueryIntent = {
+  /** Sorun anlatımından tahmin edilen katalog kategori slug'ları ("musluk damlatıyor" → tesisat). */
+  categorySlugs: string[];
+  /** Acil durum işareti (gaz kokusu, kıvılcım, su baskını…): katalog yerine acil yönlendirme gösterilir. */
+  emergency: boolean;
+};
+
+export function resolveCatalogQueryIntent(query: string): CatalogQueryIntent {
+  const text = query.trim();
+  if (!text) return { categorySlugs: [], emergency: false };
+  const category = detectCategory(text);
+  return {
+    categorySlugs: category === "unknown" ? [] : assistantCategorySlugs[category],
+    emergency: hasEmergencySignal(text),
+  };
+}
+
+/**
+ * Aramayı iki yoldan eşleştirir: hizmet metninde geçen kelimeler (ek toleranslı) ya da anlatılan
+ * soruna karşılık gelen kategori. Metin eşleşmeleri önce gelir.
+ */
+export function searchCatalogServices<T extends CatalogService>(services: T[], query: string, categoryNameFor: (service: T) => string, categorySlugFor: (service: T) => string) {
+  if (!query.trim()) return { services, intent: { categorySlugs: [], emergency: false } as CatalogQueryIntent, byIntent: false };
+  const intent = resolveCatalogQueryIntent(query);
+  const direct = services.filter(service => matchesCatalogQuery(service, query, categoryNameFor(service)));
+  const slugs = new Set(intent.categorySlugs);
+  const inferred = slugs.size ? services.filter(service => !direct.includes(service) && slugs.has(categorySlugFor(service))) : [];
+  return { services: [...direct, ...inferred], intent, byIntent: direct.length === 0 && inferred.length > 0 };
 }
 
 export function offersForService(offers: PublicOffer[], serviceId: string, districtId = "") {

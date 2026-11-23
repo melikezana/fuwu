@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
-import { DescribeProblemSection } from "@/components/home/DescribeProblemSection";
 import { HeroSection } from "@/components/home/HeroSection";
-import { HomePremiumPanels, HomeProviderInvite } from "@/components/home/HomePremiumPanels";
+import { HomeProviderInvite } from "@/components/home/HomePremiumPanels";
+import { FuwiSection } from "@/components/home/FuwiSection";
+import { DemoProvidersSection } from "@/components/demo/DemoProvidersSection";
+import { demoProviders } from "@/lib/demo/providers";
 import { PopularServices } from "@/components/home/PopularServices";
 import { TrustedProviders } from "@/components/home/TrustedProviders";
 import { TrustPromise } from "@/components/trust/TrustPromise";
@@ -31,12 +33,11 @@ export async function MarketplaceHome() {
   return (
     <div className="fuwu-home">
       <HeroSection categories={categories} districts={districts} launchInterestOpen={discovery.launchInterestOpen} />
-      <DescribeProblemSection />
       <PopularServices services={featuredCategories(categories)} unavailable={discovery.unavailable} discoveryOnly />
       <Suspense fallback={null}><FeaturedHomeServices catalogPromise={catalog} /></Suspense>
-      <HomePremiumPanels />
-      <TrustPromise />
+      <FuwiSection />
       <Suspense fallback={<section className="home-section" aria-label="Ustalar yükleniyor" aria-busy="true"><Container className="home-container"><p role="status">Ustalar yükleniyor…</p><div className="home-provider-grid mt-5" aria-hidden>{[1,2,3].map(n => <div key={n} className="commerce-skeleton h-80 rounded-2xl" />)}</div></Container></section>}><FeaturedHomeProviders directory={directory} catalog={catalog} /></Suspense>
+      <TrustPromise />
       <HomeProviderInvite />
     </div>
   );
@@ -45,11 +46,16 @@ export async function MarketplaceHome() {
 async function FeaturedHomeServices({ catalogPromise }: { catalogPromise: ReturnType<typeof getCommerceCatalog> }) {
   const catalog = await catalogPromise;
   const purchasableServices = catalog.services.filter(service => service.is_active && catalog.offers.some(offer => offer.service_id === service.id));
-  return !catalog.unavailable && purchasableServices.length > 0 ? <section className="home-section" aria-labelledby="featured-services-title"><Container className="home-container"><div className="home-section-heading"><div><p className="home-eyebrow">USTALARIN HİZMET MAĞAZALARINDAN</p><h2 className="home-section-title" id="featured-services-title">Kapsamı belli. Fiyatı açık.</h2><p className="home-section-description">Hizmetleri karşılaştır, gerçek müsaitliğe göre planla.</p></div><Link className="home-text-link" href="/services">Tüm hizmetler <ArrowRight size={16} aria-hidden /></Link></div><ServiceCatalog featured services={purchasableServices} offers={catalog.offers} unavailable={false} categories={catalog.categories} /></Container></section> : null;
+  return !catalog.unavailable && purchasableServices.length > 0 ? <section className="home-section" aria-labelledby="featured-services-title"><Container className="home-container"><div className="home-section-heading"><div><h2 className="home-section-title" id="featured-services-title">Ustaların hizmet mağazalarından</h2><p className="home-section-description">Kapsamı ve fiyatı belli hizmetleri karşılaştır, gerçek müsaitliğe göre planla.</p></div><Link className="home-text-link" href="/services">Tüm hizmetler <ArrowRight size={16} aria-hidden /></Link></div><ServiceCatalog featured services={purchasableServices} offers={catalog.offers} unavailable={false} categories={catalog.categories} /></Container></section> : null;
 }
 
 async function FeaturedHomeProviders({ directory, catalog: catalogPromise }: { directory: ReturnType<typeof getProviderDirectory>; catalog: ReturnType<typeof getCommerceCatalog> }) {
   const [{ allProviders }, catalog] = await Promise.all([directory, catalogPromise]);
   const providers = getFeaturedProviders(allProviders.filter(provider => provider.source === "supabase"));
+  // Yayımlı gerçek usta yokken boş bir liste yerine açıkça etiketlenmiş örnek profiller gösterilir.
+  if (!providers.length) {
+    const picks = ["ornek-tesisatci", "ornek-elektrikci", "ornek-temizlik"].map(slug => demoProviders.find(provider => provider.slug === slug)).filter(provider => provider !== undefined);
+    return <DemoProvidersSection providers={picks} />;
+  }
   return <TrustedProviders providers={providers} purchases={providerPurchaseLinks(catalog)} />;
 }

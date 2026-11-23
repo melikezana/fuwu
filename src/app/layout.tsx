@@ -25,6 +25,7 @@ import "@/styles/mobile-experience.css";
 import "@/styles/control-center.css";
 import "@/styles/trust.css";
 import "@/styles/growth.css";
+import "@/styles/demo.css";
 
 // "optional" + preload:false ile yazı tipi çoğu ilk ziyarette hiç yüklenmiyor, site yedek
 // yazı tipiyle (Arial benzeri) görünüyordu. "swap" + önyükleme: Inter her zaman gelir; yedek

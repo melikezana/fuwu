@@ -38,9 +38,13 @@ export function setCachedAssistantResponse(
 ) {
   assistantResponseCache.set(cacheKey, {
     expiresAt: Date.now() + cacheTtlMs,
+    // Önbellek yalnızca kullanıcıdan bağımsız değerlendirmeyi tutar; bir kullanıcının konuşma
+    // kimliği ya da yüklediği görselin referansı başka bir kullanıcıya dönmez.
     response: {
       ...response,
       cached: false,
+      conversationId: null,
+      imageReference: null,
     },
   });
 }
