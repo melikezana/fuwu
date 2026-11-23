@@ -234,7 +234,7 @@ export function FuwuAssistantWidget() {
               onClose={closeWidget}
             />
           ) : (
-            <section className="mb-3 w-[min(calc(100vw-2rem),370px)] rounded-[24px] border border-[rgba(10,37,64,0.1)] bg-white p-4 shadow-[0_24px_70px_rgba(10,37,64,0.18)]">
+            <section aria-label="Fuwi ve destek" className="mb-3 w-[min(calc(100vw-2rem),370px)] rounded-[24px] border border-[rgba(10,37,64,0.1)] bg-white p-4 shadow-[0_24px_70px_rgba(10,37,64,0.18)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

@@ -82,7 +82,7 @@ test.describe("CSP nonce smoke", () => {
     await page
       .getByRole("button", { name: /Fuwi ve destek panelini aç/i })
       .click();
-    await page.getByRole("button", { name: /Fuwi.ye Anlat/i }).click();
+    await page.getByRole("region", { name: "Fuwi ve destek" }).getByRole("button", { name: /Fuwi.ye Anlat/i }).click();
 
     const pngBuffer = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
