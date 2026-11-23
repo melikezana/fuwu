@@ -25,7 +25,7 @@ export function HeroSearch({ categories, districts }: { categories: string[]; di
       <label className="sr-only" htmlFor="home-service-search">Ne lazım? Hizmeti ya da sorunu yaz</label>
       <div className="home-search-input">
         <Search aria-hidden className="size-5 shrink-0" />
-        <input autoComplete="off" enterKeyHint="search" id="home-service-search" list="home-service-options" name="q" placeholder="Ne lazım? Örn. musluk damlatıyor" type="search" />
+        <input autoComplete="off" enterKeyHint="search" id="home-service-search" list="home-service-options" name="q" placeholder="Ne lazım? Örn. su kaçağı" type="search" />
         <datalist id="home-service-options">{categories.map(category => <option key={category} value={category} />)}</datalist>
       </div>
       <div className="home-search-actions">

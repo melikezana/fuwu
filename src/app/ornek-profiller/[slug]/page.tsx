@@ -117,7 +117,7 @@ export default async function DemoProviderPage({ params }: { params: Promise<{ s
               <h2>Bu profilden randevu alınamaz.</h2>
               <p className="market-help-text">{provider.categoryTitle} hizmetlerinin kapsamını şimdiden inceleyebilirsin.</p>
               <Link className="home-primary-link mt-4 w-full" href={categoryHref}>{provider.categoryTitle} hizmetleri <ArrowRight aria-hidden size={16} /></Link>
-              <div className="mt-3"><OpenAssistantButton label="Sorunumu Fuwi'ye anlat" /></div>
+              <div className="mt-3"><OpenAssistantButton className="home-describe-button is-secondary" label="Sorunumu Fuwi'ye anlat" /></div>
             </div>
             <p className="market-profile-guidance"><ShieldCheck aria-hidden className="mr-1 inline size-4" />Gerçek profillerde doğrulama rozetleri yalnızca tamamlanan kontrolleri ifade eder.</p>
           </aside>
