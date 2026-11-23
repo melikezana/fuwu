@@ -15,6 +15,9 @@ import {
 import { getProviderDirectory } from "@/services/providers";
 import { getCommerceCatalog } from "@/services/commerce";
 import { providerPurchaseLinks } from "@/lib/commerce/purchase-links";
+import { DemoProvidersSection } from "@/components/demo/DemoProvidersSection";
+import { demoProviders, getDemoProvidersForCategory } from "@/lib/demo/providers";
+import { getServiceForValue } from "@/lib/constants/services";
 
 export const dynamic = "force-dynamic";
 
@@ -339,6 +342,18 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
           totalCount={providerDirectory.totalCount}
         />
       </Container>
+      {source === "supabase" && providerDirectory.totalCount === 0 ? (
+        // Henüz yayımlı usta yokken ziyaretçi boş sayfada kalmaz: profilin nasıl görüneceğini etiketli örneklerle görür.
+        <DemoProvidersSection
+          headingLevel="h2"
+          providers={(() => {
+            const slug = getServiceForValue(selectedCategory)?.slug ?? selectedCategory;
+            const matches = slug ? getDemoProvidersForCategory(slug) : [];
+            return matches.length ? matches : demoProviders.slice(0, 6);
+          })()}
+          title="Ustalar yayına girene kadar: örnek profiller"
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { isAuthorizedCronRequest } from "@/lib/security/cronAuth";
+import { getCronAuthorizationError, isAuthorizedCronRequest } from "@/lib/security/cronAuth";
 
 const migration = readFileSync("supabase/migrations/20261103000300_security_hardening.sql", "utf8");
 const providerService = readFileSync("src/services/providers/index.ts", "utf8");
@@ -16,6 +16,17 @@ describe("cron anahtarı", () => {
   it("anahtar tanımlı değilse her isteği reddeder", () => {
     expect(isAuthorizedCronRequest("Bearer ", "")).toBe(false);
     expect(isAuthorizedCronRequest("Bearer undefined", undefined)).toBe(false);
+  });
+  it("yetkisiz cron isteği yapılandırma durumundan bağımsız olarak 401 alır", () => {
+    const req = (authorization?: string) => new Request("http://x/api/cron/emergency-sla-sweep", { headers: authorization ? { authorization } : {} });
+    expect(getCronAuthorizationError(req(), "")?.status).toBe(401);
+    expect(getCronAuthorizationError(req("Bearer yanlis"), "dogru")?.status).toBe(401);
+    expect(getCronAuthorizationError(req("Bearer dogru"), "dogru")).toBeNull();
+    for (const route of ["emergency-sla-sweep", "ai-assistant-health-check"]) {
+      const source = readFileSync(`src/app/api/cron/${route}/route.ts`, "utf8");
+      expect(source).toContain("getCronAuthorizationError");
+      expect(source).not.toMatch(/Cron is not configured/);
+    }
   });
 });
 

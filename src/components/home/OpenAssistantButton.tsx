@@ -1,12 +1,15 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { FuwiMascot } from "@/components/ai/FuwiMascot";
 
-/** Sayfanın köşesindeki akıllı asistanı doğrudan değerlendirme görünümünde açar. */
-export function OpenAssistantButton({ label = "Sorunumu anlat" }: { label?: string }) {
+/**
+ * Sayfanın köşesindeki Fuwi asistanını doğrudan değerlendirme görünümünde açar.
+ * `message` verilirse asistana hazır yazılmış olarak aktarılır; kullanıcı göndermeden önce görür.
+ */
+export function OpenAssistantButton({ label = "Sorunumu anlat", message, className = "home-describe-button" }: { label?: string; message?: string; className?: string }) {
   return (
-    <button className="home-describe-button" onClick={() => window.dispatchEvent(new Event("fuwu:open-assistant"))} type="button">
-      <Sparkles aria-hidden size={18} />
+    <button className={className} onClick={() => window.dispatchEvent(new CustomEvent("fuwu:open-assistant", { detail: message ? { message } : null }))} type="button">
+      <FuwiMascot className="size-6 shrink-0" decorative />
       {label}
     </button>
   );

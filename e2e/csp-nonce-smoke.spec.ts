@@ -80,9 +80,9 @@ test.describe("CSP nonce smoke", () => {
 
     await gotoAndExpectNoCspViolations(page, "/", violations);
     await page
-      .getByRole("button", { name: /Fuwu Akıllı Asistan destek panelini aç/i })
+      .getByRole("button", { name: /Fuwi ve destek panelini aç/i })
       .click();
-    await page.getByRole("button", { name: /Akıllı Asistanı Aç/i }).click();
+    await page.getByRole("button", { name: /Fuwi.ye Anlat/i }).click();
 
     const pngBuffer = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",

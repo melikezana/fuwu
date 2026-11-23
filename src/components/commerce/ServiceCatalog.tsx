@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, Clock3, Info, Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Clock3, Info, Search, ShoppingBag, Siren, SlidersHorizontal } from "lucide-react";
+import { OpenAssistantButton } from "@/components/home/OpenAssistantButton";
 import { Dialog } from "@/components/ui/dialog";
 import { ServicePhoto } from "@/components/ui/ServicePhoto";
 import { getServiceForValue } from "@/lib/constants/services";
-import { matchesCatalogQuery, offersForService, previewCategoryFor, type CatalogCategory } from "@/lib/commerce/catalog-navigation";
+import { offersForService, previewCategoryFor, searchCatalogServices, type CatalogCategory } from "@/lib/commerce/catalog-navigation";
 import { money } from "@/lib/commerce/display";
 import type { CatalogService, PublicOffer } from "@/lib/commerce/types";
 
@@ -32,10 +33,11 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
   const [saleOnly, setSaleOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const availableOffers = unavailable ? [] : offers;
-  const visible = services.filter(service => {
-    const categoryName = categories.find(item => item.id === service.category_id)?.name ?? getServiceForValue(previewCategoryFor(service))?.title ?? "";
-    return service.is_active && matchesCatalogQuery(service, query, categoryName) && (filter === "all" || service.pricing_type === filter) && (!saleOnly || offersForService(availableOffers, service.id, districtId).length > 0);
-  });
+  const categoryNameFor = (service: CatalogService) => categories.find(item => item.id === service.category_id)?.name ?? getServiceForValue(previewCategoryFor(service))?.title ?? "";
+  const categorySlugFor = (service: CatalogService) => categories.find(item => item.id === service.category_id)?.slug ?? previewCategoryFor(service);
+  const search = searchCatalogServices(services.filter(service => service.is_active), query, categoryNameFor, categorySlugFor);
+  const visible = search.services.filter(service => (filter === "all" || service.pricing_type === filter) && (!saleOnly || offersForService(availableOffers, service.id, districtId).length > 0));
+  const intentCategoryName = search.byIntent ? categories.find(item => search.intent.categorySlugs.includes(item.slug))?.name : undefined;
   const activeFilterCount = Number(filter !== "all") + Number(saleOnly);
   const serviceHref = (slug: string) => `/services/${slug}${district ? `?${new URLSearchParams({ district })}` : ""}`;
   function resetFilters() { setFilter("all"); setSaleOnly(false); }
@@ -47,6 +49,8 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         <button className="catalog-mobile-filter-button commerce-secondary" type="button" onClick={() => setFiltersOpen(true)} aria-haspopup="dialog"><SlidersHorizontal size={18} aria-hidden />Filtrele{activeFilterCount > 0 && <span className="catalog-filter-count">{activeFilterCount}</span>}</button>
       </div>
       <div className="catalog-desktop-filters"><CatalogFilters filter={filter} onFilter={setFilter} saleOnly={saleOnly} onSaleOnly={setSaleOnly} /></div>
+      {search.intent.emergency && <div className="catalog-emergency" role="alert"><Siren aria-hidden size={22} /><div><strong>Bu bir acil durum olabilir.</strong>Önce kendi güvenliğini sağla. Gaz kokusunda 187 Doğal Gaz Acil&apos;i, yangın, duman ya da elektrik çarpmasında 112&apos;yi ara. Normal randevu bu durumun çözümü değildir.</div></div>}
+      {intentCategoryName && !search.intent.emergency && <p className="catalog-intent" role="status"><span>&ldquo;{query.trim()}&rdquo; için <strong>{intentCategoryName}</strong> hizmetlerini gösteriyoruz.</span><OpenAssistantButton className="commerce-text-link" label="Emin değilsen Fuwi'ye sor" message={query.trim()} /></p>}
       <div className="catalog-results-heading"><h2 aria-live="polite">{visible.length} hizmet{district ? ` · ${district}` : ""}</h2>{activeFilterCount > 0 && <button type="button" onClick={resetFilters}>Filtreleri temizle</button>}<Link className="commerce-text-link" href="/orders">Siparişlerim <ArrowRight size={15} aria-hidden /></Link></div>
       <Dialog isOpen={filtersOpen} onClose={() => setFiltersOpen(false)} title="Hizmetleri filtrele" description="İhtiyacına uygun hizmet türünü seç.">
         <CatalogFilters filter={filter} onFilter={setFilter} saleOnly={saleOnly} onSaleOnly={setSaleOnly} />
@@ -69,6 +73,6 @@ export function ServiceCatalog({ services, offers, unavailable, initialSearch = 
         </div>
       </article>;
     })}</div>
-    {!visible.length && !unavailable && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h3>{category && !query ? "Bu kategoride hizmetler hazırlanıyor." : "Aradığın hizmet bulunamadı"}</h3><p>Aramanı değiştirebilir veya diğer hizmetleri inceleyebilirsin.</p>{query || activeFilterCount ? <button type="button" className="commerce-secondary" onClick={() => { setQuery(""); resetFilters(); }}>Arama ve Filtreleri Temizle</button> : null}{category && <Link className="commerce-secondary" href={`/providers?${new URLSearchParams({ category, ...(district ? { district } : {}) })}`}>Bu Kategoride Usta Bul</Link>}<Link className="commerce-button" href="/services">Tüm Hizmetleri Gör</Link></div>}
+    {!visible.length && !unavailable && <div className="commerce-empty"><ShoppingBag aria-hidden size={32} /><h3>{category && !query ? "Bu kategoride hizmetler hazırlanıyor." : "Aradığın hizmet bulunamadı"}</h3><p>Aramanı değiştirebilir veya diğer hizmetleri inceleyebilirsin.</p>{query || activeFilterCount ? <button type="button" className="commerce-secondary" onClick={() => { setQuery(""); resetFilters(); }}>Arama ve Filtreleri Temizle</button> : null}{category && <Link className="commerce-secondary" href={`/providers?${new URLSearchParams({ category, ...(district ? { district } : {}) })}`}>Bu Kategoride Usta Bul</Link>}<Link className="commerce-button" href="/services">Tüm Hizmetleri Gör</Link>{query.trim() && <div className="catalog-ask-fuwi"><p>Ne aradığını tam bilmiyorsan anlattığını Fuwi&apos;ye aktaralım; doğru hizmeti birlikte bulun.</p><OpenAssistantButton label="Fuwi'ye anlat" message={query.trim()} /></div>}</div>}
   </>;
 }

@@ -60,7 +60,7 @@ try {
   await page.setViewportSize({width:390,height:844});
   await goto("/");
   assert.equal(await page.locator("h1").innerText(), "Evin için ihtiyacın olan hizmet, tek bir yerde.");
-  assert.equal(await page.locator("#home-service-search").getAttribute("placeholder"), "Hangi hizmete ihtiyacın var?");
+  assert.equal(await page.locator("#home-service-search").getAttribute("placeholder"), "Ne lazım? Örn. musluk damlatıyor");
   const cta = await page.getByRole("button",{name:"Hizmetleri Keşfet",exact:true}).boundingBox();
   assert.ok(cta && cta.y+cta.height < 768, "Primary CTA is visible above the mobile tab bar.");
   assert.deepEqual(await page.locator(".mobile-tab-label").allTextContents(), ["Ana Sayfa","Hizmetler","Ustalar","Siparişlerim","Hesabım"]);

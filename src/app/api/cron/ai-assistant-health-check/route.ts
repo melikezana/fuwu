@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAuthorizedCronRequest } from "@/lib/security/cronAuth";
+import { getCronAuthorizationError } from "@/lib/security/cronAuth";
 
 import { logWarn } from "@/lib/logger";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
@@ -11,25 +11,6 @@ const AI_ASSISTANT_OPENAI_FAILURE_ACTION = "ai_assistant.openai_failure";
 const ALERT_THRESHOLD = 5;
 const LOOKBACK_MINUTES = 15;
 
-function getCronAuthorizationError(request: Request) {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-
-  if (!cronSecret) {
-    return {
-      message: "Cron is not configured.",
-      status: 500,
-    };
-  }
-
-  if (!isAuthorizedCronRequest(request.headers.get("authorization"), cronSecret)) {
-    return {
-      message: "Unauthorized.",
-      status: 401,
-    };
-  }
-
-  return null;
-}
 
 function getLookbackCutoffIso() {
   return new Date(Date.now() - LOOKBACK_MINUTES * 60 * 1000).toISOString();
@@ -87,6 +68,10 @@ export async function GET(request: Request) {
   const authorizationError = getCronAuthorizationError(request);
 
   if (authorizationError) {
+    if (!authorizationError.configured) {
+      logWarn("CRON_SECRET tanımlı değil; cron isteği reddedildi.", { route: "ai-assistant-health-check" });
+    }
+
     return NextResponse.json(
       { error: authorizationError.message, ok: false },
       { status: authorizationError.status },
@@ -98,7 +83,7 @@ export async function GET(request: Request) {
   if (!supabase) {
     return NextResponse.json(
       { error: "Supabase service role is not configured.", ok: false },
-      { status: 500 },
+      { status: 503 },
     );
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { Bot, Loader2, Mail, Mic, RotateCcw, Send, Sparkles, Square, X } from "lucide-react";
+import { Loader2, Mail, Mic, RotateCcw, Send, Square, X } from "lucide-react";
+import { FuwiMascot } from "./FuwiMascot";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AssistantAnalysis,
@@ -18,6 +19,8 @@ import { RecommendedServices, SecureProcessSteps } from "./RecommendedServices";
 import type { RecommendedService } from "@/lib/ai/service-recommendations";
 
 type FuwuAssistantPanelProps = {
+  /** Arama kutusundan aktarılan, henüz gönderilmemiş metin. */
+  initialMessage?: string;
   onClose: () => void;
   onEmailRequest: (draft: { analysisSummary?: string; imageReference?: string | null }) => void;
 };
@@ -95,8 +98,8 @@ function LoadingSkeleton() {
   );
 }
 
-export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPanelProps) {
-  const [message, setMessage] = useState("");
+export function FuwuAssistantPanel({ initialMessage = "", onClose, onEmailRequest }: FuwuAssistantPanelProps) {
+  const [message, setMessage] = useState(initialMessage);
   const [district, setDistrict] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImageState] = useState<AssistantImageFile | null>(null);
@@ -254,28 +257,26 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
 
   return (
     <section
-      aria-label="FUWU Akıllı Asistan"
+      aria-label="Fuwi, FUWU yapay zekâ ev asistanı"
       className="flex h-full max-h-[calc(100dvh-env(safe-area-inset-bottom)-0.5rem)] flex-col overflow-hidden rounded-t-[24px] border border-[rgba(10,37,64,0.12)] bg-[#fbfcfe] shadow-[0_28px_80px_rgba(10,37,64,0.22)] sm:h-[min(760px,calc(100vh-7rem))] sm:rounded-[24px]"
     >
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[rgba(10,37,64,0.08)] bg-white px-4 py-4">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-navy)] text-white shadow-[var(--shadow-subtle)]">
-            <Bot aria-hidden className="size-5" />
-          </span>
+          <FuwiMascot className="size-11 shrink-0" decorative />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-extrabold text-[var(--brand-navy)]">FUWU Akıllı Asistan</h2>
-              <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[11px] font-extrabold text-[var(--brand-orange)]">
-                Yapay zeka destekli
+              <h2 className="text-base font-extrabold text-[var(--brand-navy)]">Fuwi</h2>
+              <span className="rounded-full bg-[var(--brand-orange-soft)] px-2.5 py-1 text-[11px] font-extrabold text-[var(--brand-orange-dark)]">
+                Yapay zekâ asistanı
               </span>
             </div>
             <p className="mt-1 text-xs font-semibold leading-5 text-[var(--muted)]">
-              Sorunu göster, doğru çözümü birlikte bulalım.
+              Sorunu anlat, doğru hizmeti birlikte bulalım. Kesin teşhisi usta yerinde koyar.
             </p>
           </div>
         </div>
         <button
-          aria-label="Akıllı Asistan panelini kapat"
+          aria-label="Fuwi panelini kapat"
           className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl bg-[var(--surface-soft)] text-[var(--brand-navy)] transition-colors hover:bg-[var(--brand-orange-soft)]"
           onClick={onClose}
           type="button"
@@ -287,11 +288,9 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         <div className="grid gap-4">
           <div className="grid grid-cols-[40px_minmax(0,1fr)] gap-3">
-            <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-[var(--brand-orange-soft)] text-[var(--brand-orange)]">
-              <Sparkles aria-hidden className="size-5" />
-            </span>
+            <FuwiMascot className="size-10" decorative />
             <div className="rounded-[22px] rounded-tl-md bg-white p-4 text-sm font-semibold leading-6 text-[var(--brand-navy)] shadow-[var(--shadow-subtle)]">
-              Merhaba, ben FUWU Akıllı Asistan. Sorunu birkaç cümleyle anlatabilir veya fotoğrafını yükleyebilirsin. Önce durumu değerlendirecek, ardından en güvenli ve pratik yolu önereceğim.
+              Merhaba, ben Fuwi, FUWU&apos;nun yapay zekâ asistanıyım. Sorunu birkaç cümleyle yaz ya da fotoğrafını ekle; önce güvenliğini, sonra en pratik çözümü düşünürüm. Telefon, adres ya da kart bilgisi yazmana gerek yok.
             </div>
           </div>
 
@@ -325,7 +324,7 @@ export function FuwuAssistantPanel({ onClose, onEmailRequest }: FuwuAssistantPan
                 onChange={(event) => setCategory(event.target.value)}
                 value={category}
               >
-                <option value="">Asistan seçsin</option>
+                <option value="">Fuwi seçsin</option>
                 {serviceCategories.map((service) => (
                   <option key={service.id} value={service.slug}>
                     {service.title}
