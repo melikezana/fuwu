@@ -30,7 +30,7 @@ const journey = [
   ["Satın alırsın", "Paketini, ekstralarını, ustanı ve saatini seçersin. Fiyat baştan belli; randevun hemen oluşur."],
   ["Usta gelir", "Profilinde gördüğün usta randevu saatinde kapına gelir."],
   ["Kodla başlar", "Usta geldiğinde 6 haneli kodunu verirsin; iş kayda geçerek başlar."],
-  ["Onaylar, kapıda ödersin", "İş bitince kontrol edip onaylarsın; sabit tutarı ödersin. Onayın olmadan ek ücret yok."],
+  ["Onaylarsın, ödeme ustaya geçer", "Sabit tutarı satın alırken online ödersin; paran iş bitip sen onaylayana kadar ustaya geçmez. Onayın olmadan ek ücret yok."],
   ["Değerlendirirsin", "Yorumun, gerçek bir işin ardından herkese yol gösterir."],
 ];
 

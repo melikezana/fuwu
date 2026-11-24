@@ -3,14 +3,14 @@
 export const ONLINE_PURCHASE_CLOSED = "Bu hizmet şu anda satın alınamıyor.";
 export const STOREFRONT_COPY = {
   heroDescription: "Kapsamı ve fiyatı baştan belli ev hizmetleri. Paketini seç, ekstranı ekle, ustanın boş saatinden randevunu al.",
-  heroStage: "Hizmeti şimdi satın al, ödemeyi iş bitince kapıda yap.",
-  howTitle: "Paketini seç. Randevunu al. İş bitince kapıda öde.",
+  heroStage: "Hizmeti satın al, online güvenle öde: paran iş bitip sen onaylayana kadar ustaya geçmez.",
+  howTitle: "Paketini seç. Randevunu al. Online güvenle öde.",
   trustStage: "Toplam tutarı satın almadan önce görürsün. Onayın olmadan ek ücret alınmaz.",
   journeyStage: "Siparişin bu adımlarla ilerler; her adımı sipariş sayfanda takip edersin.",
   catalogLead: "Hizmetini seç, ekstranı ekle, ustanı ve saatini belirle.",
   catalogStageTitle: "Bu hizmetler için usta takvimleri açılıyor.",
   catalogStage: "Kapsamı ve dahil olmayanları şimdiden incele; ustanın boş saati açıldığında hizmeti buradan doğrudan satın alırsın.",
-  seoDescription: "İstanbul’da ev hizmetini doğrudan satın al: kapsam ve fiyat baştan belli, ekstraları ekle, ustanın boş saatinden randevu al, ödemeyi iş bitince kapıda yap.",
+  seoDescription: "İstanbul’da ev hizmetini doğrudan satın al: kapsam ve fiyat baştan belli, ekstraları ekle, ustanın boş saatinden randevu al, online güvenle öde.",
 } as const;
 /** @deprecated Eski adı; yeni kod STOREFRONT_COPY kullanır. */
 export const PRELAUNCH_COPY = STOREFRONT_COPY;
@@ -22,8 +22,8 @@ export function publicAnnouncement(message: string): string {
 }
 
 /**
- * Doğrudan satın alma (kapıda ödeme) açık mı? Varsayılan açık; acil durumda sunucuda
- * FUWU_DIRECT_PURCHASE_DISABLED=true ile kapatılır. Veritabanındaki pay_at_door_enabled ayarı ayrıca kontrol edilir.
+ * Doğrudan satın alma açık mı? Varsayılan açık; acil durumda sunucuda FUWU_DIRECT_PURCHASE_DISABLED=true ile kapatılır.
+ * Ödeme yöntemleri ayrıca açılır: online kart iyzico yapılandırılınca, kapıda ödeme yalnızca admin pay_at_door_enabled ayarıyla (varsayılan kapalı).
  */
 export function directPurchaseEnabled(): boolean {
   return process.env.FUWU_DIRECT_PURCHASE_DISABLED !== "true";

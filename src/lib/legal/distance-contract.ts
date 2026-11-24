@@ -22,7 +22,7 @@ export type ContractInput = {
   customer?: { name?: string | null; email?: string | null } | null;
   service: { name: string; variant?: string | null; scope: string; exclusions?: string | null } | null;
   addons: { name: string; quantity: number; total_minor: number }[];
-  basePriceMinor: number | null; addonsMinor: number; totalMinor: number | null;
+  basePriceMinor: number | null; addonsMinor: number; totalMinor: number | null; customerFeeMinor?: number | null;
   durationMinutes?: number | null; startsAt?: string | null; address?: string | null; district?: string | null;
   paymentMethod: "PAY_AT_DOOR" | "CARD" | null; withinWithdrawalPeriod: boolean | null; earlyStartConsentAt?: string | null;
 };
@@ -61,13 +61,13 @@ function serviceLines(d: ContractInput): string[] {
 
 function priceLines(d: ContractInput): string[] {
   const lines = [
-    `Paket bedeli: ${money(d.basePriceMinor)}${d.addons.length ? ` · Ekstralar: ${money(d.addonsMinor)}` : ""}`,
+    `Paket bedeli: ${money(d.basePriceMinor)}${d.addons.length ? ` · Ekstralar: ${money(d.addonsMinor)}` : ""}${d.customerFeeMinor ? ` · FUWU hizmet bedeli: ${money(d.customerFeeMinor)}` : ""}`,
     `Toplam: ${money(d.totalMinor)} (tüm vergiler ve FUWU hizmet bedeli dahil).`,
     "Bu tutar dışında ulaşım, servis, keşif veya benzeri bir ek masraf alınmaz. Kapsam dışı bir iş ya da malzeme gerekirse usta önce yazılı olarak fiyat bildirir; sen uygulamada onaylamadıkça ek ücret ödemezsin.",
   ];
-  if (d.paymentMethod === "CARD") lines.push("Ödeme yöntemi: Online kart. Kart bilgilerin iyzico'nun güvenli ödeme ekranına girilir; FUWU kart bilgisi saklamaz.");
+  if (d.paymentMethod === "CARD") lines.push("Ödeme yöntemi: Online kart. Kart bilgilerin lisanslı ödeme kuruluşu iyzico'nun güvenli ödeme ekranına girilir; FUWU kart bilgisi saklamaz. Ödeme sipariş anında alınır, ödeme kuruluşunda bekler ve hizmet tamamlanıp sen onaylayınca ustaya aktarılır; FUWU payı bu sırada ayrılır.");
   else if (d.paymentMethod === "PAY_AT_DOOR") lines.push("Ödeme yöntemi: Kapıda ödeme. Toplam tutar, hizmet tamamlandıktan sonra doğrudan ustaya ödenir. Usta hizmete başlamadan ödeme isteyemez ve bu tutarın üstünde ücret talep edemez. FUWU bu ödemeyi tahsil etmez.");
-  else lines.push("Ödeme yöntemi: Siparişte seçilir (kapıda ödeme ya da sunulduğunda online kart).");
+  else lines.push("Ödeme yöntemi: Online kart (iyzico güvenli ödeme). Kapıda ödeme yalnızca ödeme adımında ayrıca sunulursa seçilebilir.");
   return lines;
 }
 
@@ -148,11 +148,11 @@ export function distanceContractSections(d: ContractInput): LegalSection[] {
     { title: "Madde 7 – Cayma hakkının istisnası", body: exceptionLines(d) },
     { title: "Madde 8 – Ayıplı hizmet", body: [
       "Hizmet sözleşmeye veya kapsamına uygun ifa edilmezse 6502 sayılı Kanun'un 15. maddesi uyarınca hizmetin yeniden görülmesini, hizmet sonucu ortaya çıkan eserin ücretsiz onarımını, ayıp oranında bedelden indirim yapılmasını ya da sözleşmeden dönmeyi seçebilirsin.",
-      "Talebini sipariş sayfandaki \"Destek İste\" bölümünden iletirsin; iş tamamlanmadıysa tamamlanma onayı vermez ve kapıda ödeme yapmazsın.",
+      "Talebini sipariş sayfandaki \"Destek İste\" bölümünden iletirsin; iş tamamlanmadıysa tamamlanma onayı vermezsin; kartla ödenen tutar ustaya aktarılmaz, kapıda ödemede ödeme yapmazsın.",
     ] },
     { title: "Madde 9 – FUWU'nun rolü", body: [
       "FUWU, sözleşmenin kurulmasına aracılık eden aracı hizmet sağlayıcıdır: platformu işletir, ön bilgilendirmeyi ve sipariş kayıtlarını tutar, cayma ve şikâyet bildirimleri için sistemi açık tutar ve bildirimleri Ustaya iletir.",
-      "FUWU, mevzuatın aracı hizmet sağlayıcıya yüklediği yükümlülüklerden Usta ile birlikte sorumludur. Kapıda ödemeli siparişte hizmet bedeli doğrudan Ustaya ödenir; FUWU bu bedeli tahsil etmez.",
+      "FUWU, mevzuatın aracı hizmet sağlayıcıya yüklediği yükümlülüklerden Usta ile birlikte sorumludur. Kartla ödemede bedel lisanslı ödeme kuruluşu aracılığıyla alınır ve hizmet tamamlanınca FUWU hizmet bedeli ile usta komisyonu ayrılarak Ustaya aktarılır. Kapıda ödemeli siparişte hizmet bedeli doğrudan Ustaya ödenir; FUWU bu bedeli tahsil etmez.",
     ] },
     { title: "Madde 10 – Uyuşmazlık", body: disputeLines(email) },
     { title: "Madde 11 – Yürürlük ve kayıt", body: [

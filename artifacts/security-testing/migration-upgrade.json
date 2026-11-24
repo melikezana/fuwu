@@ -1,6 +1,6 @@
 {
-  "sourceHash": "d1b8a1312e46d245e1ed40a05c73b628e937d42f24f68684ac1d858da5afdc16",
-  "startedAt": "2026-11-24T14:07:35.987Z",
+  "sourceHash": "53c5dc330082a22590904d7295ade6c57684ec9e96b333e0344f852f24b79ec6",
+  "startedAt": "2026-11-24T19:09:53.042Z",
   "scope": "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E",
   "scenario": "populated_upgrade",
   "version": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
@@ -94,7 +94,8 @@
     "20261113000200_application_phone_fallback.sql",
     "20261114000100_admin_event_notifications.sql",
     "20261124000100_direct_purchase_extras_pay_at_door.sql",
-    "20261124000200_distance_contract_legal.sql"
+    "20261124000200_distance_contract_legal.sql",
+    "20261124000300_online_payment_default.sql"
   ],
   "checks": [
     "Contract guard can be reapplied without rewriting data or migration ledger",

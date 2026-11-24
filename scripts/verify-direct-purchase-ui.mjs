@@ -1,4 +1,4 @@
-// Doğrudan satın alma arayüzü: paket + ekstra sepeti + usta + saat + adres/not + kapıda ödeme → sipariş.
+// Doğrudan satın alma arayüzü: paket + ekstra sepeti + usta + saat + adres/not + ödeme (online kart önce; kapıda ödeme yalnızca admin açarsa) → sipariş.
 // Yalnızca arayüz fikstürü; API yanıtları taklit edilir, gerçek sipariş oluşturulmaz.
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -29,9 +29,33 @@ try {
     await page.route("**/api/commerce/slots?**", route => { const q = new URL(route.request().url()).searchParams; const day = q.get("day"); if (q.get("days")) return route.fulfill({ json: { days: [{ day, slots: [{ starts_at: `${day}T11:00:00+03:00`, ends_at: `${day}T12:00:00+03:00` }] }] } }); return route.fulfill({ json: { slots: [{ starts_at: `${day}T11:00:00+03:00`, ends_at: `${day}T12:00:00+03:00` }, { starts_at: `${day}T14:00:00+03:00`, ends_at: `${day}T15:00:00+03:00` }] } }); });
     await page.route("**/api/commerce/legal?**", route => route.fulfill({ json: { legal: { version: "mesafeli-hizmet-2026-11-24", ready: true, provider: { name: "TEST Ahmet Yılmaz", display_name: "TEST · Ahmet Usta", tax_id: "11111111110", tax_office: "Kadıköy", address: "TEST Caferağa Mah. Örnek Sok. No 1 Kadıköy", phone: "+90 555 000 33 33", ready: true }, intermediary: { name: "Melike Dağkesen (FUWU)", tax_id: "22222222220", tax_office: null, mersis: null, address: "TEST FUWU Adresi Mah. Sok. No 2 İstanbul", phone: "+90 850 000 00 00", email: "fuwuhizmet@gmail.com", ready: true } } } }));
     let placed; await page.route("**/api/commerce/orders", async route => { placed = route.request().postDataJSON(); await route.fulfill({ status: 201, json: { order: { id: "40000000-0000-4000-8000-000000000001", status: "CONFIRMED" } } }); });
-    await page.goto(`${base}/?screen=direct-purchase`, { waitUntil: "domcontentloaded" });
+    const action = () => page.locator(width < 768 ? ".booking-sticky" : ".booking-desktop-actions").getByRole("button", { name: /Devam Et|Siparişi Onayla|Ödemeye Geç/ });
+    // Sipariş taslağı sessionStorage'da tutulur; her senaryo temiz taslakla başlar.
+    const clearDrafts = () => page.evaluate(() => { for (const key of Object.keys(sessionStorage)) if (key !== "fuwu_splash_shown") sessionStorage.removeItem(key); }).catch(() => {});
+    const toReview = async query => {
+      await clearDrafts(); await page.goto(`${base}/?screen=direct-purchase${query}`, { waitUntil: "domcontentloaded" }); await page.getByRole("heading", { level: 1 }).waitFor();
+      await page.getByLabel("İlçe", { exact: true }).selectOption({ label: "Kadıköy" }); await page.getByRole("button", { name: "Bu Ustayla Devam Et" }).click();
+      await action().click(); await page.locator(".commerce-slot").first().click(); await action().click();
+      await page.getByLabel("Mahalle, sokak, bina ve daire").fill("TEST Caferağa Mahallesi, Örnek Sokak No:10 Daire:2"); await action().click();
+    };
+    // Kart ve kapıda ödeme birlikte açıkken varsayılan online karttır.
+    await toReview("&card&door");
+    assert.equal(await page.getByRole("radio", { name: /Online kartla öde/ }).isChecked(), true, "card is the default when available");
+    assert.equal(await page.getByRole("radio", { name: /Kapıda öde/ }).isChecked(), false, "pay at door is opt-in");
+    await page.getByText("Paran, iş bitip sen onaylayana kadar ustaya geçmez", { exact: false }).first().waitFor();
+    await shot("0-kart-varsayilan");
+    // Hiçbir ödeme yöntemi açık değilse (canlı kart öncesi, kapıda ödeme kapalı) sipariş verilemez.
+    await toReview("");
+    assert.equal(await page.getByRole("radio").count(), 0, "no payment option offered while both are closed");
+    await page.locator(".booking-payment-soon").getByText("Online ödeme açılışa hazırlanıyor", { exact: false }).waitFor();
+    await page.getByRole("checkbox", { name: /Mesafeli Hizmet Sözleşmesi/ }).check(); await page.getByRole("checkbox", { name: /cayma süresi dolmadan/ }).check();
+    assert.equal(await action().isDisabled(), true, "order cannot be placed without a payment method");
+    assert.equal(placed, undefined, "nothing was sent");
+    await fits("No payment"); await shot("0-odeme-yakinda");
+    report.checks.push(`${width}px: card is the default when open; with card and pay-at-door both closed the order step shows the online payment notice and stays disabled`);
+    await clearDrafts();
+    await page.goto(`${base}/?screen=direct-purchase&door`, { waitUntil: "domcontentloaded" });
     await page.getByRole("heading", { level: 1 }).waitFor();
-    const action = () => page.locator(width < 768 ? ".booking-sticky" : ".booking-desktop-actions").getByRole("button", { name: /Devam Et|Siparişi Onayla/ });
     await page.getByLabel("İlçe", { exact: true }).selectOption({ label: "Kadıköy" });
     await page.getByRole("button", { name: /Ekle$/ }).first().click();
     await page.getByRole("button", { name: "TEST · Cam silme (oda başına) ekle" }).click();
@@ -45,7 +69,7 @@ try {
     await page.getByLabel("Mahalle, sokak, bina ve daire").fill("TEST Caferağa Mahallesi, Örnek Sokak No:10 Daire:2");
     await page.getByLabel(/Ustaya not/).fill("Zil bozuk, gelince arayın.");
     await shot("3-adres-not"); await action().click();
-    assert.equal(await page.getByRole("radio", { name: /Kapıda öde/ }).isChecked(), true, "Kapıda öde is the default");
+    assert.equal(await page.getByRole("radio", { name: /Kapıda öde/ }).isChecked(), true, "pay at door is selected when it is the only open method");
     assert.equal(await page.getByRole("radio", { name: /Online kartla öde/ }).count(), 0, "Card option hidden while closed");
     assert.equal(await action().isDisabled(), true, "Consent required");
     await page.locator("#on-bilgilendirme-formu").waitFor();
@@ -69,6 +93,12 @@ try {
     await page.goto(`${base}/?screen=door-order&placed`); await page.getByText("Siparişin alındı, randevun onaylandı.").waitFor(); await page.getByText("İş bitince ustana ödeyeceğin tutar").waitFor();
     await page.goto(`${base}/?screen=door-order&provider`); await page.getByText("Hizmet bitince müşteriden tahsil edeceğin tutar").waitFor(); await page.getByText("Müşterinin notu").waitFor();
     report.checks.push(`${width}px: customer confirmation and usta collection views show extras, note and amount due at the door`);
+    await page.goto(`${base}/?screen=card-order`, { waitUntil: "domcontentloaded" }); await page.getByRole("heading", { level: 1 }).waitFor();
+    const summary = page.locator(".commerce-summary");
+    await summary.getByText("FUWU hizmet bedeli").waitFor(); assert.ok(await summary.getByText("+₺75", { exact: true }).count(), "customer receipt itemizes the FUWU service fee");
+    assert.ok(await summary.getByText("₺1.575", { exact: false }).count(), "receipt total includes the fee");
+    await fits("Card receipt"); await shot("7-kart-fis");
+    report.checks.push(`${width}px: card order receipt itemizes package, extras and FUWU hizmet bedeli`);
     await context.close();
   }
   assert.deepEqual(report.errors, []);
