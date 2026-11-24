@@ -6,6 +6,7 @@ import { getAdminAccess } from "@/services/admin";
 import { SETTING_DEFS, getAdminSettings } from "@/services/admin/settings";
 import { buildLoginRedirectUrl } from "@/lib/constants/navigation";
 import { SettingsForm } from "./SettingsForm";
+import { getIntermediaryParty } from "@/services/legal/intermediary";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function AdminSettingsPage() {
     return <AdminAccessGate access={adminAccess} />;
   }
 
-  const { values, error } = await getAdminSettings();
+  const [{ values, error }, intermediary] = await Promise.all([getAdminSettings(), getIntermediaryParty()]);
 
   return (
     <AdminAccessGate access={adminAccess}>
@@ -35,6 +36,7 @@ export default async function AdminSettingsPage() {
         error={error}
         title="Ayarlar"
       >
+        {!error && <p className={intermediary.ready ? "commerce-notice" : "commerce-warning"} role="status">{intermediary.ready ? "Ön bilgilendirme formu için FUWU bilgileri tamam; siparişler alınabilir." : "Sipariş alınamaz: ön bilgilendirme formu için FUWU'nun adı, vergi kimlik no (ya da MERSİS), açık adres, telefon ve e-postası aşağıda \"Yasal ·\" alanlarına girilmeli. Bu bilgiler sözleşmede ve fuwu.com.tr/on-bilgilendirme-formu sayfasında herkese görünür."}</p>}
         {!error && <SettingsForm defs={SETTING_DEFS} values={values} />}
       </AdminPageShell>
     </AdminAccessGate>

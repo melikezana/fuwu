@@ -1,8 +1,8 @@
 {
   "checks": [
-    "390px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → order placed with server-verified 1.500 TL basket",
+    "390px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → pre-contract form (16 px) + contract acceptance + early-start consent → order placed with server-verified 1.500 TL basket",
     "390px: customer confirmation and usta collection views show extras, note and amount due at the door",
-    "1440px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → order placed with server-verified 1.500 TL basket",
+    "1440px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → pre-contract form (16 px) + contract acceptance + early-start consent → order placed with server-verified 1.500 TL basket",
     "1440px: customer confirmation and usta collection views show extras, note and amount due at the door"
   ],
   "screenshots": [

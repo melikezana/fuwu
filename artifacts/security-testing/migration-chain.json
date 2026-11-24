@@ -1,6 +1,6 @@
 {
-  "sourceHash": "87c83c6e63a931b4f048076ec69f84c86702a5a05dd7d1ff5a11b4e23f10625e",
-  "startedAt": "2026-11-24T11:09:00.226Z",
+  "sourceHash": "d1b8a1312e46d245e1ed40a05c73b628e937d42f24f68684ac1d858da5afdc16",
+  "startedAt": "2026-11-24T14:07:28.527Z",
   "scope": "Disposable PostgreSQL + platform DDL shim. Production-version replay excludes untracked schema drift unless explicitly overlaid; never hosted staging/Auth/Storage E2E",
   "scenario": "clean_install",
   "version": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
@@ -93,7 +93,8 @@
     "20261113000100_consent_v2_and_application_notice.sql",
     "20261113000200_application_phone_fallback.sql",
     "20261114000100_admin_event_notifications.sql",
-    "20261124000100_direct_purchase_extras_pay_at_door.sql"
+    "20261124000100_direct_purchase_extras_pay_at_door.sql",
+    "20261124000200_distance_contract_legal.sql"
   ],
   "checks": [
     "Contract guard can be reapplied without rewriting data or migration ledger",
@@ -132,11 +133,11 @@
     "Service abuse: five attempts persisted, sixth does not reset counter, expired code, wrong order code, cancelled order rejected; customer complaint pauses order, separate provider appeal, other user cannot read cases, reversible admin resolution never impersonates customer consent; all flows work without any location input",
     "Service atomicity: two independent PostgreSQL connections consume same order/code concurrently; exactly one succeeds and one transition/audit persists under row locks",
     "Trust audit fail-closed: simulated audit INSERT outage rolls back code generation; every trust RPC denies anon and has explicit empty search_path and SECURITY DEFINER boundary",
-    "Audit advisor: 80 API-callable SECURITY DEFINER functions match the reviewed privilege matrix; 10 anonymous by design; all pin search_path",
+    "Audit advisor: 81 API-callable SECURITY DEFINER functions match the reviewed privilege matrix; 10 anonymous by design; all pin search_path",
     "Audit advisor: every public table has RLS and an explicit policy; seven server-only tables stay closed to anon and authenticated",
     "Audit advisor: weekly launch metrics are admin-only, bounded to 26 weeks and return counts without personal data",
     "Audit advisor: no unindexed foreign key, no duplicate index and no per-row auth call remains in public RLS policies",
-    "BOLA/IDOR: a foreign session probed 67 of 80 API-callable definer functions (all except intentionally public ones) with a victim's provider and application ids; 62 rejected, 5 returned only an empty or caller-scoped result, none returned victim data, victim rows unchanged; direct table update/delete blocked by RLS",
+    "BOLA/IDOR: a foreign session probed 68 of 81 API-callable definer functions (all except intentionally public ones) with a victim's provider and application ids; 63 rejected, 5 returned only an empty or caller-scoped result, none returned victim data, victim rows unchanged; direct table update/delete blocked by RLS",
     "Application source review: admin-only, reason required, reversible, audited without free text; application status and provider record untouched",
     "Direct purchase: published provider without iyzico sub-merchant is listed (card_payment=false) and exposes real slots",
     "Direct purchase: basket price computed server-side; inactive, foreign-service, duplicate, over-limit and malformed extras rejected",
@@ -146,7 +147,12 @@
     "Direct purchase: door code → start → completion → customer confirmation marks pay-at-door PAID once; provider sees collected amount and FUWU share, never a card payout",
     "Direct purchase: customer cancels an upcoming pay-at-door order without a refund process",
     "Direct purchase: only admins manage extras (audited); browsers cannot write; inactive extras are not public",
-    "Direct purchase: pay-at-door can be switched off from app settings without a deploy"
+    "Direct purchase: pay-at-door can be switched off from app settings without a deploy",
+    "Distance contract: a provider without legal name, tax ID, address and phone is never on sale; anonymous visitors cannot read seller identities",
+    "Distance contract: orders are refused while FUWU (intermediary) identity is incomplete; checkout shows both parties once complete",
+    "Distance contract: the accepted text version, time, early-performance consent and both parties' identities are stored on the order; appointments after the 14-day period need no early consent",
+    "Distance contract: the legal record on an order is immutable and keeps the identities shown at acceptance",
+    "Distance contract: the customer can withdraw free of charge until the service starts (even while the usta is on the way), not after"
   ],
   "failure": null
 }

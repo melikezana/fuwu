@@ -37,6 +37,14 @@ export const SETTING_DEFS: SettingDef[] = [
   { default: "false", key: "launch_interest_enabled", label: "Açılış kaydı · KVKK ve operasyon hazırlığı tamamlandı", type: "boolean" },
   // 6563 s. Kanun: onay alındı e-postası (24 saat) ve İYS kaydı (3 iş günü) hazır olmadan açılmamalı; kapalıyken veritabanı onayı reddeder.
   { default: "false", key: "launch_marketing_email_enabled", label: "Ön kayıtta e-posta onayı · İYS kaydı ve onay bildirim e-postası hazır", type: "boolean" },
+  // Mesafeli Sözleşmeler Yönetmeliği m.5/1-b,c: ön bilgilendirme formunda aracı hizmet sağlayıcının kimliği. Eksikse sipariş alınmaz.
+  { default: "Melike Dağkesen (FUWU)", key: "legal_intermediary_name", label: "Yasal · FUWU adı / unvanı (ön bilgilendirme ve sözleşmede görünür)", type: "text" },
+  { default: "", key: "legal_intermediary_tax_id", label: "Yasal · Vergi kimlik no (şahıs ise T.C. kimlik no; şirkette VKN)", type: "text" },
+  { default: "", key: "legal_intermediary_tax_office", label: "Yasal · Vergi dairesi", type: "text" },
+  { default: "", key: "legal_intermediary_mersis", label: "Yasal · MERSİS no (şirket kurulunca)", type: "text" },
+  { default: "", key: "legal_intermediary_address", label: "Yasal · Açık adres (tebligat adresi)", type: "text" },
+  { default: "", key: "legal_intermediary_phone", label: "Yasal · Telefon", type: "text" },
+  { default: "fuwuhizmet@gmail.com", key: "legal_intermediary_email", label: "Yasal · E-posta (cayma ve şikâyet bildirimleri buraya gelir)", type: "text" },
 ];
 
 const KNOWN_KEYS = new Set(SETTING_DEFS.map((definition) => definition.key));

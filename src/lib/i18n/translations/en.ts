@@ -367,6 +367,8 @@ export const enTranslations = {
     "footer.kvkk": "KVKK Clarification Text",
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Use",
+    "footer.preInformation": "Pre-contract Information",
+    "footer.distanceContract": "Distance Service Contract",
     "footer.cookies": "Cookie Policy",
     "footer.copyright": "© 2026 FUWU Services",
     "footer.tagline": "The fastest way to reach a local pro.",

@@ -15,6 +15,8 @@ import { OfferAvailability } from "./OfferAvailability";
 import { sandboxPaymentUrl } from "@/lib/commerce/payment";
 import { basketMatches, decodeBasket, encodeBasket, type BasketQuote, type BasketSelection } from "@/lib/commerce/pricing";
 import { ServicePhoto } from "@/components/ui/ServicePhoto";
+import { LegalDocument } from "@/components/legal/LegalDocument";
+import { DISTANCE_CONTRACT_VERSION, distanceContractSections, preInformationSections, startsWithinWithdrawalPeriod, withdrawalFormSection, type ContractInput, type LegalParty } from "@/lib/legal/distance-contract";
 
 type BookingProps = {
   service: CatalogService; offers: PublicOffer[]; variants: ServiceVariant[];
@@ -31,7 +33,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   const router = useRouter();
   const heading = useRef<HTMLHeadingElement>(null);
   const variantId = variants.find(v => v.id === initialVariant)?.id || variants[0]?.id || "";
-  const [form, setForm] = useState({ variantId, districtId: districts.find(d => d.id === initialDistrict || d.name === initialDistrict)?.id || "", offeringId: offers.find(o => o.provider_id === initialProvider && (!variantId || o.variant_id === variantId))?.id || "", preferredProviderId: initialProvider || "", day: todayIstanbul(), startsAt: "", address: "", note: "", addons: "", paymentMethod: "PAY_AT_DOOR", idempotencyKey: "", stage: "0" });
+  const [form, setForm] = useState({ variantId, districtId: districts.find(d => d.id === initialDistrict || d.name === initialDistrict)?.id || "", offeringId: offers.find(o => o.provider_id === initialProvider && (!variantId || o.variant_id === variantId))?.id || "", preferredProviderId: initialProvider || "", day: todayIstanbul(), startsAt: "", address: "", note: "", addons: "", paymentMethod: "PAY_AT_DOOR", earlyConsent: "", idempotencyKey: "", stage: "0" });
   const draftScope = `${initialProvider || ""}:${initialVariant || ""}:${initialDistrict || ""}:${initialRebook || ""}`;
   const draftKey = `fuwu:commerce:${service.slug}:${draftScope}`;
   const clearDraft = useSessionFormDraft(draftKey, form, setForm);
@@ -62,13 +64,19 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   const quote = pricingKey && pricing.key === pricingKey ? pricing.quote : null;
   const quoteKey = quote && selected ? `${pricingKey}:${quote.total_minor}:${quote.customer_fee_bps}:${quote.terms_version}:${paymentMethod}` : "";
   const consent = Boolean(quoteKey && consentKey === quoteKey);
+  // Ön bilgilendirme: satıcı (usta) ve FUWU kimliği sunucudan, yalnızca giriş yapmış kullanıcıya gelir.
+  const [legal, setLegal] = useState<{ key: string; status: "loading" | "ok" | "login" | "error"; ready: boolean; provider: LegalParty | null; intermediary: LegalParty | null; message: string }>({ key: "", status: "loading", ready: false, provider: null, intermediary: null, message: "" });
+  const legalKey = step === 3 && selected ? `${selected.id}|${retry}` : "";
+  const legalState = legalKey && legal.key === legalKey ? legal : { key: "", status: "loading" as const, ready: false, provider: null, intermediary: null, message: "" };
+  const earlyStart = Boolean(form.startsAt) && startsWithinWithdrawalPeriod(form.startsAt);
+  const earlyConsent = form.earlyConsent === "yes";
   const key = selected && form.day && form.districtId ? `${selected.id}|${form.day}|${form.districtId}|${retry}` : "";
   const loading = Boolean(key && key !== result.key);
   const slots = key === result.key ? result.slots : [];
   const validSlot = slots.some(s => s.starts_at === form.startsAt);
   const validAddress = form.address.trim().length >= 10 && form.address.length <= 1000;
   const validNote = form.note.length <= NOTE_LIMIT;
-  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress && validNote : Boolean(selected && validSlot && validAddress && validNote && quote && consent);
+  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress && validNote : Boolean(selected && validSlot && validAddress && validNote && quote && consent && legalState.status === "ok" && legalState.ready && (!earlyStart || earlyConsent));
   const maxDate = new Date(`${todayIstanbul()}T12:00:00+03:00`); maxDate.setUTCDate(maxDate.getUTCDate() + 30);
   const quickKey = selected && form.districtId ? `${selected.id}|${form.districtId}|${todayIstanbul()}|${retry}` : "";
   const submitLabel = busy ? (paymentMethod === "CARD" ? "Ödeme hazırlanıyor…" : "Sipariş oluşturuluyor…") : step === 3 ? (paymentMethod === "CARD" ? "Ödemeye Geç" : "Siparişi Onayla") : "Devam Et";
@@ -87,6 +95,22 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
       }).catch(() => { if (!controller.signal.aborted) setPricing({ key: pricingKey, quote: null, error: true }); });
     return () => controller.abort();
   }, [selected, pricingKey, serviceAddons, retry]);
+
+  useEffect(() => {
+    if (!legalKey) return;
+    const controller = new AbortController();
+    const [offering] = legalKey.split("|");
+    fetch(`/api/commerce/legal?${new URLSearchParams({ offering })}`, { signal: controller.signal, cache: "no-store" })
+      .then(async response => {
+        const body = await response.json().catch(() => ({}));
+        if (controller.signal.aborted) return;
+        if (response.status === 401) { setLegal({ key: legalKey, status: "login", ready: false, provider: null, intermediary: null, message: "" }); return; }
+        if (!response.ok || !body.legal) { setLegal({ key: legalKey, status: "error", ready: false, provider: null, intermediary: null, message: commerceError(String(body.error ?? "legal_unavailable")) }); return; }
+        setLegal({ key: legalKey, status: "ok", ready: body.legal.ready === true && body.legal.version === DISTANCE_CONTRACT_VERSION, provider: body.legal.provider ?? null, intermediary: body.legal.intermediary ?? null, message: body.legal.version === DISTANCE_CONTRACT_VERSION ? "" : commerceError("legal_version_changed") });
+      })
+      .catch(() => { if (!controller.signal.aborted) setLegal({ key: legalKey, status: "error", ready: false, provider: null, intermediary: null, message: commerceError("legal_unavailable") }); });
+    return () => controller.abort();
+  }, [legalKey]);
 
   useEffect(() => {
     if (!quickKey) return;
@@ -116,7 +140,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   }
   function change(field: "variantId" | "districtId" | "offeringId" | "day", value: string) {
     setForm(f => {
-      const next = { ...f, [field]: value, ...(field === "districtId" ? { address: "" } : {}), startsAt: "", idempotencyKey: "" };
+      const next = { ...f, [field]: value, ...(field === "districtId" ? { address: "" } : {}), startsAt: "", earlyConsent: "", idempotencyKey: "" };
       if (field === "offeringId") next.preferredProviderId = offers.find(o => o.id === value)?.provider_id || "";
       if (field === "variantId" || field === "districtId") next.offeringId = offers.find(o => o.provider_id === f.preferredProviderId && (service.pricing_type !== "VARIANT_BASED" || o.variant_id === next.variantId) && (!next.districtId || o.district_ids.includes(next.districtId)))?.id || "";
       return next;
@@ -128,18 +152,27 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
     const next = [...basket.filter(line => line.id !== addon.id), ...(bounded ? [{ id: addon.id, quantity: bounded }] : [])];
     setForm(f => ({ ...f, addons: encodeBasket(next), idempotencyKey: "" })); setConsentKey(""); setError("");
   }
+  function loginToContinue() {
+    try { persistSessionFormDraft(draftKey, form); } catch { setError(commerceError("checkout_draft_unavailable")); return; }
+    router.push(buildLoginRedirectUrl(resumePath));
+  }
+  function openDocument(event: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    event.preventDefault();
+    const element = document.getElementById(id);
+    if (element instanceof HTMLDetailsElement) { element.open = true; element.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  }
   function choosePayment(method: PaymentMethod) {
     setForm(f => ({ ...f, paymentMethod: method, idempotencyKey: "" })); setConsentKey(""); setError("");
   }
   async function reserve(e: React.FormEvent) {
     e.preventDefault();
     if (step < 3) { if (canContinue) go(step + 1); return; }
-    if (!selected || !validSlot || !validAddress || !validNote || !quote || !consent || busy) return;
+    if (!selected || !validSlot || !validAddress || !validNote || !quote || !consent || !legalState.ready || (earlyStart && !earlyConsent) || busy) return;
     setBusy(true); setError(""); setNeedsLogin(false);
     const idempotencyKey = form.idempotencyKey || crypto.randomUUID();
     setForm(f => ({ ...f, idempotencyKey }));
     try {
-      const response = await fetch("/api/commerce/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ offeringId: selected.id, districtId: form.districtId, startsAt: form.startsAt, address: form.address.trim(), note: form.note.trim() || null, addons: basketKey, paymentMethod, expectedTotalMinor: quote.total_minor, feeConsent: consent, termsVersion: quote.terms_version, idempotencyKey }) });
+      const response = await fetch("/api/commerce/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ offeringId: selected.id, districtId: form.districtId, startsAt: form.startsAt, address: form.address.trim(), note: form.note.trim() || null, addons: basketKey, paymentMethod, expectedTotalMinor: quote.total_minor, feeConsent: consent, termsVersion: quote.terms_version, legalAccepted: consent, legalVersion: DISTANCE_CONTRACT_VERSION, earlyStartConsent: earlyStart && earlyConsent, idempotencyKey }) });
       const body = await response.json();
       if (response.status === 401) {
         // Flush synchronously before leaving the tab; never put the address in the URL.
@@ -157,10 +190,18 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
         const url = sandboxPaymentUrl(payment.paymentPageUrl);
         clearDraft(); window.location.assign(url);
       } catch { clearDraft(); router.push(`/orders/${body.order.id}`); }
-    } catch (e) { setError(commerceError(String(e))); if (/fee_changed|price_changed|invalid_addons/.test(String(e))) { setPricing({ key: "", quote: null, error: false }); setConsentKey(""); setRetry(r => r + 1); } } finally { setBusy(false); }
+    } catch (e) { setError(commerceError(String(e))); if (/fee_changed|price_changed|invalid_addons|legal_version_changed|legal_identity_incomplete/.test(String(e))) { setPricing({ key: "", quote: null, error: false }); setConsentKey(""); setRetry(r => r + 1); } } finally { setBusy(false); }
   }
 
   const basketLines = basket.map(line => ({ line, addon: serviceAddons.find(item => item.id === line.id) })).filter((entry): entry is { line: BasketSelection[number]; addon: ServiceAddon } => Boolean(entry.addon));
+  const contractInput: ContractInput = {
+    provider: legalState.provider, intermediary: legalState.intermediary,
+    service: { name: service.name, variant: service.pricing_type === "VARIANT_BASED" ? variants.find(v => v.id === form.variantId)?.name ?? null : null, scope: selected?.scope || service.scope, exclusions: service.exclusions },
+    addons: basketLines.map(({ line, addon }) => ({ name: addon.name, quantity: line.quantity, total_minor: addon.price_minor * line.quantity })),
+    basePriceMinor: quote?.base_price_minor ?? null, addonsMinor: quote?.addons_minor ?? addonsMinor, totalMinor: quote?.total_minor ?? null,
+    durationMinutes: selected?.duration_minutes ?? null, startsAt: validSlot ? form.startsAt : null, address: form.address.trim() || null,
+    district: districts.find(d => d.id === form.districtId)?.name ?? null, paymentMethod, withinWithdrawalPeriod: validSlot ? earlyStart : null,
+  };
   const summary = <>
     <p className="commerce-eyebrow">SEPETİN</p><h2>{service.name}</h2>
     <dl><div><dt>Usta</dt><dd>{selected?.provider_name || "Ustanı seç"}</dd></div>
@@ -217,7 +258,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
           <div className="booking-day-rail" aria-label="Müsait günler">{bookingDays(todayIstanbul()).filter(day => quickDays.key === quickKey && quickDays.days.includes(day.iso)).map(day => <button type="button" aria-pressed={form.day === day.iso} key={day.iso} onClick={() => change("day", day.iso)}><strong>{day.label}</strong><span>{day.date}</span></button>)}</div>
           <label className="commerce-field">Randevu günü<input type="date" min={todayIstanbul()} max={maxDate.toISOString().slice(0, 10)} required value={form.day} onChange={e => change("day", e.target.value)} /></label>
           <p className="commerce-help">Tüm saatler Türkiye saatidir. Hizmet süresi ve mevcut randevular hesaba katılır.</p>
-          <div aria-live="polite">{!key ? <p className="commerce-notice">Müsait saatleri görmek için önce ilçe ve usta seç.</p> : loading ? <div className="commerce-slot-grid" aria-label="Müsait saatler yükleniyor" role="status">{[1,2,3,4].map(n => <span className="commerce-skeleton h-12" key={n} />)}</div> : result.error ? <><p role="alert" className="commerce-error">{result.error}</p><button className="commerce-secondary" type="button" onClick={() => { setResult({ key: "", slots: [], error: "" }); setRetry(r => r + 1); }}>Yeniden Dene</button></> : !slots.length ? <p className="commerce-notice">Bu gün için uygun randevu yok. Başka bir gün veya usta seçebilirsin.</p> : <fieldset><legend className="commerce-field-title">Müsait saatler</legend><div className="commerce-slot-grid">{slots.map(s => <label className={`commerce-slot ${form.startsAt === s.starts_at ? "is-selected" : ""}`} key={s.starts_at}><input type="radio" name="slot" value={s.starts_at} checked={form.startsAt === s.starts_at} onChange={() => setForm(f => ({ ...f, startsAt: s.starts_at, idempotencyKey: "" }))} />{slotTime(s.starts_at)}</label>)}</div></fieldset>}</div>
+          <div aria-live="polite">{!key ? <p className="commerce-notice">Müsait saatleri görmek için önce ilçe ve usta seç.</p> : loading ? <div className="commerce-slot-grid" aria-label="Müsait saatler yükleniyor" role="status">{[1,2,3,4].map(n => <span className="commerce-skeleton h-12" key={n} />)}</div> : result.error ? <><p role="alert" className="commerce-error">{result.error}</p><button className="commerce-secondary" type="button" onClick={() => { setResult({ key: "", slots: [], error: "" }); setRetry(r => r + 1); }}>Yeniden Dene</button></> : !slots.length ? <p className="commerce-notice">Bu gün için uygun randevu yok. Başka bir gün veya usta seçebilirsin.</p> : <fieldset><legend className="commerce-field-title">Müsait saatler</legend><div className="commerce-slot-grid">{slots.map(s => <label className={`commerce-slot ${form.startsAt === s.starts_at ? "is-selected" : ""}`} key={s.starts_at}><input type="radio" name="slot" value={s.starts_at} checked={form.startsAt === s.starts_at} onChange={() => setForm(f => ({ ...f, startsAt: s.starts_at, earlyConsent: "", idempotencyKey: "" }))} />{slotTime(s.starts_at)}</label>)}</div></fieldset>}</div>
         </section>}
         {step === 2 && <section className="commerce-panel"><h3><MapPin size={20} aria-hidden /> Hizmet adresin</h3>
           {savedAddresses.length > 0 && <label className="commerce-field">Kayıtlı adreslerim<select value={savedAddresses.find(a => a.address === form.address && a.district_id === form.districtId)?.id || ""} onChange={e => { const address = savedAddresses.find(a => a.id === e.target.value); if (address && address.district_id === form.districtId) setForm(f => ({ ...f, address: address.address, idempotencyKey: "" })); }}><option value="">Bu ilçedeki kayıtlı adresini seç</option>{savedAddresses.filter(a => a.district_id === form.districtId).map(address => <option key={address.id} value={address.id}>{address.label}</option>)}</select></label>}
@@ -236,13 +277,27 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
             </div>
             {paymentMethod === "PAY_AT_DOOR" && <p className="commerce-help">Usta, hizmete başlamadan ödeme isteyemez. İş bitince ödersin; sorun olursa sipariş sayfandan destek istersin.</p>}
           </section>
-          <section className="commerce-panel booking-review"><h3><Check size={20} aria-hidden /> Son bir kontrol</h3><div className="booking-review-summary">{summary}</div><div className="booking-review-row"><div><strong>Hizmet adresi</strong><p>{form.address}</p>{form.note.trim() && <><strong>Ustaya not</strong><p>{form.note.trim()}</p></>}</div><button className="booking-inline-edit" type="button" onClick={() => go(2)}>Düzenle</button></div><h3>Hizmete dahil</h3><p className="commerce-help">{selected?.scope || service.scope}</p><h3>Malzeme ve ek işçilik / dahil olmayanlar</h3><p className="commerce-help">{service.exclusions || "Yalnızca yukarıdaki kapsam satın alınır."} Kapsam dışı malzeme veya işçilik bu tutara dahil değildir; onayın olmadan ek ücret alınmaz.</p>{service.pricing_type === "DIAGNOSTIC_SERVICE" && <p className="commerce-notice">Bu bedel keşif ve arıza tespiti içindir. Onarım ve parçalar bu pakete dahil değildir.</p>}<h3>İptal</h3><p className="commerce-help">Randevu başlamadan, usta yola çıkmamışken sipariş detayından ücretsiz iptal edebilirsin.{paymentMethod === "CARD" ? " Kartla ödenen siparişin iadesi ödeme kuruluşundan doğrulanana kadar beklemede görünür." : ""}</p><p className="commerce-help">Ayrıntılar için <Link href="/kullanim-sartlari" target="_blank" rel="noopener">kullanım, iptal ve iade koşullarını</Link> inceleyebilirsin.</p>{!loading && (!selected || !validSlot) && <p className="commerce-warning" role="status">Seçimin artık uygun değil. Ustanı ve güncel saatleri tekrar kontrol et.</p>}<button className="booking-inline-edit" type="button" onClick={() => go(selected ? 1 : 0)}>Usta ve saati kontrol et</button>{quote && <label className="commerce-checkbox booking-fee-consent"><input type="checkbox" checked={consent} onChange={event => setConsentKey(event.target.checked ? quoteKey : "")} />{paymentMethod === "CARD" ? `Hizmet kapsamını, iptal ve iade koşullarını okudum. Tüm ücretler dahil ${money(quote.total_minor)} ödemeyi onaylıyorum.` : `Hizmet kapsamını ve iptal koşullarını okudum. Tüm ücretler dahil ${money(quote.total_minor)} tutarı iş bitince kapıda ödemeyi onaylıyorum.`}</label>}</section>
+          <section className="commerce-panel booking-review"><h3><Check size={20} aria-hidden /> Son bir kontrol</h3><div className="booking-review-summary">{summary}</div><div className="booking-review-row"><div><strong>Hizmet adresi</strong><p>{form.address}</p>{form.note.trim() && <><strong>Ustaya not</strong><p>{form.note.trim()}</p></>}</div><button className="booking-inline-edit" type="button" onClick={() => go(2)}>Düzenle</button></div><h3>Hizmete dahil</h3><p className="commerce-help">{selected?.scope || service.scope}</p><h3>Malzeme ve ek işçilik / dahil olmayanlar</h3><p className="commerce-help">{service.exclusions || "Yalnızca yukarıdaki kapsam satın alınır."} Kapsam dışı malzeme veya işçilik bu tutara dahil değildir; onayın olmadan ek ücret alınmaz.</p>{service.pricing_type === "DIAGNOSTIC_SERVICE" && <p className="commerce-notice">Bu bedel keşif ve arıza tespiti içindir. Onarım ve parçalar bu pakete dahil değildir.</p>}<h3>İptal</h3><p className="commerce-help">Hizmete başlanana kadar sipariş detayından ücretsiz iptal edebilirsin.{paymentMethod === "CARD" ? " Kartla ödenen siparişin iadesi ödeme kuruluşundan doğrulanana kadar beklemede görünür." : ""}</p><p className="commerce-help">Ayrıntılar için <Link href="/kullanim-sartlari" target="_blank" rel="noopener">kullanım, iptal ve iade koşullarını</Link> inceleyebilirsin.</p>{!loading && (!selected || !validSlot) && <p className="commerce-warning" role="status">Seçimin artık uygun değil. Ustanı ve güncel saatleri tekrar kontrol et.</p>}<button className="booking-inline-edit" type="button" onClick={() => go(selected ? 1 : 0)}>Usta ve saati kontrol et</button></section>
+          <section className="commerce-panel booking-legal" aria-labelledby="booking-legal-title"><h3 id="booking-legal-title"><ShieldCheck size={20} aria-hidden /> Sözleşme ve cayma hakkın</h3>
+            <div className="booking-withdrawal"><strong>14 gün cayma hakkın var.</strong><span>Siparişten itibaren 14 gün içinde gerekçe göstermeden, ücretsiz vazgeçebilirsin: sipariş sayfandaki “Siparişi İptal Et” yeterli.</span><span>{earlyStart ? "Randevun bu 14 gün içinde. Hizmetin bu randevuda başlamasını onaylarsan, usta hizmete başladığı anda cayma hakkın sona erer; o ana kadar yine ücretsiz vazgeçebilirsin." : "Randevun 14 günden sonra olduğu için cayma süresinin tamamında ücretsiz vazgeçebilirsin."}</span></div>
+            {legalState.status === "loading" && <p className="commerce-help" role="status">Ön bilgilendirme formu hazırlanıyor…</p>}
+            {legalState.status === "login" && <div className="commerce-notice" role="status"><p>Ön bilgilendirme formunda ustanın ve FUWU’nun kimlik bilgileri yer alır; görmek ve siparişi tamamlamak için giriş yap. Seçimlerin korunur.</p><button type="button" className="commerce-button" onClick={loginToContinue}>Giriş Yap ve Devam Et</button></div>}
+            {legalState.status === "error" && <p role="alert" className="commerce-error">{legalState.message} <button type="button" className="booking-inline-edit" onClick={() => setRetry(r => r + 1)}>Yeniden dene</button></p>}
+            {legalState.status === "ok" && !legalState.ready && <p role="alert" className="commerce-warning">{legalState.message || "Satıcı bilgileri tamamlanmadığı için bu hizmet şu anda satın alınamıyor. Başka bir usta seçebilirsin."}</p>}
+            {legalState.status === "ok" && legalState.ready && quote && <>
+              <details id="on-bilgilendirme-formu"><summary>Ön Bilgilendirme Formu</summary><LegalDocument title="Ön Bilgilendirme Formu" sections={preInformationSections(contractInput)} /></details>
+              <details id="mesafeli-hizmet-sozlesmesi"><summary>Mesafeli Hizmet Sözleşmesi</summary><LegalDocument title="Mesafeli Hizmet Sözleşmesi" sections={[...distanceContractSections(contractInput), withdrawalFormSection(contractInput)]} /></details>
+              <label className="commerce-checkbox booking-fee-consent"><input type="checkbox" checked={consent} onChange={event => setConsentKey(event.target.checked ? quoteKey : "")} /><span><a href="#on-bilgilendirme-formu" onClick={event => openDocument(event, "on-bilgilendirme-formu")}>Ön Bilgilendirme Formu</a>’nu okudum ve <a href="#mesafeli-hizmet-sozlesmesi" onClick={event => openDocument(event, "mesafeli-hizmet-sozlesmesi")}>Mesafeli Hizmet Sözleşmesi</a>’ni kabul ediyorum. {paymentMethod === "CARD" ? `Tüm ücretler dahil ${money(quote.total_minor)} ödemeyi onaylıyorum.` : `Tüm ücretler dahil ${money(quote.total_minor)} tutarı iş bitince kapıda ödeyeceğim.`}</span></label>
+              {earlyStart && <label className="commerce-checkbox"><input type="checkbox" checked={earlyConsent} onChange={event => setForm(f => ({ ...f, earlyConsent: event.target.checked ? "yes" : "", idempotencyKey: "" }))} /><span>Hizmetin 14 günlük cayma süresi dolmadan, seçtiğim randevuda başlamasını istiyorum. Usta hizmete başladıktan sonra cayma hakkımı kullanamayacağımı biliyorum.</span></label>}
+            </>}
+          </section>
         </>}
         {error && <p role="alert" className="commerce-error">{error}</p>}
         {needsLogin && <Link className="commerce-secondary" href={buildLoginRedirectUrl(resumePath)}>Google ile Giriş Yap ve Devam Et</Link>}
+        {step === 3 && <p className="booking-payment-obligation">“Siparişi Onayla” ile ödeme yükümlülüğü doğan bir sipariş vermiş olursun{paymentMethod === "PAY_AT_DOOR" ? "; ödemeyi iş bitince kapıda yaparsın" : ""}.</p>}
         <div className="booking-desktop-actions">{step > 0 && <button className="commerce-secondary" type="button" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={17} aria-hidden /> Geri</button>}<button className="commerce-button" disabled={!canContinue || busy} type="submit">{submitLabel}<ArrowRight size={18} aria-hidden /></button></div>
       </form>
     </div><aside className="commerce-summary booking-live-summary">{summary}{step > 0 && <button type="button" className="commerce-text-link" disabled={busy} onClick={() => go(0)}>Seçimlerimi düzenle</button>}</aside></div>
-    <div className="commerce-sticky booking-sticky">{step > 0 && <button className="booking-back-button" type="button" aria-label="Önceki adım" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={20} aria-hidden /></button>}<div><small>{basket.length ? `Toplam · ${basket.reduce((sum, line) => sum + line.quantity, 0)} ekstra` : "Toplam"}</small><strong>{quote ? money(quote.total_minor) : selected ? "Hesaplanıyor" : "Ustanı seç"}</strong></div><button className="commerce-button" type="submit" form="commerce-booking" disabled={!canContinue || busy}>{busy ? "Hazırlanıyor…" : submitLabel}<ArrowRight size={17} aria-hidden /></button></div>
+    <div className="commerce-sticky booking-sticky">{step > 0 && <button className="booking-back-button" type="button" aria-label="Önceki adım" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={20} aria-hidden /></button>}<div><small>{step === 3 ? "Ödeme yükümlülüğü doğar" : basket.length ? `Toplam · ${basket.reduce((sum, line) => sum + line.quantity, 0)} ekstra` : "Toplam"}</small><strong>{quote ? money(quote.total_minor) : selected ? "Hesaplanıyor" : "Ustanı seç"}</strong></div><button className="commerce-button" type="submit" form="commerce-booking" disabled={!canContinue || busy}>{busy ? "Hazırlanıyor…" : submitLabel}<ArrowRight size={17} aria-hidden /></button></div>
   </div>;
 }

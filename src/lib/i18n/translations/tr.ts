@@ -396,6 +396,8 @@ export const trTranslations = {
   "footer.kvkk": "KVKK Aydınlatma Metni",
   "footer.privacy": "Gizlilik Politikası",
   "footer.terms": "Kullanım Şartları",
+  "footer.preInformation": "Ön Bilgilendirme Formu",
+  "footer.distanceContract": "Mesafeli Hizmet Sözleşmesi",
   "footer.cookies": "Çerez Politikası",
   "footer.copyright": "© 2026 FUWU Hizmet",
   "footer.tagline": "Gerçek hizmet. Doğru usta. Güvenli satın alma.",

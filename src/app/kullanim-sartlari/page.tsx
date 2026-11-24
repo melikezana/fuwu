@@ -47,9 +47,10 @@ const sections: PolicySection[] = [
   {
     title: "İptal, iade ve destek",
     body: [
-      "Randevu başlamadan ve usta yola çıkmadan sipariş detayından ücretsiz iptal edebilirsin. Kapıda ödemeli siparişte ödeme yapılmadığı için iade gerekmez. Kartla ödenen siparişte tam iade müşteri platform ücretini de içerir ve ödeme kuruluşundan doğrulanmadan tamamlandı olarak gösterilmez.",
+      "Hizmete başlanana kadar (usta yolda olsa bile) sipariş detayından ücretsiz iptal edebilirsin. Kapıda ödemeli siparişte ödeme yapılmadığı için iade gerekmez. Kartla ödenen siparişte tam iade müşteri platform ücretini de içerir ve ödeme kuruluşundan doğrulanmadan tamamlandı olarak gösterilmez.",
       "Devam eden veya tamamlanan hizmette sorun yaşarsan sipariş detayındaki destek eylemini kullan. Değerlendirme yalnızca tamamladığın ve doğrulanan hizmet için yapılabilir.",
-      "Şirket bilgileri, ön bilgilendirme formu, mesafeli sözleşme ve cayma hakkına ilişkin metinler tamamlandığında bu sayfada ve sipariş özetinde ayrıca yayımlanır.",
+      "Her siparişte, hizmeti sunan ustanın ve FUWU'nun kimlik bilgileriyle doldurulmuş Ön Bilgilendirme Formu ve Mesafeli Hizmet Sözleşmesi onayına sunulur; onayladığın metinlere sipariş sayfandaki \"Ön bilgilendirme formu ve sözleşme\" bağlantısından her zaman ulaşırsın. Örnek metinler: fuwu.com.tr/on-bilgilendirme-formu ve fuwu.com.tr/mesafeli-hizmet-sozlesmesi.",
+      "Siparişten itibaren 14 gün içinde gerekçesiz cayma hakkın vardır. Randevun bu süre içindeyse ve hizmetin başlamasını onaylarsan, usta hizmete başladığı anda cayma hakkın sona erer; hizmete başlanana kadar ücretsiz iptal edebilirsin.",
     ],
   },
 ];

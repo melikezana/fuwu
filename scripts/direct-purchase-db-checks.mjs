@@ -20,6 +20,9 @@ export async function directPurchaseChecks(db, checks) {
   await db.query("insert into providers(id,user_id,name,phone,category_id,district_id,description,is_active,is_approved) values($1,$2,'TEST Door Provider','+905550002222',$3,$4,'TEST factual provider service description.',true,true)",[pid,owner,cat,district]);
   await db.query("insert into provider_publication_reviews(provider_id,status,fingerprint,record_kind) select p.id,'approved',provider_content_fingerprint(p),'real' from providers p where p.id=$1 on conflict(provider_id) do update set status='approved',fingerprint=excluded.fingerprint,record_kind='real'",[pid]);
   assert.equal(await scalar('select provider_is_published($1)',[pid]),true);
+  // Ön bilgilendirme için satıcı (usta) ve aracı hizmet sağlayıcı (FUWU) bilgileri tam olmalı.
+  await db.query("update providers set legal_name='TEST Usta Ad Soyad',tax_identity_number='11111111110',payout_address='TEST Caferağa Mah. Örnek Sok. No 1 Kadıköy' where id=$1",[pid]);
+  await db.query("insert into app_settings(key,value) values('legal_intermediary_tax_id','22222222220'),('legal_intermediary_address','TEST FUWU Adresi Mah. Sok. No 2 İstanbul'),('legal_intermediary_phone','+90 850 000 00 00') on conflict(key) do update set value=excluded.value");
   const service=await scalar("insert into service_catalog(category_id,slug,name,description,scope,image_url,pricing_type) values($1,'test-dp-'||gen_random_uuid(),'TEST Door Service','TEST description text','TEST scope included','/images/services/cleaning.webp','FIXED_PRICE') returning id",[cat]);
   const offer=await scalar("insert into provider_service_offerings(provider_id,service_id,price_minor,duration_minutes,district_ids,is_active) values($1,$2,100000,60,array[$3]::uuid[],true) returning id",[pid,service,district]);
   for(let d=0;d<7;d++) await db.query("insert into provider_availability(provider_id,weekday,starts_at,ends_at) values($1,$2,'00:00','23:45') on conflict do nothing",[pid,d]);
@@ -50,21 +53,21 @@ export async function directPurchaseChecks(db, checks) {
 
   // Kapıda ödeme: sipariş hemen CONFIRMED, ödeme UNPAID; anlık görüntü değiştirilemez; ustaya bildirim yazılır.
   await as('anon');
-  await fails("select commerce_place_order($1,$2,$3,'TEST adres satırı 10+',$4,165000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1')",[offer,slots[0].starts_at,district,randomUUID()],/permission denied/);
+  await fails("select commerce_place_order($1,$2,$3,'TEST adres satırı 10+',$4,165000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,slots[0].starts_at,district,randomUUID()],/permission denied/);
   await as('authenticated',customer);
   const key=randomUUID();
-  const place=(starts,total,addons,method,k=key,note=null)=>scalar("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,$5,$6,$7,$8,false,'fuwu-fees-v1')",[offer,starts,district,k,total,JSON.stringify(addons),method,note]);
-  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,165000,'[]','CASH',null,false,'fuwu-fees-v1')",[offer,slots[0].starts_at,district,randomUUID()],/invalid_payment_method/);
-  await fails('select 1 from (select commerce_place_order($1,$2,$3,$4,$5,$6,$7,$8,$9,false,$10)) x',[offer,slots[0].starts_at,district,'TEST Moda Mah. Örnek Sok. No 1 D 2',randomUUID(),100000,JSON.stringify([{id:oven,quantity:1}]),'PAY_AT_DOOR',null,'fuwu-fees-v1'],/price_changed/);
+  const place=(starts,total,addons,method,k=key,note=null)=>scalar("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,$5,$6,$7,$8,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,starts,district,k,total,JSON.stringify(addons),method,note]);
+  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,165000,'[]','CASH',null,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,slots[0].starts_at,district,randomUUID()],/invalid_payment_method/);
+  await fails('select 1 from (select commerce_place_order($1,$2,$3,$4,$5,$6,$7,$8,$9,false,$10,$11,true)) x',[offer,slots[0].starts_at,district,'TEST Moda Mah. Örnek Sok. No 1 D 2',randomUUID(),100000,JSON.stringify([{id:oven,quantity:1}]),'PAY_AT_DOOR',null,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24'],/price_changed/);
   const order=await place(slots[0].starts_at,quote.total_minor,[{id:oven,quantity:1},{id:window,quantity:2}],'PAY_AT_DOOR',key,'Kapı zili bozuk, arayın.');
   assert.equal(order.status,'CONFIRMED');assert.equal(order.payment_status,'UNPAID');assert.equal(order.payment_method,'PAY_AT_DOOR');
   assert.equal(order.base_price_minor,100000);assert.equal(order.addons_minor,65000);assert.equal(order.service_price_minor,165000);assert.equal(order.addons.length,2);
   assert.equal(order.customer_note,'Kapı zili bozuk, arayın.');
   assert.equal((await place(slots[0].starts_at,quote.total_minor,[{id:oven,quantity:1},{id:window,quantity:2}],'PAY_AT_DOOR',key)).id,order.id,'idempotent retry');
-  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,$5,'[]','CARD',null,false,'fuwu-fees-v1')",[offer,slots[0].starts_at,district,key,quote.total_minor],/idempotency_conflict/);
+  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,$5,'[]','CARD',null,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,slots[0].starts_at,district,key,quote.total_minor],/idempotency_conflict/);
   // Aynı saat ikinci kez satılamaz.
   await as('authenticated',other);
-  await fails("select commerce_place_order($1,$2,$3,'TEST Başka Mah. Sok. No 5 D 1',$4,100000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1')",[offer,slots[0].starts_at,district,randomUUID()],/slot_unavailable/);
+  await fails("select commerce_place_order($1,$2,$3,'TEST Başka Mah. Sok. No 5 D 1',$4,100000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,slots[0].starts_at,district,randomUUID()],/slot_unavailable/);
   await as('postgres');
   assert.equal(Number(await scalar("select count(*) from notifications where entity_id=$1 and recipient_user_id=$2 and title='Yeni hizmet randevusu'",[order.id,owner])),1);
   await fails("update commerce_orders set addons='[]',addons_minor=0,base_price_minor=165000 where id=$1",[order.id],/immutable_order_price/);
@@ -135,7 +138,7 @@ export async function directPurchaseChecks(db, checks) {
   // Kapıda ödeme admin ayarıyla kapatılabilir.
   await as('postgres');await db.query("update app_settings set value='false' where key='pay_at_door_enabled'");
   await as('authenticated',customer);
-  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,100000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1')",[offer,slots[Math.max(1,slots.length-3)].starts_at,district,randomUUID()],/pay_at_door_closed/);
+  await fails("select commerce_place_order($1,$2,$3,'TEST Moda Mah. Örnek Sok. No 1 D 2',$4,100000,'[]','PAY_AT_DOOR',null,false,'fuwu-fees-v1','mesafeli-hizmet-2026-11-24',true)",[offer,slots[Math.max(1,slots.length-3)].starts_at,district,randomUUID()],/pay_at_door_closed/);
   checks.push('Direct purchase: pay-at-door can be switched off from app settings without a deploy');
  } finally {
   await db.query('reset role');

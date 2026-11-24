@@ -358,6 +358,8 @@ export const arTranslations = {
     "footer.kvkk": "نص توضيح KVKK",
     "footer.privacy": "سياسة الخصوصية",
     "footer.terms": "شروط الاستخدام",
+    "footer.preInformation": "نموذج المعلومات المسبقة",
+    "footer.distanceContract": "عقد الخدمة عن بُعد",
     "footer.cookies": "سياسة ملفات تعريف الارتباط",
     "footer.copyright": "© 2026 خدمات FUWU",
     "footer.tagline": "أسرع طريقة للوصول إلى فني محلي.",

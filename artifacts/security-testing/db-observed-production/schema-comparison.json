@@ -45,7 +45,8 @@
     "20261113000100_consent_v2_and_application_notice.sql",
     "20261113000200_application_phone_fallback.sql",
     "20261114000100_admin_event_notifications.sql",
-    "20261124000100_direct_purchase_extras_pay_at_door.sql"
+    "20261124000100_direct_purchase_extras_pay_at_door.sql",
+    "20261124000200_distance_contract_legal.sql"
   ],
   "missingTables": [
     "provider_document_uploads",
@@ -150,6 +151,7 @@
     "commerce_capture_paid_at()",
     "commerce_category_fee_audit()",
     "commerce_ceo_insights()",
+    "commerce_checkout_legal(p_offering_id uuid)",
     "commerce_claim_legacy_settlement(p_payment_id uuid, p_kind text)",
     "commerce_claim_settlement(p_order_id uuid, p_kind text)",
     "commerce_create_variant(p_provider_id uuid, p_service_id uuid, p_name text)",
@@ -166,7 +168,7 @@
     "commerce_offers_before_publication(p_service_id uuid, p_district_id uuid, p_provider_id uuid)",
     "commerce_order_finance(p_order_id uuid)",
     "commerce_order_trust(p_order_id uuid)",
-    "commerce_place_order(p_offering_id uuid, p_starts_at timestamp with time zone, p_district_id uuid, p_address text, p_idempotency_key uuid, p_expected_total_minor integer, p_addons jsonb, p_payment_method text, p_note text, p_fee_consent boolean, p_terms_version text)",
+    "commerce_place_order(p_offering_id uuid, p_starts_at timestamp with time zone, p_district_id uuid, p_address text, p_idempotency_key uuid, p_expected_total_minor integer, p_addons jsonb, p_payment_method text, p_note text, p_fee_consent boolean, p_terms_version text, p_legal_version text, p_early_start_consent boolean)",
     "commerce_protect_price_snapshot()",
     "commerce_protect_profile_role()",
     "commerce_protect_purchase_snapshot()",
