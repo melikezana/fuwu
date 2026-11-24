@@ -21,19 +21,19 @@ import { DISTANCE_CONTRACT_VERSION, distanceContractSections, preInformationSect
 type BookingProps = {
   service: CatalogService; offers: PublicOffer[]; variants: ServiceVariant[];
   districts: { id: string; name: string }[]; unavailable: boolean;
-  addons?: ServiceAddon[]; cardPaymentEnabled?: boolean;
+  addons?: ServiceAddon[]; cardPaymentEnabled?: boolean; payAtDoorEnabled?: boolean;
   initialProvider?: string; initialDistrict?: string; initialVariant?: string; initialRebook?: string;
   savedAddresses?: { id: string; label: string; district_id: string; address: string }[];
 };
 const titles = ["Paketini, ekstralarını ve ustanı seç", "Gün ve Saat Seç", "Adresini ve ustaya notunu ekle", "Ödeme yöntemini seç ve onayla"];
-const leads = ["Bölgeni belirt, paketini seç, istersen ekstra ekle ve ustanı seç.", "Ustanın gerçek takviminden sana uygun saati seç; randevu bu saate göre oluşur.", "Ustanın sana kolayca ulaşması için açık adresini yaz.", "Toplam tutar sabittir. Kapıda ödemede ödemeyi iş bitince ustana yaparsın."];
+const leads = ["Bölgeni belirt, paketini seç, istersen ekstra ekle ve ustanı seç.", "Ustanın gerçek takviminden sana uygun saati seç; randevu bu saate göre oluşur.", "Ustanın sana kolayca ulaşması için açık adresini yaz.", "Toplam tutar sabittir. Ödemen, iş bitip sen onaylayana kadar ustaya geçmez."];
 const NOTE_LIMIT = 500;
 
-export function ServiceBooking({ service, offers, variants, districts, unavailable, addons = [], cardPaymentEnabled = false, initialProvider, initialDistrict, initialVariant, initialRebook, savedAddresses = [] }: BookingProps) {
+export function ServiceBooking({ service, offers, variants, districts, unavailable, addons = [], cardPaymentEnabled = false, payAtDoorEnabled = false, initialProvider, initialDistrict, initialVariant, initialRebook, savedAddresses = [] }: BookingProps) {
   const router = useRouter();
   const heading = useRef<HTMLHeadingElement>(null);
   const variantId = variants.find(v => v.id === initialVariant)?.id || variants[0]?.id || "";
-  const [form, setForm] = useState({ variantId, districtId: districts.find(d => d.id === initialDistrict || d.name === initialDistrict)?.id || "", offeringId: offers.find(o => o.provider_id === initialProvider && (!variantId || o.variant_id === variantId))?.id || "", preferredProviderId: initialProvider || "", day: todayIstanbul(), startsAt: "", address: "", note: "", addons: "", paymentMethod: "PAY_AT_DOOR", earlyConsent: "", idempotencyKey: "", stage: "0" });
+  const [form, setForm] = useState({ variantId, districtId: districts.find(d => d.id === initialDistrict || d.name === initialDistrict)?.id || "", offeringId: offers.find(o => o.provider_id === initialProvider && (!variantId || o.variant_id === variantId))?.id || "", preferredProviderId: initialProvider || "", day: todayIstanbul(), startsAt: "", address: "", note: "", addons: "", paymentMethod: "CARD", earlyConsent: "", idempotencyKey: "", stage: "0" });
   const draftScope = `${initialProvider || ""}:${initialVariant || ""}:${initialDistrict || ""}:${initialRebook || ""}`;
   const draftKey = `fuwu:commerce:${service.slug}:${draftScope}`;
   const clearDraft = useSessionFormDraft(draftKey, form, setForm);
@@ -57,7 +57,8 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   const eligible = unavailable ? [] : offers.filter(o => (!form.districtId || o.district_ids.includes(form.districtId)) && (service.pricing_type !== "VARIANT_BASED" || o.variant_id === form.variantId));
   const selected = eligible.find(o => o.id === form.offeringId);
   const cardAvailable = cardPaymentEnabled && selected?.card_payment !== false;
-  const paymentMethod: PaymentMethod = form.paymentMethod === "CARD" && cardAvailable ? "CARD" : "PAY_AT_DOOR";
+  // Online kart önce gelir; kapıda ödeme yalnızca admin geçici olarak açtıysa sunulur. Hiçbiri yoksa sipariş tamamlanamaz.
+  const paymentMethod: PaymentMethod | null = cardAvailable && (form.paymentMethod !== "PAY_AT_DOOR" || !payAtDoorEnabled) ? "CARD" : payAtDoorEnabled ? "PAY_AT_DOOR" : null;
   const pricingKey = selected ? `${selected.id}|${basketKey}` : "";
   const [pricing, setPricing] = useState<{ key: string; quote: BasketQuote | null; error: boolean }>({ key: "", quote: null, error: false });
   const [consentKey, setConsentKey] = useState("");
@@ -76,7 +77,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   const validSlot = slots.some(s => s.starts_at === form.startsAt);
   const validAddress = form.address.trim().length >= 10 && form.address.length <= 1000;
   const validNote = form.note.length <= NOTE_LIMIT;
-  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress && validNote : Boolean(selected && validSlot && validAddress && validNote && quote && consent && legalState.status === "ok" && legalState.ready && (!earlyStart || earlyConsent));
+  const canContinue = step === 0 ? Boolean(selected && form.districtId) : step === 1 ? validSlot : step === 2 ? validAddress && validNote : Boolean(paymentMethod && selected && validSlot && validAddress && validNote && quote && consent && legalState.status === "ok" && legalState.ready && (!earlyStart || earlyConsent));
   const maxDate = new Date(`${todayIstanbul()}T12:00:00+03:00`); maxDate.setUTCDate(maxDate.getUTCDate() + 30);
   const quickKey = selected && form.districtId ? `${selected.id}|${form.districtId}|${todayIstanbul()}|${retry}` : "";
   const submitLabel = busy ? (paymentMethod === "CARD" ? "Ödeme hazırlanıyor…" : "Sipariş oluşturuluyor…") : step === 3 ? (paymentMethod === "CARD" ? "Ödemeye Geç" : "Siparişi Onayla") : "Devam Et";
@@ -167,7 +168,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
   async function reserve(e: React.FormEvent) {
     e.preventDefault();
     if (step < 3) { if (canContinue) go(step + 1); return; }
-    if (!selected || !validSlot || !validAddress || !validNote || !quote || !consent || !legalState.ready || (earlyStart && !earlyConsent) || busy) return;
+    if (!paymentMethod || !selected || !validSlot || !validAddress || !validNote || !quote || !consent || !legalState.ready || (earlyStart && !earlyConsent) || busy) return;
     setBusy(true); setError(""); setNeedsLogin(false);
     const idempotencyKey = form.idempotencyKey || crypto.randomUUID();
     setForm(f => ({ ...f, idempotencyKey }));
@@ -198,7 +199,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
     provider: legalState.provider, intermediary: legalState.intermediary,
     service: { name: service.name, variant: service.pricing_type === "VARIANT_BASED" ? variants.find(v => v.id === form.variantId)?.name ?? null : null, scope: selected?.scope || service.scope, exclusions: service.exclusions },
     addons: basketLines.map(({ line, addon }) => ({ name: addon.name, quantity: line.quantity, total_minor: addon.price_minor * line.quantity })),
-    basePriceMinor: quote?.base_price_minor ?? null, addonsMinor: quote?.addons_minor ?? addonsMinor, totalMinor: quote?.total_minor ?? null,
+    basePriceMinor: quote?.base_price_minor ?? null, addonsMinor: quote?.addons_minor ?? addonsMinor, totalMinor: quote?.total_minor ?? null, customerFeeMinor: quote?.customer_fee_minor ?? null,
     durationMinutes: selected?.duration_minutes ?? null, startsAt: validSlot ? form.startsAt : null, address: form.address.trim() || null,
     district: districts.find(d => d.id === form.districtId)?.name ?? null, paymentMethod, withinWithdrawalPeriod: validSlot ? earlyStart : null,
   };
@@ -210,9 +211,9 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
       <div><dt>Randevu</dt><dd>{validSlot ? appointment(form.startsAt) : "Gün ve saat seç"}</dd></div>
       <div><dt>İlçe</dt><dd>{districts.find(d => d.id === form.districtId)?.name || "İlçe seç"}</dd></div>
       <div><dt>Hizmet süresi</dt><dd>{selected ? `${selected.duration_minutes} dakika` : "Usta seçimiyle belli olur"}</dd></div>
-      <div><dt>Ödeme</dt><dd>{paymentMethod === "CARD" ? "Online kartla" : "Kapıda, iş bitince"}</dd></div>
+      <div><dt>Ödeme</dt><dd>{paymentMethod === "CARD" ? "Online kart · iş bitene kadar güvencede" : paymentMethod === "PAY_AT_DOOR" ? "Kapıda, iş bitince" : "Online ödeme açılıyor"}</dd></div>
     </dl>
-    <div className="commerce-summary-total"><span>{paymentMethod === "CARD" ? "Ödeyeceğin tutar" : "İş bitince ödeyeceğin tutar"}<small className="block text-xs font-medium opacity-75">Tüm ücretler dahil · sürpriz yok</small></span><strong>{quote ? money(quote.total_minor) : selected ? "Hesaplanıyor" : addonsMinor ? `Ekstralar +${money(addonsMinor)}` : "—"}</strong></div>
+    <div className="commerce-summary-total"><span>{paymentMethod === "PAY_AT_DOOR" ? "İş bitince ödeyeceğin tutar" : "Ödeyeceğin tutar"}<small className="block text-xs font-medium opacity-75">{quote && quote.customer_fee_minor > 0 ? `Tüm ücretler dahil · içindeki FUWU hizmet bedeli ${money(quote.customer_fee_minor)}` : "Tüm ücretler dahil · sürpriz yok"}</small></span><strong>{quote ? money(quote.total_minor) : selected ? "Hesaplanıyor" : addonsMinor ? `Ekstralar +${money(addonsMinor)}` : "—"}</strong></div>
     {pricingKey && pricing.key === pricingKey && pricing.error && <p role="alert" className="commerce-error">Toplam ücret doğrulanamadı. <button type="button" className="booking-inline-edit" onClick={() => setRetry(r => r + 1)}>Yeniden dene</button></p>}
     <p className="commerce-help"><ShieldCheck size={17} aria-hidden /> Gördüğün fiyat, ödediğin fiyattır. Onayın olmadan ek ücret alınmaz.</p>
     {paymentMethod === "CARD" && <p className="commerce-sandbox">Test ortamı · Gerçek para tahsil edilmez.</p>}
@@ -222,7 +223,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
     <BookingProgress current={step + 1} withPayment={paymentMethod === "CARD"} />
     <Link className="commerce-back" href="/services"><ArrowLeft size={17} aria-hidden /> Hizmetlere dön</Link>
     <div className="booking-service-heading"><div className="booking-service-thumb"><ServicePhoto keys={[service.slug]} src={service.image_url} label={service.name} preload sizes="80px" /></div><div><p className="commerce-eyebrow">HİZMETİ SATIN AL</p><h1>{service.name}</h1><p>{service.description}</p></div></div>
-    <ul className="booking-promise" aria-label="Satın alma güvenceleri"><li><Check size={15} aria-hidden /> Fiyat baştan belli</li><li><CalendarDays size={15} aria-hidden /> Randevu ustanın gerçek takviminden</li><li><Banknote size={15} aria-hidden /> Ödeme iş bitince kapıda</li></ul>
+    <ul className="booking-promise" aria-label="Satın alma güvenceleri"><li><Check size={15} aria-hidden /> Fiyat baştan belli</li><li><CalendarDays size={15} aria-hidden /> Randevu ustanın gerçek takviminden</li><li><ShieldCheck size={15} aria-hidden /> Paran iş bitene kadar güvencede</li></ul>
     <details className="booking-scope"><summary>Hizmet kapsamını gör <span>{service.pricing_type === "DIAGNOSTIC_SERVICE" ? "Yerinde tespit" : service.pricing_type === "VARIANT_BASED" ? "Paket seçimi" : "Sabit fiyat"}</span></summary><div><h2><Check size={16} aria-hidden /> Hizmete dahil</h2><p>{selected?.scope || service.scope}</p><h2>Dahil olmayanlar</h2><p>{service.exclusions}</p></div></details>
     {unavailable && <p className="commerce-notice" role="status">Bu hizmet şu anda satın alınamıyor. Hizmet kapsamını inceleyebilir, diğer hizmetlere göz atabilirsin.</p>}
     <div className="commerce-booking-layout"><div>
@@ -271,10 +272,10 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
         {step === 3 && <>
           <section className="commerce-panel booking-payment" aria-labelledby="booking-payment-title"><h3 id="booking-payment-title"><Banknote size={20} aria-hidden /> Ödeme yöntemi</h3>
             <div className="booking-payment-options" role="radiogroup" aria-label="Ödeme yöntemi">
-              <label className={`booking-payment-option ${paymentMethod === "PAY_AT_DOOR" ? "is-selected" : ""}`}><input type="radio" name="payment-method" value="PAY_AT_DOOR" checked={paymentMethod === "PAY_AT_DOOR"} onChange={() => choosePayment("PAY_AT_DOOR")} /><Banknote size={22} aria-hidden /><span><strong>Kapıda öde</strong><small>İş bitince toplam tutarı ustana ödersin. Randevun hemen onaylanır.</small></span></label>
-              {cardAvailable ? <label className={`booking-payment-option ${paymentMethod === "CARD" ? "is-selected" : ""}`}><input type="radio" name="payment-method" value="CARD" checked={paymentMethod === "CARD"} onChange={() => choosePayment("CARD")} /><CreditCard size={22} aria-hidden /><span><strong>Online kartla öde</strong><small>Kart bilgilerin iyzico güvenli ödeme ekranına girilir. Randevun ödeme için 10 dakika ayrılır.</small></span></label>
-                : <p className="booking-payment-soon"><CreditCard size={18} aria-hidden /> Online kartla ödeme yakında açılıyor.</p>}
+              {cardAvailable && <label className={`booking-payment-option ${paymentMethod === "CARD" ? "is-selected" : ""}`}><input type="radio" name="payment-method" value="CARD" checked={paymentMethod === "CARD"} onChange={() => choosePayment("CARD")} /><CreditCard size={22} aria-hidden /><span><strong>Online kartla öde</strong><small>Kart bilgilerin iyzico güvenli ödeme ekranına girilir. Paran, iş bitip sen onaylayana kadar ustaya geçmez; sorun olursa iade edilir.</small></span></label>}
+              {payAtDoorEnabled && <label className={`booking-payment-option ${paymentMethod === "PAY_AT_DOOR" ? "is-selected" : ""}`}><input type="radio" name="payment-method" value="PAY_AT_DOOR" checked={paymentMethod === "PAY_AT_DOOR"} onChange={() => choosePayment("PAY_AT_DOOR")} /><Banknote size={22} aria-hidden /><span><strong>Kapıda öde</strong><small>İş bitince toplam tutarı ustana ödersin. Randevun hemen onaylanır.</small></span></label>}
             </div>
+            {!paymentMethod && <p className="commerce-notice booking-payment-soon" role="status"><CreditCard size={18} aria-hidden /> Online ödeme açılışa hazırlanıyor. Şu anda sipariş tamamlanamıyor; ödeme açıldığında bu adımdan kartla satın alabilirsin.</p>}
             {paymentMethod === "PAY_AT_DOOR" && <p className="commerce-help">Usta, hizmete başlamadan ödeme isteyemez. İş bitince ödersin; sorun olursa sipariş sayfandan destek istersin.</p>}
           </section>
           <section className="commerce-panel booking-review"><h3><Check size={20} aria-hidden /> Son bir kontrol</h3><div className="booking-review-summary">{summary}</div><div className="booking-review-row"><div><strong>Hizmet adresi</strong><p>{form.address}</p>{form.note.trim() && <><strong>Ustaya not</strong><p>{form.note.trim()}</p></>}</div><button className="booking-inline-edit" type="button" onClick={() => go(2)}>Düzenle</button></div><h3>Hizmete dahil</h3><p className="commerce-help">{selected?.scope || service.scope}</p><h3>Malzeme ve ek işçilik / dahil olmayanlar</h3><p className="commerce-help">{service.exclusions || "Yalnızca yukarıdaki kapsam satın alınır."} Kapsam dışı malzeme veya işçilik bu tutara dahil değildir; onayın olmadan ek ücret alınmaz.</p>{service.pricing_type === "DIAGNOSTIC_SERVICE" && <p className="commerce-notice">Bu bedel keşif ve arıza tespiti içindir. Onarım ve parçalar bu pakete dahil değildir.</p>}<h3>İptal</h3><p className="commerce-help">Hizmete başlanana kadar sipariş detayından ücretsiz iptal edebilirsin.{paymentMethod === "CARD" ? " Kartla ödenen siparişin iadesi ödeme kuruluşundan doğrulanana kadar beklemede görünür." : ""}</p><p className="commerce-help">Ayrıntılar için <Link href="/kullanim-sartlari" target="_blank" rel="noopener">kullanım, iptal ve iade koşullarını</Link> inceleyebilirsin.</p>{!loading && (!selected || !validSlot) && <p className="commerce-warning" role="status">Seçimin artık uygun değil. Ustanı ve güncel saatleri tekrar kontrol et.</p>}<button className="booking-inline-edit" type="button" onClick={() => go(selected ? 1 : 0)}>Usta ve saati kontrol et</button></section>
@@ -294,7 +295,7 @@ export function ServiceBooking({ service, offers, variants, districts, unavailab
         </>}
         {error && <p role="alert" className="commerce-error">{error}</p>}
         {needsLogin && <Link className="commerce-secondary" href={buildLoginRedirectUrl(resumePath)}>Google ile Giriş Yap ve Devam Et</Link>}
-        {step === 3 && <p className="booking-payment-obligation">“Siparişi Onayla” ile ödeme yükümlülüğü doğan bir sipariş vermiş olursun{paymentMethod === "PAY_AT_DOOR" ? "; ödemeyi iş bitince kapıda yaparsın" : ""}.</p>}
+        {step === 3 && paymentMethod && <p className="booking-payment-obligation">“{paymentMethod === "CARD" ? "Ödemeye Geç" : "Siparişi Onayla"}” ile ödeme yükümlülüğü doğan bir sipariş vermiş olursun{paymentMethod === "PAY_AT_DOOR" ? "; ödemeyi iş bitince kapıda yaparsın" : ""}.</p>}
         <div className="booking-desktop-actions">{step > 0 && <button className="commerce-secondary" type="button" disabled={busy} onClick={() => go(step - 1)}><ArrowLeft size={17} aria-hidden /> Geri</button>}<button className="commerce-button" disabled={!canContinue || busy} type="submit">{submitLabel}<ArrowRight size={18} aria-hidden /></button></div>
       </form>
     </div><aside className="commerce-summary booking-live-summary">{summary}{step > 0 && <button type="button" className="commerce-text-link" disabled={busy} onClick={() => go(0)}>Seçimlerimi düzenle</button>}</aside></div>

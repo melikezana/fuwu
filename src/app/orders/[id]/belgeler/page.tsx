@@ -35,7 +35,7 @@ export default async function OrderDocumentsPage({ params }: { params: Promise<{
     customer: isCustomer ? { name: profile?.full_name ?? null, email: user.email ?? null } : null,
     service: { name: order.service_name, variant: order.variant_name, scope: order.scope, exclusions: legal.exclusions ?? order.exclusions ?? null },
     addons: (order.addons ?? []).map(item => ({ name: item.name, quantity: item.quantity, total_minor: item.total_minor })),
-    basePriceMinor: order.base_price_minor ?? order.service_price_minor ?? null, addonsMinor: order.addons_minor ?? 0, totalMinor: order.total_minor,
+    basePriceMinor: order.base_price_minor ?? order.service_price_minor ?? null, addonsMinor: order.addons_minor ?? 0, totalMinor: order.total_minor, customerFeeMinor: order.customer_fee_minor ?? null,
     durationMinutes: Math.round((Date.parse(order.ends_at) - Date.parse(order.starts_at)) / 60000), startsAt: order.starts_at,
     address: order.address, district: order.district_name, paymentMethod: order.payment_method ?? "CARD",
     withinWithdrawalPeriod: legal.within_withdrawal_period ?? null, earlyStartConsentAt: order.early_start_consent_at ?? null,

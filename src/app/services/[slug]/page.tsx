@@ -4,6 +4,7 @@ import { getCommerceCatalog } from "@/services/commerce";
 import { ServiceBooking } from "@/components/commerce/ServiceBooking";
 import { getServerAuthContext } from "@/services/auth/server";
 import { cardCheckoutEnabled, directPurchaseEnabled, ONLINE_PURCHASE_CLOSED } from "@/lib/prelaunch";
+import { getPayAtDoorEnabled } from "@/services/legal/intermediary";
 export const dynamic = "force-dynamic";
 export default async function ServicePage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ provider?: string; district?: string; variant?: string; rebook?: string }> }) {
   const [catalog, { slug }, query] = await Promise.all([getCommerceCatalog(), params, searchParams]);
@@ -14,5 +15,5 @@ export default async function ServicePage({ params, searchParams }: { params: Pr
   if (!directPurchaseEnabled()) return <div className="commerce-page"><section className="commerce-panel"><p className="commerce-eyebrow">HİZMET KAPSAMI</p><h1>{service.name}</h1><p>{service.description}</p><h2>Neler dahil?</h2><p>{service.scope}</p>{service.exclusions && <><h2>Dahil olmayanlar</h2><p>{service.exclusions}</p></>}<p className="commerce-notice">{ONLINE_PURCHASE_CLOSED}</p><div className="prelaunch-actions"><Link className="commerce-secondary" href="/services">Hizmetleri Keşfet</Link></div></section></div>;
   const { user, supabase } = await getServerAuthContext();
   const addresses = user && supabase ? await supabase.from("customer_addresses").select("id,label,district_id,address").eq("customer_id", user.id).limit(100) : null;
-  return <ServiceBooking service={service} offers={catalog.offers.filter(o => o.service_id === service.id)} variants={catalog.variants.filter(v => v.service_id === service.id)} addons={catalog.addons.filter(a => a.service_id === service.id)} cardPaymentEnabled={cardCheckoutEnabled()} districts={catalog.districts} unavailable={catalog.unavailable} initialProvider={query.provider} initialDistrict={query.district} initialVariant={query.variant} initialRebook={query.rebook} savedAddresses={addresses?.data ?? []} />;
+  return <ServiceBooking service={service} offers={catalog.offers.filter(o => o.service_id === service.id)} variants={catalog.variants.filter(v => v.service_id === service.id)} addons={catalog.addons.filter(a => a.service_id === service.id)} cardPaymentEnabled={cardCheckoutEnabled()} payAtDoorEnabled={await getPayAtDoorEnabled()} districts={catalog.districts} unavailable={catalog.unavailable} initialProvider={query.provider} initialDistrict={query.district} initialVariant={query.variant} initialRebook={query.rebook} savedAddresses={addresses?.data ?? []} />;
 }

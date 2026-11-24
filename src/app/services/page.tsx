@@ -6,7 +6,7 @@ import { getServiceForValue } from "@/lib/constants/services";
 import { STOREFRONT_COPY } from "@/lib/prelaunch";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hizmet Satın Al", description: "Ev hizmetini doğrudan satın al: paketini seç, ekstranı ekle, ustanın boş saatinden randevunu al, ödemeyi iş bitince kapıda yap." };
+export const metadata = { title: "Hizmet Satın Al", description: "Ev hizmetini doğrudan satın al: paketini seç, ekstranı ekle, ustanın boş saatinden randevunu al, online güvenle öde." };
 
 export default async function ServicesPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string; district?: string }> }) {
   const [catalog, params] = await Promise.all([getCommerceCatalog(), searchParams]);
@@ -27,6 +27,6 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
     {!sellable && !catalog.unavailable && <p className="catalog-stage-notice" role="note"><strong>{STOREFRONT_COPY.catalogStageTitle}</strong> {STOREFRONT_COPY.catalogStage}</p>}
     <nav className="catalog-category-nav" aria-label="Hizmet kategorileri"><Link href={categoryHref()} aria-current={!requestedCategory ? "page" : undefined}>Tüm hizmetler</Link>{navigation.map(item => <Link key={item.slug} href={categoryHref(item.slug)} aria-current={categorySlug === item.slug ? "page" : undefined}>{item.title}</Link>)}</nav>
     <ServiceCatalog key={`${requestedCategory}|${params.q ?? ""}|${params.district ?? ""}`} category={categorySlug} categories={catalog.categories} services={services} offers={catalog.offers} unavailable={catalog.unavailable} initialSearch={params.q} district={params.district} districtId={params.district ? district?.id ?? "unknown-district" : ""} />
-    <p className="catalog-payment-note">Fiyat baştan belli · Randevu ustanın gerçek takviminden · Ödeme iş bitince kapıda</p>
+    <p className="catalog-payment-note">Fiyat baştan belli · Randevu ustanın gerçek takviminden · Online güvenli ödeme · Paran iş bitene kadar güvencede</p>
   </div>;
 }

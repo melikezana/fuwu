@@ -17,3 +17,13 @@ export async function getIntermediaryParty(): Promise<LegalParty & { ready: bool
     return { ...party, ready };
   } catch { return empty; }
 }
+
+/** Kapıda ödeme admin ayarı (varsayılan kapalı). Okunamazsa kapalı sayılır; veritabanı da aynı ayarla siparişi reddeder. */
+export async function getPayAtDoorEnabled(): Promise<boolean> {
+  const db = createSupabaseServiceRoleClient();
+  if (!db) return false;
+  try {
+    const { data, error } = await db.from("app_settings").select("value").eq("key", "pay_at_door_enabled").abortSignal(AbortSignal.timeout(5000)).maybeSingle();
+    return !error && data?.value === "true";
+  } catch { return false; }
+}

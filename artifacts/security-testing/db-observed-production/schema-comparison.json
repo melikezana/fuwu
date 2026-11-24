@@ -46,7 +46,8 @@
     "20261113000200_application_phone_fallback.sql",
     "20261114000100_admin_event_notifications.sql",
     "20261124000100_direct_purchase_extras_pay_at_door.sql",
-    "20261124000200_distance_contract_legal.sql"
+    "20261124000200_distance_contract_legal.sql",
+    "20261124000300_online_payment_default.sql"
   ],
   "missingTables": [
     "provider_document_uploads",

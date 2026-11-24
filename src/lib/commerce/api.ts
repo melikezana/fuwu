@@ -46,7 +46,7 @@ const errors: Record<string, [number, string]> = {
   invalid_payment_method: [400, "Ödeme yöntemini seç."],
   invalid_note: [400, "Ustaya not en fazla 500 karakter olabilir."],
   pay_at_door_closed: [503, "Kapıda ödeme şu anda kapalı."],
-  card_payment_closed: [503, "Online kartla ödeme şu anda kapalı. Kapıda ödemeyi seçebilirsin."],
+  card_payment_closed: [503, "Online kartla ödeme henüz açılmadı. Ödeme açıldığında siparişini tamamlayabilirsin."],
   too_many_open_orders: [429, "Aynı anda en fazla 3 açık kapıda ödemeli siparişin olabilir."],
   legal_identity_incomplete: [409, "Satıcı bilgileri eksik olduğu için bu hizmet şu anda satın alınamıyor."],
   legal_version_changed: [409, "Sözleşme metni güncellendi. Sayfayı yenileyip güncel metni onayla."],

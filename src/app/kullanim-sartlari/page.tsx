@@ -39,15 +39,15 @@ const sections: PolicySection[] = [
     title: "Satın alma, ödeme ve ücretler",
     body: [
       "Hizmeti, paketini ve istersen ekstralarını seçip ustanın uygun saatini onayladığında siparişin oluşur. Seçtiğin ekstralar fiyatlarıyla birlikte siparişe sabitlenir.",
-      "Kapıda ödemede toplam tutar, hizmet tamamlandığında doğrudan ustaya ödenir; usta hizmete başlamadan ödeme talep edemez ve sipariş tutarının üstünde ücret isteyemez. Kapsam dışı bir iş gerekirse önce senin onayın alınır.",
-      "Online kartla ödeme yalnızca ödeme ekranında sunulduğunda kullanılabilir; şu anda yalnızca yetkili test oturumlarında iyzico sandbox ile çalışır ve gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
-      "Hizmet kartında ve ödeme ekranında gördüğün tutar, ödeyeceğin son tutardır; FUWU platform hizmeti bu fiyata dahildir ve sonradan ayrı ücret eklenmez. Ödeme öncesinde toplam tutarı onaylarsın. Usta komisyonu ustanın satış bedeli üzerinden hesaplanır ve müşteriden ayrıca alınmaz. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
+      "Ödeme online kartla, lisanslı ödeme kuruluşu iyzico altyapısıyla yapılır. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz. Ödenen tutar ödeme kuruluşunda bekler ve hizmet tamamlanıp sen onayladığında ustaya aktarılır; FUWU hizmet bedeli ve usta komisyonu bu aktarımda ayrılır. Online ödeme canlıya alınana kadar gerçek tahsilat yapılmaz.",
+      "Kapıda ödeme yalnızca ödeme ekranında ayrıca sunulduğunda seçilebilir. Bu durumda toplam tutar hizmet tamamlandığında doğrudan ustaya ödenir; usta hizmete başlamadan ödeme talep edemez ve sipariş tutarının üstünde ücret isteyemez. Kapsam dışı bir iş gerekirse önce senin onayın alınır.",
+      "Hizmet kartında ve ödeme ekranında gördüğün tutar, ödeyeceğin son tutardır; FUWU hizmet bedeli bu fiyata dahildir, sonradan ayrı ücret eklenmez; sipariş özetinde, sözleşmende ve faturada ayrı satır olarak gösterilir. Ödeme öncesinde toplam tutarı onaylarsın. Usta komisyonu ustanın satış bedeli üzerinden hesaplanır ve müşteriden ayrıca alınmaz. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
     ],
   },
   {
     title: "İptal, iade ve destek",
     body: [
-      "Hizmete başlanana kadar (usta yolda olsa bile) sipariş detayından ücretsiz iptal edebilirsin. Kapıda ödemeli siparişte ödeme yapılmadığı için iade gerekmez. Kartla ödenen siparişte tam iade müşteri platform ücretini de içerir ve ödeme kuruluşundan doğrulanmadan tamamlandı olarak gösterilmez.",
+      "Hizmete başlanana kadar (usta yolda olsa bile) sipariş detayından ücretsiz iptal edebilirsin. Kartla ödenen siparişte tam iade müşteri platform ücretini de içerir ve ödeme kuruluşundan doğrulanmadan tamamlandı olarak gösterilmez.",
       "Devam eden veya tamamlanan hizmette sorun yaşarsan sipariş detayındaki destek eylemini kullan. Değerlendirme yalnızca tamamladığın ve doğrulanan hizmet için yapılabilir.",
       "Her siparişte, hizmeti sunan ustanın ve FUWU'nun kimlik bilgileriyle doldurulmuş Ön Bilgilendirme Formu ve Mesafeli Hizmet Sözleşmesi onayına sunulur; onayladığın metinlere sipariş sayfandaki \"Ön bilgilendirme formu ve sözleşme\" bağlantısından her zaman ulaşırsın. Örnek metinler: fuwu.com.tr/on-bilgilendirme-formu ve fuwu.com.tr/mesafeli-hizmet-sozlesmesi.",
       "Siparişten itibaren 14 gün içinde gerekçesiz cayma hakkın vardır. Randevun bu süre içindeyse ve hizmetin başlamasını onaylarsan, usta hizmete başladığı anda cayma hakkın sona erer; hizmete başlanana kadar ücretsiz iptal edebilirsin.",

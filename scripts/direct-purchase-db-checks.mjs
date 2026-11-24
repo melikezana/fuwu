@@ -32,6 +32,10 @@ export async function directPurchaseChecks(db, checks) {
   const otherService=await scalar("insert into service_catalog(category_id,slug,name,description,scope,image_url,pricing_type) values($1,'test-dp-other-'||gen_random_uuid(),'TEST Other','TEST description text','TEST scope included','/images/services/cleaning.webp','FIXED_PRICE') returning id",[cat]);
   const foreign=await scalar("insert into service_addons(service_id,slug,name,price_minor) values($1,'yabanci','TEST Başka hizmet',10000) returning id",[otherService]);
   await db.query("update app_settings set value='0' where key in ('customer_fee_rate')");
+  // Kapıda ödeme varsayılan olarak kapalıdır (20261124000300); bu kontroller açıkken davranışı sınar.
+  assert.equal(await scalar("select value from app_settings where key='pay_at_door_enabled'"),'false','pay at door is off by default');
+  assert.notEqual(await scalar("select value from app_settings where key='commission_rate'"),'0.10','legacy fractional commission seed is read as percent, so it is restored to 10');
+  await db.query("update app_settings set value='true' where key='pay_at_door_enabled'");
 
   // Teklif artık iyzico olmadan görünür; kartla ödeme işareti kapalıdır.
   await as('anon');

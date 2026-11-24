@@ -30,7 +30,8 @@ describe("prelaunch public trust boundaries",()=>{
     const verifiedClaim=/ustası doğrulanmış|doğrulanmış usta/i;
     for(const text of Object.values(STOREFRONT_COPY)) expect(text).not.toMatch(verifiedClaim);
     expect(STOREFRONT_COPY.heroStage).toMatch(/satın al/);
-    expect(STOREFRONT_COPY.seoDescription).toMatch(/kapıda/);
+    expect(STOREFRONT_COPY.seoDescription).toMatch(/online/);
+    for(const text of Object.values(STOREFRONT_COPY)) expect(text).not.toMatch(/kapıda/i);
     for(const file of ["src/components/home/HeroSection.tsx","src/components/home/HomePremiumPanels.tsx","src/components/home/HeroSearch.tsx","src/app/services/page.tsx","src/app/services/[slug]/page.tsx","src/components/commerce/CustomerHub.tsx","src/app/sss/page.tsx"]) {
       const source=fs.readFileSync(file,"utf8");
       expect(source,file).not.toMatch(verifiedClaim);

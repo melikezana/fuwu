@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Banknote, CalendarDays, ShoppingBag } from "lucide-react";
+import { ArrowRight, CalendarDays, ShieldCheck, ShoppingBag } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { STOREFRONT_COPY } from "@/lib/prelaunch";
 
 const steps = [
   { icon: ShoppingBag, title: "Paketini seç, ekstranı ekle", description: "Kapsam ve fiyat baştan belli; fırın içi, cam, ütü gibi ekstraları sepete eklersin." },
   { icon: CalendarDays, title: "Randevunu al", description: "Ustanı ve onun gerçek takviminden sana uyan saati seçersin; randevu hemen oluşur." },
-  { icon: Banknote, title: "İş bitince kapıda öde", description: "Usta işi bitirir, sen kontrol edersin; sabit tutarı kapıda ödersin." },
+  { icon: ShieldCheck, title: "Online öde, paran güvende", description: "Kartla güvenle ödersin; ödemen iş bitip sen onaylayana kadar ustaya geçmez, sorun olursa iade edilir." },
 ];
 export function HomePremiumPanels() {
   return <section aria-labelledby="how-title" className="home-section home-how" id="how-it-works"><Container className="home-container"><div className="home-section-heading"><div><p className="home-eyebrow">NASIL ÇALIŞIR?</p><h2 className="home-section-title" id="how-title">{STOREFRONT_COPY.howTitle}</h2></div></div><ol className="home-steps">{steps.map(({icon:Icon,title,description},index)=><li key={title}><div className="home-step-top"><span className="home-step-icon"><Icon aria-hidden size={24}/></span><span className="home-step-number">0{index+1}</span></div><h3>{title}</h3><p>{description}</p></li>)}</ol></Container></section>;

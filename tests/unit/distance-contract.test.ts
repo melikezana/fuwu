@@ -37,6 +37,14 @@ describe("pre-contract information and distance service contract", () => {
     expect(startsWithinWithdrawalPeriod("2026-12-07T12:00:00Z", now)).toBe(true);
     expect(startsWithinWithdrawalPeriod("2026-12-09T12:00:00Z", now)).toBe(false);
   });
+  it("itemizes the FUWU service fee and explains escrowed card payment", () => {
+    const card = text(preInformationSections(input({ paymentMethod: "CARD", basePriceMinor: 150000, addonsMinor: 65000, customerFeeMinor: 10750, totalMinor: 225750 })));
+    expect(card).toContain("FUWU hizmet bedeli: ₺107,50");
+    expect(card).toContain("₺2.257,50");
+    expect(card).toContain("hizmet tamamlanıp sen onaylayınca ustaya aktarılır");
+    expect(text(distanceContractSections(input({ paymentMethod: "CARD", customerFeeMinor: 10750, totalMinor: 225750 })))).toContain("usta komisyonu ayrılarak");
+    expect(text(preInformationSections(input({ customerFeeMinor: 0 })))).not.toContain("FUWU hizmet bedeli:");
+  });
   it("describes card refunds only for card orders and keeps pay-at-door free of refunds", () => {
     expect(text(preInformationSections(input({ paymentMethod: "CARD" })))).toContain("14 gün içinde, ödediğin araçla");
     expect(text(preInformationSections(input()))).toContain("iade gerekmez");

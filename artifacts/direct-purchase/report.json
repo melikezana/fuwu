@@ -1,23 +1,33 @@
 {
   "checks": [
+    "390px: card is the default when open; with card and pay-at-door both closed the order step shows the online payment notice and stays disabled",
     "390px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → pre-contract form (16 px) + contract acceptance + early-start consent → order placed with server-verified 1.500 TL basket",
     "390px: customer confirmation and usta collection views show extras, note and amount due at the door",
+    "390px: card order receipt itemizes package, extras and FUWU hizmet bedeli",
+    "1440px: card is the default when open; with card and pay-at-door both closed the order step shows the online payment notice and stays disabled",
     "1440px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → pre-contract form (16 px) + contract acceptance + early-start consent → order placed with server-verified 1.500 TL basket",
-    "1440px: customer confirmation and usta collection views show extras, note and amount due at the door"
+    "1440px: customer confirmation and usta collection views show extras, note and amount due at the door",
+    "1440px: card order receipt itemizes package, extras and FUWU hizmet bedeli"
   ],
   "screenshots": [
+    "0-kart-varsayilan-390.png",
+    "0-odeme-yakinda-390.png",
     "1-paket-ekstra-390.png",
     "2-saat-390.png",
     "3-adres-not-390.png",
     "4-odeme-onay-390.png",
     "5-musteri-siparis-390.png",
     "6-usta-siparis-390.png",
+    "7-kart-fis-390.png",
+    "0-kart-varsayilan-1440.png",
+    "0-odeme-yakinda-1440.png",
     "1-paket-ekstra-1440.png",
     "2-saat-1440.png",
     "3-adres-not-1440.png",
     "4-odeme-onay-1440.png",
     "5-musteri-siparis-1440.png",
-    "6-usta-siparis-1440.png"
+    "6-usta-siparis-1440.png",
+    "7-kart-fis-1440.png"
   ],
   "errors": []
 }

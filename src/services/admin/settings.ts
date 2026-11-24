@@ -22,8 +22,10 @@ export type SettingDef = {
 };
 
 export const SETTING_DEFS: SettingDef[] = [
-  { default: "10", key: "commission_rate", label: "Komisyon Oranı (%)", type: "number" },
-  { default: "0", key: "customer_fee_rate", label: "Müşteri platform ücreti (%) · Yeni test siparişlerine uygulanır", type: "number" },
+  // İki taraflı gelir: usta komisyonu ustanın fiyatından düşülür; müşteri hizmet bedeli fiyata dahil gösterilir, fişte ayrı satırdır.
+  { default: "10", key: "commission_rate", label: "Usta komisyonu (%) · ustanın fiyatından düşülür (öneri: lansman %10)", type: "number" },
+  { default: "0", key: "customer_fee_rate", label: "Müşteri hizmet bedeli (%) · fiyata dahil gösterilir, fişte ayrı satır (öneri: lansman %5)", type: "number" },
+  { default: "false", key: "pay_at_door_enabled", label: "Kapıda ödeme (geçici) · kapalıyken yalnızca online kartla satış", type: "boolean" },
   { default: "", key: "support_phone", label: "Destek Telefonu", type: "text" },
   { default: "", key: "support_email", label: "Destek E-posta", type: "text" },
   { default: "", key: "announcement_banner", label: "Duyuru Bandı (site üstü mesaj)", type: "text" },
