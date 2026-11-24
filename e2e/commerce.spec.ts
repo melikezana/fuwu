@@ -37,9 +37,13 @@ test.describe("commerce: real browser and isolated Auth/DB; no processor mock",(
     const cancel=await page.request.post(`/api/commerce/orders/${order.id}`,{data:{status:"CANCELLED"}});expect(cancel.status()).toBe(200);
     const {data:row}=await admin.from("commerce_orders").select("status").eq("id",order.id).single();expect(row?.status).toBe("CANCELLED");
     // Doğrudan satın alma: kapıda ödemeli sipariş API'den tek adımda oluşur ve randevu hemen onaylanır.
-    const door={offeringId,districtId,startsAt:slots[slots.length-1].starts_at,address:"E2E sentetik test adresi 11",idempotencyKey:crypto.randomUUID(),expectedTotalMinor:quote.total_minor,feeConsent:true,termsVersion:quote.terms_version,paymentMethod:"PAY_AT_DOOR",note:"E2E notu"};
+    const door={offeringId,districtId,startsAt:slots[slots.length-1].starts_at,address:"E2E sentetik test adresi 11",idempotencyKey:crypto.randomUUID(),expectedTotalMinor:quote.total_minor,feeConsent:true,termsVersion:quote.terms_version,paymentMethod:"PAY_AT_DOOR",note:"E2E notu",legalAccepted:true,legalVersion:"mesafeli-hizmet-2026-11-24",earlyStartConsent:true};
+    const legal=await page.request.get(`/api/commerce/legal?offering=${offeringId}`);expect(legal.status()).toBe(200);
+    expect((await legal.json()).legal).toMatchObject({ready:true,version:"mesafeli-hizmet-2026-11-24",provider:{tax_id:"11111111110"}});
+    const unaccepted=await page.request.post("/api/commerce/orders",{data:{...door,legalAccepted:false}});expect(unaccepted.status()).toBe(400);
     const placed=await page.request.post("/api/commerce/orders",{data:door});expect(placed.status()).toBe(201);
-    const {order:doorOrder}=await placed.json();expect(doorOrder).toMatchObject({status:"CONFIRMED",payment_status:"UNPAID",payment_method:"PAY_AT_DOOR",customer_note:"E2E notu"});
+    const {order:doorOrder}=await placed.json();expect(doorOrder).toMatchObject({status:"CONFIRMED",payment_status:"UNPAID",payment_method:"PAY_AT_DOOR",customer_note:"E2E notu",legal_version:"mesafeli-hizmet-2026-11-24"});expect(doorOrder.legal_parties.provider.tax_id).toBe("11111111110");
+    const documents=await page.goto(`/orders/${doorOrder.id}/belgeler`);expect(documents?.status()).toBe(200);await expect(page.getByRole("heading",{name:"Ön Bilgilendirme Formu",exact:true})).toBeVisible();
     const again=await page.request.post("/api/commerce/orders",{data:door});expect(again.status()).toBe(201);expect((await again.json()).order.id).toBe(doorOrder.id);
     const card=await page.request.post("/api/commerce/checkout",{data:{orderId:doorOrder.id}});expect(card.status()).not.toBe(200);
     const cancelDoor=await page.request.post(`/api/commerce/orders/${doorOrder.id}`,{data:{status:"CANCELLED"}});expect(cancelDoor.status()).toBe(200);
