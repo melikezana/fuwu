@@ -21,7 +21,7 @@ test('waitlist no longer collects requests; existing records stay withdrawable s
   await expect(page.getByRole('button',{name:'Tercihlerimi güncelle',exact:true})).toBeDisabled();
 
   await page.getByRole('button',{name:'E-posta onayımı geri çek',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('E-posta onayın geri çekildi');
+  await expect(page.getByRole('status').filter({hasText:'E-posta onayın geri çekildi'})).toBeVisible();
   const kept=await db.from('launch_interest').select('withdrawn_at,marketing_email_consent').eq('user_id',id).single();expect(kept.data).toEqual({withdrawn_at:null,marketing_email_consent:false});
   await page.getByRole('button',{name:'Talebimi kaldır',exact:true}).click();
   // Kaldırılan kayıt yönetilecek bir şey bırakmaz; sayfa hizmetlere döner.
