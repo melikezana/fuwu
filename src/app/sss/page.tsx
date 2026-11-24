@@ -20,7 +20,9 @@ const groups: FaqGroup[] = [
     title: "Hizmet ve satın alma",
     items: [
       { q: "FUWU nasıl çalışır?", a: <>Hizmetini seçersin, kapsamını ve fiyatını görürsün, ustanın takviminden sana uyan saati alırsın. Adımlar <Link href={appRoutes.howItWorks}>Nasıl Çalışır</Link> bölümünde.</> },
-      { q: "Ne zaman satın alabilirim?", a: <>Online satın alma açılış aşamasında. <Link href={appRoutes.waitlist}>Bölgene talep bırakırsan</Link> ilk ustaları önce talep olan ilçelere davet ederiz.</> },
+      { q: "Hizmeti nasıl satın alırım?", a: <>Hizmet sayfasında paketini seçersin, istersen ekstra eklersin (örneğin fırın içi temizliği), ustanı ve boş saatini seçip adresini yazarsın. “Siparişi Onayla” dediğinde randevun oluşur. <Link href={appRoutes.services}>Hizmetlere göz at</Link>.</> },
+      { q: "Ödemeyi ne zaman ve nasıl yaparım?", a: "Kapıda ödemede toplam tutarı iş bitince ustana ödersin; usta hizmete başlamadan ödeme isteyemez. Tutar siparişte sabittir, onayın olmadan ek ücret çıkmaz. Online kartla ödeme açıldığında ödeme adımında ayrıca seçilebilir." },
+      { q: "Ekstralar nedir?", a: "Paketin yanında aynı randevuda yaptırabileceğin ek işlerdir: cam silme, ütü, ek taşıyıcı gibi. Her ekstranın fiyatı ve kapsamı satın almadan önce yazar; seçtiğin ekstralar siparişine sabitlenir." },
       { q: "Fiyatın içinde neler var?", a: "Hizmet sayfasında yazan kapsam ve ustanın işçiliği. Kapsam dışı bir iş gerekirse usta önce sana sorar; onayın olmadan ek ücret çıkmaz." },
       { q: "Hangi ilçelerde hizmet var?", a: <>İstanbul ilçelerinde. <Link href={appRoutes.services}>Hizmetler</Link> sayfasında ilçeni seçerek o bölgede çalışan ustaları görebilirsin.</> },
     ],
@@ -37,7 +39,7 @@ const groups: FaqGroup[] = [
     title: "Sipariş, iptal ve destek",
     items: [
       { q: "Siparişimi nasıl takip ederim?", a: <>Giriş yaptıktan sonra <Link href={appRoutes.orders}>Siparişlerim</Link> ekranından durumunu, ustayla yazışmanı ve teslim kodunu görürsün.</> },
-      { q: "Usta gelmezse ne olur?", a: "Sipariş ekranındaki “Sorun Bildir” alanından kayıt oluşturursun. İş tamamlanmadıysa teslim kodunu vermezsin; iade süreci sipariş ekranında izlenir." },
+      { q: "Usta gelmezse ne olur?", a: "Sipariş ekranındaki “Sorun Bildir” alanından kayıt oluşturursun. İş tamamlanmadıysa teslim kodunu vermezsin ve kapıda ödeme yapmazsın; kartla ödenen siparişte iade süreci sipariş ekranında izlenir." },
       { q: "Sorun yaşarsam kime ulaşırım?", a: <>Sipariş detayındaki destek alanından ya da <Link href={appRoutes.contact}>iletişim formundan</Link> bize yazabilirsin.</> },
     ],
   },

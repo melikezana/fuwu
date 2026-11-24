@@ -51,7 +51,7 @@ import { getPrelaunchSnapshot } from "@/services/admin/prelaunch";
 import { PrelaunchDashboard } from "@/components/admin/PrelaunchDashboard";
 import { WeeklyLaunchMetrics } from "@/components/admin/WeeklyLaunchMetrics";
 import { getWeeklyLaunchMetrics } from "@/services/admin/launch-metrics";
-import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
+import { directPurchaseEnabled } from "@/lib/prelaunch";
 import { getNewSupportMessageCount } from "@/services/admin/support";
 
 export const dynamic = "force-dynamic";
@@ -428,7 +428,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
 
   const dashboard = await getAdminDashboardSummary();
   const { summary } = dashboard;
-  const [marketplace, today, prelaunch, newSupportCount, weeklyMetrics] = await Promise.all([sandboxCheckoutEnabled() ? getMarketplaceSummary() : Promise.resolve(null), sandboxCheckoutEnabled() ? getCeoDailySnapshot() : Promise.resolve(null), getPrelaunchSnapshot(), getNewSupportMessageCount(), getWeeklyLaunchMetrics()]);
+  const [marketplace, today, prelaunch, newSupportCount, weeklyMetrics] = await Promise.all([directPurchaseEnabled() ? getMarketplaceSummary() : Promise.resolve(null), directPurchaseEnabled() ? getCeoDailySnapshot() : Promise.resolve(null), getPrelaunchSnapshot(), getNewSupportMessageCount(), getWeeklyLaunchMetrics()]);
 
   const includeLegacy = (await searchParams).legacy === "1";
   const [overview, reqAnalytics, provAnalytics, assignments, reassignmentLogs, auditLogs] = await Promise.all([

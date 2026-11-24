@@ -65,6 +65,14 @@
   },
   {
     "relname": "commerce_orders",
+    "definition": "CHECK (((jsonb_typeof(addons) = 'array'::text) AND (jsonb_array_length(addons) <= 10) AND ((addons_minor >= 0) AND (addons_minor <= 100000000)) AND ((customer_note IS NULL) OR (length(customer_note) <= 500)) AND (((base_price_minor IS NULL) AND (addons_minor = 0) AND (addons = '[]'::jsonb)) OR ((base_price_minor > 0) AND (service_price_minor IS NOT NULL) AND ((base_price_minor + addons_minor) = service_price_minor)))))"
+  },
+  {
+    "relname": "commerce_orders",
+    "definition": "CHECK ((payment_method = ANY (ARRAY['CARD'::text, 'PAY_AT_DOOR'::text])))"
+  },
+  {
+    "relname": "commerce_orders",
     "definition": "CHECK (((commission_minor >= 0) AND (provider_gross_minor >= 0) AND (((service_price_minor IS NULL) AND (customer_fee_minor IS NULL) AND (provider_commission_bps IS NULL) AND (customer_fee_bps IS NULL) AND ((commission_minor + provider_gross_minor) = total_minor)) OR ((service_price_minor IS NOT NULL) AND (customer_fee_minor IS NOT NULL) AND (provider_commission_bps IS NOT NULL) AND (customer_fee_bps IS NOT NULL) AND (service_price_minor > 0) AND (customer_fee_minor >= 0) AND ((provider_commission_bps >= 0) AND (provider_commission_bps <= 10000)) AND ((customer_fee_bps >= 0) AND (customer_fee_bps <= 10000)) AND ((service_price_minor + customer_fee_minor) = total_minor) AND ((commission_minor + provider_gross_minor) = service_price_minor) AND ((commission_minor)::numeric = round((((service_price_minor)::numeric * (provider_commission_bps)::numeric) / (10000)::numeric))) AND ((customer_fee_minor)::numeric = round((((service_price_minor)::numeric * (customer_fee_bps)::numeric) / (10000)::numeric))) AND (fee_terms_version IS NOT NULL) AND (fee_terms_version = 'fuwu-fees-v1'::text) AND ((customer_fee_minor = 0) OR (fee_consent_at IS NOT NULL))))))"
   },
   {
@@ -233,7 +241,7 @@
   },
   {
     "relname": "launch_interest_consent_events",
-    "definition": "CHECK ((event = ANY (ARRAY['granted'::text, 'withdrawn'::text])))"
+    "definition": "CHECK ((event = ANY (ARRAY['granted'::text, 'withdrawn'::text, 'notice_acknowledged'::text, 'marketing_granted'::text, 'marketing_withdrawn'::text])))"
   },
   {
     "relname": "launch_interest_consent_events",
@@ -253,7 +261,7 @@
   },
   {
     "relname": "notifications",
-    "definition": "CHECK ((entity_type = ANY (ARRAY['service_request'::text, 'provider_application'::text, 'provider'::text, 'order'::text])))"
+    "definition": "CHECK ((entity_type = ANY (ARRAY['service_request'::text, 'provider_application'::text, 'provider'::text, 'order'::text, 'launch_interest'::text, 'support_message'::text])))"
   },
   {
     "relname": "notifications",
@@ -342,6 +350,18 @@
   {
     "relname": "order_scope_changes",
     "definition": "CHECK ((status = ANY (ARRAY['proposed'::text, 'accepted'::text, 'declined'::text])))"
+  },
+  {
+    "relname": "order_sms_dispatches",
+    "definition": "CHECK ((event = 'provider_new_order'::text))"
+  },
+  {
+    "relname": "order_sms_dispatches",
+    "definition": "FOREIGN KEY (order_id) REFERENCES commerce_orders(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "order_sms_dispatches",
+    "definition": "PRIMARY KEY (order_id, event)"
   },
   {
     "relname": "order_status_events",
@@ -466,6 +486,26 @@
   {
     "relname": "profiles",
     "definition": "CHECK ((role = ANY (ARRAY['customer'::text, 'provider'::text, 'admin'::text])))"
+  },
+  {
+    "relname": "provider_application_source_reviews",
+    "definition": "FOREIGN KEY (application_id) REFERENCES provider_applications(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "provider_application_source_reviews",
+    "definition": "CHECK (((length(btrim(note)) >= 10) AND (length(btrim(note)) <= 500)))"
+  },
+  {
+    "relname": "provider_application_source_reviews",
+    "definition": "PRIMARY KEY (application_id)"
+  },
+  {
+    "relname": "provider_application_source_reviews",
+    "definition": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)"
+  },
+  {
+    "relname": "provider_application_source_reviews",
+    "definition": "CHECK ((source_kind = ANY (ARRAY['real'::text, 'test'::text, 'incomplete'::text])))"
   },
   {
     "relname": "provider_applications",
@@ -904,6 +944,42 @@
     "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
   },
   {
+    "relname": "service_addons",
+    "definition": "CHECK (((description IS NULL) OR (length(description) <= 240)))"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "CHECK (((max_quantity >= 1) AND (max_quantity <= 20)))"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "CHECK (((length(btrim(name)) >= 3) AND (length(btrim(name)) <= 80)))"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "CHECK (((price_minor >= 100) AND (price_minor <= 10000000)))"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "FOREIGN KEY (service_id) REFERENCES service_catalog(id) ON DELETE CASCADE"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "UNIQUE (service_id, slug)"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "CHECK (((slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'::text) AND (length(slug) <= 60)))"
+  },
+  {
+    "relname": "service_addons",
+    "definition": "CHECK (((sort_order >= 0) AND (sort_order <= 10000)))"
+  },
+  {
     "relname": "service_catalog",
     "definition": "FOREIGN KEY (category_id) REFERENCES service_categories(id)"
   },
@@ -1034,6 +1110,14 @@
   {
     "relname": "service_variants",
     "definition": "FOREIGN KEY (service_id) REFERENCES service_catalog(id)"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "CHECK (((admin_note IS NULL) OR (char_length(admin_note) <= 2000)))"
+  },
+  {
+    "relname": "support_messages",
+    "definition": "FOREIGN KEY (handled_by) REFERENCES profiles(id) ON DELETE SET NULL"
   },
   {
     "relname": "support_messages",

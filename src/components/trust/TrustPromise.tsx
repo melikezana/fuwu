@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, KeyRound, MessageSquareQuote, ReceiptText, ShieldCheck, Undo2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { PRELAUNCH_COPY } from "@/lib/prelaunch";
+import { STOREFRONT_COPY } from "@/lib/prelaunch";
 
 // Metinler, ev hizmeti platformlarında en sık görülen şikâyetlere karşılık gelir:
 // sonradan artan fiyat, gelmeyen usta, kimliği belirsiz kişi, sahte yorum, iade alamamak.
@@ -22,7 +22,7 @@ export function TrustPromise() {
           <div>
             <h2 className="home-section-title" id="trust-promise-title">İki taraflı güven</h2>
             <p className="home-section-description">Müşteri de usta da doğrulanır. Herkes kime güvendiğini bilir.</p>
-            <p className="home-section-description" role="note">{PRELAUNCH_COPY.trustStage}</p>
+            <p className="home-section-description" role="note">{STOREFRONT_COPY.trustStage}</p>
           </div>
           <Link className="home-text-link" href="/guven">Nasıl doğruluyoruz? <ArrowRight size={16} aria-hidden /></Link>
         </div>

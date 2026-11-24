@@ -15,7 +15,7 @@ test.describe("commerce: real browser and isolated Auth/DB; no processor mock",(
     await loginWithEmailMagicLink(page,{nextPath:"/orders"});
     await expect(page).toHaveURL(/\/orders/);
     const order=await page.request.post("/api/commerce/orders",{data:{offeringId:"not-a-uuid"}});
-    expect(order.status()).toBe(503); expect((await order.json()).error).toBe("online_purchase_closed");
+    expect(order.status()).toBe(400); expect((await order.json()).error).toBe("invalid_selection");
     await page.goto("/admin");await expect(page).not.toHaveURL(/\/admin(?:$|\?)/);
   });
   test("authoritative quote, duplicate purchase hold and cancellation reach real SQL RPCs",async({page})=>{
@@ -36,5 +36,12 @@ test.describe("commerce: real browser and isolated Auth/DB; no processor mock",(
     const second=await actor.rpc("commerce_hold_order_priced",args);expect(second.error).toBeNull();expect(second.data.id).toBe(order.id);
     const cancel=await page.request.post(`/api/commerce/orders/${order.id}`,{data:{status:"CANCELLED"}});expect(cancel.status()).toBe(200);
     const {data:row}=await admin.from("commerce_orders").select("status").eq("id",order.id).single();expect(row?.status).toBe("CANCELLED");
+    // Doğrudan satın alma: kapıda ödemeli sipariş API'den tek adımda oluşur ve randevu hemen onaylanır.
+    const door={offeringId,districtId,startsAt:slots[slots.length-1].starts_at,address:"E2E sentetik test adresi 11",idempotencyKey:crypto.randomUUID(),expectedTotalMinor:quote.total_minor,feeConsent:true,termsVersion:quote.terms_version,paymentMethod:"PAY_AT_DOOR",note:"E2E notu"};
+    const placed=await page.request.post("/api/commerce/orders",{data:door});expect(placed.status()).toBe(201);
+    const {order:doorOrder}=await placed.json();expect(doorOrder).toMatchObject({status:"CONFIRMED",payment_status:"UNPAID",payment_method:"PAY_AT_DOOR",customer_note:"E2E notu"});
+    const again=await page.request.post("/api/commerce/orders",{data:door});expect(again.status()).toBe(201);expect((await again.json()).order.id).toBe(doorOrder.id);
+    const card=await page.request.post("/api/commerce/checkout",{data:{orderId:doorOrder.id}});expect(card.status()).not.toBe(200);
+    const cancelDoor=await page.request.post(`/api/commerce/orders/${doorOrder.id}`,{data:{status:"CANCELLED"}});expect(cancelDoor.status()).toBe(200);
   });
 });

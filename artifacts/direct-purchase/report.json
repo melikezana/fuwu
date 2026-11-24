@@ -1,0 +1,23 @@
+{
+  "checks": [
+    "390px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → order placed with server-verified 1.500 TL basket",
+    "390px: customer confirmation and usta collection views show extras, note and amount due at the door",
+    "1440px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → order placed with server-verified 1.500 TL basket",
+    "1440px: customer confirmation and usta collection views show extras, note and amount due at the door"
+  ],
+  "screenshots": [
+    "1-paket-ekstra-390.png",
+    "2-saat-390.png",
+    "3-adres-not-390.png",
+    "4-odeme-onay-390.png",
+    "5-musteri-siparis-390.png",
+    "6-usta-siparis-390.png",
+    "1-paket-ekstra-1440.png",
+    "2-saat-1440.png",
+    "3-adres-not-1440.png",
+    "4-odeme-onay-1440.png",
+    "5-musteri-siparis-1440.png",
+    "6-usta-siparis-1440.png"
+  ],
+  "errors": []
+}

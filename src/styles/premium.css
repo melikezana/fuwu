@@ -454,3 +454,37 @@
 .trust-onboarding .legal-step { margin:16px 0 8px; }
 .trust-onboarding .prelaunch-consent { font-size:15px; }
 .trust-onboarding .prelaunch-consent input,.prelaunch-interest .prelaunch-consent input { width:22px; min-width:22px; height:22px; }
+
+/* Doğrudan satın alma: güvence şeridi, ekstra sepeti ve ödeme yöntemi (mevcut renk değerleri). */
+.booking-promise { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: -8px 0 20px; padding: 0; list-style: none; font-size: 12px; font-weight: 600; color: #55534d; }
+.booking-promise li { display: inline-flex; align-items: center; gap: 6px; }
+.booking-promise svg { color: #a94300; }
+.booking-extras h3 small, .commerce-field small { margin-left: 6px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.booking-extras ul { display: grid; gap: 10px; margin: 6px 0 12px; padding: 0; list-style: none; }
+.booking-extras li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: white; transition: border-color .18s, background .18s; }
+.booking-extras li.is-selected { border-color: #ffba89; background: #fff2e8; }
+.booking-extras li strong { display: block; font-size: 14px; font-weight: 650; }
+.booking-extras li p { margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.booking-extra-price { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; color: #8a3700; }
+.booking-extra-toggle { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; min-height: 44px; min-width: 96px; justify-content: center; padding: 8px 14px; border: 1px solid #cf5700; border-radius: 999px; background: white; color: #8a3700; font-size: 13px; font-weight: 650; cursor: pointer; }
+.booking-extra-toggle[aria-pressed=true] { background: #252421; border-color: #252421; color: white; }
+.booking-stepper { display: inline-flex; align-items: center; flex-shrink: 0; border: 1px solid var(--border); border-radius: 999px; background: white; }
+.booking-stepper button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: #8a3700; cursor: pointer; }
+.booking-stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.booking-stepper output { min-width: 22px; text-align: center; font-size: 14px; font-weight: 700; }
+.booking-payment-options { display: grid; gap: 10px; }
+.booking-payment-option { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: white; cursor: pointer; }
+.booking-payment-option.is-selected { border-color: #cf5700; background: #fff2e8; }
+.booking-payment-option input { margin-top: 3px; accent-color: #b94b00; width: 18px; height: 18px; flex-shrink: 0; }
+.booking-payment-option > svg { flex-shrink: 0; color: #8a3700; }
+.booking-payment-option strong { display: block; font-size: 14px; }
+.booking-payment-option small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.booking-payment-soon { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border: 1px dashed var(--border); border-radius: 14px; color: var(--muted); font-size: 12px; }
+.order-door-pay { display: grid; gap: 4px; margin-top: 14px; padding: 16px; border: 1px solid #ffba89; border-radius: 14px; background: #fff2e8; font-size: 13px; line-height: 1.7; }
+.order-door-pay strong { font-size: 20px; color: #8a3700; }
+.order-extras { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; }
+.order-extras li { display: flex; justify-content: space-between; gap: 12px; }
+@media (max-width: 479px) {
+  .booking-extras li { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .booking-extras li > :last-child { align-self: flex-end; }
+}

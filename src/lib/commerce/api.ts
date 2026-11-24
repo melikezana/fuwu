@@ -11,7 +11,7 @@ const errors: Record<string, [number, string]> = {
   schema_missing: [503, "Hizmet mağazası şeması güncel değil. Kurulum kontrol edilmeli."],
   invalid_scope: [400, "Hizmet kapsamı en fazla 2000 karakter olabilir."],
   unauthorized: [401, "Devam etmek için giriş yap."],
-  online_purchase_closed: [503, "Online satın alma henüz açılmadı."],
+  online_purchase_closed: [503, "Satın alma geçici olarak kapalı."],
   forbidden: [403, "Bu işlem için yetkin yok."],
   transition_forbidden: [403, "Bu işlem için yetkin yok."],
   order_not_found: [404, "Sipariş bulunamadı."],
@@ -42,6 +42,12 @@ const errors: Record<string, [number, string]> = {
   invalid_hours: [400, "Çalışma saatlerini kontrol et."],
   selection_conflict: [409, "Bu seçimle başka bir kayıt var. Seçimlerini kontrol et."],
   server_payment_only: [403, "Ödeme sonucu sunucuda doğrulanmalı."],
+  invalid_addons: [400, "Ekstra seçimlerini kontrol et."],
+  invalid_payment_method: [400, "Ödeme yöntemini seç."],
+  invalid_note: [400, "Ustaya not en fazla 500 karakter olabilir."],
+  pay_at_door_closed: [503, "Kapıda ödeme şu anda kapalı."],
+  card_payment_closed: [503, "Online kartla ödeme şu anda kapalı. Kapıda ödemeyi seçebilirsin."],
+  too_many_open_orders: [429, "Aynı anda en fazla 3 açık kapıda ödemeli siparişin olabilir."],
 };
 
 // Codes are an exact allowlist. SQL details, processor messages and user input never pass through.

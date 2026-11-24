@@ -29,11 +29,11 @@ describe("customer-first prelaunch screens (10 Kasım 2026 denetimi · frontend)
     expect(list).toContain("Usta mısın? Başvur");
     expect(list).not.toMatch(/\? "Hizmetleri Keşfet" : "Usta Ol"/);
   });
-  it("tells catalog visitors that services are not yet on sale and links the waitlist only when it is open", () => {
+  it("tells catalog visitors honestly when no usta calendar is open yet, without a waitlist CTA", () => {
     const page = read("src/app/services/page.tsx");
-    expect(page).toContain("PRELAUNCH_COPY.catalogStage");
-    expect(page).not.toMatch(/henüz açılmadı\. <Link href="\/waitlist">/);
-    expect(page.match(/discovery\.launchInterestOpen &&/g)).toHaveLength(2);
+    expect(page).toContain("STOREFRONT_COPY.catalogStage");
+    expect(page).toMatch(/!sellable && !catalog\.unavailable/);
+    expect(page).not.toMatch(/waitlist|launchInterestOpen/);
   });
   it("addresses the customer consistently in the informal singular", () => {
     for (const file of ["src/lib/commerce/display.ts", "src/components/commerce/CustomerHub.tsx", "src/components/commerce/CustomerSpotlight.tsx"]) expect(read(file), file).not.toMatch(/Ustanız|MY FUWU/);

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   description: "FUWU hizmet kategorileri ve ilçe yönetimi.",
 };
 
-export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string; category?: string }> }) {
+export default async function AdminCatalogPage({ searchParams }: { searchParams: Promise<{ commerce?: string; category?: string; addon?: string }> }) {
   const params = await searchParams;
   const adminAccess = await getAdminAccess();
 
@@ -39,6 +39,7 @@ export default async function AdminCatalogPage({ searchParams }: { searchParams:
         title="Hizmet Kataloğu"
       >
         {params.commerce && <p className="commerce-notice" role="status">{params.commerce === "saved" ? "Hizmet ürünü kaydedildi." : "Ürün kaydedilemedi. Alanları, mevcut satış kayıtlarını ve yetkileri kontrol edin."}</p>}
+        {params.addon && <p className="commerce-notice" role="status">{params.addon === "saved" ? "Ekstra kaydedildi." : "Ekstra kaydedilemedi. Ad (3–80), kısa kod, fiyat (en az 1 TL) ve adet (1–20) alanlarını kontrol edin."}</p>}
         {params.category && <p className="commerce-notice" role="status">{params.category === "saved" ? "Kategori düzeni kaydedildi." : "Kategori kaydedilemedi. URL adını, yetkileri ve migration durumunu kontrol edin."}</p>}
         <CategoryPresentationManager categories={categories} />
         <CommerceCatalogManager />

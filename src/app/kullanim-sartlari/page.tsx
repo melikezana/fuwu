@@ -36,18 +36,20 @@ const sections: PolicySection[] = [
     ],
   },
   {
-    title: "Test ödemesi ve ücretler",
+    title: "Satın alma, ödeme ve ücretler",
     body: [
-      "Online satın alma henüz açılmadı. Yetkili test oturumlarında yalnızca iyzico sandbox kullanılır; gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
+      "Hizmeti, paketini ve istersen ekstralarını seçip ustanın uygun saatini onayladığında siparişin oluşur. Seçtiğin ekstralar fiyatlarıyla birlikte siparişe sabitlenir.",
+      "Kapıda ödemede toplam tutar, hizmet tamamlandığında doğrudan ustaya ödenir; usta hizmete başlamadan ödeme talep edemez ve sipariş tutarının üstünde ücret isteyemez. Kapsam dışı bir iş gerekirse önce senin onayın alınır.",
+      "Online kartla ödeme yalnızca ödeme ekranında sunulduğunda kullanılabilir; şu anda yalnızca yetkili test oturumlarında iyzico sandbox ile çalışır ve gerçek tahsilat yapılmaz. Kart bilgileri iyzico’nun ödeme ekranına girilir; FUWU kart verisi saklamaz.",
       "Hizmet kartında ve ödeme ekranında gördüğün tutar, ödeyeceğin son tutardır; FUWU platform hizmeti bu fiyata dahildir ve sonradan ayrı ücret eklenmez. Ödeme öncesinde toplam tutarı onaylarsın. Usta komisyonu ustanın satış bedeli üzerinden hesaplanır ve müşteriden ayrıca alınmaz. Yeni ücret ayarları mevcut siparişin tutarını değiştirmez.",
     ],
   },
   {
     title: "İptal, iade ve destek",
     body: [
-      "Randevu başlamadan ve usta yola çıkmadan sipariş detayından iptal isteyebilirsin. Test ortamındaki tam iade, müşteri platform ücretini de içerir. Ödeme kuruluşundan doğrulanmadan iade tamamlandı olarak gösterilmez.",
+      "Randevu başlamadan ve usta yola çıkmadan sipariş detayından ücretsiz iptal edebilirsin. Kapıda ödemeli siparişte ödeme yapılmadığı için iade gerekmez. Kartla ödenen siparişte tam iade müşteri platform ücretini de içerir ve ödeme kuruluşundan doğrulanmadan tamamlandı olarak gösterilmez.",
       "Devam eden veya tamamlanan hizmette sorun yaşarsan sipariş detayındaki destek eylemini kullan. Değerlendirme yalnızca tamamladığın ve doğrulanan hizmet için yapılabilir.",
-      "Canlı satışa geçilmeden önce şirket bilgileri, ön bilgilendirme, mesafeli sözleşme, cayma hakkı, vergi ve belge düzeni ayrıca tamamlanıp doğrulanmalıdır. Bu ekran test ortamındaki işleyişi açıklar.",
+      "Şirket bilgileri, ön bilgilendirme formu, mesafeli sözleşme ve cayma hakkına ilişkin metinler tamamlandığında bu sayfada ve sipariş özetinde ayrıca yayımlanır.",
     ],
   },
 ];

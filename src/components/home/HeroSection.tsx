@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { Container } from "@/components/ui/Container";
 import type { CatalogNavigationItem } from "@/lib/commerce/catalog-navigation";
-import { PRELAUNCH_COPY } from "@/lib/prelaunch";
+import { STOREFRONT_COPY } from "@/lib/prelaunch";
 import { servicePhotos } from "@/lib/service-photos";
 
 const photos = [
@@ -14,7 +14,7 @@ const photos = [
   { id: "painting", title: "Boya badana", className: "home-photo-bottom" },
 ] as const;
 
-export function HeroSection({ categories, districts, launchInterestOpen = false }: { categories: CatalogNavigationItem[]; districts: string[]; launchInterestOpen?: boolean }) {
+export function HeroSection({ categories, districts }: { categories: CatalogNavigationItem[]; districts: string[] }) {
   return (
     <section aria-labelledby="home-title" className="home-hero">
       <Container className="home-container">
@@ -22,9 +22,9 @@ export function HeroSection({ categories, districts, launchInterestOpen = false 
           <div className="home-hero-content">
             <p className="home-eyebrow"><MapPin aria-hidden size={16} /> İSTANBUL’DA EV HİZMETLERİ</p>
             <h1 className="home-hero-title" id="home-title">Evinin işi,<br /><span>FUWU&apos;nun işi.</span></h1>
-            <p className="home-hero-description">{PRELAUNCH_COPY.heroDescription}</p>
+            <p className="home-hero-description">{STOREFRONT_COPY.heroDescription}</p>
             <HeroSearch categories={categories.map(category => category.title)} districts={districts} />
-            <p className="home-hero-stage">{PRELAUNCH_COPY.heroStage}{launchInterestOpen && <> <Link href="/waitlist">Bölgene Talep Bırak</Link></>}</p>
+            <p className="home-hero-stage">{STOREFRONT_COPY.heroStage} <Link href="/services">Hizmeti Satın Al</Link></p>
           </div>
           <figure className="home-photo-composition">
             {photos.map(({ id, title, className }, index) => {

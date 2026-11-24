@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CreditCard, FileCheck2, IdCard, KeyRound, Landmark, MessageSquareQuote, PhoneCall, ShieldCheck, UserRound, Wrench } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { PRELAUNCH_COPY } from "@/lib/prelaunch";
+import { STOREFRONT_COPY } from "@/lib/prelaunch";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
@@ -27,10 +27,10 @@ const providerChecks = [
 ];
 
 const journey = [
-  ["Seçersin", "Hizmeti, ustayı ve saati seçersin. Fiyat baştan belli."],
-  ["Güvenle ödersin", "Ödemeni 3D Secure ekranında yaparsın; randevun kesinleşir."],
-  ["Usta gelir", "Profilinde gördüğün, doğrulanmış usta kapına gelir."],
-  ["Kodla kapatırsın", "İş bitince 6 haneli kodu sen verirsin. Ustanın hak edişi bundan sonra işlenir."],
+  ["Satın alırsın", "Paketini, ekstralarını, ustanı ve saatini seçersin. Fiyat baştan belli; randevun hemen oluşur."],
+  ["Usta gelir", "Profilinde gördüğün usta randevu saatinde kapına gelir."],
+  ["Kodla başlar", "Usta geldiğinde 6 haneli kodunu verirsin; iş kayda geçerek başlar."],
+  ["Onaylar, kapıda ödersin", "İş bitince kontrol edip onaylarsın; sabit tutarı ödersin. Onayın olmadan ek ücret yok."],
   ["Değerlendirirsin", "Yorumun, gerçek bir işin ardından herkese yol gösterir."],
 ];
 
@@ -70,7 +70,7 @@ export default function TrustCenterPage() {
         <Container className="home-container">
           <p className="home-eyebrow">KAPIDAN KAPANIŞA</p>
           <h2 className="home-section-title">Her adım kayıt altında.</h2>
-          <p className="home-section-description" role="note">{PRELAUNCH_COPY.journeyStage}</p>
+          <p className="home-section-description" role="note">{STOREFRONT_COPY.journeyStage}</p>
           <ol>{journey.map(([title, copy], index) => <li key={title}><span>{String(index + 1).padStart(2, "0")}</span><strong>{title}</strong><p>{copy}</p></li>)}</ol>
         </Container>
       </section>

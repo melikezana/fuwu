@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PRELAUNCH_COPY } from "@/lib/prelaunch";
+import { STOREFRONT_COPY } from "@/lib/prelaunch";
 
 export const seoConfig = {
   brandName: "FUWU",
@@ -10,7 +10,7 @@ export const seoConfig = {
   twitterHandle: "@fuwuapp",
   titleTemplate: "%s | FUWU",
   defaultTitle: "FUWU | Ev Hizmetleri Platformu",
-  defaultDescription: PRELAUNCH_COPY.seoDescription,
+  defaultDescription: STOREFRONT_COPY.seoDescription,
   ogImagePath: "/og/fuwu-og-placeholder.svg",
   locale: "tr_TR",
 } as const;

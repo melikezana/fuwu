@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { appRoutes } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils";
-import { sandboxCheckoutEnabled } from "@/lib/prelaunch";
+import { directPurchaseEnabled } from "@/lib/prelaunch";
 
 type ProviderDashboardNavKey =
   | "overview"
@@ -292,7 +292,7 @@ export function ProviderDashboardShell({
           </div>
 
           <nav className="provider-panel-navigation mt-4 flex flex-wrap gap-2 pb-1 sm:mt-6" aria-label="Usta paneli menüsü">
-            {providerNavItems.filter(item => sandboxCheckoutEnabled() || ["overview", "store", "calendar", "profile"].includes(item.key)).sort((a,b) => ["overview", "store", "calendar", "profile"].indexOf(a.key) - ["overview", "store", "calendar", "profile"].indexOf(b.key)).map((item) => {
+            {providerNavItems.filter(item => directPurchaseEnabled() || ["overview", "store", "calendar", "profile"].includes(item.key)).sort((a,b) => ["overview", "store", "calendar", "profile"].indexOf(a.key) - ["overview", "store", "calendar", "profile"].indexOf(b.key)).map((item) => {
               const Icon = item.icon;
               const isActive = active === item.key;
 

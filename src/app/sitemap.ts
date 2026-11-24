@@ -16,7 +16,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: appRoutes.about, priority: 0.5 },
     { path: appRoutes.contact, priority: 0.5 },
     { path: appRoutes.faq, priority: 0.5 },
-    { path: appRoutes.waitlist, priority: 0.5 },
     { path: appRoutes.providerApplication, priority: 0.65 },
     { path: appRoutes.trustCenter, priority: 0.6 },
     { path: appRoutes.kvkk, priority: 0.4 },
