@@ -116,5 +116,5 @@ export function ProviderApplicationForm({ authenticatedUserId, categories, distr
  </div>
  {message && (() => { const calm = done || verified || (smsFailed && message.startsWith("SMS şu anda")); return <p className={calm ? "commerce-notice" : "commerce-error"} role={calm ? "status" : "alert"}>{message}</p>; })()}
  <button className="commerce-button" type="submit" disabled={busy || done || !ready || !clearDraft.ready || !isConfigured}>{busy ? "İşlem sürüyor…" : done ? "Başvuru alındı" : "Başvurumu gönder"}</button>
- <p className="commerce-help">Belge yüklemek veya başvurmak yayın onayı değildir. Online satın alma henüz açılmadı.</p></form>;
+ <p className="commerce-help">Belge yüklemek veya başvurmak yayın onayı değildir.</p></form>;
 }

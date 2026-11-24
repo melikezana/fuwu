@@ -22,7 +22,7 @@ export function PrelaunchDashboard({ snapshot }: { snapshot: PrelaunchSnapshot |
     <Link className="commerce-secondary" href="/admin/verifications">Belge inceleme kuyruğunu aç</Link>
     <CapacityOverview rows={snapshot.capacity ?? snapshot.pilot} pilotOnly={!snapshot.capacity} />
     <details className="commerce-panel control-launch-details"><summary>Lansman hazırlığı ve kayıt kaynakları</summary>
-      <p className="control-payment-closed"><LockKeyhole size={18} aria-hidden /> Canlı ödeme kapalı. Online satın alma henüz açılmadı.</p>
+      <p className="control-payment-closed"><LockKeyhole size={18} aria-hidden /> Doğrudan satın alma açık (kapıda ödeme). Online kart ödemesi şirketleşme ve iyzico canlı sözleşmesine kadar kapalı.</p>
       <dl className="prelaunch-readiness"><div><dt>Şirketleşme · manuel durum</dt><dd>{settings.launch_company_status || "Durum girilmedi"}</dd></div><div><dt>Kaynağı incelenecek profil</dt><dd>{network.unclassified}</dd></div><div><dt>İnceleme kuyruğundaki tüm başvurular</dt><dd>{snapshot.pending_applications ?? "Bilinmiyor"}</dd></div>{[["Google OAuth", "launch_google_evidence"], ["Staging migration", "launch_migration_evidence"]].map(([label, key]) => <div key={key}><dt>{label}</dt><dd>{settings[key] ? `İncelenecek kanıt: ${settings[key]}` : "Test kanıtı girilmedi"}</dd></div>)}</dl>
       <p className="commerce-help">Test ve kaynağı doğrulanmamış profiller gerçek usta metriklerine katılmaz. Geri çekilen iletişim izinleri ön kayıt sayısına katılmaz. Manuel notlar bir testin geçtiğini göstermez.</p><Link className="commerce-secondary" href="/admin/settings">Hazırlık Notlarını Yönet</Link>
     </details>

@@ -1,5 +1,5 @@
 {
- "reviewedAt": "2026-11-11",
+ "reviewedAt": "2026-11-24",
  "source": "supabase/migrations (tam zincir, izole PostgreSQL)",
  "scope": "public şemasında anon veya authenticated rolünün çağırabildiği tüm SECURITY DEFINER fonksiyonları",
  "functions": [
@@ -132,6 +132,14 @@
    "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
   },
   {
+   "function": "commerce_admin_save_addon(jsonb)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "admin",
+   "search_path": "\"\"",
+   "note": "Gövdede current_user_is_admin() kontrolü; her kayıt audit_logs'a yazılır. Yalnızca katalogdaki hizmete ekstra ekler/günceller."
+  },
+  {
    "function": "commerce_admin_save_category(uuid,text,text,boolean,boolean,integer,text)",
    "anon": false,
    "authenticated": true,
@@ -220,6 +228,14 @@
    "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
   },
   {
+   "function": "commerce_place_order(uuid,timestamp with time zone,uuid,text,uuid,integer,jsonb,text,text,boolean,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid(); fiyat ve ekstralar sunucuda hesaplanır (commerce_quote_basket), slot commerce_slots ile doğrulanır, usta satırı kilitlenir, kullanıcı başına saatlik hız sınırı ve açık kapıda ödeme sınırı vardır."
+  },
+  {
    "function": "commerce_provider_capacity(uuid)",
    "anon": false,
    "authenticated": true,
@@ -274,6 +290,14 @@
    "guard": "public",
    "search_path": "\"\"",
    "note": "Yalnızca yayımda olan teklifin fiyat dökümü; teklif yayımda değilse hata."
+  },
+  {
+   "function": "commerce_quote_basket(uuid,jsonb)",
+   "anon": true,
+   "authenticated": true,
+   "guard": "public",
+   "search_path": "\"\"",
+   "note": "Yalnızca yayımdaki teklif (commerce_quote) ve aynı hizmetin aktif ekstraları için fiyat dökümü; kişisel veri yok."
   },
   {
    "function": "commerce_review_settlement(text,text)",
@@ -468,6 +492,14 @@
    "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
   },
   {
+   "function": "save_launch_interest_v2(uuid,uuid,text,boolean,boolean,text)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği; aydınlatma beyanı ve isteğe bağlı e-posta onayı ayrı, sürümlü."
+  },
+  {
    "function": "service_request_assignment_fields_are_unchanged(uuid,uuid,uuid)",
    "anon": false,
    "authenticated": true,
@@ -602,14 +634,6 @@
    "guard": "session",
    "search_path": "\"\"",
    "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği kontrolü."
-  },
-  {
-   "function": "save_launch_interest_v2(uuid,uuid,text,boolean,boolean,text)",
-   "anon": false,
-   "authenticated": true,
-   "guard": "session",
-   "search_path": "\"\"",
-   "note": "Gövdede auth.uid() ile oturum ve kayıt sahipliği; aydınlatma beyanı ve isteğe bağlı e-posta onayı ayrı, sürümlü."
   },
   {
    "function": "withdraw_launch_marketing_consent()",

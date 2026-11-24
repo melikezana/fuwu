@@ -9,7 +9,7 @@ const widths = [320, 375, 390, 430, 768, 1024, 1440];
 const routes = [
   ["home", "/"], ["providers", "/providers"], ["request", "/request"],
   ["login", "/login"], ["provider-application", "/provider-application"],
-  ["waitlist", "/waitlist"], ["kvkk", "/kvkk"], ["privacy", "/gizlilik"],
+  ["kvkk", "/kvkk"], ["privacy", "/gizlilik"],
   ["terms", "/kullanim-sartlari"], ["cookies", "/cerez-politikasi"],
   ["not-found", "/ux-verification-missing-page"],
 ];

@@ -24,6 +24,8 @@ async function handlePOST(request: NextRequest) {
   const { data: order, error: orderError } = await supabase.from("commerce_orders").select("*").eq("id", b.orderId).eq("customer_id", user.id).maybeSingle();
   if (orderError) return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 });
   if (!order) return NextResponse.json({ error: "order_not_found" }, { status: 404 });
+  // Kapıda ödemeli siparişte online ödeme başlatılmaz; tutar iş bitince ustaya ödenir.
+  if (order.payment_method === "PAY_AT_DOOR") return NextResponse.json({ error: "invalid_order" }, { status: 409 });
   // The immutable, server-priced order snapshot is the only source of amounts.
   let db;
   try { assertSandbox(); db = createSupabaseServiceRoleClient(); } catch { return NextResponse.json({ error: "sandbox_unavailable" }, { status: 503 }); }

@@ -23,7 +23,7 @@ test.describe("direct purchase entry", () => {
       expect((await page.goto(`/services?category=${category.slug}&district=Kad%C4%B1k%C3%B6y`))?.status()).toBe(200);
       await expect(page.getByRole("heading",{name:category.name,exact:true,level:1})).toBeVisible();
       await expect(page.getByRole("navigation",{name:"Hizmet kategorileri"}).locator('[aria-current="page"]')).toHaveAttribute("href",`/services?category=${category.slug}&district=Kad%C4%B1k%C3%B6y`);
-      await expect(page.locator('.catalog-payment-note:visible')).toContainText("Online satın alma henüz açılmadı.");
+      await expect(page.locator('.catalog-payment-note:visible')).toContainText("Ödeme iş bitince kapıda");
       const links=await page.locator('.commerce-service-card:visible h3 a').evaluateAll(elements=>elements.map(element=>(element as HTMLAnchorElement).search));
       expect(links.every(query=>new URLSearchParams(query).get('district')==='Kadıköy')).toBe(true);
     }

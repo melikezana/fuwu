@@ -1,10 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 import { getPublicDiscovery } from "@/services/commerce/discovery";
 import { getWaitlistContext } from "@/services/waitlist";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Açılış Bilgilendirmesi", description: "FUWU açılışı için ilçe ve hizmet talebini bırak, onaylarını yönet." };
+export const metadata = { title: "Bilgilendirme Tercihlerin", robots: { index: false, follow: false } };
+// Hizmetler artık doğrudan satın alınıyor; yeni talep toplanmaz. Önceden kayıt bırakanlar
+// tercihlerini görebilir ve onaylarını geri çekebilir (KVKK); diğer herkes hizmetlere yönlenir.
 export default async function WaitlistPage() {
-  const [context, discovery] = await Promise.all([getWaitlistContext(), getPublicDiscovery()]);
-  return <div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">FUWU</p><h1>Bölgende ne lazım?</h1><p>{context.marketingEmailAvailable ? "Hangi ilçede hangi hizmete ihtiyacın olduğunu söyle; istersen açılışta e-postayla haber verelim." : "Hangi ilçede hangi hizmete ihtiyacın olduğunu söyle; ilk ustaları önce oraya davet edelim."}</p></header><WaitlistForm {...context} categories={discovery.categories} districts={discovery.districts} /><Link className="commerce-text-link" href="/services">Hizmetleri Keşfet</Link></div>;
+  const context = await getWaitlistContext();
+  if (!context.entry) redirect("/services");
+  const discovery = await getPublicDiscovery();
+  return <div className="commerce-page"><header className="commerce-page-header"><p className="commerce-eyebrow">FUWU</p><h1>Bilgilendirme tercihlerin</h1><p>Hizmetler artık doğrudan satın alınıyor. Daha önce bıraktığın kaydı buradan yönetebilir veya kaldırabilirsin.</p></header><WaitlistForm {...context} available={false} categories={discovery.categories} districts={discovery.districts} /><Link className="commerce-button" href="/services">Hizmeti Satın Al</Link></div>;
 }

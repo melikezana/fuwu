@@ -28,7 +28,7 @@ export default async function InvestorPage() {
         <div className="investor-view">
           <section className="commerce-panel" aria-labelledby="investor-stage-title">
             <p className="commerce-eyebrow">{today} · İSTANBUL</p>
-            <h2 id="investor-stage-title">Aşama: ön lansman. Ürün hazır, gerçek satış henüz açılmadı.</h2>
+            <h2 id="investor-stage-title">Aşama: lansman. Doğrudan satın alma açık; ilk gerçek ustaların yayına alınması sürüyor.</h2>
             <p className="commerce-help">FUWU, kapsamı ve fiyatı baştan belli ev hizmetlerini doğrulanmış ustalarla buluşturan bir pazaryeridir. Aşağıdaki sayılar yalnızca gerçek kayıtlardan gelir; deneme ve kaynağı doğrulanmamış kayıtlar sayılmaz, okunamayan değer sıfır yerine “Bilinmiyor” görünür.</p>
           </section>
 

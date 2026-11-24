@@ -25,7 +25,7 @@ export function SecureProcessSteps() {
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-xs font-bold leading-5 text-[var(--muted)]">Online satın alma henüz açılmadı; süreç satış açıldığında bu şekilde işler.</p>
+      <p className="mt-2 text-xs font-bold leading-5 text-[var(--muted)]">Hizmeti doğrudan satın alırsın; ödemeyi iş bitince kapıda yaparsın.</p>
     </section>
   );
 }

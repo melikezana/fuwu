@@ -11,8 +11,8 @@ import { getRebookHref } from "@/services/commerce/order-cards";
 import type { OrderTrustData } from "@/components/commerce/OrderTrust";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Sipariş Takibi", robots: { index: false, follow: false } };
-export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function OrderPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ siparis?: string }> }) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const { user, supabase } = await getServerAuthContext();
   if (!user || !supabase) redirect(buildLoginRedirectUrl(`/orders/${id}`));
@@ -33,5 +33,5 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   ]);
   const trust = !trustResult.error && trustResult.data && typeof trustResult.data === "object" && !Array.isArray(trustResult.data) ? trustResult.data as unknown as OrderTrustData : null;
   let paymentReady = false; try { assertSandbox(); paymentReady = isSupabaseServiceRoleConfigured; } catch { /* Sandbox is explicitly unavailable. */ }
-  return <OrderView order={order} events={events ?? []} completionCode={null} isProvider={Boolean(provider) && order.customer_id !== user.id} readOnly={order.customer_id !== user.id && !provider} paymentReady={paymentReady} finance={finance as unknown as OrderFinance | null} hasReview={Boolean(review)} reviewEligible={eligibility.some(source => source.kind === "order" && source.id === order.id)} trust={trust} rebookHref={rebookHref} />;
+  return <OrderView order={order} events={events ?? []} completionCode={null} isProvider={Boolean(provider) && order.customer_id !== user.id} readOnly={order.customer_id !== user.id && !provider} paymentReady={paymentReady} finance={finance as unknown as OrderFinance | null} hasReview={Boolean(review)} reviewEligible={eligibility.some(source => source.kind === "order" && source.id === order.id)} trust={trust} rebookHref={rebookHref} placed={query.siparis === "alindi"} />;
 }

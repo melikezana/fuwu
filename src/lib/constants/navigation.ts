@@ -53,7 +53,7 @@ export const ctaLabels = {
   findProvider: "Usta Bul",
   login: "Giriş Yap",
   request: "Hizmetleri Keşfet",
-  waitlist: "Talep Bırak",
+  waitlist: "Bilgilendirme Tercihlerin",
   provider: "Usta Ol",
 } as const;
 

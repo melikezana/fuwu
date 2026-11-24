@@ -32,3 +32,28 @@ export async function saveCategoryPresentation(form: FormData) {
   revalidatePath("/"); revalidatePath("/services"); revalidatePath("/admin/catalog");
   redirect(`/admin/catalog?category=${error ? "failed" : "saved"}`);
 }
+
+/** TL girişini kuruşa çevirir ("350" veya "350,50"); geçersizse null. */
+function liraToMinor(value: string): number | null {
+  const match = /^(\d{1,6})(?:[.,](\d{1,2}))?$/.exec(value.trim());
+  if (!match) return null;
+  return Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+}
+
+/** Hizmet ekstrası (sepete eklenebilen ek iş). Fiyat ve görünürlük değişikliği veritabanında audit kaydı bırakır. */
+export async function saveServiceAddon(form: FormData) {
+  const { user, profile, supabase } = await getServerAuthContext();
+  if (!user || !supabase || !hasAdminRole(profile)) throw new Error("forbidden");
+  const rate = await checkRateLimitWithRedis({ action: "admin:commerce.addon", userId: user.id, supabase, limit: 40, windowMs: 60_000 });
+  if (!rate.allowed) redirect("/admin/catalog?addon=failed");
+  const serviceId = String(form.get("service_id") ?? "");
+  const price = liraToMinor(String(form.get("price") ?? ""));
+  const maxQuantity = Number(form.get("max_quantity") ?? 1), sortOrder = Number(form.get("sort_order") ?? 0);
+  if (!isUuid(serviceId) || price == null || price < 100 || !Number.isInteger(maxQuantity) || maxQuantity < 1 || maxQuantity > 20 || !Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 10000) redirect("/admin/catalog?addon=failed");
+  const { error } = await supabase.rpc("commerce_admin_save_addon", { p_addon: {
+    service_id: serviceId, slug: String(form.get("slug") ?? "").trim().toLowerCase().slice(0, 60), name: String(form.get("name") ?? "").trim().slice(0, 80),
+    description: String(form.get("description") ?? "").trim().slice(0, 240), price_minor: String(price), max_quantity: String(maxQuantity), sort_order: String(sortOrder), is_active: form.get("is_active") === "on",
+  } });
+  revalidatePath("/services"); revalidatePath("/admin/catalog");
+  redirect(`/admin/catalog?addon=${error ? "failed" : "saved"}`);
+}
