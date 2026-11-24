@@ -10,7 +10,7 @@ beforeEach(()=>{ vi.stubEnv("FUWU_SANDBOX_CHECKOUT_ENABLED", "true"); auth.mockR
 describe("real order API with stubbed Auth/RPC (RLS tested in real SQL separately)",()=>{
   it("rejects a missing session before any purchase mutation",async()=>{expect((await POST(request({}))).status).toBe(401);});
   const signedIn=(rpc:ReturnType<typeof vi.fn>)=>auth.mockResolvedValue({user:{id:`fixture-user-${crypto.randomUUID()}`},supabase:{rpc},profile:{role:"customer"},error:null,isConfigured:true} as unknown as Awaited<ReturnType<typeof getServerAuthContext>>);
-  const valid={offeringId:"40000000-0000-4000-8000-000000000001",districtId:"40000000-0000-4000-8000-000000000002",idempotencyKey:"40000000-0000-4000-8000-000000000003",address:"Test sentetik adres",startsAt:"2026-10-31T12:00:00+03:00",expectedTotalMinor:10000};
+  const valid={offeringId:"40000000-0000-4000-8000-000000000001",districtId:"40000000-0000-4000-8000-000000000002",idempotencyKey:"40000000-0000-4000-8000-000000000003",address:"Test sentetik adres",startsAt:"2026-10-31T12:00:00+03:00",expectedTotalMinor:10000,legalAccepted:true,legalVersion:"mesafeli-hizmet-2026-11-24"};
   it("honours the server-side kill switch before any purchase mutation",async()=>{
     vi.stubEnv("FUWU_DIRECT_PURCHASE_DISABLED", "true");
     const rpc=vi.fn(); signedIn(rpc);
@@ -36,17 +36,24 @@ describe("real order API with stubbed Auth/RPC (RLS tested in real SQL separatel
     expect(rpc).not.toHaveBeenCalled();
     expect((await POST(request(valid))).status).toBe(403);expect(rpc).toHaveBeenCalledTimes(1);
   });
+  it("refuses an order without confirmed pre-contract information (Mesafeli Sözleşmeler Yönetmeliği m.7)",async()=>{
+    const rpc=vi.fn(); signedIn(rpc);
+    for(const body of [{...valid,legalAccepted:undefined},{...valid,legalAccepted:"true"},{...valid,legalVersion:undefined},{...valid,earlyStartConsent:"yes"}]){
+      const response=await POST(request(body)); expect(response.status).toBe(400);
+    }
+    expect(rpc).not.toHaveBeenCalled();
+  });
   it("places a pay-at-door order with the server-priced basket and never trusts a client price",async()=>{
     const rpc=vi.fn().mockResolvedValue({data:{id:"40000000-0000-4000-8000-000000000010",status:"CONFIRMED"},error:null}); signedIn(rpc);
     const addon="40000000-0000-4000-8000-00000000000a";
     const result=await POST(request({...valid,addons:`${addon}:2`,note:"  Zil bozuk, arayın.  ",expectedPriceMinor:1,total_minor:1}));
     expect(result.status).toBe(201);
-    expect(rpc).toHaveBeenCalledWith("commerce_place_order",expect.objectContaining({p_payment_method:"PAY_AT_DOOR",p_addons:[{id:addon,quantity:2}],p_expected_total_minor:10000,p_note:"  Zil bozuk, arayın.  "}));
+    expect(rpc).toHaveBeenCalledWith("commerce_place_order",expect.objectContaining({p_payment_method:"PAY_AT_DOOR",p_addons:[{id:addon,quantity:2}],p_expected_total_minor:10000,p_note:"  Zil bozuk, arayın.  ",p_legal_version:"mesafeli-hizmet-2026-11-24",p_early_start_consent:false}));
     const args=rpc.mock.calls[0][1] as Record<string,unknown>;
     expect(Object.keys(args)).not.toContain("p_expected_price_minor");
   });
   it("maps database refusals to safe codes",async()=>{
-    for(const [message,status] of [["slot_unavailable",409],["price_changed",409],["too_many_open_orders",429],["pay_at_door_closed",503],["invalid_addons",400]] as const){
+    for(const [message,status] of [["slot_unavailable",409],["price_changed",409],["too_many_open_orders",429],["pay_at_door_closed",503],["invalid_addons",400],["legal_identity_incomplete",409],["legal_version_changed",409],["early_start_consent_required",400]] as const){
       const rpc=vi.fn().mockResolvedValue({data:null,error:{code:"P0001",message}}); signedIn(rpc);
       const response=await POST(request(valid)); expect(response.status).toBe(status); expect((await response.json()).error).toBe(message);
     }

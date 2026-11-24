@@ -126,8 +126,12 @@ export async function authenticatedTestClient(page: Page) {
 export async function createCommerceFixture(ownerId: string) {
   const db = getTestAdminClient(), provider = await createTestProvider(ownerId);
   const serviceId = randomUUID(), offeringId = randomUUID();
-  const prepared = await db.from("providers").update({ iyzico_submerchant_status: "active", iyzico_submerchant_key: `e2e-no-processor-${provider.id}` }).eq("id", provider.id);
+  // Ön bilgilendirme formu için satıcı (usta) kimliği; eksik usta satışta görünmez.
+  const prepared = await db.from("providers").update({ iyzico_submerchant_status: "active", iyzico_submerchant_key: `e2e-no-processor-${provider.id}`, legal_name: "E2E Sentetik Usta", tax_identity_number: "11111111110", payout_address: "E2E Sentetik Mah. Test Sok. No 1 İstanbul" }).eq("id", provider.id);
   expect(prepared.error).toBeNull();
+  // Aracı hizmet sağlayıcı (FUWU) kimliği; yalnızca yerel test veritabanı.
+  const legal = await db.from("app_settings").upsert([["legal_intermediary_tax_id", "22222222220"], ["legal_intermediary_address", "E2E FUWU Sentetik Adres Mah. No 2 İstanbul"], ["legal_intermediary_phone", "+90 850 000 00 00"]].map(([key, value]) => ({ key, value })));
+  expect(legal.error).toBeNull();
   const service = await db.from("service_catalog").insert({ id: serviceId, category_id: provider.category_id, slug: `e2e-${serviceId}`, name: `E2E Service ${serviceId}`, description: "E2E isolated service fixture.", scope: "E2E isolated scope.", image_url: "/images/services/plumbing-work.webp", pricing_type: "FIXED_PRICE" });
   expect(service.error).toBeNull();
   const offering = await db.from("provider_service_offerings").insert({ id: offeringId, provider_id: provider.id, service_id: serviceId, price_minor: 85000, duration_minutes: 60, district_ids: [provider.district_id], is_active: true });

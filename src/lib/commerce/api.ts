@@ -48,6 +48,10 @@ const errors: Record<string, [number, string]> = {
   pay_at_door_closed: [503, "Kapıda ödeme şu anda kapalı."],
   card_payment_closed: [503, "Online kartla ödeme şu anda kapalı. Kapıda ödemeyi seçebilirsin."],
   too_many_open_orders: [429, "Aynı anda en fazla 3 açık kapıda ödemeli siparişin olabilir."],
+  legal_identity_incomplete: [409, "Satıcı bilgileri eksik olduğu için bu hizmet şu anda satın alınamıyor."],
+  legal_version_changed: [409, "Sözleşme metni güncellendi. Sayfayı yenileyip güncel metni onayla."],
+  early_start_consent_required: [400, "Randevun cayma süresi içinde; hizmetin bu tarihte başlamasını onaylamalısın."],
+  legal_acceptance_required: [400, "Ön bilgilendirme formunu ve mesafeli hizmet sözleşmesini onaylamalısın."],
 };
 
 // Codes are an exact allowlist. SQL details, processor messages and user input never pass through.
@@ -56,7 +60,7 @@ const safeCodes = new Set([
   "variant_unavailable", "invalid_order", "invalid_store", "invalid_capacity", "invalid_variant",
   "invalid_review", "review_not_eligible", "invalid_signature", "invalid_callback", "invalid_token",
   "invalid_payload", "missing_conversation_id", "missing_payment_id", "supabase_not_configured",
-  "favorites_unavailable", "expiry_failed", "health_evidence_failed", "service_unavailable",
+  "favorites_unavailable", "expiry_failed", "health_evidence_failed", "service_unavailable", "legal_unavailable",
 ]);
 
 export function commerceDatabaseError(error: { code?: string; message?: string }) {

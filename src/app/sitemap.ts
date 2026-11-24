@@ -21,6 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: appRoutes.kvkk, priority: 0.4 },
     { path: appRoutes.privacy, priority: 0.4 },
     { path: appRoutes.terms, priority: 0.4 },
+    { path: appRoutes.preInformation, priority: 0.3 },
+    { path: appRoutes.distanceContract, priority: 0.3 },
     { path: appRoutes.cookies, priority: 0.4 },
   ];
 

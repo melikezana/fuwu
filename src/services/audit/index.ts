@@ -18,6 +18,7 @@ export type AuditAction =
   | "payment.refunded"
   | "provider.created"
   | "provider.payment_onboarding_submitted"
+  | "provider.seller_info_saved"
   | "provider.price_updated"
   | "provider.status_updated"
   | "provider_application.approved"

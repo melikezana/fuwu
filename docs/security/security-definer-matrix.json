@@ -180,6 +180,14 @@
    "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
   },
   {
+   "function": "commerce_checkout_legal(uuid)",
+   "anon": false,
+   "authenticated": true,
+   "guard": "session",
+   "search_path": "\"\"",
+   "note": "Gövdede auth.uid(); yalnızca yayımlı ustanın aktif hizmeti için satıcı ve aracı hizmet sağlayıcı kimliğini döndürür (ön bilgilendirme, Yön. m.5/1-b,c). API katmanında kullanıcı başına hız sınırı vardır; IBAN ve ödeme anahtarı döndürülmez."
+  },
+  {
    "function": "commerce_create_variant(uuid,uuid,text)",
    "anon": false,
    "authenticated": true,
@@ -228,12 +236,12 @@
    "note": "Gövdede current_user_is_admin() kontrolü; admin olmayan forbidden alır."
   },
   {
-   "function": "commerce_place_order(uuid,timestamp with time zone,uuid,text,uuid,integer,jsonb,text,text,boolean,text)",
+   "function": "commerce_place_order(uuid,timestamp with time zone,uuid,text,uuid,integer,jsonb,text,text,boolean,text,text,boolean)",
    "anon": false,
    "authenticated": true,
    "guard": "session",
    "search_path": "\"\"",
-   "note": "Gövdede auth.uid(); fiyat ve ekstralar sunucuda hesaplanır (commerce_quote_basket), slot commerce_slots ile doğrulanır, usta satırı kilitlenir, kullanıcı başına saatlik hız sınırı ve açık kapıda ödeme sınırı vardır."
+   "note": "Gövdede auth.uid(); fiyat ve ekstralar sunucuda hesaplanır (commerce_quote_basket), slot commerce_slots ile doğrulanır, usta satırı kilitlenir, kullanıcı başına saatlik hız sınırı ve açık kapıda ödeme sınırı vardır. Ön bilgilendirme sürümü, taraf kimliklerinin tamlığı ve 14 gün içindeki randevuda erken ifa onayı zorunludur; taraf bilgileri siparişe değiştirilemez olarak yazılır."
   },
   {
    "function": "commerce_provider_capacity(uuid)",

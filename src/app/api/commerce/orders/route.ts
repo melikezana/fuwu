@@ -10,7 +10,7 @@ import { decodeBasket } from "@/lib/commerce/pricing";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/serviceRole";
 import { notifyProviderAfterResponse } from "@/services/commerce/provider-order-sms";
 
-const statusFor: Record<string, number> = { unauthorized: 401, forbidden: 403, contact_verification_required: 403, rate_limit: 429, too_many_holds: 429, too_many_open_orders: 429, schema_missing: 503, pay_at_door_closed: 503, invalid_addons: 400, invalid_address: 400, invalid_note: 400, invalid_payment_method: 400, invalid_selection: 400 };
+const statusFor: Record<string, number> = { unauthorized: 401, forbidden: 403, contact_verification_required: 403, rate_limit: 429, too_many_holds: 429, too_many_open_orders: 429, schema_missing: 503, pay_at_door_closed: 503, invalid_addons: 400, invalid_address: 400, invalid_note: 400, invalid_payment_method: 400, invalid_selection: 400, early_start_consent_required: 400, legal_acceptance_required: 400, legal_identity_incomplete: 409, legal_version_changed: 409 };
 
 /**
  * Doğrudan satın alma: paket + ekstralar + saat + adres tek istekte sipariş olur.
@@ -34,10 +34,14 @@ async function handlePOST(request: NextRequest) {
   if (paymentMethod !== "PAY_AT_DOOR" && paymentMethod !== "CARD") return NextResponse.json({ error: "invalid_payment_method" }, { status: 400 });
   if (paymentMethod === "CARD" && !cardCheckoutEnabled()) return NextResponse.json({ error: "card_payment_closed" }, { status: 503 });
   if (b.note !== undefined && b.note !== null && (typeof b.note !== "string" || b.note.length > 500)) return NextResponse.json({ error: "invalid_note" }, { status: 400 });
+  // Ön bilgilendirme teyidi olmadan sözleşme kurulmaz (Mesafeli Sözleşmeler Yönetmeliği m.7).
+  if (b.legalAccepted !== true || typeof b.legalVersion !== "string") return NextResponse.json({ error: "legal_acceptance_required" }, { status: 400 });
+  if (b.earlyStartConsent !== undefined && typeof b.earlyStartConsent !== "boolean") return NextResponse.json({ error: "invalid_selection" }, { status: 400 });
   const { data, error } = await db.rpc("commerce_place_order", {
     p_offering_id: b.offeringId, p_district_id: b.districtId, p_starts_at: b.startsAt, p_address: b.address, p_idempotency_key: b.idempotencyKey,
     p_expected_total_minor: b.expectedTotalMinor, p_addons: basket, p_payment_method: paymentMethod, p_note: typeof b.note === "string" ? b.note : null,
     p_fee_consent: b.feeConsent === true, p_terms_version: typeof b.termsVersion === "string" ? b.termsVersion : "",
+    p_legal_version: b.legalVersion.slice(0, 60), p_early_start_consent: b.earlyStartConsent === true,
   });
   if (error) { const code = commerceDatabaseError(error); return NextResponse.json({ error: code }, { status: statusFor[code] ?? 409 }); }
   const order = data as { id?: string; status?: string } | null;

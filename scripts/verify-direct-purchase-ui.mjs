@@ -27,6 +27,7 @@ try {
       return route.fulfill({ json: { quote: { base_price_minor: basePrice, addons: lines, addons_minor: addonsMinor, service_price_minor: price, customer_fee_minor: 0, total_minor: price, commission_minor: commission, provider_gross_minor: price - commission, provider_commission_bps: 1000, customer_fee_bps: 0, terms_version: "fuwu-fees-v1" } } });
     });
     await page.route("**/api/commerce/slots?**", route => { const q = new URL(route.request().url()).searchParams; const day = q.get("day"); if (q.get("days")) return route.fulfill({ json: { days: [{ day, slots: [{ starts_at: `${day}T11:00:00+03:00`, ends_at: `${day}T12:00:00+03:00` }] }] } }); return route.fulfill({ json: { slots: [{ starts_at: `${day}T11:00:00+03:00`, ends_at: `${day}T12:00:00+03:00` }, { starts_at: `${day}T14:00:00+03:00`, ends_at: `${day}T15:00:00+03:00` }] } }); });
+    await page.route("**/api/commerce/legal?**", route => route.fulfill({ json: { legal: { version: "mesafeli-hizmet-2026-11-24", ready: true, provider: { name: "TEST Ahmet Yılmaz", display_name: "TEST · Ahmet Usta", tax_id: "11111111110", tax_office: "Kadıköy", address: "TEST Caferağa Mah. Örnek Sok. No 1 Kadıköy", phone: "+90 555 000 33 33", ready: true }, intermediary: { name: "Melike Dağkesen (FUWU)", tax_id: "22222222220", tax_office: null, mersis: null, address: "TEST FUWU Adresi Mah. Sok. No 2 İstanbul", phone: "+90 850 000 00 00", email: "fuwuhizmet@gmail.com", ready: true } } } }));
     let placed; await page.route("**/api/commerce/orders", async route => { placed = route.request().postDataJSON(); await route.fulfill({ status: 201, json: { order: { id: "40000000-0000-4000-8000-000000000001", status: "CONFIRMED" } } }); });
     await page.goto(`${base}/?screen=direct-purchase`, { waitUntil: "domcontentloaded" });
     await page.getByRole("heading", { level: 1 }).waitFor();
@@ -47,13 +48,21 @@ try {
     assert.equal(await page.getByRole("radio", { name: /Kapıda öde/ }).isChecked(), true, "Kapıda öde is the default");
     assert.equal(await page.getByRole("radio", { name: /Online kartla öde/ }).count(), 0, "Card option hidden while closed");
     assert.equal(await action().isDisabled(), true, "Consent required");
-    await page.getByRole("checkbox", { name: /iş bitince kapıda ödemeyi onaylıyorum/ }).check();
+    await page.locator("#on-bilgilendirme-formu").waitFor();
+    assert.equal(await page.locator("#on-bilgilendirme-formu .legal-doc p").first().evaluate(el => getComputedStyle(el).fontSize), "16px", "pre-contract text is at least 12 pt");
+    await page.getByRole("link", { name: "Ön Bilgilendirme Formu" }).click();
+    assert.equal(await page.locator("#on-bilgilendirme-formu").evaluate(el => el.open), true, "link opens the form");
+    for (const text of ["TEST Ahmet Yılmaz", "11111111110", "Melike Dağkesen (FUWU)", "Tüketici Hakem Heyetine", "m.15/1-h"]) assert.ok(await page.locator("#on-bilgilendirme-formu").getByText(text, { exact: false }).count(), text);
+    await page.getByRole("checkbox", { name: /Mesafeli Hizmet Sözleşmesi/ }).check();
+    assert.equal(await action().isDisabled(), true, "early start consent required for an appointment inside the withdrawal period");
+    await page.getByRole("checkbox", { name: /cayma süresi dolmadan/ }).check();
     await fits("Review"); await shot("4-odeme-onay");
     await action().click();
     await page.waitForFunction(() => location.hash.includes("siparis=alindi"));
     assert.equal(placed.paymentMethod, "PAY_AT_DOOR"); assert.equal(placed.expectedTotalMinor, 150000); assert.equal(placed.note, "Zil bozuk, gelince arayın.");
     assert.equal(placed.addons, "80000000-0000-4000-8000-000000000001:1,80000000-0000-4000-8000-000000000002:2");
-    report.checks.push(`${width}px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → order placed with server-verified 1.500 TL basket`);
+    assert.equal(placed.legalAccepted, true); assert.equal(placed.legalVersion, "mesafeli-hizmet-2026-11-24"); assert.equal(placed.earlyStartConsent, true);
+    report.checks.push(`${width}px: package + 2 extras (1 toggle, 1 stepper ×2) → provider → slot → address/note → pay at door → pre-contract form (16 px) + contract acceptance + early-start consent → order placed with server-verified 1.500 TL basket`);
     for (const [screen, name] of [["door-order&placed", "5-musteri-siparis"], ["door-order&provider", "6-usta-siparis"]]) {
       await page.goto(`${base}/?screen=${screen}`, { waitUntil: "domcontentloaded" }); await page.getByRole("heading", { level: 1 }).waitFor(); await fits(name); await shot(name);
     }

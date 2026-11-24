@@ -78,6 +78,11 @@ const paymentInfoActionMessages: Record<string, PaymentInfoFeedback> = {
     title: "Çok fazla deneme",
     tone: "error",
   },
+  "seller-info-saved": {
+    body: "Satıcı bilgilerin kaydedildi. Siparişte müşterinin göreceği ön bilgilendirme formunda yer alır; hizmetlerin satışa hazır.",
+    title: "Satıcı bilgileri kaydedildi",
+    tone: "success",
+  },
   "payment-info-submitted": {
     body: "Ödeme bilgilerin kaydedildi ve iyzico incelemesine gönderildi.",
     title: "Ödeme kaydı başlatıldı",
@@ -216,13 +221,13 @@ export default async function ProviderPaymentInfoPage({
           <div className="flex flex-col gap-5 border-b border-[var(--border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 cursor-default select-none">
               <p className="text-sm font-medium uppercase text-[var(--brand-orange-dark)]">
-                iyzico pazaryeri
+                Satıcı ve ödeme bilgileri
               </p>
               <h2 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-navy)]">
-                Ödeme hesabın
+                Satışa açılmak için bilgilerin
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)]">
-                Hizmetlerini satışa açmak için ödeme hesabının kuruluş tarafından doğrulanması gerekir.
+                Yasa gereği müşteri, siparişten önce hizmeti sunanın adını, vergi kimlik numarasını (şahıssan T.C. kimlik no), açık adresini ve telefonunu ön bilgilendirme formunda görür. Bu bilgiler eksikse hizmetlerin satışta görünmez. IBAN yalnızca online kart ödemesi için gerekir; kapıda ödemede boş bırakabilirsin.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -251,10 +256,11 @@ export default async function ProviderPaymentInfoPage({
               <PaymentInfoInput
                 autoComplete="off"
                 defaultValue={providerAccess.profile.payoutIban}
-                helpText="TR ile başlayan kişisel veya şirket IBAN'ı."
-                label="Banka IBAN"
+                helpText="İsteğe bağlı: yalnızca online kart ödemesi için. TR ile başlayan kişisel veya şirket IBAN'ı."
+                label="Banka IBAN (isteğe bağlı)"
                 name="payoutIban"
                 placeholder="TR000000000000000000000000"
+                required={false}
               />
               <div className="grid gap-4 md:grid-cols-2">
                 <PaymentInfoInput
@@ -276,15 +282,15 @@ export default async function ProviderPaymentInfoPage({
               <PaymentInfoInput
                 autoComplete="street-address"
                 defaultValue={providerAccess.profile.payoutAddress}
-                helpText="iyzico alt üye işyeri kaydı için yasal kayıt adresi gerekir."
-                label="Yasal kayıt adresi"
+                helpText="Ön bilgilendirme formunda müşteriye gösterilir; iş yeri adresin varsa onu yaz."
+                label="Açık adres"
                 name="payoutAddress"
               />
               <button
                 className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-navy-deep)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 sm:w-fit"
                 type="submit"
               >
-                Bilgileri iyzico&apos;ya gönder
+                Bilgileri Kaydet
               </button>
             </form>
 

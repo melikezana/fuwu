@@ -50,7 +50,8 @@ function validatePaymentInfoInput(formData: FormData) {
   const legalName = sanitizeText(getFormString(formData, "legalName"), 180);
   const payoutAddress = sanitizeText(getFormString(formData, "payoutAddress"), 255);
 
-  if (!/^TR\d{24}$/.test(payoutIban)) {
+  // IBAN yalnızca online kart ödemesi (iyzico) için gerekir; kapıda ödemede satıcı bilgileri yeterlidir.
+  if (payoutIban && !/^TR\d{24}$/.test(payoutIban)) {
     return { code: "payment-info-invalid-iban" as const };
   }
 
@@ -94,6 +95,23 @@ export async function updateProviderPaymentInfoAction(formData: FormData) {
 
   if (!providerAccess.ok || !authContext.supabase || !authContext.user || !providerAccess.profile.privateInfoAvailable || providerAccess.userId !== authContext.user.id) {
     redirectToPaymentInfoMessage("provider-not-authorized");
+  }
+
+  // Yalnızca satıcı bilgileri (ön bilgilendirme formu için): iyzico'ya gönderilmez.
+  if (!input.payoutIban) {
+    const sellerDb = createSupabaseServiceRoleClient();
+    if (!sellerDb) redirectToPaymentInfoMessage("payment-info-update-failed");
+    const { data: sellerUpdated, error: sellerError } = await sellerDb
+      .from("providers")
+      .update({ legal_name: input.legalName, payout_address: input.payoutAddress, tax_identity_number: input.taxIdentityNumber, tax_office: input.taxOffice || null, updated_at: new Date().toISOString() } satisfies ProviderUpdate)
+      .eq("id", providerAccess.profile.id)
+      .eq("user_id", authContext.user.id)
+      .select("id")
+      .maybeSingle();
+    if (sellerError || !sellerUpdated) redirectToPaymentInfoMessage("payment-info-update-failed");
+    await writeAuditLog({ action: "provider.seller_info_saved", actorUserId: authContext.user.id, entityId: providerAccess.profile.id, entityType: "provider", metadata: { hasTaxOffice: Boolean(input.taxOffice) } }, authContext.supabase);
+    revalidatePath("/provider-dashboard/store"); revalidatePath("/services");
+    redirectToPaymentInfoMessage("seller-info-saved");
   }
 
   const email = authContext.user.email?.trim();

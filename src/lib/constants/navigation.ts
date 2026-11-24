@@ -39,6 +39,8 @@ export const appRoutes = {
   kvkk: "/kvkk",
   privacy: "/gizlilik",
   terms: "/kullanim-sartlari",
+  preInformation: "/on-bilgilendirme-formu",
+  distanceContract: "/mesafeli-hizmet-sozlesmesi",
   cookies: "/cerez-politikasi",
   adminDashboard: "/admin",
 } as const;
